@@ -10,9 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -41,12 +39,12 @@ public class TimeChamberPortalBlock extends BaseEntityBlock {
 
 
 	public TimeChamberPortalBlock() {
-		super(BlockBehaviour.Properties.ofFullCopy(Blocks.QUARTZ_BLOCK).noLootTable().strength(-1.0F, 3600000.0F));
+		super(com.dragonminez.platform.registry.RegistrationScope.withBlockId(BlockBehaviour.Properties.ofFullCopy(Blocks.QUARTZ_BLOCK)).noLootTable().strength(-1.0F, 3600000.0F));
 	}
 
     @Override
     public InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHit) {
-        if (!pLevel.isClientSide) {
+        if (!pLevel.isClientSide()) {
             BlockEntity be = pLevel.getBlockEntity(pPos);
             if (!(be instanceof TimeChamberPortalBlockEntity tile)) return InteractionResult.FAIL;
 
@@ -120,7 +118,7 @@ public class TimeChamberPortalBlock extends BaseEntityBlock {
 
 
 	private BlockPos findPortalInStructureMeta(ServerLevel level, BlockPos structureCenter, ResourceKey<Structure> structureKey, Block targetBlock) {
-		var structureRegistry = level.registryAccess().registryOrThrow(Registries.STRUCTURE);
+		var structureRegistry = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
 		var structureHolder = structureRegistry.getHolder(structureKey).orElse(null);
 		if (structureHolder == null) return null;
 

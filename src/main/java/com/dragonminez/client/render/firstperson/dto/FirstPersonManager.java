@@ -1,6 +1,5 @@
 package com.dragonminez.client.render.firstperson.dto;
 
-import com.dragonminez.client.gui.UtilityMenuScreen;
 import com.dragonminez.client.systems.FormVisualTransition;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.stats.StatsCapability;

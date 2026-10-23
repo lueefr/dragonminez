@@ -10,7 +10,6 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
-import net.minecraft.client.gui.LayeredDraw;
 
 /**
  * Cinematic title card shown when a saga begins: small header line, then the saga name
@@ -36,7 +35,7 @@ public class SagaTitleCardHUD {
 		mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, 1.0F));
 	}
 
-	public static final LayeredDraw.Layer HUD_SAGA_TITLE_CARD = (guiGraphics, deltaTracker) -> {
+	public static final net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement HUD_SAGA_TITLE_CARD = (guiGraphics, deltaTracker) -> {
         float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
         int width = guiGraphics.guiWidth();
         int height = guiGraphics.guiHeight();

@@ -1,6 +1,6 @@
 package com.dragonminez.server.events.players;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.config.FormConfig;
 import com.dragonminez.common.config.GeneralServerConfig;
@@ -21,16 +21,11 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.PlayerTickEvent;
+import com.dragonminez.platform.event.living.LivingDamageEvent;
+import com.dragonminez.platform.event.living.LivingDeathEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +42,7 @@ public class FalseSuperSaiyanEvents {
 	public static void onFinalDamage(LivingDamageEvent.Pre event) {
 		if (event.getNewDamage() <= 0.0f) return;
 		LivingEntity victim = event.getEntity();
-		if (victim.level().isClientSide) return;
+		if (victim.level().isClientSide()) return;
 		GeneralServerConfig.FalseSuperSaiyanConfig cfg = config();
 		if (cfg == null || !cfg.getEnabled()) return;
 

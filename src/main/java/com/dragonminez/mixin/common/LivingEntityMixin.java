@@ -38,15 +38,11 @@ public abstract class LivingEntityMixin implements IBattlePower, IHealthFixable,
 	@Unique
 	private Float dragonminez$actualHealth = null;
 
-	@Inject(method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("HEAD"))
-	private void dragonminez$readAdditionalSaveData(CompoundTag tag, CallbackInfo callback) {
-		if (tag.contains("Health", Tag.TAG_ANY_NUMERIC)) {
-			float savedHealth = tag.getFloat("Health");
-			if (savedHealth > this.getMaxHealth() && savedHealth > 0.0F) {
-				this.dragonminez$actualHealth = savedHealth;
-			}
-		}
-	}
+    @Inject(method = "readAdditionalSaveData(Lnet/minecraft/world/level/storage/ValueInput;)V", at = @At("HEAD"))
+    private void dragonminez$readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input, CallbackInfo callback) {
+        float savedHealth = input.getFloatOr("Health", 0F);
+        if (savedHealth > this.getMaxHealth() && savedHealth > 0F) this.dragonminez$actualHealth = savedHealth;
+    }
 
 	@Inject(method = "canBeSeenAsEnemy()Z", at = @At("HEAD"), cancellable = true)
 	private void dragonminez$hideKnockedDownPlayers(CallbackInfoReturnable<Boolean> cir) {
@@ -99,7 +95,7 @@ public abstract class LivingEntityMixin implements IBattlePower, IHealthFixable,
 		Object object = this;
 		if (object instanceof Player player) {
 			var comboCount = ((PlayerAttackProperties) player).getComboCount();
-			if (player.level().isClientSide
+			if (player.level().isClientSide()
 					&& comboCount > 0
 					&& PlayerAttackHelper.shouldAttackWithOffHand(player, comboCount)) {
 

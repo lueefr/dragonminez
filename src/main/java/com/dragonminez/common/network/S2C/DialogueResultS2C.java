@@ -5,7 +5,7 @@ import com.dragonminez.common.network.ClientPacketHandler;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +60,7 @@ public class DialogueResultS2C {
 
 	public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
 		NetworkEvent.Context context = contextSupplier.get();
-		context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+		context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 				() -> () -> ClientPacketHandler.handleDialogueResult(this)));
 		context.setPacketHandled(true);
 	}

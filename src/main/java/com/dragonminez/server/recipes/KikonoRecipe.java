@@ -101,8 +101,7 @@ public class KikonoRecipe implements Recipe<KikonoRecipeInput> {
 		return this.craftingTime;
 	}
 
-	public static class Serializer implements RecipeSerializer<KikonoRecipe> {
-		public static final Serializer INSTANCE = new Serializer();
+	public static class Serializer {
 
 		private static final MapCodec<KikonoRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
 				ItemStack.CODEC.fieldOf("output").forGetter(r -> r.output),
@@ -136,14 +135,6 @@ public class KikonoRecipe implements Recipe<KikonoRecipeInput> {
 				}
 		);
 
-		@Override
-		public MapCodec<KikonoRecipe> codec() {
-			return CODEC;
-		}
-
-		@Override
-		public StreamCodec<RegistryFriendlyByteBuf, KikonoRecipe> streamCodec() {
-			return STREAM_CODEC;
-		}
+        public static final RecipeSerializer<KikonoRecipe> INSTANCE = new RecipeSerializer<>(CODEC, STREAM_CODEC);
 	}
 }

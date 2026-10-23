@@ -6,41 +6,41 @@ import com.dragonminez.common.init.entities.worldboss.AllWorldBossesEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 public class DBSagasAnimationHandler {
 
-    public static <T extends GeoAnimatable> PlayState walkPredicate(AnimationState<T> event) {
-        return walkPredicate(event, (DBSagasEntity) event.getAnimatable());
+    public static <T extends GeoAnimatable> PlayState walkPredicate(AnimationTest<T> event) {
+        return walkPredicate(event, (DBSagasEntity) event.animatable());
     }
 
-    public static <T extends GeoAnimatable> PlayState walkPredicate(AnimationState<T> event, DBSagasEntity entity) {
+    public static <T extends GeoAnimatable> PlayState walkPredicate(AnimationTest<T> event, DBSagasEntity entity) {
 
         if (entity.isInSleepPose()) {
-            event.getController().setAnimationSpeed(1.0D);
+            event.controller().setAnimationSpeed(1.0D);
             return event.setAndContinue(entity.getSleepAnimation());
         }
 
         if (entity.getBossAbility() >= 0 || entity.isStrikeClashing()) {
-            event.getController().setAnimationSpeed(1.0D);
+            event.controller().setAnimationSpeed(1.0D);
             return PlayState.STOP;
         }
 
         if (entity.isStrikeRushing()) {
-            event.getController().setAnimationSpeed(1.0D);
+            event.controller().setAnimationSpeed(1.0D);
             if (entity.getDBZStyle() == 3) return event.setAndContinue(DBSagasAnimations.ANIM_FLY_FAST4);
             return event.setAndContinue(DBSagasAnimations.ANIM_FLY_FAST);
         }
 
         if (entity.isEvading() || entity.isComboing()) {
-            event.getController().setAnimationSpeed(1.0D);
+            event.controller().setAnimationSpeed(1.0D);
             return PlayState.STOP;
         }
 
         if (entity.isCasting() && entity.getSkillType() != 9) {
-            event.getController().setAnimationSpeed(1.0D);
+            event.controller().setAnimationSpeed(1.0D);
             return PlayState.STOP;
         }
 
@@ -48,9 +48,9 @@ public class DBSagasAnimationHandler {
         double animModifier = moveSpeedAttr / 0.25D;
 
         if (event.isMoving()) {
-            event.getController().setAnimationSpeed(animModifier);
+            event.controller().setAnimationSpeed(animModifier);
         } else {
-            event.getController().setAnimationSpeed(1.0D);
+            event.controller().setAnimationSpeed(1.0D);
         }
 
         int style = entity.getDBZStyle();
@@ -72,7 +72,7 @@ public class DBSagasAnimationHandler {
             boolean runAnim = mode == LocomotionMode.RUN || mode == LocomotionMode.DASH || mode == LocomotionMode.WALK_SLOW
                     || (mode == LocomotionMode.IDLE && (entity.isAggressive() || entity.getTarget() != null));
             if (mode == LocomotionMode.WALK_SLOW) {
-                event.getController().setAnimationSpeed(1.0D);
+                event.controller().setAnimationSpeed(1.0D);
             }
 
             if (runAnim) {
@@ -105,11 +105,11 @@ public class DBSagasAnimationHandler {
         return entity.getClientCastTicks() > SkillManager.getFireTick(entity, skill) ? fire : cast;
     }
 
-    public static <T extends GeoAnimatable> PlayState skillPredicate(AnimationState<T> event) {
-        return skillPredicate(event, (DBSagasEntity) event.getAnimatable());
+    public static <T extends GeoAnimatable> PlayState skillPredicate(AnimationTest<T> event) {
+        return skillPredicate(event, (DBSagasEntity) event.animatable());
     }
 
-    public static <T extends GeoAnimatable> PlayState skillPredicate(AnimationState<T> event, DBSagasEntity entity) {
+    public static <T extends GeoAnimatable> PlayState skillPredicate(AnimationTest<T> event, DBSagasEntity entity) {
 
         if (entity.isStrikeClashing()) return event.setAndContinue(DBSagasAnimations.ANIM_STRIKE_CLASH);
 
@@ -191,15 +191,15 @@ public class DBSagasAnimationHandler {
             return event.setAndContinue(DBSagasAnimations.ANIM_TRANSFORMATION1);
         }
 
-        event.getController().forceAnimationReset();
+        event.controller().forceAnimationReset();
         return PlayState.STOP;
     }
 
-    public static <T extends GeoAnimatable> PlayState attackPredicate(AnimationState<T> event) {
-        return attackPredicate(event, (DBSagasEntity) event.getAnimatable());
+    public static <T extends GeoAnimatable> PlayState attackPredicate(AnimationTest<T> event) {
+        return attackPredicate(event, (DBSagasEntity) event.animatable());
     }
 
-    public static <T extends GeoAnimatable> PlayState attackPredicate(AnimationState<T> event, DBSagasEntity entity) {
+    public static <T extends GeoAnimatable> PlayState attackPredicate(AnimationTest<T> event, DBSagasEntity entity) {
 
         if (entity.isCasting() || entity.isTransforming() || entity.isComboing() ||
                 entity.isEvading() || entity.isZanzoken() || entity.isStrikeClashing()) {
@@ -210,45 +210,45 @@ public class DBSagasAnimationHandler {
 
         if (entity.swingTime > 0 && !entity.isAttacking()) {
             entity.setAttacking(true);
-            event.getController().forceAnimationReset();
-            event.getController().setAnimationSpeed(entity.getAttackAnimationSpeed());
+            event.controller().forceAnimationReset();
+            event.controller().setAnimationSpeed(entity.getAttackAnimationSpeed());
 
             int randAttack = entity.getRandom().nextInt(3);
 
             if (style == 1) {
-                if (randAttack == 0) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK1_2);
-                else if (randAttack == 1) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK2_2);
-                else event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK3_2);
+                if (randAttack == 0) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK1_2);
+                else if (randAttack == 1) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK2_2);
+                else event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK3_2);
             } else if (style == 2) {
-                if (randAttack == 0) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK1_3);
-                else if (randAttack == 1) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK2_3);
-                else event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK3_3);
+                if (randAttack == 0) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK1_3);
+                else if (randAttack == 1) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK2_3);
+                else event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK3_3);
             } else if (style == 3) {
-                if (randAttack == 0) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK1_4);
-                else if (randAttack == 1) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK2_4);
-                else event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK3_4);
+                if (randAttack == 0) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK1_4);
+                else if (randAttack == 1) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK2_4);
+                else event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK3_4);
             } else if (style == 4) {
-                if (randAttack == 0) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK1_5);
-                else if (randAttack == 1) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK2_5);
-                else event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK3_5);
+                if (randAttack == 0) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK1_5);
+                else if (randAttack == 1) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK2_5);
+                else event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK3_5);
             } else if (style == 5) {
-                if (randAttack == 0) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK1_6);
-                else if (randAttack == 1) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK2_6);
-                else event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK3_6);
+                if (randAttack == 0) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK1_6);
+                else if (randAttack == 1) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK2_6);
+                else event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK3_6);
             } else if (style == 7) {
-                if (randAttack == 0) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK1_8);
-                else if (randAttack == 1) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK2_8);
-                else event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK3_8);
+                if (randAttack == 0) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK1_8);
+                else if (randAttack == 1) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK2_8);
+                else event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK3_8);
             } else {
-                if (randAttack == 0) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK1);
-                else if (randAttack == 1) event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK2);
-                else event.getController().setAnimation(DBSagasAnimations.ANIM_ATTACK3);
+                if (randAttack == 0) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK1);
+                else if (randAttack == 1) event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK2);
+                else event.controller().setAnimation(DBSagasAnimations.ANIM_ATTACK3);
             }
             return PlayState.CONTINUE;
         }
 
         if (entity.isAttacking()) {
-            if (event.getController().getAnimationState() == AnimationController.State.STOPPED) {
+            if (event.controller().getAnimationState() == AnimationController.State.STOPPED) {
                 entity.setAttacking(false);
                 return PlayState.STOP;
             }
@@ -258,14 +258,14 @@ public class DBSagasAnimationHandler {
         return PlayState.STOP;
     }
 
-    public static <T extends GeoAnimatable> PlayState evasionPredicate(AnimationState<T> event) {
-        return evasionPredicate(event, (DBSagasEntity) event.getAnimatable());
+    public static <T extends GeoAnimatable> PlayState evasionPredicate(AnimationTest<T> event) {
+        return evasionPredicate(event, (DBSagasEntity) event.animatable());
     }
 
-    public static <T extends GeoAnimatable> PlayState evasionPredicate(AnimationState<T> event, DBSagasEntity entity) {
+    public static <T extends GeoAnimatable> PlayState evasionPredicate(AnimationTest<T> event, DBSagasEntity entity) {
 
         if (entity.isZanzoken()) {
-            event.getController().forceAnimationReset();
+            event.controller().forceAnimationReset();
             return PlayState.STOP;
         }
 
@@ -273,14 +273,14 @@ public class DBSagasAnimationHandler {
             return event.setAndContinue(DBSagasAnimations.ANIM_EVADE);
         }
 
-        event.getController().forceAnimationReset();
+        event.controller().forceAnimationReset();
         return PlayState.STOP;
     }
 
-    public static <T extends GeoAnimatable> PlayState bossAbilityPredicate(AnimationState<T> event) {
-        DBSagasEntity entity = (DBSagasEntity) event.getAnimatable();
+    public static <T extends GeoAnimatable> PlayState bossAbilityPredicate(AnimationTest<T> event) {
+        DBSagasEntity entity = (DBSagasEntity) event.animatable();
         int ability = entity.getBossAbility();
-        event.getController().setAnimationSpeed(1.0D);
+        event.controller().setAnimationSpeed(1.0D);
 
         if (ability == AllWorldBossesEntity.Tamagami3.ABILITY_HAMMER_THROW) {
             boolean thrown = entity.getBossAbilityTicks() >= AllWorldBossesEntity.Tamagami3.THROW_TICK;
@@ -288,12 +288,12 @@ public class DBSagasAnimationHandler {
         }
         if (ability == AllWorldBossesEntity.Tamagami3.ABILITY_HAMMER_SLAM) {
             if (entity.getBossAbilityTicks() < AllWorldBossesEntity.Tamagami3.SLAM_APEX) return event.setAndContinue(DBSagasAnimations.ANIM_TAMAGAMI_RAISE);
-            event.getController().setAnimationSpeed(AllWorldBossesEntity.Tamagami3.SLAM_ANIMATION_SPEED);
+            event.controller().setAnimationSpeed(AllWorldBossesEntity.Tamagami3.SLAM_ANIMATION_SPEED);
             return event.setAndContinue(DBSagasAnimations.ANIM_TAMAGAMI_SLAM);
         }
         if (ability == AllWorldBossesEntity.Tamagami3.ABILITY_HAMMER_SLAM_FOLLOW) {
             if (entity.getBossAbilityTicks() < AllWorldBossesEntity.Tamagami3.FOLLOW_APEX) return event.setAndContinue(DBSagasAnimations.ANIM_TAMAGAMI_RAISE);
-            event.getController().setAnimationSpeed(AllWorldBossesEntity.Tamagami3.SLAM_ANIMATION_SPEED);
+            event.controller().setAnimationSpeed(AllWorldBossesEntity.Tamagami3.SLAM_ANIMATION_SPEED);
             return event.setAndContinue(DBSagasAnimations.ANIM_TAMAGAMI_SLAM);
         }
         if (ability == AllWorldBossesEntity.Tamagami3.ABILITY_METEOR) {
@@ -373,15 +373,15 @@ public class DBSagasAnimationHandler {
             return event.setAndContinue(released ? DBSagasAnimations.ANIM_CORE_SUPERNOVA_RELEASE : DBSagasAnimations.ANIM_CORE_SUPERNOVA_CHANNEL);
         }
 
-        event.getController().forceAnimationReset();
+        event.controller().forceAnimationReset();
         return PlayState.STOP;
     }
 
-    public static <T extends GeoAnimatable> PlayState hurtPredicate(AnimationState<T> event) {
-        return hurtPredicate(event, (DBSagasEntity) event.getAnimatable());
+    public static <T extends GeoAnimatable> PlayState hurtPredicate(AnimationTest<T> event) {
+        return hurtPredicate(event, (DBSagasEntity) event.animatable());
     }
 
-    public static <T extends GeoAnimatable> PlayState hurtPredicate(AnimationState<T> event, DBSagasEntity entity) {
+    public static <T extends GeoAnimatable> PlayState hurtPredicate(AnimationTest<T> event, DBSagasEntity entity) {
 
         if (entity.isDeadOrDying() || entity.isInSleepPose() || entity.getBossAbility() >= 0
                 || entity.isCasting() || entity.isComboing() || entity.isTransforming()
@@ -389,16 +389,16 @@ public class DBSagasAnimationHandler {
             return PlayState.STOP;
         }
 
-        if (event.getController().isPlayingTriggeredAnimation()) return PlayState.CONTINUE;
+        if (event.controller().isPlayingTriggeredAnimation()) return PlayState.CONTINUE;
         if (entity.isStunned()) return event.setAndContinue(DBSagasAnimations.ANIM_STUNNED);
         return PlayState.STOP;
     }
 
-    public static <T extends GeoAnimatable> PlayState tailPredicate(AnimationState<T> event) {
+    public static <T extends GeoAnimatable> PlayState tailPredicate(AnimationTest<T> event) {
         return event.setAndContinue(DBSagasAnimations.ANIM_TAIL);
     }
 
-    public static <T extends GeoAnimatable> PlayState capePredicate(AnimationState<T> event) {
+    public static <T extends GeoAnimatable> PlayState capePredicate(AnimationTest<T> event) {
         return event.setAndContinue(DBSagasAnimations.ANIM_CAPE);
     }
 }

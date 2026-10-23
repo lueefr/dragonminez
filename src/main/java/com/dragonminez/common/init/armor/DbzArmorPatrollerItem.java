@@ -10,8 +10,8 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
@@ -20,16 +20,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 @Getter
-public class DbzArmorPatrollerItem extends ArmorItem implements DbzArmorTextured {
+public class DbzArmorPatrollerItem extends NativeArmorItem implements DbzArmorTextured {
 
     private final String modId;
     private final String itemId;
 
-    public DbzArmorPatrollerItem(net.minecraft.core.Holder<ArmorMaterial> pMaterial, Type pType, Properties pProperties, String itemId) {
+    public DbzArmorPatrollerItem(net.minecraft.core.Holder<ArmorMaterial> pMaterial, ArmorType pType, Properties pProperties, String itemId) {
         this(pMaterial, pType, pProperties, Reference.MOD_ID, itemId);
     }
 
-    public DbzArmorPatrollerItem(net.minecraft.core.Holder<ArmorMaterial> pMaterial, Type pType, Properties pProperties, String modId, String itemId) {
+    public DbzArmorPatrollerItem(net.minecraft.core.Holder<ArmorMaterial> pMaterial, ArmorType pType, Properties pProperties, String modId, String itemId) {
         super(pMaterial, pType, pProperties);
         this.modId = modId;
         this.itemId = itemId;

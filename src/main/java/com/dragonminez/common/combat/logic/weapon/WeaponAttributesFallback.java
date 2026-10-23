@@ -17,7 +17,7 @@ public class WeaponAttributesFallback {
     public static void initialize() {
         var config = ConfigManager.getCombatConfig();
         for (var itemId : BuiltInRegistries.ITEM.keySet()) {
-            var item = BuiltInRegistries.ITEM.get(itemId);
+            var item = BuiltInRegistries.ITEM.getValue(itemId);
             if (PatternMatching.matches(itemId.toString(), config.getBlacklistItemIdRegex())) continue;
 
             List<CompatibilitySpecifier> specifiers = null;

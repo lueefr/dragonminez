@@ -4,7 +4,6 @@ import com.dragonminez.common.quest.Difficulty;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 
 import java.util.Set;
 

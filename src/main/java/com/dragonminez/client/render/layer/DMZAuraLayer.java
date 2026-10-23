@@ -9,14 +9,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import com.geckolib.cache.object.BakedGeoModel;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import com.geckolib.cache.model.BakedGeoModel;
 import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
-public class DMZAuraLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T> {
-	public DMZAuraLayer(GeoRenderer<T> entityRendererIn) {
+public class DMZAuraLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
+	public DMZAuraLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> entityRendererIn) {
 		super(entityRendererIn);
 	}
 

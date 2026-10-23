@@ -1,20 +1,9 @@
 package com.dragonminez.common.init.entities.sagas;
 
 import com.dragonminez.common.init.entities.IBattlePower;
-import com.dragonminez.common.init.entities.ki.KiBlastEntity;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
-import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.animation.AnimatableManager;
-import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.animation.PlayState;
 
 public class SagaDodoriaEntity extends DBSagasEntity{
 

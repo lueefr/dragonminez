@@ -2,7 +2,7 @@ package com.dragonminez.common.network.S2C;
 
 import com.dragonminez.client.render.effects.SwordSlashEffect;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -66,7 +66,7 @@ public class SwordSlashS2C {
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 				() -> () -> SwordSlashEffect.spawn(x, y, z, dx, dy, dz, speed, roll, radius, color, coreColor, lifetime)));
 		ctx.get().setPacketHandled(true);
 	}

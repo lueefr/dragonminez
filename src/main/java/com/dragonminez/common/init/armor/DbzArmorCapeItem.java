@@ -10,32 +10,32 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.core.Holder;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 import com.geckolib.animatable.GeoItem;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.RawAnimation;
 import com.geckolib.util.GeckoLibUtil;
 import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
-public class DbzArmorCapeItem extends ArmorItem implements GeoItem, DbzArmorTextured {
+public class DbzArmorCapeItem extends NativeArmorItem implements GeoItem, DbzArmorTextured {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 @Getter
     private final String modId;
 @Getter
     private final String itemId;
 
-    public DbzArmorCapeItem(Holder<ArmorMaterial> pMaterial, Type pType, Properties pProperties, String itemId) {
+    public DbzArmorCapeItem(Holder<ArmorMaterial> pMaterial, ArmorType pType, Properties pProperties, String itemId) {
         this(pMaterial, pType, pProperties, Reference.MOD_ID, itemId);
     }
 
-    public DbzArmorCapeItem(Holder<ArmorMaterial> pMaterial, Type pType, Properties pProperties, String modId, String itemId) {
+    public DbzArmorCapeItem(Holder<ArmorMaterial> pMaterial, ArmorType pType, Properties pProperties, String modId, String itemId) {
         super(pMaterial, pType, pProperties);
         this.modId = modId;
         this.itemId = itemId;
@@ -48,7 +48,7 @@ public class DbzArmorCapeItem extends ArmorItem implements GeoItem, DbzArmorText
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 5, event -> {
+        controllers.add(new AnimationController<>("controller", 5, event -> {
             if (event.isMoving()) {
                 return event.setAndContinue(RawAnimation.begin().thenLoop("walk"));
             } else {

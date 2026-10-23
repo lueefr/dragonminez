@@ -36,7 +36,7 @@ public final class DMZTextPlaceholders {
 			String form = data.getCharacter().getActiveForm();
 			return form == null || form.isEmpty() ? "base" : form;
 		});
-		register("dimension", (player, data) -> player.level().dimension().location().getPath());
+		register("dimension", (player, data) -> player.level().dimension().identifier().getPath());
 	}
 
 	private DMZTextPlaceholders() {

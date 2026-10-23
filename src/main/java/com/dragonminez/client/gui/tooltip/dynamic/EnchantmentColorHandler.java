@@ -29,7 +29,7 @@ public class EnchantmentColorHandler {
 				for (Holder<Enchantment> holder : enchantments.keySet()) {
 					int level = enchantments.getLevel(holder);
 					String descId = holder.unwrapKey()
-							.map(key -> net.minecraft.Util.makeDescriptionId("enchantment", key.location()))
+							.map(key -> net.minecraft.Util.makeDescriptionId("enchantment", key.identifier()))
 							.orElse("");
 					if (translatable.getKey().equals(descId)) {
 						int color = ENCHANTMENT_COLOR;

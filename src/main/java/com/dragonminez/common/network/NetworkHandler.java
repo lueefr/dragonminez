@@ -926,6 +926,7 @@ public class NetworkHandler {
 				.encoder(StrikeCinematicS2C::encode)
 				.consumerMainThread(StrikeCinematicS2C::handle)
 				.add();
+        net.register();
 	}
 
 	public static <MSG> void sendToServer(MSG message) {

@@ -53,12 +53,12 @@ public final class GeteStarEntities {
     private GeteStarEntities() {}
 
     public static void setOwner(Entity entity, UUID core) {
-        entity.getPersistentData().putUUID(OWNER_TAG, core);
+        com.dragonminez.platform.nbt.NbtCompat.putUUID(com.dragonminez.platform.entity.EntityData.get(entity), OWNER_TAG, core);
     }
 
     public static UUID ownerOf(Entity entity) {
-        CompoundTag data = entity.getPersistentData();
-        return data.hasUUID(OWNER_TAG) ? data.getUUID(OWNER_TAG) : null;
+        CompoundTag data = com.dragonminez.platform.entity.EntityData.get(entity);
+        return com.dragonminez.platform.nbt.NbtCompat.hasUUID(data, OWNER_TAG) ? com.dragonminez.platform.nbt.NbtCompat.getUUID(data, OWNER_TAG) : null;
     }
 
     public static boolean isOwnedBy(Entity entity, UUID core) {
@@ -295,7 +295,7 @@ public final class GeteStarEntities {
 
         @Override
         public void remove(RemovalReason reason) {
-            if (!this.level().isClientSide) this.release(false);
+            if (!this.level().isClientSide()) this.release(false);
             super.remove(reason);
         }
 
@@ -315,12 +315,19 @@ public final class GeteStarEntities {
         }
 
         @Override
-        protected void readAdditionalSaveData(CompoundTag tag) {
+        protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag tag = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag tag) {
+        protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag tag = new CompoundTag();
+        try {
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, tag);
         }
+    }
     }
 
     public static class Scrap extends Entity {
@@ -375,7 +382,7 @@ public final class GeteStarEntities {
             this.move(MoverType.SELF, this.getDeltaMovement());
             this.setDeltaMovement(this.getDeltaMovement().multiply(0.5D, 0.98D, 0.5D));
 
-            if (this.level().isClientSide) {
+            if (this.level().isClientSide()) {
                 this.emitShell();
                 return;
             }
@@ -458,13 +465,20 @@ public final class GeteStarEntities {
         }
 
         @Override
-        protected void readAdditionalSaveData(CompoundTag tag) {
-            this.entityData.set(TIMER, tag.getInt("Timer"));
+        protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag tag = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+            this.entityData.set(TIMER, tag.getIntOr("Timer", 0));
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag tag) {
+        protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag tag = new CompoundTag();
+        try {
             tag.putInt("Timer", this.timer());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, tag);
         }
+    }
     }
 }

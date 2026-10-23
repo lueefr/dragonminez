@@ -1,5 +1,7 @@
 package com.dragonminez.common.init.entities.dragon;
 
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.state.AnimationTest;
 import com.dragonminez.client.gui.WishesScreen;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.dragonball.DragonBallDefinitions;
@@ -30,8 +32,8 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.registries.BuiltInRegistries;
 import org.jetbrains.annotations.NotNull;
 import com.geckolib.animatable.GeoEntity;
@@ -39,7 +41,7 @@ import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
 import com.geckolib.animation.*;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 public class DragonWishEntity extends Mob implements GeoEntity {
 	private static final EntityDataAccessor<String> OWNER_NAME = SynchedEntityData.defineId(DragonWishEntity.class, EntityDataSerializers.STRING);
@@ -86,7 +88,7 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 	public void tick() {
 		super.tick();
 		if (this.level() instanceof ServerLevel serverLevel && !this.isRemoved() && this.tickCount % 20 == 0) checkSummon(serverLevel);
-		if (this.level().isClientSide) {
+		if (this.level().isClientSide()) {
 			if (isFading()) spawnFadeParticles();
 			return;
 		}
@@ -145,11 +147,11 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 		return true;
 	}
 
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	@Override
 	public InteractionResult mobInteract(Player player, InteractionHand hand) {
 		DragonDefinition definition = getDragonDefinition();
-		if (definition != null && this.level().isClientSide && this.getOwnerName().equals(player.getName().getString())) {
+		if (definition != null && this.level().isClientSide() && this.getOwnerName().equals(player.getName().getString())) {
 			if (!this.hasGrantedWish() && Minecraft.getInstance().player != null && Minecraft.getInstance().player.equals(player)) {
 				Minecraft.getInstance().setScreen(new WishesScreen(this.getId(), definition.getWishScreenId(), definition.getWishCount()));
 				Minecraft.getInstance().player.playSound(MainSounds.UI_MENU_SWITCH.get());
@@ -162,7 +164,7 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 
 	@Override
 	public void remove(@NotNull RemovalReason reason) {
-		if (!this.level().isClientSide && reason.shouldDestroy() && !this.despawnHandled) {
+		if (!this.level().isClientSide() && reason.shouldDestroy() && !this.despawnHandled) {
 			this.despawnHandled = true;
 			onDespawn();
 		}
@@ -171,7 +173,7 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 
 	private void onDespawn() {
 		DragonDefinition definition = getDragonDefinition();
-		if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
+		if (!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel) {
 			DragonBallSavedData.Summon summon = DragonBallSavedData.get(serverLevel).removeSummon(this.getUUID());
 			DragonBallsHandler.refreshDragonSky(serverLevel);
 			if (summon == null && this.summonExpiresAt > 0) return;
@@ -185,7 +187,7 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 				}
 				ServerPlayer owner = serverLevel.getServer().getPlayerList().getPlayerByName(this.getOwnerName());
 				if (owner != null) {
-					DragonBallsHandler.syncRadar(owner.serverLevel());
+					DragonBallsHandler.syncRadar(owner.level());
 				}
 			}
 		}
@@ -193,18 +195,18 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-		controllerRegistrar.add(new AnimationController<>(this, "controller", 0, this::predicate));
+		controllerRegistrar.add(new AnimationController<>("controller", 0, this::predicate));
 	}
 
-	private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> animationState) {
-		animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
+	private <T extends GeoAnimatable> PlayState predicate(AnimationTest<T> animationState) {
+		animationState.controller().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
 		return PlayState.CONTINUE;
 	}
 
 	@Override
-	public boolean hurt(DamageSource source, float amount) {
+	public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource source, float amount) {
 		if (source.is(DamageTypes.FELL_OUT_OF_WORLD) || source.is(DamageTypes.GENERIC) || source.is(DamageTypes.GENERIC_KILL)) {
-			return super.hurt(source, amount);
+			return super.hurtServer(dmz$level, source, amount);
 		}
 		return false;
 	}
@@ -257,24 +259,31 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 	}
 
 	@Override
-	public void addAdditionalSaveData(CompoundTag compound) {
-		super.addAdditionalSaveData(compound);
+	public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag compound = new CompoundTag();
+        try {
+		super.addAdditionalSaveData(dmz$output);
 		compound.putLong("SummonExpiresAt", this.summonExpiresAt);
 		compound.putInt("DespawnDelay", this.despawnDelay);
 		compound.putInt("DespawnFade", this.entityData.get(DESPAWN_FADE));
 		compound.putString("OwnerName", this.getOwnerName());
 		compound.putBoolean("GrantedWish", this.hasGrantedWish());
 		compound.putString("DragonDefinitionId", this.getDragonDefinitionId());
-	}
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, compound);
+        }
+    }
 
 	@Override
-	public void readAdditionalSaveData(CompoundTag compound) {
-		super.readAdditionalSaveData(compound);
-		if (compound.contains("SummonExpiresAt")) this.summonExpiresAt = compound.getLong("SummonExpiresAt");
-		if (compound.contains("DespawnDelay")) this.despawnDelay = compound.getInt("DespawnDelay");
-		if (compound.contains("DespawnFade")) this.entityData.set(DESPAWN_FADE, compound.getInt("DespawnFade"));
-		if (compound.contains("OwnerName")) this.setOwnerName(compound.getString("OwnerName"));
-		if (compound.contains("GrantedWish")) this.setGrantedWish(compound.getBoolean("GrantedWish"));
-		if (compound.contains("DragonDefinitionId")) this.setDragonDefinitionId(compound.getString("DragonDefinitionId"));
+	public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag compound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+		super.readAdditionalSaveData(dmz$input);
+		if (compound.contains("SummonExpiresAt")) this.summonExpiresAt = compound.getLongOr("SummonExpiresAt", 0L);
+		if (compound.contains("DespawnDelay")) this.despawnDelay = compound.getIntOr("DespawnDelay", 0);
+		if (compound.contains("DespawnFade")) this.entityData.set(DESPAWN_FADE, compound.getIntOr("DespawnFade", 0));
+		if (compound.contains("OwnerName")) this.setOwnerName(compound.getStringOr("OwnerName", ""));
+		if (compound.contains("GrantedWish")) this.setGrantedWish(compound.getBooleanOr("GrantedWish", false));
+		if (compound.contains("DragonDefinitionId")) this.setDragonDefinitionId(compound.getStringOr("DragonDefinitionId", ""));
 	}
 }

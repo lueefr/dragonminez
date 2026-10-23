@@ -7,12 +7,11 @@ import com.dragonminez.common.init.menu.menutypes.KikonoStationMenu;
 import com.dragonminez.common.init.menu.menutypes.PatternStationMenu;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.network.IContainerFactory;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
+import net.minecraft.core.BlockPos;
+import com.dragonminez.platform.registry.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 public class MainMenus {
 	public static final DeferredRegister<MenuType<?>> MENUS =
@@ -30,11 +29,11 @@ public class MainMenus {
 	public static final DeferredHolder<MenuType<?>, MenuType<GravityDeviceMenu>> GRAVITY_DEVICE_MENU =
 			registerMenuType("gravity_device_menu", GravityDeviceMenu::new);
 
-	private static <T extends AbstractContainerMenu> DeferredHolder<MenuType<?>, MenuType<T>> registerMenuType(String name, IContainerFactory<T> factory) {
-		return MENUS.register(name, () -> IMenuTypeExtension.create(factory));
+	private static <T extends AbstractContainerMenu> DeferredHolder<MenuType<?>, MenuType<T>> registerMenuType(String name, ExtendedMenuType.ExtendedFactory<T, BlockPos> factory) {
+		return MENUS.register(name, () -> new ExtendedMenuType<>(factory, BlockPos.STREAM_CODEC));
 	}
 
-	public static void register(IEventBus eventBus) {
-		MENUS.register(eventBus);
+	public static void register() {
+		MENUS.register();
 	}
 }

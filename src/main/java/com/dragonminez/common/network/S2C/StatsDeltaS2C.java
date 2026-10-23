@@ -5,7 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -32,10 +32,10 @@ public class StatsDeltaS2C {
 	}
 
 	public static void applyCharacterPatch(CompoundTag character, CompoundTag delta, boolean copy) {
-		CompoundTag patch = delta.getCompound(CHARACTER_PATCH);
-		for (String key : patch.getAllKeys()) character.put(key, copy ? patch.get(key).copy() : patch.get(key));
-		ListTag removed = delta.getList(CHARACTER_REMOVED, Tag.TAG_STRING);
-		for (int i = 0; i < removed.size(); i++) character.remove(removed.getString(i));
+		CompoundTag patch = delta.getCompoundOrEmpty(CHARACTER_PATCH);
+		for (String key : patch.keySet()) character.put(key, copy ? patch.get(key).copy() : patch.get(key));
+		ListTag removed = com.dragonminez.platform.nbt.NbtCompat.getList(delta, CHARACTER_REMOVED, Tag.TAG_STRING);
+		for (int i = 0; i < removed.size(); i++) character.remove(removed.getStringOr(i, ""));
 	}
 
 	public static void encode(StatsDeltaS2C msg, FriendlyByteBuf buf) {
@@ -48,7 +48,7 @@ public class StatsDeltaS2C {
 	}
 
 	public static void handle(StatsDeltaS2C msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandler.handleStatsDeltaPacket(msg.playerId, msg.nbt)));
+		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> () -> ClientPacketHandler.handleStatsDeltaPacket(msg.playerId, msg.nbt)));
 		ctx.get().setPacketHandled(true);
 	}
 }

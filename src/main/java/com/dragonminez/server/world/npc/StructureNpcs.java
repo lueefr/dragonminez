@@ -143,7 +143,7 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 	public static void onChunkLoad(ServerLevel level, LevelChunk chunk) {
 		Map<Identifier, List<Definition>> current = definitions;
 		if (current.isEmpty()) return;
-		var registry = level.registryAccess().registryOrThrow(Registries.STRUCTURE);
+		var registry = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
 		for (Structure structure : chunk.getAllReferences().keySet()) {
 			Identifier id = registry.getKey(structure);
 			if (id != null && current.containsKey(id)) {
@@ -183,7 +183,7 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 			try {
 				processChunk(level, chunk);
 			} catch (RuntimeException e) {
-				LogUtil.error(Env.SERVER, "StructureNpcs: failed to process chunk {} in {}", pos, level.dimension().location(), e);
+				LogUtil.error(Env.SERVER, "StructureNpcs: failed to process chunk {} in {}", pos, level.dimension().identifier(), e);
 			}
 		}
 	}
@@ -202,7 +202,7 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 	}
 
 	private static void processChunk(ServerLevel level, LevelChunk chunk) {
-		var registry = level.registryAccess().registryOrThrow(Registries.STRUCTURE);
+		var registry = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
 		for (Structure structure : chunk.getAllReferences().keySet()) {
 			Identifier id = registry.getKey(structure);
 			if (id == null) continue;
@@ -230,7 +230,7 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 		NPCPlacementSavedData tracking = NPCPlacementSavedData.get(level);
 		if (tracking.hasPlacement(key)) return;
 
-		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(definition.entity());
+		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getValue(definition.entity());
 		if (type == null) {
 			LogUtil.warn(Env.SERVER, "StructureNpcs: unknown entity '{}' for '{}' in {}", definition.entity(), definition.id(), definition.structure());
 			return;
@@ -242,12 +242,12 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 		entity.setYHeadRot(yaw);
 		entity.setYBodyRot(yaw);
 		if (entity instanceof Mob mob) mob.setPersistenceRequired();
-		entity.getPersistentData().putString(NPCPlacementManager.PLACEMENT_TAG, definition.id());
+		com.dragonminez.platform.entity.EntityData.get(entity).putString(NPCPlacementManager.PLACEMENT_TAG, definition.id());
 		if (definition.alignment() != null) {
-			entity.getPersistentData().putInt(NpcDispositionService.NPC_ALIGNMENT_TAG, Math.max(0, Math.min(100, definition.alignment())));
+			com.dragonminez.platform.entity.EntityData.get(entity).putInt(NpcDispositionService.NPC_ALIGNMENT_TAG, Math.max(0, Math.min(100, definition.alignment())));
 		}
 		if (definition.relation() != null && !definition.relation().isBlank()) {
-			entity.getPersistentData().putString(NpcDispositionService.NPC_RELATION_OVERRIDE_TAG, definition.relation());
+			com.dragonminez.platform.entity.EntityData.get(entity).putString(NpcDispositionService.NPC_RELATION_OVERRIDE_TAG, definition.relation());
 		}
 		if (entity instanceof QuestNPCEntity questNpc) {
 			if (definition.npcId() != null && !definition.npcId().isBlank()) questNpc.setNpcId(definition.npcId());

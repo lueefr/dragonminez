@@ -214,22 +214,29 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 	@Override
 	public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
 		super.onSyncedDataUpdated(key);
-		if (FLIGHT_MODE.equals(key) && !(this.level().isClientSide && this.isControlledByLocalInstance())) {
+		if (FLIGHT_MODE.equals(key) && !(this.level().isClientSide() && this.isControlledByLocalInstance())) {
 			this.flightMode = this.entityData.get(FLIGHT_MODE);
 		}
 	}
 
 	@Override
-	public void addAdditionalSaveData(CompoundTag tag) {
-		super.addAdditionalSaveData(tag);
+	public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag tag = new CompoundTag();
+        try {
+		super.addAdditionalSaveData(dmz$output);
 		if (properties.mobility() == Mobility.HYBRID) tag.putBoolean(FLIGHT_MODE_TAG, this.flightMode);
-	}
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, tag);
+        }
+    }
 
 	@Override
-	public void readAdditionalSaveData(CompoundTag tag) {
-		super.readAdditionalSaveData(tag);
+	public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag tag = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+		super.readAdditionalSaveData(dmz$input);
 		if (properties.mobility() == Mobility.HYBRID) {
-			this.flightMode = tag.getBoolean(FLIGHT_MODE_TAG);
+			this.flightMode = tag.getBooleanOr(FLIGHT_MODE_TAG, false);
 			this.entityData.set(FLIGHT_MODE, this.flightMode);
 		}
 	}
@@ -237,7 +244,7 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 	@Override
 	public void tick() {
 		super.tick();
-		if (this.level().isClientSide) tickClientEffects();
+		if (this.level().isClientSide()) tickClientEffects();
 	}
 
 	@Override
@@ -306,7 +313,7 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 	private void travelUnmanned() {
 		Vec3 motion = this.getDeltaMovement();
 		double vertical;
-		if (this.isInFluidType()) vertical = Math.max(motion.y * 0.8D - SINK_ACCELERATION, -MAX_SINK_SPEED);
+		if (this.isInWaterOrLava()) vertical = Math.max(motion.y * 0.8D - SINK_ACCELERATION, -MAX_SINK_SPEED);
 		else if (isFlightMode()) vertical = -UNMANNED_DESCENT_SPEED;
 		else vertical = Math.max((motion.y - GRAVITY) * AIR_DRAG, -TERMINAL_VELOCITY);
 
@@ -375,7 +382,7 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 	private void setFlightMode(boolean flying) {
 		if (properties.mobility() != Mobility.HYBRID || this.flightMode == flying) return;
 		this.flightMode = flying;
-		if (this.level().isClientSide) {
+		if (this.level().isClientSide()) {
 			NetworkHandler.sendToServer(new VehicleFlightModeC2S(flying));
 		} else {
 			this.entityData.set(FLIGHT_MODE, flying);
@@ -567,7 +574,7 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 	}
 
 	public boolean moveToSeat(Player player, int seat) {
-		if (this.level().isClientSide || !this.hasPassenger(player) || !isSeatFree(seat)) return false;
+		if (this.level().isClientSide() || !this.hasPassenger(player) || !isSeatFree(seat)) return false;
 		int[] seats = resolveSeats();
 		int current = indexOf(seats, player.getId());
 		if (current >= 0) seats[current] = EMPTY_SEAT;
@@ -631,7 +638,7 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 		if (!this.hasPassenger(passenger)) return;
 		int index = Mth.clamp(getSeatIndex(passenger), 0, properties.seatCount() - 1);
 		Vec3 seat = properties.seats().get(index);
-		if (this.level().isClientSide) seat = applyVisualTransform(seat, 1.0F);
+		if (this.level().isClientSide()) seat = applyVisualTransform(seat, 1.0F);
 		Vec3 offset = new Vec3(seat.x, 0.0D, seat.z).yRot(-this.getYRot() * Mth.DEG_TO_RAD);
 		callback.accept(passenger, this.getX() + offset.x, this.getY() + seat.y - passenger.getVehicleAttachmentPoint(this).y, this.getZ() + offset.z);
 		if (passenger instanceof LivingEntity living) living.yBodyRot = this.getYRot();
@@ -682,7 +689,7 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 	@Override
 	protected void addPassenger(Entity passenger) {
 		super.addPassenger(passenger);
-		if (!this.level().isClientSide) storeSeats(resolveSeats());
+		if (!this.level().isClientSide()) storeSeats(resolveSeats());
 		playBoardSound();
 	}
 
@@ -690,7 +697,7 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 	protected void removePassenger(Entity passenger) {
 		boolean wasDriver = passenger == this.getControllingPassenger();
 		super.removePassenger(passenger);
-		if (!this.level().isClientSide) storeSeats(resolveSeats());
+		if (!this.level().isClientSide()) storeSeats(resolveSeats());
 		playBoardSound();
 		if (wasDriver) resetDriverState();
 	}
@@ -705,13 +712,13 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 
 	private void playBoardSound() {
 		Supplier<SoundEvent> sound = properties.boardSound();
-		if (sound == null || this.level().isClientSide || !this.isAlive()) return;
+		if (sound == null || this.level().isClientSide() || !this.isAlive()) return;
 		this.level().playSound(null, this.getX(), this.getY(), this.getZ(), sound.get(), SoundSource.NEUTRAL, 0.7F, 0.9F + this.random.nextFloat() * 0.2F);
 	}
 
 	@Override
 	protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-		if (!this.level().isClientSide) tryMount(player);
+		if (!this.level().isClientSide()) tryMount(player);
 		return InteractionResult.SUCCESS;
 	}
 
@@ -721,9 +728,9 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 	}
 
 	@Override
-	public boolean hurt(DamageSource source, float amount) {
+	public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource source, float amount) {
 		if (!"player".equals(source.getMsgId()) || !(source.getEntity() instanceof Player)) return false;
-		if (!this.level().isClientSide && this.isAlive()) {
+		if (!this.level().isClientSide() && this.isAlive()) {
 			this.spawnAtLocation(getVehicleItem());
 			this.remove(RemovalReason.KILLED);
 		}
@@ -741,7 +748,7 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 	}
 
 	@Override
-	public boolean causeFallDamage(float fallDistance, float multiplier, DamageSource source) {
+	public boolean causeFallDamage(double fallDistance, float multiplier, DamageSource source) {
 		return false;
 	}
 
@@ -751,8 +758,8 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 	}
 
 	@Override
-	public boolean canDrownInFluidType(net.neoforged.neoforge.fluids.FluidType type) {
-		return false;
+	public boolean canBreatheUnderwater() {
+		return true;
 	}
 
 	@Override

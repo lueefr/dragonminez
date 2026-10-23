@@ -9,7 +9,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
-import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -20,11 +19,11 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -32,11 +31,11 @@ import org.jetbrains.annotations.Nullable;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 public class NamekTraderEntity extends NamekVillagerEntity{
 
@@ -91,15 +90,22 @@ public class NamekTraderEntity extends NamekVillagerEntity{
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putInt("Variant", getVariantNamek());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        setVariantNamek(pCompound.getInt("Variant"));
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        setVariantNamek(pCompound.getIntOr("Variant", 0));
     }
 
     public int getVariantNamek() {
@@ -118,7 +124,7 @@ public class NamekTraderEntity extends NamekVillagerEntity{
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, EntitySpawnReason pReason, @Nullable SpawnGroupData pSpawnData) {
         this.setVariantNamek(this.random.nextInt(VARIANT_COUNT));
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
     }
@@ -136,22 +142,22 @@ public class NamekTraderEntity extends NamekVillagerEntity{
     }
 
     private static boolean hasGeteStarMap(MerchantOffers offers) {
-        String id = DMZStructures.GETE_STAR.location().toString();
+        String id = DMZStructures.GETE_STAR.identifier().toString();
         for (MerchantOffer offer : offers) {
             CompoundTag tag = offer.getResult().getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
-            if (tag != null && id.equals(tag.getString(CapsuleCorpMapTrade.STRUCTURE_TAG))) return true;
+            if (tag != null && id.equals(tag.getStringOr(CapsuleCorpMapTrade.STRUCTURE_TAG, ""))) return true;
         }
         return false;
     }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "base_controller", 5, this::walkPredicate));
+        controllers.add(new AnimationController<>("base_controller", 5, this::walkPredicate));
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
-        boolean isHurt = super.hurt(source, amount);
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource source, float amount) {
+        boolean isHurt = super.hurtServer(dmz$level, source, amount);
 
         if (isHurt && source.getEntity() instanceof Player) {
             Player player = (Player) source.getEntity();
@@ -161,19 +167,19 @@ public class NamekTraderEntity extends NamekVillagerEntity{
         return isHurt;
     }
 
-    private <T extends GeoAnimatable> PlayState walkPredicate(com.geckolib.animation.AnimationState<T> event) {
-        NamekTraderEntity entity = (NamekTraderEntity) event.getAnimatable();
+    private <T extends GeoAnimatable> PlayState walkPredicate(com.geckolib.animation.AnimationTest<T> event) {
+        NamekTraderEntity entity = (NamekTraderEntity) event.animatable();
 
         if (event.isMoving()) {
             if (entity.isAggressive() || entity.getTarget() != null) {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("run"));
+                event.controller().setAnimation(RawAnimation.begin().thenLoop("run"));
             } else {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("walk"));
+                event.controller().setAnimation(RawAnimation.begin().thenLoop("walk"));
             }
             return PlayState.CONTINUE;
         }
 
-        event.getController().setAnimation(RawAnimation.begin().thenLoop("idle"));
+        event.controller().setAnimation(RawAnimation.begin().thenLoop("idle"));
         return PlayState.CONTINUE;
     }
 

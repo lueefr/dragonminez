@@ -7,10 +7,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Mth;
 import com.geckolib.constant.DataTickets;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.model.GeoModel;
-import com.geckolib.model.data.EntityModelData;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.animation.state.AnimationTest;
+import com.dragonminez.platform.client.model.HeadTrackingGeoModel;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -20,7 +19,7 @@ import java.util.Set;
  * Dynamic GeckoLib model for QuestNPCEntity.
  * Resolves quest NPC visuals from existing saga/master assets with a Goku fallback.
  */
-public class QuestNPCModel extends GeoModel<QuestNPCEntity> {
+public class QuestNPCModel extends HeadTrackingGeoModel<QuestNPCEntity> {
 
 	private static final String FALLBACK_MODEL = "saga_goku";
 	private static final String FALLBACK_TEXTURE = "saga_goku_early";
@@ -81,16 +80,6 @@ public class QuestNPCModel extends GeoModel<QuestNPCEntity> {
 		return animation;
 	}
 
-	@Override
-	public void setCustomAnimations(QuestNPCEntity animatable, long instanceId, AnimationState<QuestNPCEntity> animationState) {
-		GeoBone head = getAnimationProcessor().getBone("head");
-
-		if (head != null) {
-			EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
-			head.setRotX(entityData.headPitch() * Mth.DEG_TO_RAD);
-			head.setRotY(entityData.netHeadYaw() * Mth.DEG_TO_RAD);
-		}
-	}
 
 	/**
 	 * Checks whether a resource exists in the current resource manager.

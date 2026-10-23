@@ -41,7 +41,7 @@ public class PatternStationMenu extends AbstractContainerMenu {
 	private final ContainerLevelAccess access;
 	private final Player player;
 
-	public PatternStationMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
+	public PatternStationMenu(int containerId, Inventory inv, net.minecraft.core.BlockPos extraData) {
 		this(containerId, inv, ContainerLevelAccess.NULL);
 	}
 
@@ -70,7 +70,7 @@ public class PatternStationMenu extends AbstractContainerMenu {
 	}
 
 	protected static void slotChangedCraftingGrid(AbstractContainerMenu menu, Level level, Player player, CraftingContainer craftSlots, ResultContainer resultSlots) {
-		if (level.isClientSide) return;
+		if (level.isClientSide()) return;
 		ServerPlayer serverPlayer = (ServerPlayer) player;
 		ItemStack result = ItemStack.EMPTY;
 		Optional<net.minecraft.world.item.crafting.RecipeHolder<PatternRecipe>> optional = level.getServer().getRecipeManager().getRecipeFor(MainRecipes.PATTERN_TYPE.get(), craftSlots.asCraftInput(), level);

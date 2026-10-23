@@ -18,7 +18,6 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -29,12 +28,12 @@ public class CapsuleItem extends Item {
 	private Integer tierMultiplier = 1;
 
 	public CapsuleItem(CapsuleType type) {
-		super(new Properties());
+		super(com.dragonminez.platform.registry.RegistrationScope.itemProperties());
 		this.type = type;
 	}
 
 	public CapsuleItem(CapsuleType type, ChatFormatting tierColor, String tierLabel, Integer tierMultiplier, Rarity rarity) {
-		super(new Properties().rarity(rarity));
+		super(com.dragonminez.platform.registry.RegistrationScope.itemProperties().rarity(rarity));
 		this.type = type;
 		this.tierColor = tierColor;
 		this.tierLabel = tierLabel;
@@ -54,18 +53,21 @@ public class CapsuleItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack pStack, @NotNull Item.TooltipContext context, List<Component> pTooltipComponents, @NotNull TooltipFlag pIsAdvanced) {
-        net.minecraft.world.level.Level level = context.level();
+	public void appendHoverText(ItemStack pStack, Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag pIsAdvanced) {
+        java.util.List<Component> pTooltipComponents = new java.util.ArrayList<>();
+        try {
 		CapsuleValues values = ConfigManager.getServerConfig().getGameplay().getCapsules().getCapsuleValues(type);
 		pTooltipComponents.add(Component.translatable("item.dragonminez.capsule.tooltip", values.getPoints() * tierMultiplier, values.getStats()).withStyle(ChatFormatting.GREEN));
 		pTooltipComponents.add(Component.translatable("item.dragonminez.capsule.tooltip2", values.getStats()).withStyle(ChatFormatting.GREEN, ChatFormatting.ITALIC));
-	}
+
+        } finally { pTooltipComponents.forEach(dmz$consumer); }
+    }
 
 	@Override
 	public @NotNull InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, @NotNull InteractionHand pUsedHand) {
 		ItemStack capsule = pPlayer.getItemInHand(pUsedHand);
 		pLevel.playSound(null, pPlayer.getX(), pPlayer.getY(), pPlayer.getZ(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.NEUTRAL, 1.5F, 1.0F);
-		if (!pLevel.isClientSide) {
+		if (!pLevel.isClientSide()) {
 			StatsProvider.get(StatsCapability.INSTANCE, pPlayer).ifPresent(data -> {
 				if (data.getStatus().isHasCreatedCharacter()) {
 					String separator = ConfigManager.getServerConfig().getGameplay().getCapsules().getStatSeparator();

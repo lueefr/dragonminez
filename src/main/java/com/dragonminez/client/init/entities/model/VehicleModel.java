@@ -3,11 +3,11 @@ package com.dragonminez.client.init.entities.model;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.vehicle.VehicleEntity;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
 import java.util.function.Function;
 
-public class VehicleModel<T extends VehicleEntity> extends GeoModel<T> {
+public class VehicleModel<T extends VehicleEntity> extends ExtractedGeoModel<T> {
 
 	private final Identifier model;
 	private final Function<T, Identifier> texture;

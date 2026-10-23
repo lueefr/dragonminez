@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 
 import org.jetbrains.annotations.Nullable;

@@ -22,7 +22,7 @@ public class ItemWish extends Wish {
 
 	@Override
 	public void grant(ServerPlayer player) {
-		Item item = BuiltInRegistries.ITEM.get(Identifier.parse(itemId));
+		Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(itemId));
 		if (item != null) {
 			giveOrDrop(player, new ItemStack(item, count));
 		} else {

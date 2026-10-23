@@ -1,6 +1,6 @@
 package com.dragonminez.server.events;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.MainEntities;
 import com.dragonminez.common.init.entities.sagas.MiniJanembaStampedeEntity;
@@ -17,14 +17,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.PlayerTickEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -85,7 +80,7 @@ public class HellStampedeEvents {
 	}
 
 	private static void spawnStampede(ServerPlayer player) {
-		ServerLevel level = player.serverLevel();
+		ServerLevel level = player.level();
 		RandomSource random = player.getRandom();
 
 		float angle = random.nextFloat() * Mth.TWO_PI;

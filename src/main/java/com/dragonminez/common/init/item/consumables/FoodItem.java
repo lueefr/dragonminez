@@ -26,7 +26,7 @@ public class FoodItem extends Item {
     }
 
     public FoodItem(int hunger, float saturation, int maxStack, @Nullable String tooltipKey, @Nullable Supplier<MobEffectInstance> effect) {
-        super(new Properties().stacksTo(maxStack).food(food(hunger, saturation, effect)));
+        super(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(maxStack).food(food(hunger, saturation, effect)));
         this.tooltipKey = tooltipKey;
     }
 
@@ -41,9 +41,12 @@ public class FoodItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        net.minecraft.world.level.Level level = context.level();
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag flag) {
+        java.util.List<Component> tooltip = new java.util.ArrayList<>();
+        try {
         if (this.tooltipKey != null) tooltip.add(Component.translatable(this.tooltipKey).withStyle(ChatFormatting.GRAY));
-        super.appendHoverText(stack, context, tooltip, flag);
+        super.appendHoverText(stack, context, dmz$display, tooltip::add, flag);
+
+        } finally { tooltip.forEach(dmz$consumer); }
     }
 }

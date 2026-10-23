@@ -8,10 +8,6 @@ import com.dragonminez.common.dragonball.DragonRadarRecipeDefinition;
 import com.dragonminez.common.init.MainBlocks;
 import com.dragonminez.common.init.MainItems;
 import com.dragonminez.common.init.MainPotions;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.alchemy.Potions;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import com.dragonminez.common.init.MainTags;
@@ -32,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.concurrent.CompletableFuture;
 
 public class DMZRecipeProvider extends RecipeProvider implements IConditionBuilder {

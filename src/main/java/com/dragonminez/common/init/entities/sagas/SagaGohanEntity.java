@@ -1,12 +1,9 @@
 package com.dragonminez.common.init.entities.sagas;
 
 import com.dragonminez.common.init.MainEntities;
-import com.dragonminez.common.init.MainItems;
 import com.dragonminez.common.init.entities.IBattlePower;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class SagaGohanEntity {

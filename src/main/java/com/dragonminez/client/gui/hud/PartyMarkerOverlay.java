@@ -16,7 +16,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.client.gui.LayeredDraw;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +50,7 @@ public class PartyMarkerOverlay {
 
 	private static final Map<UUID, MarkerView> VIEWS = new HashMap<>();
 
-	public static final LayeredDraw.Layer HUD_PARTY_MARKER = (guiGraphics, deltaTracker) -> {
+	public static final net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement HUD_PARTY_MARKER = (guiGraphics, deltaTracker) -> {
         float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
         int width = guiGraphics.guiWidth();
         int height = guiGraphics.guiHeight();

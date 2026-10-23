@@ -10,7 +10,6 @@ import com.dragonminez.common.init.particles.KiExplosionSplashParticle;
 import com.dragonminez.common.init.particles.KiTrailParticle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -21,7 +20,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
@@ -70,7 +68,7 @@ public class KiExplosionEntity extends AbstractKiProjectile {
         this.setMaxLife(castTime + 100);
         this.setCastExplosion(castTime);
         this.updatePositionToOwner(owner);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -89,7 +87,7 @@ public class KiExplosionEntity extends AbstractKiProjectile {
         this.setMaxLife(99999);
         this.setCastExplosion(40);
         this.updatePositionToOwner(owner);
-        
+
     }
 
     public void setupExplosionPlayer(LivingEntity owner, float damage, float size, int colorMain, int colorBorder) {
@@ -101,7 +99,7 @@ public class KiExplosionEntity extends AbstractKiProjectile {
         this.setFireTick(this.tickCount);
         this.setMaxLife(this.tickCount + finalMaxLife);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             applyFinalExplosionSacrifice();
             createCrater(this.getMaxRadius()*1.2f);
             this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
@@ -158,7 +156,7 @@ public class KiExplosionEntity extends AbstractKiProjectile {
         }
 
         if (owner == null || !owner.isAlive()) {
-            if (!this.level().isClientSide) this.discard();
+            if (!this.level().isClientSide()) this.discard();
             return;
         }
 
@@ -202,7 +200,7 @@ public class KiExplosionEntity extends AbstractKiProjectile {
             owner.setPos(this.getX(), this.getY() - (owner.getBbHeight() * 0.5F), this.getZ());
         }
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (!isFiring) {
                 if (this.tickCount == 1) {
                     this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
@@ -314,16 +312,23 @@ public class KiExplosionEntity extends AbstractKiProjectile {
     public int getCastExplosion() { return this.entityData.get(CAST_EXPLOSION); }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putFloat("MaxRadius", getMaxRadius());
         pCompound.putInt("CastExplosion", getCastExplosion());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        if (pCompound.contains("MaxRadius")) setMaxRadius(pCompound.getFloat("MaxRadius"));
-        if (pCompound.contains("CastExplosion")) setCastExplosion(pCompound.getInt("CastExplosion"));
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        if (pCompound.contains("MaxRadius")) setMaxRadius(pCompound.getFloatOr("MaxRadius", 0F));
+        if (pCompound.contains("CastExplosion")) setCastExplosion(pCompound.getIntOr("CastExplosion", 0));
     }
 }

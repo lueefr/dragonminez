@@ -31,7 +31,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
-public class KiProjectileRenderer extends EntityRenderer<AbstractKiProjectile> {
+public class KiProjectileRenderer extends EntityRenderer<AbstractKiProjectile, net.minecraft.client.renderer.entity.state.EntityRenderState> {
     private static final Identifier TEXTURE_KI = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kiblast.png");
     private static final Identifier TEXTURE_CORE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/ki_laser.png");
     private static final float HALF_SQRT_3 = (float)(Math.sqrt(3.0D) / 2.0D);

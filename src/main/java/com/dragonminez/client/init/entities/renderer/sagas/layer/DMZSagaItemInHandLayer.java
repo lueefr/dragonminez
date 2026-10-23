@@ -7,20 +7,20 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.renderer.GeoEntityRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
-public class DMZSagaItemInHandLayer<T extends DBSagasEntity> extends GeoRenderLayer<T> {
+public class DMZSagaItemInHandLayer<T extends DBSagasEntity> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 
     private static final float STANDARD_HAND_PIVOT_X = 6.5F;
     private static final float STANDARD_HAND_PIVOT_Y = 14.0F;
 
-    public DMZSagaItemInHandLayer(GeoEntityRenderer<T> entityRendererIn) {
+    public DMZSagaItemInHandLayer(GeoEntityRenderer<T, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> entityRendererIn) {
         super(entityRendererIn);
     }
 

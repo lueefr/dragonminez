@@ -9,12 +9,11 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.core.registries.BuiltInRegistries;
 import com.geckolib.constant.DataTickets;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.model.GeoModel;
-import com.geckolib.model.data.EntityModelData;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.animation.state.AnimationTest;
+import com.dragonminez.platform.client.model.HeadTrackingGeoModel;
 
-public class DragonDBModel<T extends DragonWishEntity> extends GeoModel<T> {
+public class DragonDBModel<T extends DragonWishEntity> extends HeadTrackingGeoModel<T> {
 
 	@Override
 	public Identifier getModelResource(T animatable) {
@@ -45,15 +44,8 @@ public class DragonDBModel<T extends DragonWishEntity> extends GeoModel<T> {
 		return definition == null ? null : definition.resolveAssetDefinition();
 	}
 
-	@Override
-	public void setCustomAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
-		GeoBone head = getAnimationProcessor().getBone("head");
+    @Override protected float pitchLimit() { return 20; }
+    @Override protected float yawLimit() { return 35; }
+    @Override protected boolean additiveHeadRotation() { return true; }
 
-		if (head != null) {
-			EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
-
-			head.setRotX(head.getRotX() + Mth.clamp(entityData.headPitch(), -20.0F, 20.0F) * Mth.DEG_TO_RAD);
-			head.setRotY(head.getRotY() + Mth.clamp(entityData.netHeadYaw(), -35.0F, 35.0F) * Mth.DEG_TO_RAD);
-		}
-	}
 }

@@ -51,8 +51,8 @@ public final class OtherworldTournamentGrounds {
 	private static final int MAX_PALETTE = 1 << 14;
 	private static final int MAX_HEIGHT = 1 << 10;
 	private static final int LOOKAHEAD_COLUMNS = 4;
-	private static final TicketType<ChunkPos> BUILD_TICKET =
-			TicketType.create(Reference.MOD_ID + "_tournament_build", Comparator.comparingLong(ChunkPos::toLong));
+	private static final TicketType BUILD_TICKET =
+			new TicketType(TicketType.NO_TIMEOUT, TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION);
 
 	private static Build active;
 	private static ServerLevel failedLevel;
@@ -188,34 +188,34 @@ public final class OtherworldTournamentGrounds {
 		}
 
 		private static Build parse(ServerLevel level, CompoundTag root) {
-			CompoundTag schematic = root.contains("Schematic", Tag.TAG_COMPOUND) ? root.getCompound("Schematic") : root;
-			int version = schematic.getInt("Version");
-			int width = schematic.getShort("Width") & 0xFFFF;
-			int height = schematic.getShort("Height") & 0xFFFF;
-			int length = schematic.getShort("Length") & 0xFFFF;
+			CompoundTag schematic = com.dragonminez.platform.nbt.NbtCompat.contains(root, "Schematic", Tag.TAG_COMPOUND) ? root.getCompoundOrEmpty("Schematic") : root;
+			int version = schematic.getIntOr("Version", 0);
+			int width = schematic.getShortOr("Width", (short) 0) & 0xFFFF;
+			int height = schematic.getShortOr("Height", (short) 0) & 0xFFFF;
+			int length = schematic.getShortOr("Length", (short) 0) & 0xFFFF;
 
 			CompoundTag paletteTag;
 			byte[] data;
 			int[] offset;
 			if (version >= 3) {
-				CompoundTag blocks = schematic.getCompound("Blocks");
-				paletteTag = blocks.getCompound("Palette");
-				data = blocks.getByteArray("Data");
-				offset = schematic.getIntArray("Offset");
+				CompoundTag blocks = schematic.getCompoundOrEmpty("Blocks");
+				paletteTag = blocks.getCompoundOrEmpty("Palette");
+				data = blocks.getByteArray("Data").orElseGet(() -> new byte[0]);
+				offset = schematic.getIntArray("Offset").orElseGet(() -> new int[0]);
 			} else {
-				paletteTag = schematic.getCompound("Palette");
-				data = schematic.getByteArray("BlockData");
-				CompoundTag meta = schematic.getCompound("Metadata");
-				offset = new int[]{meta.getInt("WEOffsetX"), meta.getInt("WEOffsetY"), meta.getInt("WEOffsetZ")};
+				paletteTag = schematic.getCompoundOrEmpty("Palette");
+				data = schematic.getByteArray("BlockData").orElseGet(() -> new byte[0]);
+				CompoundTag meta = schematic.getCompoundOrEmpty("Metadata");
+				offset = new int[]{meta.getIntOr("WEOffsetX", 0), meta.getIntOr("WEOffsetY", 0), meta.getIntOr("WEOffsetZ", 0)};
 			}
 			if (offset.length < 3) offset = new int[3];
 			if (height > MAX_HEIGHT) throw new IllegalStateException("schematic is taller than " + MAX_HEIGHT + " blocks");
 
 			int paletteSize = 0;
-			for (String key : paletteTag.getAllKeys()) paletteSize = Math.max(paletteSize, paletteTag.getInt(key) + 1);
+			for (String key : paletteTag.keySet()) paletteSize = Math.max(paletteSize, paletteTag.getIntOr(key, 0) + 1);
 			if (paletteSize > MAX_PALETTE) throw new IllegalStateException("schematic palette has more than " + MAX_PALETTE + " states");
 			BlockState[] palette = new BlockState[paletteSize];
-			for (String key : paletteTag.getAllKeys()) palette[paletteTag.getInt(key)] = parseState(key);
+			for (String key : paletteTag.keySet()) palette[paletteTag.getIntOr(key, 0)] = parseState(key);
 
 			BlockPos min = RING_CENTER.offset(offset[0], offset[1], offset[2]);
 			Long2ObjectOpenHashMap<IntArrayList> buckets = new Long2ObjectOpenHashMap<>();
@@ -274,13 +274,13 @@ public final class OtherworldTournamentGrounds {
 			int end = Math.min(chunks.size(), from + LOOKAHEAD_COLUMNS);
 			while (ticketedEnd < end) {
 				ChunkPos pos = chunkPos(ticketedEnd++);
-				level.getChunkSource().addRegionTicket(BUILD_TICKET, pos, 0, pos);
+				level.getChunkSource().addTicketWithRadius(BUILD_TICKET, pos, 0);
 			}
 		}
 
 		private void release(int chunkIndex) {
 			ChunkPos pos = chunkPos(chunkIndex);
-			level.getChunkSource().removeRegionTicket(BUILD_TICKET, pos, 0, pos);
+			level.getChunkSource().removeTicketWithRadius(BUILD_TICKET, pos, 0);
 		}
 
 		private boolean isReady(int chunkIndex) {
@@ -323,9 +323,9 @@ public final class OtherworldTournamentGrounds {
 
 		public static Data load(CompoundTag tag) {
 			Data data = new Data();
-			data.revision = tag.getInt("Revision");
-			data.nextChunk = tag.getInt("NextChunk");
-			int[] bounds = tag.getIntArray("Bounds");
+			data.revision = tag.getIntOr("Revision", 0);
+			data.nextChunk = tag.getIntOr("NextChunk", 0);
+			int[] bounds = tag.getIntArray("Bounds").orElseGet(() -> new int[0]);
 			if (bounds.length == 6) data.bounds = new BoundingBox(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 			return data;
 		}

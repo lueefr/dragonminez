@@ -6,13 +6,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import com.geckolib.loading.math.MolangQueries;
-import net.minecraft.core.registries.BuiltInRegistries;
-import com.geckolib.constant.DataTickets;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.model.GeoModel;
+import com.geckolib.animation.state.AnimationTest;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class SPDragonFistModel<T extends SPDragonFistEntity> extends GeoModel<T> {
+public class SPDragonFistModel<T extends SPDragonFistEntity> extends ExtractedGeoModel<T> {
 
     public static final int STRIKE_TICKS = 8;
 
@@ -32,9 +29,9 @@ public class SPDragonFistModel<T extends SPDragonFistEntity> extends GeoModel<T>
     }
 
     @Override
-    public void applyMolangQueries(com.geckolib.animation.AnimationState<T> state, double animTime) {
+    public void applyMolangQueries(com.geckolib.animation.AnimationTest<T> state, double animTime) {
         super.applyMolangQueries(state, animTime);
-        T animatable = state.getAnimatable();
+        T animatable = state.animatable();
 
         float age = animatable.tickCount + Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
         float strike = Mth.clamp((age - (animatable.getMaxLife() - STRIKE_TICKS)) / STRIKE_TICKS, 0.0f, 1.0f);

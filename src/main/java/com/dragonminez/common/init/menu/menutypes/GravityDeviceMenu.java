@@ -17,8 +17,8 @@ public class GravityDeviceMenu extends AbstractContainerMenu {
 	private final Level level;
 	private final ContainerData data;
 
-	public GravityDeviceMenu(int pContainerId, Inventory inv, FriendlyByteBuf extraData) {
-		this(pContainerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(6));
+	public GravityDeviceMenu(int pContainerId, Inventory inv, net.minecraft.core.BlockPos extraData) {
+		this(pContainerId, inv, inv.player.level().getBlockEntity(extraData), new SimpleContainerData(6));
 	}
 
 	public GravityDeviceMenu(int pContainerId, Inventory inv, BlockEntity entity, ContainerData data) {

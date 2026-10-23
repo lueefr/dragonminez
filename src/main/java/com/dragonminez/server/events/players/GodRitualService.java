@@ -1,6 +1,6 @@
 package com.dragonminez.server.events.players;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -27,19 +27,15 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import com.dragonminez.platform.event.tick.PlayerTickEvent;
+import com.dragonminez.platform.event.tick.ServerTickEvent;
+import com.dragonminez.platform.event.living.LivingDamageEvent;
+import com.dragonminez.platform.event.living.LivingDeathEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.server.ServerStoppedEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.ServerLifecycleHooks;
 
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;

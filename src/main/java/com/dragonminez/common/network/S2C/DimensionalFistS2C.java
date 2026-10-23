@@ -2,7 +2,7 @@ package com.dragonminez.common.network.S2C;
 
 import com.dragonminez.client.render.effects.DimensionalFistEffect;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -53,7 +53,7 @@ public class DimensionalFistS2C {
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 				() -> () -> DimensionalFistEffect.spawn(entityId, x, y, z, yaw, pitch, leftArm, openTicks)));
 		ctx.get().setPacketHandled(true);
 	}

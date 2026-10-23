@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 
-public class KillDriverRenderer extends EntityRenderer<KillDriverEntity> {
+public class KillDriverRenderer extends EntityRenderer<KillDriverEntity, net.minecraft.client.renderer.entity.state.EntityRenderState> {
 
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kidisc.png");
     private static final float SPIN_SPEED = 18.0F;

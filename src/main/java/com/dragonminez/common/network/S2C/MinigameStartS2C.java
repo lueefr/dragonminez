@@ -5,7 +5,7 @@ import com.dragonminez.common.network.ClientPacketHandler;
 import com.dragonminez.common.training.MinigameOrigin;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -90,7 +90,7 @@ public class MinigameStartS2C {
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandler.handleMinigameStart(this)));
+		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> () -> ClientPacketHandler.handleMinigameStart(this)));
 		ctx.get().setPacketHandled(true);
 	}
 }

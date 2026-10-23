@@ -13,13 +13,13 @@ import net.minecraft.world.level.Level;
 
 public class MerusLaserItem extends Item {
 	public MerusLaserItem( ) {
-        super(new Properties().stacksTo(1).durability(250));
+        super(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1).durability(250));
 	}
     @Override
     public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
         ItemStack itemstack = pPlayer.getItemInHand(pHand);
 
-        if (!pLevel.isClientSide) {
+        if (!pLevel.isClientSide()) {
 
             KiBlastEntity kiBlast = new KiBlastEntity(pLevel, pPlayer);
 

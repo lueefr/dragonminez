@@ -3,9 +3,9 @@ package com.dragonminez.common.init.item.weapons.model;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.item.weapons.TamagamiTridentItem;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class TamagamiTridentModel extends GeoModel<TamagamiTridentItem> {
+public class TamagamiTridentModel extends ExtractedGeoModel<TamagamiTridentItem> {
 	@Override
 	public Identifier getModelResource(TamagamiTridentItem animatable) {
 		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/tamagami_trident.geo.json");

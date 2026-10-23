@@ -1,6 +1,6 @@
 package com.dragonminez.client.render.effects;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.layer.DMZSkinLayer;
 import com.dragonminez.client.render.util.IrisCompat;
@@ -12,12 +12,11 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public final class GodRitualShellEffect {
 	private static final float MIN_ALPHA = 0.003f;
 

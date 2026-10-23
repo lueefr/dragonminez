@@ -1,6 +1,6 @@
 package com.dragonminez.server.events;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.events.DMZEvent;
 import com.dragonminez.common.network.NetworkHandler;
@@ -31,11 +31,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.entity.EntityJoinLevelEvent;
+import com.dragonminez.platform.event.entity.EntityLeaveLevelEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -84,7 +82,7 @@ public final class QuestFieldSessions {
 		}
 
 		Map<String, WaveSession> sessions = WAVE_SESSIONS.computeIfAbsent(player.getUUID(), id -> new ConcurrentHashMap<>());
-		long gameTime = player.serverLevel().getGameTime();
+		long gameTime = player.level().getGameTime();
 		WaveSession session = sessions.get(sessionKey);
 		if (session == null) {
 			session = new WaveSession(gameTime + objective.getWaveDelaySeconds() * 20L);
@@ -103,7 +101,7 @@ public final class QuestFieldSessions {
 				return;
 			}
 
-			pruneDeadMobs(player.serverLevel(), session);
+			pruneDeadMobs(player.level(), session);
 			if (session.aliveMobs.isEmpty()) {
 				creditSessionProgress(player, pqd, questKey, quest, objectiveIndex);
 				if (progress + 1 < required) {
@@ -144,17 +142,17 @@ public final class QuestFieldSessions {
 			double offsetZ = (Math.random() - 0.5) * 2 * WAVE_SPAWN_RADIUS;
 			entity.setPos(player.getX() + offsetX, player.getY(), player.getZ() + offsetZ);
 
-			entity.getPersistentData().putString(QuestService.QUEST_KEY_TAG, questKey);
-			entity.getPersistentData().putInt(QuestService.QUEST_OBJECTIVE_INDEX_TAG, objectiveIndex);
-			entity.getPersistentData().putString(QuestService.QUEST_OWNER_TAG, player.getStringUUID());
-			entity.getPersistentData().putString(SESSION_TAG, sessionKey(questKey, objectiveIndex));
-			if (objective.getHealth() > 0) entity.getPersistentData().putDouble("dmz_quest_hp", objective.getHealth());
-			if (objective.getMeleeDamage() > 0) entity.getPersistentData().putDouble("dmz_quest_melee", objective.getMeleeDamage());
-			if (objective.getKiDamage() > 0) entity.getPersistentData().putDouble("dmz_quest_ki", objective.getKiDamage());
-			if (objective.getTextureVariant() >= 0) entity.getPersistentData().putInt("dmz_quest_texture_variant", objective.getTextureVariant());
+			com.dragonminez.platform.entity.EntityData.get(entity).putString(QuestService.QUEST_KEY_TAG, questKey);
+			com.dragonminez.platform.entity.EntityData.get(entity).putInt(QuestService.QUEST_OBJECTIVE_INDEX_TAG, objectiveIndex);
+			com.dragonminez.platform.entity.EntityData.get(entity).putString(QuestService.QUEST_OWNER_TAG, player.getStringUUID());
+			com.dragonminez.platform.entity.EntityData.get(entity).putString(SESSION_TAG, sessionKey(questKey, objectiveIndex));
+			if (objective.getHealth() > 0) com.dragonminez.platform.entity.EntityData.get(entity).putDouble("dmz_quest_hp", objective.getHealth());
+			if (objective.getMeleeDamage() > 0) com.dragonminez.platform.entity.EntityData.get(entity).putDouble("dmz_quest_melee", objective.getMeleeDamage());
+			if (objective.getKiDamage() > 0) com.dragonminez.platform.entity.EntityData.get(entity).putDouble("dmz_quest_ki", objective.getKiDamage());
+			if (objective.getTextureVariant() >= 0) com.dragonminez.platform.entity.EntityData.get(entity).putInt("dmz_quest_texture_variant", objective.getTextureVariant());
 			int waveTier = objective.getAiTier() > 0 ? objective.getAiTier() : AiTierResolver.storyTier(waveDifficulty, entityType);
-			entity.getPersistentData().putInt("dmz_quest_ai_tier", waveTier);
-			if (!objective.isCanTransform()) entity.getPersistentData().putBoolean("dmz_quest_no_transform", true);
+			com.dragonminez.platform.entity.EntityData.get(entity).putInt("dmz_quest_ai_tier", waveTier);
+			if (!objective.isCanTransform()) com.dragonminez.platform.entity.EntityData.get(entity).putBoolean("dmz_quest_no_transform", true);
 
 			if (entity instanceof Mob mob) {
 				mob.setTarget(player);
@@ -162,7 +160,7 @@ public final class QuestFieldSessions {
 			}
 
 			session.aliveMobs.add(entity.getUUID());
-			if (!player.serverLevel().addFreshEntity(entity)) session.aliveMobs.remove(entity.getUUID());
+			if (!player.level().addFreshEntity(entity)) session.aliveMobs.remove(entity.getUUID());
 		}
 		session.waveActive = !session.aliveMobs.isEmpty();
 		return session.waveActive;
@@ -198,7 +196,7 @@ public final class QuestFieldSessions {
 			sessions.remove(sessionKey);
 			return;
 		}
-		if (session == null || player.serverLevel().getEntity(session.escortId) == null) {
+		if (session == null || player.level().getEntity(session.escortId) == null) {
 			if (session != null) {
 				Entity stale = findEscort(player, session.escortId);
 				if (stale != null) stale.discard();
@@ -211,7 +209,7 @@ public final class QuestFieldSessions {
 			return;
 		}
 
-		Entity escort = player.serverLevel().getEntity(session.escortId);
+		Entity escort = player.level().getEntity(session.escortId);
 		if (escort == null || !escort.isAlive()) {
 			failQuest(player, questKey, quest, DMZEvent.QuestFailEvent.FailureReason.ESCORT_FAILED);
 			clearEscortSession(player, sessionKey);
@@ -240,11 +238,11 @@ public final class QuestFieldSessions {
 
 		String sessionKey = sessionKey(questKey, objectiveIndex);
 		entity.setPos(player.getX() + 1.0, player.getY(), player.getZ() + 1.0);
-		entity.getPersistentData().putString(QuestService.QUEST_KEY_TAG, questKey);
-		entity.getPersistentData().putInt(QuestService.QUEST_OBJECTIVE_INDEX_TAG, objectiveIndex);
-		entity.getPersistentData().putString(QuestService.QUEST_OWNER_TAG, player.getStringUUID());
-		entity.getPersistentData().putString(SESSION_TAG, sessionKey);
-		entity.getPersistentData().putBoolean("dmz_quest_escort", true);
+		com.dragonminez.platform.entity.EntityData.get(entity).putString(QuestService.QUEST_KEY_TAG, questKey);
+		com.dragonminez.platform.entity.EntityData.get(entity).putInt(QuestService.QUEST_OBJECTIVE_INDEX_TAG, objectiveIndex);
+		com.dragonminez.platform.entity.EntityData.get(entity).putString(QuestService.QUEST_OWNER_TAG, player.getStringUUID());
+		com.dragonminez.platform.entity.EntityData.get(entity).putString(SESSION_TAG, sessionKey);
+		com.dragonminez.platform.entity.EntityData.get(entity).putBoolean("dmz_quest_escort", true);
 
 		if (objective.getEscortHealth() > 0 && living.getAttribute(Attributes.MAX_HEALTH) != null) {
 			living.getAttribute(Attributes.MAX_HEALTH).setBaseValue(objective.getEscortHealth());
@@ -256,43 +254,43 @@ public final class QuestFieldSessions {
 			mob.goalSelector.addGoal(1, new FollowQuestOwnerGoal(mob, player.getUUID()));
 		}
 
-		player.serverLevel().addFreshEntity(entity);
+		player.level().addFreshEntity(entity);
 		return living;
 	}
 
 	private static void saveEscortState(ServerPlayer player, String sessionKey, LivingEntity escort) {
-		CompoundTag states = player.getPersistentData().getCompound(ESCORT_STATE_TAG);
+		CompoundTag states = com.dragonminez.platform.entity.EntityData.get(player).getCompoundOrEmpty(ESCORT_STATE_TAG);
 		CompoundTag state = new CompoundTag();
 		state.putFloat("health", escort.getHealth() / Math.max(1.0f, escort.getMaxHealth()));
-		state.putString("dimension", escort.level().dimension().location().toString());
+		state.putString("dimension", escort.level().dimension().identifier().toString());
 		state.putDouble("x", escort.getX());
 		state.putDouble("y", escort.getY());
 		state.putDouble("z", escort.getZ());
 		states.put(sessionKey, state);
-		player.getPersistentData().put(ESCORT_STATE_TAG, states);
+		com.dragonminez.platform.entity.EntityData.get(player).put(ESCORT_STATE_TAG, states);
 	}
 
 	private static void restoreEscortState(ServerPlayer player, String sessionKey, LivingEntity escort) {
-		CompoundTag states = player.getPersistentData().getCompound(ESCORT_STATE_TAG);
+		CompoundTag states = com.dragonminez.platform.entity.EntityData.get(player).getCompoundOrEmpty(ESCORT_STATE_TAG);
 		if (!states.contains(sessionKey)) return;
-		CompoundTag state = states.getCompound(sessionKey);
+		CompoundTag state = states.getCompoundOrEmpty(sessionKey);
 		states.remove(sessionKey);
-		if (states.isEmpty()) player.getPersistentData().remove(ESCORT_STATE_TAG);
-		else player.getPersistentData().put(ESCORT_STATE_TAG, states);
+		if (states.isEmpty()) com.dragonminez.platform.entity.EntityData.get(player).remove(ESCORT_STATE_TAG);
+		else com.dragonminez.platform.entity.EntityData.get(player).put(ESCORT_STATE_TAG, states);
 
-		float fraction = state.getFloat("health");
+		float fraction = state.getFloatOr("health", 0F);
 		if (fraction > 0.0f) escort.setHealth(Math.max(1.0f, escort.getMaxHealth() * Math.min(1.0f, fraction)));
-		if (player.level().dimension().location().toString().equals(state.getString("dimension"))) {
-			escort.setPos(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"));
+		if (player.level().dimension().identifier().toString().equals(state.getStringOr("dimension", ""))) {
+			escort.setPos(state.getDoubleOr("x", 0D), state.getDoubleOr("y", 0D), state.getDoubleOr("z", 0D));
 		}
 	}
 
 	private static void forgetEscortState(ServerPlayer player, String questKey) {
-		CompoundTag states = player.getPersistentData().getCompound(ESCORT_STATE_TAG);
+		CompoundTag states = com.dragonminez.platform.entity.EntityData.get(player).getCompoundOrEmpty(ESCORT_STATE_TAG);
 		if (states.isEmpty()) return;
-		states.getAllKeys().removeIf(key -> key.startsWith(questKey + "#"));
-		if (states.isEmpty()) player.getPersistentData().remove(ESCORT_STATE_TAG);
-		else player.getPersistentData().put(ESCORT_STATE_TAG, states);
+		states.keySet().removeIf(key -> key.startsWith(questKey + "#"));
+		if (states.isEmpty()) com.dragonminez.platform.entity.EntityData.get(player).remove(ESCORT_STATE_TAG);
+		else com.dragonminez.platform.entity.EntityData.get(player).put(ESCORT_STATE_TAG, states);
 	}
 
 	// ====================================================================================
@@ -301,13 +299,13 @@ public final class QuestFieldSessions {
 
 	/** Called from LivingDeathEvent so escort deaths fail fast instead of waiting for the tick. */
 	static void onEntityDeath(LivingEntity entity) {
-		CompoundTag tags = entity.getPersistentData();
+		CompoundTag tags = com.dragonminez.platform.entity.EntityData.get(entity);
 		if (!tags.contains(SESSION_TAG)) return;
-		String sessionKey = tags.getString(SESSION_TAG);
+		String sessionKey = tags.getStringOr(SESSION_TAG, "");
 		UUID owner = parseOwner(tags);
 		if (owner == null) return;
 
-		if (tags.getBoolean("dmz_quest_escort")) {
+		if (tags.getBooleanOr("dmz_quest_escort", false)) {
 			Map<String, EscortSession> sessions = ESCORT_SESSIONS.get(owner);
 			EscortSession session = sessions != null ? sessions.get(sessionKey) : null;
 			if (session != null && entity.getUUID().equals(session.escortId)) session.escortDied = true;
@@ -322,14 +320,14 @@ public final class QuestFieldSessions {
 	@SubscribeEvent
 	public static void onEntityLeave(EntityLeaveLevelEvent event) {
 		Entity entity = event.getEntity();
-		if (entity.level().isClientSide() || !entity.getPersistentData().contains(SESSION_TAG)) return;
+		if (entity.level().isClientSide() || !com.dragonminez.platform.entity.EntityData.get(entity).contains(SESSION_TAG)) return;
 		Entity.RemovalReason reason = entity.getRemovalReason();
 		if (reason == null || reason == Entity.RemovalReason.KILLED || !reason.shouldDestroy() && reason != Entity.RemovalReason.CHANGED_DIMENSION) return;
 
-		UUID owner = parseOwner(entity.getPersistentData());
-		if (owner == null || entity.getPersistentData().getBoolean("dmz_quest_escort")) return;
+		UUID owner = parseOwner(com.dragonminez.platform.entity.EntityData.get(entity));
+		if (owner == null || com.dragonminez.platform.entity.EntityData.get(entity).getBooleanOr("dmz_quest_escort", false)) return;
 		Map<String, WaveSession> waves = WAVE_SESSIONS.get(owner);
-		WaveSession session = waves != null ? waves.get(entity.getPersistentData().getString(SESSION_TAG)) : null;
+		WaveSession session = waves != null ? waves.get(com.dragonminez.platform.entity.EntityData.get(entity).getStringOr(SESSION_TAG, "")) : null;
 		if (session != null && session.aliveMobs.remove(entity.getUUID())) session.lost = true;
 	}
 
@@ -337,14 +335,14 @@ public final class QuestFieldSessions {
 	public static void onEntityJoin(EntityJoinLevelEvent event) {
 		Entity entity = event.getEntity();
 		if (event.getLevel().isClientSide() || !event.loadedFromDisk()) return;
-		CompoundTag tags = entity.getPersistentData();
+		CompoundTag tags = com.dragonminez.platform.entity.EntityData.get(entity);
 		if (!tags.contains(SESSION_TAG)) return;
 
 		UUID owner = parseOwner(tags);
-		String sessionKey = tags.getString(SESSION_TAG);
+		String sessionKey = tags.getStringOr(SESSION_TAG, "");
 		boolean tracked = false;
 		if (owner != null) {
-			if (tags.getBoolean("dmz_quest_escort")) {
+			if (tags.getBooleanOr("dmz_quest_escort", false)) {
 				Map<String, EscortSession> sessions = ESCORT_SESSIONS.get(owner);
 				EscortSession session = sessions != null ? sessions.get(sessionKey) : null;
 				tracked = session != null && entity.getUUID().equals(session.escortId);
@@ -492,7 +490,7 @@ public final class QuestFieldSessions {
 
 	private static UUID parseOwner(CompoundTag tags) {
 		try {
-			return UUID.fromString(tags.getString(QuestService.QUEST_OWNER_TAG));
+			return UUID.fromString(tags.getStringOr(QuestService.QUEST_OWNER_TAG, ""));
 		} catch (IllegalArgumentException e) {
 			return null;
 		}

@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level;
 
 public class PunchMachineItem extends Item {
 	public PunchMachineItem( ) {
-		super(new Properties().stacksTo(1));
+		super(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1));
 	}
 
     @Override
@@ -44,7 +44,7 @@ public class PunchMachineItem extends Item {
                 pContext.getItemInHand().shrink(1);
             }
 
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.sidedSuccess(level.isClientSide());
         }
 
         return super.useOn(pContext);

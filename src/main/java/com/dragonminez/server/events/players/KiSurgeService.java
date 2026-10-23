@@ -71,17 +71,17 @@ public final class KiSurgeService {
 
 		boolean charging = status.isChargingKi() && !status.isDescending();
 
-		boolean wasCharging = player.getPersistentData().getBoolean(WAS_CHARGING_TAG);
+		boolean wasCharging = com.dragonminez.platform.entity.EntityData.get(player).getBooleanOr(WAS_CHARGING_TAG, false);
 		if (charging && !wasCharging) {
-			player.getPersistentData().putBoolean(EARNED_BURST_TAG, resources.getCurrentEnergy() < data.getMaxEnergy());
+			com.dragonminez.platform.entity.EntityData.get(player).putBoolean(EARNED_BURST_TAG, resources.getCurrentEnergy() < data.getMaxEnergy());
 		}
-		player.getPersistentData().putBoolean(WAS_CHARGING_TAG, charging);
+		com.dragonminez.platform.entity.EntityData.get(player).putBoolean(WAS_CHARGING_TAG, charging);
 
 		if (charging && !status.isKiBurstArmed() && resources.getCurrentEnergy() >= data.getMaxEnergy()
 				&& !data.getCooldowns().hasCooldown(Cooldowns.KI_SURGE_CD)) {
 			status.setKiBurstArmed(true);
-			if (player.getPersistentData().getBoolean(EARNED_BURST_TAG)) {
-				player.getPersistentData().putBoolean(EARNED_BURST_TAG, false);
+			if (com.dragonminez.platform.entity.EntityData.get(player).getBooleanOr(EARNED_BURST_TAG, false)) {
+				com.dragonminez.platform.entity.EntityData.get(player).putBoolean(EARNED_BURST_TAG, false);
 				triggerBurst(player, data, false);
 			}
 			sync(player);
@@ -133,7 +133,7 @@ public final class KiSurgeService {
 
 		int lockTicks = Math.max(0, ConfigManager.getCombatConfig().getKiChargeInterruptLockTicks());
 		if (lockTicks > 0) {
-			player.getPersistentData().putLong("dmz_ki_charge_lock_until", player.level().getGameTime() + lockTicks);
+			com.dragonminez.platform.entity.EntityData.get(player).putLong("dmz_ki_charge_lock_until", player.level().getGameTime() + lockTicks);
 		}
 		sync(player);
 	}
@@ -152,7 +152,7 @@ public final class KiSurgeService {
 	}
 
 	public static boolean isChargeLocked(ServerPlayer player) {
-		return player.level().getGameTime() < player.getPersistentData().getLong("dmz_ki_charge_lock_until");
+		return player.level().getGameTime() < com.dragonminez.platform.entity.EntityData.get(player).getLongOr("dmz_ki_charge_lock_until", 0L);
 	}
 
 	private static void clear(StatsData data) {
@@ -231,11 +231,11 @@ public final class KiSurgeService {
 		float capped = Math.min(amount, headroom);
 		if (capped <= 0.0f) return;
 
-		victim.getPersistentData().putBoolean(NON_LETHAL_TAG, true);
+		com.dragonminez.platform.entity.EntityData.get(victim).putBoolean(NON_LETHAL_TAG, true);
 		try {
-			victim.hurt(MainDamageTypes.kiblast(victim.level(), source, source), capped);
+			victim.hurtOrSimulate(MainDamageTypes.kiblast(victim.level(), source, source), capped);
 		} finally {
-			victim.getPersistentData().remove(NON_LETHAL_TAG);
+			com.dragonminez.platform.entity.EntityData.get(victim).remove(NON_LETHAL_TAG);
 		}
 	}
 

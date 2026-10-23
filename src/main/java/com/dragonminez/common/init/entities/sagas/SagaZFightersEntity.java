@@ -1,5 +1,6 @@
 package com.dragonminez.common.init.entities.sagas;
 
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.dragonminez.common.alignment.AlignmentBand;
 import com.dragonminez.common.init.MainGameRules;
 import com.dragonminez.common.init.MainItems;
@@ -13,7 +14,7 @@ import net.minecraft.core.BlockPos;
 import com.dragonminez.common.init.entities.WildSpawnRules;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.Mth;
@@ -39,13 +40,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.UUID;
 
 public class SagaZFightersEntity {
 
@@ -378,7 +378,7 @@ public class SagaZFightersEntity {
         }
 
         private void explode() {
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 float radius = 5.0F;
 
                 double baseDamage = this.getAttributeValue(Attributes.ATTACK_DAMAGE);
@@ -391,7 +391,7 @@ public class SagaZFightersEntity {
 
                 for (LivingEntity target : entities) {
                     if (target != this && this.distanceToSqr(target) <= radius * radius) {
-                        target.hurt(damageSource, finalDamage);
+                        target.hurtOrSimulate(damageSource, finalDamage);
                     }
                 }
 
@@ -434,9 +434,9 @@ public class SagaZFightersEntity {
             controllers.add(new com.geckolib.animation.AnimationController<>(this, "explode_controller", 0, this::explodePredicate));
         }
 
-        private <T extends com.geckolib.animatable.GeoAnimatable> PlayState explodePredicate(AnimationState<T> event) {
+        private <T extends com.geckolib.animatable.GeoAnimatable> PlayState explodePredicate(AnimationTest<T> event) {
             if (this.isExploding()) {
-                event.getController().setAnimation(RawAnimation.begin().thenPlay("cell_absorb"));
+                event.controller().setAnimation(RawAnimation.begin().thenPlay("cell_absorb"));
                 return PlayState.CONTINUE;
             }
             return PlayState.STOP;
@@ -478,9 +478,9 @@ public class SagaZFightersEntity {
             this.setScaleVal(1.56f);
         }
 
-        public static boolean canSpawnNaturally(EntityType<? extends Mob> type, ServerLevelAccessor level, MobSpawnType reason, BlockPos pos, RandomSource random) {
+        public static boolean canSpawnNaturally(EntityType<? extends Mob> type, ServerLevelAccessor level, EntitySpawnReason reason, BlockPos pos, RandomSource random) {
             if (!WildSpawnRules.canSpawn(type, level, reason, pos, random)) return false;
-            if (reason != MobSpawnType.NATURAL) return true;
+            if (reason != EntitySpawnReason.NATURAL) return true;
             if (random.nextFloat() >= NATURAL_SPAWN_CHANCE) return false;
             return level.getEntitiesOfClass(WildGiranEntity.class, new AABB(pos).inflate(NATURAL_SPAWN_EXCLUSION_RADIUS)).isEmpty();
         }
@@ -558,7 +558,7 @@ public class SagaZFightersEntity {
         }
 
         void slamImpact() {
-            if (this.level().isClientSide) return;
+            if (this.level().isClientSide()) return;
 
             float damage = (float) (this.getAttributeValue(Attributes.ATTACK_DAMAGE) * IMPACT_DAMAGE_MULT);
             DamageSource source = this.level().damageSources().mobAttack(this);
@@ -568,7 +568,7 @@ public class SagaZFightersEntity {
 
             for (LivingEntity victim : hit) {
                 if (victim == this) continue;
-                victim.hurt(source, damage);
+                victim.hurtOrSimulate(source, damage);
                 Vec3 push = victim.position().subtract(this.position());
                 push = push.lengthSqr() < 1.0E-4D ? new Vec3(0.0D, 1.0D, 0.0D) : push.normalize();
                 victim.push(push.x * 0.6D, 0.45D, push.z * 0.6D);
@@ -856,7 +856,7 @@ public class SagaZFightersEntity {
         @Override
         public void tick() {
             super.tick();
-            if (this.level().isClientSide || !this.isAlive()) return;
+            if (this.level().isClientSide() || !this.isAlive()) return;
 
             if (this.leapCooldown > 0) this.leapCooldown--;
             LivingEntity target = this.getTarget();

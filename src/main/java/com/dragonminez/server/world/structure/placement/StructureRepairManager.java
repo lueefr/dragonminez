@@ -61,7 +61,7 @@ public final class StructureRepairManager {
 	}
 
 	public static void onLevelUnload(ServerLevel level) {
-		String prefix = level.dimension().location() + "#";
+		String prefix = level.dimension().identifier() + "#";
 		MATERIALIZERS.remove(level.dimension());
 		HANDLED.removeIf(key -> key.startsWith(prefix));
 		RELOCATIONS.keySet().removeIf(key -> key.startsWith(prefix));
@@ -92,7 +92,7 @@ public final class StructureRepairManager {
 		for (Map.Entry<Integer, ChunkPos> entry : positions.entrySet()) {
 			int salt = entry.getKey();
 			ChunkPos pos = entry.getValue();
-			String saltKey = level.dimension().location() + "#" + salt;
+			String saltKey = level.dimension().identifier() + "#" + salt;
 			String key = saltKey + "@" + pos.toLong();
 			if (HANDLED.contains(key)) continue;
 			if (plan.isBuilt(salt)) {
@@ -121,16 +121,16 @@ public final class StructureRepairManager {
 				continue;
 			}
 
-			String name = structure.unwrapKey().map(k -> k.location().toString()).orElse("salt:" + salt);
+			String name = structure.unwrapKey().map(k -> k.identifier().toString()).orElse("salt:" + salt);
 			if (forcePlace(level, chunk, structure.value(), pos, salt)) {
 				HANDLED.add(key);
 				plan.markBuilt(salt);
 				LogUtil.info(Env.SERVER, "[DMZ] Materialized missing structure " + name
-						+ " at chunk " + pos.x + ", " + pos.z + " in " + level.dimension().location());
+						+ " at chunk " + pos.x + ", " + pos.z + " in " + level.dimension().identifier());
 			} else if (nearSpawn.containsKey(salt)) {
 				HANDLED.add(key);
 				LogUtil.error(Env.SERVER, "[DMZ] Could not materialize " + name
-						+ " at chunk " + pos.x + ", " + pos.z + " in " + level.dimension().location() + ".");
+						+ " at chunk " + pos.x + ", " + pos.z + " in " + level.dimension().identifier() + ".");
 			} else {
 				HANDLED.add(key);
 				int attempts = RELOCATIONS.merge(saltKey, 1, Integer::sum);
@@ -276,7 +276,7 @@ public final class StructureRepairManager {
 		Map<Integer, Holder<Structure>> structures = null;
 		for (Map.Entry<Integer, Pending> entry : new ArrayList<>(data.forced.entrySet())) {
 			int salt = entry.getKey();
-			String key = level.dimension().location() + "#" + salt + "#repair";
+			String key = level.dimension().identifier() + "#" + salt + "#repair";
 			if (materializer.isForcing(salt) || HANDLED.contains(key)) continue;
 			ChunkPos origin = new ChunkPos(entry.getValue().origin());
 			LevelChunk chunk = level.getChunkSource().getChunkNow(origin.x, origin.z);
@@ -293,8 +293,8 @@ public final class StructureRepairManager {
 				if (start == null) continue;
 				chunk.setStartForStructure(structure, start);
 			}
-			LogUtil.info(Env.SERVER, "[DMZ] Resuming materialization of " + holder.unwrapKey().map(k -> k.location().toString()).orElse("salt:" + salt)
-					+ " in " + level.dimension().location() + ", " + entry.getValue().chunks().size() + " chunks left.");
+			LogUtil.info(Env.SERVER, "[DMZ] Resuming materialization of " + holder.unwrapKey().map(k -> k.identifier().toString()).orElse("salt:" + salt)
+					+ " in " + level.dimension().identifier() + ", " + entry.getValue().chunks().size() + " chunks left.");
 			materializer.beginForced(level, salt, structure, start, entry.getValue().chunks());
 		}
 	}
@@ -358,12 +358,12 @@ public final class StructureRepairManager {
 
 		static RepairData load(CompoundTag tag) {
 			RepairData data = new RepairData();
-			ListTag list = tag.getList("forced", Tag.TAG_COMPOUND);
+			ListTag list = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "forced", Tag.TAG_COMPOUND);
 			for (int i = 0; i < list.size(); i++) {
-				CompoundTag entry = list.getCompound(i);
+				CompoundTag entry = list.getCompoundOrEmpty(i);
 				Set<Long> chunks = ConcurrentHashMap.newKeySet();
-				for (long chunk : entry.getLongArray("chunks")) chunks.add(chunk);
-				if (!chunks.isEmpty()) data.forced.put(entry.getInt("salt"), new Pending(entry.getLong("origin"), chunks));
+				for (long chunk : entry.getLongArray("chunks").orElseGet(() -> new long[0])) chunks.add(chunk);
+				if (!chunks.isEmpty()) data.forced.put(entry.getIntOr("salt", 0), new Pending(entry.getLongOr("origin", 0L), chunks));
 			}
 			return data;
 		}
@@ -523,7 +523,7 @@ public final class StructureRepairManager {
 				StructureStart start = start(level, salt, holder.value());
 				if (start == null) continue;
 				Structure structure = start.getStructure();
-				if (level.registryAccess().registryOrThrow(Registries.STRUCTURE).getKey(structure) == null) continue;
+				if (level.registryAccess().lookupOrThrow(Registries.STRUCTURE).getKey(structure) == null) continue;
 				ChunkPos origin = start.getChunkPos();
 				if (chunk.getReferencesForStructure(structure).contains(origin.toLong())) continue;
 				BoundingBox box = start.getBoundingBox();
@@ -560,9 +560,9 @@ public final class StructureRepairManager {
 		private void finishForced(ServerLevel level, ForcedPlacement placement) {
 			if (!this.forced.remove(placement.salt, placement)) return;
 			RepairData.get(level).finish(placement.salt);
-			Identifier id = level.registryAccess().registryOrThrow(Registries.STRUCTURE).getKey(placement.structure);
+			Identifier id = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).getKey(placement.structure);
 			LogUtil.info(Env.SERVER, "[DMZ] Finished materializing " + (id != null ? id.toString() : "salt:" + placement.salt)
-					+ " in " + level.dimension().location());
+					+ " in " + level.dimension().identifier());
 		}
 
 		private StructureStart start(ServerLevel level, int salt, Structure structure) {

@@ -167,9 +167,9 @@ public final class SkinPixels {
 		if (tag == null) return result;
 		result.eyeMarks = readMarks(tag, EYE_KEY, MARK_IRIS, strict);
 		result.hairMarks = readMarks(tag, HAIR_KEY, MARK_HAIR, strict);
-		if (tag.contains(TATTOO_KEY, Tag.TAG_BYTE_ARRAY)) {
-			int size = tag.getInt(TATTOO_SIZE_KEY);
-			byte[] compressed = tag.getByteArray(TATTOO_KEY);
+		if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, TATTOO_KEY, Tag.TAG_BYTE_ARRAY)) {
+			int size = tag.getIntOr(TATTOO_SIZE_KEY, 0);
+			byte[] compressed = tag.getByteArray(TATTOO_KEY).orElseGet(() -> new byte[0]);
 			if (!isTattooSize(size)) {
 				fail(strict, "invalid tattoo size " + size);
 			} else if (compressed.length > MAX_COMPRESSED_TATTOO) {
@@ -187,8 +187,8 @@ public final class SkinPixels {
 	}
 
 	private static byte[] readMarks(CompoundTag tag, String key, byte maxMark, boolean strict) {
-		if (!tag.contains(key, Tag.TAG_BYTE_ARRAY)) return null;
-		byte[] compressed = tag.getByteArray(key);
+		if (!com.dragonminez.platform.nbt.NbtCompat.contains(tag, key, Tag.TAG_BYTE_ARRAY)) return null;
+		byte[] compressed = tag.getByteArray(key).orElseGet(() -> new byte[0]);
 		if (compressed.length > MAX_COMPRESSED_MARKS) {
 			fail(strict, key + " payload too large (" + compressed.length + " bytes)");
 			return null;

@@ -3,11 +3,9 @@ package com.dragonminez.server.events.players.combat;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.MainEnchants;
 import com.dragonminez.server.events.players.TickHandler;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.living.LivingKnockBackEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
 /**
  * Gameplay effects for Bulma's Gete-tech armor enchantments (Pillar IV).

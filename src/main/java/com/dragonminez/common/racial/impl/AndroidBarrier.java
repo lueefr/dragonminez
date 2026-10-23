@@ -91,7 +91,7 @@ public final class AndroidBarrier {
 		ServerPlayer player = ctx.player();
 		StatsData data = ctx.data();
 		GeneralServerConfig.HumanRacialConfig config = ctx.config().getHuman();
-		net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(
+		com.dragonminez.platform.event.GameEvents.BUS.post(
 				new com.dragonminez.common.events.DMZEvent.BarrierAbsorbEvent(player, player, attacker, (float) rawDamage));
 
 		float maxEnergy = data.getMaxEnergy();
@@ -115,7 +115,7 @@ public final class AndroidBarrier {
 			end(ctx, true);
 			player.displayClientMessage(
 					Component.translatable("message.dragonminez.racial.human.barrier_overloaded"), true);
-			if (backlash > 0.0f) player.hurt(MainDamageTypes.kiblast(player.level(), player, player), backlash);
+			if (backlash > 0.0f) player.hurtOrSimulate(MainDamageTypes.kiblast(player.level(), player, player), backlash);
 		}
 
 		NetworkHandler.sendToTrackingEntityAndSelf(new StatsSyncS2C(player), player);

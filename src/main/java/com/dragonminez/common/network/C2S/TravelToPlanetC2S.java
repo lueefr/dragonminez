@@ -39,7 +39,7 @@ public class TravelToPlanetC2S {
 			if (!(player.getVehicle() instanceof SpacePodEntity)) return;
 			if (!PacketRateLimiter.allow(player.getUUID(), "space_pod_travel", player.level().getGameTime(), 20L)) return;
 
-			ServerLevel currentLevel = player.serverLevel();
+			ServerLevel currentLevel = player.level();
 			SpacePodDestinationDefinition destination = SpacePodDestinationRegistry.getServerDestination(destinationId);
 			if (destination == null || !destination.unlockRules().test(player)) {
 				return;

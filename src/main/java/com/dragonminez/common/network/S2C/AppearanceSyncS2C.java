@@ -8,7 +8,7 @@ import com.dragonminez.common.stats.character.SkinPixels;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -53,7 +53,7 @@ public class AppearanceSyncS2C implements StatsGroupsPacket {
 	}
 
 	public static void handle(AppearanceSyncS2C msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandler.handleAppearanceSyncPacket(msg.playerId, msg.nbt)));
+		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> () -> ClientPacketHandler.handleAppearanceSyncPacket(msg.playerId, msg.nbt)));
 		ctx.get().setPacketHandled(true);
 	}
 }

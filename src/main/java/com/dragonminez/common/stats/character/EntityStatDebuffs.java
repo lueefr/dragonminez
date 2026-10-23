@@ -24,30 +24,30 @@ public final class EntityStatDebuffs {
 	private static String untilKey(String stat) { return "dmz_debuff_" + stat + "_until"; }
 
 	public static void applyDebuff(LivingEntity entity, String stat, double factor, int durationTicks) {
-		if (entity == null || entity.level().isClientSide) return;
+		if (entity == null || entity.level().isClientSide()) return;
 		if (stat == null || factor >= 0.0 || durationTicks <= 0) return;
 		String key = stat.toUpperCase();
 		if (!SUPPORTED.contains(key)) return;
 
-		CompoundTag data = entity.getPersistentData();
+		CompoundTag data = com.dragonminez.platform.entity.EntityData.get(entity);
 		long now = entity.level().getGameTime();
-		boolean active = data.getLong(untilKey(key)) > now;
+		boolean active = data.getLongOr(untilKey(key), 0L) > now;
 
-		if (!active || Math.abs(factor) >= Math.abs(data.getDouble(factorKey(key)))) data.putDouble(factorKey(key), factor);
+		if (!active || Math.abs(factor) >= Math.abs(data.getDoubleOr(factorKey(key), 0D))) data.putDouble(factorKey(key), factor);
 		long newUntil = now + durationTicks;
-		data.putLong(untilKey(key), active ? Math.max(data.getLong(untilKey(key)), newUntil) : newUntil);
+		data.putLong(untilKey(key), active ? Math.max(data.getLongOr(untilKey(key), 0L), newUntil) : newUntil);
 	}
 
 	public static double getMultiplier(LivingEntity entity, String stat) {
 		if (entity == null || stat == null) return 1.0;
 		String key = stat.toUpperCase();
-		CompoundTag data = entity.getPersistentData();
-		if (data.getLong(untilKey(key)) <= entity.level().getGameTime()) return 1.0;
-		return Math.max(0.0, 1.0 + data.getDouble(factorKey(key)));
+		CompoundTag data = com.dragonminez.platform.entity.EntityData.get(entity);
+		if (data.getLongOr(untilKey(key), 0L) <= entity.level().getGameTime()) return 1.0;
+		return Math.max(0.0, 1.0 + data.getDoubleOr(factorKey(key), 0D));
 	}
 
 	public static boolean hasDebuff(LivingEntity entity, String stat) {
 		if (entity == null || stat == null) return false;
-		return entity.getPersistentData().getLong(untilKey(stat.toUpperCase())) > entity.level().getGameTime();
+		return com.dragonminez.platform.entity.EntityData.get(entity).getLongOr(untilKey(stat.toUpperCase()), 0L) > entity.level().getGameTime();
 	}
 }

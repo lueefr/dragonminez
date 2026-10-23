@@ -49,7 +49,7 @@ public class GravityLogic {
 		GeneralServerConfig.GravityConfig config = cfg();
 		if (!config.isEnabled()) return 1.0;
 
-		String dimId = player.level().dimension().location().toString();
+		String dimId = player.level().dimension().identifier().toString();
 		double ambient = includeDimension ? config.getWorldGravity(dimId) : config.getDefaultWorldGravity();
 
 		double wgGravity = WorldGuardCompat.getGravity(player.level(), player.blockPosition(), player);
@@ -140,7 +140,7 @@ public class GravityLogic {
 		GeneralServerConfig.GravityConfig config = cfg();
 		UUID id = player.getUUID();
 		long currentTick = player.level().getGameTime();
-		String currentDim = player.level().dimension().location().toString();
+		String currentDim = player.level().dimension().identifier().toString();
 
 		boolean dimChanged = !currentDim.equals(NPC_GRAVITY_DIM.get(id));
 		boolean expired = currentTick - NPC_GRAVITY_TICK.getOrDefault(id, 0L) > 100;

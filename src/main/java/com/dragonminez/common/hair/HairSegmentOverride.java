@@ -147,13 +147,13 @@ public final class HairSegmentOverride {
 	}
 
 	public static HairSegmentOverride load(CompoundTag tag) {
-		HairSegmentOverride override = new HairSegmentOverride(tag.getInt("k"));
-		override.setOffset(tag.getFloat("ox"), tag.getFloat("oy"), tag.getFloat("oz"));
-		override.setRotation(tag.getFloat("rx"), tag.getFloat("ry"), tag.getFloat("rz"));
-		if (tag.contains("ls")) override.setLengthScale(tag.getFloat("ls"));
-		if (tag.contains("ws")) override.setWidthScale(tag.getFloat("ws"));
-		if (tag.contains("ds")) override.setDepthScale(tag.getFloat("ds"));
-		if (tag.contains("c")) override.setColor(tag.getString("c"));
+		HairSegmentOverride override = new HairSegmentOverride(tag.getIntOr("k", 0));
+		override.setOffset(tag.getFloatOr("ox", 0F), tag.getFloatOr("oy", 0F), tag.getFloatOr("oz", 0F));
+		override.setRotation(tag.getFloatOr("rx", 0F), tag.getFloatOr("ry", 0F), tag.getFloatOr("rz", 0F));
+		if (tag.contains("ls")) override.setLengthScale(tag.getFloatOr("ls", 0F));
+		if (tag.contains("ws")) override.setWidthScale(tag.getFloatOr("ws", 0F));
+		if (tag.contains("ds")) override.setDepthScale(tag.getFloatOr("ds", 0F));
+		if (tag.contains("c")) override.setColor(tag.getStringOr("c", ""));
 		return override;
 	}
 }

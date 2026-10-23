@@ -6,7 +6,7 @@ import com.dragonminez.common.stats.StatsProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -38,7 +38,7 @@ public class SkinPixelsSyncS2C {
 	}
 
 	public static void handle(SkinPixelsSyncS2C msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandler.handleSkinPixelsSync(msg.playerId, msg.tag)));
+		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> () -> ClientPacketHandler.handleSkinPixelsSync(msg.playerId, msg.tag)));
 		ctx.get().setPacketHandled(true);
 	}
 }

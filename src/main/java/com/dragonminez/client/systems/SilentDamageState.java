@@ -1,9 +1,9 @@
 package com.dragonminez.client.systems;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public final class SilentDamageState {
 	private static final long WINDOW_MS = 1500L;
 	private static final float TOLERANCE = 0.5F;

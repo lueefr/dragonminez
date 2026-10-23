@@ -2,7 +2,7 @@ package com.dragonminez.mixin.common;
 
 import com.dragonminez.common.combat.logic.weapon.ItemStackNBTWeaponAttributes;
 import com.dragonminez.common.combat.weapon.WeaponAttributes;
-import net.minecraft.world.item.ArmorItem;
+import com.dragonminez.platform.item.ArmorData;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -39,7 +39,7 @@ public abstract class ItemStackMixin implements ItemStackNBTWeaponAttributes {
 
 	@ModifyVariable(method = "hurtAndBreak", at = @At("HEAD"), argsOnly = true, ordinal = 0)
 	public int limitArmorDamage(int pAmount) {
-		if (((ItemStack) (Object) this).getItem() instanceof ArmorItem) return Math.min(pAmount, 1);
+		if (ArmorData.isArmor((ItemStack) (Object) this)) return Math.min(pAmount, 1);
 		return pAmount;
 	}
 }

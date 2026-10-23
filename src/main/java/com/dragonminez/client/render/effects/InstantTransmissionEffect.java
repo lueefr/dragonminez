@@ -1,32 +1,26 @@
 package com.dragonminez.client.render.effects;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.DMZRendererCache;
 import com.dragonminez.client.render.layer.DMZSkinLayer;
 import com.dragonminez.client.render.util.IrisCompat;
 import com.dragonminez.client.render.util.ModRenderTypes;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.ClientTickEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -37,7 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = EnvType.CLIENT)
 public final class InstantTransmissionEffect {
 
 	private static final int VANISH_TICKS = 12;
@@ -148,7 +142,7 @@ public final class InstantTransmissionEffect {
 		if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
 		if (GHOSTS.isEmpty() || IrisCompat.isRenderingShadowPass() || !available()) return;
 
-		Vec3 cam = event.getCamera().getPosition();
+		Vec3 cam = event.getCamera().position();
 		PoseStack poseStack = event.getPoseStack();
 		float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(true);
 		if (buffers == null) buffers = MultiBufferSource.immediate(new com.mojang.blaze3d.vertex.ByteBufferBuilder(4096));

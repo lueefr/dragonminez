@@ -17,10 +17,10 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public abstract class ScaledScreen extends Screen implements TutorialHost {
 	public static final float REFERENCE_HEIGHT = 270.0f;
 	public static final float MIN_MENU_SCALE_MULTIPLIER = 0.5f;

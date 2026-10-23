@@ -6,8 +6,7 @@ import com.dragonminez.common.init.MainItems;
 import com.google.gson.JsonObject;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import java.util.function.Consumer;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
@@ -29,8 +28,8 @@ public class ShapedDragonRadarRecipeDefinition extends DragonRadarRecipeDefiniti
 
 	@Override
 	public void buildRecipes(RecipeOutput output, DragonRadarDefinition radarDefinition) {
-		Item chipItem = BuiltInRegistries.ITEM.get(Identifier.parse(chipItemId));
-		Item cpuItem = BuiltInRegistries.ITEM.get(Identifier.parse(cpuItemId));
+		Item chipItem = BuiltInRegistries.ITEM.getValue(Identifier.parse(chipItemId));
+		Item cpuItem = BuiltInRegistries.ITEM.getValue(Identifier.parse(cpuItemId));
 		if (chipItem == null || cpuItem == null) throw new IllegalStateException("Missing radar recipe ingredient for radar '" + radarDefinition.getId() + "'");
 		ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, MainItems.getDragonRadarItemOrThrow(radarDefinition.getId()).get(), 1)
 			.pattern("OCO")

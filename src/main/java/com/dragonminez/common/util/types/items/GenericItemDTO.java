@@ -7,7 +7,6 @@ import com.google.gson.JsonSyntaxException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.google.gson.GsonBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -85,7 +84,7 @@ public class GenericItemDTO {
 			LogUtil.warn(Env.COMMON, "Unknown item '{}', skipping.", this.itemId);
 			return null;
 		}
-		return BuiltInRegistries.ITEM.get(this.itemId);
+		return BuiltInRegistries.ITEM.getValue(this.itemId);
 	}
 
 	protected final String errorPrefix() {

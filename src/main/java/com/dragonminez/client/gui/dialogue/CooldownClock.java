@@ -1,9 +1,9 @@
 package com.dragonminez.client.gui.dialogue;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 final class CooldownClock {
 	private static final long TICK_MS = 50L;
 	private static final long DRIFT_MS = 1500L;

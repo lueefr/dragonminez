@@ -9,10 +9,10 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
-import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.model.BakedGeoModel;
 import com.geckolib.renderer.GeoBlockRenderer;
 
-public class EnergyCableBlockRenderer extends GeoBlockRenderer<EnergyCableBlockEntity> {
+public class EnergyCableBlockRenderer extends GeoBlockRenderer<EnergyCableBlockEntity, net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState> {
 	public EnergyCableBlockRenderer(BlockEntityRendererProvider.Context context) {
 		super(new EnergyCableBlockModel());
 	}

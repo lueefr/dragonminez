@@ -1,6 +1,5 @@
 package com.dragonminez.common.init.particles;
 
-import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.common.init.entities.ki.AbstractKiProjectile;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;

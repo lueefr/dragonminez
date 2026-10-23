@@ -16,7 +16,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.GeoBone;
 
 public final class HeadPortraitRenderer {
 	private static final float YAW_DEGREES = 24.0f;

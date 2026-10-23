@@ -10,7 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.client.gui.LayeredDraw;
 
 public class MinecraftHUD {
 	private static final float BORDER = HudSprites.MINECRAFT_HP.border();
@@ -37,7 +36,7 @@ public class MinecraftHUD {
 
 	private record Frame(HudPlayerState state, float release, float formCharge, float chargeGlow, float surge, float lowHealth, float seconds, float tickTime) {}
 
-	public static final LayeredDraw.Layer HUD_MINECRAFT = (guiGraphics, deltaTracker) -> {
+	public static final net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement HUD_MINECRAFT = (guiGraphics, deltaTracker) -> {
         float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
         int width = guiGraphics.guiWidth();
         int height = guiGraphics.guiHeight();

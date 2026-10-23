@@ -1,5 +1,7 @@
 package com.dragonminez.common.init.block.entity;
 
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.state.AnimationTest;
 import com.dragonminez.common.init.MainBlockEntities;
 import com.dragonminez.common.init.block.custom.FuelGeneratorBlock;
 import com.dragonminez.common.init.menu.menutypes.FuelGeneratorMenu;
@@ -22,10 +24,10 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import team.reborn.energy.api.EnergyStorage;
+import com.dragonminez.server.energy.EnergyTransfers;
+import com.dragonminez.platform.inventory.IItemHandler;
+import com.dragonminez.platform.inventory.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.geckolib.animatable.GeoBlockEntity;
@@ -33,10 +35,10 @@ import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
 import com.geckolib.animation.*;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 import com.geckolib.util.RenderUtil;
 
-public class FuelGeneratorBlockEntity extends BlockEntity implements MenuProvider, GeoBlockEntity {
+public class FuelGeneratorBlockEntity extends BlockEntity implements net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider<net.minecraft.core.BlockPos>, GeoBlockEntity {
 	private final AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
 	private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
 		@Override
@@ -90,12 +92,12 @@ public class FuelGeneratorBlockEntity extends BlockEntity implements MenuProvide
 		return itemHandler;
 	}
 
-	public IEnergyStorage getEnergyStorage() {
+	public StarEnergyStorage getEnergyStorage() {
 		return energyStorage;
 	}
 
 	public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
-		if (pLevel.isClientSide) return;
+		if (pLevel.isClientSide()) return;
 
 		boolean isBurning = burnTime > 0;
 		boolean changed = false;
@@ -143,31 +145,36 @@ public class FuelGeneratorBlockEntity extends BlockEntity implements MenuProvide
 
 		for (Direction dir : Direction.values()) {
 			BlockPos neighbor = worldPosition.relative(dir);
-			IEnergyStorage target = level.getCapability(Capabilities.EnergyStorage.BLOCK, neighbor, dir.getOpposite());
-			if (target != null && target.canReceive()) {
-				int sent = target.receiveEnergy(Math.min(energyStorage.getEnergyStored(), 256), false);
-				energyStorage.extractEnergy(sent, false);
-			}
+			EnergyStorage target = EnergyStorage.SIDED.find(level, neighbor, dir.getOpposite());
+			EnergyTransfers.move(energyStorage, target, 256);
 		}
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider registries) {
-		pTag.put("inventory", itemHandler.serializeNBT(registries));
+	protected void saveAdditional(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag pTag = new CompoundTag();
+		itemHandler.writeValue(output.child("inventory"));
 		pTag.putInt("burnTime", burnTime);
 		energyStorage.saveNBT(pTag);
-		super.saveAdditional(pTag, registries);
-	}
+		super.saveAdditional(output);
+
+        com.dragonminez.platform.nbt.NbtValues.write(output, pTag);
+    }
 
 	@Override
-	protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider registries) {
-		super.loadAdditional(pTag, registries);
+	protected void loadAdditional(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag pTag = com.dragonminez.platform.nbt.NbtValues.read(input);
+		super.loadAdditional(input);
 		if (pTag.contains("inventory")) {
-			itemHandler.deserializeNBT(registries, pTag.getCompound("inventory"));
+			itemHandler.readValue(input.childOrEmpty("inventory"));
 		}
-		burnTime = pTag.getInt("burnTime");
+		burnTime = pTag.getIntOr("burnTime", 0);
 		energyStorage.loadNBT(pTag);
 	}
+
+    @Override public net.minecraft.core.BlockPos getScreenOpeningData(net.minecraft.server.level.ServerPlayer player) {
+        return getBlockPos();
+    }
 
 	@Override
 	public Component getDisplayName() {
@@ -176,10 +183,10 @@ public class FuelGeneratorBlockEntity extends BlockEntity implements MenuProvide
 
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-		controllerRegistrar.add(new AnimationController<>(this, "controller", 0, this::predicate));
+		controllerRegistrar.add(new AnimationController<>("controller", 0, this::predicate));
 	}
 
-	private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> tAnimationState) {
+	private <T extends GeoAnimatable> PlayState predicate(AnimationTest<T> tAnimationState) {
 		return tAnimationState.setAndContinue(RawAnimation.begin().then("animation.fuel_generator.idle", Animation.LoopType.LOOP));
 	}
 

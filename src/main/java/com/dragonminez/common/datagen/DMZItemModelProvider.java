@@ -1,5 +1,6 @@
 package com.dragonminez.common.datagen;
 
+import net.minecraft.world.item.equipment.ArmorType;
 import com.dragonminez.Reference;
 import com.dragonminez.common.dragonball.DragonBallDefinitions;
 import com.dragonminez.common.dragonball.DragonBallSetDefinition;
@@ -16,7 +17,7 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 import java.util.Map;
 
@@ -539,7 +540,7 @@ public class DMZItemModelProvider extends ItemModelProvider {
 				Identifier.parse("item/generated")).texture("layer0",
 				Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + item.getId().getPath()));
 	}
-	private void generateArmorSetModels(Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> armorSet) {
+	private void generateArmorSetModels(Map<ArmorType, DeferredHolder<Item, ? extends Item>> armorSet) {
 		for (DeferredHolder<Item, ? extends Item> piece : armorSet.values()) {
 			armorItem(piece);
 		}

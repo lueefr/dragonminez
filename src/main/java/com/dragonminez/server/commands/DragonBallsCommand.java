@@ -99,7 +99,7 @@ public class DragonBallsCommand {
 			DragonBallSavedData data = DragonBallSavedData.get(level);
 			source.sendSuccess(() -> Component.translatable("command.dragonminez.dragonballs.header",
 					Component.literal(definition.getId()).withStyle(ChatFormatting.YELLOW),
-					Component.literal(level.dimension().location().toString()).withStyle(ChatFormatting.AQUA),
+					Component.literal(level.dimension().identifier().toString()).withStyle(ChatFormatting.AQUA),
 					copies), false);
 
 			for (int star : definition.getStars().stream().sorted().toList()) {
@@ -186,7 +186,7 @@ public class DragonBallsCommand {
 		String text = placed ? pos.getX() + ", " + pos.getY() + ", " + pos.getZ() : pos.getX() + ", ?, " + pos.getZ();
 		return ComponentUtils.wrapInSquareBrackets(Component.literal(text)).withStyle(style -> style
 				.withColor(placed ? ChatFormatting.GREEN : ChatFormatting.GRAY)
-				.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/execute in " + level.dimension().location() + " run tp @s " + pos.getX() + " " + tpY + " " + pos.getZ()))
+				.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/execute in " + level.dimension().identifier() + " run tp @s " + pos.getX() + " " + tpY + " " + pos.getZ()))
 				.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(placed
 						? "command.dragonminez.dragonballs.placed_hover"
 						: "command.dragonminez.dragonballs.pending_hover"))));

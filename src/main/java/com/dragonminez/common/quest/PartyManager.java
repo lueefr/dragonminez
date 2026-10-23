@@ -21,13 +21,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.server.ServerStartedEvent;
+import com.dragonminez.platform.event.server.ServerStoppedEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;

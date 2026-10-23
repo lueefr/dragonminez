@@ -103,7 +103,7 @@ public class TechniqueChargeC2S {
 							data.getTechniques().selectSlot(msg.slot);
 							data.getTechniques().startTechniqueCharge(kiAttack.getId());
 							data.getTechniques().setHomingTargetId(lockTarget);
-							net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(
+							com.dragonminez.platform.event.GameEvents.BUS.post(
 									new com.dragonminez.common.events.DMZEvent.KiAttackCastEvent(player, data, kiAttack));
 						} else {
 							data.getTechniques().clearTechniqueCharge();
@@ -127,7 +127,7 @@ public class TechniqueChargeC2S {
 		if (targetId < 0) return -1;
 		int kiSense = data.getSkills().getSkillLevel("kisense");
 		if (kiSense <= 0) return -1;
-		Entity target = player.serverLevel().getEntity(targetId);
+		Entity target = player.level().getEntity(targetId);
 		if (target == null || target == player) return -1;
 		double maxRange = 15.0 + 5.0 * kiSense + LOCK_RANGE_MARGIN;
 		if (data.getStatus().isAndroidUpgraded()) maxRange += 25.0;

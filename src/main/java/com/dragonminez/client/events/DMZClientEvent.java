@@ -4,7 +4,7 @@ import lombok.*;
 import com.dragonminez.common.combat.player.AttackHand;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
-import net.neoforged.bus.api.Event;
+import com.dragonminez.platform.event.Event;
 import org.jetbrains.annotations.Nullable;
 import java.util.List;
 

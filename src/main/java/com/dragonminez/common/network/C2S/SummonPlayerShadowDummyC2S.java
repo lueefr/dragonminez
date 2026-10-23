@@ -10,7 +10,6 @@ import com.dragonminez.common.network.S2C.StatsSyncS2C;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
-import com.dragonminez.server.events.EntitiesEvents;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -65,7 +64,7 @@ public class SummonPlayerShadowDummyC2S {
 
 				clearPlayerShadowDummy(player, data);
 
-				ServerLevel level = player.serverLevel();
+				ServerLevel level = player.level();
 				EntityType<?> entityType = MainEntities.SHADOW_DUMMY.get();
 				if (!(entityType.create(level) instanceof ShadowDummyEntity dummy)) {
 					LogUtil.warn(Env.SERVER, "Shadow clone (minigame) FAILED to spawn (entity creation returned null) for player {}", playerName);
@@ -74,9 +73,9 @@ public class SummonPlayerShadowDummyC2S {
 
 				dummy.setPos(player.getX(), player.getY(), player.getZ());
 				dummy.copyStatsFromPlayerWithPercent(player, pct);
-				dummy.getPersistentData().putString("dmz_quest_owner", player.getStringUUID());
-				dummy.getPersistentData().putBoolean(TAG_PLAYER_SHADOW, true);
-				dummy.getPersistentData().putInt("dmz_shadow_percent", pct);
+				com.dragonminez.platform.entity.EntityData.get(dummy).putString("dmz_quest_owner", player.getStringUUID());
+				com.dragonminez.platform.entity.EntityData.get(dummy).putBoolean(TAG_PLAYER_SHADOW, true);
+				com.dragonminez.platform.entity.EntityData.get(dummy).putInt("dmz_shadow_percent", pct);
 				if (!level.addFreshEntity(dummy)) {
 					dummy.discard();
 					LogUtil.warn(Env.SERVER, "Shadow clone (minigame) FAILED to spawn (addFreshEntity rejected, e.g. protected/spawn-blocked area) for player {}", playerName);
@@ -121,7 +120,7 @@ public class SummonPlayerShadowDummyC2S {
 	}
 
 	public static void dismissByDummy(ShadowDummyEntity dummy) {
-		if (!dummy.getPersistentData().getBoolean(TAG_PLAYER_SHADOW)) {
+		if (!com.dragonminez.platform.entity.EntityData.get(dummy).getBooleanOr(TAG_PLAYER_SHADOW, false)) {
 			dummy.discard();
 			return;
 		}
@@ -129,7 +128,7 @@ public class SummonPlayerShadowDummyC2S {
 		ServerPlayer owner = null;
 		if (server != null) {
 			try {
-				owner = server.getPlayerList().getPlayer(UUID.fromString(dummy.getPersistentData().getString("dmz_quest_owner")));
+				owner = server.getPlayerList().getPlayer(UUID.fromString(com.dragonminez.platform.entity.EntityData.get(dummy).getStringOr("dmz_quest_owner", "")));
 			} catch (Exception ignored) {}
 		}
 		if (owner != null) {

@@ -346,36 +346,36 @@ public class HairStrand {
 	}
 
 	public void load(CompoundTag tag) {
-		this.id = tag.getInt("i");
-		setSegments(tag.getInt("sg"));
-		this.length = tag.contains("ln") ? HairMath.clampFinite(tag.getFloat("ln"), MIN_LENGTH, MAX_LENGTH, DEFAULT_LENGTH) : DEFAULT_LENGTH;
-		this.lengthRatio = tag.contains("lr") ? HairMath.clampFinite(tag.getFloat("lr"), MIN_LENGTH_RATIO, MAX_LENGTH_RATIO, 1.0f) : 1.0f;
-		this.width = tag.contains("w") ? HairMath.clampFinite(tag.getFloat("w"), MIN_WIDTH, MAX_WIDTH, DEFAULT_WIDTH) : DEFAULT_WIDTH;
-		this.depth = tag.contains("d") ? HairMath.clampFinite(tag.getFloat("d"), MIN_WIDTH, MAX_WIDTH, DEFAULT_DEPTH) : DEFAULT_DEPTH;
-		this.taper = tag.contains("tp") ? HairMath.clampFinite(tag.getFloat("tp"), MIN_TAPER, MAX_TAPER, 1.0f) : 1.0f;
-		this.taperCurve = tag.contains("tg") ? HairMath.clampFinite(tag.getFloat("tg"), MIN_TAPER_CURVE, MAX_TAPER_CURVE, 1.0f) : 1.0f;
+		this.id = tag.getIntOr("i", 0);
+		setSegments(tag.getIntOr("sg", 0));
+		this.length = tag.contains("ln") ? HairMath.clampFinite(tag.getFloatOr("ln", 0F), MIN_LENGTH, MAX_LENGTH, DEFAULT_LENGTH) : DEFAULT_LENGTH;
+		this.lengthRatio = tag.contains("lr") ? HairMath.clampFinite(tag.getFloatOr("lr", 0F), MIN_LENGTH_RATIO, MAX_LENGTH_RATIO, 1.0f) : 1.0f;
+		this.width = tag.contains("w") ? HairMath.clampFinite(tag.getFloatOr("w", 0F), MIN_WIDTH, MAX_WIDTH, DEFAULT_WIDTH) : DEFAULT_WIDTH;
+		this.depth = tag.contains("d") ? HairMath.clampFinite(tag.getFloatOr("d", 0F), MIN_WIDTH, MAX_WIDTH, DEFAULT_DEPTH) : DEFAULT_DEPTH;
+		this.taper = tag.contains("tp") ? HairMath.clampFinite(tag.getFloatOr("tp", 0F), MIN_TAPER, MAX_TAPER, 1.0f) : 1.0f;
+		this.taperCurve = tag.contains("tg") ? HairMath.clampFinite(tag.getFloatOr("tg", 0F), MIN_TAPER_CURVE, MAX_TAPER_CURVE, 1.0f) : 1.0f;
 		this.offsetX = 0.0f;
 		this.offsetY = 0.0f;
 		this.offsetZ = 0.0f;
-		setOffset(tag.getFloat("ox"), tag.getFloat("oy"), tag.getFloat("oz"));
+		setOffset(tag.getFloatOr("ox", 0F), tag.getFloatOr("oy", 0F), tag.getFloatOr("oz", 0F));
 		this.rotationX = 0.0f;
 		this.rotationY = 0.0f;
 		this.rotationZ = 0.0f;
-		setRotation(tag.getFloat("rx"), tag.getFloat("ry"), tag.getFloat("rz"));
+		setRotation(tag.getFloatOr("rx", 0F), tag.getFloatOr("ry", 0F), tag.getFloatOr("rz", 0F));
 		this.bendX = 0.0f;
 		this.bendY = 0.0f;
 		this.bendZ = 0.0f;
-		setBend(tag.getFloat("bx"), tag.getFloat("by"), tag.getFloat("bz"));
+		setBend(tag.getFloatOr("bx", 0F), tag.getFloatOr("by", 0F), tag.getFloatOr("bz", 0F));
 		this.twist = 0.0f;
-		setTwist(tag.getFloat("tw"));
-		this.jointStyle = HairJointStyle.byId(tag.getByte("js"));
-		this.color = tag.contains("c") ? HairColors.normalize(tag.getString("c")) : null;
-		this.tipColor = tag.contains("tc") ? HairColors.normalize(tag.getString("tc")) : null;
+		setTwist(tag.getFloatOr("tw", 0F));
+		this.jointStyle = HairJointStyle.byId(tag.getByteOr("js", (byte) 0));
+		this.color = tag.contains("c") ? HairColors.normalize(tag.getStringOr("c", "")) : null;
+		this.tipColor = tag.contains("tc") ? HairColors.normalize(tag.getStringOr("tc", "")) : null;
 		this.overrides.clear();
-		if (tag.contains("so", Tag.TAG_LIST)) {
-			ListTag overrideList = tag.getList("so", Tag.TAG_COMPOUND);
+		if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "so", Tag.TAG_LIST)) {
+			ListTag overrideList = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "so", Tag.TAG_COMPOUND);
 			for (int i = 0; i < overrideList.size(); i++) {
-				HairSegmentOverride override = HairSegmentOverride.load(overrideList.getCompound(i));
+				HairSegmentOverride override = HairSegmentOverride.load(overrideList.getCompoundOrEmpty(i));
 				if (override.getIndex() >= 0 && override.getIndex() < MAX_SEGMENTS) overrides.put(override.getIndex(), override);
 			}
 		}

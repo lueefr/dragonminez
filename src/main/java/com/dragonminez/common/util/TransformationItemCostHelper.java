@@ -57,7 +57,7 @@ public class TransformationItemCostHelper {
 	}
 
 	public static int getFormDurationSecondsRemaining(Player player) {
-		return Math.max(0, player.getPersistentData().getInt(PERSISTENT_FORM_DURATION_KEY));
+		return Math.max(0, com.dragonminez.platform.entity.EntityData.get(player).getIntOr(PERSISTENT_FORM_DURATION_KEY, 0));
 	}
 
 	public static void setFormDurationSecondsRemaining(Player player, int seconds) {
@@ -65,11 +65,11 @@ public class TransformationItemCostHelper {
 	}
 
 	public static void clearFormDurationSecondsRemaining(Player player) {
-		player.getPersistentData().remove(PERSISTENT_FORM_DURATION_KEY);
+		com.dragonminez.platform.entity.EntityData.get(player).remove(PERSISTENT_FORM_DURATION_KEY);
 	}
 
 	public static int getStackFormDurationSecondsRemaining(Player player) {
-		return Math.max(0, player.getPersistentData().getInt(PERSISTENT_STACK_DURATION_KEY));
+		return Math.max(0, com.dragonminez.platform.entity.EntityData.get(player).getIntOr(PERSISTENT_STACK_DURATION_KEY, 0));
 	}
 
 	public static void setStackFormDurationSecondsRemaining(Player player, int seconds) {
@@ -77,12 +77,12 @@ public class TransformationItemCostHelper {
 	}
 
 	public static void clearStackFormDurationSecondsRemaining(Player player) {
-		player.getPersistentData().remove(PERSISTENT_STACK_DURATION_KEY);
+		com.dragonminez.platform.entity.EntityData.get(player).remove(PERSISTENT_STACK_DURATION_KEY);
 	}
 
 	private static void setPersistentDuration(Player player, String key, int seconds) {
-		if (seconds <= 0) player.getPersistentData().remove(key);
-		else player.getPersistentData().putInt(key, seconds);
+		if (seconds <= 0) com.dragonminez.platform.entity.EntityData.get(player).remove(key);
+		else com.dragonminez.platform.entity.EntityData.get(player).putInt(key, seconds);
 	}
 
 	private static boolean isValidTriggerCost(FormConfig.FormData.TriggerItemCost cost) {
@@ -125,7 +125,7 @@ public class TransformationItemCostHelper {
 		if (itemId != null && !itemId.isBlank()) {
 			Identifier itemKey = getCachedResourceLocation(itemId);
 			if (itemKey == null) return false;
-			Item expectedItem = BuiltInRegistries.ITEM.get(itemKey);
+			Item expectedItem = BuiltInRegistries.ITEM.getValue(itemKey);
 			return expectedItem != null && expectedItem == stack.getItem();
 		}
 		if (itemTag != null && !itemTag.isBlank()) {

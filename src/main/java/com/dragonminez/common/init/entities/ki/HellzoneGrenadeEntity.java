@@ -429,8 +429,8 @@ public class HellzoneGrenadeEntity extends AbstractKiProjectile {
     public void tick() {
         if (this.getOwner() instanceof LivingEntity owner && owner.isAlive()) {
             this.followOwner(owner);
-            if (!this.level().isClientSide && !this.isFiring() && !this.handsFormed) this.formHandOrbs(owner);
-        } else if (!this.level().isClientSide) {
+            if (!this.level().isClientSide() && !this.isFiring() && !this.handsFormed) this.formHandOrbs(owner);
+        } else if (!this.level().isClientSide()) {
             this.discard();
             return;
         }
@@ -441,7 +441,7 @@ public class HellzoneGrenadeEntity extends AbstractKiProjectile {
 
     @Override
     protected void onKiTick() {
-        if (this.level().isClientSide || !this.isFiring() || this.anchor == null) return;
+        if (this.level().isClientSide() || !this.isFiring() || this.anchor == null) return;
         if (!(this.getOwner() instanceof LivingEntity owner)) return;
 
         int tick = this.sequenceTick++;
@@ -476,7 +476,7 @@ public class HellzoneGrenadeEntity extends AbstractKiProjectile {
 
     @Override
     public void remove(RemovalReason reason) {
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             for (Orb orb : this.orbs) {
                 if (!orb.isRemoved()) orb.discard();
             }
@@ -580,7 +580,7 @@ public class HellzoneGrenadeEntity extends AbstractKiProjectile {
                     Vec3 hand = chargeHand(owner, this.entityData.get(HELD_HAND) > 0);
                     this.setPos(hand.x, hand.y - this.getBbHeight() * 0.5D, hand.z);
                     this.setDeltaMovement(Vec3.ZERO);
-                } else if (!this.level().isClientSide) {
+                } else if (!this.level().isClientSide()) {
                     this.discard();
                     return;
                 }
@@ -626,17 +626,17 @@ public class HellzoneGrenadeEntity extends AbstractKiProjectile {
 
         @Override
         protected void onHitEntity(EntityHitResult pResult) {
-            if (!this.level().isClientSide && this.diving) this.explode();
+            if (!this.level().isClientSide() && this.diving) this.explode();
         }
 
         @Override
         protected void onHitBlock(BlockHitResult pResult) {
-            if (!this.level().isClientSide && this.diving) this.explode();
+            if (!this.level().isClientSide() && this.diving) this.explode();
         }
 
         @Override
         protected void onKiTick() {
-            if (this.level().isClientSide || this.exploded) return;
+            if (this.level().isClientSide() || this.exploded) return;
             if (this.controller == null || this.controller.isRemoved()) {
                 this.discard();
                 return;

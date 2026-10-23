@@ -1,6 +1,6 @@
 package com.dragonminez.common.combat.util;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.MainGameRules;
 import com.dragonminez.common.init.block.custom.DragonBallBlock;
@@ -19,15 +19,10 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.LevelTickEvent;
+import com.dragonminez.platform.event.level.LevelEvent;
+import com.dragonminez.platform.event.server.ServerStoppedEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

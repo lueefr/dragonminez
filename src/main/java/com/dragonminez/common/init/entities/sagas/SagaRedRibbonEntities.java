@@ -67,7 +67,7 @@ public class SagaRedRibbonEntities {
         }
 
     }
-    
+
     public static class TaoPaiPaiEntity extends DBSagasEntity {
 
         private static final int DODONPA_COLOR = 0xFFE661;
@@ -108,7 +108,7 @@ public class SagaRedRibbonEntities {
         public boolean doHurtTarget(Entity pTarget) {
             boolean hurt = super.doHurtTarget(pTarget);
 
-            if (hurt && !this.level().isClientSide
+            if (hurt && !this.level().isClientSide()
                     && pTarget instanceof LivingEntity victim
                     && this.random.nextFloat() < PUSH_CHANCE) {
 
@@ -122,7 +122,7 @@ public class SagaRedRibbonEntities {
         public void tick() {
             super.tick();
 
-            if (this.level().isClientSide || !this.isAlive()) return;
+            if (this.level().isClientSide() || !this.isAlive()) return;
             if (this.getTarget() == null) return;
 
             if (--this.tntTimer <= 0) {
@@ -239,7 +239,7 @@ public class SagaRedRibbonEntities {
         public boolean doHurtTarget(Entity pTarget) {
             boolean hurt = super.doHurtTarget(pTarget);
 
-            if (hurt && !this.level().isClientSide && ++this.hitsLanded >= HITS_BEFORE_FLEEING) {
+            if (hurt && !this.level().isClientSide() && ++this.hitsLanded >= HITS_BEFORE_FLEEING) {
                 this.hitsLanded = 0;
                 this.retreatTicks = RETREAT_DURATION;
             }

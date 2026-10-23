@@ -1,19 +1,18 @@
 package com.dragonminez.client.render;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.SubscribeEvent;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public final class CameraProjectionCapture {
 	private static final Matrix4f VIEW_PROJECTION = new Matrix4f();
 	private static final Matrix4f VIEW = new Matrix4f();
@@ -32,7 +31,7 @@ public final class CameraProjectionCapture {
 		VIEW_PROJECTION.set(event.getProjectionMatrix()).mul(event.getPoseStack().last().pose());
 		VIEW.set(event.getPoseStack().last().pose());
 		VIEW_NORMAL.set(event.getPoseStack().last().normal());
-		cameraPosition = event.getCamera().getPosition();
+		cameraPosition = event.getCamera().position();
 		capturedFrame = ++frameCounter;
 	}
 

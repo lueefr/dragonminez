@@ -15,10 +15,10 @@ import com.dragonminez.common.util.lists.MajinForms;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.PlayerModelPart;
-import net.minecraft.world.item.ArmorItem;
+import com.dragonminez.platform.item.ArmorData;
 import net.minecraft.world.item.ItemStack;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 
 import java.util.Objects;
 import com.geckolib.renderer.layer.GeoRenderLayer;
@@ -26,7 +26,7 @@ import com.geckolib.renderer.layer.GeoRenderLayer;
 public class BoneVisibilityHandler {
 	private static final String[] FUSION_MODEL_BONES = {"cola", "xenotail", "orejas", "alas", "cabeza2"};
 
-	public static void updateVisibility(BakedGeoModel model, AbstractClientPlayer player, GeoRenderLayer<?> renderLayer) {
+	public static void updateVisibility(BakedGeoModel model, AbstractClientPlayer player, GeoRenderLayer<?, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderLayer) {
 		FusionOriginBones.reveal(model);
 		var stats = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
 		if (stats == null) return;
@@ -154,13 +154,13 @@ public class BoneVisibilityHandler {
 		}
 	}
 
-	public static boolean shouldShowBodyOnly(GeoRenderLayer<?> renderLayer, AbstractClientPlayer player) {
+	public static boolean shouldShowBodyOnly(GeoRenderLayer<?, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderLayer, AbstractClientPlayer player) {
 		return renderLayer instanceof DMZCustomArmorLayer<?> && hasModerfokinArmor(player);
 	}
 
 	public static boolean hasModerfokinArmor(AbstractClientPlayer player) {
 		final ItemStack stack = CosmeticArmorCompat.getVisibleStack(player, EquipmentSlot.CHEST);
-		if (stack.isEmpty() || !(stack.getItem() instanceof ArmorItem)) return false;
+		if (stack.isEmpty() || !(ArmorData.isArmor(stack))) return false;
 		return stack.getItem() instanceof DbzArmorTextured;
 	}
 

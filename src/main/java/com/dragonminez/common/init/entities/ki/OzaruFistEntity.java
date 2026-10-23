@@ -18,11 +18,11 @@ import net.minecraft.world.phys.Vec3;
 import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 import java.util.List;
 
@@ -62,7 +62,7 @@ public class OzaruFistEntity extends AbstractKiProjectile implements GeoEntity {
         // position and fading as the player moves away.
         this.level().playSound(null, owner, MainSounds.OOZARU_FIST.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -75,7 +75,7 @@ public class OzaruFistEntity extends AbstractKiProjectile implements GeoEntity {
         Entity owner = this.getOwner();
 
         if (owner == null || !owner.isAlive()) {
-            if (!this.level().isClientSide) this.discard();
+            if (!this.level().isClientSide()) this.discard();
             return;
         }
 
@@ -91,7 +91,7 @@ public class OzaruFistEntity extends AbstractKiProjectile implements GeoEntity {
             owner.hasImpulse = true;
             owner.fallDistance = 0;
 
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 devastateEnemies(owner, upwardForce);
             } else {
                 spawnAuraParticles(owner);
@@ -158,21 +158,28 @@ public class OzaruFistEntity extends AbstractKiProjectile implements GeoEntity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
     }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 0, this::predicate));
+        controllers.add(new AnimationController<>("controller", 0, this::predicate));
     }
 
-    private PlayState predicate(AnimationState<OzaruFistEntity> event) {
+    private PlayState predicate(AnimationTest<OzaruFistEntity> event) {
         return event.setAndContinue(RawAnimation.begin().thenLoop("idle"));
     }
 

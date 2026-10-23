@@ -17,11 +17,11 @@ public final class GravityDeviceManager {
 	private GravityDeviceManager() {}
 
 	private static String key(Level level, BlockPos pos) {
-		return level.dimension().location() + "@" + pos.asLong();
+		return level.dimension().identifier() + "@" + pos.asLong();
 	}
 
 	public static void register(Level level, BlockPos pos, AABB bounds, double gravity) {
-		ZONES.put(key(level, pos), new Zone(level.dimension().location().toString(), bounds, gravity));
+		ZONES.put(key(level, pos), new Zone(level.dimension().identifier().toString(), bounds, gravity));
 	}
 
 	public static void unregister(Level level, BlockPos pos) {
@@ -30,7 +30,7 @@ public final class GravityDeviceManager {
 
 	public static double getGravityFor(Player player) {
 		if (ZONES.isEmpty()) return 0.0;
-		String dim = player.level().dimension().location().toString();
+		String dim = player.level().dimension().identifier().toString();
 		double x = player.getX();
 		double y = player.getY();
 		double z = player.getZ();

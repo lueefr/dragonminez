@@ -10,7 +10,6 @@ import com.dragonminez.common.init.entities.ki.AbstractKiProjectile;
 import com.dragonminez.common.init.entities.ki.KiBlastEntity;
 import com.dragonminez.common.init.entities.ki.KiWaveEntity;
 import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
-import com.dragonminez.common.stats.extras.ActionMode;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -18,19 +17,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
-import net.neoforged.neoforge.client.event.ViewportEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import net.fabricmc.api.EnvType;
+import com.dragonminez.platform.event.client.RenderGuiLayerEvent;
+import com.dragonminez.platform.event.client.ViewportEvent;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import com.dragonminez.platform.event.tick.ClientTickEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public class EffectsEvents {
 	private static boolean isBioAndroidDrainingCache = false;
 	private static boolean isChargingFormCache = false;
@@ -236,7 +231,7 @@ public class EffectsEvents {
 
 	@SubscribeEvent
 	public static void renderStaggerOverlay(RenderGuiLayerEvent.Post event) {
-		if (VanillaGuiLayers.CROSSHAIR.equals(event.getName())) {
+		if (VanillaHudElements.CROSSHAIR.equals(event.getName())) {
 			Minecraft mc = Minecraft.getInstance();
 			Player player = mc.player;
 
@@ -263,7 +258,7 @@ public class EffectsEvents {
 
 	@SubscribeEvent
 	public static void renderStunOverlay(RenderGuiLayerEvent.Post event) {
-		if (VanillaGuiLayers.CAMERA_OVERLAYS.equals(event.getName())) {
+		if (VanillaHudElements.MISC_OVERLAYS.equals(event.getName())) {
 			Minecraft mc = Minecraft.getInstance();
 			Player player = mc.player;
 

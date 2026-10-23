@@ -18,7 +18,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
-import java.util.UUID;
 
 public class HumanAdaptation implements RacialAbility {
 	private static final net.minecraft.resources.Identifier ADRENALINE_ATTACK_SPEED_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/a1e1a4a0-3b3e-4a1e-9b1d-adde5a1177ac");

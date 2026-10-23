@@ -30,19 +30,19 @@ public abstract class ChunkSerializerMixin {
 	@Inject(method = "unpackStructureReferences", at = @At("HEAD"), cancellable = true)
 	private static void dragonminez$keepIncrementalReferences(RegistryAccess registryAccess, ChunkPos pos, CompoundTag tag,
 															  CallbackInfoReturnable<Map<Structure, LongSet>> cir) {
-		Registry<Structure> registry = registryAccess.registryOrThrow(Registries.STRUCTURE);
-		CompoundTag references = tag.getCompound("References");
+		Registry<Structure> registry = registryAccess.lookupOrThrow(Registries.STRUCTURE);
+		CompoundTag references = tag.getCompoundOrEmpty("References");
 		if (!dragonminez$hasDistantIncremental(registry, pos, references)) return;
 
 		Map<Structure, LongSet> result = new HashMap<>();
-		for (String key : references.getAllKeys()) {
+		for (String key : references.keySet()) {
 			Identifier id = Identifier.tryParse(key);
 			Structure structure = registry.get(id);
 			if (structure == null) {
 				LOGGER.warn("Found reference to unknown structure '{}' in chunk {}, discarding", id, pos);
 				continue;
 			}
-			long[] packed = references.getLongArray(key);
+			long[] packed = references.getLongArray(key).orElseGet(() -> new long[0]);
 			if (packed.length == 0) continue;
 			int range = dragonminez$referenceRange(structure);
 			LongSet kept = new LongOpenHashSet(packed.length);
@@ -60,9 +60,9 @@ public abstract class ChunkSerializerMixin {
 	}
 
 	private static boolean dragonminez$hasDistantIncremental(Registry<Structure> registry, ChunkPos pos, CompoundTag references) {
-		for (String key : references.getAllKeys()) {
+		for (String key : references.keySet()) {
 			if (!(registry.get(Identifier.tryParse(key)) instanceof IncrementalStructure)) continue;
-			for (long origin : references.getLongArray(key)) {
+			for (long origin : references.getLongArray(key).orElseGet(() -> new long[0])) {
 				int distance = new ChunkPos(origin).getChessboardDistance(pos);
 				if (distance > 8 && distance <= StructureRepairManager.COMPLETION_RANGE) return true;
 			}

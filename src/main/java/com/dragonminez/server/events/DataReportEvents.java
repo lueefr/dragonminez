@@ -5,10 +5,9 @@ import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.diagnostics.JsonLoadReport;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
 import java.util.List;
 

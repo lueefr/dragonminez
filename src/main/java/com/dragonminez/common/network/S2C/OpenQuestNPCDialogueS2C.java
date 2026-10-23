@@ -6,7 +6,7 @@ import com.dragonminez.common.quest.QuestService;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -88,7 +88,7 @@ public class OpenQuestNPCDialogueS2C {
 
 	public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
 		NetworkEvent.Context context = contextSupplier.get();
-		context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+		context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 				() -> () -> ClientPacketHandler.handleOpenQuestNpcDialoguePacket(this)));
 		context.setPacketHandled(true);
 	}

@@ -43,7 +43,7 @@ public class RaidCommand {
 
 	private static int start(CommandContext<CommandSourceStack> ctx, String type) throws CommandSyntaxException {
 		ServerPlayer player = ctx.getSource().getPlayerOrException();
-		ServerLevel level = player.serverLevel();
+		ServerLevel level = player.level();
 
 		Raid raid = RaidManager.startRaid(level, player.blockPosition(), player, type);
 		if (raid == null) {
@@ -56,7 +56,7 @@ public class RaidCommand {
 
 	private static int stop(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		ServerPlayer player = ctx.getSource().getPlayerOrException();
-		boolean cancelled = RaidManager.cancelNearbyRaid(player.serverLevel(), player.blockPosition(), LOOKUP_RANGE);
+		boolean cancelled = RaidManager.cancelNearbyRaid(player.level(), player.blockPosition(), LOOKUP_RANGE);
 		if (!cancelled) {
 			ctx.getSource().sendFailure(Component.translatable("command.dragonminez.raid.none"));
 			return 0;
@@ -67,7 +67,7 @@ public class RaidCommand {
 
 	private static int info(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		ServerPlayer player = ctx.getSource().getPlayerOrException();
-		Raid raid = RaidManager.findNearbyRaid(player.serverLevel(), player.blockPosition(), LOOKUP_RANGE);
+		Raid raid = RaidManager.findNearbyRaid(player.level(), player.blockPosition(), LOOKUP_RANGE);
 		if (raid == null) {
 			ctx.getSource().sendFailure(Component.translatable("command.dragonminez.raid.none"));
 			return 0;

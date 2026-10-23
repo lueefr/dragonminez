@@ -12,12 +12,11 @@ import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
@@ -27,12 +26,12 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.cache.object.GeoCube;
-import com.geckolib.cache.object.GeoQuad;
-import com.geckolib.cache.object.GeoVertex;
-import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.cache.model.cuboid.GeoCube;
+import com.geckolib.cache.model.GeoQuad;
+import com.geckolib.cache.model.GeoVertex;
+import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
 import java.util.ArrayList;
@@ -115,9 +114,9 @@ public class KiWeaponRenderer {
 		ENTITY_BLADES.clear();
 	}
 
-	public static class SagaBladeLayer<T extends DBSagasEntity> extends GeoRenderLayer<T> {
+	public static class SagaBladeLayer<T extends DBSagasEntity> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 
-		public SagaBladeLayer(GeoRenderer<T> renderer) {
+		public SagaBladeLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderer) {
 			super(renderer);
 		}
 

@@ -415,7 +415,7 @@ public class BioAndroidEvolution implements RacialAbility {
 			double damage = player.getMaxHealth() * config.getExplodeDamageRatio() * falloff;
 			if (damage <= 0) continue;
 
-			victim.hurt(MainDamageTypes.kiblast(level, player, player), (float) damage);
+			victim.hurtOrSimulate(MainDamageTypes.kiblast(level, player, player), (float) damage);
 		}
 
 		data.getRacialData().setBioBlastCenter(center);
@@ -423,7 +423,7 @@ public class BioAndroidEvolution implements RacialAbility {
 		data.getRacialData().setBioBlastTick(0);
 
 		if (config.getExplodeKillsUser()) {
-			player.hurt(player.damageSources().genericKill(), Float.MAX_VALUE);
+			player.hurtOrSimulate(player.damageSources().genericKill(), Float.MAX_VALUE);
 		} else {
 			int knockdownTicks = config.getExplodeKnockdownSeconds() * 20;
 			player.setHealth(Math.max(1.0F, player.getMaxHealth() * EXPLODE_SURVIVAL_HEALTH_RATIO));

@@ -1,6 +1,6 @@
 package com.dragonminez.client.render.camera;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.events.LockOnEvent;
 import com.dragonminez.client.render.firstperson.dto.DMZCameraBuffer;
@@ -17,17 +17,12 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.ViewportEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.fabricmc.api.EnvType;
+import com.dragonminez.platform.event.client.ViewportEvent;
+import com.dragonminez.platform.event.tick.ClientTickEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public final class StrikeCinematicCamera {
 	private static final double BLEND_IN_SECONDS = 0.35;
 	private static final double BLEND_OUT_SECONDS = 0.45;
@@ -114,9 +109,9 @@ public final class StrikeCinematicCamera {
 			previousType = mc.options.getCameraType();
 			Camera camera = mc.gameRenderer.getMainCamera();
 			if (camera.isInitialized()) {
-				Vec3 pos = camera.getPosition();
-				if (previousType.isFirstPerson()) pos = pos.subtract(new Vec3(camera.getLookVector()).scale(FIRST_PERSON_PULLBACK));
-				blendOrigin = new Shot(pos, camera.getYRot(), camera.getXRot());
+				Vec3 pos = camera.position();
+				if (previousType.isFirstPerson()) pos = pos.subtract(new Vec3(camera.forwardVector()).scale(FIRST_PERSON_PULLBACK));
+				blendOrigin = new Shot(pos, camera.yRot(), camera.xRot());
 			} else {
 				blendOrigin = null;
 			}

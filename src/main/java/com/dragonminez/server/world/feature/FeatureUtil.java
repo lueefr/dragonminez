@@ -77,7 +77,7 @@ final class FeatureUtil {
     }
 
     static boolean isInsideDmzStructure(WorldGenLevel level, BlockPos pos) {
-        Registry<Structure> structures = level.registryAccess().registryOrThrow(Registries.STRUCTURE);
+        Registry<Structure> structures = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
         int chunkX = pos.getX() >> 4;
         int chunkZ = pos.getZ() >> 4;
 

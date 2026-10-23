@@ -17,7 +17,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +45,7 @@ public class DragonRadarItem extends Item {
 	private final String radarDefinitionId;
 
 	public DragonRadarItem(String radarDefinitionId) {
-		super(new Properties().stacksTo(1));
+		super(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1));
 		this.radarDefinitionId = radarDefinitionId;
 	}
 
@@ -98,11 +97,14 @@ public class DragonRadarItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @NotNull Item.TooltipContext context, List<Component> tooltip, @NotNull TooltipFlag isAdvanced) {
-        net.minecraft.world.level.Level level = context.level();
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag isAdvanced) {
+        java.util.List<Component> tooltip = new java.util.ArrayList<>();
+        try {
 		DragonRadarDefinition definition = getDefinition();
 		if (definition != null) {
 			tooltip.add(Component.translatable(definition.getTooltipKey()).withStyle(ChatFormatting.GRAY));
 		}
-	}
+
+        } finally { tooltip.forEach(dmz$consumer); }
+    }
 }

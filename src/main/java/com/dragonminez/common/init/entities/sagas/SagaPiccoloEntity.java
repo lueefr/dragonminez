@@ -78,7 +78,7 @@ public class SagaPiccoloEntity{
         public void tick() {
             super.tick();
 
-            if (this.level().isClientSide || !this.isAlive()) return;
+            if (this.level().isClientSide() || !this.isAlive()) return;
 
             if (this.trapFuse > 0) {
                 this.trapFuse--;
@@ -207,7 +207,7 @@ public class SagaPiccoloEntity{
         public boolean doHurtTarget(Entity pTarget) {
             boolean hurt = super.doHurtTarget(pTarget);
 
-            if (hurt && !this.level().isClientSide
+            if (hurt && !this.level().isClientSide()
                     && pTarget instanceof LivingEntity victim
                     && this.random.nextFloat() < PUSH_CHANCE) {
 

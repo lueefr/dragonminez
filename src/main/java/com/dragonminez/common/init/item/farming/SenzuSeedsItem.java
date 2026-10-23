@@ -18,7 +18,7 @@ public class SenzuSeedsItem extends Item {
 	private final Supplier<? extends Block> cropBlock;
 
 	public SenzuSeedsItem(Supplier<? extends Block> cropBlock) {
-		super(new Properties());
+		super(com.dragonminez.platform.registry.RegistrationScope.itemProperties());
 		this.cropBlock = cropBlock;
 	}
 
@@ -30,7 +30,7 @@ public class SenzuSeedsItem extends Item {
 		BlockPos plantPos = clicked.above();
 
 		if (clickedState.is(Blocks.FARMLAND) && level.isEmptyBlock(plantPos)) {
-			if (!level.isClientSide) {
+			if (!level.isClientSide()) {
 				level.setBlock(plantPos, cropBlock.get().defaultBlockState(), 3);
 			}
 			Player player = context.getPlayer();

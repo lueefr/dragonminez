@@ -148,7 +148,7 @@ public class NPCActionC2S {
 	private static final long WEIGHT_REQUEST_COOLDOWN_TICKS = 200L;
 
 	public static boolean isNpcInRange(ServerPlayer player, String npcName) {
-		return player.serverLevel().getEntitiesOfClass(MastersEntity.class,
+		return player.level().getEntitiesOfClass(MastersEntity.class,
 						player.getBoundingBox().inflate(NPC_INTERACTION_RANGE),
 						npc -> npcName.equals(npc.getMasterName()))
 				.stream().findFirst().isPresent();
@@ -156,11 +156,11 @@ public class NPCActionC2S {
 
 	private static boolean isAnyMasterInRange(ServerPlayer player) {
 		AABB range = player.getBoundingBox().inflate(NPC_INTERACTION_RANGE);
-		boolean hasMaster = !player.serverLevel().getEntitiesOfClass(MastersEntity.class, range,
+		boolean hasMaster = !player.level().getEntitiesOfClass(MastersEntity.class, range,
 						npc -> npc.getMasterName() != null && !npc.getMasterName().isBlank())
 				.isEmpty();
 		if (hasMaster) return true;
-		return !player.serverLevel().getEntitiesOfClass(QuestNPCEntity.class, range,
+		return !player.level().getEntitiesOfClass(QuestNPCEntity.class, range,
 						npc -> npc.getNpcId() != null && !npc.getNpcId().isBlank())
 				.isEmpty();
 	}
@@ -244,7 +244,7 @@ public class NPCActionC2S {
 			discardPopoDummies(player);
 			String master = resolveNearestMasterName(player);
 			String playerName = player.getGameProfile().name();
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			EntityType<?> entityType = MainEntities.SHADOW_DUMMY.get();
 			if (!(entityType.create(level) instanceof ShadowDummyEntity shadowDummy)) {
 				LogUtil.warn(Env.SERVER, "Shadow clone FAILED to spawn (entity creation returned null) for player {} at master {}", playerName, master);
@@ -252,8 +252,8 @@ public class NPCActionC2S {
 			}
 			shadowDummy.setPos(player.getX(), player.getY(), player.getZ());
 			shadowDummy.copyStatsFromPlayer(player);
-			shadowDummy.getPersistentData().putString("dmz_quest_owner", player.getStringUUID());
-			shadowDummy.getPersistentData().putBoolean(TAG_POPO_SPAR, true);
+			com.dragonminez.platform.entity.EntityData.get(shadowDummy).putString("dmz_quest_owner", player.getStringUUID());
+			com.dragonminez.platform.entity.EntityData.get(shadowDummy).putBoolean(TAG_POPO_SPAR, true);
 			if (level.addFreshEntity(shadowDummy)) {
 				LogUtil.info(Env.SERVER, "Shadow clone spawned for player {} at master {} ({}, {}, {})",
 						playerName, master, (int) player.getX(), (int) player.getY(), (int) player.getZ());
@@ -267,18 +267,18 @@ public class NPCActionC2S {
 
 	private static void discardPopoDummies(ServerPlayer player) {
 		String owner = player.getStringUUID();
-		player.serverLevel().getEntitiesOfClass(ShadowDummyEntity.class, player.getBoundingBox().inflate(POPO_DUMMY_CLEANUP_RANGE),
-						dummy -> owner.equals(dummy.getPersistentData().getString("dmz_quest_owner"))
-								&& dummy.getPersistentData().getBoolean(TAG_POPO_SPAR))
+		player.level().getEntitiesOfClass(ShadowDummyEntity.class, player.getBoundingBox().inflate(POPO_DUMMY_CLEANUP_RANGE),
+						dummy -> owner.equals(com.dragonminez.platform.entity.EntityData.get(dummy).getStringOr("dmz_quest_owner", ""))
+								&& com.dragonminez.platform.entity.EntityData.get(dummy).getBooleanOr(TAG_POPO_SPAR, false))
 				.forEach(ShadowDummyEntity::discard);
 	}
 
 	private static String resolveNearestMasterName(ServerPlayer player) {
 		AABB range = player.getBoundingBox().inflate(NPC_INTERACTION_RANGE);
-		return player.serverLevel().getEntitiesOfClass(MastersEntity.class, range,
+		return player.level().getEntitiesOfClass(MastersEntity.class, range,
 						npc -> npc.getMasterName() != null && !npc.getMasterName().isBlank())
 				.stream().map(MastersEntity::getMasterName).findFirst()
-				.orElseGet(() -> player.serverLevel().getEntitiesOfClass(QuestNPCEntity.class, range,
+				.orElseGet(() -> player.level().getEntitiesOfClass(QuestNPCEntity.class, range,
 								npc -> npc.getNpcId() != null && !npc.getNpcId().isBlank())
 						.stream().map(QuestNPCEntity::getNpcId).findFirst()
 						.orElse("unknown"));

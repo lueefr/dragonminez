@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.minecraft.core.registries.BuiltInRegistries;
 import org.jetbrains.annotations.Nullable;
 
@@ -125,7 +124,7 @@ public class EnergyCableBlock extends BaseEntityBlock {
 		if (be != null) {
 			var key = BuiltInRegistries.BLOCK.getKey(state.getBlock());
 			if (key != null && key.getNamespace().equals(com.dragonminez.Reference.MOD_ID)) {
-				return level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage.BLOCK, pos, side) != null;
+				return team.reborn.energy.api.EnergyStorage.SIDED.find(level, pos, side) != null;
 			}
 		}
 

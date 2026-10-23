@@ -138,7 +138,7 @@ public final class HairLegacyMigrator {
 
 		public static LegacyStrand read(CompoundTag tag) {
 			LegacyStrand legacy = new LegacyStrand();
-			legacy.length = Math.max(0, tag.contains("l") ? tag.getInt("l") : tag.getInt("Length"));
+			legacy.length = Math.max(0, tag.contains("l") ? tag.getIntOr("l", 0) : tag.getIntOr("Length", 0));
 			legacy.lengthScale = readFloat(tag, "ls", "LengthScale", 1.0f);
 			legacy.rotationX = readFloat(tag, "rx", "RotX", 0.0f);
 			legacy.rotationY = readFloat(tag, "ry", "RotY", 0.0f);
@@ -152,12 +152,12 @@ public final class HairLegacyMigrator {
 			legacy.curveX = readFloat(tag, "cx", "CurveX", 0.0f);
 			legacy.curveY = readFloat(tag, "cy", "CurveY", 0.0f);
 			legacy.curveZ = readFloat(tag, "cz", "CurveZ", 0.0f);
-			legacy.color = tag.contains("c") ? tag.getString("c") : (tag.contains("Color") ? tag.getString("Color") : null);
+			legacy.color = tag.contains("c") ? tag.getStringOr("c", "") : (tag.contains("Color") ? tag.getStringOr("Color", "") : null);
 			return legacy;
 		}
 
 		private static float readFloat(CompoundTag tag, String shortKey, String longKey, float fallback) {
-			float value = tag.contains(shortKey) ? tag.getFloat(shortKey) : (tag.contains(longKey) ? tag.getFloat(longKey) : fallback);
+			float value = tag.contains(shortKey) ? tag.getFloatOr(shortKey, 0F) : (tag.contains(longKey) ? tag.getFloatOr(longKey, 0F) : fallback);
 			return Float.isFinite(value) ? value : fallback;
 		}
 	}

@@ -27,7 +27,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.common.NeoForge;
+import com.dragonminez.platform.event.GameEvents;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -831,7 +831,7 @@ public class StoryCommand {
 			// Anchor the NPC to its spawn spot so it returns here if it ever gets shoved away
 			// (Y is ignored, so changes to the blocks beneath it won't fight the anchor).
 			npc.setHomePosition(player.getX(), player.getZ());
-			player.serverLevel().addFreshEntity(npc);
+			player.level().addFreshEntity(npc);
 
 			context.getSource().sendSuccess(() -> Component.literal("Spawned quest NPC '" + npcId + "'."), true);
 			return 1;
@@ -845,7 +845,7 @@ public class StoryCommand {
 		try {
 			ServerPlayer player = context.getSource().getPlayerOrException();
 			AABB searchBox = player.getBoundingBox().inflate(NPC_SEARCH_RADIUS);
-			List<QuestNPCEntity> npcs = player.serverLevel().getEntitiesOfClass(QuestNPCEntity.class, searchBox);
+			List<QuestNPCEntity> npcs = player.level().getEntitiesOfClass(QuestNPCEntity.class, searchBox);
 
 			if (npcs.isEmpty()) {
 				context.getSource().sendSystemMessage(
@@ -875,7 +875,7 @@ public class StoryCommand {
 		try {
 			ServerPlayer player = context.getSource().getPlayerOrException();
 			AABB searchBox = player.getBoundingBox().inflate(NPC_SEARCH_RADIUS);
-			List<QuestNPCEntity> npcs = player.serverLevel().getEntitiesOfClass(QuestNPCEntity.class, searchBox);
+			List<QuestNPCEntity> npcs = player.level().getEntitiesOfClass(QuestNPCEntity.class, searchBox);
 
 			if (npcs.isEmpty()) {
 				context.getSource().sendFailure(
@@ -923,7 +923,7 @@ public class StoryCommand {
 		Saga saga = resolved != null ? resolved.saga() : null;
 		DMZEvent.QuestCompletedEvent completeEvent = new DMZEvent.QuestCompletedEvent(
 				player, questKey, saga, quest, PartyManager.getAllPartyMembers(player));
-		NeoForge.EVENT_BUS.post(completeEvent);
+		GameEvents.BUS.post(completeEvent);
 
 		pqd.completeQuest(questKey);
 		if (questKey.equals(pqd.getTrackedQuestId())) {
@@ -939,7 +939,7 @@ public class StoryCommand {
 				player, questKey, resolved != null ? resolved.saga() : null,
 				quest, PartyManager.getAllPartyMembers(player),
 				DMZEvent.QuestFailEvent.FailureReason.FORCED_RESET);
-		return !NeoForge.EVENT_BUS.post(failEvent).isCanceled();
+		return !GameEvents.BUS.post(failEvent).isCanceled();
 	}
 
 	/** Posts a fail event as part of a full data reset; returns true when the quest entry can be wiped. */
@@ -950,7 +950,7 @@ public class StoryCommand {
 				player, questKey, resolved != null ? resolved.saga() : null,
 				quest, PartyManager.getAllPartyMembers(player),
 				DMZEvent.QuestFailEvent.FailureReason.FORCED_RESET);
-		return !NeoForge.EVENT_BUS.post(failEvent).isCanceled();
+		return !GameEvents.BUS.post(failEvent).isCanceled();
 	}
 
 	private static Set<String> collectKnownQuestKeys(PlayerQuestData pqd) {

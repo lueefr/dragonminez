@@ -227,11 +227,11 @@ public class Skills {
 	}
 
 	public void load(CompoundTag nbt) {
-		if (nbt.contains("SkillsList", Tag.TAG_LIST)) {
-			ListTag skillsList = nbt.getList("SkillsList", Tag.TAG_COMPOUND);
+		if (com.dragonminez.platform.nbt.NbtCompat.contains(nbt, "SkillsList", Tag.TAG_LIST)) {
+			ListTag skillsList = com.dragonminez.platform.nbt.NbtCompat.getList(nbt, "SkillsList", Tag.TAG_COMPOUND);
 			skillMap.clear(); progressionRevision++;
 			for (int i = 0; i < skillsList.size(); i++) {
-				CompoundTag skillTag = skillsList.getCompound(i);
+				CompoundTag skillTag = skillsList.getCompoundOrEmpty(i);
 				Skill skill = Skill.load(skillTag);
 
 				String skillName = skill.getName().toLowerCase();

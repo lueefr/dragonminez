@@ -15,7 +15,7 @@ final class CaptureSlotNbt {
 							  Map<String, Integer> grantedStats, long acquiredAtGameTime) {
 		CompoundTag tag = new CompoundTag();
 		tag.putString("BonusName", bonusName);
-		if (sourceId != null) tag.putUUID("SourceId", sourceId);
+		if (sourceId != null) com.dragonminez.platform.nbt.NbtCompat.putUUID(tag, "SourceId", sourceId);
 		tag.putString("SourceName", sourceName == null ? "" : sourceName);
 		CompoundTag statsTag = new CompoundTag();
 		for (Map.Entry<String, Integer> entry : grantedStats.entrySet()) statsTag.putInt(entry.getKey(), entry.getValue());
@@ -25,13 +25,13 @@ final class CaptureSlotNbt {
 	}
 
 	static Fields fromNbt(CompoundTag tag) {
-		String bonusName = tag.getString("BonusName");
-		UUID sourceId = tag.hasUUID("SourceId") ? tag.getUUID("SourceId") : null;
-		String sourceName = tag.getString("SourceName");
+		String bonusName = tag.getStringOr("BonusName", "");
+		UUID sourceId = com.dragonminez.platform.nbt.NbtCompat.hasUUID(tag, "SourceId") ? com.dragonminez.platform.nbt.NbtCompat.getUUID(tag, "SourceId") : null;
+		String sourceName = tag.getStringOr("SourceName", "");
 		Map<String, Integer> grantedStats = new HashMap<>();
-		CompoundTag statsTag = tag.getCompound("GrantedStats");
-		for (String key : statsTag.getAllKeys()) grantedStats.put(key, statsTag.getInt(key));
-		long acquiredAtGameTime = tag.getLong("AcquiredAtGameTime");
+		CompoundTag statsTag = tag.getCompoundOrEmpty("GrantedStats");
+		for (String key : statsTag.keySet()) grantedStats.put(key, statsTag.getIntOr(key, 0));
+		long acquiredAtGameTime = tag.getLongOr("AcquiredAtGameTime", 0L);
 		return new Fields(bonusName, sourceId, sourceName, grantedStats, acquiredAtGameTime);
 	}
 

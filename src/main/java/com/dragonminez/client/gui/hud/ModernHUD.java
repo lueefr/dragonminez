@@ -9,7 +9,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
-import net.minecraft.client.gui.LayeredDraw;
 
 public class ModernHUD {
 	private static final float BORDER = HudSprites.DEFAULT_HP.border();
@@ -32,7 +31,7 @@ public class ModernHUD {
 	private static final HudSmoother SHAKE = new HudSmoother(0.12f);
 	private static float lastHealth = -1.0f;
 
-	public static final LayeredDraw.Layer HUD_MODERN = (guiGraphics, deltaTracker) -> {
+	public static final net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement HUD_MODERN = (guiGraphics, deltaTracker) -> {
         float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
         int width = guiGraphics.guiWidth();
         int height = guiGraphics.guiHeight();

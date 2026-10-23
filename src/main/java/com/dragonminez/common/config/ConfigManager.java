@@ -15,15 +15,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import net.minecraft.world.entity.EntityType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.fml.loading.FMLPaths;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.common.network.CompressionUtil;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.network.S2C.SyncServerConfigS2C;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.ServerLifecycleHooks;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +54,7 @@ public class ConfigManager {
 	private static final ConfigLoader LOADER = new ConfigLoader(GSON);
 	private static final DefaultFormsFactory FORMS_FACTORY = new DefaultFormsFactory();
 
-	private static final Path CONFIG_DIR = FMLPaths.CONFIGDIR.get().resolve("dragonminez");
+	private static final Path CONFIG_DIR = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("dragonminez");
 	private static final Path STACK_FORMS_DIR = CONFIG_DIR.resolve("forms");
 	private static final Path RACES_DIR = CONFIG_DIR.resolve("races");
 	private static final Path RAIDS_DIR = CONFIG_DIR.resolve("raids");
@@ -889,7 +887,7 @@ public class ConfigManager {
 		stats.setHealth(health);
 		stats.setMeleeDamage(meleeDamage);
 		stats.setKiDamage(kiDamage);
-		map.put(entityType.getKey().location().toString(), stats);
+		map.put(entityType.getKey().identifier().toString(), stats);
 	}
 
 	private static void loadAllRaces() throws IOException {
@@ -1343,7 +1341,7 @@ public class ConfigManager {
 		return trainingConfig != null ? trainingConfig : DefaultConfigs.TRAINING;
 	}
 	private static void loadHudLayoutConfig() {
-		if (FMLEnvironment.dist != Dist.CLIENT) {
+		if (net.fabricmc.loader.api.FabricLoader.getInstance().getEnvironmentType() != EnvType.CLIENT) {
 			hudLayoutConfig = new HudLayoutConfig();
 			return;
 		}

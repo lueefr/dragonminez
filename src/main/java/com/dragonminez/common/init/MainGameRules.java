@@ -13,7 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -28,24 +28,32 @@ public class MainGameRules {
 
 	private static final int MASTER_STRUCTURE_MARGIN = 2;
 
-	public static final GameRules.Key<GameRules.BooleanValue> ALLOW_KI_GRIEFING_MOBS =
-			GameRules.register("allowKiGriefingMobs", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
+	public static final net.minecraft.world.level.gamerules.GameRule<Boolean> ALLOW_KI_GRIEFING_MOBS =
+			net.fabricmc.fabric.api.gamerule.v1.GameRuleBuilder.forBoolean(true)
+                    .category(net.minecraft.world.level.gamerules.GameRuleCategory.PLAYER)
+                    .buildAndRegister(net.minecraft.resources.Identifier.parse("dragonminez:allow_ki_griefing_mobs"));
 
-	public static final GameRules.Key<GameRules.BooleanValue> ALLOW_KI_GRIEFING_PLAYERS =
-			GameRules.register("allowKiGriefingPlayers", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
+	public static final net.minecraft.world.level.gamerules.GameRule<Boolean> ALLOW_KI_GRIEFING_PLAYERS =
+			net.fabricmc.fabric.api.gamerule.v1.GameRuleBuilder.forBoolean(true)
+                    .category(net.minecraft.world.level.gamerules.GameRuleCategory.PLAYER)
+                    .buildAndRegister(net.minecraft.resources.Identifier.parse("dragonminez:allow_ki_griefing_players"));
 
-	public static final GameRules.Key<GameRules.BooleanValue> ALLOW_KI_GRIEFING_MASTER_STRUCTURES =
-			GameRules.register("allowKiGriefingMasterStructures", GameRules.Category.PLAYER, GameRules.BooleanValue.create(false));
+	public static final net.minecraft.world.level.gamerules.GameRule<Boolean> ALLOW_KI_GRIEFING_MASTER_STRUCTURES =
+			net.fabricmc.fabric.api.gamerule.v1.GameRuleBuilder.forBoolean(false)
+                    .category(net.minecraft.world.level.gamerules.GameRuleCategory.PLAYER)
+                    .buildAndRegister(net.minecraft.resources.Identifier.parse("dragonminez:allow_ki_griefing_master_structures"));
 
-	public static final GameRules.Key<GameRules.BooleanValue> ALLOW_BUILDING_IN_ARENA_STRUCTURES =
-			GameRules.register("allowBuildingInArenaStructures", GameRules.Category.PLAYER, GameRules.BooleanValue.create(false));
+	public static final net.minecraft.world.level.gamerules.GameRule<Boolean> ALLOW_BUILDING_IN_ARENA_STRUCTURES =
+			net.fabricmc.fabric.api.gamerule.v1.GameRuleBuilder.forBoolean(false)
+                    .category(net.minecraft.world.level.gamerules.GameRuleCategory.PLAYER)
+                    .buildAndRegister(net.minecraft.resources.Identifier.parse("dragonminez:allow_building_in_arena_structures"));
 
 	public static boolean canKiGrief(Level level, BlockPos pos, Entity source) {
 		boolean gameruleAllows;
-		if (source instanceof Player || source instanceof ServerPlayer) gameruleAllows = level.getGameRules().getBoolean(ALLOW_KI_GRIEFING_PLAYERS);
-		else gameruleAllows = level.getGameRules().getBoolean(ALLOW_KI_GRIEFING_MOBS);
+		if (source instanceof Player || source instanceof ServerPlayer) gameruleAllows = com.dragonminez.platform.rules.RuleValues.get(level, ALLOW_KI_GRIEFING_PLAYERS);
+		else gameruleAllows = com.dragonminez.platform.rules.RuleValues.get(level, ALLOW_KI_GRIEFING_MOBS);
 		if (!gameruleAllows) return false;
-		if (!level.getGameRules().getBoolean(ALLOW_KI_GRIEFING_MASTER_STRUCTURES) && isInMasterStructure(level, pos)) return false;
+		if (!com.dragonminez.platform.rules.RuleValues.get(level, ALLOW_KI_GRIEFING_MASTER_STRUCTURES) && isInMasterStructure(level, pos)) return false;
 		return WorldGuardCompat.canGrief(level, pos, source);
 	}
 
@@ -62,7 +70,7 @@ public class MainGameRules {
 
 	public static boolean isInsideTaggedStructure(Level level, BlockPos pos, TagKey<Structure> tag) {
 		if (!(level instanceof ServerLevel serverLevel)) return false;
-		var registry = serverLevel.registryAccess().registryOrThrow(Registries.STRUCTURE);
+		var registry = serverLevel.registryAccess().lookupOrThrow(Registries.STRUCTURE);
 		for (Structure structure : serverLevel.structureManager().getAllStructuresAt(pos).keySet()) {
 			Holder<Structure> holder = registry.wrapAsHolder(structure);
 			if (!holder.is(tag)) continue;
@@ -76,14 +84,14 @@ public class MainGameRules {
 
 	public static boolean canModifyBlock(Level level, BlockPos pos, Player player) {
 		if (player != null && (player.isCreative() || player.isSpectator())) return true;
-		if (level.getGameRules().getBoolean(ALLOW_BUILDING_IN_ARENA_STRUCTURES)) return true;
+		if (com.dragonminez.platform.rules.RuleValues.get(level, ALLOW_BUILDING_IN_ARENA_STRUCTURES)) return true;
 		return !isInBuildProtectedArea(level, pos);
 	}
 
 	public static KiGriefGate griefGate(Level level, BoundingBox area, Entity source) {
 		boolean gameruleAllows = (source instanceof Player || source instanceof ServerPlayer)
-				? level.getGameRules().getBoolean(ALLOW_KI_GRIEFING_PLAYERS)
-				: level.getGameRules().getBoolean(ALLOW_KI_GRIEFING_MOBS);
+				? com.dragonminez.platform.rules.RuleValues.get(level, ALLOW_KI_GRIEFING_PLAYERS)
+				: com.dragonminez.platform.rules.RuleValues.get(level, ALLOW_KI_GRIEFING_MOBS);
 		if (!gameruleAllows) return KiGriefGate.DENY_ALL;
 
 		return new KiGriefGate(level, source, collectProtectedBoxes(level, area));
@@ -91,9 +99,9 @@ public class MainGameRules {
 
 	private static List<BoundingBox> collectProtectedBoxes(Level level, BoundingBox area) {
 		if (!(level instanceof ServerLevel serverLevel)) return List.of();
-		if (level.getGameRules().getBoolean(ALLOW_KI_GRIEFING_MASTER_STRUCTURES)) return List.of();
+		if (com.dragonminez.platform.rules.RuleValues.get(level, ALLOW_KI_GRIEFING_MASTER_STRUCTURES)) return List.of();
 
-		var registry = serverLevel.registryAccess().registryOrThrow(Registries.STRUCTURE);
+		var registry = serverLevel.registryAccess().lookupOrThrow(Registries.STRUCTURE);
 		List<BoundingBox> boxes = new ArrayList<>();
 
 		for (int cx = SectionPos.blockToSectionCoord(area.minX()); cx <= SectionPos.blockToSectionCoord(area.maxX()); cx++) {

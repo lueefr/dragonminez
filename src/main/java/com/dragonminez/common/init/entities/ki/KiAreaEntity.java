@@ -58,10 +58,10 @@ public class KiAreaEntity extends AbstractKiProjectile {
         this.setCastTime(40);
         this.setMaxLife(99999);
         this.updatePositionToOwner();
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
-        
+
     }
 
     public void fireHability(int durationTicks) {
@@ -85,12 +85,12 @@ public class KiAreaEntity extends AbstractKiProjectile {
         this.baseTick();
 
         if (this.getOwner() == null || !this.getOwner().isAlive()) {
-            if (!this.level().isClientSide) this.discard();
+            if (!this.level().isClientSide()) this.discard();
             return;
         }
 
         if (this.tickCount >= this.getMaxLife()) {
-            if (!this.level().isClientSide) this.discard();
+            if (!this.level().isClientSide()) this.discard();
             return;
         }
 
@@ -113,7 +113,7 @@ public class KiAreaEntity extends AbstractKiProjectile {
         boolean isFiring = this.isFiring();
         float radius = this.getAreaRadius();
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (isFiring) {
                 if (this.tickCount % 10 == 0) {
                     applyAreaEffects(radius);
@@ -185,14 +185,21 @@ public class KiAreaEntity extends AbstractKiProjectile {
     public int getCastTime() { return this.entityData.get(CAST_TIME); }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag tag = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         tag.putFloat("AreaRadius", getAreaRadius());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, tag);
+        }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        setAreaRadius(tag.getFloat("AreaRadius"));
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag tag = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        setAreaRadius(tag.getFloatOr("AreaRadius", 0F));
     }
 }

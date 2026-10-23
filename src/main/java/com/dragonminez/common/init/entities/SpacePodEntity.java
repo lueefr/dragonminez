@@ -1,5 +1,7 @@
 package com.dragonminez.common.init.entities;
 
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.state.AnimationTest;
 import com.dragonminez.common.init.MainItems;
 import com.dragonminez.common.init.MainSounds;
 import com.dragonminez.common.init.entities.vehicle.VehicleEntity;
@@ -16,11 +18,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animation.*;
-import com.geckolib.animation.PlayState;
-import net.minecraft.world.phys.Vec3;
-import com.geckolib.animatable.GeoEntity;
-import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import com.geckolib.animation.object.PlayState;
 
 public class SpacePodEntity extends VehicleEntity {
 
@@ -58,7 +56,7 @@ public class SpacePodEntity extends VehicleEntity {
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (!isOpen()) {
                 if (!player.isPassenger()) {
                     setOpenNave(true);
@@ -82,11 +80,11 @@ public class SpacePodEntity extends VehicleEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-        controllerRegistrar.add(new AnimationController<>(this, "controller", 0, this::predicate));
+        controllerRegistrar.add(new AnimationController<>("controller", 0, this::predicate));
     }
 
-    private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> tAnimationState) {
-        AnimationController<?> controller = tAnimationState.getController();
+    private <T extends GeoAnimatable> PlayState predicate(AnimationTest<T> tAnimationState) {
+        AnimationController<?> controller = tAnimationState.controller();
 
         if (isOpen()) {
             controller.setAnimation(ANIM_ABIERTO);

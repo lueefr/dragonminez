@@ -19,11 +19,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
-import org.jetbrains.annotations.Nullable;
-import com.geckolib.util.Color;
-import com.geckolib.renderer.GeoEntityRenderer;
 
-public class SPBlueHurricaneRenderer extends EntityRenderer<SPBlueHurricaneEntity> {
+public class SPBlueHurricaneRenderer extends EntityRenderer<SPBlueHurricaneEntity, net.minecraft.client.renderer.entity.state.EntityRenderState> {
 
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/ki_laser.png");
 

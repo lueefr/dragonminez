@@ -28,7 +28,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.neoforge.common.NeoForge;
+import com.dragonminez.platform.event.GameEvents;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -572,100 +572,100 @@ public class Character {
 	}
 
 	public void load(CompoundTag tag) {
-		if (tag.contains("Race", 8)) {
-			this.race = tag.getString("Race");
-		} else if (tag.contains("Race", 3)) {
-			int oldRaceId = tag.getInt("Race");
+		if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "Race", 8)) {
+			this.race = tag.getStringOr("Race", "");
+		} else if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "Race", 3)) {
+			int oldRaceId = tag.getIntOr("Race", 0);
 			List<String> races = ConfigManager.getLoadedRaces();
 			this.race = oldRaceId >= 0 && oldRaceId < races.size() ? races.get(oldRaceId) : "human";
 		} else this.race = "human";
 
-		this.gender = tag.getString("Gender");
-		this.characterClass = tag.getString("Class");
-		this.hairId = tag.getInt("HairId");
+		this.gender = tag.getStringOr("Gender", "");
+		this.characterClass = tag.getStringOr("Class", "");
+		this.hairId = tag.getIntOr("HairId", 0);
 		for (HairStyleSlot slot : HairStyleSlot.values()) {
 			if (!tag.contains(slot.getNbtKey())) {
 				hairStyles.put(slot, new CustomHair());
 				continue;
 			}
-			CompoundTag hairTag = tag.getCompound(slot.getNbtKey());
+			CompoundTag hairTag = tag.getCompoundOrEmpty(slot.getNbtKey());
 			CustomHair current = hairStyles.get(slot);
 			if (current == null || !current.save().equals(hairTag)) hairStyles.put(slot, CustomHair.fromTag(hairTag));
 		}
-		this.activeHeadBone = tag.getString("ActiveHeadBone");
-		this.bodyType = tag.getInt("BodyType");
-		this.eyesType = tag.getInt("EyesType");
-		this.noseType = tag.getInt("NoseType");
-		this.mouthType = tag.getInt("MouthType");
-		this.tattooType = tag.getInt("TattooType");
-		if (tag.contains(SkinPixels.NBT_KEY, 10)) skinPixels.load(tag.getCompound(SkinPixels.NBT_KEY));
-		this.boobScale = tag.contains("BoobScale") ? tag.getFloat("BoobScale") : 1.0f;
-		setBodyColor(tag.getString("BodyColor"));
-		setBodyColor2(tag.getString("BodyColor2"));
-		setBodyColor3(tag.getString("BodyColor3"));
-		setHairColor(tag.getString("HairColor"));
-		setEye1Color(tag.getString("Eye1Color"));
-		setEye2Color(tag.getString("Eye2Color"));
-		setAuraColor(tag.getString("AuraColor"));
-		if (tag.contains("SelectedMaster")) this.selectedMaster = tag.getString("SelectedMaster");
-		this.selectedFormGroup = tag.getString("SelectedFormGroup");
-		this.activeFormGroup = tag.getString("CurrentFormGroup");
-		this.selectedForm = tag.getString("SelectedForm");
-		this.activeForm = tag.getString("CurrentForm");
-		this.activeFormItemDurationTicks = tag.getInt("ActiveFormItemDurationTicks");
-		this.previousFormGroup = tag.getString("PreviousFormGroup");
-		this.previousForm = tag.getString("PreviousForm");
-		this.hasPreviousFormRecord = tag.getBoolean("HasPreviousFormRecord");
-		if (tag.contains("FormMasteries")) formMasteries.load(tag.getCompound("FormMasteries"));
-		if (tag.contains("FormsUsedBefore")) formsUsedBefore.load(tag.getCompound("FormsUsedBefore"));
-		this.selectedStackFormGroup = tag.getString("SelectedStackFormGroup");
-		this.activeStackFormGroup = tag.getString("CurrentStackFormGroup");
-		this.selectedStackForm = tag.getString("SelectedStackForm");
-		this.activeStackForm = tag.getString("CurrentStackForm");
-		this.activeStackFormItemDurationTicks = tag.getInt("ActiveStackFormItemDurationTicks");
-		this.previousStackFormGroup = tag.getString("PreviousStackFormGroup");
-		this.previousStackForm = tag.getString("PreviousStackForm");
-		this.hasPreviousStackFormRecord = tag.getBoolean("HasPreviousStackFormRecord");
-		if (tag.contains("StackFormMasteries")) stackFormMasteries.load(tag.getCompound("StackFormMasteries"));
-		if (tag.contains("StackFormsUsedBefore")) stackFormsUsedBefore.load(tag.getCompound("StackFormsUsedBefore"));
-		this.hasSaiyanTail = tag.getBoolean("HasSaiyanTail");
-		this.renderHairBase = tag.getBoolean("RenderHairBase");
-		this.aura3D = tag.getBoolean("Aura3D");
-		setAura3DType(tag.getString("Aura3DType"));
-		this.armored = tag.getBoolean("isArmored");
+		this.activeHeadBone = tag.getStringOr("ActiveHeadBone", "");
+		this.bodyType = tag.getIntOr("BodyType", 0);
+		this.eyesType = tag.getIntOr("EyesType", 0);
+		this.noseType = tag.getIntOr("NoseType", 0);
+		this.mouthType = tag.getIntOr("MouthType", 0);
+		this.tattooType = tag.getIntOr("TattooType", 0);
+		if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, SkinPixels.NBT_KEY, 10)) skinPixels.load(tag.getCompoundOrEmpty(SkinPixels.NBT_KEY));
+		this.boobScale = tag.contains("BoobScale") ? tag.getFloatOr("BoobScale", 0F) : 1.0f;
+		setBodyColor(tag.getStringOr("BodyColor", ""));
+		setBodyColor2(tag.getStringOr("BodyColor2", ""));
+		setBodyColor3(tag.getStringOr("BodyColor3", ""));
+		setHairColor(tag.getStringOr("HairColor", ""));
+		setEye1Color(tag.getStringOr("Eye1Color", ""));
+		setEye2Color(tag.getStringOr("Eye2Color", ""));
+		setAuraColor(tag.getStringOr("AuraColor", ""));
+		if (tag.contains("SelectedMaster")) this.selectedMaster = tag.getStringOr("SelectedMaster", "");
+		this.selectedFormGroup = tag.getStringOr("SelectedFormGroup", "");
+		this.activeFormGroup = tag.getStringOr("CurrentFormGroup", "");
+		this.selectedForm = tag.getStringOr("SelectedForm", "");
+		this.activeForm = tag.getStringOr("CurrentForm", "");
+		this.activeFormItemDurationTicks = tag.getIntOr("ActiveFormItemDurationTicks", 0);
+		this.previousFormGroup = tag.getStringOr("PreviousFormGroup", "");
+		this.previousForm = tag.getStringOr("PreviousForm", "");
+		this.hasPreviousFormRecord = tag.getBooleanOr("HasPreviousFormRecord", false);
+		if (tag.contains("FormMasteries")) formMasteries.load(tag.getCompoundOrEmpty("FormMasteries"));
+		if (tag.contains("FormsUsedBefore")) formsUsedBefore.load(tag.getCompoundOrEmpty("FormsUsedBefore"));
+		this.selectedStackFormGroup = tag.getStringOr("SelectedStackFormGroup", "");
+		this.activeStackFormGroup = tag.getStringOr("CurrentStackFormGroup", "");
+		this.selectedStackForm = tag.getStringOr("SelectedStackForm", "");
+		this.activeStackForm = tag.getStringOr("CurrentStackForm", "");
+		this.activeStackFormItemDurationTicks = tag.getIntOr("ActiveStackFormItemDurationTicks", 0);
+		this.previousStackFormGroup = tag.getStringOr("PreviousStackFormGroup", "");
+		this.previousStackForm = tag.getStringOr("PreviousStackForm", "");
+		this.hasPreviousStackFormRecord = tag.getBooleanOr("HasPreviousStackFormRecord", false);
+		if (tag.contains("StackFormMasteries")) stackFormMasteries.load(tag.getCompoundOrEmpty("StackFormMasteries"));
+		if (tag.contains("StackFormsUsedBefore")) stackFormsUsedBefore.load(tag.getCompoundOrEmpty("StackFormsUsedBefore"));
+		this.hasSaiyanTail = tag.getBooleanOr("HasSaiyanTail", false);
+		this.renderHairBase = tag.getBooleanOr("RenderHairBase", false);
+		this.aura3D = tag.getBooleanOr("Aura3D", false);
+		setAura3DType(tag.getStringOr("Aura3DType", ""));
+		this.armored = tag.getBooleanOr("isArmored", false);
 
 		this.interactedMasters.clear();
 		if (tag.contains("InteractedMasters")) {
-			ListTag mastersList = tag.getList("InteractedMasters", 10);
+			ListTag mastersList = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "InteractedMasters", 10);
 			for (int i = 0; i < mastersList.size(); i++) {
-				CompoundTag masterTag = mastersList.getCompound(i);
-				String id = masterTag.getString("Id");
-				String name = masterTag.getString("Name");
-				String dim = masterTag.getString("Dimension");
-				BlockPos pos = BlockPos.of(masterTag.getLong("Pos"));
+				CompoundTag masterTag = mastersList.getCompoundOrEmpty(i);
+				String id = masterTag.getStringOr("Id", "");
+				String name = masterTag.getStringOr("Name", "");
+				String dim = masterTag.getStringOr("Dimension", "");
+				BlockPos pos = BlockPos.of(masterTag.getLongOr("Pos", 0L));
 				this.interactedMasters.put(id, new MasterLocation(id, name, dim, pos));
 			}
 		}
 
 		this.knownMinigames.clear();
 		if (tag.contains("KnownMinigames")) {
-			ListTag minigamesList = tag.getList("KnownMinigames", 8);
-			for (int i = 0; i < minigamesList.size(); i++) this.knownMinigames.add(minigamesList.getString(i));
+			ListTag minigamesList = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "KnownMinigames", 8);
+			for (int i = 0; i < minigamesList.size(); i++) this.knownMinigames.add(minigamesList.getStringOr(i, ""));
 		}
 
 		this.minigameLearnRuns.clear();
 		if (tag.contains("MinigameLearnRuns")) {
-			CompoundTag learnRunsTag = tag.getCompound("MinigameLearnRuns");
-			for (String key : learnRunsTag.getAllKeys()) this.minigameLearnRuns.put(key, learnRunsTag.getInt(key));
+			CompoundTag learnRunsTag = tag.getCompoundOrEmpty("MinigameLearnRuns");
+			for (String key : learnRunsTag.keySet()) this.minigameLearnRuns.put(key, learnRunsTag.getIntOr(key, 0));
 		}
 
 		this.learnedSongs.clear();
 		if (tag.contains("LearnedSongs")) {
-			ListTag songsList = tag.getList("LearnedSongs", 8);
-			for (int i = 0; i < songsList.size(); i++) this.learnedSongs.add(songsList.getString(i));
+			ListTag songsList = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "LearnedSongs", 8);
+			for (int i = 0; i < songsList.size(); i++) this.learnedSongs.add(songsList.getStringOr(i, ""));
 		}
 
-		this.demonEyeGrowth = tag.contains("DemonEyeGrowth") ? Math.max(1.0f, tag.getFloat("DemonEyeGrowth")) : 1.0f;
+		this.demonEyeGrowth = tag.contains("DemonEyeGrowth") ? Math.max(1.0f, tag.getFloatOr("DemonEyeGrowth", 0F)) : 1.0f;
 
 		updateOozaruCache();
 	}
@@ -728,8 +728,8 @@ public class Character {
             entity.refreshDimensions();
         }
 		clearActiveForm();
-		if (hadForm && entity instanceof ServerPlayer serverPlayer && !serverPlayer.level().isClientSide) {
-			NeoForge.EVENT_BUS.post(new DMZEvent.FormChangeEvent(serverPlayer, oldGroup, oldForm, "", ""));
+		if (hadForm && entity instanceof ServerPlayer serverPlayer && !serverPlayer.level().isClientSide()) {
+			GameEvents.BUS.post(new DMZEvent.FormChangeEvent(serverPlayer, oldGroup, oldForm, "", ""));
 		}
 	}
 
@@ -835,8 +835,8 @@ public class Character {
             entity.refreshDimensions();
         }
 		clearActiveStackForm();
-		if (hadForm && entity instanceof ServerPlayer serverPlayer && !serverPlayer.level().isClientSide) {
-			NeoForge.EVENT_BUS.post(new DMZEvent.StackFormChangeEvent(serverPlayer, oldGroup, oldForm, "", ""));
+		if (hadForm && entity instanceof ServerPlayer serverPlayer && !serverPlayer.level().isClientSide()) {
+			GameEvents.BUS.post(new DMZEvent.StackFormChangeEvent(serverPlayer, oldGroup, oldForm, "", ""));
         }
 	}
 
@@ -872,13 +872,13 @@ public class Character {
 	}
 
 	public void loadAppearance(CompoundTag tag) {
-		if (tag.contains("BodyColor")) setBodyColor(tag.getString("BodyColor"));
-		if (tag.contains("BodyColor2")) setBodyColor2(tag.getString("BodyColor2"));
-		if (tag.contains("BodyColor3")) setBodyColor3(tag.getString("BodyColor3"));
-		if (tag.contains("HairColor")) setHairColor(tag.getString("HairColor"));
-		if (tag.contains("Eye1Color")) setEye1Color(tag.getString("Eye1Color"));
-		if (tag.contains("Eye2Color")) setEye2Color(tag.getString("Eye2Color"));
-		if (tag.contains("AuraColor")) setAuraColor(tag.getString("AuraColor"));
+		if (tag.contains("BodyColor")) setBodyColor(tag.getStringOr("BodyColor", ""));
+		if (tag.contains("BodyColor2")) setBodyColor2(tag.getStringOr("BodyColor2", ""));
+		if (tag.contains("BodyColor3")) setBodyColor3(tag.getStringOr("BodyColor3", ""));
+		if (tag.contains("HairColor")) setHairColor(tag.getStringOr("HairColor", ""));
+		if (tag.contains("Eye1Color")) setEye1Color(tag.getStringOr("Eye1Color", ""));
+		if (tag.contains("Eye2Color")) setEye2Color(tag.getStringOr("Eye2Color", ""));
+		if (tag.contains("AuraColor")) setAuraColor(tag.getStringOr("AuraColor", ""));
 	}
 
 	public void copyFrom(Character other) {

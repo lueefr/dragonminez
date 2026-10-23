@@ -5,10 +5,10 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public class StardustParticle extends TextureSheetParticle {
 
     private static final int[] TINTS = {0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xECE2FF, 0xDDF7FF, 0xFFE6F7};
@@ -66,7 +66,7 @@ public class StardustParticle extends TextureSheetParticle {
         return ModParticleRenderTypes.ADDITIVE_LIT;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public static class Provider implements ParticleProvider<SimpleParticleType> {
         private final SpriteSet spriteSet;
 

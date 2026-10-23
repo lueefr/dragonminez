@@ -1,7 +1,8 @@
 package com.dragonminez.common.events;
 
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import com.dragonminez.platform.event.living.LivingEquipmentChangeEvent;
+import com.dragonminez.platform.event.living.LivingIncomingDamageEvent;
+import com.dragonminez.platform.event.tick.LevelTickEvent;
 
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
@@ -76,12 +77,11 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.item.trading.VillagerTrades;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import com.dragonminez.platform.item.ArmorData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
@@ -90,26 +90,24 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.saveddata.maps.MapDecorationTypes;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.common.NeoForge;
+import com.dragonminez.platform.event.GameEvents;
 import net.neoforged.neoforge.event.*;
 import net.neoforged.neoforge.event.village.VillagerTradesEvent;
 import net.neoforged.neoforge.event.entity.living.*;
-import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import com.dragonminez.platform.event.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.event.level.ChunkEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.bus.api.Event;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.level.ChunkEvent;
+import com.dragonminez.platform.event.level.LevelEvent;
+import com.dragonminez.platform.event.server.ServerStartedEvent;
+import com.dragonminez.platform.event.server.ServerStartingEvent;
+import com.dragonminez.platform.event.server.ServerStoppingEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.registry.DeferredHolder;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
 import java.util.*;
 
@@ -222,14 +220,14 @@ public class ForgeCommonEvents {
 				if (player instanceof ServerPlayer serverPlayer) {
 					serverPlayer.connection.disconnect(Component.literal("""
 							§c[DragonMine Z]
-							
+
 							§7You are not allowed to play this Beta/Alpha version.
 							§fAre you a §cPatreon§f? Use the §cVerify here§f button to connect Discord and request access automatically.
-							
+
 							§7If you have been recently whitelisted, restart Minecraft to apply the changes!
 							§7Your Minecraft nickname is: §f""" + username + """
-							
-							
+
+
 							§eAn active internet connection is required to play, even in singleplayer, since your access is checked online.
 							§8We only check your Minecraft username. No other data is collected."""));
 				} else {
@@ -240,7 +238,7 @@ public class ForgeCommonEvents {
 
 		if (event.getEntity() instanceof ServerPlayer player) {
 			NetworkHandler.sendToPlayer(new SyncWishesS2C(WishManager.getAllWishes()), player);
-			DragonBallsHandler.syncRadar(player.serverLevel());
+			DragonBallsHandler.syncRadar(player.level());
 
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 				if (ConfigManager.getCombatConfig().getKillPlayersOnCombatLogout()) {
@@ -282,7 +280,7 @@ public class ForgeCommonEvents {
 	@SubscribeEvent
 	public static void onPlayerDeath(LivingDeathEvent event) {
 		if (event.getEntity() instanceof ServerPlayer player) {
-			DragonBallsHandler.syncRadar(player.serverLevel());
+			DragonBallsHandler.syncRadar(player.level());
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 				endFusionIfNeeded(player);
 
@@ -346,7 +344,7 @@ public class ForgeCommonEvents {
 		int chanceLevel = MainEnchants.level(player.getMainHandItem(), player.level(), MainEnchants.CRIT_CHANCE);
 		if (chanceLevel > 0) chance += (chanceLevel * 0.05D);
 		DMZEvent.CritChanceEvent event = new DMZEvent.CritChanceEvent(player, chance);
-		NeoForge.EVENT_BUS.post(event);
+		GameEvents.BUS.post(event);
 		return event.getChance();
 	}
 
@@ -428,7 +426,7 @@ public class ForgeCommonEvents {
 	@SubscribeEvent
 	public static void onMeleeCriticalHit(CriticalHitEvent event) {
 		Player player = event.getEntity();
-		if (player == null || player.level().isClientSide) return;
+		if (player == null || player.level().isClientSide()) return;
 
 		double chance = getCriticalChance(player);
 		boolean isCrit = ((Player_DMZ) player).rollAndGetCriticalStatus(chance);
@@ -444,7 +442,7 @@ public class ForgeCommonEvents {
 	@SubscribeEvent
 	public static void onRangedCriticalHit(LivingIncomingDamageEvent event) {
 		if (event.getSource().getDirectEntity() instanceof AbstractArrow && event.getSource().getEntity() instanceof Player player) {
-			if (player.level().isClientSide) return;
+			if (player.level().isClientSide()) return;
 
 			double chance = getCriticalChance(player);
 			boolean isCrit = ((Player_DMZ) player).rollAndGetCriticalStatus(chance);
@@ -510,7 +508,7 @@ public class ForgeCommonEvents {
 	}
 
 	@SubscribeEvent
-	public static void onServerAboutToStart(net.neoforged.neoforge.event.server.ServerAboutToStartEvent event) {
+	public static void onServerAboutToStart(com.dragonminez.platform.event.server.ServerAboutToStartEvent event) {
 		if (!event.getServer().isDedicatedServer()) ConfigManager.reload();
 		if (ConfigManager.getServerConfig().getWorldGen().getOtherworldActive()) {
 			OtherworldRegionLoader.loadPreGeneratedRegions(event.getServer());
@@ -571,7 +569,7 @@ public class ForgeCommonEvents {
 		try {
 			com.dragonminez.server.world.npc.StructureNpcs.tick(serverLevel);
 		} catch (RuntimeException e) {
-			LogUtil.error(Env.SERVER, "StructureNpcs tick failed in {}", serverLevel.dimension().location(), e);
+			LogUtil.error(Env.SERVER, "StructureNpcs tick failed in {}", serverLevel.dimension().identifier(), e);
 		}
 		try {
 			com.dragonminez.server.world.structure.placement.StructureRepairManager.tick(serverLevel);
@@ -593,7 +591,7 @@ public class ForgeCommonEvents {
 	}
 
 	@SubscribeEvent
-	public static void onStructureEntityJoin(net.neoforged.neoforge.event.entity.EntityJoinLevelEvent event) {
+	public static void onStructureEntityJoin(com.dragonminez.platform.event.entity.EntityJoinLevelEvent event) {
 		if (event.getLevel() instanceof ServerLevel level
 				&& com.dragonminez.server.world.structure.fitted.FittedTemplatePiece.hasTwin(level, event.getEntity())) {
 			event.setCanceled(true);
@@ -698,7 +696,7 @@ public class ForgeCommonEvents {
 
 			boolean shouldBeArmored = false;
 
-			if (!newStack.isEmpty() && newStack.getItem() instanceof ArmorItem) {
+			if (!newStack.isEmpty() && ArmorData.isArmor(newStack)) {
 				boolean isVanilla = BuiltInRegistries.ITEM.getKey(newStack.getItem()).getNamespace().equals("minecraft");
 				boolean isDbzArmor = newStack.getItem() instanceof DbzArmorTextured;
 
@@ -730,7 +728,7 @@ public class ForgeCommonEvents {
 			if (barrier.isActive() && barrier.protects(victim)) {
 				event.setCanceled(true);
 				barrier.absorbDamage(event.getAmount(), event.getSource().getEntity());
-				NeoForge.EVENT_BUS.post(new DMZEvent.BarrierAbsorbEvent(barrier.getOwner(), victim,
+				GameEvents.BUS.post(new DMZEvent.BarrierAbsorbEvent(barrier.getOwner(), victim,
 						event.getSource().getEntity(), event.getAmount()));
 				return;
 			}

@@ -1,12 +1,11 @@
 package com.dragonminez.common.init.item.weapons;
 
-import com.dragonminez.common.init.item.weapons.render.BraveSwordRenderer;
 import com.dragonminez.common.init.item.weapons.render.DimensionalSwordRenderer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import com.geckolib.animatable.GeoItem;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.util.GeckoLibUtil;
 
 import java.util.function.Consumer;

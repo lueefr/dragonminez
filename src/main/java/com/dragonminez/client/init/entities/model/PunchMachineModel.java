@@ -1,12 +1,11 @@
 package com.dragonminez.client.init.entities.model;
 
 import com.dragonminez.Reference;
-import com.dragonminez.common.init.entities.FlyingNimbusEntity;
 import com.dragonminez.common.init.entities.PunchMachineEntity;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class PunchMachineModel<T extends PunchMachineEntity> extends GeoModel<T> {
+public class PunchMachineModel<T extends PunchMachineEntity> extends ExtractedGeoModel<T> {
 
     @Override
     public Identifier getModelResource(T animatable) {

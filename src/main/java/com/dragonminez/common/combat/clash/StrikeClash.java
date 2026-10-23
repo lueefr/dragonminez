@@ -1,6 +1,6 @@
 package com.dragonminez.common.combat.clash;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.common.combat.logic.player.TargetHelper;
@@ -32,15 +32,10 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.event.tick.LevelTickEvent;
+import com.dragonminez.platform.event.level.LevelEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -507,7 +502,7 @@ public final class StrikeClash implements BeamClashManager.ExternalClash {
 		if (victim.isAlive()) {
 			double damage = winnerStrikeDamage(winner, victim) * LOSER_DAMAGE_RATIO;
 			victim.invulnerableTime = 0;
-			if (damage > 0.0) victim.hurt(damageSource(winner), (float) damage);
+			if (damage > 0.0) victim.hurtOrSimulate(damageSource(winner), (float) damage);
 			KnockbackHelper.apply(victim, new Vec3(dir.x * LOSER_KNOCKBACK, LOSER_KNOCKBACK_LIFT, dir.z * LOSER_KNOCKBACK));
 			MomentumImpactHandler.registerCollisionImpact(victim,
 					victim.onGround() ? MomentumImpactHandler.CollisionImpactType.GROUND : MomentumImpactHandler.CollisionImpactType.WALL,

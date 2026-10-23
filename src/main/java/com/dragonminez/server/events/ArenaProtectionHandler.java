@@ -1,6 +1,6 @@
 package com.dragonminez.server.events;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.MainGameRules;
 import com.dragonminez.server.world.tournament.Tournament;
@@ -12,16 +12,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.event.entity.EntityMobGriefingEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import com.dragonminez.platform.event.living.LivingIncomingDamageEvent;
+import com.dragonminez.platform.event.living.LivingChangeTargetEvent;
+import com.dragonminez.platform.event.living.LivingEntityUseItemEvent;
+import com.dragonminez.platform.event.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.event.level.ExplosionEvent;
-import net.neoforged.bus.api.Event;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.level.ExplosionEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 import java.util.List;
 import java.util.UUID;
@@ -79,7 +76,7 @@ public class ArenaProtectionHandler {
 
 		Level level = entity.level();
 		if (level.isClientSide()) return;
-		if (level.getGameRules().getBoolean(MainGameRules.ALLOW_BUILDING_IN_ARENA_STRUCTURES)) return;
+		if (com.dragonminez.platform.rules.RuleValues.get(level, MainGameRules.ALLOW_BUILDING_IN_ARENA_STRUCTURES)) return;
 
 		if (MainGameRules.isInBuildProtectedArea(level, entity.blockPosition())) {
 			event.setCanGrief(false);
@@ -150,7 +147,7 @@ public class ArenaProtectionHandler {
 	}
 
 	public static void onInteract(PlayerInteractEvent event) {
-		if (!(event instanceof net.neoforged.bus.api.ICancellableEvent cancellable) || event.getLevel().isClientSide()) return;
+		if (!(event instanceof com.dragonminez.platform.event.ICancellableEvent cancellable) || event.getLevel().isClientSide()) return;
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 		if (Tournament.Manager.isInGrace(player.getUUID(), event.getLevel().getGameTime())) cancellable.setCanceled(true);
 	}

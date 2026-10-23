@@ -5,8 +5,6 @@ import com.dragonminez.common.dragonball.DragonBallDataPackResources;
 import com.dragonminez.common.init.MainAttributes;
 import com.dragonminez.common.init.MainBlocks;
 import com.dragonminez.common.init.MainEntities;
-import com.dragonminez.common.init.MainItems;
-import com.dragonminez.common.init.MainPotions;
 import com.dragonminez.common.init.entities.*;
 import com.dragonminez.common.init.entities.animal.*;
 import com.dragonminez.common.init.entities.dragon.DragonWishEntity;
@@ -19,7 +17,6 @@ import com.dragonminez.common.init.entities.redribbon.RobotEntity;
 import com.dragonminez.common.init.entities.sagas.*;
 import com.dragonminez.common.init.entities.vehicle.VehicleEntity;
 import com.dragonminez.common.stats.techniques.PredefinedTechniques;
-import com.dragonminez.server.world.data.DragonBallSavedData;
 import com.dragonminez.server.world.gen.OverworldSurfaceRules;
 import com.dragonminez.server.world.region.OverworldRegion;
 import net.minecraft.network.chat.Component;
@@ -29,29 +26,16 @@ import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FlowerPotBlock;
-import net.neoforged.neoforge.common.brewing.BrewingRecipe;
-import net.neoforged.neoforge.common.brewing.BrewingRecipeRegistry;
-import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 
-import net.neoforged.neoforge.event.AddPackFindersEvent;
-import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.resource.AddPackFindersEvent;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.minecraft.world.entity.player.Player;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.registry.DeferredHolder;
 import com.dragonminez.common.init.MainBlockEntities;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import terrablender.api.Regions;
 import terrablender.api.SurfaceRuleManager;
 
@@ -78,18 +62,17 @@ public class ModCommonEvents {
 	}
 
 
-    @SubscribeEvent
-    public static void registerAttributes(EntityAttributeCreationEvent event) {
+    public static void registerAttributes() {
         // MAESTROS
         for (var masterEntity : MainEntities.getMasterEntities()) {
-            event.put((EntityType<? extends LivingEntity>) masterEntity.get(), MastersEntity.createAttributes().build());
+            FabricDefaultAttributeRegistry.register((EntityType<? extends LivingEntity>) masterEntity.get(), MastersEntity.createAttributes().build());
         }
 
         // Quest NPC — single entity type for all data-driven quest NPCs | Usa un solo tipo de entidad para todos los NPCs de misiones basados en datos
-        event.put(MainEntities.QUEST_NPC.get(), MastersEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.QUEST_NPC.get(), MastersEntity.createAttributes().build());
 
 		for (var entity : MainEntities.getDragonWishEntities().values()) {
-			event.put(entity.get(), DragonWishEntity.createAttributes().build());
+			FabricDefaultAttributeRegistry.register(entity.get(), DragonWishEntity.createAttributes().build());
 		}
 
         var saibamans = List.of(
@@ -104,17 +87,17 @@ public class ModCommonEvents {
                 MainEntities.SAGA_OZARU_VEGETA, MainEntities.SAGA_OZARU, MainEntities.SAGA_BABY_GOLDEN_OZARU
         );
 
-        for (var saibaman : saibamans) event.put((EntityType<? extends LivingEntity>) saibaman.get(), SagaSaibamanEntity.createAttributes().build());
-        event.put(MainEntities.SAGA_BIOMAN.get(), SagaSaibamanEntity.BiomanEntity.createAttributes().build());
-        for (var soldier : soldiers) event.put((EntityType<? extends LivingEntity>) soldier.get(), SagaFriezaSoldier01Entity.createAttributes().build());
-        for (var ozaru : ozarus) event.put((EntityType<? extends LivingEntity>) ozaru.get(), SagaOzaruEntity.createAttributes().build());
+        for (var saibaman : saibamans) FabricDefaultAttributeRegistry.register((EntityType<? extends LivingEntity>) saibaman.get(), SagaSaibamanEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.SAGA_BIOMAN.get(), SagaSaibamanEntity.BiomanEntity.createAttributes().build());
+        for (var soldier : soldiers) FabricDefaultAttributeRegistry.register((EntityType<? extends LivingEntity>) soldier.get(), SagaFriezaSoldier01Entity.createAttributes().build());
+        for (var ozaru : ozarus) FabricDefaultAttributeRegistry.register((EntityType<? extends LivingEntity>) ozaru.get(), SagaOzaruEntity.createAttributes().build());
         var ogres = List.of(MainEntities.SAGA_OGRE_RED, MainEntities.SAGA_OGRE_BLUE);
-        for (var ogre : ogres) event.put(ogre.get(), SagaOgreEntity.createAttributes().build());
-        event.put(MainEntities.MINI_JANEMBA_STAMPEDE.get(), MiniJanembaStampedeEntity.createAttributes().build());
-        event.put(MainEntities.SAGA_SAIYAN_SOLDIER.get(), DBSagasEntity.createAttributes().build());
-        event.put(MainEntities.SAGA_SAIYAN_ELITE.get(), DBSagasEntity.createAttributes().build());
-        event.put(MainEntities.SAGA_SAIYAN_OOZARU.get(), SagaSaiyanInvadersEntity.Oozaru.createAttributes().build());
-        for (var clone : MainEntities.getEvilClones()) event.put((EntityType<? extends LivingEntity>) clone.get(), EvilCloneEntity.createAttributes().build());
+        for (var ogre : ogres) FabricDefaultAttributeRegistry.register(ogre.get(), SagaOgreEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.MINI_JANEMBA_STAMPEDE.get(), MiniJanembaStampedeEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.SAGA_SAIYAN_SOLDIER.get(), DBSagasEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.SAGA_SAIYAN_ELITE.get(), DBSagasEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.SAGA_SAIYAN_OOZARU.get(), SagaSaiyanInvadersEntity.Oozaru.createAttributes().build());
+        for (var clone : MainEntities.getEvilClones()) FabricDefaultAttributeRegistry.register((EntityType<? extends LivingEntity>) clone.get(), EvilCloneEntity.createAttributes().build());
 
 
         AttributeSupplier defaultSagaAttributes = DBSagasEntity.createAttributes().build();
@@ -123,102 +106,81 @@ public class ModCommonEvents {
             if (saibamans.contains(sagaEntity) || soldiers.contains(sagaEntity) || ozarus.contains(sagaEntity) || ogres.contains(sagaEntity) || sagaEntity == MainEntities.MINI_JANEMBA_STAMPEDE || sagaEntity == MainEntities.WILD_GIRAN || sagaEntity == MainEntities.SAGA_BIOMAN) {
                 continue;
             }
-            event.put((EntityType<? extends LivingEntity>) sagaEntity.get(), defaultSagaAttributes);
+            FabricDefaultAttributeRegistry.register((EntityType<? extends LivingEntity>) sagaEntity.get(), defaultSagaAttributes);
         }
 
-        event.put(MainEntities.DINOSAUR1.get(), Dino1Entity.createAttributes().build());
-        event.put(MainEntities.DINOSAUR2.get(), Dino2Entity.createAttributes().build());
-        event.put(MainEntities.DINOSAUR3.get(), DinoFlyEntity.createAttributes().build());
-        event.put(MainEntities.DINO_KID.get(), DinoKidEntity.createAttributes().build());
-        event.put(MainEntities.NAMEK_FROG.get(), NamekFrogEntity.createAttributes());
-        event.put(MainEntities.NAMEK_FROG_GINYU.get(), NamekFrogGinyuEntity.createAttributes());
-        event.put(MainEntities.NAMEK_TRADER.get(), NamekTraderEntity.createAttributes().build());
-        event.put(MainEntities.CC_NAMEKIAN.get(), NamekTraderEntity.createAttributes().build());
-        event.put(MainEntities.NAMEK_WARRIOR.get(), NamekWarriorEntity.createAttributes().build());
-        event.put(MainEntities.DEMON_VILLAGER.get(), DemonVillagersEntity.Resident.createAttributes().build());
-        event.put(MainEntities.TIME_PATROLLER.get(), DemonVillagersEntity.Resident.createAttributes().build());
-        event.put(MainEntities.SABERTOOTH.get(), SabertoothEntity.createAttributes().build());
-        event.put(MainEntities.WILD_GIRAN.get(), SagaZFightersEntity.WildGiranEntity.createAttributes().build());
-        event.put(MainEntities.GIANT_FISH.get(), GiantFishEntity.createAttributes());
-        event.put(MainEntities.GIANT_TURTLE.get(), GiantTurtleEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(MainEntities.DINOSAUR1.get(), Dino1Entity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.DINOSAUR2.get(), Dino2Entity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.DINOSAUR3.get(), DinoFlyEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.DINO_KID.get(), DinoKidEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.NAMEK_FROG.get(), NamekFrogEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(MainEntities.NAMEK_FROG_GINYU.get(), NamekFrogGinyuEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(MainEntities.NAMEK_TRADER.get(), NamekTraderEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.CC_NAMEKIAN.get(), NamekTraderEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.NAMEK_WARRIOR.get(), NamekWarriorEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.DEMON_VILLAGER.get(), DemonVillagersEntity.Resident.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.TIME_PATROLLER.get(), DemonVillagersEntity.Resident.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.SABERTOOTH.get(), SabertoothEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.WILD_GIRAN.get(), SagaZFightersEntity.WildGiranEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.GIANT_FISH.get(), GiantFishEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(MainEntities.GIANT_TURTLE.get(), GiantTurtleEntity.createAttributes());
 
-        event.put(MainEntities.BANDIT.get(), BanditEntity.createAttributes().build());
-        event.put(MainEntities.RED_RIBBON_ROBOT1.get(), RobotEntity.createAttributes().build());
-        event.put(MainEntities.RED_RIBBON_ROBOT2.get(), RobotEntity.createAttributes().build());
-        event.put(MainEntities.RED_RIBBON_ROBOT3.get(), RobotEntity.createAttributes().build());
-        event.put(MainEntities.RED_RIBBON_SOLDIER.get(), RedRibbonSoldierEntity.createAttributes().build());
-        event.put(MainEntities.SPACE_POD.get(), VehicleEntity.createAttributes());
-        event.put(MainEntities.FLYING_NIMBUS.get(), VehicleEntity.createAttributes());
-        event.put(MainEntities.BLACK_NIMBUS.get(), VehicleEntity.createAttributes());
-        event.put(MainEntities.CAR.get(), VehicleEntity.createAttributes());
-        event.put(MainEntities.CC576.get(), VehicleEntity.createAttributes());
-        event.put(MainEntities.FRIEZA_CAPSULE.get(), VehicleEntity.createAttributes());
-        event.put(MainEntities.ROBOT_XENOVERSE.get(), RobotEntity.createAttributes().build());
-        event.put(MainEntities.PUNCH_MACHINE.get(), PunchMachineEntity.createAttributes().build());
-        event.put(MainEntities.MAJIN_SKILL.get(), MajinSkillEntity.createAttributes().build());
-        event.put(MainEntities.BIO_CELL_JR.get(), DBSagasEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.BANDIT.get(), BanditEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.RED_RIBBON_ROBOT1.get(), RobotEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.RED_RIBBON_ROBOT2.get(), RobotEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.RED_RIBBON_ROBOT3.get(), RobotEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.RED_RIBBON_SOLDIER.get(), RedRibbonSoldierEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.SPACE_POD.get(), VehicleEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(MainEntities.FLYING_NIMBUS.get(), VehicleEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(MainEntities.BLACK_NIMBUS.get(), VehicleEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(MainEntities.CAR.get(), VehicleEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(MainEntities.CC576.get(), VehicleEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(MainEntities.FRIEZA_CAPSULE.get(), VehicleEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(MainEntities.ROBOT_XENOVERSE.get(), RobotEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.PUNCH_MACHINE.get(), PunchMachineEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.MAJIN_SKILL.get(), MajinSkillEntity.createAttributes().build());
+        FabricDefaultAttributeRegistry.register(MainEntities.BIO_CELL_JR.get(), DBSagasEntity.createAttributes().build());
 
     }
 
-	public static void commonSetup(final FMLCommonSetupEvent event) {
+	public static void commonSetup() {
 		new PredefinedTechniques().init();
-
-		event.enqueueWork(() -> {
-
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.CHRYSANTHEMUM_FLOWER.getId(), MainBlocks.POTTED_CHRYSANTHEMUM_FLOWER);
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.AMARYLLIS_FLOWER.getId(), MainBlocks.POTTED_AMARYLLIS_FLOWER);
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.MARIGOLD_FLOWER.getId(), MainBlocks.POTTED_MARIGOLD_FLOWER);
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.CATHARANTHUS_ROSEUS_FLOWER.getId(), MainBlocks.POTTED_CATHARANTHUS_ROSEUS_FLOWER);
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.TRILLIUM_FLOWER.getId(), MainBlocks.POTTED_TRILLIUM_FLOWER);
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.NAMEK_FERN.getId(), MainBlocks.POTTED_NAMEK_FERN);
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.SACRED_CHRYSANTHEMUM_FLOWER.getId(), MainBlocks.POTTED_SACRED_CHRYSANTHEMUM_FLOWER);
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.SACRED_AMARYLLIS_FLOWER.getId(), MainBlocks.POTTED_SACRED_AMARYLLIS_FLOWER);
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.SACRED_MARIGOLD_FLOWER.getId(), MainBlocks.POTTED_SACRED_MARIGOLD_FLOWER);
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.SACRED_CATHARANTHUS_ROSEUS_FLOWER.getId(), MainBlocks.POTTED_SACRED_CATHARANTHUS_ROSEUS_FLOWER);
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.SACRED_TRILLIUM_FLOWER.getId(), MainBlocks.POTTED_SACRED_TRILLIUM_FLOWER);
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.SACRED_FERN.getId(), MainBlocks.POTTED_SACRED_FERN);
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.NAMEK_AJISSA_SAPLING.getId(), MainBlocks.POTTED_AJISSA_SAPLING);
-			((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(MainBlocks.NAMEK_SACRED_SAPLING.getId(), MainBlocks.POTTED_SACRED_SAPLING);
 
 			Regions.register(new OverworldRegion(40));
 			SurfaceRuleManager.addSurfaceRules(SurfaceRuleManager.RuleCategory.OVERWORLD, Reference.MOD_ID, OverworldSurfaceRules.makeRules());
-		});
 	}
 
 
-    @SubscribeEvent
-    public static void onEntityAttributeModification(EntityAttributeModificationEvent event) {
-        event.add(EntityType.PLAYER, MainAttributes.STRENGTH);
-        event.add(EntityType.PLAYER, MainAttributes.STRIKE_POWER);
-        event.add(EntityType.PLAYER, MainAttributes.RESISTANCE);
-        event.add(EntityType.PLAYER, MainAttributes.VITALITY);
-        event.add(EntityType.PLAYER, MainAttributes.KI_POWER);
-        event.add(EntityType.PLAYER, MainAttributes.ENERGY);
-        event.add(EntityType.PLAYER, MainAttributes.MAX_ENERGY);
-        event.add(EntityType.PLAYER, MainAttributes.MAX_STAMINA);
-        event.add(EntityType.PLAYER, MainAttributes.MAX_POISE);
-        event.add(EntityType.PLAYER, MainAttributes.MELEE_DAMAGE);
-        event.add(EntityType.PLAYER, MainAttributes.STRIKE_DAMAGE);
-        event.add(EntityType.PLAYER, MainAttributes.DEFENSE);
-		event.add(EntityType.PLAYER, MainAttributes.CRIT_CHANCE);
-		event.add(EntityType.PLAYER, MainAttributes.CRIT_DAMAGE);
+    public static void registerPlayerAttributes() {
+        FabricDefaultAttributeRegistry.MODIFY.register(context -> context.modify(EntityType.PLAYER, (type, attributes) -> {
+        attributes.add( MainAttributes.STRENGTH);
+        attributes.add( MainAttributes.STRIKE_POWER);
+        attributes.add( MainAttributes.RESISTANCE);
+        attributes.add( MainAttributes.VITALITY);
+        attributes.add( MainAttributes.KI_POWER);
+        attributes.add( MainAttributes.ENERGY);
+        attributes.add( MainAttributes.MAX_ENERGY);
+        attributes.add( MainAttributes.MAX_STAMINA);
+        attributes.add( MainAttributes.MAX_POISE);
+        attributes.add( MainAttributes.MELEE_DAMAGE);
+        attributes.add( MainAttributes.STRIKE_DAMAGE);
+        attributes.add( MainAttributes.DEFENSE);
+		attributes.add( MainAttributes.CRIT_CHANCE);
+		attributes.add( MainAttributes.CRIT_DAMAGE);
+        }));
     }
 
-	@SubscribeEvent
-	public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, MainBlockEntities.KIKONO_STATION_BE.get(), (be, side) -> be.getItemHandler());
-		event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, MainBlockEntities.KIKONO_STATION_BE.get(), (be, side) -> be.getEnergyStorage());
-		event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, MainBlockEntities.FUEL_GENERATOR_BE.get(), (be, side) -> be.getItemHandler());
-		event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, MainBlockEntities.FUEL_GENERATOR_BE.get(), (be, side) -> be.getEnergyStorage());
-		event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, MainBlockEntities.ENERGY_CABLE_BE.get(), (be, side) -> be.getEnergyStorage());
-		event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, MainBlockEntities.GRAVITY_DEVICE_BE.get(), (be, side) -> be.getEnergyStorage());
-	}
-
-    @SafeVarargs
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private static void regAttr(EntityAttributeCreationEvent event, AttributeSupplier attributes, DeferredHolder... entities) {
-        for (DeferredHolder reg : entities) {
-            event.put((EntityType) reg.get(), attributes);
-        }
+    public static void registerMachineStorage() {
+        net.fabricmc.fabric.api.transfer.v1.item.ItemStorage.SIDED.registerForBlockEntity(
+                (be, side) -> net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage.of(be.getItemHandler(), side),
+                MainBlockEntities.KIKONO_STATION_BE.get());
+        net.fabricmc.fabric.api.transfer.v1.item.ItemStorage.SIDED.registerForBlockEntity(
+                (be, side) -> net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage.of(be.getItemHandler(), side),
+                MainBlockEntities.FUEL_GENERATOR_BE.get());
+        team.reborn.energy.api.EnergyStorage.SIDED.registerForBlockEntity((be, side) -> be.getEnergyStorage(), MainBlockEntities.KIKONO_STATION_BE.get());
+        team.reborn.energy.api.EnergyStorage.SIDED.registerForBlockEntity((be, side) -> be.getEnergyStorage(), MainBlockEntities.FUEL_GENERATOR_BE.get());
+        team.reborn.energy.api.EnergyStorage.SIDED.registerForBlockEntity((be, side) -> be.getEnergyStorage(), MainBlockEntities.ENERGY_CABLE_BE.get());
+        team.reborn.energy.api.EnergyStorage.SIDED.registerForBlockEntity((be, side) -> be.getEnergyStorage(), MainBlockEntities.GRAVITY_DEVICE_BE.get());
     }
+
 }

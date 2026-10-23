@@ -1,5 +1,6 @@
 package com.dragonminez.common.datagen;
 
+import net.minecraft.world.item.equipment.ArmorType;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.MainItems;
 import com.dragonminez.common.datagen.builder.KikonoRecipeBuilder;
@@ -8,10 +9,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class DMZKikonoRecipeProvider {
 	private final RecipeOutput consumer;
@@ -114,17 +114,17 @@ public class DMZKikonoRecipeProvider {
 		);
 	}
 
-	protected void buildFullArmorSet(String name, Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> armorSet, Item pattern) {
-		buildHelmetRecipes(name, armorSet.get(ArmorItem.Type.HELMET).get(), pattern);
-		buildChestplateRecipes(name, armorSet.get(ArmorItem.Type.CHESTPLATE).get(), pattern);
-		buildLeggingsRecipes(name, armorSet.get(ArmorItem.Type.LEGGINGS).get(), pattern);
-		buildBootsRecipes(name, armorSet.get(ArmorItem.Type.BOOTS).get(), pattern);
+	protected void buildFullArmorSet(String name, Map<ArmorType, DeferredHolder<Item, ? extends Item>> armorSet, Item pattern) {
+		buildHelmetRecipes(name, armorSet.get(ArmorType.HELMET).get(), pattern);
+		buildChestplateRecipes(name, armorSet.get(ArmorType.CHESTPLATE).get(), pattern);
+		buildLeggingsRecipes(name, armorSet.get(ArmorType.LEGGINGS).get(), pattern);
+		buildBootsRecipes(name, armorSet.get(ArmorType.BOOTS).get(), pattern);
 	}
 
-	protected void buildArmorNoHelmetSet(String name, Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> armorSet, Item pattern) {
-		buildChestplateRecipes(name, armorSet.get(ArmorItem.Type.CHESTPLATE).get(), pattern);
-		buildLeggingsRecipes(name, armorSet.get(ArmorItem.Type.LEGGINGS).get(), pattern);
-		buildBootsRecipes(name, armorSet.get(ArmorItem.Type.BOOTS).get(), pattern);
+	protected void buildArmorNoHelmetSet(String name, Map<ArmorType, DeferredHolder<Item, ? extends Item>> armorSet, Item pattern) {
+		buildChestplateRecipes(name, armorSet.get(ArmorType.CHESTPLATE).get(), pattern);
+		buildLeggingsRecipes(name, armorSet.get(ArmorType.LEGGINGS).get(), pattern);
+		buildBootsRecipes(name, armorSet.get(ArmorType.BOOTS).get(), pattern);
 	}
 
 	protected void buildToolSetNoSword(String name, Item pickaxe, Item axe, Item shovel, Item hoe, Item pattern, Item material, Item stick) {

@@ -10,22 +10,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.ClientTickEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.network.chat.FormattedText;
 
 import java.util.List;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT, bus = EventBusSubscriber.Bus.GAME)
 public class CustomTooltipHandler {
 
 	private static ItemStack lastTooltipItem = ItemStack.EMPTY;

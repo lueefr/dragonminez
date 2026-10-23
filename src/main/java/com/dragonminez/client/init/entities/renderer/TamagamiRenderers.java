@@ -27,7 +27,7 @@ public final class TamagamiRenderers {
 
     private TamagamiRenderers() {}
 
-    public static class HammerRenderer extends EntityRenderer<AllWorldBossesEntity.TamagamiHammer> {
+    public static class HammerRenderer extends EntityRenderer<AllWorldBossesEntity.TamagamiHammer, net.minecraft.client.renderer.entity.state.EntityRenderState> {
 
         private static final float SPIN_DEGREES_PER_TICK = 42.0F;
         private static final float[] TRAIL_COLOR = ColorUtils.rgbIntToFloat(0xFFFFFF);
@@ -76,7 +76,7 @@ public final class TamagamiRenderers {
         }
     }
 
-    public static class PillarRenderer extends EntityRenderer<AllWorldBossesEntity.TamagamiPillar> {
+    public static class PillarRenderer extends EntityRenderer<AllWorldBossesEntity.TamagamiPillar, net.minecraft.client.renderer.entity.state.EntityRenderState> {
 
         private static final float LAYER_HEIGHT = 1.25F;
         private static final float TAPER = 0.55F;

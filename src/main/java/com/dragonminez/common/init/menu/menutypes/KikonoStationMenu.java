@@ -10,15 +10,15 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import com.dragonminez.platform.inventory.SlotItemHandler;
 
 public class KikonoStationMenu extends AbstractContainerMenu {
 	public final KikonoStationBlockEntity blockEntity;
 	private final Level level;
 	private final ContainerData data;
 
-	public KikonoStationMenu(int pContainerId, Inventory inv, FriendlyByteBuf extraData) {
-		this(pContainerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(4));
+	public KikonoStationMenu(int pContainerId, Inventory inv, net.minecraft.core.BlockPos extraData) {
+		this(pContainerId, inv, inv.player.level().getBlockEntity(extraData), new SimpleContainerData(4));
 	}
 
 	public KikonoStationMenu(int pContainerId, Inventory inv, BlockEntity entity, ContainerData data) {

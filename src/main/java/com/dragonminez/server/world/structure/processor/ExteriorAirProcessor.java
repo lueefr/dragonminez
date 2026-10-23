@@ -1,7 +1,6 @@
 package com.dragonminez.server.world.structure.processor;
 
 import com.dragonminez.server.world.structure.fitted.TemplateShape;
-import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;

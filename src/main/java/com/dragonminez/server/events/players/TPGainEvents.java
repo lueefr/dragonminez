@@ -1,6 +1,6 @@
 package com.dragonminez.server.events.players;
 
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import com.dragonminez.platform.event.living.LivingIncomingDamageEvent;
 import com.dragonminez.Reference;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.events.DMZEvent;
@@ -26,22 +26,17 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
+import com.dragonminez.platform.item.ArmorData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import com.dragonminez.platform.event.tick.PlayerTickEvent;
+import com.dragonminez.platform.event.living.LivingDeathEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
 import java.util.HashMap;
 import java.util.List;
@@ -67,7 +62,7 @@ public class TPGainEvents {
 
 		StatsData data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
 		if (data == null) return;
-		
+
 		int finalTP = event.isPreBoosted() ? baseTP : data.calculateTPGain(baseTP, TpSource.STORY);
 
 		if (event.getShareWithParty()) {
@@ -153,7 +148,7 @@ public class TPGainEvents {
 						int tierMult = 1;
 
 						if (stack.getItem() instanceof TieredItem tiered) tierMult = Math.max(1, (int) (tiered.getTier().getSpeed() / 2));
-						else if (stack.getItem() instanceof ArmorItem armor) tierMult = Math.max(1, armor.getDefense() / 4);
+						else if (ArmorData.isArmor(stack)) tierMult = Math.max(1, (int) (ArmorData.defense(stack) / 4));
 
 						int finalMult = Math.max(rarityMult, tierMult);
 						data.getResources().addBoostedTrainingPoints(data.applyTpBoosts(TpSource.CRAFTED, baseTp * amount * finalMult));
@@ -165,12 +160,12 @@ public class TPGainEvents {
 
 	private static boolean isPlayerOwnedShadow(Entity entity) {
 		return entity instanceof ShadowDummyEntity
-				&& entity.getPersistentData().getBoolean(SummonPlayerShadowDummyC2S.TAG_PLAYER_SHADOW);
+				&& com.dragonminez.platform.entity.EntityData.get(entity).getBooleanOr(SummonPlayerShadowDummyC2S.TAG_PLAYER_SHADOW, false);
 	}
 
 	private static int applyPlayerShadowTpBonus(Entity entity, int tp) {
 		if (tp <= 0 || !isPlayerOwnedShadow(entity)) return tp;
-		int pct = Mth.clamp(entity.getPersistentData().getInt("dmz_shadow_percent"), 25, 75);
+		int pct = Mth.clamp(com.dragonminez.platform.entity.EntityData.get(entity).getIntOr("dmz_shadow_percent", 0), 25, 75);
 		return Math.max(1, (int) Math.round(tp * (1.0 + pct / 100.0)));
 	}
 
@@ -187,7 +182,7 @@ public class TPGainEvents {
 
 	@SubscribeEvent
 	public static void onEntityDeath(LivingDeathEvent event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 		if (!(event.getSource().getEntity() instanceof Player attacker)) return;
 
 		StatsProvider.get(StatsCapability.INSTANCE, attacker).ifPresent(data -> {
@@ -205,7 +200,7 @@ public class TPGainEvents {
 
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void onEntityHit(LivingIncomingDamageEvent event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 
 		if (event.getSource().getEntity() instanceof Player attacker) {
 			StatsProvider.get(StatsCapability.INSTANCE, attacker).ifPresent(attackerData -> {
@@ -223,7 +218,7 @@ public class TPGainEvents {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void onLivingHurtDynamicGrowth(LivingIncomingDamageEvent event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 		if (!ConfigManager.getServerConfig().getDynamicGrowth().isEnabled()) return;
 
 		LivingEntity target = event.getEntity();
@@ -242,7 +237,7 @@ public class TPGainEvents {
 					double damageXp = DynamicGrowthService.practiceDamageXp(attacker, target, damage);
 					DynamicGrowthService.award(attacker, attackerData, DynamicGrowthStat.PWR, damageXp, target);
 				} else if (isPlayerMeleeDamage(source, attacker)) {
-					var pdata = attacker.getPersistentData();
+					var pdata = com.dragonminez.platform.entity.EntityData.get(attacker);
 					double growthDamage = pdata.contains("dmz_growth_melee_damage") ? pdata.getDouble("dmz_growth_melee_damage") : damage;
 					boolean kiWeaponInUse = pdata.getBoolean("dmz_growth_ki_weapon");
 					boolean kiInfuseActive = pdata.getBoolean("dmz_growth_ki_infuse");

@@ -1,6 +1,6 @@
 package com.dragonminez.server.events.players.combat;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import com.dragonminez.common.init.entities.worldboss.WorldBossEntity;
@@ -9,14 +9,9 @@ import com.dragonminez.common.network.S2C.StrikeCinematicS2C;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.ServerTickEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +42,7 @@ public final class StrikeCinematics {
 	}
 
 	private static void start(LivingEntity attacker, LivingEntity victim, Source source, int move) {
-		if (attacker.level().isClientSide || victim == null) return;
+		if (attacker.level().isClientSide() || victim == null) return;
 		Take current = TAKES.get(attacker.getUUID());
 		if (current != null && current.victimId().equals(victim.getUUID())) {
 			if (current.source() != source || current.move() != move) TAKES.put(attacker.getUUID(), new Take(attacker, victim.getUUID(), source, move));

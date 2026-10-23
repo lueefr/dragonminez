@@ -37,14 +37,14 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public class ClientPacketHandler {
 
 	public static void handleOpenITMenu(List<com.dragonminez.common.network.ITTargetEntry> entries) {
@@ -112,7 +112,7 @@ public class ClientPacketHandler {
 
 		StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 			CompoundTag groups = new CompoundTag();
-			for (String key : nbt.getAllKeys()) {
+			for (String key : nbt.keySet()) {
 				if (key.equals(StatsDeltaS2C.CHARACTER_PATCH) || key.equals(StatsDeltaS2C.CHARACTER_REMOVED)) continue;
 				groups.put(key, nbt.get(key));
 			}
@@ -147,7 +147,7 @@ public class ClientPacketHandler {
 
 		if (clientLevel.getEntity(playerId) instanceof Player player) {
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
-				data.getCharacter().load(nbt.getCompound("Character"));
+				data.getCharacter().load(nbt.getCompoundOrEmpty("Character"));
 				player.refreshDimensions();
 				player.refreshDisplayName();
 			});
@@ -166,13 +166,13 @@ public class ClientPacketHandler {
 
 		if (clientLevel.getEntity(playerId) instanceof Player player) {
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
-				if (nbt.contains("Stats")) data.getStats().load(nbt.getCompound("Stats"));
-				if (nbt.contains("BonusStats")) data.getBonusStats().load(nbt.getCompound("BonusStats"));
-				if (nbt.contains("Resources")) data.getResources().load(nbt.getCompound("Resources"));
-				if (nbt.contains("Skills")) data.getSkills().load(nbt.getCompound("Skills"));
-				if (nbt.contains("Techniques")) data.getTechniques().load(nbt.getCompound("Techniques"));
+				if (nbt.contains("Stats")) data.getStats().load(nbt.getCompoundOrEmpty("Stats"));
+				if (nbt.contains("BonusStats")) data.getBonusStats().load(nbt.getCompoundOrEmpty("BonusStats"));
+				if (nbt.contains("Resources")) data.getResources().load(nbt.getCompoundOrEmpty("Resources"));
+				if (nbt.contains("Skills")) data.getSkills().load(nbt.getCompoundOrEmpty("Skills"));
+				if (nbt.contains("Techniques")) data.getTechniques().load(nbt.getCompoundOrEmpty("Techniques"));
 				if (nbt.contains("PlayerQuestData")) {
-					data.getPlayerQuestData().deserializeNBT(nbt.getCompound("PlayerQuestData"));
+					data.getPlayerQuestData().deserializeNBT(nbt.getCompoundOrEmpty("PlayerQuestData"));
 				}
 				player.refreshDimensions();
 				player.refreshDisplayName();

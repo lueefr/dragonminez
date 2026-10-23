@@ -34,11 +34,18 @@ public class DBSagasPart extends PartEntity<DBSagasEntity> {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag pCompound) {
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag pCompound) {
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
@@ -53,7 +60,7 @@ public class DBSagasPart extends PartEntity<DBSagasEntity> {
     }
 
     @Override
-    public boolean hurt(DamageSource pSource, float pAmount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource pSource, float pAmount) {
         return this.isInvulnerableTo(pSource) ? false : this.owner.receivePartDamage(pSource, pAmount, this);
     }
 

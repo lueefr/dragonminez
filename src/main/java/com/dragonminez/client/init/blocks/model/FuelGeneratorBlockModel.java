@@ -5,9 +5,9 @@ import com.dragonminez.common.init.block.custom.FuelGeneratorBlock;
 import com.dragonminez.common.init.block.entity.FuelGeneratorBlockEntity;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class FuelGeneratorBlockModel extends GeoModel<FuelGeneratorBlockEntity> {
+public class FuelGeneratorBlockModel extends ExtractedGeoModel<FuelGeneratorBlockEntity> {
 	@Override
 	public Identifier getModelResource(FuelGeneratorBlockEntity fuelGeneratorBlockEntity) {
 		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/block/fuel_generator.geo.json");

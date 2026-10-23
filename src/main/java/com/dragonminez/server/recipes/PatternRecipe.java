@@ -8,15 +8,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
@@ -137,8 +133,7 @@ public class PatternRecipe implements Recipe<net.minecraft.world.item.crafting.C
                 Serializer.dissolvePattern(pattern, ingredients, pattern[0].length(), pattern.length), result, notification);
     }
 
-    public static class Serializer implements RecipeSerializer<PatternRecipe> {
-        public static final Serializer INSTANCE = new Serializer();
+    public static class Serializer {
         private record Data(String group, Map<String, Ingredient> key, java.util.List<String> pattern, ItemStack result, boolean notification) {}
         private static final com.mojang.serialization.MapCodec<Data> DATA = com.mojang.serialization.codecs.RecordCodecBuilder.mapCodec(instance -> instance.group(
                 com.mojang.serialization.Codec.STRING.optionalFieldOf("group", "").forGetter(Data::group),
@@ -170,8 +165,7 @@ public class PatternRecipe implements Recipe<net.minecraft.world.item.crafting.C
                     return new Data(recipe.group, key, pattern, recipe.result, recipe.showNotification);
                 });
         private static final net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, PatternRecipe> STREAM_CODEC = net.minecraft.network.codec.ByteBufCodecs.fromCodecWithRegistries(CODEC.codec());
-        @Override public com.mojang.serialization.MapCodec<PatternRecipe> codec() { return CODEC; }
-        @Override public net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, PatternRecipe> streamCodec() { return STREAM_CODEC; }
+        public static final RecipeSerializer<PatternRecipe> INSTANCE = new RecipeSerializer<>(CODEC, STREAM_CODEC);
 
 		private static NonNullList<Ingredient> dissolvePattern(String[] pattern, Map<String, Ingredient> key, int width, int height) {
 			NonNullList<Ingredient> list = NonNullList.withSize(width * height, Ingredient.EMPTY);

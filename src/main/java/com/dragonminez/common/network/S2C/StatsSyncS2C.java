@@ -12,7 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -33,7 +33,7 @@ public class StatsSyncS2C implements StatsGroupsPacket {
 
         StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
             this.nbt.merge(data.save());
-            this.nbt.getCompound("Character").remove(SkinPixels.NBT_KEY);
+            this.nbt.getCompoundOrEmpty("Character").remove(SkinPixels.NBT_KEY);
         });
     }
 
@@ -65,9 +65,9 @@ public class StatsSyncS2C implements StatsGroupsPacket {
     }
 
     public static CompoundTag withoutQuestHistory(CompoundTag nbt) {
-        if (!nbt.contains(QUEST_DATA_KEY, Tag.TAG_COMPOUND)) return nbt;
-        CompoundTag questData = shallowCopy(nbt.getCompound(QUEST_DATA_KEY));
-        if (!questData.contains(QUEST_STATE_KEY, Tag.TAG_COMPOUND)) return nbt;
+        if (!com.dragonminez.platform.nbt.NbtCompat.contains(nbt, QUEST_DATA_KEY, Tag.TAG_COMPOUND)) return nbt;
+        CompoundTag questData = shallowCopy(nbt.getCompoundOrEmpty(QUEST_DATA_KEY));
+        if (!com.dragonminez.platform.nbt.NbtCompat.contains(questData, QUEST_STATE_KEY, Tag.TAG_COMPOUND)) return nbt;
         questData.put(QUEST_STATE_KEY, new CompoundTag());
         CompoundTag stripped = shallowCopy(nbt);
         stripped.put(QUEST_DATA_KEY, questData);
@@ -76,7 +76,7 @@ public class StatsSyncS2C implements StatsGroupsPacket {
 
     private static CompoundTag shallowCopy(CompoundTag source) {
         CompoundTag copy = new CompoundTag();
-        for (String key : source.getAllKeys()) copy.put(key, source.get(key));
+        for (String key : source.keySet()) copy.put(key, source.get(key));
         return copy;
     }
 
@@ -94,7 +94,7 @@ public class StatsSyncS2C implements StatsGroupsPacket {
 
     public static void handle(StatsSyncS2C msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandler.handleStatsSyncPacket(msg.playerId, msg.nbt));
+            DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> () -> ClientPacketHandler.handleStatsSyncPacket(msg.playerId, msg.nbt));
         });
         ctx.get().setPacketHandled(true);
     }

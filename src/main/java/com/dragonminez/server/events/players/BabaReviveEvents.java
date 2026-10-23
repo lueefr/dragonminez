@@ -1,6 +1,6 @@
 package com.dragonminez.server.events.players;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.events.DMZEvent;
 import com.dragonminez.common.stats.StatsCapability;
@@ -11,12 +11,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.living.LivingChangeTargetEvent;
+import com.dragonminez.platform.event.living.LivingDeathEvent;
+import com.dragonminez.platform.event.living.LivingHealEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 @EventBusSubscriber(modid = Reference.MOD_ID)
 public final class BabaReviveEvents {
@@ -26,7 +25,7 @@ public final class BabaReviveEvents {
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onPlayerDeath(LivingDeathEvent event) {
-		if (!(event.getEntity() instanceof ServerPlayer player) || player.level().isClientSide) return;
+		if (!(event.getEntity() instanceof ServerPlayer player) || player.level().isClientSide()) return;
 		if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
 		StatsData stats = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
 		if (stats == null || !BabaReviveService.tryKnockOut(player, stats, event.getSource())) return;
@@ -36,7 +35,7 @@ public final class BabaReviveEvents {
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onHeal(LivingHealEvent event) {
-		if (!(event.getEntity() instanceof Player player) || player.level().isClientSide) return;
+		if (!(event.getEntity() instanceof Player player) || player.level().isClientSide()) return;
 		StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 			if (BabaReviveService.isHealingBlocked(data)) event.setCanceled(true);
 		});

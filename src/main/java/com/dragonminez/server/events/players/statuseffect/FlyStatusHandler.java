@@ -51,7 +51,7 @@ public class FlyStatusHandler implements IStatusEffectHandler {
                     factor = Mth.clamp(factor, 0.0, 1.0);
                     float finalPct = (float) Mth.lerp(factor, 0.05f, 0.35f);
                     float damage = maxHealth * finalPct;
-                    serverPlayer.hurt(serverPlayer.damageSources().flyIntoWall(), damage);
+                    serverPlayer.hurtOrSimulate(serverPlayer.damageSources().flyIntoWall(), damage);
                     serverPlayer.level().playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), SoundEvents.PLAYER_HURT, SoundSource.PLAYERS, 1.0F, (float) (0.5F + (factor * 0.5F)));
                 }
             }

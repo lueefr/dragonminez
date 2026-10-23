@@ -5,14 +5,13 @@ import com.dragonminez.client.render.shader.ClientGravityState;
 import com.dragonminez.client.render.shader.GravityRedManager;
 import com.dragonminez.client.render.util.IrisCompat;
 import net.minecraft.client.Minecraft;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public final class GravityRedRenderer {
 
 	private GravityRedRenderer() {}

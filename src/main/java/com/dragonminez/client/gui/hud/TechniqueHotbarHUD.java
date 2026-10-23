@@ -17,7 +17,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.minecraft.client.gui.LayeredDraw;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 
 import java.util.Locale;
@@ -51,7 +50,7 @@ public class TechniqueHotbarHUD {
 		for (int i = 0; i < SLOTS; i++) VIEWS[i] = new SlotView();
 	}
 
-	public static final LayeredDraw.Layer HUD_TECHNIQUES = (guiGraphics, deltaTracker) -> {
+	public static final net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement HUD_TECHNIQUES = (guiGraphics, deltaTracker) -> {
         float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
         int width = guiGraphics.guiWidth();
         int height = guiGraphics.guiHeight();

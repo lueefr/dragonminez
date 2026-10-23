@@ -15,12 +15,11 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import net.fabricmc.api.EnvType;
+import com.dragonminez.platform.event.client.ClientPlayerNetworkEvent;
+import com.dragonminez.platform.event.client.RenderGuiLayerEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import org.joml.Quaternionf;
 
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT, bus = EventBusSubscriber.Bus.GAME)
 public class RadarRenderEvent {
 	private static final Identifier RADAR_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/radar.png");
 

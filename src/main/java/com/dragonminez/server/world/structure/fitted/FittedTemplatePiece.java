@@ -14,7 +14,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureManager;
@@ -61,8 +61,8 @@ public class FittedTemplatePiece extends TemplateStructurePiece {
 
 	public FittedTemplatePiece(StructureTemplateManager templates, CompoundTag tag) {
 		super(MainStructureTypes.FITTED_TEMPLATE_PIECE.get(), tag, templates,
-				location -> settings(templates.getOrCreate(location), Rotation.valueOf(tag.getString("Rot"))));
-		this.rotation = Rotation.valueOf(tag.getString("Rot"));
+				location -> settings(templates.getOrCreate(location), Rotation.valueOf(tag.getStringOr("Rot", ""))));
+		this.rotation = Rotation.valueOf(tag.getStringOr("Rot", ""));
 	}
 
 	private static StructurePlaceSettings settings(StructureTemplate template, Rotation rotation) {
@@ -185,9 +185,9 @@ public class FittedTemplatePiece extends TemplateStructurePiece {
 			create(level, tag).ifPresent(entity -> {
 				float yaw = entity.rotate(this.rotation);
 				entity.moveTo(pos.x, pos.y, pos.z, yaw, entity.getXRot());
-				entity.getPersistentData().putString(ENTITY_KEY_TAG, key);
+				com.dragonminez.platform.entity.EntityData.get(entity).putString(ENTITY_KEY_TAG, key);
 				if (entity instanceof Mob mob) {
-					mob.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(pos)), MobSpawnType.STRUCTURE, null);
+					mob.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(pos)), EntitySpawnReason.STRUCTURE, null);
 				}
 				level.addFreshEntityWithPassengers(entity);
 			});
@@ -208,7 +208,7 @@ public class FittedTemplatePiece extends TemplateStructurePiece {
 		if (chunk instanceof ProtoChunk proto) {
 			try {
 				for (CompoundTag saved : new ArrayList<>(proto.getEntities())) {
-					if (key.equals(saved.getCompound("ForgeData").getString(ENTITY_KEY_TAG))) return true;
+					if (key.equals(saved.getCompoundOrEmpty("ForgeData").getString(ENTITY_KEY_TAG))) return true;
 				}
 			} catch (ConcurrentModificationException e) {
 				return false;
@@ -216,14 +216,14 @@ public class FittedTemplatePiece extends TemplateStructurePiece {
 			return false;
 		}
 		return !level.getEntitiesOfClass(Entity.class, new AABB(block).inflate(TWIN_RADIUS),
-				entity -> key.equals(entity.getPersistentData().getString(ENTITY_KEY_TAG))).isEmpty();
+				entity -> key.equals(com.dragonminez.platform.entity.EntityData.get(entity).getStringOr(ENTITY_KEY_TAG, ""))).isEmpty();
 	}
 
 	public static boolean hasTwin(ServerLevel level, Entity entity) {
-		String key = entity.getPersistentData().getString(ENTITY_KEY_TAG);
+		String key = com.dragonminez.platform.entity.EntityData.get(entity).getStringOr(ENTITY_KEY_TAG, "");
 		if (key.isEmpty()) return false;
 		return !level.getEntitiesOfClass(Entity.class, entity.getBoundingBox().inflate(TWIN_RADIUS),
-				other -> other != entity && !other.isRemoved() && key.equals(other.getPersistentData().getString(ENTITY_KEY_TAG))).isEmpty();
+				other -> other != entity && !other.isRemoved() && key.equals(com.dragonminez.platform.entity.EntityData.get(other).getStringOr(ENTITY_KEY_TAG, ""))).isEmpty();
 	}
 
 	@Override

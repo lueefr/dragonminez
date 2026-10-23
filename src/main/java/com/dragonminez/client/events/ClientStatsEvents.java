@@ -48,24 +48,19 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.fabricmc.api.EnvType;
+import com.dragonminez.platform.event.client.ClientPlayerNetworkEvent;
 import com.dragonminez.client.render.util.SkinPixelTextures;
 import net.neoforged.neoforge.client.event.ComputeFovModifierEvent;
-import net.neoforged.neoforge.client.event.InputEvent;
+import com.dragonminez.platform.event.client.InputEvent;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.tick.ClientTickEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
 import java.util.Locale;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = EnvType.CLIENT)
 public class ClientStatsEvents {
 	private static final int TECHNIQUE_VISIBLE_SLOTS = Techniques.SLOT_COUNT;
 	private static final int BAR_SLOTS = 4;
@@ -507,7 +502,7 @@ public class ClientStatsEvents {
 					var lockedTarget = LockOnEvent.getLockedTarget();
 					int targetId = lockedTarget != null ? lockedTarget.getId() : -1;
 					NetworkHandler.sendToServer(new StrikeAttackC2S(targetId));
-					net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new DMZClientEvent.StrikeAttack(player, targetId));
+					com.dragonminez.platform.event.GameEvents.BUS.post(new DMZClientEvent.StrikeAttack(player, targetId));
 				} else if (t instanceof EvasionAttackData) {
 						if (data.getCooldowns().hasCooldown("TechniqueCooldown_" + id)) continue;
 						techniques.selectSlot(i);
@@ -528,7 +523,7 @@ public class ClientStatsEvents {
 						chargePendingTicks = 0;
 						NetworkHandler.sendToServer(TechniqueChargeC2S.start(i, kiTargetId));
 					}
-					net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new DMZClientEvent.KiAttackCast(player, i));
+					com.dragonminez.platform.event.GameEvents.BUS.post(new DMZClientEvent.KiAttackCast(player, i));
 				}
 			}
 			return;
@@ -552,7 +547,7 @@ public class ClientStatsEvents {
 		if (!slotDown && !chargeReleaseSent) {
 			NetworkHandler.sendToServer(TechniqueChargeC2S.setHolding(false));
 			chargeReleaseSent = true;
-			net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new DMZClientEvent.KiAttackRelease(player));
+			com.dragonminez.platform.event.GameEvents.BUS.post(new DMZClientEvent.KiAttackRelease(player));
 		}
 	}
 

@@ -3,8 +3,6 @@ package com.dragonminez.common.init.entities.worldboss;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.GeneralServerConfig;
 import com.dragonminez.common.init.EntityAttributes;
-import com.dragonminez.common.init.MainEntities;
-import com.dragonminez.common.init.MainSounds;
 import com.dragonminez.common.init.entities.ai.AiTier;
 import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import com.dragonminez.common.init.entities.sagas.helper.DBSagasAnimationHandler;
@@ -22,9 +20,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -32,13 +28,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public abstract class WorldBossEntity extends DBSagasEntity {
 
@@ -126,7 +120,7 @@ public abstract class WorldBossEntity extends DBSagasEntity {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         super.registerControllers(controllers);
-        controllers.add(new AnimationController<>(this, "boss_controller", 3,
+        controllers.add(new AnimationController<>("boss_controller", 3,
                 DBSagasAnimationHandler::bossAbilityPredicate));
     }
 
@@ -153,7 +147,7 @@ public abstract class WorldBossEntity extends DBSagasEntity {
 
     @Override
     public int getBossAbilityTicks() {
-        return this.level().isClientSide ? this.clientAbilityTick : this.abilityTick;
+        return this.level().isClientSide() ? this.clientAbilityTick : this.abilityTick;
     }
 
     @Override
@@ -198,7 +192,7 @@ public abstract class WorldBossEntity extends DBSagasEntity {
     }
 
     public void applyGroupScaling(int members) {
-        if (this.level().isClientSide || this.isBossAsleep()) return;
+        if (this.level().isClientSide() || this.isBossAsleep()) return;
         GeneralServerConfig.WorldBossConfig config = ConfigManager.getServerConfig().getWorldBoss();
         int extra = Math.max(0, members - 1);
         float fraction = this.getMaxHealth() > 0.0F ? this.getHealth() / this.getMaxHealth() : 1.0F;
@@ -258,7 +252,7 @@ public abstract class WorldBossEntity extends DBSagasEntity {
     }
 
     public boolean startBossAbility(int ability) {
-        if (this.level().isClientSide) return false;
+        if (this.level().isClientSide()) return false;
         if (this.getBossAbility() >= 0 || this.isBossAsleep()) return false;
         if (this.isCasting() || this.isComboing() || this.isTransforming() || this.isStunned()) return false;
 
@@ -299,7 +293,7 @@ public abstract class WorldBossEntity extends DBSagasEntity {
     public void tick() {
         super.tick();
 
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             int ability = this.getBossAbility();
             this.clientAbilityTick = ability < 0 ? 0 : ability == this.clientAbilityId ? this.clientAbilityTick + 1 : 1;
             this.clientAbilityId = ability;
@@ -423,25 +417,32 @@ public abstract class WorldBossEntity extends DBSagasEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putBoolean("BossAsleep", this.isBossAsleep());
         if (this.anchor != null) {
             pCompound.putInt("AnchorX", this.anchor.getX());
             pCompound.putInt("AnchorY", this.anchor.getY());
             pCompound.putInt("AnchorZ", this.anchor.getZ());
         }
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
         if (pCompound.contains("AnchorX")) {
-            this.anchor = new BlockPos(pCompound.getInt("AnchorX"),
-                    pCompound.getInt("AnchorY"), pCompound.getInt("AnchorZ"));
+            this.anchor = new BlockPos(pCompound.getIntOr("AnchorX", 0),
+                    pCompound.getIntOr("AnchorY", 0), pCompound.getIntOr("AnchorZ", 0));
         }
         if (pCompound.contains("BossAsleep")) {
-            applyAsleep(pCompound.getBoolean("BossAsleep"));
+            applyAsleep(pCompound.getBooleanOr("BossAsleep", false));
         }
         if (this.isBossAsleep()) this.applyFixedStats();
     }

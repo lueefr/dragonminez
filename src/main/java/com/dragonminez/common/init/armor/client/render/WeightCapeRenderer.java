@@ -4,12 +4,12 @@ import com.dragonminez.Reference;
 import com.dragonminez.common.init.armor.client.model.WeightCapeModel;
 import com.dragonminez.common.init.item.WeightItem;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import com.geckolib.renderer.GeoArmorRenderer;
 
-public class WeightCapeRenderer extends GeoArmorRenderer<WeightItem> {
+public class WeightCapeRenderer extends GeoArmorRenderer<WeightItem, net.minecraft.client.renderer.entity.state.HumanoidRenderState> {
     public WeightCapeRenderer() {
         super(new WeightCapeModel());
     }
@@ -21,6 +21,6 @@ public class WeightCapeRenderer extends GeoArmorRenderer<WeightItem> {
 
     @Override
     public RenderType getRenderType(WeightItem animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.armorCutoutNoCull(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.armorCutoutNoCull(texture);
     }
 }

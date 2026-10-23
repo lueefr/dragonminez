@@ -13,14 +13,14 @@ import net.minecraft.world.level.Level;
 
 public class BlasterCannonItem extends Item {
 	public BlasterCannonItem( ) {
-		super(new Properties().stacksTo(1).durability(200));
+		super(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1).durability(200));
 	}
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
         ItemStack itemstack = pPlayer.getItemInHand(pHand);
 
-        if (!pLevel.isClientSide) {
+        if (!pLevel.isClientSide()) {
 
             KiBlastEntity kiBlast = new KiBlastEntity(pLevel, pPlayer);
             kiBlast.setupKiBlast(pPlayer, 10.0f,  1.0f, 0xFF5E7C, 0x940404, 1.0f, 5);

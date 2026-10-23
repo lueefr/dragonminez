@@ -3,8 +3,6 @@ package com.dragonminez.common.network;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforgespi.language.IModFileInfo;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -29,9 +27,8 @@ final class NetworkFingerprint {
 
 	private static String compute() {
 		try {
-			IModFileInfo info = ModList.get().getModFileById(Reference.MOD_ID);
-			if (info == null) return UNKNOWN;
-			Path root = info.getFile().findResource(NETWORK_PACKAGE);
+			Path root = net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer(Reference.MOD_ID)
+                    .flatMap(mod -> mod.findPath(String.join("/", NETWORK_PACKAGE))).orElse(null);
 			if (root == null || !Files.isDirectory(root)) return UNKNOWN;
 			List<Path> classes;
 			try (Stream<Path> walk = Files.walk(root)) {

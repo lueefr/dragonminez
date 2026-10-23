@@ -1,6 +1,5 @@
 package com.dragonminez.server.events.players.statuseffect;
 
-import com.dragonminez.common.racial.RacialAbility;
 import com.dragonminez.common.racial.RacialContext;
 import com.dragonminez.common.racial.RacialRegistry;
 import com.dragonminez.common.stats.StatsData;

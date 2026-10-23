@@ -5,7 +5,7 @@ import com.dragonminez.common.init.block.entity.FuelGeneratorBlockEntity;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import com.geckolib.renderer.GeoBlockRenderer;
 
-public class FuelGeneratorBlockRenderer extends GeoBlockRenderer<FuelGeneratorBlockEntity> {
+public class FuelGeneratorBlockRenderer extends GeoBlockRenderer<FuelGeneratorBlockEntity, net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState> {
 	public FuelGeneratorBlockRenderer(BlockEntityRendererProvider.Context context) {
 		super(new FuelGeneratorBlockModel());
 	}

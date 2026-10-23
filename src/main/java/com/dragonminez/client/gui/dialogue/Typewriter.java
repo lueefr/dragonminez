@@ -1,13 +1,13 @@
 package com.dragonminez.client.gui.dialogue;
 
 import net.minecraft.util.FormattedCharSequence;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 final class Typewriter {
 	private static final double CHAR_MS = 1000.0 / 68.0;
 	private static final double SENTENCE_PAUSE_MS = 240.0;

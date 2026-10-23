@@ -5,6 +5,12 @@
 - Started the Fabric/Java 25 build migration from the existing NeoForge 1.21.1 port.
 - Added draft extension APIs for content completion, dynamic form composition, isolated custom NPC definitions, and config translations.
 - Added independent API core tests. Full compilation and gameplay parity are still pending; this is not a playable Fabric release.
+- Migrated native registry registration, player/entity persistence, lifecycle callbacks and packet transport, including configuration-stage protocol checks.
+- Added native combat, item-use, equipment, entity admission, projectile and explosion hooks, plus client input, connection, camera, field-of-view and fog bridges.
+- Migrated machine inventories, menus, serialization, item automation and transactional Fabric energy transfers. Simulation and partial transfers preserve energy and item counts.
+- Migrated armor, weapon and tool properties to native components, preserving original attack values, enchantability and durability, including indestructible weapons.
+- Added native resource pack metadata, custom fluid models, gameplay rule adapters, permission nodes and initial GeckoLib render-state extraction.
+- Expanded standalone validation and adapted integration GameTests to Fabric. Full compilation and in-game verification remain incomplete.
 
 ## 2.2 - Hotfix 2 — Minecraft 1.21.1 (NeoForge)
 

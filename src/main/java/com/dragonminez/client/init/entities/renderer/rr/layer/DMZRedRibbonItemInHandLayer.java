@@ -6,17 +6,17 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.renderer.GeoEntityRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
-public class DMZRedRibbonItemInHandLayer<T extends RedRibbonEntity> extends GeoRenderLayer<T> {
+public class DMZRedRibbonItemInHandLayer<T extends RedRibbonEntity> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 
-    public DMZRedRibbonItemInHandLayer(GeoEntityRenderer<T> entityRendererIn) {
+    public DMZRedRibbonItemInHandLayer(GeoEntityRenderer<T, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> entityRendererIn) {
         super(entityRendererIn);
     }
 

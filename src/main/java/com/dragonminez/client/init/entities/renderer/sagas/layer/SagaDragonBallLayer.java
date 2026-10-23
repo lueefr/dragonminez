@@ -5,16 +5,16 @@ import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import com.geckolib.cache.GeckoLibCache;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
-public class SagaDragonBallLayer<T extends DBSagasEntity> extends GeoRenderLayer<T> {
+public class SagaDragonBallLayer<T extends DBSagasEntity> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 
 	private static final Identifier NAMEK_BALL_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/block/dballnamek.geo.json");
 	private static final String ANCHOR_BONE = "dball";
@@ -22,7 +22,7 @@ public class SagaDragonBallLayer<T extends DBSagasEntity> extends GeoRenderLayer
 	private static final float BALL_SCALE = 0.6f;
 	private static final float BALL_CENTER_Y = 5.625f / 16.0f;
 
-	public SagaDragonBallLayer(GeoRenderer<T> geoRenderer) {
+	public SagaDragonBallLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> geoRenderer) {
 		super(geoRenderer);
 	}
 
@@ -40,7 +40,7 @@ public class SagaDragonBallLayer<T extends DBSagasEntity> extends GeoRenderLayer
 		if (ballBone == null) return;
 
 		Identifier texture = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/block/custom/" + animatable.getDragonBallTexturePrefix() + stars + ".png");
-		RenderType ballType = RenderType.entityCutoutNoCull(texture);
+		RenderType ballType = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture);
 
 		poseStack.pushPose();
 		poseStack.translate(bone.getPivotX() / 16.0f, bone.getPivotY() / 16.0f, bone.getPivotZ() / 16.0f);

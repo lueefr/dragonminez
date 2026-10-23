@@ -3,13 +3,11 @@ package com.dragonminez.client.crowdin;
 import com.dragonminez.Reference;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
-import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.resources.IoSupplier;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +16,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 
 public class CrowdinPackResources implements PackResources {
@@ -31,7 +28,7 @@ public class CrowdinPackResources implements PackResources {
 
 		JsonObject packInfo = new JsonObject();
 		packInfo.addProperty("description", "DMZ Live Translations");
-		packInfo.addProperty("pack_format", 34);
+		com.dragonminez.platform.resource.PackMetadata.addCurrentFormat(packInfo, PackType.CLIENT_RESOURCES);
 
 		JsonObject root = new JsonObject();
 		root.add("pack", packInfo);
@@ -78,12 +75,12 @@ public class CrowdinPackResources implements PackResources {
 
 	@Nullable
 	@Override
-	public <T> T getMetadataSection(MetadataSectionSerializer<T> deserializer) {
+	public <T> T getMetadataSection(MetadataSectionType<T> deserializer) {
 		try (InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream(packMcmetaBytes), StandardCharsets.UTF_8)) {
 			JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
-			String sectionName = deserializer.getMetadataSectionName();
+			String sectionName = deserializer.name();
 
-			if (json.has(sectionName)) return deserializer.fromJson(json.getAsJsonObject(sectionName));
+			if (json.has(sectionName)) return deserializer.codec().parse(com.mojang.serialization.JsonOps.INSTANCE, json.get(sectionName)).getOrThrow();
 			return null;
 		} catch (Exception e) {
 			return null;
@@ -97,9 +94,4 @@ public class CrowdinPackResources implements PackResources {
 
 	@Override
 	public void close() {}
-
-	@Override
-	public boolean isHidden() {
-		return false;
-	}
 }

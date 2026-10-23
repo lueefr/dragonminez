@@ -16,7 +16,7 @@ import com.dragonminez.common.util.lists.SaiyanForms;
 import com.dragonminez.common.stats.extras.ActionMode;
 import com.dragonminez.server.events.players.IStatusEffectHandler;
 import com.dragonminez.server.util.TriggerFormMarker;
-import net.neoforged.neoforge.common.NeoForge;
+import com.dragonminez.platform.event.GameEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -87,10 +87,10 @@ public class TransformStatusHandler implements IStatusEffectHandler {
         String activeStackForm = normalizeFormName(data.getCharacter().getActiveStackForm(), false);
         String activeStackGroup = normalizeGroupName(data.getCharacter().getActiveStackFormGroup());
 
-        String lastForm = decodeNullable(effectTag.getString(TAG_LAST_FORM));
-        String lastFormGroup = decodeNullable(effectTag.getString(TAG_LAST_FORM_GROUP));
-        String lastStackForm = decodeNullable(effectTag.getString(TAG_LAST_STACK_FORM));
-        String lastStackGroup = decodeNullable(effectTag.getString(TAG_LAST_STACK_GROUP));
+        String lastForm = decodeNullable(effectTag.getStringOr(TAG_LAST_FORM, ""));
+        String lastFormGroup = decodeNullable(effectTag.getStringOr(TAG_LAST_FORM_GROUP, ""));
+        String lastStackForm = decodeNullable(effectTag.getStringOr(TAG_LAST_STACK_FORM, ""));
+        String lastStackGroup = decodeNullable(effectTag.getStringOr(TAG_LAST_STACK_GROUP, ""));
 
         boolean formChanged = !Objects.equals(activeForm, lastForm) || !Objects.equals(activeFormGroup, lastFormGroup);
         boolean stackChanged = !Objects.equals(activeStackForm, lastStackForm) || !Objects.equals(activeStackGroup, lastStackGroup);
@@ -106,10 +106,10 @@ public class TransformStatusHandler implements IStatusEffectHandler {
         }
 
         if (formChanged && activeForm != null) {
-            NeoForge.EVENT_BUS.post(new DMZEvent.FormChangeEvent(player, lastFormGroup, lastForm, activeFormGroup, activeForm));
+            GameEvents.BUS.post(new DMZEvent.FormChangeEvent(player, lastFormGroup, lastForm, activeFormGroup, activeForm));
         }
         if (stackChanged && activeStackForm != null) {
-            NeoForge.EVENT_BUS.post(new DMZEvent.StackFormChangeEvent(player, lastStackGroup, lastStackForm, activeStackGroup, activeStackForm));
+            GameEvents.BUS.post(new DMZEvent.StackFormChangeEvent(player, lastStackGroup, lastStackForm, activeStackGroup, activeStackForm));
         }
 
         FormConfig.FormData formData = resolveRegularFormData(data, activeFormGroup, activeForm, player);
@@ -300,19 +300,19 @@ public class TransformStatusHandler implements IStatusEffectHandler {
     }
 
     private CompoundTag getOrCreateEffectTag(ServerPlayer player) {
-        CompoundTag persistentData = player.getPersistentData();
+        CompoundTag persistentData = com.dragonminez.platform.entity.EntityData.get(player);
         if (!persistentData.contains(TAG_ROOT)) {
             persistentData.put(TAG_ROOT, new CompoundTag());
         }
-        return persistentData.getCompound(TAG_ROOT);
+        return persistentData.getCompoundOrEmpty(TAG_ROOT);
     }
 
     public static void clearAllPersistentFormEffects(ServerPlayer player) {
-        CompoundTag persistentData = player.getPersistentData();
+        CompoundTag persistentData = com.dragonminez.platform.entity.EntityData.get(player);
         if (!persistentData.contains(TAG_ROOT)) {
             return;
         }
-        CompoundTag effectTag = persistentData.getCompound(TAG_ROOT);
+        CompoundTag effectTag = persistentData.getCompoundOrEmpty(TAG_ROOT);
         for (Holder<MobEffect> effect : readTrackedPersistentEffects(effectTag)) {
             if (player.hasEffect(effect)) {
                 player.removeEffect(effect);
@@ -328,7 +328,7 @@ public class TransformStatusHandler implements IStatusEffectHandler {
             return tracked;
         }
 
-        String raw = effectTag.getString("trackedPersistentEffects");
+        String raw = effectTag.getStringOr("trackedPersistentEffects", "");
         if (raw == null || raw.isEmpty()) {
             return tracked;
         }
@@ -383,7 +383,7 @@ public class TransformStatusHandler implements IStatusEffectHandler {
     }
 
     private static String getEffectId(Holder<MobEffect> effect) {
-        Identifier key = effect.unwrapKey().map(k -> k.location()).orElse(null);
+        Identifier key = effect.unwrapKey().map(k -> k.identifier()).orElse(null);
         return key != null ? key.toString() : "unknown";
     }
 

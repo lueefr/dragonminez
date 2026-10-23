@@ -106,8 +106,8 @@ public class Cooldowns {
 
     public void load(CompoundTag tag) {
         cooldowns.clear();
-        for (String key : tag.getAllKeys()) {
-            cooldowns.put(key, tag.getInt(key));
+        for (String key : tag.keySet()) {
+            cooldowns.put(key, tag.getIntOr(key, 0));
         }
     }
 

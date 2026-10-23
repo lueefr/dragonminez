@@ -9,7 +9,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.CommonHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
@@ -56,9 +55,8 @@ public class StatCropBlock extends CropBlock {
 
 		float speed = getGrowthSpeed(state, level, pos);
 		boolean shouldGrow = random.nextInt((int) (NATURAL_GROWTH_DELAY * 25.0F / speed) + 1) == 0;
-		if (net.neoforged.neoforge.common.CommonHooks.canCropGrow(level, pos, state, shouldGrow)) {
+		if (shouldGrow) {
 			level.setBlock(pos, this.getStateForAge(age + 1), 2);
-			net.neoforged.neoforge.common.CommonHooks.fireCropGrowPost(level, pos, state);
 		}
 	}
 

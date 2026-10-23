@@ -1,6 +1,5 @@
 package com.dragonminez.common.init.entities.sagas;
 
-import com.dragonminez.common.init.entities.IBattlePower;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;

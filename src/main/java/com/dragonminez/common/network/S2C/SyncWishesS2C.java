@@ -6,7 +6,7 @@ import com.dragonminez.common.wish.Wish;
 import com.dragonminez.common.wish.WishManager;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -34,7 +34,7 @@ public class SyncWishesS2C {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> () -> {
                 String decompressedJson = CompressionUtil.decompress(compressedWishes);
                 Type mapType = new TypeToken<Map<String, List<Wish>>>(){}.getType();
                 Map<String, List<Wish>> wishes = GsonUtils.NETWORK.fromJson(decompressedJson, mapType);

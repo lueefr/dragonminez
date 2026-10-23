@@ -7,7 +7,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -40,15 +40,22 @@ public class RedRibbonSoldierEntity extends RedRibbonEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putString(NBT_SKIN_OWNER, getSkinOwner());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        if (pCompound.contains(NBT_SKIN_OWNER)) setSkinOwner(pCompound.getString(NBT_SKIN_OWNER));
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        if (pCompound.contains(NBT_SKIN_OWNER)) setSkinOwner(pCompound.getStringOr(NBT_SKIN_OWNER, ""));
         else rerollSkinOwner();
     }
 
@@ -65,7 +72,7 @@ public class RedRibbonSoldierEntity extends RedRibbonEntity {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, EntitySpawnReason pReason, @Nullable SpawnGroupData pSpawnData) {
         if (getSkinOwner().isEmpty()) rerollSkinOwner();
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
     }

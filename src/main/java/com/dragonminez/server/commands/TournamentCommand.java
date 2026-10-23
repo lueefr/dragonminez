@@ -18,7 +18,6 @@ import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.List;
 
 public class TournamentCommand {
 
@@ -53,7 +52,7 @@ public class TournamentCommand {
 
 		int cleared = 0;
 		for (ServerPlayer target : targets) {
-			Tournament.Progress data = Tournament.Progress.get(target.serverLevel());
+			Tournament.Progress data = Tournament.Progress.get(target.level());
 			cleared += tournamentId == null
 					? data.clearAllCooldowns(target.getUUID())
 					: (data.clearCooldown(target.getUUID(), tournamentId) ? 1 : 0);
@@ -73,7 +72,7 @@ public class TournamentCommand {
 	private static int setRing(CommandContext<CommandSourceStack> ctx, String tournamentId)
 			throws CommandSyntaxException {
 		ServerPlayer player = ctx.getSource().getPlayerOrException();
-		ServerLevel level = player.serverLevel();
+		ServerLevel level = player.level();
 		BlockPos pos = player.blockPosition();
 
 		Tournament.RingAnchor.Area area = Tournament.RingAnchor.areaAt(level, pos);

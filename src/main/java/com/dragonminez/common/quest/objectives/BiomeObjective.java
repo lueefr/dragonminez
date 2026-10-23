@@ -2,7 +2,6 @@ package com.dragonminez.common.quest.objectives;
 
 import lombok.*;
 import com.dragonminez.common.quest.QuestObjective;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
 @Getter
 

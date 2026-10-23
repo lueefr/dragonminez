@@ -17,7 +17,6 @@ import net.minecraft.world.level.levelgen.feature.configurations.*;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
 
-import java.util.List;
 
 public class SacredKaiConfiguredFeatures {
 	public static final ResourceKey<ConfiguredFeature<?, ?>> ROCK_CLUSTER = key("sacredkai_rock_cluster");

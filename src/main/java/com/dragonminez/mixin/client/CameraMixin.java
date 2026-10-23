@@ -32,24 +32,29 @@ public abstract class CameraMixin implements RollCamera {
 	@Shadow protected abstract void setPosition(Vec3 pos);
 
 	@Shadow
-	public abstract Vec3 getPosition();
+	public abstract Vec3 position();
 
 	@Shadow
-	public abstract float getYRot();
+	public abstract float yRot();
 
 	@Shadow
-	public abstract float getXRot();
+	public abstract float xRot();
 
 	@Shadow protected abstract void setRotation(float yRot, float xRot);
 
 	@Shadow protected abstract void move(float zoom, float dy, float dx);
 
 	@Shadow private Entity entity;
+    @Shadow private net.minecraft.world.level.Level level;
 
 	@Unique private float dragonminez$roll = 0F;
 
-	@Inject(method = "setup", at = @At("HEAD"))
-	private void dragonminez$updateAim(BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick, CallbackInfo ci) {
+	@Inject(method = "alignWithEntity", at = @At("HEAD"))
+	private void dragonminez$updateAim(float partialTick, CallbackInfo ci) {
+        BlockGetter level = this.level;
+        Entity entity = this.entity;
+        boolean detached = ((Camera) (Object) this).isDetached();
+        boolean thirdPersonReverse = net.minecraft.client.Minecraft.getInstance().options.getCameraType().isMirrored();
 		if (entity instanceof LocalPlayer player) {
 			OverShoulderCamera.beforeSetup(player, partialTick);
 			FlightOrientationHandler.frame(player);
@@ -57,8 +62,12 @@ public abstract class CameraMixin implements RollCamera {
 		} else this.dragonminez$roll = 0F;
 	}
 
-	@Inject(method = "setup", at = @At("TAIL"))
-	private void dragonminez$modifyCamera(BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick, CallbackInfo ci) {
+	@Inject(method = "alignWithEntity", at = @At("TAIL"))
+	private void dragonminez$modifyCamera(float partialTick, CallbackInfo ci) {
+        BlockGetter level = this.level;
+        Entity entity = this.entity;
+        boolean detached = ((Camera) (Object) this).isDetached();
+        boolean thirdPersonReverse = net.minecraft.client.Minecraft.getInstance().options.getCameraType().isMirrored();
 		if (entity instanceof LocalPlayer clashPlayer && BeamClashCinematicCamera.isActive()) {
 			BeamClashCinematicCamera.Shot shot = BeamClashCinematicCamera.computeShot(level, clashPlayer, partialTick);
 			if (shot != null) {
@@ -70,7 +79,7 @@ public abstract class CameraMixin implements RollCamera {
 
 		if (entity instanceof LocalPlayer strikePlayer && StrikeCinematicCamera.isActive()) {
 			StrikeCinematicCamera.Shot shot = StrikeCinematicCamera.computeShot(level, strikePlayer, partialTick,
-					this.getPosition(), this.getYRot(), this.getXRot());
+					this.position(), this.yRot(), this.xRot());
 			if (shot != null) {
 				this.setPosition(shot.pos());
 				this.setRotation(shot.yaw(), shot.pitch());
@@ -90,7 +99,7 @@ public abstract class CameraMixin implements RollCamera {
 		}
 
 		if (!detached && entity instanceof LocalPlayer player && FirstPersonManager.shouldRenderFirstPerson(player)) {
-			Vec3 baseEyePos = this.getPosition();
+			Vec3 baseEyePos = this.position();
 			Vector3f targetOffset = FirstPersonManager.offsetFirstPersonView(player);
 
 			Vector3f smoothedOffset = DMZCameraBuffer.getSmoothedOffset(targetOffset, 0.6f);
@@ -123,16 +132,19 @@ public abstract class CameraMixin implements RollCamera {
 		}
 	}
 
-	@ModifyArg(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getMaxZoom(F)F"))
+	@ModifyArg(method = "alignWithEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getMaxZoom(F)F"))
 	private float dragonminez$vehicleZoom(float distance) {
 		return (float)(distance + OverShoulderCamera.vehicleCameraExtra(this.entity));
 	}
 
 	@Redirect(
-			method = "setup",
+			method = "alignWithEntity",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;move(FFF)V", ordinal = 0)
 	)
-	private void dragonminez$shoulderSurf(Camera camera, float x, float y, float z, BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick) {
+	private void dragonminez$shoulderSurf(Camera camera, float x, float y, float z, float partialTick) {
+        BlockGetter level = this.level;
+        Entity entity = this.entity;
+        boolean thirdPersonReverse = net.minecraft.client.Minecraft.getInstance().options.getCameraType().isMirrored();
 		if (!thirdPersonReverse && OverShoulderCamera.isDecoupled()) {
 			this.setRotation(OverShoulderCamera.getCameraYaw(), OverShoulderCamera.getCameraPitch());
 		}

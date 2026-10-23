@@ -8,8 +8,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
-import net.minecraft.client.gui.LayeredDraw;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 
 public class XenoverseHUD {
 	private static final float HP_FRAME_X = 31.0f, HP_FRAME_Y = 13.0f;
@@ -35,7 +33,7 @@ public class XenoverseHUD {
 	private static float lastHealth = -1.0f;
 	private static float mirrorWidth = -1.0f;
 
-	public static final LayeredDraw.Layer HUD_XENOVERSE = (guiGraphics, deltaTracker) -> {
+	public static final net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement HUD_XENOVERSE = (guiGraphics, deltaTracker) -> {
         float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
         int width = guiGraphics.guiWidth();
         int height = guiGraphics.guiHeight();

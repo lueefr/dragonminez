@@ -20,7 +20,6 @@ import com.dragonminez.server.events.players.combat.KiTechniqueHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -184,8 +183,8 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0f, calcCenterOffsetY(owner, size), calcForwardOffset(owner, size));
         updatePositionRelativeToOwner(owner);
 
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
-        
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
+
     }
 
     public void setupKiBlastPlayer(LivingEntity owner, float damage, float speed, int color, int colorBorder, float size) {
@@ -198,7 +197,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
 
     public void setupSoulPunisherPlayer(LivingEntity owner, float damage, float speed, int color, int colorOutline, float size) {
         this.prepareSoulPunisher(owner, damage, speed, color, colorOutline, size, 100, 99999);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     public void setupSoulPunisher(LivingEntity owner, float damage, float speed, float size, int castTime, int homingTargetId) {
@@ -207,7 +206,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setTechniqueId(SOUL_PUNISHER_ID);
         this.setHomingTarget(homingTargetId);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     private void prepareSoulPunisher(LivingEntity owner, float damage, float speed, int color, int colorOutline, float size, int castTime, int maxLife) {
@@ -237,7 +236,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastTime(60);
         this.setCastOffsets(0.0F, 0.5F, 0.5F);
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     public void setupTriBeamPlayer(LivingEntity owner, float damage, float speed, int color, int colorBorder, int colorOutline, float size, boolean charged) {
@@ -337,7 +336,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.purifyAge++;
         this.setDeltaMovement(Vec3.ZERO);
 
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             if (this.purifyAge < PURIFY_BURST_TICK) this.emitPurifyDust();
             return;
         }
@@ -427,7 +426,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastTime(40);
         this.setCastOffsets(0.0F, calcOverheadOffsetY(owner, size), -this.castClearanceRadius() / ownerWidthScale(owner));
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
 
     }
 
@@ -451,8 +450,8 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastTime(40);
         this.setCastOffsets(0.0f, -0.5F, 0.5F);
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
-        
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
+
     }
 
     public void setupInvertedKiBlastPlayer(LivingEntity owner, float damage, float speed, int color, int colorBorder, float size) {
@@ -475,8 +474,8 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastTime(40);
         this.setCastOffsets(0.0f, -0.5F, 0.5F);
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
-        
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
+
     }
 
     public void setupKiSoulsPlayer(LivingEntity owner, float damage, float speed, int color) {
@@ -495,8 +494,8 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastTime(100);
         this.setCastOffsets(0.0F, 5.5F, 0.0F);
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
-        
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
+
     }
 
     public void setupKiGenkiPlayer(LivingEntity owner, float damage, float speed, float size) {
@@ -550,8 +549,8 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastTime(100);
         this.setCastOffsets(0.0F, 2.5F, 0.0F);
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
-        
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
+
     }
 
     public void setupKiNovaPlayer(LivingEntity owner, float damage, float speed, float size) {
@@ -570,7 +569,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastTime(100);
         this.setCastOffsets(0.0F, 2.5F, 0.0F);
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
 
     }
 
@@ -588,8 +587,8 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastTime(60);
         this.setCastOffsets(0.0F, 5.5F, 0.0F);
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
-        
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
+
     }
 
     public void setupKiDeathBallPlayer(LivingEntity owner, float damage, float speed, int color, int colorBorder, float size) {
@@ -613,8 +612,8 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastTime(40);
         this.setCastOffsets(0.0F, 0.5F, 0.5F);
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
-        
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
+
     }
 
     public void setupSokidanPlayer(LivingEntity owner, float damage, float speed, int color, float size) {
@@ -634,10 +633,10 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0f, 0f, 0.7f);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
-        
+
     }
 
     public void setupKiVolleyPlayer(LivingEntity owner, float damage, float speed, int color, int castTime, float size) {
@@ -657,7 +656,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0f, -0.5F, 0.5F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     public void setupKiSmall(LivingEntity owner, float damage, float speed, int color) {
@@ -677,7 +676,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0f, -0.5F, 0.5F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     public float getStretch() {
@@ -753,7 +752,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0f, 5.2F, 0.2F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     public void setupKiLargeBlast(LivingEntity owner, float damage, float speed, int color, int colorBorder, float size, int castTime) {
@@ -777,7 +776,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0f, -0.5F, 0.5F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     public void setupInvertedKiBlast(LivingEntity owner, float damage, float speed, int color, int colorBorder, float size, int castTime) {
@@ -801,7 +800,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0f, -0.5F, 0.5F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     public void setupKiSouls(LivingEntity owner, float damage, float speed, int color, int castTime) {
@@ -821,7 +820,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0F, 5.5F, 0.0F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     public void setupKiGenki(LivingEntity owner, float damage, float speed, int castTime) {
@@ -841,7 +840,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0F, 5.5F, 0.0F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     public void setupKiNova(LivingEntity owner, float damage, float speed, int castTime) {
@@ -861,7 +860,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0F, 2.5F, 0.0F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     public void setupKiDeathBall(LivingEntity owner, float damage, float speed, int color, int colorBorder, int castTime) {
@@ -886,7 +885,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0F, 0.5F, 0.5F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     public void setupSokidan(LivingEntity owner, float damage, float speed, int color, float size, int castTime) {
@@ -906,8 +905,8 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0f, 0.2f, 0.5f);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
-        
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
+
     }
 
     public void setupKiVolley(LivingEntity owner, float damage, float speed, int color, int castTime) {
@@ -931,7 +930,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0f, 1.5f, 0.0f);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -949,7 +948,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(-0.4F, 1.3F, 0.0F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     //ACA TERMINAN LOS METODOS PARA NPCS
@@ -967,7 +966,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(-0.4F, 1.3F, 0.0F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     private static AABB effectiveBounds(LivingEntity owner) {
@@ -1002,7 +1001,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.0F, -0.4F * size / ownerScaleOf(owner), 0.0F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
+        if (!this.level().isClientSide()) { this.level().addFreshEntity(this); }
     }
 
     public void setVolleyTarget(int targetId) {
@@ -1143,7 +1142,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
             updatePositionRelativeToOwner(owner);
         }
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -1166,7 +1165,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
             if (owner instanceof LivingEntity livingOwner && livingOwner.isAlive()) {
                 updatePositionRelativeToOwner(livingOwner);
                 this.setDeltaMovement(0, 0, 0);
-            } else if (!this.level().isClientSide) {
+            } else if (!this.level().isClientSide()) {
                 this.discard();
                 return;
             }
@@ -1183,7 +1182,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
     protected void onKiTick() {
         if (this.isPurifying()) return;
 
-        if (!this.level().isClientSide && this.getOwner() == null) {
+        if (!this.level().isClientSide() && this.getOwner() == null) {
             this.discard();
             return;
         }
@@ -1195,7 +1194,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         if (type == RENDER_BLASTER_METEOR) {
             if (ownerEntity instanceof LivingEntity owner && owner.isAlive()) {
                 this.tickBlasterMeteor(owner, isCasting);
-            } else if (!this.level().isClientSide) {
+            } else if (!this.level().isClientSide()) {
                 this.discard();
             }
             return;
@@ -1204,7 +1203,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         if (type == RENDER_ASSAULT_RAIN) {
             if (ownerEntity instanceof LivingEntity owner && owner.isAlive()) {
                 this.tickAssaultRain(owner, isCasting);
-            } else if (!this.level().isClientSide) {
+            } else if (!this.level().isClientSide()) {
                 this.discard();
             }
             return;
@@ -1226,7 +1225,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
                 owner.fallDistance = 0.0F;
                 owner.hasImpulse = true;
 
-                if (!this.level().isClientSide) {
+                if (!this.level().isClientSide()) {
                     if (!isCasting) {
                         if (type == 9) {
                             // Xenoverse-style max Volley: a dense, rapid stream of blasts converging toward where the
@@ -1275,7 +1274,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
                         this.discard();
                     }
                 }
-            } else if (!this.level().isClientSide) {
+            } else if (!this.level().isClientSide()) {
                 this.discard();
             }
 
@@ -1283,7 +1282,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         }
 
         if (type == RENDER_FAKE_MOON) {
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 if (this.isFiring()) {
                     if (Double.isNaN(this.fakeMoonStartY)) this.fakeMoonStartY = this.getY();
                     if (this.fakeMoonFrozenTick < 0) {
@@ -1326,7 +1325,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
             this.setXRot(owner.getXRot());
         }
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if(isCasting){
                 if (type == 5 && this.tickCount == 1) {
                     this.playSound(MainSounds.KI_SPIRITBOMB_CHARGE.get(), 0.7F, 1.0F);
@@ -1370,7 +1369,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
             }
         }
 
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             float scale = this.getSize();
             float[] borderColor = this.getRgbColorBorder();
             float pr = borderColor[0], pg = borderColor[1], pb = borderColor[2];
@@ -1429,7 +1428,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
             }
         }
 
-        if (this.level().isClientSide && !hasSpawnedSplash) {
+        if (this.level().isClientSide() && !hasSpawnedSplash) {
             if (type != 0) {
                 float[] rgb = this.getRgbColorBorder();
                 this.level().addParticle(
@@ -1484,7 +1483,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         owner.fallDistance = 0.0F;
         owner.hasImpulse = true;
 
-        if (this.level().isClientSide) return;
+        if (this.level().isClientSide()) return;
 
         if (!isCasting && this.tickCount % 2 == 0) {
             Vec3 center = this.resolveAssaultRainCenter(owner);
@@ -1535,7 +1534,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         owner.fallDistance = 0.0F;
         owner.hasImpulse = true;
 
-        if (this.level().isClientSide) return;
+        if (this.level().isClientSide()) return;
 
         if (!isCasting && this.tickCount % 2 == 0) {
             Vec3 center = new Vec3(owner.getX(), effectiveBounds(owner).getCenter().y, owner.getZ());
@@ -1699,7 +1698,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         }
 
         if (this.isSoulPunisher()) {
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 Entity targetEntity = pResult.getEntity();
                 if (this.shouldDamage(targetEntity)) {
                     float dealt = this.soulPunisherDamage(targetEntity, this.getKiDamage());
@@ -1725,7 +1724,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
 
         super.onHitEntity(pResult);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             Entity targetEntity = pResult.getEntity();
 
             if (this.shouldDamage(targetEntity)) {
@@ -1780,7 +1779,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         }
 
         if (this.isSoulPunisher() || this.assaultRainRiser) {
-            if (!this.level().isClientSide) this.discard();
+            if (!this.level().isClientSide()) this.discard();
             return;
         }
 
@@ -1789,7 +1788,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         if (type == 5 || type == 6) {
         } else {
             super.onHitBlock(pResult);
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 explodeAndDie();
             }
         }
@@ -1801,7 +1800,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         int type = this.getKiRenderType();
         double centerY = this.getVisualCenterY();
 
-        if ((type == 5 || type == 6) && !this.level().isClientSide) {
+        if ((type == 5 || type == 6) && !this.level().isClientSide()) {
             this.isDetonating = true;
             this.maxDetonationRadius = Math.max(this.getSize() * 1.5F, MIN_BLAST_CRATER * 2.0F);
             this.currentDetonationRadius = 0.0F;
@@ -1845,7 +1844,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
             }
         }
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             BlockPos center = BlockPos.containing(this.getX(), centerY, this.getZ());
 
             this.carveKiSphere(center, this.scaledDestructionRadius(explosionRadius), 2);
@@ -1889,8 +1888,10 @@ public class KiBlastEntity extends AbstractKiProjectile {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putInt("CastTime", getCastTime());
         pCompound.putFloat("OffsetX", this.entityData.get(OFFSET_X));
         pCompound.putFloat("OffsetY", this.entityData.get(OFFSET_Y));
@@ -1899,19 +1900,24 @@ public class KiBlastEntity extends AbstractKiProjectile {
         pCompound.putBoolean("IsControllable", this.isControllable());
         pCompound.putBoolean("IsParked", this.isParked());
         pCompound.putFloat("ParkedDistance", this.getParkedDistance());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        if (pCompound.contains("CastTime")) setCastTime(pCompound.getInt("CastTime"));
-        if (pCompound.contains("OffsetX")) this.entityData.set(OFFSET_X, pCompound.getFloat("OffsetX"));
-        if (pCompound.contains("OffsetY")) this.entityData.set(OFFSET_Y, pCompound.getFloat("OffsetY"));
-        if (pCompound.contains("OffsetZ")) this.entityData.set(OFFSET_Z, pCompound.getFloat("OffsetZ"));
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        if (pCompound.contains("CastTime")) setCastTime(pCompound.getIntOr("CastTime", 0));
+        if (pCompound.contains("OffsetX")) this.entityData.set(OFFSET_X, pCompound.getFloatOr("OffsetX", 0F));
+        if (pCompound.contains("OffsetY")) this.entityData.set(OFFSET_Y, pCompound.getFloatOr("OffsetY", 0F));
+        if (pCompound.contains("OffsetZ")) this.entityData.set(OFFSET_Z, pCompound.getFloatOr("OffsetZ", 0F));
 
-        if (pCompound.contains("IsControllable")) setControllable(pCompound.getBoolean("IsControllable"));
-        if (pCompound.contains("IsParked")) setParked(pCompound.getBoolean("IsParked"));
-        if (pCompound.contains("ParkedDistance")) setParkedDistance(pCompound.getFloat("ParkedDistance"));
+        if (pCompound.contains("IsControllable")) setControllable(pCompound.getBooleanOr("IsControllable", false));
+        if (pCompound.contains("IsParked")) setParked(pCompound.getBooleanOr("IsParked", false));
+        if (pCompound.contains("ParkedDistance")) setParkedDistance(pCompound.getFloatOr("ParkedDistance", 0F));
     }
 
 

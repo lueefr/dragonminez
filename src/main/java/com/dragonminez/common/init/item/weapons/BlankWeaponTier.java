@@ -1,56 +1,16 @@
 package com.dragonminez.common.init.item.weapons;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.ToolMaterial;
 
-public class BlankWeaponTier implements Tier {
-	private final int uses;
-	private final float speed;
-	private final float attackDamageBonus;
-	private final int level;
-	private final int enchantmentValue;
-	private final Ingredient repairIngredient;
-
-	public BlankWeaponTier(int uses, float speed, float attackDamageBonus, int level, int enchantmentValue, Ingredient repairIngredient) {
-		this.uses = uses;
-		this.speed = speed;
-		this.attackDamageBonus = attackDamageBonus;
-		this.level = level;
-		this.enchantmentValue = enchantmentValue;
-		this.repairIngredient = repairIngredient;
-	}
-
-	@Override
-	public int getUses() {
-		return this.uses;
-	}
-
-	@Override
-	public float getSpeed() {
-		return this.speed;
-	}
-
-	@Override
-	public float getAttackDamageBonus() {
-		return this.attackDamageBonus;
-	}
-
-
-	@Override
-	public int getEnchantmentValue() {
-		return this.enchantmentValue;
-	}
-
-	@Override
-	public Ingredient getRepairIngredient() {
-		return this.repairIngredient;
-	}
-
-	@Override
-	public TagKey<Block> getIncorrectBlocksForDrops() {
-		return BlockTags.INCORRECT_FOR_WOODEN_TOOL;
-	}
+/** Shared native sword material; individual weapons supply damage, durability and enchantability. */
+public final class BlankWeaponTier {
+    private BlankWeaponTier() {}
+    public static ToolMaterial create() {
+        return new ToolMaterial(BlockTags.INCORRECT_FOR_WOODEN_TOOL, 1, 0, -1, 15,
+                TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("dragonminez", "repairs_blank_weapon")));
+    }
 }

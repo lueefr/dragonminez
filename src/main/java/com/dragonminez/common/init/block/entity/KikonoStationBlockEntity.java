@@ -1,5 +1,7 @@
 package com.dragonminez.common.init.block.entity;
 
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.state.AnimationTest;
 import com.dragonminez.common.compat.ApotheosisCompat;
 import com.dragonminez.common.compat.WeaponLevelingCompat;
 import com.dragonminez.common.config.ConfigManager;
@@ -29,25 +31,23 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import com.dragonminez.compat.capabilities.Capability;
 
-import com.dragonminez.compat.util.LazyOptional;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
+import team.reborn.energy.api.EnergyStorage;
+import com.dragonminez.server.energy.EnergyTransfers;
+import com.dragonminez.platform.inventory.IItemHandler;
+import com.dragonminez.platform.inventory.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import com.geckolib.animatable.GeoBlockEntity;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
 import com.geckolib.animation.*;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 import com.geckolib.util.RenderUtil;
 
 import java.util.Optional;
 
-public class KikonoStationBlockEntity extends BlockEntity implements MenuProvider, GeoBlockEntity {
+public class KikonoStationBlockEntity extends BlockEntity implements net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider<net.minecraft.core.BlockPos>, GeoBlockEntity {
 	private final AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
 	// 0-8 Input, 9 Pattern, 10 Template, 11 Output
 	private final ItemStackHandler itemHandler = new ItemStackHandler(12) {
@@ -96,12 +96,12 @@ public class KikonoStationBlockEntity extends BlockEntity implements MenuProvide
 		return itemHandler;
 	}
 
-	public IEnergyStorage getEnergyStorage() {
+	public StarEnergyStorage getEnergyStorage() {
 		return energyStorage;
 	}
 
 	public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
-		if (pLevel.isClientSide) return;
+		if (pLevel.isClientSide()) return;
 
 		Optional<KikonoRecipe> recipe = getCurrentRecipe();
 
@@ -165,22 +165,30 @@ public class KikonoStationBlockEntity extends BlockEntity implements MenuProvide
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider registries) {
-		pTag.put("inventory", itemHandler.serializeNBT(registries));
+	protected void saveAdditional(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag pTag = new CompoundTag();
+		itemHandler.writeValue(output.child("inventory"));
 		pTag.putInt("progress", progress);
 		energyStorage.saveNBT(pTag);
-		super.saveAdditional(pTag, registries);
-	}
+		super.saveAdditional(output);
+
+        com.dragonminez.platform.nbt.NbtValues.write(output, pTag);
+    }
 
 	@Override
-	protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider registries) {
-		super.loadAdditional(pTag, registries);
+	protected void loadAdditional(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag pTag = com.dragonminez.platform.nbt.NbtValues.read(input);
+		super.loadAdditional(input);
 		if (pTag.contains("inventory")) {
-			itemHandler.deserializeNBT(registries, pTag.getCompound("inventory"));
+			itemHandler.readValue(input.childOrEmpty("inventory"));
 		}
-		progress = pTag.getInt("progress");
+		progress = pTag.getIntOr("progress", 0);
 		energyStorage.loadNBT(pTag);
 	}
+
+    @Override public net.minecraft.core.BlockPos getScreenOpeningData(net.minecraft.server.level.ServerPlayer player) {
+        return getBlockPos();
+    }
 
 	@Override
 	public Component getDisplayName() {
@@ -195,10 +203,10 @@ public class KikonoStationBlockEntity extends BlockEntity implements MenuProvide
 
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-		controllerRegistrar.add(new AnimationController<>(this, "controller", 0, this::predicate));
+		controllerRegistrar.add(new AnimationController<>("controller", 0, this::predicate));
 	}
 
-	private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> tAnimationState) {
+	private <T extends GeoAnimatable> PlayState predicate(AnimationTest<T> tAnimationState) {
 		if (this.progress > 0) {
 			return tAnimationState.setAndContinue(RawAnimation.begin().then("work", Animation.LoopType.LOOP));
 		}

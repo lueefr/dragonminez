@@ -15,7 +15,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -39,11 +39,11 @@ import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 public class GiantTurtleEntity extends Animal implements GeoEntity, ITextureVariant {
     @Override public boolean isFood(net.minecraft.world.item.ItemStack stack) { return stack.is(net.minecraft.world.item.Items.SEAGRASS); }
@@ -95,8 +95,8 @@ public class GiantTurtleEntity extends Animal implements GeoEntity, ITextureVari
     }
 
     @Override
-    public boolean canDrownInFluidType(net.neoforged.neoforge.fluids.FluidType type) {
-        return false;
+    public boolean canBreatheUnderwater() {
+        return true;
     }
 
     @Override
@@ -154,27 +154,34 @@ public class GiantTurtleEntity extends Animal implements GeoEntity, ITextureVari
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putInt("Variant", getVariant());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        setVariant(pCompound.getInt("Variant"));
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        setVariant(pCompound.getIntOr("Variant", 0));
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason,
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, EntitySpawnReason pReason,
                                         @Nullable SpawnGroupData pSpawnData) {
         this.setVariant(this.random.nextInt(VARIANT_COUNT));
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
     }
 
-    public static boolean canSpawnHere(EntityType<GiantTurtleEntity> pType, LevelAccessor pLevel, MobSpawnType pReason,
+    public static boolean canSpawnHere(EntityType<GiantTurtleEntity> pType, LevelAccessor pLevel, EntitySpawnReason pReason,
                                        BlockPos pPos, RandomSource pRandom) {
-        if (pReason == MobSpawnType.SPAWNER) return true;
+        if (pReason == EntitySpawnReason.SPAWNER) return true;
 
         return pPos.getY() < pLevel.getSeaLevel() + MAX_SPAWN_HEIGHT_ABOVE_SEA
                 && pLevel.getBlockState(pPos.below()).is(BlockTags.SAND)
@@ -183,11 +190,11 @@ public class GiantTurtleEntity extends Animal implements GeoEntity, ITextureVari
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "base_controller", 5, this::movePredicate));
+        controllers.add(new AnimationController<>("base_controller", 5, this::movePredicate));
     }
 
-    private <T extends GeoAnimatable> PlayState movePredicate(AnimationState<T> event) {
-        event.getController().setAnimation(event.isMoving() ? WALK : IDLE);
+    private <T extends GeoAnimatable> PlayState movePredicate(AnimationTest<T> event) {
+        event.controller().setAnimation(event.isMoving() ? WALK : IDLE);
         return PlayState.CONTINUE;
     }
 

@@ -20,7 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
-import net.neoforged.neoforge.common.NeoForge;
+import com.dragonminez.platform.event.GameEvents;
 import com.dragonminez.common.util.CuriosUtil;
 import com.dragonminez.common.util.FusionForms;
 import com.dragonminez.common.util.TransformationsHelper;
@@ -73,7 +73,7 @@ public class FusionLogic {
 		int finalDuration = durationPerLevel * fusionProm;
 
 		DMZEvent.FusionEvent event = new DMZEvent.FusionEvent(leader, partner, DMZEvent.FusionEvent.FusionType.METAMORU);
-		if (NeoForge.EVENT_BUS.post(event).isCanceled()) return false;
+		if (GameEvents.BUS.post(event).isCanceled()) return false;
 		applyFusion(leader, partner, lData, pData, "METAMORU", lvl1, lvl2);
 		lData.getStatus().setFusionTimer(finalDuration);
 		leader.addEffect(
@@ -107,7 +107,7 @@ public class FusionLogic {
 		int lvl2 = pData.getStats().getTotalStats();
 
 		DMZEvent.FusionEvent event = new DMZEvent.FusionEvent(leader, partner, DMZEvent.FusionEvent.FusionType.POTHALA);
-		if (NeoForge.EVENT_BUS.post(event).isCanceled()) return;
+		if (GameEvents.BUS.post(event).isCanceled()) return;
 
 		ItemStack leaderHeadTech = CuriosUtil.getFirstStackForItem(leader, "head_tech", "pothala");
 		boolean isGreenPothala = !leaderHeadTech.isEmpty() && leaderHeadTech.getItem().getDescriptionId().contains("green");
@@ -136,7 +136,7 @@ public class FusionLogic {
 		int lvl2 = pData.getStats().getTotalStats();
 
 		DMZEvent.FusionEvent event = new DMZEvent.FusionEvent(leader, partner, DMZEvent.FusionEvent.FusionType.BEETLE);
-		if (NeoForge.EVENT_BUS.post(event).isCanceled()) return;
+		if (GameEvents.BUS.post(event).isCanceled()) return;
 
 		int FUSION_DURATION = ConfigManager.getServerConfig().getGameplay().getFusionDurationSeconds() * 20;
 

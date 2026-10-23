@@ -1,6 +1,6 @@
 package com.dragonminez.client.render.effects;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.shader.DMZShaders;
 import com.dragonminez.client.render.util.AuraMeshFactory;
@@ -18,16 +18,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.ClientTickEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -35,7 +30,7 @@ import org.lwjgl.opengl.GL30;
 import java.util.ArrayList;
 import java.util.List;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public final class ShockwaveEffect {
 
 	private static final int MAX_WAVES = 32;
@@ -104,7 +99,7 @@ public final class ShockwaveEffect {
 		boolean distort = captureScene(main);
 
 		Camera camera = mc.gameRenderer.getMainCamera();
-		Vec3 camPos = camera.getPosition();
+		Vec3 camPos = camera.position();
 		Matrix4f proj = event.getProjectionMatrix();
 		float partialTick = mc.isPaused() ? 0.0f : event.getPartialTick().getGameTimeDeltaPartialTick(true);
 
@@ -179,8 +174,8 @@ public final class ShockwaveEffect {
 
 	private static PoseStack viewStack(Camera camera) {
 		PoseStack stack = new PoseStack();
-		stack.mulPose(Axis.XP.rotationDegrees(camera.getXRot()));
-		stack.mulPose(Axis.YP.rotationDegrees(camera.getYRot() + 180.0F));
+		stack.mulPose(Axis.XP.rotationDegrees(camera.xRot()));
+		stack.mulPose(Axis.YP.rotationDegrees(camera.yRot() + 180.0F));
 		return stack;
 	}
 }

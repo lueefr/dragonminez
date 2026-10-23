@@ -5,7 +5,7 @@ import com.dragonminez.common.init.block.entity.GravityDeviceBlockEntity;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import com.geckolib.renderer.GeoBlockRenderer;
 
-public class GravityDeviceBlockRenderer extends GeoBlockRenderer<GravityDeviceBlockEntity> {
+public class GravityDeviceBlockRenderer extends GeoBlockRenderer<GravityDeviceBlockEntity, net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState> {
 	public GravityDeviceBlockRenderer(BlockEntityRendererProvider.Context context) {
 		super(new GravityDeviceBlockModel());
 	}

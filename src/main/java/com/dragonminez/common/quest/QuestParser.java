@@ -284,7 +284,7 @@ public class QuestParser {
 				String interactEntity = json.has("entity") ? json.get("entity").getAsString() : null;
 				String entityName = json.has("entityName") ? json.get("entityName").getAsString() : null;
 				EntityType<?> interactType = interactEntity != null
-						? BuiltInRegistries.ENTITY_TYPE.get(Identifier.parse(interactEntity))
+						? BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.parse(interactEntity))
 						: null;
 				yield new InteractObjective(interactType, entityName);
 			}
@@ -368,7 +368,7 @@ public class QuestParser {
 			return null;
 		}
 		try {
-			Item item = BuiltInRegistries.ITEM.get(Identifier.parse(itemId));
+			Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(itemId));
 			return item != Items.AIR ? item : null;
 		} catch (RuntimeException ignored) {
 			return null;

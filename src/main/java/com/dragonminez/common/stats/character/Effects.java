@@ -108,11 +108,11 @@ public class Effects {
 
     public void load(CompoundTag nbt) {
         effectMap.clear();
-        if (nbt.contains("EffectsList", Tag.TAG_LIST)) {
-            ListTag effectsList = nbt.getList("EffectsList", Tag.TAG_COMPOUND);
+        if (com.dragonminez.platform.nbt.NbtCompat.contains(nbt, "EffectsList", Tag.TAG_LIST)) {
+            ListTag effectsList = com.dragonminez.platform.nbt.NbtCompat.getList(nbt, "EffectsList", Tag.TAG_COMPOUND);
 
             for (int i = 0; i < effectsList.size(); i++) {
-                CompoundTag effectTag = effectsList.getCompound(i);
+                CompoundTag effectTag = effectsList.getCompoundOrEmpty(i);
                 Effect effect = Effect.load(effectTag);
                 effectMap.put(effect.getName().toLowerCase(), effect);
             }

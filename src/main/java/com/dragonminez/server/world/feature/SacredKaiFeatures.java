@@ -4,9 +4,8 @@ import com.dragonminez.Reference;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredRegister;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 public class SacredKaiFeatures {
 	public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, Reference.MOD_ID);
@@ -23,7 +22,7 @@ public class SacredKaiFeatures {
 	public static final DeferredHolder<Feature<?>, Feature<NoneFeatureConfiguration>> SAND_PATCH = FEATURES.register("sand_patch",
 			() -> new SandPatchFeature(NoneFeatureConfiguration.CODEC));
 
-	public static void register(IEventBus eventBus) {
-		FEATURES.register(eventBus);
+	public static void register() {
+		FEATURES.register();
 	}
 }

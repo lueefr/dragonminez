@@ -11,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraft.client.gui.LayeredDraw;
 
 public class BabaReturnTimerHUD {
 	public static final float WIDTH = 112.0f;
@@ -41,7 +40,7 @@ public class BabaReturnTimerHUD {
 	private static String lastTag = "";
 	private static int lastTagColor = LOW_MULTIPLIER_COLOR;
 
-	public static final LayeredDraw.Layer HUD_BABA_RETURN = (guiGraphics, deltaTracker) -> {
+	public static final net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement HUD_BABA_RETURN = (guiGraphics, deltaTracker) -> {
         float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
         int width = guiGraphics.guiWidth();
         int height = guiGraphics.guiHeight();

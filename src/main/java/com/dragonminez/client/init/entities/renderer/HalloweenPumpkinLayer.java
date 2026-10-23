@@ -7,22 +7,22 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
-public class HalloweenPumpkinLayer<T extends Entity & GeoAnimatable> extends GeoRenderLayer<T> {
+public class HalloweenPumpkinLayer<T extends Entity & GeoAnimatable> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 
     private static final float PUMPKIN_OVERSIZE = 1.2f;
     private static final float[] DEFAULT_HEAD_BOUNDS = {-0.25f, 1.5f, -0.25f, 0.25f, 2.0f, 0.25f};
 
-    public HalloweenPumpkinLayer(GeoRenderer<T> geoRenderer) {
+    public HalloweenPumpkinLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> geoRenderer) {
         super(geoRenderer);
     }
 

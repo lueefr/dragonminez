@@ -1,5 +1,6 @@
 package com.dragonminez.client.init.entities.renderer;
 
+import net.minecraft.world.item.equipment.ArmorType;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.client.render.DMZPlayerRenderer;
@@ -28,18 +29,18 @@ import net.minecraft.world.inventory.InventoryMenu;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
-public class DemonVillagerRenderer<T extends DemonVillagersEntity.Resident> extends EntityRenderer<T> {
+public class DemonVillagerRenderer<T extends DemonVillagersEntity.Resident> extends EntityRenderer<T, net.minecraft.client.renderer.entity.state.EntityRenderState> {
 
 	private static final Map<Integer, Puppet> PUPPETS = new HashMap<>();
 	private static final int SWEEP_INTERVAL = 200;
@@ -150,10 +151,10 @@ public class DemonVillagerRenderer<T extends DemonVillagersEntity.Resident> exte
 
 		@Override
 		public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-			controllers.add(new AnimationController<>(this, "base_controller", 5, this::walkPredicate));
+			controllers.add(new AnimationController<>("base_controller", 5, this::walkPredicate));
 		}
 
-		private PlayState walkPredicate(AnimationState<Puppet> state) {
+		private PlayState walkPredicate(AnimationTest<Puppet> state) {
 			return state.setAndContinue(state.isMoving() ? WALK : IDLE);
 		}
 
@@ -231,9 +232,9 @@ public class DemonVillagerRenderer<T extends DemonVillagersEntity.Resident> exte
 			Status status = data.getStatus();
 			status.setHasCreatedCharacter(true);
 
-			this.getInventory().armor.set(EquipmentSlot.CHEST.getIndex(), look.armorPiece(ArmorItem.Type.CHESTPLATE));
-			this.getInventory().armor.set(EquipmentSlot.LEGS.getIndex(), look.armorPiece(ArmorItem.Type.LEGGINGS));
-			this.getInventory().armor.set(EquipmentSlot.FEET.getIndex(), look.armorPiece(ArmorItem.Type.BOOTS));
+			this.getInventory().armor.set(EquipmentSlot.CHEST.getIndex(), look.armorPiece(ArmorType.CHESTPLATE));
+			this.getInventory().armor.set(EquipmentSlot.LEGS.getIndex(), look.armorPiece(ArmorType.LEGGINGS));
+			this.getInventory().armor.set(EquipmentSlot.FEET.getIndex(), look.armorPiece(ArmorType.BOOTS));
 
 			this.appliedLook = look;
 			this.refreshDimensions();

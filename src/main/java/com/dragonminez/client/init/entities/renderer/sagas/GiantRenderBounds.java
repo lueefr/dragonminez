@@ -9,11 +9,11 @@ import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import com.geckolib.cache.GeckoLibCache;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.cache.object.GeoCube;
-import com.geckolib.cache.object.GeoQuad;
-import com.geckolib.cache.object.GeoVertex;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.cache.model.cuboid.GeoCube;
+import com.geckolib.cache.model.GeoQuad;
+import com.geckolib.cache.model.GeoVertex;
 import com.geckolib.animation.state.BoneSnapshot;
 import com.geckolib.model.GeoModel;
 import com.geckolib.renderer.GeoEntityRenderer;
@@ -36,7 +36,7 @@ public final class GiantRenderBounds {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static float[] extentsFor(DBSagasEntity entity) {
-        EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity);
+        EntityRenderer<?, net.minecraft.client.renderer.entity.state.EntityRenderState> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity);
         if (!(renderer instanceof GeoEntityRenderer geoRenderer)) return null;
 
         Identifier location;

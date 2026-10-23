@@ -34,7 +34,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import com.dragonminez.common.training.MusicDiscHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -167,7 +166,7 @@ public class RythmGameScreen extends BaseMinigameScreen {
 			for (ItemStack stack : mc.player.getInventory().offhand) addDisc(discs, stack.getItem(), learned);
 			for (String key : learned) {
 				Identifier id = Identifier.tryParse(key);
-				if (id != null) addDisc(discs, BuiltInRegistries.ITEM.get(id), learned);
+				if (id != null) addDisc(discs, BuiltInRegistries.ITEM.getValue(id), learned);
 			}
 		} else if (!requireDisc) {
 			for (Item item : BuiltInRegistries.ITEM) addDisc(discs, item, learned);
@@ -311,7 +310,7 @@ public class RythmGameScreen extends BaseMinigameScreen {
 			return song == null ? null : Identifier.tryParse(song.sound());
 		}
 		Identifier id = Identifier.tryParse(track.key());
-		Item item = id == null ? null : BuiltInRegistries.ITEM.get(id);
+		Item item = id == null ? null : BuiltInRegistries.ITEM.getValue(id);
 		var record = MusicDiscHelper.song(item);
         return record == null ? null : record.soundEvent().value().getLocation();
 	}

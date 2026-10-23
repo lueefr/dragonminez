@@ -1,6 +1,6 @@
 package com.dragonminez.server.events.players.combat;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.combat.logic.player.TargetHelper;
 import com.dragonminez.common.combat.util.MultipartTargeting;
@@ -40,20 +40,16 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import com.dragonminez.platform.event.tick.PlayerTickEvent;
+import com.dragonminez.platform.event.tick.ServerTickEvent;
+import com.dragonminez.platform.event.tick.LevelTickEvent;
+import com.dragonminez.platform.event.living.LivingIncomingDamageEvent;
+import com.dragonminez.platform.event.living.LivingChangeTargetEvent;
+import com.dragonminez.platform.event.player.AttackEntityEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.player.PlayerInteractEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.ServerLifecycleHooks;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -138,7 +134,7 @@ public class EvasionAttackHandler {
 	}
 
 	public static void cast(ServerPlayer player, String techniqueId, int targetId) {
-		if (player.level().isClientSide || techniqueId == null || techniqueId.isEmpty()) return;
+		if (player.level().isClientSide() || techniqueId == null || techniqueId.isEmpty()) return;
 
 		StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(stats -> {
 			if (!stats.getStatus().isHasCreatedCharacter()) return;
@@ -413,15 +409,15 @@ public class EvasionAttackHandler {
 	}
 
 	private static void loseTrackOf(Mob mob, ServerPlayer caster, int durationTicks) {
-		mob.getPersistentData().putLong(AFTERIMAGE_LOST_UNTIL_TAG, mob.level().getGameTime() + durationTicks);
-		mob.getPersistentData().putUUID(AFTERIMAGE_LOST_BY_TAG, caster.getUUID());
+		com.dragonminez.platform.entity.EntityData.get(mob).putLong(AFTERIMAGE_LOST_UNTIL_TAG, mob.level().getGameTime() + durationTicks);
+		com.dragonminez.platform.nbt.NbtCompat.putUUID(com.dragonminez.platform.entity.EntityData.get(mob), AFTERIMAGE_LOST_BY_TAG, caster.getUUID());
 		mob.setTarget(null);
 		if (mob.getLastHurtByMob() == caster) mob.setLastHurtByMob(null);
 		mob.getNavigation().stop();
 	}
 
 	private static boolean hasLostTrackOf(LivingEntity entity, Entity other) {
-		var data = entity.getPersistentData();
+		var data = com.dragonminez.platform.entity.EntityData.get(entity);
 		if (data.getLong(AFTERIMAGE_LOST_UNTIL_TAG) <= entity.level().getGameTime()) return false;
 		return data.hasUUID(AFTERIMAGE_LOST_BY_TAG) && data.getUUID(AFTERIMAGE_LOST_BY_TAG).equals(other.getUUID());
 	}
@@ -583,14 +579,14 @@ public class EvasionAttackHandler {
 
 	private static void blindMob(LivingEntity victim, int durationTicks) {
 		long until = victim.level().getGameTime() + durationTicks;
-		victim.getPersistentData().putLong(BLIND_UNTIL_TAG, until);
+		com.dragonminez.platform.entity.EntityData.get(victim).putLong(BLIND_UNTIL_TAG, until);
 		if (victim instanceof Mob mob) mob.setTarget(null);
 		BLINDED_MOBS.add(victim);
 	}
 
 	public static boolean isBlinded(LivingEntity entity) {
 		if (entity == null) return false;
-		return entity.getPersistentData().getLong(BLIND_UNTIL_TAG) > entity.level().getGameTime();
+		return com.dragonminez.platform.entity.EntityData.get(entity).getLongOr(BLIND_UNTIL_TAG, 0L) > entity.level().getGameTime();
 	}
 
 	private static void castRageScream(ServerPlayer caster, int durationTicks) {
@@ -616,7 +612,7 @@ public class EvasionAttackHandler {
 
 				if (pulseDamage > 0) {
 					victim.invulnerableTime = 0;
-					victim.hurt(MainDamageTypes.kiblast(caster.level(), caster, caster), pulseDamage);
+					victim.hurtOrSimulate(MainDamageTypes.kiblast(caster.level(), caster, caster), pulseDamage);
 				}
 
 				Vec3 dir = victim.position().subtract(caster.position());
@@ -631,7 +627,7 @@ public class EvasionAttackHandler {
 
 	@SubscribeEvent
 	public static void onLevelTick(LevelTickEvent.Post event) {
-		if (event.getLevel().isClientSide) return;
+		if (event.getLevel().isClientSide()) return;
 		if (BLINDED_MOBS.isEmpty()) return;
 
 		Iterator<LivingEntity> it = BLINDED_MOBS.iterator();
@@ -720,7 +716,7 @@ public class EvasionAttackHandler {
 		if (activeEvasion != null && !"sleep_recovery".equals(activeEvasion.techniqueId)) {
 			event.setCanceled(true);
 		} else if (hasLostTrackOf(event.getEntity(), event.getSource().getEntity())) {
-			event.getEntity().getPersistentData().remove(AFTERIMAGE_LOST_UNTIL_TAG);
+			com.dragonminez.platform.entity.EntityData.get(event.getEntity()).remove(AFTERIMAGE_LOST_UNTIL_TAG);
 		}
 	}
 

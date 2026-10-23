@@ -5,7 +5,7 @@ import com.dragonminez.common.init.entities.bioandroid.CellJrEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.geckolib.renderer.GeoEntityRenderer;
 
-public class CellJrRenderer extends GeoEntityRenderer<CellJrEntity> {
+public class CellJrRenderer extends com.dragonminez.platform.client.render.ExtractedGeoEntityRenderer<CellJrEntity> {
 
 	public CellJrRenderer(EntityRendererProvider.Context context) {
 		super(context, new CellJrModel());

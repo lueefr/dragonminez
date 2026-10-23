@@ -1,7 +1,6 @@
 package com.dragonminez.server.world.structure.placement;
 
 import com.dragonminez.common.config.ConfigManager;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Vec3i;
@@ -12,7 +11,6 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 

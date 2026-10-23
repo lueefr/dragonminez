@@ -24,7 +24,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -32,11 +32,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 import com.geckolib.util.GeckoLibUtil;
 
 import com.dragonminez.common.util.lists.BioAndroidForms;
@@ -242,26 +242,26 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	@Unique
 	private static boolean dragonminez$isEatingFood(AbstractClientPlayer player) {
 		if (!player.isUsingItem()) return false;
-		UseAnim anim = player.getUseItem().getUseAnimation();
-		return anim == UseAnim.EAT || anim == UseAnim.DRINK;
+		ItemUseAnimation anim = player.getUseItem().getUseAnimation();
+		return anim == ItemUseAnimation.EAT || anim == ItemUseAnimation.DRINK;
 	}
 
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
-		registrar.add(new AnimationController<>(this, "controller", 4, dragonminez$gated(this::predicate)));
-		AnimationController<PlayerGeoAnimatableMixin> attackController = new AnimationController<>(this, "attack_controller", 0, dragonminez$gated(this::attackPredicate));
+		registrar.add(new AnimationController<>("controller", 4, dragonminez$gated(this::predicate)));
+		AnimationController<PlayerGeoAnimatableMixin> attackController = new AnimationController<>("attack_controller", 0, dragonminez$gated(this::attackPredicate));
 		dragonminez$attackController = attackController;
 		registrar.add(attackController);
-		registrar.add(new AnimationController<>(this, "mining_controller", 0, dragonminez$gated(this::miningPredicate)));
-		registrar.add(new AnimationController<>(this, "block_controller", 3, dragonminez$gated(this::blockPredicate)));
-		registrar.add(new AnimationController<>(this, "shield_controller", 3, dragonminez$gated(this::shieldPredicate)));
-		registrar.add(new AnimationController<>(this, "tailcontroller", 0, dragonminez$gated(this::tailpredicate)));
-		registrar.add(new AnimationController<>(this, "dash_controller", 0, dragonminez$gated(this::dashPredicate)));
-		registrar.add(new AnimationController<>(this, "pose_controller", POSE_TRANSITION_TICKS, dragonminez$gated(this::posePredicate)));
-		registrar.add(new AnimationController<>(this, "eat_controller", 3, dragonminez$gated(this::eatPredicate)));
+		registrar.add(new AnimationController<>("mining_controller", 0, dragonminez$gated(this::miningPredicate)));
+		registrar.add(new AnimationController<>("block_controller", 3, dragonminez$gated(this::blockPredicate)));
+		registrar.add(new AnimationController<>("shield_controller", 3, dragonminez$gated(this::shieldPredicate)));
+		registrar.add(new AnimationController<>("tailcontroller", 0, dragonminez$gated(this::tailpredicate)));
+		registrar.add(new AnimationController<>("dash_controller", 0, dragonminez$gated(this::dashPredicate)));
+		registrar.add(new AnimationController<>("pose_controller", POSE_TRANSITION_TICKS, dragonminez$gated(this::posePredicate)));
+		registrar.add(new AnimationController<>("eat_controller", 3, dragonminez$gated(this::eatPredicate)));
 		// Registered last so its bone changes (root/waist) are applied after every other
 		// controller and always win — evasion techniques must always show their pose.
-		registrar.add(new AnimationController<>(this, "ki_controller", 4, dragonminez$gated(this::kiPredicate)));
+		registrar.add(new AnimationController<>("ki_controller", 4, dragonminez$gated(this::kiPredicate)));
 	}
 
 	// Hair editor preview: with physics off the model also stops animating (client-side preview only).
@@ -278,9 +278,9 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	}
 
 	@Unique
-	private <T extends GeoAnimatable> PlayState eatPredicate(AnimationState<T> state) {
+	private <T extends GeoAnimatable> PlayState eatPredicate(AnimationTest<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
-		AnimationController<T> ctl = state.getController();
+		AnimationController<T> ctl = state.controller();
 
 		if (dragonminez$isEatingFood(player)) {
 			if (!dragonminez$wasEating) {
@@ -296,15 +296,15 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	}
 
 	@Unique
-	private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> state) {
+	private <T extends GeoAnimatable> PlayState predicate(AnimationTest<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
 
-		state.getController().setAnimationSpeed(1.0D);
+		state.controller().setAnimationSpeed(1.0D);
 
 		if (dragonminez$currentKiAnim != null && dragonminez$kiAnimHold) {
 			if (!dragonminez$currentKiAnim.equals(dragonminez$lastKiAnim)) {
-				state.getController().setAnimation(AnimationCache.getPlayAndHold(dragonminez$currentKiAnim));
-				state.getController().forceAnimationReset();
+				state.controller().setAnimation(AnimationCache.getPlayAndHold(dragonminez$currentKiAnim));
+				state.controller().forceAnimationReset();
 				dragonminez$lastKiAnim = dragonminez$currentKiAnim;
 			}
 			return PlayState.CONTINUE;
@@ -388,7 +388,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 				double rightX = -Math.cos(refRad);
 				double rightZ = -Math.sin(refRad);
 				double side = (player.getX() - fusionPartner.getX()) * rightX + (player.getZ() - fusionPartner.getZ()) * rightZ;
-				state.getController().setAnimationSpeed(0.583D);
+				state.controller().setAnimationSpeed(0.583D);
 				return state.setAndContinue(side > 0 ? FUSION_DANCE_LEFT : FUSION_DANCE_RIGHT);
 			}
 			return state.setAndContinue(TRANSFORMATION);
@@ -418,10 +418,10 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 				if (isMoving) return state.setAndContinue(CROUCHING_WALK);
 				return state.setAndContinue(CROUCHING);
 			} else if (isMoving && player.isSprinting()) {
-				state.getController().setAnimationSpeed(dragonminez$movementSpeedFactor(RUN_SPEED_BASELINE));
+				state.controller().setAnimationSpeed(dragonminez$movementSpeedFactor(RUN_SPEED_BASELINE));
 				return state.setAndContinue(RUN);
 			} else if (isMoving) {
-				state.getController().setAnimationSpeed(dragonminez$movementSpeedFactor(WALK_SPEED_BASELINE));
+				state.controller().setAnimationSpeed(dragonminez$movementSpeedFactor(WALK_SPEED_BASELINE));
 				if (isOozaru) return state.setAndContinue(WALK_OOZARU);
 				return state.setAndContinue(WALK);
 			} else {
@@ -436,7 +436,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	}
 
 	@Unique
-	private <T extends GeoAnimatable> PlayState kiPredicate(AnimationState<T> state) {
+	private <T extends GeoAnimatable> PlayState kiPredicate(AnimationTest<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
 
 		if (dragonminez$currentKiAnim == null || dragonminez$kiAnimHold) {
@@ -444,7 +444,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 			return PlayState.STOP;
 		}
 
-		AnimationController<T> ctl = state.getController();
+		AnimationController<T> ctl = state.controller();
 		boolean isFire = dragonminez$currentKiAnim.endsWith("_fire");
 
 		if (!isFire) {
@@ -474,7 +474,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	}
 
 	@Unique
-	private <T extends GeoAnimatable> PlayState posePredicate(AnimationState<T> state) {
+	private <T extends GeoAnimatable> PlayState posePredicate(AnimationTest<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
 
 		if (dragonminez$attackAnimTicks > 0) {
@@ -493,14 +493,14 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 
 		if (dragonminez$currentPoseAnim == null || dragonminez$currentPoseAnim.isEmpty()) return PlayState.STOP;
 
-		state.getController().transitionLength(dragonminez$poseInstantResume ? 0 : POSE_TRANSITION_TICKS);
+		state.controller().transitionLength(dragonminez$poseInstantResume ? 0 : POSE_TRANSITION_TICKS);
 		dragonminez$poseInstantResume = false;
 
 		return state.setAndContinue(AnimationCache.getLoop(dragonminez$currentPoseAnim));
 	}
 
 	@Unique
-	private <T extends GeoAnimatable> PlayState tailpredicate(AnimationState<T> state) {
+	private <T extends GeoAnimatable> PlayState tailpredicate(AnimationTest<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
 
 		StatsData data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
@@ -509,12 +509,12 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 		String race = data.getCharacter().getRaceName().toLowerCase();
 		if (race.equals("bioandroid") && data.getCooldowns().hasCooldown(Cooldowns.DRAIN_ACTIVE)) return PlayState.STOP;
 
-		state.getController().setAnimation(TAIL);
+		state.controller().setAnimation(TAIL);
 		return PlayState.CONTINUE;
 	}
 
 	@Unique
-	private <T extends GeoAnimatable> PlayState attackPredicate(AnimationState<T> state) {
+	private <T extends GeoAnimatable> PlayState attackPredicate(AnimationTest<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
 		if (player.isSleeping()) {
 			dragonminez$attackAnimTicks = 0;
@@ -526,7 +526,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 			if (dragonminez$attackAnimTicks > 0) dragonminez$attackAnimTicks--;
 		}
 
-		AnimationController<T> ctl = state.getController();
+		AnimationController<T> ctl = state.controller();
 		boolean hasSwingFrame = player.attackAnim > 0.0F || player.swinging || player.swingTime > 0;
 		if (dragonminez$currentMeleeAnim != null) {
 
@@ -538,7 +538,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 
 			ctl.forceAnimationReset();
 			dragonminez$currentMeleeAnim = null;
-			dragonminez$attackStartTime = player.tickCount + state.getPartialTick();
+			dragonminez$attackStartTime = player.tickCount + state.renderState().getPartialTick();
 			dragonminez$attackAnimTicks = Math.max(8, Math.round(12.0F / Math.max(dragonminez$currentMeleeSpeed, 0.1F)));
 			return PlayState.CONTINUE;
 		}
@@ -561,9 +561,9 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	}
 
 	@Unique
-	private <T extends GeoAnimatable> PlayState miningPredicate(AnimationState<T> state) {
+	private <T extends GeoAnimatable> PlayState miningPredicate(AnimationTest<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
-		AnimationController<T> ctl = state.getController();
+		AnimationController<T> ctl = state.controller();
 		if (player.isSleeping() || dragonminez$isEatingFood(player)) {
 			dragonminez$miningAnimTicks = 0;
 			return PlayState.STOP;
@@ -611,9 +611,9 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	}
 
 	@Unique
-	private <T extends GeoAnimatable> PlayState blockPredicate(AnimationState<T> state) {
+	private <T extends GeoAnimatable> PlayState blockPredicate(AnimationTest<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
-		AnimationController<T> ctl = state.getController();
+		AnimationController<T> ctl = state.controller();
 
 		StatsData data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
 		if (data != null && data.getStatus().isBlocking()) {
@@ -627,10 +627,10 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	}
 
 	@Unique
-	private <T extends GeoAnimatable> PlayState shieldPredicate(AnimationState<T> state) {
+	private <T extends GeoAnimatable> PlayState shieldPredicate(AnimationTest<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
 
-		AnimationController<T> ctl = state.getController();
+		AnimationController<T> ctl = state.controller();
 
 		ItemStack mainHand = player.getMainHandItem();
 		ItemStack offHand = player.getOffhandItem();
@@ -658,9 +658,9 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	}
 
 	@Unique
-	private <T extends GeoAnimatable> PlayState dashPredicate(AnimationState<T> state) {
+	private <T extends GeoAnimatable> PlayState dashPredicate(AnimationTest<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
-		AnimationController<T> ctl = state.getController();
+		AnimationController<T> ctl = state.controller();
 
 		if (player.tickCount != dragonminez$lastDashTickRun) {
 			dragonminez$lastDashTickRun = player.tickCount;

@@ -6,12 +6,11 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.core.registries.BuiltInRegistries;
 import com.geckolib.constant.DataTickets;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.model.GeoModel;
-import com.geckolib.model.data.EntityModelData;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.animation.state.AnimationTest;
+import com.dragonminez.platform.client.model.HeadTrackingGeoModel;
 
-public class RedRibbonRobotModel<T extends RedRibbonEntity> extends GeoModel<T> {
+public class RedRibbonRobotModel<T extends RedRibbonEntity> extends HeadTrackingGeoModel<T> {
 
     @Override
     public Identifier getModelResource(T animatable) {
@@ -29,16 +28,5 @@ public class RedRibbonRobotModel<T extends RedRibbonEntity> extends GeoModel<T> 
         return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/enemies/robot1.animation.json");
     }
 
-    @Override
-    public void setCustomAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
-        GeoBone head = getAnimationProcessor().getBone("head");
-
-        if (head != null) {
-            EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
-
-            head.setRotX(entityData.headPitch() * Mth.DEG_TO_RAD);
-            head.setRotY(entityData.netHeadYaw() * Mth.DEG_TO_RAD);
-        }
-    }
 
 }

@@ -17,7 +17,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class SPMajinCandyRenderer extends EntityRenderer<SPMajinCandyEntity> {
+public class SPMajinCandyRenderer extends EntityRenderer<SPMajinCandyEntity, net.minecraft.client.renderer.entity.state.EntityRenderState> {
 
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/null.png");
     private static final float[] COLOR = new float[]{1.0f, 0.4f, 0.8f};

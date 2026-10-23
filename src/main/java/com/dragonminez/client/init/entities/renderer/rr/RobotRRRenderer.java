@@ -6,13 +6,13 @@ import com.dragonminez.client.init.entities.renderer.rr.layer.RedRibbonSupervill
 import com.dragonminez.client.render.effects.AuraBorderRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import com.geckolib.renderer.GeoEntityRenderer;
 
-public class RobotRRRenderer<T extends RedRibbonEntity> extends GeoEntityRenderer<T> {
+public class RobotRRRenderer<T extends RedRibbonEntity> extends com.dragonminez.platform.client.render.ExtractedGeoEntityRenderer<T> {
 
     public RobotRRRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new RedRibbonRobotModel<>());
@@ -32,6 +32,6 @@ public class RobotRRRenderer<T extends RedRibbonEntity> extends GeoEntityRendere
 
     @Override
     public RenderType getRenderType(T animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityCutout(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutCull(texture);
     }
 }

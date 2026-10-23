@@ -23,7 +23,6 @@ import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.server.events.players.combat.StrikeCombos.MysticBallCombo;
 import com.dragonminez.server.events.players.statuseffect.RelicItemsStatusHandler;
 import com.dragonminez.mixin.client.GeoModelAccessor;
-import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
@@ -35,7 +34,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
@@ -44,8 +43,8 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.lwjgl.opengl.GL11;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.model.GeoModel;
 import com.geckolib.renderer.GeoEntityRenderer;
@@ -56,7 +55,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoEntityRenderer<T> {
+public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> extends com.dragonminez.platform.client.render.ExtractedGeoEntityRenderer<T> {
 
 	private static final String HEAD_BONE = "head";
 	private static final float[] DEMON_EYE_TINT = {0.545f, 0.0f, 0.0f, 0.35f};
@@ -76,7 +75,7 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 	private static final float MYSTIC_BALL_MAX_STRETCH = 0.9f;
 	private static final float MYSTIC_BALL_SQUASH = 0.45f;
 
-	protected GeoRenderLayer<T> caller = null;
+	protected GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> caller = null;
 
 	public DMZPlayerRenderer(EntityRendererProvider.Context renderManager, GeoModel<T> model) {
 		super(renderManager, model);
@@ -94,7 +93,7 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 		this.addRenderLayer(new DMZThirdPartyLayerForwarder<>(this));
 	}
 
-	public void reRender(GeoRenderLayer<T> calledFrom, BakedGeoModel model, PoseStack poseStack, MultiBufferSource bufferSource,
+	public void reRender(GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> calledFrom, BakedGeoModel model, PoseStack poseStack, MultiBufferSource bufferSource,
 						 T animatable, RenderType renderType, VertexConsumer buffer, float partialTick,
 						 int packedLight, int packedOverlay, int colour) {
 		this.caller = calledFrom;
@@ -276,7 +275,7 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 		boolean portrait = HeadPortraitRenderer.isActive() || editorHeadOnly();
 		boolean armOnly = DimensionalFistEffect.isRenderingArm();
 		boolean paint = SkinPaintContext.active();
-		for (GeoRenderLayer<T> renderLayer : getRenderLayers()) {
+		for (GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderLayer : getRenderLayers()) {
 			if (armOnly && !(renderLayer instanceof DMZSkinLayer<?>)) continue;
 			if (portrait && !isPortraitLayer(renderLayer)) continue;
 			if (paint && !isPaintLayer(renderLayer)) continue;
@@ -287,13 +286,13 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 	@Override
 	public void preApplyRenderLayers(PoseStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
 		if (DimensionalFistEffect.isRenderingArm()) {
-			for (GeoRenderLayer<T> renderLayer : getRenderLayers()) {
+			for (GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderLayer : getRenderLayers()) {
 				if (renderLayer instanceof DMZSkinLayer<?>) renderLayer.preRender(poseStack, animatable, model, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 			}
 			return;
 		}
 		if (SkinPaintContext.active()) {
-			for (GeoRenderLayer<T> renderLayer : getRenderLayers()) {
+			for (GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderLayer : getRenderLayers()) {
 				if (isPaintLayer(renderLayer)) renderLayer.preRender(poseStack, animatable, model, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 			}
 			return;
@@ -302,7 +301,7 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 			super.preApplyRenderLayers(poseStack, animatable, model, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 			return;
 		}
-		for (GeoRenderLayer<T> renderLayer : getRenderLayers()) {
+		for (GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderLayer : getRenderLayers()) {
 			if (isPortraitLayer(renderLayer)) renderLayer.preRender(poseStack, animatable, model, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 		}
 	}
@@ -311,7 +310,7 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 	public void applyRenderLayersForBone(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
 		if (DimensionalFistEffect.isRenderingArm()) return;
 		if (SkinPaintContext.active()) {
-			for (GeoRenderLayer<T> renderLayer : getRenderLayers()) {
+			for (GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderLayer : getRenderLayers()) {
 				if (isPaintLayer(renderLayer)) renderLayer.renderForBone(poseStack, animatable, bone, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 			}
 			return;
@@ -320,17 +319,17 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 			super.applyRenderLayersForBone(poseStack, animatable, bone, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 			return;
 		}
-		for (GeoRenderLayer<T> renderLayer : getRenderLayers()) {
+		for (GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderLayer : getRenderLayers()) {
 			if (isPortraitLayer(renderLayer)) renderLayer.renderForBone(poseStack, animatable, bone, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 		}
 	}
 
-	private static boolean isPaintLayer(GeoRenderLayer<?> renderLayer) {
+	private static boolean isPaintLayer(GeoRenderLayer<?, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderLayer) {
 		if (SkinPaintContext.picking()) return renderLayer instanceof DMZSkinLayer<?>;
 		return isPortraitLayer(renderLayer);
 	}
 
-	private static boolean isPortraitLayer(GeoRenderLayer<?> renderLayer) {
+	private static boolean isPortraitLayer(GeoRenderLayer<?, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderLayer) {
 		return renderLayer instanceof DMZSkinLayer<?> || renderLayer instanceof DMZHairLayer<?> || renderLayer instanceof DMZRacePartsLayer;
 	}
 

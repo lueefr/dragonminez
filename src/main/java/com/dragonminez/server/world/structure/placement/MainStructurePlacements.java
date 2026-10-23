@@ -3,9 +3,8 @@ package com.dragonminez.server.world.structure.placement;
 import com.dragonminez.Reference;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredRegister;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 public class MainStructurePlacements {
     public static final DeferredRegister<StructurePlacementType<?>> PLACEMENTS =
@@ -23,8 +22,8 @@ public class MainStructurePlacements {
 	public static final DeferredHolder<StructurePlacementType<?>, StructurePlacementType<WideRandomSpreadPlacement>> WIDE_RANDOM_SPREAD =
 			PLACEMENTS.register("wide_random_spread", () -> () -> WideRandomSpreadPlacement.CODEC);
 
-    public static void register(IEventBus eventBus) {
-        PLACEMENTS.register(eventBus);
+    public static void register() {
+        PLACEMENTS.register();
     }
 }
 

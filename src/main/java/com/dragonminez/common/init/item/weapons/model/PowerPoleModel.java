@@ -3,9 +3,9 @@ package com.dragonminez.common.init.item.weapons.model;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.item.weapons.PowerPoleItem;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class PowerPoleModel extends GeoModel<PowerPoleItem> {
+public class PowerPoleModel extends ExtractedGeoModel<PowerPoleItem> {
     @Override
     public Identifier getModelResource(PowerPoleItem animatable) {
         return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/power_pole.geo.json");

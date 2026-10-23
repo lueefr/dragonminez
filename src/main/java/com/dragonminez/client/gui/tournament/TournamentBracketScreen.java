@@ -29,11 +29,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.neoforged.neoforge.client.model.pipeline.VertexConsumerWrapper;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
@@ -46,7 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public class TournamentBracketScreen extends ScaledScreen {
 
 	private static final Identifier BUTTONS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
@@ -981,7 +980,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		Identifier location = Identifier.tryParse(id);
 		Minecraft mc = Minecraft.getInstance();
 		if (location != null && mc.level != null) {
-			EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(location);
+			EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getValue(location);
 			if (type != null) {
 				Entity entity = type.create(mc.level);
 				if (entity instanceof LivingEntity living) created = living;
@@ -1122,7 +1121,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 
 		Identifier location = Identifier.tryParse(id);
 		if (location == null) return txt(id);
-		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(location);
+		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getValue(location);
 		return type != null ? tr(type.getDescriptionId()) : txt(id);
 	}
 

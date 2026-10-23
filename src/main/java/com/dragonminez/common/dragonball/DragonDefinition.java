@@ -43,7 +43,7 @@ public class DragonDefinition {
 	public String getEntityRegistryName() { return entityRegistryName; }
 	public float getEntityWidth() { return entityWidth; }
 	public float getEntityHeight() { return entityHeight; }
-	public boolean supportsDimension(ResourceKey<Level> dimension) { return validDimensions.contains(dimension.location()); }
+	public boolean supportsDimension(ResourceKey<Level> dimension) { return validDimensions.contains(dimension.identifier()); }
 	public boolean supportsBallSet(String setId) { return ballSetId != null && ballSetId.equals(setId); }
 	public String getBallSetId() { return ballSetId; }
 	public Set<String> getValidBallSetIds() { return ballSetId == null ? Set.of() : Set.of(ballSetId); }

@@ -1,6 +1,6 @@
 package com.dragonminez.server.events.players.combat;
 
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import com.dragonminez.platform.event.living.LivingIncomingDamageEvent;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.MainDamageTypes;
 import com.dragonminez.common.stats.character.EntityStatDebuffs;
@@ -9,19 +9,17 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.living.LivingHealEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
 @EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class EntityStatDebuffHandler {
 
 	@SubscribeEvent(priority = EventPriority.NORMAL)
 	public static void onLivingHurt(LivingIncomingDamageEvent event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 
 		float amount = event.getAmount();
 		DamageSource source = event.getSource();
@@ -45,7 +43,7 @@ public class EntityStatDebuffHandler {
 
 	@SubscribeEvent(priority = EventPriority.NORMAL)
 	public static void onLivingHeal(LivingHealEvent event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 		if (event.getEntity() instanceof Player) return;
 
 		double mult = EntityStatDebuffs.getMultiplier(event.getEntity(), SecondaryStatEffects.HP_REGEN);

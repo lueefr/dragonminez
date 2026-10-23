@@ -15,13 +15,11 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
-import org.jetbrains.annotations.NotNull;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,12 +49,12 @@ public class DragonWishRegistry extends SimpleJsonResourceReloadListener {
 		serverWishes = Map.copyOf(wishes);
 	}
 
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	public static Map<String, List<Wish>> getClientWishes() {
 		return clientWishes;
 	}
 
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	public static void setClientWishes(Map<String, List<Wish>> wishes) {
 		clientWishes = Map.copyOf(wishes);
 	}

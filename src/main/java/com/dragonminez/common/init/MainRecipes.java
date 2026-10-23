@@ -5,10 +5,9 @@ import com.dragonminez.server.recipes.KikonoRecipe;
 import com.dragonminez.server.recipes.PatternRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.dragonminez.platform.registry.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 public class MainRecipes {
 	public static final DeferredRegister<RecipeSerializer<?>> SERIALIZERS =
@@ -38,8 +37,8 @@ public class MainRecipes {
 				}
 			});
 
-	public static void register(IEventBus eventBus) {
-		SERIALIZERS.register(eventBus);
-		TYPES.register(eventBus);
+	public static void register() {
+		SERIALIZERS.register();
+		TYPES.register();
 	}
 }

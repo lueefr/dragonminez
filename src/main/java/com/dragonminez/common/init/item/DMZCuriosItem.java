@@ -8,7 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.util.List;
@@ -34,12 +33,13 @@ public class DMZCuriosItem extends Item implements ICurioItem {
 
 	@Override
 	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-		if (!level.isClientSide) PothalaPairItem.reservePairId(stack, level);
+		if (!level.isClientSide()) PothalaPairItem.reservePairId(stack, level);
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        net.minecraft.world.level.Level level = context.level();
+	public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag flag) {
+        java.util.List<Component> tooltip = new java.util.ArrayList<>();
+        try {
 		String id = stack.getItem().getDescriptionId();
 		if (id.contains("pothala_right")) {
 			tooltip.add(Component.translatable("item.dragonminez.pothala.right.tooltip").withStyle(ChatFormatting.GRAY));
@@ -61,6 +61,8 @@ public class DMZCuriosItem extends Item implements ICurioItem {
 			}
 		}
 		PothalaPairItem.appendPairIdTooltip(stack, tooltip);
-		super.appendHoverText(stack, context, tooltip, flag);
-	}
+		super.appendHoverText(stack, context, dmz$display, tooltip::add, flag);
+
+        } finally { tooltip.forEach(dmz$consumer); }
+    }
 }

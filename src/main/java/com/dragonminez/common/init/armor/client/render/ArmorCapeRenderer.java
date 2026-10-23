@@ -7,13 +7,13 @@ import com.dragonminez.common.init.armor.client.model.ArmorCapeModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.renderer.GeoArmorRenderer;
 
-public class ArmorCapeRenderer extends GeoArmorRenderer<DbzArmorCapeItem> {
+public class ArmorCapeRenderer extends GeoArmorRenderer<DbzArmorCapeItem, net.minecraft.client.renderer.entity.state.HumanoidRenderState> {
     public ArmorCapeRenderer() {
         super(new ArmorCapeModel());
     }
@@ -39,6 +39,6 @@ public class ArmorCapeRenderer extends GeoArmorRenderer<DbzArmorCapeItem> {
 
     @Override
     public RenderType getRenderType(DbzArmorCapeItem animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.armorCutoutNoCull(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.armorCutoutNoCull(texture);
     }
 }

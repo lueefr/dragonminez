@@ -19,15 +19,13 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
-import net.minecraft.util.Mth;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public class SpacePodScreen extends ScaledScreen {
 
 	private static final Identifier MENU_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
@@ -108,7 +106,7 @@ public class SpacePodScreen extends ScaledScreen {
 		if (selectedIndex >= 0 && selectedIndex < destinations.size()) {
 			PlanetDestination dest = destinations.get(selectedIndex);
 			if (dest.unlocked && dest.dimensionId != null && !dest.dimensionId.isBlank() && dest.id != null && !dest.id.isBlank()) {
-				String currentDimensionId = this.minecraft.player.level().dimension().location().toString();
+				String currentDimensionId = this.minecraft.player.level().dimension().identifier().toString();
 				if (!currentDimensionId.equals(dest.dimensionId)) {
 					NetworkHandler.sendToServer(new TravelToPlanetC2S(dest.id));
 					this.onClose();

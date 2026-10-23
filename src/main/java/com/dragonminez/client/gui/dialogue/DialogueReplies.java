@@ -3,13 +3,13 @@ package com.dragonminez.client.gui.dialogue;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.RandomSource;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 final class DialogueReplies {
 	private static final int MAX_VARIANTS = 9;
 	private static final String GENERIC = "gui.dragonminez.dialogue.reply.";

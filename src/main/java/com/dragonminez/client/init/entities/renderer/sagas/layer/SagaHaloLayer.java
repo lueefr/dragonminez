@@ -8,16 +8,16 @@ import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import com.geckolib.cache.GeckoLibCache;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
-public class SagaHaloLayer<T extends DBSagasEntity> extends GeoRenderLayer<T> {
+public class SagaHaloLayer<T extends DBSagasEntity> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 
 	private static final Identifier RACES_PARTS_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/raceparts.geo.json");
 	private static final Identifier RACES_PARTS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/raceparts.png");
@@ -25,7 +25,7 @@ public class SagaHaloLayer<T extends DBSagasEntity> extends GeoRenderLayer<T> {
 	private static final float HALO_ALPHA = 0.75f;
 	private static final float PLAYER_HEAD_TOP = 2.0f;
 
-	public SagaHaloLayer(GeoRenderer<T> geoRenderer) {
+	public SagaHaloLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> geoRenderer) {
 		super(geoRenderer);
 	}
 

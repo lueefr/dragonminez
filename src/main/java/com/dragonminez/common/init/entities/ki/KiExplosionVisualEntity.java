@@ -87,14 +87,21 @@ public class KiExplosionVisualEntity extends Entity {
     public void tick() {
         super.tick();
 
-        if (this.tickCount >= 25 && !this.level().isClientSide) {
+        if (this.tickCount >= 25 && !this.level().isClientSide()) {
             this.discard();
         }
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag pCompound) {}
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);}
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag pCompound) {}
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
+    }
 }

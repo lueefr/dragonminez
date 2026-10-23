@@ -21,7 +21,6 @@ import com.dragonminez.client.util.SkinGathererProvider;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.FormConfig;
 import com.dragonminez.common.config.RaceCharacterConfig;
-import com.dragonminez.common.init.MainEffects;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
@@ -31,20 +30,20 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.model.BakedGeoModel;
 import com.geckolib.constant.DataTickets;
 import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.loading.math.MolangQueries;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 import com.geckolib.model.data.EntityModelData;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> extends GeoModel<T> {
+public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> extends ExtractedGeoModel<T> {
 
     private static final String EXPLODE_ANIMATION = "base.explodecell";
     private static final float EXPLODE_RESET_EASE = 0.25f;
@@ -335,7 +334,7 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
     }
 
     @Override
-    public void setCustomAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
+    public void setCustomAnimations(T animatable, long instanceId, AnimationTest<T> animationState) {
         super.setCustomAnimations(animatable, instanceId, animationState);
         boolean transfAnimPlaying = animatable instanceof IPlayerAnimatable pa && pa.dragonminez$getCurrentPlayingAnimation().startsWith("transf.");
         boolean actuallyTransforming = StatsProvider.get(StatsCapability.INSTANCE, animatable)
@@ -345,7 +344,7 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         boolean ownsHead = clipOwnsHead(playingAnim) || clipOwnsHead(kiAnim);
         boolean skipHead = (transfAnimPlaying && actuallyTransforming) || ownsHead;
 
-        float partialTick = animationState.getPartialTick();
+        float partialTick = animationState.renderState().getPartialTick();
         float bodyYaw = Mth.lerp(partialTick, animatable.yBodyRotO, animatable.yBodyRot);
         float headYawDeg = Mth.wrapDegrees(Mth.lerp(partialTick, animatable.yHeadRotO, animatable.yHeadRot) - bodyYaw);
         float lookYaw = -headYawDeg * Mth.DEG_TO_RAD;
@@ -468,9 +467,9 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
     }
 
     @Override
-    public void applyMolangQueries(AnimationState<T> animationState, double animTime) {
+    public void applyMolangQueries(AnimationTest<T> animationState, double animTime) {
         super.applyMolangQueries(animationState, animTime);
-        T animatable = animationState.getAnimatable();
+        T animatable = animationState.animatable();
         boolean headAnimPlaying = animatable instanceof IPlayerAnimatable pa && (pa.dragonminez$getCurrentPlayingAnimation().startsWith("transf.")
                 || pa.dragonminez$getCurrentPlayingAnimation().startsWith("ki."));
         boolean actuallyBusy = StatsProvider.get(StatsCapability.INSTANCE, animatable)

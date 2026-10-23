@@ -32,7 +32,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -277,13 +277,13 @@ public class Raid {
 
 		BlockPos pos = findSpawnPos(level, random, mob);
 		mob.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, random.nextFloat() * 360.0F, 0.0F);
-		mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.EVENT, null);
+		mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), EntitySpawnReason.EVENT, null);
 
 		// Tag so raid mobs can be recognised / cleaned up, and stop them despawning naturally.
-		mob.getPersistentData().putString(RAID_ID_TAG, raidId.toString());
+		com.dragonminez.platform.entity.EntityData.get(mob).putString(RAID_ID_TAG, raidId.toString());
 		mob.setPersistenceRequired();
 
-		if (spawn.hasAbsoluteStats()) mob.getPersistentData().putBoolean("dmz_stats_configured", true);
+		if (spawn.hasAbsoluteStats()) com.dragonminez.platform.entity.EntityData.get(mob).putBoolean("dmz_stats_configured", true);
 
 		applySpawnOptions(mob, spawn);
 		if (mob instanceof DBSagasEntity saga) saga.setRaidTargets(participants);
@@ -308,7 +308,7 @@ public class Raid {
 			saga.setRaidDormant(spawn.isDormantUntilEscortDead());
 		}
 
-		CompoundTag data = mob.getPersistentData();
+		CompoundTag data = com.dragonminez.platform.entity.EntityData.get(mob);
 		boolean transformStats = false;
 		if (spawn.getTransformHealth() != null) {
 			data.putDouble("dmz_quest_tf_hp_abs", Math.max(1.0D, spawn.getTransformHealth()));
@@ -553,9 +553,9 @@ public class Raid {
 	// ------------------------------------------------------------------------------------------------
 	public CompoundTag save() {
 		CompoundTag tag = new CompoundTag();
-		tag.putUUID("RaidId", raidId);
+		com.dragonminez.platform.nbt.NbtCompat.putUUID(tag, "RaidId", raidId);
 		tag.putString("Type", typeId);
-		tag.putString("Dimension", dimension.location().toString());
+		tag.putString("Dimension", dimension.identifier().toString());
 		tag.putLong("Center", center.asLong());
 		tag.putString("Status", status.name());
 		tag.putString("Difficulty", difficulty.name());
@@ -573,31 +573,31 @@ public class Raid {
 		ListTag list = new ListTag();
 		for (UUID id : ids) {
 			CompoundTag entry = new CompoundTag();
-			entry.putUUID("Id", id);
+			com.dragonminez.platform.nbt.NbtCompat.putUUID(entry, "Id", id);
 			list.add(entry);
 		}
 		return list;
 	}
 
 	private static void loadUuids(CompoundTag tag, String key, Set<UUID> into) {
-		ListTag list = tag.getList(key, Tag.TAG_COMPOUND);
-		for (int i = 0; i < list.size(); i++) into.add(list.getCompound(i).getUUID("Id"));
+		ListTag list = com.dragonminez.platform.nbt.NbtCompat.getList(tag, key, Tag.TAG_COMPOUND);
+		for (int i = 0; i < list.size(); i++) into.add(list.getCompoundOrEmpty(i).getUUID("Id"));
 	}
 
 	public static Raid load(CompoundTag tag) {
-		UUID raidId = tag.getUUID("RaidId");
-		String typeId = tag.getString("Type");
-		ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, Identifier.parse(tag.getString("Dimension")));
-		BlockPos center = BlockPos.of(tag.getLong("Center"));
+		UUID raidId = com.dragonminez.platform.nbt.NbtCompat.getUUID(tag, "RaidId");
+		String typeId = tag.getStringOr("Type", "");
+		ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, Identifier.parse(tag.getStringOr("Dimension", "")));
+		BlockPos center = BlockPos.of(tag.getLongOr("Center", 0L));
 		Set<UUID> participants = new HashSet<>();
 		loadUuids(tag, "Participants", participants);
 
 		Raid raid = new Raid(raidId, typeId, dimension, center, participants,
-				Difficulty.fromName(tag.getString("Difficulty")));
-		raid.status = Status.valueOf(tag.getString("Status"));
-		raid.currentWaveIndex = tag.getInt("WaveIndex");
-		raid.waveDelayTimer = tag.getInt("WaveDelay");
-		raid.totalMobsThisWave = tag.getInt("TotalMobs");
+				Difficulty.fromName(tag.getStringOr("Difficulty", "")));
+		raid.status = Status.valueOf(tag.getStringOr("Status", ""));
+		raid.currentWaveIndex = tag.getIntOr("WaveIndex", 0);
+		raid.waveDelayTimer = tag.getIntOr("WaveDelay", 0);
+		raid.totalMobsThisWave = tag.getIntOr("TotalMobs", 0);
 
 		loadUuids(tag, "Mobs", raid.currentWaveMobs);
 		loadUuids(tag, "Escort", raid.currentWaveEscort);

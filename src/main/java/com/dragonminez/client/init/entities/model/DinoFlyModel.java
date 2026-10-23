@@ -5,12 +5,11 @@ import com.dragonminez.common.init.entities.animal.DinoFlyEntity;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import com.geckolib.constant.DataTickets;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.model.GeoModel;
-import com.geckolib.model.data.EntityModelData;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.animation.state.AnimationTest;
+import com.dragonminez.platform.client.model.HeadTrackingGeoModel;
 
-public class DinoFlyModel extends GeoModel<DinoFlyEntity> {
+public class DinoFlyModel extends HeadTrackingGeoModel<DinoFlyEntity> {
 
     @Override
     public Identifier getModelResource(DinoFlyEntity animatable) {
@@ -27,15 +26,4 @@ public class DinoFlyModel extends GeoModel<DinoFlyEntity> {
         return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/animal/dino3.animation.json");
     }
 
-    @Override
-    public void setCustomAnimations(DinoFlyEntity animatable, long instanceId, AnimationState<DinoFlyEntity> animationState) {
-        GeoBone head = getAnimationProcessor().getBone("head");
-
-        if (head != null) {
-            EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
-
-            head.setRotX(entityData.headPitch() * Mth.DEG_TO_RAD);
-            head.setRotY(entityData.netHeadYaw() * Mth.DEG_TO_RAD);
-        }
-    }
 }

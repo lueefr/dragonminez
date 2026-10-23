@@ -169,13 +169,13 @@ public class BonusStats {
                 List<StatBonus> statBonuses = bonuses.get(stat);
                 statBonuses.clear();
 
-                ListTag bonusList = tag.getList(stat, Tag.TAG_COMPOUND);
+                ListTag bonusList = com.dragonminez.platform.nbt.NbtCompat.getList(tag, stat, Tag.TAG_COMPOUND);
                 for (int i = 0; i < bonusList.size(); i++) {
-                    CompoundTag bonusTag = bonusList.getCompound(i);
-                    String name = bonusTag.getString("Name");
-                    String operation = bonusTag.getString("Operation");
-                    double value = bonusTag.getDouble("Value");
-                    boolean applyMultipliers = bonusTag.getBoolean("ApplyMultipliers");
+                    CompoundTag bonusTag = bonusList.getCompoundOrEmpty(i);
+                    String name = bonusTag.getStringOr("Name", "");
+                    String operation = bonusTag.getStringOr("Operation", "");
+                    double value = bonusTag.getDoubleOr("Value", 0D);
+                    boolean applyMultipliers = bonusTag.getBooleanOr("ApplyMultipliers", false);
                     statBonuses.add(new StatBonus(name, operation, value, applyMultipliers));
                 }
             }

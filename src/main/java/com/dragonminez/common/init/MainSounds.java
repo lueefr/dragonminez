@@ -3,10 +3,9 @@ package com.dragonminez.common.init;
 import com.dragonminez.Reference;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.dragonminez.platform.registry.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 public final class MainSounds {
 
@@ -204,7 +203,7 @@ public final class MainSounds {
 		return SOUND_EVENTS_REGISTER.register(name, () -> SoundEvent.createVariableRangeEvent(id));
 	}
 
-	public static void register(IEventBus busEvent) {
+	public static void register() {
 		SOUND_EVENTS_REGISTER.register(busEvent);
 	}
 }

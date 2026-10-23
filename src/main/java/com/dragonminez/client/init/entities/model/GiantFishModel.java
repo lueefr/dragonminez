@@ -3,14 +3,9 @@ package com.dragonminez.client.init.entities.model;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.animal.GiantFishEntity;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
-import com.geckolib.constant.DataTickets;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.model.GeoModel;
-import com.geckolib.model.data.EntityModelData;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class GiantFishModel<T extends GiantFishEntity> extends GeoModel<T> {
+public class GiantFishModel<T extends GiantFishEntity> extends ExtractedGeoModel<T> {
 
     @Override
     public Identifier getModelResource(T animatable) {

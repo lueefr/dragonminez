@@ -1,7 +1,6 @@
 package com.dragonminez.compat;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.loading.FMLEnvironment;
+import net.fabricmc.api.EnvType;
 
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
@@ -12,18 +11,18 @@ import java.util.function.Supplier;
 public final class DistExecutor {
 	private DistExecutor() {}
 
-	public static void unsafeRunWhenOn(Dist dist, Supplier<Runnable> toRun) {
-		if (FMLEnvironment.dist == dist) {
+	public static void unsafeRunWhenOn(EnvType dist, Supplier<Runnable> toRun) {
+		if (net.fabricmc.loader.api.FabricLoader.getInstance().getEnvironmentType() == dist) {
 			toRun.get().run();
 		}
 	}
 
-	public static void runWhenOn(Dist dist, Supplier<Runnable> toRun) {
+	public static void runWhenOn(EnvType dist, Supplier<Runnable> toRun) {
 		unsafeRunWhenOn(dist, toRun);
 	}
 
-	public static <T> T unsafeCallWhenOn(Dist dist, Supplier<Callable<T>> toRun) {
-		if (FMLEnvironment.dist == dist) {
+	public static <T> T unsafeCallWhenOn(EnvType dist, Supplier<Callable<T>> toRun) {
+		if (net.fabricmc.loader.api.FabricLoader.getInstance().getEnvironmentType() == dist) {
 			try {
 				return toRun.get().call();
 			} catch (Exception e) {
@@ -33,7 +32,7 @@ public final class DistExecutor {
 		return null;
 	}
 
-	public static <T> T callWhenOn(Dist dist, Supplier<Callable<T>> toRun) {
+	public static <T> T callWhenOn(EnvType dist, Supplier<Callable<T>> toRun) {
 		return unsafeCallWhenOn(dist, toRun);
 	}
 }

@@ -1,111 +1,45 @@
 package com.dragonminez.common.init.fluid;
 
-import com.mojang.blaze3d.shaders.FogShape;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Camera;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.animal.WaterAnimal;
-import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.pathfinder.PathType;
-import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.material.*;
+import java.util.function.Supplier;
 
-import java.util.function.Consumer;
+/** A finite, water-like fluid pair using the native fluid simulation. */
+public final class SimpleFluid extends WaterFluid {
+    private final boolean source;
+    private final int tint;
+    private final Supplier<? extends Fluid> still;
+    private final Supplier<? extends Fluid> flowing;
+    private final Supplier<? extends LiquidBlock> block;
+    private final Supplier<? extends Item> bucket;
 
-public class SimpleFluid extends FluidType {
-    private final Identifier stillTexture;
-    private final Identifier flowTexture;
-    private final Identifier overlayTexture;
-    private final int tintColor;
-    private final Vector3f fogColor;
-    private final int fogStart;
-    private final int fogEnd;
-
-    public SimpleFluid(int color, FluidType.Properties properties) {
-        super(properties);
-        this.stillTexture = Identifier.withDefaultNamespace("block/water_still");
-        this.flowTexture = Identifier.withDefaultNamespace("block/water_flow");
-        this.overlayTexture = Identifier.withDefaultNamespace("block/water_overlay");
-
-        this.tintColor = toAlpha(color);
-        this.fogColor = new Vector3f((color >> 16 & 0xFF) / 255F, (color >> 8 & 0xFF) / 255F, (color & 0xFF) / 255F);
-        this.fogStart = -8;
-        this.fogEnd = 48;
+    public SimpleFluid(boolean source, int color, Supplier<? extends Fluid> still,
+            Supplier<? extends Fluid> flowing, Supplier<? extends LiquidBlock> block, Supplier<? extends Item> bucket) {
+        this.source = source;
+        this.tint = 0xA1000000 | color;
+        this.still = still;
+        this.flowing = flowing;
+        this.block = block;
+        this.bucket = bucket;
+        registerDefaultState(getStateDefinition().any().setValue(LEVEL, 7).setValue(FALLING, false));
     }
-
-    private int toAlpha(int color) {
-        int red = (color >> 16) & 0xFF;
-        int green = (color >> 8) & 0xFF;
-        int blue = color & 0xFF;
-        return (0xA1 << 24) | (red << 16) | (green << 8) | blue;
+    @Override protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
+        super.createFluidStateDefinition(builder);
+        builder.add(LEVEL);
     }
-    @Override
-    public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
-        consumer.accept(new IClientFluidTypeExtensions() {
-            @Override
-            public Identifier getStillTexture() { return stillTexture; }
-
-            @Override
-            public Identifier getFlowingTexture() { return flowTexture; }
-
-            @Override
-            public Identifier getOverlayTexture() { return overlayTexture; }
-
-            @Override
-            public int getTintColor() { return tintColor; }
-
-            @Override
-            public Vector3f modifyFogColor(Camera camera, float partialTick, ClientLevel level, int renderDistance, float darkenWorldAmount, Vector3f fluidFogColor) {
-                return fogColor;
-            }
-
-            @Override
-            public void modifyFogRender(Camera camera, FogRenderer.FogMode mode, float renderDistance, float partialTick, float nearDistance, float farDistance, FogShape shape) {
-                RenderSystem.setShaderFogStart(fogStart);
-                RenderSystem.setShaderFogEnd(fogEnd);
-            }
-        });
+    @Override public Fluid getSource() { return still.get(); }
+    @Override public Fluid getFlowing() { return flowing.get(); }
+    @Override public Item getBucket() { return bucket.get(); }
+    @Override public boolean isSource(FluidState state) { return source; }
+    @Override public int getAmount(FluidState state) { return source ? 8 : state.getValue(LEVEL); }
+    @Override public boolean isSame(Fluid fluid) { return fluid == still.get() || fluid == flowing.get(); }
+    @Override protected boolean canConvertToSource(ServerLevel level) { return false; }
+    @Override public BlockState createLegacyBlock(FluidState state) {
+        return block.get().defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(state));
     }
-
-    @Override
-    public boolean canSwim(Entity entity) {
-        return true;
-    }
-
-    @Override
-    public boolean canDrownIn(LivingEntity entity) {
-        return !(entity instanceof WaterAnimal);
-    }
-
-    @Override
-    public @Nullable PathType getBlockPathType(FluidState state, BlockGetter level, BlockPos pos, @Nullable Mob mob, boolean canFluidLog) {
-        return PathType.WATER;
-    }
-
-    @Override
-    public @org.jetbrains.annotations.Nullable PathType getAdjacentBlockPathType(FluidState state, BlockGetter level, BlockPos pos, @org.jetbrains.annotations.Nullable Mob mob, PathType originalType) {
-        return null;
-    }
-
-    @Override
-    public boolean supportsBoating(FluidState state, Boat boat) {
-        return true;
-    }
-
-    @Override
-    public boolean canExtinguish(FluidState state, BlockGetter level, BlockPos pos) {
-        return true;
-    }
+    public int tintColor() { return tint; }
 }

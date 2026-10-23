@@ -1,5 +1,7 @@
 package com.dragonminez.common.init.block.entity;
 
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.state.AnimationTest;
 import com.dragonminez.common.init.MainBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -10,7 +12,7 @@ import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
 import com.geckolib.animation.*;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 
 public class PatternStationBlockEntity extends BlockEntity implements GeoBlockEntity {
@@ -22,10 +24,10 @@ public class PatternStationBlockEntity extends BlockEntity implements GeoBlockEn
 
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-		controllerRegistrar.add(new AnimationController<>(this, "controller", 0, this::predicate));
+		controllerRegistrar.add(new AnimationController<>("controller", 0, this::predicate));
 	}
 
-	private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> state) {
+	private <T extends GeoAnimatable> PlayState predicate(AnimationTest<T> state) {
 		return state.setAndContinue(RawAnimation.begin().then("animation.pattern_station.idle", Animation.LoopType.LOOP));
 	}
 

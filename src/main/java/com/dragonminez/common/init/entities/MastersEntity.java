@@ -4,7 +4,6 @@ import lombok.*;
 import com.dragonminez.common.init.entities.sagas.helper.DBSagasAnimationHandler;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.alignment.NpcDispositionService;
-import com.dragonminez.common.combat.logic.player.TargetHelper;
 import com.dragonminez.common.network.S2C.OpenQuestNPCDialogueS2C;
 import com.dragonminez.common.quest.QuestService;
 import com.dragonminez.common.stats.StatsCapability;
@@ -33,7 +32,7 @@ import net.minecraft.world.phys.Vec3;
 import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.RawAnimation;
 
@@ -124,21 +123,21 @@ public class MastersEntity extends PathfinderMob implements GeoEntity {
 	}
 
 	@Override
-	public boolean canDrownInFluidType(net.neoforged.neoforge.fluids.FluidType type) {
-		return false;
+	public boolean canBreatheUnderwater() {
+		return true;
 	}
 
 	@Override
-	public boolean hurt(DamageSource source, float amount) {
+	public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource source, float amount) {
 		if (source.is(DamageTypes.FELL_OUT_OF_WORLD) || source.is(DamageTypes.GENERIC_KILL)) {
-			return super.hurt(source, amount);
+			return super.hurtServer(dmz$level, source, amount);
 		}
 		return false;
 	}
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 0, event -> {
+        controllers.add(new AnimationController<>("controller", 0, event -> {
             String idleAnim = "idle";
 
             if (this.masterName != null) {
@@ -162,7 +161,7 @@ public class MastersEntity extends PathfinderMob implements GeoEntity {
             return event.setAndContinue(RawAnimation.begin().thenLoop(idleAnim));
         }));
 
-        controllers.add(new AnimationController<>(this, "tail_controller", 5, DBSagasAnimationHandler::tailPredicate));
+        controllers.add(new AnimationController<>("tail_controller", 5, DBSagasAnimationHandler::tailPredicate));
     }
 
 	@Override
@@ -195,23 +194,30 @@ public class MastersEntity extends PathfinderMob implements GeoEntity {
 	}
 
 	@Override
-	public void addAdditionalSaveData(CompoundTag pCompound) {
-		super.addAdditionalSaveData(pCompound);
+	public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+		super.addAdditionalSaveData(dmz$output);
 		pCompound.putFloat("EntityScale", this.entityData.get(SCALE_VAL));
-	}
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
+    }
 
 	@Override
-	public void readAdditionalSaveData(CompoundTag pCompound) {
-		super.readAdditionalSaveData(pCompound);
+	public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+		super.readAdditionalSaveData(dmz$input);
 		if (pCompound.contains("EntityScale")) {
-			this.setScaleVal(pCompound.getFloat("EntityScale"));
+			this.setScaleVal(pCompound.getFloatOr("EntityScale", 0F));
 		}
 	}
 
 	@Override
 	protected InteractionResult mobInteract(Player pPlayer, InteractionHand pHand) {
 		if (pHand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
-		if (!this.level().isClientSide && pPlayer instanceof ServerPlayer serverPlayer && masterName != null) {
+		if (!this.level().isClientSide() && pPlayer instanceof ServerPlayer serverPlayer && masterName != null) {
 			StatsProvider.get(StatsCapability.INSTANCE, serverPlayer).ifPresent(data -> {
 				if (!data.getStatus().isHasCreatedCharacter()) {
 					serverPlayer.displayClientMessage(Component.translatable("gui.dragonminez.lines.generic.createcharacter"), true);

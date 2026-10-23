@@ -18,7 +18,6 @@ import com.dragonminez.client.render.util.IrisCompat;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.GeneralUserConfig;
 import com.dragonminez.common.hair.HairColors;
-import com.dragonminez.common.init.MainEffects;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
@@ -26,30 +25,29 @@ import com.dragonminez.common.stats.character.Character;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 import com.geckolib.util.RenderUtil;
 
 import java.util.List;
 
-public class DMZHairLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T> {
+public class DMZHairLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 	private static final Identifier HAIR_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/hair.png");
 	private static final double FULL_PHYSICS_DISTANCE_SQR = 24.0 * 24.0;
 	private static final double REDUCED_PHYSICS_DISTANCE_SQR = 48.0 * 48.0;
@@ -74,7 +72,7 @@ public class DMZHairLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 	private boolean prepared;
 	private StatsData preparedStats;
 
-	public DMZHairLayer(GeoRenderer<T> renderer) {
+	public DMZHairLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderer) {
 		super(renderer);
 	}
 
@@ -173,7 +171,7 @@ public class DMZHairLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		if (simulate) simulate(animatable, state, preview != null, partialTick, charge, aura, substeps);
 
 		float alpha = animatable.isSpectator() ? SPECTATOR_ALPHA : 1.0f;
-		RenderType hairType = alpha < 1.0f ? RenderType.entityTranslucent(HAIR_TEXTURE) : RenderType.entityCutoutNoCull(HAIR_TEXTURE);
+		RenderType hairType = alpha < 1.0f ? net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(HAIR_TEXTURE) : net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(HAIR_TEXTURE);
 		VertexConsumer hairBuffer = bufferSource.getBuffer(hairType);
 		meshBuilder.emit(hairBuffer, headPose, headNormal, state, useSimulation, globalFrom, globalTo, forceFrom, forceTo,
 				packedLight, packedOverlay, alpha, wantsPixelDetail(animatable),

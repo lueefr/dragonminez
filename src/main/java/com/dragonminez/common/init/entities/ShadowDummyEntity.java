@@ -5,7 +5,6 @@ import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import com.dragonminez.common.init.entities.sagas.helper.DBSagasAnimations;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,10 +13,10 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.state.AnimationTest;
+import com.geckolib.animation.object.PlayState;
 
 import java.util.UUID;
 
@@ -65,7 +64,7 @@ public class ShadowDummyEntity extends DBSagasEntity {
 				this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(data.getMeleeDamage() * scale * 0.75);
 			this.setKiBlastDamage((float) (data.getKiDamage() * scale * 0.75));
 		});
-		this.getPersistentData().putBoolean("dmz_stats_configured", true);
+		com.dragonminez.platform.entity.EntityData.get(this).putBoolean("dmz_stats_configured", true);
 	}
 
 	public void copyStatsFromPlayer(ServerPlayer player) {
@@ -84,7 +83,7 @@ public class ShadowDummyEntity extends DBSagasEntity {
 			float calculatedKiDamage = (float) ((float) data.getKiDamage() * 0.25);
 			this.setKiBlastDamage(calculatedKiDamage);
 		});
-		this.getPersistentData().putBoolean("dmz_stats_configured", true);
+		com.dragonminez.platform.entity.EntityData.get(this).putBoolean("dmz_stats_configured", true);
 	}
 
 
@@ -108,10 +107,10 @@ public class ShadowDummyEntity extends DBSagasEntity {
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 		super.registerControllers(controllers);
-		controllers.add(new AnimationController<>(this, "skill_controller", 0, this::skillPredicate));
+		controllers.add(new AnimationController<>("skill_controller", 0, this::skillPredicate));
 	}
 
-	private <T extends GeoAnimatable> PlayState skillPredicate(AnimationState<T> event) {
+	private <T extends GeoAnimatable> PlayState skillPredicate(AnimationTest<T> event) {
 		if (this.isCasting()) {
 			int skill = getSkillType();
 
@@ -119,7 +118,7 @@ public class ShadowDummyEntity extends DBSagasEntity {
 				return event.setAndContinue(DBSagasAnimations.ANIM_KI_FINALFLASH);
 			}
 		}
-		event.getController().forceAnimationReset();
+		event.controller().forceAnimationReset();
 		return PlayState.STOP;
 	}
 }

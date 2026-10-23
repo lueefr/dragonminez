@@ -36,9 +36,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConf
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.placement.*;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockMatchTest;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredRegister;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -100,10 +99,10 @@ public class DemonRealmFeatures {
 	private static final int AMBIENT_LIGHT_SPACING = 5;
 	private static final int AMBIENT_LIGHT_HEIGHT = 2;
 
-	public static void register(IEventBus eventBus) {
-		FEATURES.register(eventBus);
-		PLACEMENT_MODIFIERS.register(eventBus);
-		DENSITY_FUNCTIONS.register(eventBus);
+	public static void register() {
+		FEATURES.register();
+		PLACEMENT_MODIFIERS.register();
+		DENSITY_FUNCTIONS.register();
 	}
 
 	public static void bootstrapConfigured(BootstrapContext<ConfiguredFeature<?, ?>> context) {

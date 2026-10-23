@@ -1,6 +1,5 @@
 package com.dragonminez.common.init.entities.sagas.helper;
 
-import com.dragonminez.common.init.MainEffects;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.network.S2C.ClawSlashVfxS2C;
 import com.dragonminez.common.network.S2C.RageScreamVfxS2C;
@@ -11,7 +10,6 @@ import com.dragonminez.common.init.entities.ki.*;
 import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -370,7 +368,7 @@ public class SkillManager {
     private static final int WOLF_FANG_FINAL_WAVE_TICKS = 13;
 
     public static void tickWolfFang(DBSagasEntity user, LivingEntity target, int timer) {
-        if (user.level().isClientSide) return;
+        if (user.level().isClientSide()) return;
 
         float total = getCalculatedDamage(DBSagasEntity.KiSkillType.WOLF_FANG.getId(), user);
         int hitCount = Math.max(1, (int) Math.ceil(WOLF_FANG_DURATION / (double) WOLF_FANG_HIT_INTERVAL));
@@ -422,7 +420,7 @@ public class SkillManager {
         target.invulnerableTime = 0;
         guardSafeHit = true;
         try {
-            target.hurt(user.damageSources().mobAttack(user), applied);
+            target.hurtOrSimulate(user.damageSources().mobAttack(user), applied);
         } finally {
             guardSafeHit = false;
         }
@@ -491,7 +489,7 @@ public class SkillManager {
     private static final double ROAR_VERTICAL_LIFT = 0.12D;
 
     public static void tickRoar(DBSagasEntity user, int timer) {
-        if (user.level().isClientSide) return;
+        if (user.level().isClientSide()) return;
 
         if (timer == 1) {
             user.playSound(MainSounds.OOZARU_GROWL_PLAYER.get(), 2.0F, 0.8F + user.getRandom().nextFloat() * 0.4F);
@@ -515,7 +513,7 @@ public class SkillManager {
 
             if (pulseDamage > 0.0F) {
                 victim.invulnerableTime = 0;
-                victim.hurt(user.damageSources().mobAttack(user), pulseDamage);
+                victim.hurtOrSimulate(user.damageSources().mobAttack(user), pulseDamage);
             }
 
             Vec3 dir = victim.position().subtract(user.position());
@@ -529,7 +527,7 @@ public class SkillManager {
     }
 
     public static void castTaiyoken(DBSagasEntity user) {
-        if (user.level().isClientSide) return;
+        if (user.level().isClientSide()) return;
         user.level().playSound(null, user.getX(), user.getY(), user.getZ(),
                 MainSounds.KI_EXPLOSION_CHARGE.get(), net.minecraft.sounds.SoundSource.HOSTILE, 1.2F, 1.6F);
         EvasionAttackHandler.applyTaiyokenBlind(user);
@@ -606,7 +604,7 @@ public class SkillManager {
                 if (Math.sqrt(dx * dx + dz * dz) > radius) continue;
 
                 victim.invulnerableTime = 0;
-                victim.hurt(user.damageSources().mobAttack(user), damage);
+                victim.hurtOrSimulate(user.damageSources().mobAttack(user), damage);
                 victim.setDeltaMovement(victim.getDeltaMovement().add(0.0D, 0.45D, 0.0D));
                 victim.hasImpulse = true;
                 victim.hurtMarked = true;
@@ -682,7 +680,7 @@ public class SkillManager {
     }
 
     public static void tickOozaruFist(DBSagasEntity user, LivingEntity target, int timer) {
-        if (user.level().isClientSide) return;
+        if (user.level().isClientSide()) return;
 
         if (target != null && timer <= OOZARU_FIST_LAUNCH_TICK) user.rotateBodyToTarget(target);
         if (timer == 1) user.playSound(MainSounds.OOZARU_GROWL_PLAYER.get(), 2.0F, 0.8F);
@@ -730,7 +728,7 @@ public class SkillManager {
 
             if (damage > 0.0F) {
                 victim.invulnerableTime = 0;
-                victim.hurt(user.damageSources().mobAttack(user), damage);
+                victim.hurtOrSimulate(user.damageSources().mobAttack(user), damage);
             }
 
             Vec3 push = distance > 1.0E-3D ? new Vec3(dx / distance, 0.0D, dz / distance) : user.getLookAngle();

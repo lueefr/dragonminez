@@ -100,20 +100,20 @@ public class EvasionAttackData extends TechniqueData {
 
 	@Override
 	public void load(CompoundTag tag) {
-		this.id = tag.getString("Id");
-		this.name = tag.getString("Name");
-		this.author = tag.getString("Author");
-		this.experience = tag.getInt("Experience");
-		this.baseCost = tag.getDouble("BaseCost");
-		this.tpCost = tag.contains("TpCost") ? tag.getFloat("TpCost") : 0;
-		this.damageMultiplier = tag.getFloat("DamageMultiplier");
-		this.durationTicks = tag.contains("DurationTicks") ? tag.getInt("DurationTicks") : 60;
+		this.id = tag.getStringOr("Id", "");
+		this.name = tag.getStringOr("Name", "");
+		this.author = tag.getStringOr("Author", "");
+		this.experience = tag.getIntOr("Experience", 0);
+		this.baseCost = tag.getDoubleOr("BaseCost", 0D);
+		this.tpCost = tag.contains("TpCost") ? tag.getFloatOr("TpCost", 0F) : 0;
+		this.damageMultiplier = tag.getFloatOr("DamageMultiplier", 0F);
+		this.durationTicks = tag.contains("DurationTicks") ? tag.getIntOr("DurationTicks", 0) : 60;
 		if (this.durationTicks <= 0) this.durationTicks = 60;
-		this.durationLevel = tag.getInt("DurationLevel");
-		this.cooldownLevel = tag.getInt("CooldownLevel");
-		this.animationId = tag.getString("AnimationId");
-		this.useStrikePower = tag.getBoolean("UseStrikePower");
-		this.castTime = tag.getInt("CastTime");
-		this.cooldown = tag.getInt("Cooldown");
+		this.durationLevel = tag.getIntOr("DurationLevel", 0);
+		this.cooldownLevel = tag.getIntOr("CooldownLevel", 0);
+		this.animationId = tag.getStringOr("AnimationId", "");
+		this.useStrikePower = tag.getBooleanOr("UseStrikePower", false);
+		this.castTime = tag.getIntOr("CastTime", 0);
+		this.cooldown = tag.getIntOr("Cooldown", 0);
 	}
 }

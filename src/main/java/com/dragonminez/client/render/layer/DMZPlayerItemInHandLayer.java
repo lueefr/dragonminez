@@ -12,22 +12,22 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.*;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import com.geckolib.animatable.GeoItem;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.renderer.GeoRenderer;
-import com.geckolib.renderer.layer.BlockAndItemGeoLayer;
+import com.geckolib.renderer.base.GeoRenderer;
+import com.geckolib.renderer.layer.builtin.BlockAndItemGeoLayer;
 import com.geckolib.util.RenderUtil;
 
 import org.jetbrains.annotations.Nullable;
 
-public class DMZPlayerItemInHandLayer<T extends AbstractClientPlayer & GeoAnimatable> extends BlockAndItemGeoLayer<T> {
+public class DMZPlayerItemInHandLayer<T extends AbstractClientPlayer & GeoAnimatable> extends BlockAndItemGeoLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 
 	private static final String RIGHT_GRIP = "right_hand_item";
 	private static final String LEFT_GRIP = "left_hand_item";
@@ -39,7 +39,7 @@ public class DMZPlayerItemInHandLayer<T extends AbstractClientPlayer & GeoAnimat
 
 	private static float renderingAttackProgress = -1.0F;
 
-	public DMZPlayerItemInHandLayer(GeoRenderer<T> renderer) {
+	public DMZPlayerItemInHandLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderer) {
 		super(renderer);
 	}
 

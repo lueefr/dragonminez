@@ -5,10 +5,10 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.cache.object.GeoCube;
-import com.geckolib.cache.object.GeoQuad;
-import com.geckolib.cache.object.GeoVertex;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.cache.model.cuboid.GeoCube;
+import com.geckolib.cache.model.GeoQuad;
+import com.geckolib.cache.model.GeoVertex;
 
 import org.jetbrains.annotations.Nullable;
 

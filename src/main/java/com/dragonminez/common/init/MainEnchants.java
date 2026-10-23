@@ -10,7 +10,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.neoforged.bus.api.IEventBus;
 
 import java.util.Optional;
 
@@ -54,7 +53,7 @@ public final class MainEnchants {
 		return key;
 	}
 
-	public static void register(IEventBus eventBus) {
+	public static void register() {
 		// Datapack registry — no deferred code registration on 1.21.
 	}
 }

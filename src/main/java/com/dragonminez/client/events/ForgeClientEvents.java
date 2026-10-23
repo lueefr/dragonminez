@@ -36,24 +36,19 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
+import net.fabricmc.api.EnvType;
+import com.dragonminez.platform.event.client.InputEvent;
+import com.dragonminez.platform.event.client.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.ViewportEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.client.ViewportEvent;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import com.dragonminez.platform.event.tick.ClientTickEvent;
+import com.dragonminez.platform.event.client.ClientPlayerNetworkEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import org.lwjgl.glfw.GLFW;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = EnvType.CLIENT)
 public class ForgeClientEvents {
 	public static boolean isHasCreatedCharacterCache = false;
 	private static String lastLang = "";
@@ -76,7 +71,7 @@ public class ForgeClientEvents {
 	public static void RenderHealthBar(RenderGuiLayerEvent.Pre event) {
 		if (Minecraft.getInstance().player != null) {
 			if (isHasCreatedCharacterCache || Minecraft.getInstance().player.getMaxHealth() > 100.0F) {
-				if (VanillaGuiLayers.PLAYER_HEALTH.equals(event.getName())) {
+				if (VanillaHudElements.HEALTH_BAR.equals(event.getName())) {
 					event.setCanceled(true);
 				}
 			}
@@ -265,13 +260,13 @@ public class ForgeClientEvents {
 	private static boolean isUtilityMenuKeyHeld(Minecraft mc) {
 		if (mc == null || mc.getWindow() == null) return false;
 		InputConstants.Key key = KeyBinds.UTILITY_MENU.getKey();
-		long window = mc.getWindow().getWindow();
+		var window = mc.getWindow();
 
 		if (key.getType() == InputConstants.Type.KEYSYM) {
 			return InputConstants.isKeyDown(window, key.getValue());
 		}
 		if (key.getType() == InputConstants.Type.MOUSE) {
-			return GLFW.glfwGetMouseButton(window, key.getValue()) == GLFW.GLFW_PRESS;
+			return GLFW.glfwGetMouseButton(window.handle(), key.getValue()) == GLFW.GLFW_PRESS;
 		}
 		return false;
 	}
@@ -304,7 +299,7 @@ public class ForgeClientEvents {
 
 	@SubscribeEvent
 	public static void onPreRenderCrosshair(RenderGuiLayerEvent.Pre event) {
-		if (VanillaGuiLayers.CROSSHAIR.equals(event.getName())) {
+		if (VanillaHudElements.CROSSHAIR.equals(event.getName())) {
 			Minecraft client = Minecraft.getInstance();
 			if (client != null && ((Minecraft_DMZ) client).hasTargetsInReach()) RenderSystem.setShaderColor(1.0F, 0.0F, 0.0F, 1.0F);
 		}
@@ -312,6 +307,6 @@ public class ForgeClientEvents {
 
 	@SubscribeEvent
 	public static void onPostRenderCrosshair(RenderGuiLayerEvent.Post event) {
-		if (VanillaGuiLayers.CROSSHAIR.equals(event.getName())) RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		if (VanillaHudElements.CROSSHAIR.equals(event.getName())) RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 }

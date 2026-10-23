@@ -18,7 +18,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import com.dragonminez.compat.network.NetworkEvent;
-import net.minecraft.sounds.SoundSource;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -93,7 +92,7 @@ public class InstantTransmissionTravelToPlayerC2S {
 
 				double distance = sameDimension ? player.position().distanceTo(target.position()) : 0.0;
 				int kiCost = ITTeleportHelper.travelKiCost(DashHandler.getFlyDashKiCost() * 5, distance,
-						player.level().dimension().location().toString(), target.level().dimension().location().toString());
+						player.level().dimension().identifier().toString(), target.level().dimension().identifier().toString());
 				if (!bypassCosts) {
 					if (data.getResources().getCurrentEnergy() < kiCost) {
 						fail(player, "no_ki");
@@ -115,7 +114,7 @@ public class InstantTransmissionTravelToPlayerC2S {
 	}
 
 	private void teleportTo(ServerPlayer player, ServerPlayer target) {
-		ServerLevel targetLevel = target.serverLevel();
+		ServerLevel targetLevel = target.level();
 		BlockPos center = target.blockPosition();
 		BlockPos safePos = ITTeleportHelper.findSafeTeleportPos(targetLevel, center);
 

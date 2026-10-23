@@ -3,9 +3,9 @@ package com.dragonminez.common.init.item.weapons.model;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.item.weapons.YajirobeKatanaItem;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class YajirobeKatanaModel extends GeoModel<YajirobeKatanaItem> {
+public class YajirobeKatanaModel extends ExtractedGeoModel<YajirobeKatanaItem> {
     @Override
     public Identifier getModelResource(YajirobeKatanaItem animatable) {
         return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/yajirobe_katana.geo.json");

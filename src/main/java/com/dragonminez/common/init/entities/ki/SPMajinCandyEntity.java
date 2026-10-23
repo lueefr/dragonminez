@@ -6,7 +6,6 @@ import com.dragonminez.common.combat.util.MultipartTargeting;
 import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.common.init.MainDamageTypes;
 import com.dragonminez.common.init.MainEntities;
-import com.dragonminez.common.init.MainEffects;
 import com.dragonminez.common.init.MainParticles;
 import com.dragonminez.common.init.MainSounds;
 import com.dragonminez.common.init.particles.KiTrailParticle;
@@ -17,7 +16,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -68,7 +66,7 @@ public class SPMajinCandyEntity extends AbstractKiProjectile {
 
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -78,7 +76,7 @@ public class SPMajinCandyEntity extends AbstractKiProjectile {
         this.baseTick();
 
         if (!(this.getOwner() instanceof LivingEntity owner) || !owner.isAlive()) {
-            if (!this.level().isClientSide) this.discard();
+            if (!this.level().isClientSide()) this.discard();
             return;
         }
 
@@ -88,7 +86,7 @@ public class SPMajinCandyEntity extends AbstractKiProjectile {
             this.setFiring(true);
             isFiring = true;
 
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 this.level().playSound(null, this.getX(), this.getY(), this.getZ(), MainSounds.KIBLAST_ATTACK.get(), SoundSource.PLAYERS, 1.5F, 1.2F);
 
                 LivingEntity nearest = findNearestTarget(owner, 20.0D);
@@ -110,7 +108,7 @@ public class SPMajinCandyEntity extends AbstractKiProjectile {
                 player.zza = 0.0F;
             }
 
-            if (this.level().isClientSide) {
+            if (this.level().isClientSide()) {
                 float[] rgb = ColorUtils.rgbIntToFloat(0xFF66CC);
 
                 for (int i = 0; i < 4; i++) {
@@ -150,14 +148,14 @@ public class SPMajinCandyEntity extends AbstractKiProjectile {
             if (target != null && target.isAlive() && target.distanceTo(owner) <= 25.0D) {
                 owner.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition());
 
-                if (!this.level().isClientSide) {
+                if (!this.level().isClientSide()) {
                     // Gated to ~1s pulses; the candy effect refreshes on each landed pulse.
                     if (this.applyContinuousDamage(target)) {
                         com.dragonminez.server.events.players.combat.EvasionAttackHandler.applyCandy(owner, target, 200, 0);
                     }
                 }
             } else {
-                if (!this.level().isClientSide) {
+                if (!this.level().isClientSide()) {
                     this.discard();
                 }
             }
@@ -170,12 +168,12 @@ public class SPMajinCandyEntity extends AbstractKiProjectile {
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             Entity hitEntity = TargetHelper.resolveHittable(result.getEntity());
             Entity owner = this.getOwner();
 
             if (hitEntity instanceof LivingEntity target && target != owner) {
-                target.hurt(MainDamageTypes.kiblast(this.level(), this, (LivingEntity) owner), this.getKiDamage());
+                target.hurtOrSimulate(MainDamageTypes.kiblast(this.level(), this, (LivingEntity) owner), this.getKiDamage());
 
                 com.dragonminez.server.events.players.combat.EvasionAttackHandler.applyCandy(owner instanceof LivingEntity livingOwner ? livingOwner : null, target, 100, 0);
                 this.discard();
@@ -231,18 +229,25 @@ public class SPMajinCandyEntity extends AbstractKiProjectile {
     public void setTargetId(int id) { this.entityData.set(TARGET_ID, id); }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putInt("CastTime", this.getCastTime());
         pCompound.putBoolean("IsFiring", this.isFiring());
         pCompound.putInt("TargetId", this.getTargetId());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        if (pCompound.contains("CastTime")) this.setCastTime(pCompound.getInt("CastTime"));
-        if (pCompound.contains("IsFiring")) this.setFiring(pCompound.getBoolean("IsFiring"));
-        if (pCompound.contains("TargetId")) this.setTargetId(pCompound.getInt("TargetId"));
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        if (pCompound.contains("CastTime")) this.setCastTime(pCompound.getIntOr("CastTime", 0));
+        if (pCompound.contains("IsFiring")) this.setFiring(pCompound.getBooleanOr("IsFiring", false));
+        if (pCompound.contains("TargetId")) this.setTargetId(pCompound.getIntOr("TargetId", 0));
     }
 }

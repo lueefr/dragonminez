@@ -35,13 +35,13 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T> {
+public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 	public static boolean PREVIEW_MODE = false;
 
 	private static final Map<Identifier, Identifier> VALIDATED_TEXTURES_CACHE = new ConcurrentHashMap<>();
@@ -86,7 +86,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 
 	private final SaiyanTailMeshBuilder tailMesh = new SaiyanTailMeshBuilder();
 
-	public DMZSkinLayer(GeoRenderer<T> entityRendererIn) {
+	public DMZSkinLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> entityRendererIn) {
 		super(entityRendererIn);
 	}
 
@@ -138,7 +138,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		SkinGathererProvider.BodyLayerSink geoConsumer = new SkinGathererProvider.BodyLayerSink() {
 			@Override
 			public void base(Identifier texture, float[] color) {
-				RenderType baseType = alpha < 1.0f ? RenderType.entityTranslucent(texture) : RenderType.entityCutoutNoCull(texture);
+				RenderType baseType = alpha < 1.0f ? net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture) : net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture);
 				renderLayerWholeModel(model, poseStack, bufferSource, animatable, baseType, color[0], color[1], color[2], 1.0f, partialTick, packedLight, packedOverlay, alpha, true);
 			}
 
@@ -150,7 +150,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 
 			@Override
 			public void translucent(Identifier texture, float[] color) {
-				renderLayerWholeModel(model, poseStack, bufferSource, animatable, RenderType.entityTranslucent(texture), color[0], color[1], color[2], 1.0f, partialTick, packedLight, packedOverlay, alpha, true);
+				renderLayerWholeModel(model, poseStack, bufferSource, animatable, net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture), color[0], color[1], color[2], 1.0f, partialTick, packedLight, packedOverlay, alpha, true);
 			}
 
 			@Override
@@ -171,7 +171,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 				}
 				float[] tinted = color.clone();
 				tintInPlace(tinted);
-				RenderType tailType = alpha < 1.0f ? RenderType.entityTranslucent(SaiyanTailMeshBuilder.TEXTURE) : RenderType.entityCutoutNoCull(SaiyanTailMeshBuilder.TEXTURE);
+				RenderType tailType = alpha < 1.0f ? net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(SaiyanTailMeshBuilder.TEXTURE) : net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(SaiyanTailMeshBuilder.TEXTURE);
 				tailMesh.emit(bufferSource.getBuffer(tailType), tinted, packedLight, packedOverlay, alpha, DMZHairLayer.wantsPixelDetail(animatable));
 			}
 		};

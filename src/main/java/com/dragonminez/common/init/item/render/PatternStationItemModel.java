@@ -3,9 +3,9 @@ package com.dragonminez.common.init.item.render;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.item.PatternStationItem;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class PatternStationItemModel extends GeoModel<PatternStationItem> {
+public class PatternStationItemModel extends ExtractedGeoModel<PatternStationItem> {
 	@Override
 	public Identifier getModelResource(PatternStationItem animatable) {
 		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/block/pattern_station.geo.json");

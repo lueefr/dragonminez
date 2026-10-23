@@ -141,15 +141,15 @@ public final class BossStructures {
 
 		public TreeOfMightPiece(CompoundTag tag) {
 			super(MainStructureTypes.TREE_OF_MIGHT_PIECE.get(), tag);
-			this.version = tag.getInt("ShapeVersion");
-			this.seed = tag.getLong("Seed");
-			this.centerX = tag.getInt("CenterX");
-			this.centerZ = tag.getInt("CenterZ");
-			this.minBuildY = tag.getInt("MinBuildY");
-			this.maxBuildY = tag.getInt("MaxBuildY");
-			this.seaLevel = tag.getInt("SeaLevel");
-			this.sampleKeys = tag.getLongArray("SampleKeys");
-			this.sampleValues = tag.getIntArray("SampleValues");
+			this.version = tag.getIntOr("ShapeVersion", 0);
+			this.seed = tag.getLongOr("Seed", 0L);
+			this.centerX = tag.getIntOr("CenterX", 0);
+			this.centerZ = tag.getIntOr("CenterZ", 0);
+			this.minBuildY = tag.getIntOr("MinBuildY", 0);
+			this.maxBuildY = tag.getIntOr("MaxBuildY", 0);
+			this.seaLevel = tag.getIntOr("SeaLevel", 0);
+			this.sampleKeys = tag.getLongArray("SampleKeys").orElseGet(() -> new long[0]);
+			this.sampleValues = tag.getIntArray("SampleValues").orElseGet(() -> new int[0]);
 		}
 
 		@Override
@@ -1437,7 +1437,7 @@ public final class BossStructures {
 
 			TreeOfMightWriter.place(level, tree, chunk, new BoundingBox(chunk.getMinBlockX(), level.getMinBuildHeight(), chunk.getMinBlockZ(),
 					chunk.getMaxBlockX(), level.getMaxBuildHeight() - 1, chunk.getMaxBlockZ()));
-			Structure structure = level.registryAccess().registryOrThrow(Registries.STRUCTURE).get(DMZStructures.TREE_OF_MIGHT);
+			Structure structure = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).get(DMZStructures.TREE_OF_MIGHT);
 			if (structure != null) level.getChunk(chunk.x, chunk.z).addReferenceForStructure(structure, origin.toLong());
 			return true;
 		}
@@ -1604,15 +1604,15 @@ public final class BossStructures {
 
 			public Piece(CompoundTag tag) {
 				super(MainStructureTypes.GETE_STAR_PIECE.get(), tag);
-				this.version = tag.getInt("ShapeVersion");
-				this.seed = tag.getLong("Seed");
-				this.centerX = tag.getInt("CenterX");
-				this.centerZ = tag.getInt("CenterZ");
-				this.minBuildY = tag.getInt("MinBuildY");
-				this.maxBuildY = tag.getInt("MaxBuildY");
-				this.seaLevel = tag.getInt("SeaLevel");
-				this.sampleKeys = tag.getLongArray("SampleKeys");
-				this.sampleValues = tag.getIntArray("SampleValues");
+				this.version = tag.getIntOr("ShapeVersion", 0);
+				this.seed = tag.getLongOr("Seed", 0L);
+				this.centerX = tag.getIntOr("CenterX", 0);
+				this.centerZ = tag.getIntOr("CenterZ", 0);
+				this.minBuildY = tag.getIntOr("MinBuildY", 0);
+				this.maxBuildY = tag.getIntOr("MaxBuildY", 0);
+				this.seaLevel = tag.getIntOr("SeaLevel", 0);
+				this.sampleKeys = tag.getLongArray("SampleKeys").orElseGet(() -> new long[0]);
+				this.sampleValues = tag.getIntArray("SampleValues").orElseGet(() -> new int[0]);
 			}
 
 			@Override
@@ -2358,10 +2358,10 @@ public final class BossStructures {
 
 			public Piece(CompoundTag tag) {
 				super(MainStructureTypes.SAIYAN_CRATER_PIECE.get(), tag);
-				this.centerX = tag.getInt("CenterX");
-				this.centerY = tag.getInt("CenterY");
-				this.centerZ = tag.getInt("CenterZ");
-				this.seed = tag.getLong("Seed");
+				this.centerX = tag.getIntOr("CenterX", 0);
+				this.centerY = tag.getIntOr("CenterY", 0);
+				this.centerZ = tag.getIntOr("CenterZ", 0);
+				this.seed = tag.getLongOr("Seed", 0L);
 			}
 
 			@Override
@@ -2632,10 +2632,10 @@ public final class BossStructures {
 
 			public PlazaPiece(CompoundTag tag) {
 				super(MainStructureTypes.NAMEK_RUINS_PLAZA.get(), tag);
-				this.centerX = tag.getInt("CenterX");
-				this.centerY = tag.getInt("CenterY");
-				this.centerZ = tag.getInt("CenterZ");
-				this.seed = tag.getLong("Seed");
+				this.centerX = tag.getIntOr("CenterX", 0);
+				this.centerY = tag.getIntOr("CenterY", 0);
+				this.centerZ = tag.getIntOr("CenterZ", 0);
+				this.seed = tag.getLongOr("Seed", 0L);
 			}
 
 			@Override
@@ -2732,9 +2732,9 @@ public final class BossStructures {
 
 			public HousePiece(StructureTemplateManager templates, CompoundTag tag) {
 				super(MainStructureTypes.NAMEK_RUINS_HOUSE.get(), tag, templates,
-						location -> settings(Rotation.valueOf(tag.getString("Rot")), pivot(templates, location)));
-				this.rotation = Rotation.valueOf(tag.getString("Rot"));
-				this.seed = tag.getLong("RuinSeed");
+						location -> settings(Rotation.valueOf(tag.getStringOr("Rot", "")), pivot(templates, location)));
+				this.rotation = Rotation.valueOf(tag.getStringOr("Rot", ""));
+				this.seed = tag.getLongOr("RuinSeed", 0L);
 			}
 
 			private static BlockPos pivot(StructureTemplateManager templates, Identifier location) {
@@ -2918,10 +2918,10 @@ public final class BossStructures {
 
 			public CampPiece(CompoundTag tag) {
 				super(MainStructureTypes.GOMAH_CAMP_PIECE.get(), tag);
-				this.centerX = tag.getInt("CenterX");
-				this.groundY = tag.getInt("GroundY");
-				this.centerZ = tag.getInt("CenterZ");
-				this.seed = tag.getLong("Seed");
+				this.centerX = tag.getIntOr("CenterX", 0);
+				this.groundY = tag.getIntOr("GroundY", 0);
+				this.centerZ = tag.getIntOr("CenterZ", 0);
+				this.seed = tag.getLongOr("Seed", 0L);
 			}
 
 			@Override
@@ -3143,11 +3143,11 @@ public final class BossStructures {
 
 			public Piece(CompoundTag tag) {
 				super(MainStructureTypes.GOMAH_CRADLE_PIECE.get(), tag);
-				this.version = tag.getInt("ShapeVersion");
-				this.seed = tag.getLong("Seed");
-				this.centerX = tag.getInt("CenterX");
-				this.centerZ = tag.getInt("CenterZ");
-				this.surfaceY = tag.getInt("SurfaceY");
+				this.version = tag.getIntOr("ShapeVersion", 0);
+				this.seed = tag.getLongOr("Seed", 0L);
+				this.centerX = tag.getIntOr("CenterX", 0);
+				this.centerZ = tag.getIntOr("CenterZ", 0);
+				this.surfaceY = tag.getIntOr("SurfaceY", 0);
 			}
 
 			@Override

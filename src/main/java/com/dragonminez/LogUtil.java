@@ -1,6 +1,5 @@
 package com.dragonminez;
 
-import net.neoforged.fml.loading.FMLPaths;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -57,7 +56,7 @@ public final class LogUtil {
 				Configuration configuration = context.getConfiguration();
 
 				if (configuration.getAppender(APPENDER_NAME) == null) {
-					Path logsDir = FMLPaths.GAMEDIR.get().resolve("logs");
+					Path logsDir = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().resolve("logs");
 					Files.createDirectories(logsDir);
 
 					String fileName = logsDir.resolve("dragonminez.log").toString();

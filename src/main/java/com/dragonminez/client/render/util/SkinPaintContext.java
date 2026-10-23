@@ -1,7 +1,7 @@
 package com.dragonminez.client.render.util;
 
 import net.minecraft.resources.Identifier;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.GeoBone;
 
 import java.util.ArrayList;
 import java.util.Collections;

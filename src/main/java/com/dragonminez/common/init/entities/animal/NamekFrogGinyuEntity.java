@@ -1,16 +1,9 @@
 package com.dragonminez.common.init.entities.animal;
 
-import com.dragonminez.Reference;
 import com.dragonminez.common.init.MainSounds;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -18,17 +11,15 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
-import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 public class NamekFrogGinyuEntity extends NamekFrogEntity{
 
@@ -60,18 +51,18 @@ public class NamekFrogGinyuEntity extends NamekFrogEntity{
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "base_controller", 5, this::walkPredicate));
+        controllers.add(new AnimationController<>("base_controller", 5, this::walkPredicate));
     }
 
-    private <T extends GeoAnimatable> PlayState walkPredicate(AnimationState<T> event) {
-        NamekFrogGinyuEntity entity = (NamekFrogGinyuEntity) event.getAnimatable();
+    private <T extends GeoAnimatable> PlayState walkPredicate(AnimationTest<T> event) {
+        NamekFrogGinyuEntity entity = (NamekFrogGinyuEntity) event.animatable();
 
         if (event.isMoving()) {
-            event.getController().setAnimation(RawAnimation.begin().thenLoop("walkginyu"));
+            event.controller().setAnimation(RawAnimation.begin().thenLoop("walkginyu"));
             return PlayState.CONTINUE;
         }
 
-        event.getController().setAnimation(RawAnimation.begin().thenLoop("idleginyu"));
+        event.controller().setAnimation(RawAnimation.begin().thenLoop("idleginyu"));
         return PlayState.CONTINUE;
     }
 

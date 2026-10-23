@@ -16,7 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -180,7 +180,7 @@ public final class WorldBossManager {
         if (level == null) return "";
         ResourceKey<Structure> key = lair.structure();
         if (key == null) return " Its arena is rebuilt when a player gets close.";
-        Structure structure = level.registryAccess().registryOrThrow(Registries.STRUCTURE).get(key);
+        Structure structure = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).get(key);
         BlockPos at = knownLair != null ? knownLair : lair.pickColumn(level);
         if (structure == null || at == null) return " Its structure has not been planned yet, nothing to restore.";
         StructureStart start = level.structureManager().getStructureAt(at, structure);
@@ -245,13 +245,13 @@ public final class WorldBossManager {
     }
 
     public static boolean isRegistered(WorldBossEntity boss) {
-        if (boss.level().isClientSide || boss.getServer() == null) return true;
+        if (boss.level().isClientSide() || boss.getServer() == null) return true;
         Data.Entry entry = Data.get(boss.getServer()).peek(boss.getWorldBossKey());
         return entry == null || boss.getUUID().equals(entry.bossId);
     }
 
     public static void onBossRemoved(WorldBossEntity boss) {
-        if (boss.level().isClientSide || boss.getServer() == null) return;
+        if (boss.level().isClientSide() || boss.getServer() == null) return;
         Data data = Data.get(boss.getServer());
         Data.Entry entry = data.peek(boss.getWorldBossKey());
         if (entry == null || entry.bossId == null || !entry.bossId.equals(boss.getUUID())) return;
@@ -267,7 +267,7 @@ public final class WorldBossManager {
         BlockPos spawn = entry.lair.above();
         boss.setAnchor(entry.lair);
         boss.moveTo(spawn.getX() + 0.5D, spawn.getY(), spawn.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
-        boss.finalizeSpawn(level, level.getCurrentDifficultyAt(spawn), MobSpawnType.EVENT, null);
+        boss.finalizeSpawn(level, level.getCurrentDifficultyAt(spawn), EntitySpawnReason.EVENT, null);
         boss.fallAsleep();
 
         if (!level.addFreshEntity(boss)) return;
@@ -343,7 +343,7 @@ public final class WorldBossManager {
     }
 
     public static boolean canWake(WorldBossEntity boss) {
-        if (boss.level().isClientSide || boss.getServer() == null) return true;
+        if (boss.level().isClientSide() || boss.getServer() == null) return true;
         Data.Entry entry = Data.get(boss.getServer()).peek(boss.getWorldBossKey());
         return entry == null || boss.level().getGameTime() >= entry.nextRespawnTick;
     }
@@ -552,16 +552,16 @@ public final class WorldBossManager {
 
         public static Data load(CompoundTag tag) {
             Data data = new Data();
-            for (String key : tag.getAllKeys()) {
-                CompoundTag e = tag.getCompound(key);
+            for (String key : tag.keySet()) {
+                CompoundTag e = tag.getCompoundOrEmpty(key);
                 Entry entry = new Entry();
                 if (e.contains("LairX")) {
-                    entry.lair = new BlockPos(e.getInt("LairX"), e.getInt("LairY"), e.getInt("LairZ"));
+                    entry.lair = new BlockPos(e.getIntOr("LairX", 0), e.getIntOr("LairY", 0), e.getIntOr("LairZ", 0));
                 }
-                entry.lairResolved = e.getBoolean("LairResolved");
-                entry.arenaBuilt = e.getBoolean("ArenaBuilt");
-                if (e.hasUUID("BossId")) entry.bossId = e.getUUID("BossId");
-                entry.nextRespawnTick = e.getLong("NextRespawn");
+                entry.lairResolved = e.getBooleanOr("LairResolved", false);
+                entry.arenaBuilt = e.getBooleanOr("ArenaBuilt", false);
+                if (com.dragonminez.platform.nbt.NbtCompat.hasUUID(e, "BossId")) entry.bossId = com.dragonminez.platform.nbt.NbtCompat.getUUID(e, "BossId");
+                entry.nextRespawnTick = e.getLongOr("NextRespawn", 0L);
                 data.entries.put(key, entry);
             }
             return data;
@@ -579,7 +579,7 @@ public final class WorldBossManager {
                 }
                 e.putBoolean("LairResolved", entry.lairResolved);
                 e.putBoolean("ArenaBuilt", entry.arenaBuilt);
-                if (entry.bossId != null) e.putUUID("BossId", entry.bossId);
+                if (entry.bossId != null) com.dragonminez.platform.nbt.NbtCompat.putUUID(e, "BossId", entry.bossId);
                 e.putLong("NextRespawn", entry.nextRespawnTick);
                 tag.put(mapEntry.getKey(), e);
             }

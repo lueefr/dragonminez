@@ -8,12 +8,11 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public final class RaidMusicManager {
 
 	private static final float MUSIC_VOLUME = 0.5F;
@@ -34,7 +33,7 @@ public final class RaidMusicManager {
 			return;
 		}
 
-		SoundEvent event = BuiltInRegistries.SOUND_EVENT.get(location);
+		SoundEvent event = BuiltInRegistries.SOUND_EVENT.getValue(location);
 		if (event == null) {
 			LogUtil.warn(Env.CLIENT, "Raid asked for unknown sound '{}'", soundId);
 			return;

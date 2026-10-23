@@ -3,9 +3,9 @@ package com.dragonminez.common.init.item.weapons.model;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.item.weapons.ZSwordItem;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class ZSwordModel extends GeoModel<ZSwordItem> {
+public class ZSwordModel extends ExtractedGeoModel<ZSwordItem> {
     @Override
     public Identifier getModelResource(ZSwordItem animatable) {
         return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/z_sword.geo.json");

@@ -10,7 +10,7 @@ import com.dragonminez.common.stats.StatsProvider;
 import com.dragonminez.common.util.TransformationsHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -128,7 +128,7 @@ public final class PartyPackets {
 		}
 
 		public static void handle(StatsS2C msg, Supplier<NetworkEvent.Context> ctx) {
-			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 					() -> () -> PartyStatsCache.accept(msg.getMembers())));
 			ctx.get().setPacketHandled(true);
 		}
@@ -227,7 +227,7 @@ public final class PartyPackets {
 		}
 
 		public static void handle(HudSyncS2C msg, Supplier<NetworkEvent.Context> ctx) {
-			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 					() -> () -> PartyHudCache.accept(msg.members)));
 			ctx.get().setPacketHandled(true);
 		}

@@ -123,7 +123,7 @@ public class CellJrEntity extends DBSagasEntity {
 	@Override
 	public void tick() {
 		super.tick();
-		if (this.level().isClientSide) return;
+		if (this.level().isClientSide()) return;
 
 		LivingEntity owner = resolveOwner();
 		if (owner == null) {
@@ -148,26 +148,33 @@ public class CellJrEntity extends DBSagasEntity {
 	}
 
 	@Override
-	public void addAdditionalSaveData(CompoundTag tag) {
-		super.addAdditionalSaveData(tag);
-		if (ownerUUID != null) tag.putUUID("OwnerUUID", ownerUUID);
-	}
+	public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag tag = new CompoundTag();
+        try {
+		super.addAdditionalSaveData(dmz$output);
+		if (ownerUUID != null) com.dragonminez.platform.nbt.NbtCompat.putUUID(tag, "OwnerUUID", ownerUUID);
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, tag);
+        }
+    }
 
 	@Override
-	public void readAdditionalSaveData(CompoundTag tag) {
-		super.readAdditionalSaveData(tag);
-		if (tag.hasUUID("OwnerUUID")) ownerUUID = tag.getUUID("OwnerUUID");
+	public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag tag = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+		super.readAdditionalSaveData(dmz$input);
+		if (com.dragonminez.platform.nbt.NbtCompat.hasUUID(tag, "OwnerUUID")) ownerUUID = com.dragonminez.platform.nbt.NbtCompat.getUUID(tag, "OwnerUUID");
 	}
 
 	public void markSpawned() {
-		if (!this.level().isClientSide) GLOBAL_LIVE_IDS.add(this.getUUID());
+		if (!this.level().isClientSide()) GLOBAL_LIVE_IDS.add(this.getUUID());
 	}
 
 	@Override
 	public void remove(RemovalReason reason) {
 		super.remove(reason);
 
-		if (!this.level().isClientSide && reason.shouldDestroy()) {
+		if (!this.level().isClientSide() && reason.shouldDestroy()) {
 			GLOBAL_LIVE_IDS.remove(this.getUUID());
 			BioAndroidEvolution.onCellJrRemoved(this);
 		}

@@ -45,10 +45,10 @@ public class NPCPlacementSavedData extends SavedData {
 
 	public static NPCPlacementSavedData load(CompoundTag tag, HolderLookup.Provider registries) {
 		NPCPlacementSavedData data = new NPCPlacementSavedData();
-		CompoundTag placementsTag = tag.getCompound(PLACEMENTS_KEY);
-		for (String placementId : placementsTag.getAllKeys()) {
+		CompoundTag placementsTag = tag.getCompoundOrEmpty(PLACEMENTS_KEY);
+		for (String placementId : placementsTag.keySet()) {
 			try {
-				data.placements.put(placementId, UUID.fromString(placementsTag.getString(placementId)));
+				data.placements.put(placementId, UUID.fromString(placementsTag.getStringOr(placementId, "")));
 			} catch (IllegalArgumentException ignored) {
 			}
 		}

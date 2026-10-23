@@ -9,23 +9,23 @@ import com.dragonminez.mixin.client.LivingEntityRendererAccessor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.layers.*;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.util.Mth;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
 import java.util.List;
 import java.util.Set;
 
-public class DMZThirdPartyLayerForwarder<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T> {
+public class DMZThirdPartyLayerForwarder<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 
 	private static final Set<Class<?>> VANILLA_LAYER_CLASSES = Set.of(
 			HumanoidArmorLayer.class,
@@ -41,7 +41,7 @@ public class DMZThirdPartyLayerForwarder<T extends AbstractClientPlayer & GeoAni
 			BeeStingerLayer.class
 	);
 
-	public DMZThirdPartyLayerForwarder(GeoRenderer<T> renderer) {
+	public DMZThirdPartyLayerForwarder(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderer) {
 		super(renderer);
 	}
 
@@ -67,7 +67,7 @@ public class DMZThirdPartyLayerForwarder<T extends AbstractClientPlayer & GeoAni
 		if (layers == null || layers.isEmpty()) return;
 
 		BakedGeoModel geoModel = this.getRenderer().getGeoModel().getBakedModel(this.getRenderer().getGeoModel().getModelResource(animatable));
-		PlayerModel<AbstractClientPlayer> vanillaModel = playerRenderer.getModel();
+		PlayerModel vanillaModel = playerRenderer.getModel();
 		if (geoModel == null) return;
 
 		VanillaModelSync.sync(geoModel, vanillaModel, animatable);
@@ -97,8 +97,8 @@ public class DMZThirdPartyLayerForwarder<T extends AbstractClientPlayer & GeoAni
 
 			poseStack.pushPose();
 			try {
-				RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> typedLayer =
-						(RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>>) layer;
+				RenderLayer<AbstractClientPlayer, PlayerModel> typedLayer =
+						(RenderLayer<AbstractClientPlayer, PlayerModel>) layer;
 
 				typedLayer.render(poseStack, bufferSource, packedLight, animatable,
 						limbSwing, limbSwingAmount, partialTick, ageInTicks,

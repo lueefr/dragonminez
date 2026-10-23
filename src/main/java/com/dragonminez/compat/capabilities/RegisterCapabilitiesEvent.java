@@ -1,6 +1,6 @@
 package com.dragonminez.compat.capabilities;
 
-import net.neoforged.bus.api.Event;
+import com.dragonminez.platform.event.Event;
 import net.neoforged.fml.event.IModBusEvent;
 
 /**

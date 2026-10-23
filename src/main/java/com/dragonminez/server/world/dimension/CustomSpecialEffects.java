@@ -14,7 +14,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
-import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.fog.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.resources.Identifier;
@@ -26,7 +26,7 @@ import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RegisterDimensionSpecialEffectsEvent;
-import net.neoforged.neoforge.client.event.ViewportEvent;
+import com.dragonminez.platform.event.client.ViewportEvent;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -178,7 +178,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 	}
 
 	protected static boolean skyBlockedByEffect(Camera camera) {
-		return camera.getEntity() instanceof LivingEntity living
+		return camera.entity() instanceof LivingEntity living
 				&& (living.hasEffect(MobEffects.BLINDNESS) || living.hasEffect(MobEffects.DARKNESS));
 	}
 
@@ -188,7 +188,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		if (event.getCamera().getFluidInCamera() != FogType.NONE || skyBlockedByEffect(event.getCamera())) return;
 		float night = DragonSkyState.darkness((float) event.getPartialTick());
 		if (night <= 0.0F) return;
-		Vec3 fog = effects.dragonNightFogColor(event.getCamera().getPosition().y);
+		Vec3 fog = effects.dragonNightFogColor(event.getCamera().position().y);
 		if (fog == null) return;
 		event.setRed(Mth.lerp(night, event.getRed(), (float) fog.x));
 		event.setGreen(Mth.lerp(night, event.getGreen(), (float) fog.y));
@@ -283,7 +283,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		FogType fluid = camera.getFluidInCamera();
 		if (isFoggy || fluid == FogType.POWDER_SNOW || fluid == FogType.LAVA || skyBlockedByEffect(camera)) return true;
 
-		Vec3 sky = level.getSkyColor(camera.getPosition(), partialTick).lerp(nightSky, night);
+		Vec3 sky = level.getSkyColor(camera.position(), partialTick).lerp(nightSky, night);
 		FogRenderer.levelFogColor();
 		RenderSystem.depthMask(false);
 		RenderSystem.setShader(GameRenderer::getPositionShader);
@@ -306,7 +306,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		RenderSystem.disableBlend();
 		RenderSystem.defaultBlendFunc();
-		if (camera.getEntity().getEyePosition(partialTick).y - level.getLevelData().getHorizonHeight(level) < 0.0D) {
+		if (camera.entity().getEyePosition(partialTick).y - level.getLevelData().getHorizonHeight(level) < 0.0D) {
 			RenderSystem.setShader(GameRenderer::getPositionShader);
 			RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
 			poseStack.pushPose();
@@ -558,10 +558,10 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 			Minecraft mc = Minecraft.getInstance();
 			if (mc.level == null || !OtherworldDimension.OTHERWORLD_KEY.equals(mc.level.dimension())) return;
 			if (event.getCamera().getFluidInCamera() != FogType.NONE) return;
-			if (event.getCamera().getEntity() instanceof LivingEntity living
+			if (event.getCamera().entity() instanceof LivingEntity living
 					&& (living.hasEffect(MobEffects.BLINDNESS) || living.hasEffect(MobEffects.DARKNESS))) return;
 
-			Vec3 color = horizonColor(event.getCamera().getPosition().y);
+			Vec3 color = horizonColor(event.getCamera().position().y);
 			event.setRed((float) color.x);
 			event.setGreen((float) color.y);
 			event.setBlue((float) color.z);
@@ -569,7 +569,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 
 		@Override
 		public Vec3 getBrightnessDependentFogColor(Vec3 biomeFogColor, float daylight) {
-			return horizonColor(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().y);
+			return horizonColor(Minecraft.getInstance().gameRenderer.getMainCamera().position().y);
 		}
 
 		@Override
@@ -591,7 +591,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		public boolean renderSky(ClientLevel level, int ticks, float partialTick, Matrix4f modelViewMatrix, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
             PoseStack poseStack = new PoseStack();
             poseStack.mulPose(modelViewMatrix);
-			double[] weights = layerWeights(camera.getPosition().y);
+			double[] weights = layerWeights(camera.position().y);
 			float hell = (float) weights[0];
 			float cloud = (float) weights[1];
 			float tournament = (float) weights[2];
@@ -697,9 +697,9 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		public static void adjustFog(ViewportEvent.RenderFog event) {
 			Minecraft mc = Minecraft.getInstance();
 			if (mc.level == null || !DemonRealmDimension.DEMON_REALM_KEY.equals(mc.level.dimension())) return;
-			if (event.getMode() != FogRenderer.FogMode.FOG_TERRAIN || event.getType() != FogType.NONE) return;
+			if (event.getMode() != FogRenderer.FogMode.WORLD || event.getType() != FogType.NONE) return;
 
-			double[] weights = layerWeights(event.getCamera().getPosition().y);
+			double[] weights = layerWeights(event.getCamera().position().y);
 			float near = event.getNearPlaneDistance();
 			float lightHaze = Math.min(near, event.getFarPlaneDistance() * LIGHT_HAZE_START);
 			float target = (float) (weights[0] * near + (weights[1] + weights[2]) * lightHaze);
@@ -711,7 +711,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 
 		@Override
 		public Vec3 getBrightnessDependentFogColor(Vec3 biomeFogColor, float daylight) {
-			return mix(HORIZON, layerWeights(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().y));
+			return mix(HORIZON, layerWeights(Minecraft.getInstance().gameRenderer.getMainCamera().position().y));
 		}
 
 		@Override
@@ -733,7 +733,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		public boolean renderSky(ClientLevel level, int ticks, float partialTick, Matrix4f modelViewMatrix, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
             PoseStack poseStack = new PoseStack();
             poseStack.mulPose(modelViewMatrix);
-			double[] weights = layerWeights(camera.getPosition().y);
+			double[] weights = layerWeights(camera.position().y);
 			float night = DragonSkyState.darkness(partialTick);
 
 			RenderSystem.depthMask(false);

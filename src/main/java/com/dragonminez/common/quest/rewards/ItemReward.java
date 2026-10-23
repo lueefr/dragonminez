@@ -11,7 +11,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 @Getter
 
 public class ItemReward extends QuestReward {
@@ -31,7 +30,7 @@ public class ItemReward extends QuestReward {
 
 	@Override
 	public void giveReward(ServerPlayer player, double rewardMultiplier) {
-		Item item = BuiltInRegistries.ITEM.get(Identifier.parse(itemId));
+		Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(itemId));
 		if (item == null) return;
 		int scaledCount = scaledCount(rewardMultiplier);
 		if (scaledCount <= 0) return;
@@ -69,7 +68,7 @@ public class ItemReward extends QuestReward {
 	public MutableComponent itemName() {
 		Identifier id = Identifier.tryParse(itemId);
 		if (id == null) return Component.literal(itemId);
-		Item item = BuiltInRegistries.ITEM.get(id);
+		Item item = BuiltInRegistries.ITEM.getValue(id);
 		if (item == null || item == Items.AIR) return Component.translatable("item." + id.toLanguageKey());
 		return new ItemStack(item).getHoverName().copy();
 	}

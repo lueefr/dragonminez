@@ -31,20 +31,15 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import com.dragonminez.platform.event.tick.ServerTickEvent;
+import com.dragonminez.platform.event.tick.LevelTickEvent;
+import com.dragonminez.platform.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.item.ItemExpireEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.level.ChunkEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.level.ChunkEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -146,7 +141,7 @@ public class DragonBallsHandler {
 		boolean active = isDragonSkyActive(level);
 		Boolean previous = DRAGON_SKY.put(level, active);
 		if (previous == null ? !active : previous == active) return;
-		DragonSkyS2C packet = new DragonSkyS2C(level.dimension().location(), active);
+		DragonSkyS2C packet = new DragonSkyS2C(level.dimension().identifier(), active);
 		for (ServerPlayer player : level.players()) NetworkHandler.sendToPlayer(packet, player);
 	}
 
@@ -158,8 +153,8 @@ public class DragonBallsHandler {
 	}
 
 	private static void syncDragonSky(ServerPlayer player) {
-		ServerLevel level = player.serverLevel();
-		NetworkHandler.sendToPlayer(new DragonSkyS2C(level.dimension().location(), isDragonSkyActive(level)), player);
+		ServerLevel level = player.level();
+		NetworkHandler.sendToPlayer(new DragonSkyS2C(level.dimension().identifier(), isDragonSkyActive(level)), player);
 	}
 
 	private static void addPendingBall(ServerLevel level, DragonBallSavedData data, DragonBallSetDefinition definition, int star) {
@@ -425,7 +420,7 @@ public class DragonBallsHandler {
 
 	public static void syncRadarForPlayer(ServerPlayer player) {
 		if (player == null) return;
-		RadarSyncS2C packet = buildRadarPacket(player.serverLevel().getServer());
+		RadarSyncS2C packet = buildRadarPacket(player.level().getServer());
 		if (packet != null) NetworkHandler.sendToPlayer(packet, player);
 	}
 

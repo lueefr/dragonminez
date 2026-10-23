@@ -21,7 +21,7 @@ public class InteractObjective extends QuestObjective {
 	@Override
 	public boolean checkProgress(Object... params) {
 		if (params.length > 0 && params[0] instanceof Entity entity) {
-			EntityType<?> requiredType = entityTypeId != null ? BuiltInRegistries.ENTITY_TYPE.get(Identifier.parse(entityTypeId)) : null;
+			EntityType<?> requiredType = entityTypeId != null ? BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.parse(entityTypeId)) : null;
 			if (requiredType == null || entity.getType().equals(requiredType)) {
 				if (entityName == null || entity.getName().getString().equals(entityName)) {
 					setProgress(1);

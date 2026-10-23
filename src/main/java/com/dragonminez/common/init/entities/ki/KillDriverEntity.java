@@ -161,12 +161,12 @@ public class KillDriverEntity extends AbstractKiProjectile {
 
     private void followOwner(LivingEntity owner) {
         float raise = Mth.clamp((this.tickCount - PLAYER_RAISE_START) / (float) (PLAYER_RAISE_END - PLAYER_RAISE_START), 0.0F, 1.0F);
-        if (!this.level().isClientSide) this.setRadius(this.fullRadius * Mth.lerp(raise, FORM_SCALE, 1.0F));
+        if (!this.level().isClientSide()) this.setRadius(this.fullRadius * Mth.lerp(raise, FORM_SCALE, 1.0F));
         Vec3 facing = Vec3.directionFromRotation(0.0F, owner.getYRot());
         Vec3 center = holdPoint(owner, facing, raise, this.getSize());
         this.setPos(center.x, center.y, center.z);
         this.setDeltaMovement(Vec3.ZERO);
-        if (!this.level().isClientSide) this.setRingFacing(facing);
+        if (!this.level().isClientSide()) this.setRingFacing(facing);
     }
 
     private Vec3 aimPoint(LivingEntity owner) {
@@ -201,7 +201,7 @@ public class KillDriverEntity extends AbstractKiProjectile {
         if (charging) {
             if (this.getOwner() instanceof LivingEntity owner && owner.isAlive()) {
                 this.followOwner(owner);
-            } else if (!this.level().isClientSide) {
+            } else if (!this.level().isClientSide()) {
                 this.discard();
                 return;
             }
@@ -214,7 +214,7 @@ public class KillDriverEntity extends AbstractKiProjectile {
 
     @Override
     protected void onKiTick() {
-        if (this.level().isClientSide || this.exploded) return;
+        if (this.level().isClientSide() || this.exploded) return;
 
         if (!this.isFiring()) {
             if (this.isPlayerCharging()) return;
@@ -253,12 +253,12 @@ public class KillDriverEntity extends AbstractKiProjectile {
 
     @Override
     protected void onHitEntity(EntityHitResult pResult) {
-        if (!this.level().isClientSide && this.isFiring() && this.shouldDamage(pResult.getEntity())) this.explode();
+        if (!this.level().isClientSide() && this.isFiring() && this.shouldDamage(pResult.getEntity())) this.explode();
     }
 
     @Override
     protected void onHitBlock(BlockHitResult pResult) {
-        if (!this.level().isClientSide && this.isFiring()) this.explode();
+        if (!this.level().isClientSide() && this.isFiring()) this.explode();
     }
 
     private void explode() {

@@ -3,9 +3,9 @@ package com.dragonminez.common.init.item.render;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.item.GravityDeviceItem;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class GravityDeviceItemModel extends GeoModel<GravityDeviceItem> {
+public class GravityDeviceItemModel extends ExtractedGeoModel<GravityDeviceItem> {
 	@Override
 	public Identifier getModelResource(GravityDeviceItem animatable) {
 		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/block/gravitydevice.geo.json");

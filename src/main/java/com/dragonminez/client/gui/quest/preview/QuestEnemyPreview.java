@@ -22,8 +22,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.registries.BuiltInRegistries;
 import org.joml.Quaternionf;
 
@@ -42,7 +42,7 @@ import java.util.Set;
  * target of the selected quest. Hovering the model eases in a stats/threats card
  * showing Battle Power, Health and the enemy's attacks/threats.
  */
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public class QuestEnemyPreview {
 
 	private static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
@@ -394,7 +394,7 @@ public class QuestEnemyPreview {
 			return null;
 		}
 		Identifier rl = Identifier.tryParse(id);
-		return rl == null ? null : BuiltInRegistries.ENTITY_TYPE.get(rl);
+		return rl == null ? null : BuiltInRegistries.ENTITY_TYPE.getValue(rl);
 	}
 
 	/** Discard cached dummy entities (call on screen close). */

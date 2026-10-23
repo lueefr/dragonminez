@@ -1,6 +1,6 @@
 package com.dragonminez.common.passives;
 
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import com.dragonminez.platform.event.living.LivingIncomingDamageEvent;
 import com.dragonminez.Reference;
 import com.dragonminez.common.combat.SilentDamage;
 import com.dragonminez.common.events.DMZEvent;
@@ -12,18 +12,13 @@ import com.dragonminez.common.stats.StatsProvider;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.PlayerTickEvent;
+import com.dragonminez.platform.event.living.LivingDeathEvent;
+import com.dragonminez.platform.event.living.LivingHealEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
 import java.util.List;
 
@@ -34,7 +29,7 @@ public class PassiveEventHandler {
 
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Post event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
 		StatsData data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
@@ -111,7 +106,7 @@ public class PassiveEventHandler {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void onLivingHurt(LivingIncomingDamageEvent event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 
 		if (event.getSource().getEntity() instanceof ServerPlayer attacker) {
 			applyPaladinLifesteal(attacker, event.getEntity(), event.getAmount());
@@ -135,8 +130,8 @@ public class PassiveEventHandler {
 	}
 
 	private static void applyPaladinRedirect(ServerPlayer victim, LivingIncomingDamageEvent event) {
-		boolean hasRaw = victim.getPersistentData().contains("dmz_raw_damage");
-		double raw = hasRaw ? victim.getPersistentData().getDouble("dmz_raw_damage") : event.getAmount();
+		boolean hasRaw = com.dragonminez.platform.entity.EntityData.get(victim).contains("dmz_raw_damage");
+		double raw = hasRaw ? com.dragonminez.platform.entity.EntityData.get(victim).getDoubleOr("dmz_raw_damage", 0D) : event.getAmount();
 
 		if (raw < victim.getMaxHealth() * 0.01f) return;
 
@@ -163,7 +158,7 @@ public class PassiveEventHandler {
 			}
 		}
 
-		if (hasRaw) victim.getPersistentData().putDouble("dmz_raw_damage", Math.max(0.0, raw - redirect));
+		if (hasRaw) com.dragonminez.platform.entity.EntityData.get(victim).putDouble("dmz_raw_damage", Math.max(0.0, raw - redirect));
 		else event.setAmount((float) Math.max(0.0, raw - redirect));
 
 		SilentDamage.apply(paladin, taken);
@@ -190,7 +185,7 @@ public class PassiveEventHandler {
 
 	@SubscribeEvent
 	public static void onLivingHeal(LivingHealEvent event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 		if (suppressHealingBonus) return;
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 

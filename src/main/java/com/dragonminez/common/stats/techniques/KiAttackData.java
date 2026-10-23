@@ -567,24 +567,24 @@ public class KiAttackData extends TechniqueData {
 
 	@Override
 	public void load(CompoundTag tag) {
-		this.id = tag.getString("Id");
-		this.name = tag.getString("Name");
-		this.author = tag.getString("Author");
-		this.experience = tag.getInt("Experience");
-		this.baseCost = tag.getDouble("BaseCost");
-		this.tpCost = tag.contains("TpCost") ? tag.getFloat("TpCost") : 0;
-		this.castTime = tag.getInt("CastTime");
-		this.cooldown = tag.getInt("Cooldown");
+		this.id = tag.getStringOr("Id", "");
+		this.name = tag.getStringOr("Name", "");
+		this.author = tag.getStringOr("Author", "");
+		this.experience = tag.getIntOr("Experience", 0);
+		this.baseCost = tag.getDoubleOr("BaseCost", 0D);
+		this.tpCost = tag.contains("TpCost") ? tag.getFloatOr("TpCost", 0F) : 0;
+		this.castTime = tag.getIntOr("CastTime", 0);
+		this.cooldown = tag.getIntOr("Cooldown", 0);
 
 		this.allowedRaces.clear();
-		ListTag racesTag = tag.getList("AllowedRaces", 8);
+		ListTag racesTag = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "AllowedRaces", 8);
 		for (int i = 0; i < racesTag.size(); i++) {
-			this.allowedRaces.add(racesTag.getString(i));
+			this.allowedRaces.add(racesTag.getStringOr(i, ""));
 		}
 
-		try { this.kiType = KiType.valueOf(tag.getString("KiType")); } catch (Exception e) { this.kiType = KiType.SMALL_BALL; }
-		this.animation = tag.getString("Animation");
-		try { this.utility = Utility.valueOf(tag.getString("Utility")); } catch (Exception e) { this.utility = Utility.DAMAGE; }
+		try { this.kiType = KiType.valueOf(tag.getStringOr("KiType", "")); } catch (Exception e) { this.kiType = KiType.SMALL_BALL; }
+		this.animation = tag.getStringOr("Animation", "");
+		try { this.utility = Utility.valueOf(tag.getStringOr("Utility", "")); } catch (Exception e) { this.utility = Utility.DAMAGE; }
 		if (this.utility == Utility.HEAL && !allowsHealUtility(this.kiType)) this.utility = Utility.DAMAGE;
 
 		if ((this.animation == null || this.animation.isEmpty()) && PredefinedTechniques.isPredefinedTechniqueId(this.id)) {
@@ -592,9 +592,9 @@ public class KiAttackData extends TechniqueData {
 			if (predefined != null) this.animation = predefined.getAnimation();
 		}
 
-		this.colorInterior = tag.getInt("ColorInterior");
-		this.colorExterior = tag.getInt("ColorExterior");
-		this.colorOutline = tag.getInt("ColorOutline");
+		this.colorInterior = tag.getIntOr("ColorInterior", 0);
+		this.colorExterior = tag.getIntOr("ColorExterior", 0);
+		this.colorOutline = tag.getIntOr("ColorOutline", 0);
 
 		if (PredefinedTechniques.isPredefinedTechniqueId(this.id)) {
 			KiAttackData predefined = PredefinedTechniques.REGISTRY.get(this.id);
@@ -604,16 +604,16 @@ public class KiAttackData extends TechniqueData {
 				this.colorOutline = predefined.getColorOutline();
 			}
 		}
-		this.damageMultiplier = tag.getFloat("DamageMultiplier");
-		this.speed = tag.getFloat("Speed");
-		this.size = tag.getFloat("Size");
-		this.armorPenetration = tag.getInt("ArmorPenetration");
-		this.armorPenLevel = tag.getInt("ArmorPenLevel");
-		this.damageLevel = tag.getInt("DamageLevel");
-		this.castTimeLevel = tag.getInt("CastTimeLevel");
-		this.cooldownLevel = tag.getInt("CooldownLevel");
-		this.speedLevel = tag.getInt("SpeedLevel");
-		this.sizeLevel = tag.getInt("SizeLevel");
+		this.damageMultiplier = tag.getFloatOr("DamageMultiplier", 0F);
+		this.speed = tag.getFloatOr("Speed", 0F);
+		this.size = tag.getFloatOr("Size", 0F);
+		this.armorPenetration = tag.getIntOr("ArmorPenetration", 0);
+		this.armorPenLevel = tag.getIntOr("ArmorPenLevel", 0);
+		this.damageLevel = tag.getIntOr("DamageLevel", 0);
+		this.castTimeLevel = tag.getIntOr("CastTimeLevel", 0);
+		this.cooldownLevel = tag.getIntOr("CooldownLevel", 0);
+		this.speedLevel = tag.getIntOr("SpeedLevel", 0);
+		this.sizeLevel = tag.getIntOr("SizeLevel", 0);
 
 		KiAttackData template = PredefinedTechniques.REGISTRY.get(this.id);
 		if (template != null && template != this) {
@@ -624,13 +624,13 @@ public class KiAttackData extends TechniqueData {
 			this.cooldown = template.getCooldown();
 		}
 
-		try { this.secondaryEffectType = SecondaryEffectType.valueOf(tag.getString("SecondaryEffectType")); }
+		try { this.secondaryEffectType = SecondaryEffectType.valueOf(tag.getStringOr("SecondaryEffectType", "")); }
 		catch (Exception e) { this.secondaryEffectType = SecondaryEffectType.NONE; }
-		String affected = tag.getString("AffectedStat");
+		String affected = tag.getStringOr("AffectedStat", "");
 		if (affected == null || affected.isEmpty()) this.affectedStat = null;
 		else try { this.affectedStat = AffectedStat.valueOf(affected); } catch (Exception e) { this.affectedStat = null; }
-		setSecondaryIntensity(tag.getFloat("SecondaryIntensity"));
-		setSecondaryDuration(tag.getInt("SecondaryDuration"));
+		setSecondaryIntensity(tag.getFloatOr("SecondaryIntensity", 0F));
+		setSecondaryDuration(tag.getIntOr("SecondaryDuration", 0));
 	}
 
 	public static float[] normalizeStatsForType(KiType type, float damage, float size, float speed, int armorPen) {

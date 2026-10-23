@@ -15,7 +15,6 @@ import com.dragonminez.client.util.ScrollbarState;
 import com.dragonminez.client.util.TextUtil;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.FormConfig;
-import com.dragonminez.common.config.SkillsConfig;
 import com.dragonminez.common.init.MainItems;
 import com.dragonminez.common.init.MainSounds;
 import com.dragonminez.common.network.C2S.AcceptPartyInviteC2S;
@@ -66,8 +65,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.joml.Matrix4f;
 import org.jetbrains.annotations.NotNull;
 
@@ -81,7 +80,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public class QuestTreeScreen extends BaseMenuScreen {
 
 	private static final Identifier BUTTONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
@@ -2355,7 +2354,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		switch (reward.getType()) {
 			case ITEM -> {
 				if (reward instanceof ItemReward itemReward) {
-					Item item = BuiltInRegistries.ITEM.get(Identifier.parse(itemReward.getItemId()));
+					Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(itemReward.getItemId()));
 					return new ItemStack(item, Math.max(1, itemReward.getCount()));
 				}
 				return null;

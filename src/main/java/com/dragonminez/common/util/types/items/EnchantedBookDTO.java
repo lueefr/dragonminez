@@ -7,8 +7,6 @@ import lombok.Setter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentInstance;
 
 import java.util.Map;
 

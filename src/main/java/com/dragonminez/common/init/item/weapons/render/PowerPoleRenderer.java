@@ -7,12 +7,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.renderer.GeoItemRenderer;
 
 public class PowerPoleRenderer extends GeoItemRenderer<PowerPoleItem> {
@@ -81,6 +81,6 @@ public class PowerPoleRenderer extends GeoItemRenderer<PowerPoleItem> {
 
 	@Override
 	public RenderType getRenderType(PowerPoleItem animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-		return RenderType.entityCutoutNoCull(texture);
+		return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture);
 	}
 }

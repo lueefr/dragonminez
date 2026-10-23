@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import com.geckolib.renderer.GeoBlockRenderer;
 
-public class PatternStationBlockRenderer extends GeoBlockRenderer<PatternStationBlockEntity> {
+public class PatternStationBlockRenderer extends GeoBlockRenderer<PatternStationBlockEntity, net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState> {
 	public PatternStationBlockRenderer(BlockEntityRendererProvider.Context context) {
 		super(new PatternStationBlockModel());
 	}

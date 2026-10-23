@@ -6,7 +6,6 @@ import com.dragonminez.common.config.RaidDefinition;
 import lombok.Getter;
 import net.minecraft.network.chat.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 @Getter
 

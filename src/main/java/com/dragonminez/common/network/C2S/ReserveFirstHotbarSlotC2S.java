@@ -28,14 +28,14 @@ public class ReserveFirstHotbarSlotC2S {
 		ctx.get().enqueueWork(() -> {
 			ServerPlayer player = ctx.get().getSender();
 			if (player == null) return;
-			CompoundTag persisted = player.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
+			CompoundTag persisted = com.dragonminez.platform.entity.EntityData.get(player).getCompoundOrEmpty(Player.PERSISTED_NBT_TAG);
 			persisted.putBoolean(PLAYER_DATA_KEY, this.enabled);
-			player.getPersistentData().put(Player.PERSISTED_NBT_TAG, persisted);
+			com.dragonminez.platform.entity.EntityData.get(player).put(Player.PERSISTED_NBT_TAG, persisted);
 		});
 		ctx.get().setPacketHandled(true);
 	}
 
 	public static boolean isReserved(Player player) {
-		return player.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG).getBoolean(PLAYER_DATA_KEY);
+		return com.dragonminez.platform.entity.EntityData.get(player).getCompoundOrEmpty(Player.PERSISTED_NBT_TAG).getBoolean(PLAYER_DATA_KEY);
 	}
 }

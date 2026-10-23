@@ -23,6 +23,8 @@ public final class NetworkRegistry {
 	public static final class ChannelBuilder {
 		private final Identifier name;
         private Supplier<String> version = () -> "1";
+        private Predicate<String> clientAccepted = remote -> version.get().equals(remote);
+        private Predicate<String> serverAccepted = remote -> version.get().equals(remote);
 
 		private ChannelBuilder(Identifier name) {
 			this.name = name;
@@ -38,15 +40,17 @@ public final class NetworkRegistry {
 		}
 
 		public ChannelBuilder clientAcceptedVersions(Predicate<String> accepted) {
+            this.clientAccepted = accepted;
 			return this;
 		}
 
 		public ChannelBuilder serverAcceptedVersions(Predicate<String> accepted) {
+            this.serverAccepted = accepted;
 			return this;
 		}
 
 		public SimpleChannel simpleChannel() {
-			return new SimpleChannel(name, version);
+			return new SimpleChannel(name, version, clientAccepted, serverAccepted);
 		}
 	}
 }

@@ -10,18 +10,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import net.minecraft.core.registries.BuiltInRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = EnvType.CLIENT)
 public class GlobalTooltipEnhancer {
 
 	@SubscribeEvent
@@ -50,7 +49,7 @@ public class GlobalTooltipEnhancer {
 						for (var entry : enchantments.entrySet()) {
 							var holder = entry.getKey();
 							String descId = holder.unwrapKey()
-									.map(key -> net.minecraft.Util.makeDescriptionId("enchantment", key.location()))
+									.map(key -> net.minecraft.Util.makeDescriptionId("enchantment", key.identifier()))
 									.orElse("");
 							if (t.getKey().equals(descId)) {
 								List<Component> descList = new ArrayList<>();

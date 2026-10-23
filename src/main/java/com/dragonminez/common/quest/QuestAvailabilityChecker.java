@@ -32,7 +32,7 @@ public class QuestAvailabilityChecker {
 		if (!quest.hasStartRequirements()) return true;
 		if (player == null) return false;
 
-		if (!player.level().isClientSide) {
+		if (!player.level().isClientSide()) {
 			primeStartRequirementTiming(quest, questKey, player, statsData);
 		}
 		return evaluate(quest.getStartRequirements(), new EvaluationContext(statsData, player, questKey), EvalOptions.STRICT);
@@ -50,7 +50,7 @@ public class QuestAvailabilityChecker {
 
 	public static boolean primeStartRequirementTiming(Quest quest, String questKey, Player player, StatsData statsData) {
 		if (quest == null || statsData == null || player == null) return false;
-		if (player.level().isClientSide) return false;
+		if (player.level().isClientSide()) return false;
 		if (!quest.hasStartRequirements() || questKey == null || questKey.isBlank()) return false;
 		if (!containsTimeCondition(quest.getStartRequirements())) return false;
 
@@ -129,7 +129,7 @@ public class QuestAvailabilityChecker {
 		if (quest == null || statsData == null || !quest.hasStartRequirements() || player == null) {
 			return null;
 		}
-		if (primeTiming && !player.level().isClientSide) {
+		if (primeTiming && !player.level().isClientSide()) {
 			primeStartRequirementTiming(quest, questKey, player, statsData);
 		}
 		return describeFailure(quest.getStartRequirements(), new EvaluationContext(statsData, player, questKey), options);
@@ -279,10 +279,10 @@ public class QuestAvailabilityChecker {
 					yield null;
 				}
 				yield level.getBiome(pos).unwrapKey()
-						.map(key -> QuestTextFormatter.resolveBiomeName(key.location().toString()))
+						.map(key -> QuestTextFormatter.resolveBiomeName(key.identifier().toString()))
 						.orElse(null);
 			}
-			case DIMENSION -> QuestTextFormatter.resolveDimensionName(level.dimension().location().toString());
+			case DIMENSION -> QuestTextFormatter.resolveDimensionName(level.dimension().identifier().toString());
 			default -> null;
 		};
 	}

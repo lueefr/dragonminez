@@ -15,8 +15,7 @@ import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 public class DMZBlockStateProvider extends BlockStateProvider {
 	public DMZBlockStateProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
@@ -191,17 +190,17 @@ public class DMZBlockStateProvider extends BlockStateProvider {
 	private void blockWithItem(DeferredHolder<Block, ? extends Block> blockDeferredHolder) {
 		simpleBlockWithItem(blockDeferredHolder.get(), cubeAll(blockDeferredHolder.get()));
 	}
-	
+
 	private void grassBlock(DeferredHolder<Block, ? extends Block> blockDeferredHolder) {
 		String path = BuiltInRegistries.BLOCK.getKey(blockDeferredHolder.get()).getPath();
 		Identifier bottom = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_down");
 		Identifier top = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_top");
 		Identifier side = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_side");
-		
+
 		simpleBlockWithItem(blockDeferredHolder.get(),
 			models().cubeBottomTop(path, side, bottom, top));
 	}
-	
+
 	private void blockItem(DeferredHolder<Block, ? extends Block> blockDeferredHolder) {
 		simpleBlockItem(blockDeferredHolder.get(), new ModelFile.UncheckedModelFile(Reference.MOD_ID +
 				":block/" + BuiltInRegistries.BLOCK.getKey(blockDeferredHolder.get()).getPath()));

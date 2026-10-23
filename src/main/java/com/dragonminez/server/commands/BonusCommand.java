@@ -42,10 +42,10 @@ public class BonusCommand {
 				List<String> bonusNames = new ArrayList<>();
 
 				if (tag.contains(stat)) {
-					ListTag list = tag.getList(stat, 10);
+					ListTag list = com.dragonminez.platform.nbt.NbtCompat.getList(tag, stat, 10);
 					for (int i = 0; i < list.size(); i++) {
-						CompoundTag bonusTag = list.getCompound(i);
-						if (bonusTag.contains("Name")) bonusNames.add(bonusTag.getString("Name"));
+						CompoundTag bonusTag = list.getCompoundOrEmpty(i);
+						if (bonusTag.contains("Name")) bonusNames.add(bonusTag.getStringOr("Name", ""));
 					}
 				}
 				return SharedSuggestionProvider.suggest(bonusNames, builder);

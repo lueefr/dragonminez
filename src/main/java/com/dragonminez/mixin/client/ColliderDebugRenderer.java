@@ -9,7 +9,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
@@ -46,7 +46,7 @@ public class ColliderDebugRenderer {
 		OrientedBoundingBox obb = targetResult.obb;
 		List<AABB> targetBoxes = targetResult.entities.stream().map(Entity::getBoundingBox).toList();
 
-		VertexConsumer consumer = bufferSource.getBuffer(RenderType.lines());
+		VertexConsumer consumer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lines());
 		Matrix4f matrix = poseStack.last().pose();
 
 		float r = 0.0F, g = 1.0F, b = 1.0F, a = 1.0F;

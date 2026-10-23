@@ -38,7 +38,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
@@ -399,35 +399,35 @@ public final class Tournament {
 
 		public static Bracket load(CompoundTag tag) {
 			Bracket bracket = new Bracket();
-			bracket.tournamentId = tag.getString("tournament");
+			bracket.tournamentId = tag.getStringOr("tournament", "");
 			try {
-				String stored = tag.getString("format");
+				String stored = tag.getStringOr("format", "");
 				if (!stored.isEmpty()) bracket.format = TournamentDefinition.Format.valueOf(stored);
 			} catch (IllegalArgumentException ignored) {
 			}
-			bracket.round = tag.getInt("round");
-			bracket.eliminated = tag.getBoolean("eliminated");
-			bracket.completed = tag.getBoolean("completed");
-			bracket.semifinalist = tag.getString("semifinalist");
-			bracket.finalist = tag.getString("finalist");
-			bracket.champion = tag.getString("champion");
+			bracket.round = tag.getIntOr("round", 0);
+			bracket.eliminated = tag.getBooleanOr("eliminated", false);
+			bracket.completed = tag.getBooleanOr("completed", false);
+			bracket.semifinalist = tag.getStringOr("semifinalist", "");
+			bracket.finalist = tag.getStringOr("finalist", "");
+			bracket.champion = tag.getStringOr("champion", "");
 
-			ListTag sourceList = tag.getList("sources", Tag.TAG_COMPOUND);
+			ListTag sourceList = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "sources", Tag.TAG_COMPOUND);
 			for (int i = 0; i < sourceList.size(); i++) {
-				CompoundTag stored = sourceList.getCompound(i);
-				bracket.sources.put(stored.getString("id"), stored.getInt("source"));
+				CompoundTag stored = sourceList.getCompoundOrEmpty(i);
+				bracket.sources.put(stored.getStringOr("id", ""), stored.getIntOr("source", 0));
 			}
 
-			ListTag seedList = tag.getList("seeds", Tag.TAG_COMPOUND);
+			ListTag seedList = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "seeds", Tag.TAG_COMPOUND);
 			for (int i = 0; i < seedList.size(); i++) {
-				bracket.seeds.add(seedList.getCompound(i).getString("id"));
+				bracket.seeds.add(seedList.getCompoundOrEmpty(i).getString("id"));
 			}
 
-			ListTag winnerRounds = tag.getList("winners", Tag.TAG_COMPOUND);
+			ListTag winnerRounds = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "winners", Tag.TAG_COMPOUND);
 			for (int r = 0; r < winnerRounds.size(); r++) {
 				List<String> roundWinners = new ArrayList<>();
-				ListTag ids = winnerRounds.getCompound(r).getList("ids", Tag.TAG_COMPOUND);
-				for (int i = 0; i < ids.size(); i++) roundWinners.add(ids.getCompound(i).getString("id"));
+				ListTag ids = winnerRounds.getCompoundOrEmpty(r).getList("ids", Tag.TAG_COMPOUND);
+				for (int i = 0; i < ids.size(); i++) roundWinners.add(ids.getCompoundOrEmpty(i).getString("id"));
 				bracket.winners.add(roundWinners);
 			}
 			return bracket;
@@ -557,7 +557,7 @@ public final class Tournament {
 		public CompoundTag save() {
 			CompoundTag tag = new CompoundTag();
 			tag.putString("tournament", tournamentId);
-			if (partyId != null) tag.putUUID("party", partyId);
+			if (partyId != null) com.dragonminez.platform.nbt.NbtCompat.putUUID(tag, "party", partyId);
 
 			tag.put("participants", uuidList(participants));
 			tag.put("eliminated", uuidList(eliminated));
@@ -566,9 +566,9 @@ public final class Tournament {
 			tag.put("ready", uuidList(ready));
 			tag.put("bracket", bracket.save());
 
-			if (activeFighter != null) tag.putUUID("active", activeFighter);
-			if (activeRival != null) tag.putUUID("rival", activeRival);
-			if (standingOpponent != null) tag.putUUID("standing", standingOpponent);
+			if (activeFighter != null) com.dragonminez.platform.nbt.NbtCompat.putUUID(tag, "active", activeFighter);
+			if (activeRival != null) com.dragonminez.platform.nbt.NbtCompat.putUUID(tag, "rival", activeRival);
+			if (standingOpponent != null) com.dragonminez.platform.nbt.NbtCompat.putUUID(tag, "standing", standingOpponent);
 			tag.putString("phase", phase.name());
 			tag.putLong("phaseDeadline", phaseDeadline);
 			tag.putBoolean("revealed", revealed);
@@ -576,14 +576,14 @@ public final class Tournament {
 			tag.putInt("ringX", ringCentre.getX());
 			tag.putInt("ringY", ringCentre.getY());
 			tag.putInt("ringZ", ringCentre.getZ());
-			tag.putString("dimension", dimension.location().toString());
+			tag.putString("dimension", dimension.identifier().toString());
 			return tag;
 		}
 
 		public static Run load(CompoundTag tag) {
 			Run run = new Run();
-			run.tournamentId = tag.getString("tournament");
-			if (tag.hasUUID("party")) run.partyId = tag.getUUID("party");
+			run.tournamentId = tag.getStringOr("tournament", "");
+			if (com.dragonminez.platform.nbt.NbtCompat.hasUUID(tag, "party")) run.partyId = com.dragonminez.platform.nbt.NbtCompat.getUUID(tag, "party");
 
 			run.participants.addAll(uuids(tag, "participants"));
 			run.eliminated.addAll(uuids(tag, "eliminated"));
@@ -591,22 +591,22 @@ public final class Tournament {
 			run.declined.addAll(uuids(tag, "declined"));
 			run.ready.addAll(uuids(tag, "ready"));
 
-			if (tag.contains("bracket", Tag.TAG_COMPOUND)) run.bracket = Bracket.load(tag.getCompound("bracket"));
+			if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "bracket", Tag.TAG_COMPOUND)) run.bracket = Bracket.load(tag.getCompoundOrEmpty("bracket"));
 
-			if (tag.hasUUID("active")) run.activeFighter = tag.getUUID("active");
-			if (tag.hasUUID("rival")) run.activeRival = tag.getUUID("rival");
-			if (tag.hasUUID("standing")) run.standingOpponent = tag.getUUID("standing");
+			if (com.dragonminez.platform.nbt.NbtCompat.hasUUID(tag, "active")) run.activeFighter = com.dragonminez.platform.nbt.NbtCompat.getUUID(tag, "active");
+			if (com.dragonminez.platform.nbt.NbtCompat.hasUUID(tag, "rival")) run.activeRival = com.dragonminez.platform.nbt.NbtCompat.getUUID(tag, "rival");
+			if (com.dragonminez.platform.nbt.NbtCompat.hasUUID(tag, "standing")) run.standingOpponent = com.dragonminez.platform.nbt.NbtCompat.getUUID(tag, "standing");
 			try {
-				String stored = tag.getString("phase");
+				String stored = tag.getStringOr("phase", "");
 				if (!stored.isEmpty()) run.phase = Phase.valueOf(stored);
 			} catch (IllegalArgumentException ignored) {
 			}
-			run.phaseDeadline = tag.getLong("phaseDeadline");
-			run.revealed = tag.getBoolean("revealed");
-			run.finished = tag.getBoolean("finished");
-			run.ringCentre = new BlockPos(tag.getInt("ringX"), tag.getInt("ringY"), tag.getInt("ringZ"));
+			run.phaseDeadline = tag.getLongOr("phaseDeadline", 0L);
+			run.revealed = tag.getBooleanOr("revealed", false);
+			run.finished = tag.getBooleanOr("finished", false);
+			run.ringCentre = new BlockPos(tag.getIntOr("ringX", 0), tag.getIntOr("ringY", 0), tag.getIntOr("ringZ", 0));
 
-			Identifier dim = Identifier.tryParse(tag.getString("dimension"));
+			Identifier dim = Identifier.tryParse(tag.getStringOr("dimension", ""));
 			if (dim != null) run.dimension = ResourceKey.create(Registries.DIMENSION, dim);
 			return run;
 		}
@@ -615,7 +615,7 @@ public final class Tournament {
 			ListTag list = new ListTag();
 			for (UUID id : ids) {
 				CompoundTag entry = new CompoundTag();
-				entry.putUUID("id", id);
+				com.dragonminez.platform.nbt.NbtCompat.putUUID(entry, "id", id);
 				list.add(entry);
 			}
 			return list;
@@ -623,10 +623,10 @@ public final class Tournament {
 
 		private static List<UUID> uuids(CompoundTag tag, String key) {
 			List<UUID> ids = new ArrayList<>();
-			ListTag list = tag.getList(key, Tag.TAG_COMPOUND);
+			ListTag list = com.dragonminez.platform.nbt.NbtCompat.getList(tag, key, Tag.TAG_COMPOUND);
 			for (int i = 0; i < list.size(); i++) {
-				CompoundTag entry = list.getCompound(i);
-				if (entry.hasUUID("id")) ids.add(entry.getUUID("id"));
+				CompoundTag entry = list.getCompoundOrEmpty(i);
+				if (com.dragonminez.platform.nbt.NbtCompat.hasUUID(entry, "id")) ids.add(com.dragonminez.platform.nbt.NbtCompat.getUUID(entry, "id"));
 			}
 			return ids;
 		}
@@ -719,24 +719,24 @@ public final class Tournament {
 		public static Progress load(CompoundTag tag) {
 			Progress data = new Progress();
 
-			ListTag runList = tag.getList("runs", Tag.TAG_COMPOUND);
+			ListTag runList = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "runs", Tag.TAG_COMPOUND);
 			for (int i = 0; i < runList.size(); i++) {
-				Run run = Run.load(runList.getCompound(i));
+				Run run = Run.load(runList.getCompoundOrEmpty(i));
 				if (!run.getTournamentId().isEmpty()) data.runs.put(run.getTournamentId(), run);
 			}
 
-			ListTag cooldowns = tag.getList("cooldowns", Tag.TAG_COMPOUND);
+			ListTag cooldowns = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "cooldowns", Tag.TAG_COMPOUND);
 			for (int i = 0; i < cooldowns.size(); i++) {
-				CompoundTag entry = cooldowns.getCompound(i);
-				if (!entry.hasUUID("player") || !entry.contains("entries", Tag.TAG_LIST)) continue;
+				CompoundTag entry = cooldowns.getCompoundOrEmpty(i);
+				if (!com.dragonminez.platform.nbt.NbtCompat.hasUUID(entry, "player") || !com.dragonminez.platform.nbt.NbtCompat.contains(entry, "entries", Tag.TAG_LIST)) continue;
 
 				Map<String, Long> perTournament = new HashMap<>();
-				ListTag entries = entry.getList("entries", Tag.TAG_COMPOUND);
+				ListTag entries = com.dragonminez.platform.nbt.NbtCompat.getList(entry, "entries", Tag.TAG_COMPOUND);
 				for (int j = 0; j < entries.size(); j++) {
-					CompoundTag stored = entries.getCompound(j);
-					perTournament.put(stored.getString("tournament"), stored.getLong("until"));
+					CompoundTag stored = entries.getCompoundOrEmpty(j);
+					perTournament.put(stored.getStringOr("tournament", ""), stored.getLongOr("until", 0L));
 				}
-				if (!perTournament.isEmpty()) data.reentryAt.put(entry.getUUID("player"), perTournament);
+				if (!perTournament.isEmpty()) data.reentryAt.put(com.dragonminez.platform.nbt.NbtCompat.getUUID(entry, "player"), perTournament);
 			}
 			return data;
 		}
@@ -764,7 +764,7 @@ public final class Tournament {
 				if (entries.isEmpty()) continue;
 
 				CompoundTag playerTag = new CompoundTag();
-				playerTag.putUUID("player", playerEntry.getKey());
+				com.dragonminez.platform.nbt.NbtCompat.putUUID(playerTag, "player", playerEntry.getKey());
 				playerTag.put("entries", entries);
 				cooldowns.add(playerTag);
 			}
@@ -792,7 +792,7 @@ public final class Tournament {
 
 		@Nullable
 		public static StructureStart arenaAt(ServerLevel level, BlockPos pos) {
-			var registry = level.registryAccess().registryOrThrow(Registries.STRUCTURE);
+			var registry = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
 			for (Structure structure : level.structureManager().getAllStructuresAt(pos).keySet()) {
 				Holder<Structure> holder = registry.wrapAsHolder(structure);
 				if (!holder.is(MainTags.Structures.BUILD_PROTECTED)) continue;
@@ -876,12 +876,12 @@ public final class Tournament {
 
 		@Nullable
 		public static Bracket bracketOf(ServerPlayer player) {
-			return Progress.get(player.serverLevel()).getBracket(player.getUUID());
+			return Progress.get(player.level()).getBracket(player.getUUID());
 		}
 
 		@Nullable
 		public static Run runOf(ServerPlayer player) {
-			return Progress.get(player.serverLevel()).runOf(player.getUUID());
+			return Progress.get(player.level()).runOf(player.getUUID());
 		}
 
 		public static boolean isFighting(ServerPlayer player) {
@@ -919,7 +919,7 @@ public final class Tournament {
 		@Nullable
 		public static UUID ownerOf(Entity entity) {
 			if (entity == null) return null;
-			String owner = entity.getPersistentData().getString(MATCH_TAG);
+			String owner = com.dragonminez.platform.entity.EntityData.get(entity).getStringOr(MATCH_TAG, "");
 			if (owner.isEmpty()) return null;
 			try {
 				return UUID.fromString(owner);
@@ -933,7 +933,7 @@ public final class Tournament {
 			TournamentDefinition def = ConfigManager.getTournament(tournamentId);
 			if (def == null) return Component.translatable("tournament.dragonminez.unavailable");
 
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			Progress data = Progress.get(level);
 
 			Run running = data.getRun(tournamentId);
@@ -994,7 +994,7 @@ public final class Tournament {
 		}
 
 		public static void answerRules(ServerPlayer player, boolean accept) {
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			Progress data = Progress.get(level);
 			Run run = data.runOf(player.getUUID());
 			if (run == null || !run.isAlive(player.getUUID())) {
@@ -1254,7 +1254,7 @@ public final class Tournament {
 		}
 
 		public static void ready(ServerPlayer player) {
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			Progress data = Progress.get(level);
 			Run run = data.runOf(player.getUUID());
 			UUID id = player.getUUID();
@@ -1284,7 +1284,7 @@ public final class Tournament {
 		private static Component beginMatch(ServerPlayer player, Run run, Progress data) {
 			if (isFighting(player)) return Component.translatable("tournament.dragonminez.already_fighting");
 
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			if (!run.isAlive(player.getUUID())) return Component.translatable("tournament.dragonminez.not_entered");
 			if (!player.getUUID().equals(run.getActiveFighter())) {
 				return Component.translatable("tournament.dragonminez.not_your_turn");
@@ -1321,7 +1321,7 @@ public final class Tournament {
 			if (opponent == null) {
 				opponent = spawnOpponent(level, fighter, opponentId, run.getRingCentre(), radius, bracket.getRound(), player);
 			} else {
-				opponent.getPersistentData().putString(MATCH_TAG, player.getUUID().toString());
+				com.dragonminez.platform.entity.EntityData.get(opponent).putString(MATCH_TAG, player.getUUID().toString());
 				opponent.setTarget(player);
 			}
 			if (opponent == null) return Component.translatable("tournament.dragonminez.unavailable");
@@ -1733,7 +1733,7 @@ public final class Tournament {
 			player.sendSystemMessage(Component.translatable("tournament.dragonminez.knockout")
 					.withStyle(ChatFormatting.RED));
 
-			if (match.pvp()) resolvePvp(player.serverLevel(), player, match, false);
+			if (match.pvp()) resolvePvp(player.level(), player, match, false);
 			else loseMatch(player, match);
 		}
 
@@ -1745,19 +1745,19 @@ public final class Tournament {
 
 			player.sendSystemMessage(Component.translatable("tournament.dragonminez.knockout")
 					.withStyle(ChatFormatting.RED));
-			resolvePvp(player.serverLevel(), player, match, false);
+			resolvePvp(player.level(), player, match, false);
 		}
 
 		public static void onPlayerDeath(ServerPlayer player) {
 			ActiveMatch match = ACTIVE.remove(player.getUUID());
 			if (match == null) return;
 
-			if (match.pvp()) resolvePvp(player.serverLevel(), player, match, false);
+			if (match.pvp()) resolvePvp(player.level(), player, match, false);
 			else loseMatch(player, match);
 		}
 
 		public static void onPlayerLogout(ServerPlayer player) {
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			Progress data = Progress.get(level);
 			Run run = data.runOf(player.getUUID());
 			if (run == null || run.isEliminated(player.getUUID())) {
@@ -1779,7 +1779,7 @@ public final class Tournament {
 		}
 
 		public static void onPartyLeave(ServerPlayer player) {
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			Progress data = Progress.get(level);
 			Run run = data.runOf(player.getUUID());
 			if (run == null || run.isEliminated(player.getUUID())) return;
@@ -1790,7 +1790,7 @@ public final class Tournament {
 		}
 
 		private static void winMatch(ServerPlayer player, ActiveMatch match) {
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			Progress data = Progress.get(level);
 			setFrozen(player, false);
 
@@ -1833,7 +1833,7 @@ public final class Tournament {
 		}
 
 		private static void loseMatch(ServerPlayer player, ActiveMatch match) {
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			Progress data = Progress.get(level);
 			setFrozen(player, false);
 
@@ -2041,7 +2041,7 @@ public final class Tournament {
 		}
 
 		private static void celebrate(ServerPlayer player, BlockPos ringCentre) {
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 
 			player.sendSystemMessage(Component.translatable("tournament.dragonminez.victory")
 					.withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
@@ -2075,7 +2075,7 @@ public final class Tournament {
 			List<String> commands = rewards.getCommands();
 			if (commands == null || commands.isEmpty()) return;
 
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			for (String command : commands) {
 				if (command == null || command.isBlank()) continue;
 				String parsed = command.replace("%player%", player.getName().getString());
@@ -2089,7 +2089,7 @@ public final class Tournament {
 			player.displayClientMessage(Component.translatable("tournament.dragonminez.timeout"), false);
 			setFrozen(player, false);
 
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			Progress data = Progress.get(level);
 			Run run = data.runOf(player.getUUID());
 			if (run == null) return;
@@ -2140,7 +2140,7 @@ public final class Tournament {
 			Identifier id = Identifier.tryParse(entityId);
 			if (id == null) return null;
 
-			EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(id);
+			EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getValue(id);
 			if (type == null) {
 				LogUtil.warn(Env.SERVER, "Tournament fighter '{}' is not a registered entity", entityId);
 				return null;
@@ -2153,10 +2153,10 @@ public final class Tournament {
 			}
 
 			mob.moveTo(ringCentre.getX() + 0.5D + radius, ringCentre.getY(), ringCentre.getZ() + 0.5D, 270.0F, 0.0F);
-			mob.finalizeSpawn(level, level.getCurrentDifficultyAt(ringCentre), MobSpawnType.EVENT, null);
+			mob.finalizeSpawn(level, level.getCurrentDifficultyAt(ringCentre), EntitySpawnReason.EVENT, null);
 
-			mob.getPersistentData().putString(MATCH_TAG, target.getUUID().toString());
-			mob.getPersistentData().putBoolean(STATS_CONFIGURED_TAG, true);
+			com.dragonminez.platform.entity.EntityData.get(mob).putString(MATCH_TAG, target.getUUID().toString());
+			com.dragonminez.platform.entity.EntityData.get(mob).putBoolean(STATS_CONFIGURED_TAG, true);
 			mob.setPersistenceRequired();
 
 			if (mob instanceof DBSagasEntity saga) {
@@ -2243,7 +2243,7 @@ public final class Tournament {
 
 		@Nullable
 		private static MastersEntity resolveNpc(ServerPlayer player, int npcEntityId) {
-			Entity entity = player.serverLevel().getEntity(npcEntityId);
+			Entity entity = player.level().getEntity(npcEntityId);
 			if (!(entity instanceof MastersEntity master)) return null;
 			if (player.distanceToSqr(entity) > MAX_NPC_DISTANCE_SQR) return null;
 			return master;
@@ -2298,7 +2298,7 @@ public final class Tournament {
 			if (slot == null || slot.isEmpty() || Bracket.isPlayerSlot(slot)) return Component.empty();
 
 			Identifier location = Identifier.tryParse(slot);
-			EntityType<?> type = location != null ? BuiltInRegistries.ENTITY_TYPE.get(location) : null;
+			EntityType<?> type = location != null ? BuiltInRegistries.ENTITY_TYPE.getValue(location) : null;
 			return type != null ? type.getDescription().copy() : Component.literal(slot);
 		}
 
@@ -2311,7 +2311,7 @@ public final class Tournament {
 				return;
 			}
 
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			Progress data = Progress.get(level);
 			Run run = data.getRun(tournamentId);
 
@@ -2506,7 +2506,7 @@ public final class Tournament {
 			TournamentDefinition def = ConfigManager.getTournament(tournamentId);
 			if (def == null) return null;
 
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			RingAnchor.Area area = RingAnchor.areaAt(level, npc.blockPosition());
 			if (area == null) area = RingAnchor.areaAt(level, player.blockPosition());
 			if (area == null) return null;

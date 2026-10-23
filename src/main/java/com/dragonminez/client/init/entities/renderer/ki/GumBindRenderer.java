@@ -1,6 +1,6 @@
 package com.dragonminez.client.init.entities.renderer.ki;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.ki.GumBindEntity;
 import com.dragonminez.common.network.C2S.GumStruggleC2S;
@@ -11,7 +11,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -20,24 +20,19 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.fabricmc.api.EnvType;
+import com.dragonminez.platform.event.tick.ClientTickEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.util.Color;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 import com.geckolib.renderer.GeoEntityRenderer;
 
-public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
+public class GumBindRenderer extends com.dragonminez.platform.client.render.ExtractedGeoEntityRenderer<GumBindEntity> {
 
 	private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/gum_bind.png");
 	private static final Identifier MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/skills/gum_bind.geo.json");
@@ -128,7 +123,7 @@ public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 
 	@Override
 	public RenderType getRenderType(GumBindEntity gum, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-		return RenderType.entityCutout(texture);
+		return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutCull(texture);
 	}
 
 	private void renderStrand(GumBindEntity gum, LivingEntity victim, Vec3 origin, float partialTick, PoseStack poseStack,
@@ -147,7 +142,7 @@ public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 		float r = ((color >> 16) & 0xFF) / 255.0F;
 		float g = ((color >> 8) & 0xFF) / 255.0F;
 		float b = (color & 0xFF) / 255.0F;
-		VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
+		VertexConsumer consumer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(TEXTURE));
 		PoseStack.Pose last = poseStack.last();
 		tube(consumer, last.pose(), last.normal(), from, to, STRAND_HALF_WIDTH * (1.0D - 0.5D * pull), r, g, b, packedLight);
 	}
@@ -184,7 +179,7 @@ public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 				.setOverlay(OverlayTexture.NO_OVERLAY).setLight(light), normal, (float) n.x, (float) n.y, (float) n.z);
 	}
 
-	public static class BallRenderer extends EntityRenderer<GumBindEntity.Ball> {
+	public static class BallRenderer extends EntityRenderer<GumBindEntity.Ball, net.minecraft.client.renderer.entity.state.EntityRenderState> {
 
 		private static final float RADIUS = 0.22F;
 		private static final float CORE = 0.7F;
@@ -215,7 +210,7 @@ public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 			float b = (color & 0xFF) / 255.0F;
 			Vec3 origin = ball.getPosition(partialTick);
 			Vec3 center = new Vec3(0.0D, ball.getBbHeight() * 0.5D, 0.0D);
-			VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
+			VertexConsumer consumer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(TEXTURE));
 
 			if (ball.getOwner() instanceof LivingEntity caster) {
 				PoseStack.Pose last = poseStack.last();
@@ -271,7 +266,7 @@ public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 		}
 	}
 
-	public static class Model extends GeoModel<GumBindEntity> {
+	public static class Model extends ExtractedGeoModel<GumBindEntity> {
 
 		@Override
 		public Identifier getModelResource(GumBindEntity gum) {
@@ -289,7 +284,7 @@ public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 		}
 	}
 
-	@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+	@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = EnvType.CLIENT)
 	public static final class Input {
 
 		private Input() {}

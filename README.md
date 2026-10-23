@@ -15,7 +15,7 @@ Requires Java 25. This branch uses Fabric Loader 0.20.1, Fabric API 0.155.3+26.1
 ./gradlew build
 ```
 
-The first command tests independent extension algorithms. The second compiles all mod sources and currently fails. See [porting/STATUS.md](porting/STATUS.md) for the remaining platform work. No game mechanics have been removed from compilation to make the build pass.
+The first command tests extension algorithms and selected native platform modules, including inventory persistence, transactional energy, network codecs and hook descriptors. The second compiles all mod sources and currently fails. See [porting/STATUS.md](porting/STATUS.md) for the remaining platform work. No game mechanics have been removed from compilation to make the build pass.
 
 ## Content completion prerequisites
 
@@ -25,7 +25,7 @@ Draft API: `com.dragonminez.api.content.ContentCompletionApi` and `ContentProgre
 - `ContentCompletionApi.hasCompleted(ServerPlayer, contentId)` queries the flag.
 - `StatsData.getContentProgress()` exposes `hasCompleted`, `count`, `snapshot`, and a revision for caches.
 - Completion counts are stored in player NBT under `CompletedContent`, included in stat snapshots and copied with player data. Flags are independent of a repeatable quest's current state.
-- Source hooks record quest completion under `dragonminez:quest/<quest-key>` (colon separators become slashes). Ritual configuration accepts `completionId`; otherwise it derives a stable ID from its configured group. These hooks still require the unfinished Fabric lifecycle/network port.
+- Source hooks record quest completion under `dragonminez:quest/<quest-key>` (colon separators become slashes). Ritual configuration accepts `completionId`; otherwise it derives a stable ID from its configured group. The Fabric attachment, lifecycle and network adapters are present in source, but the complete mod still needs compilation and runtime validation.
 
 Example addition to a form in `config/dragonminez/races/custom_race/forms/example.json`:
 

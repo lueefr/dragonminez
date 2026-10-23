@@ -124,7 +124,7 @@ public class WorldBossCommand {
 			found = Component.translatable("command.dragonminez.worldboss.locate.found", name, coords, distance);
 		} else {
 			found = Component.translatable("command.dragonminez.worldboss.locate.found_elsewhere", name, coords,
-					Component.literal(lair.dimension().location().toString()).withStyle(ChatFormatting.AQUA));
+					Component.literal(lair.dimension().identifier().toString()).withStyle(ChatFormatting.AQUA));
 		}
 		Component status = status(server, lair);
 		source.sendSuccess(() -> found, false);
@@ -164,7 +164,7 @@ public class WorldBossCommand {
 		if (hint != null) {
 			return Component.translatable("command.dragonminez.worldboss.not_generated", lair.displayName(), hint.dimensions(), hint.biomes());
 		}
-		return Component.translatable("command.dragonminez.worldboss.not_chosen", lair.displayName(), lair.dimension().location().toString());
+		return Component.translatable("command.dragonminez.worldboss.not_chosen", lair.displayName(), lair.dimension().identifier().toString());
 	}
 
 	private static int teleport(CommandContext<CommandSourceStack> ctx, WorldBossLair lair) throws CommandSyntaxException {
@@ -177,7 +177,7 @@ public class WorldBossCommand {
 
 		ServerLevel level = WorldBossManager.levelFor(ctx.getSource().getServer(), lair.key());
 		if (level == null) {
-			ctx.getSource().sendFailure(Component.translatable("command.dragonminez.worldboss.not_loaded", lair.dimension().location().toString()));
+			ctx.getSource().sendFailure(Component.translatable("command.dragonminez.worldboss.not_loaded", lair.dimension().identifier().toString()));
 			return 0;
 		}
 

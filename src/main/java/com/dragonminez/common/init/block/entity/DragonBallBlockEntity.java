@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import com.geckolib.animatable.GeoBlockEntity;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.util.RenderUtil;
 
 public class DragonBallBlockEntity extends BlockEntity implements GeoBlockEntity {

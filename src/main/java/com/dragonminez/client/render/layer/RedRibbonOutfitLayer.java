@@ -5,22 +5,22 @@ import com.dragonminez.common.init.entities.redribbon.RedRibbonSoldierEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
-public class RedRibbonOutfitLayer<T extends RedRibbonSoldierEntity> extends GeoRenderLayer<T> {
+public class RedRibbonOutfitLayer<T extends RedRibbonSoldierEntity> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
     private static final Identifier OUTFIT_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/enemies/redribbon_outfit.png");
 
-    public RedRibbonOutfitLayer(GeoRenderer<T> renderer) {
+    public RedRibbonOutfitLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderer) {
         super(renderer);
     }
 
     @Override
     public void render(PoseStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-        RenderType outfitType = RenderType.entityCutoutNoCull(OUTFIT_TEXTURE);
+        RenderType outfitType = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(OUTFIT_TEXTURE);
         getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, outfitType, bufferSource.getBuffer(outfitType), partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderBufferUtil.packColor(1.0f, 1.0f, 1.0f, 1.0f));
     }
 }

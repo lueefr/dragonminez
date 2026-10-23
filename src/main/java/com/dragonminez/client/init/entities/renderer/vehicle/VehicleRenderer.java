@@ -7,20 +7,20 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.model.GeoModel;
 import com.geckolib.renderer.GeoEntityRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class VehicleRenderer<T extends VehicleEntity> extends GeoEntityRenderer<T> {
+public class VehicleRenderer<T extends VehicleEntity> extends com.dragonminez.platform.client.render.ExtractedGeoEntityRenderer<T> {
 
 	private final List<PosedBone> posedBones = new ArrayList<>();
 
@@ -88,7 +88,7 @@ public class VehicleRenderer<T extends VehicleEntity> extends GeoEntityRenderer<
 
 	@Override
 	public RenderType getRenderType(T animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-		return RenderType.entityTranslucent(texture);
+		return net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture);
 	}
 
 	private record PosedBone(GeoBone bone, BoneRenderState state, boolean hidden) {

@@ -24,7 +24,7 @@ public class MultiItemWish extends Wish {
 	@Override
 	public void grant(ServerPlayer player) {
 		for (Tuple<String, Integer> itemInfo : items) {
-			Item item = BuiltInRegistries.ITEM.get(Identifier.parse(itemInfo.getA()));
+			Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(itemInfo.getA()));
 			if (item != null) {
 				giveOrDrop(player, new ItemStack(item, itemInfo.getB()));
 			} else {

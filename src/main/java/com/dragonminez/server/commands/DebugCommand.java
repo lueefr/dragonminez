@@ -36,9 +36,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -145,7 +142,7 @@ public class DebugCommand {
 	}
 
 	private static Path getOutputPath(ServerPlayer target) {
-		return FMLPaths.GAMEDIR.get().resolve("dmzdebug").resolve(target.getGameProfile().name() + ".json");
+		return net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().resolve("dmzdebug").resolve(target.getGameProfile().name() + ".json");
 	}
 
 	private static JsonObject buildDebugJson(ServerPlayer target, StatsData data, DebugScope scope) {
@@ -158,10 +155,11 @@ public class DebugCommand {
 		json.addProperty("scope", scope.name());
 
 		JsonObject mod = new JsonObject();
-		mod.addProperty("version", ModList.get().getModContainerById(Reference.MOD_ID)
-				.map(container -> container.getModInfo().getVersion().toString()).orElse("unknown"));
-		mod.addProperty("mc", SharedConstants.getCurrentVersion().getName());
-		mod.addProperty("forge", NeoForgeVersion.getVersion());
+		mod.addProperty("version", net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer(Reference.MOD_ID)
+                .map(container -> container.getMetadata().getVersion().getFriendlyString()).orElse("unknown"));
+		mod.addProperty("mc", SharedConstants.getCurrentVersion().name());
+		mod.addProperty("loader", net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("fabricloader")
+                .map(container -> container.getMetadata().getVersion().getFriendlyString()).orElse("unknown"));
 		json.add("mod", mod);
 
 		JsonObject serverInfo = new JsonObject();
@@ -172,7 +170,7 @@ public class DebugCommand {
 		player.addProperty("name", target.getGameProfile().name());
 		player.addProperty("uuid", target.getStringUUID());
 		player.addProperty("online", !target.hasDisconnected());
-		player.addProperty("dimension", target.level().dimension().location().toString());
+		player.addProperty("dimension", target.level().dimension().identifier().toString());
 		JsonArray pos = new JsonArray();
 		pos.add(round2(target.getX()));
 		pos.add(round2(target.getY()));
@@ -197,11 +195,11 @@ public class DebugCommand {
 
 		JsonObject sections = new JsonObject();
 		if (scope.includesStats()) {
-			for (String key : STATS_SECTIONS) sections.add(key, nbtToJson(root.getCompound(key)));
+			for (String key : STATS_SECTIONS) sections.add(key, nbtToJson(root.getCompoundOrEmpty(key)));
 		}
-		if (scope.includesCharacter()) sections.add("Character", nbtToJson(withoutHairData(root.getCompound("Character"))));
-		if (scope.includesTechniques()) sections.add("Techniques", nbtToJson(root.getCompound("Techniques")));
-		if (scope.includesQuests()) sections.add("PlayerQuestData", nbtToJson(root.getCompound("PlayerQuestData")));
+		if (scope.includesCharacter()) sections.add("Character", nbtToJson(withoutHairData(root.getCompoundOrEmpty("Character"))));
+		if (scope.includesTechniques()) sections.add("Techniques", nbtToJson(root.getCompoundOrEmpty("Techniques")));
+		if (scope.includesQuests()) sections.add("PlayerQuestData", nbtToJson(root.getCompoundOrEmpty("PlayerQuestData")));
 		json.add("sections", sections);
 
 		return json;
@@ -304,7 +302,7 @@ public class DebugCommand {
 	private static JsonElement nbtToJson(Tag tag) {
 		if (tag instanceof CompoundTag compound) {
 			JsonObject object = new JsonObject();
-			for (String key : new TreeSet<>(compound.getAllKeys())) object.add(key, nbtToJson(compound.get(key)));
+			for (String key : new TreeSet<>(compound.keySet())) object.add(key, nbtToJson(compound.get(key)));
 			return object;
 		}
 		if (tag instanceof CollectionTag<?> collection) {

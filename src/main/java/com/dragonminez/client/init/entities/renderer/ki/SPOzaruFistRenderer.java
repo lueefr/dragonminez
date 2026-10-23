@@ -1,14 +1,12 @@
 package com.dragonminez.client.init.entities.renderer.ki;
 
-import com.dragonminez.client.init.entities.model.ki.SPDragonFistModel;
 import com.dragonminez.client.init.entities.model.ki.SPOzaruFistModel;
 import com.dragonminez.client.render.effects.AuraTrailRenderer;
 import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.common.init.entities.ki.OzaruFistEntity;
-import com.dragonminez.common.init.entities.ki.SPDragonFistEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -16,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import com.geckolib.util.Color;
 import com.geckolib.renderer.GeoEntityRenderer;
 
-public class SPOzaruFistRenderer<T extends OzaruFistEntity> extends GeoEntityRenderer<T> {
+public class SPOzaruFistRenderer<T extends OzaruFistEntity> extends com.dragonminez.platform.client.render.ExtractedGeoEntityRenderer<T> {
     private static final float[] TRAIL_COLOR = ColorUtils.rgbIntToFloat(0xE0A35C);
     private static final float TRAIL_ALPHA = 0.65f;
     private static final int TRAIL_SAMPLES = 24;
@@ -65,7 +63,7 @@ public class SPOzaruFistRenderer<T extends OzaruFistEntity> extends GeoEntityRen
 
     @Override
     public RenderType getRenderType(T animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityTranslucentEmissive(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucentEmissive(texture);
     }
 
     @Override

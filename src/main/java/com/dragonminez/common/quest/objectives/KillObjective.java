@@ -91,7 +91,7 @@ public class KillObjective extends QuestObjective {
 				TagKey<EntityType<?>> tag = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse(entityId.substring(1)));
 				return type.builtInRegistryHolder().is(tag);
 			}
-			return type.equals(BuiltInRegistries.ENTITY_TYPE.get(Identifier.parse(entityId)));
+			return type.equals(BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.parse(entityId)));
 		} catch (Exception e) {
 			return false;
 		}
@@ -111,7 +111,7 @@ public class KillObjective extends QuestObjective {
 				}
 				return members.get(ThreadLocalRandom.current().nextInt(members.size()));
 			}
-			return BuiltInRegistries.ENTITY_TYPE.get(Identifier.parse(entityId));
+			return BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.parse(entityId));
 		} catch (Exception e) {
 			return null;
 		}

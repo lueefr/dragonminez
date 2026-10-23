@@ -139,7 +139,7 @@ public class BabaReviveService {
 			tickKnockoutRecovery(player, data);
 			return;
 		}
-		if (player.serverLevel().dimension().equals(OtherworldDimension.OTHERWORLD_KEY)) return;
+		if (player.level().dimension().equals(OtherworldDimension.OTHERWORLD_KEY)) return;
 
 		int drained = (int) Math.round(20 * totalTimeMultiplier(player, data));
 		int remaining = Math.max(0, timer - drained);
@@ -183,7 +183,7 @@ public class BabaReviveService {
 	}
 
 	public static double dimensionTimeMultiplier(Player player) {
-		String dimensionId = player.level().dimension().location().toString();
+		String dimensionId = player.level().dimension().identifier().toString();
 		return ConfigManager.getServerConfig().getGameplay().getBabaTimeMultiplier(dimensionId);
 	}
 
@@ -220,7 +220,7 @@ public class BabaReviveService {
 	public static boolean tryKnockOut(ServerPlayer player, StatsData data, DamageSource source) {
 		if (!isTempReviveActive(data) || isKnockedOut(data)) return false;
 		if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return false;
-		if (player.serverLevel().dimension().equals(OtherworldDimension.OTHERWORLD_KEY)) return false;
+		if (player.level().dimension().equals(OtherworldDimension.OTHERWORLD_KEY)) return false;
 
 		int total = ConfigManager.getServerConfig().getGameplay().getBabaTempReturnSeconds() * 20;
 		int timer = data.getStatus().getTempReturnTimer();
@@ -243,7 +243,7 @@ public class BabaReviveService {
 		player.addEffect(new MobEffectInstance(MobEffects.GLOWING, KNOCKOUT_TICKS, 0, false, false, false));
 
 		QuestEvents.handlePlayerQuestFailure(player);
-		EntitiesEvents.cleanupQuestEntities(player.serverLevel(), player.getUUID());
+		EntitiesEvents.cleanupQuestEntities(player.level(), player.getUUID());
 		dropAggro(player);
 
 		player.sendSystemMessage(Component.translatable("message.dragonminez.baba_return.knocked_out",
@@ -279,7 +279,7 @@ public class BabaReviveService {
 
 	private static void dropAggro(ServerPlayer player) {
 		AABB area = player.getBoundingBox().inflate(AGGRO_SWEEP_RANGE);
-		for (Mob mob : player.serverLevel().getEntitiesOfClass(Mob.class, area, mob -> mob.getTarget() == player || mob.getLastHurtByMob() == player)) {
+		for (Mob mob : player.level().getEntitiesOfClass(Mob.class, area, mob -> mob.getTarget() == player || mob.getLastHurtByMob() == player)) {
 			mob.setTarget(null);
 			if (mob.getLastHurtByMob() == player) mob.setLastHurtByMob(null);
 			mob.getNavigation().stop();

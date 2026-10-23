@@ -1,13 +1,9 @@
 package com.dragonminez.common.init.entities.sagas;
 
-import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.init.MainEntities;
 import com.dragonminez.common.init.MainItems;
 import com.dragonminez.common.init.entities.namek.NamekWarriorEntity;
-import com.dragonminez.common.stats.StatsCapability;
-import com.dragonminez.common.stats.StatsProvider;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -309,7 +305,7 @@ public class SagaMoviesEntity {
         public boolean doHurtTarget(Entity pTarget) {
             boolean hurt = super.doHurtTarget(pTarget);
 
-            if (hurt && !this.level().isClientSide && pTarget instanceof LivingEntity victim) {
+            if (hurt && !this.level().isClientSide() && pTarget instanceof LivingEntity victim) {
                 victim.setDeltaMovement(victim.getDeltaMovement().add(0.0D, LAUNCH_POWER, 0.0D));
                 victim.hurtMarked = true;
                 this.playSound(SoundEvents.IRON_GOLEM_ATTACK, 1.0F, 0.8F);
@@ -352,8 +348,8 @@ public class SagaMoviesEntity {
 
             @Override
             public boolean canUse() {
-                if (this.robot.getTarget() != null || !this.robot.getPersistentData().contains(VILLAGE_TAG)) return false;
-                this.village = BlockPos.of(this.robot.getPersistentData().getLong(VILLAGE_TAG));
+                if (this.robot.getTarget() != null || !com.dragonminez.platform.entity.EntityData.get(this.robot).contains(VILLAGE_TAG)) return false;
+                this.village = BlockPos.of(com.dragonminez.platform.entity.EntityData.get(this.robot).getLongOr(VILLAGE_TAG, 0L));
                 return !this.arrived();
             }
 

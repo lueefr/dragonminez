@@ -7,16 +7,15 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -26,7 +25,7 @@ import java.util.Set;
  * Toggleable client-side visualization (shift + right-click on a Gravity Device) that draws the
  * bounds of the device's detected room. Green when the room is valid, red when it is not.
  */
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public final class GravityRangeRenderer {
 
 	private static final Set<BlockPos> SHOWN = new HashSet<>();
@@ -46,10 +45,10 @@ public final class GravityRangeRenderer {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null) return;
 
-		Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
+		Vec3 cam = mc.gameRenderer.getMainCamera().position();
 		PoseStack poseStack = event.getPoseStack();
 		MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
-		VertexConsumer consumer = buffer.getBuffer(RenderType.lines());
+		VertexConsumer consumer = buffer.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lines());
 
 		poseStack.pushPose();
 		poseStack.translate(-cam.x, -cam.y, -cam.z);
@@ -80,6 +79,6 @@ public final class GravityRangeRenderer {
 		}
 
 		poseStack.popPose();
-		buffer.endBatch(RenderType.lines());
+		buffer.endBatch(net.minecraft.client.renderer.rendertype.RenderTypes.lines());
 	}
 }

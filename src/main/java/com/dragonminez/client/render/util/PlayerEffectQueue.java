@@ -3,7 +3,7 @@ package com.dragonminez.client.render.util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.joml.Matrix4f;
-import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.model.BakedGeoModel;
 
 import java.util.ArrayList;
 import java.util.List;

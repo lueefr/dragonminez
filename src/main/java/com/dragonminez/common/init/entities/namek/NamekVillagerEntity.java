@@ -15,8 +15,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.VillagerGoalPackages;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.npc.Villager;
-import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.entity.schedule.Schedule;
@@ -28,8 +28,7 @@ import net.minecraft.world.level.Level;
 import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
-import com.geckolib.animation.AnimationController;
+import com.geckolib.animatable.manager.AnimatableManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,8 +75,8 @@ public class NamekVillagerEntity extends Villager implements GeoEntity {
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
-        boolean isHurt = super.hurt(source, amount);
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource source, float amount) {
+        boolean isHurt = super.hurtServer(dmz$level, source, amount);
 
         if (isHurt && source.getEntity() instanceof Player) {
             Player player = (Player) source.getEntity();

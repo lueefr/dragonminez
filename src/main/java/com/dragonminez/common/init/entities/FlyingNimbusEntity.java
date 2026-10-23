@@ -1,5 +1,7 @@
 package com.dragonminez.common.init.entities;
 
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.state.AnimationTest;
 import com.dragonminez.common.init.MainItems;
 import com.dragonminez.common.init.MainParticles;
 import com.dragonminez.common.init.entities.vehicle.VehicleEntity;
@@ -13,11 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animation.*;
-import com.geckolib.animation.PlayState;
-import net.minecraft.world.phys.Vec3;
-import com.geckolib.animatable.GeoEntity;
-import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import com.geckolib.animation.object.PlayState;
 
 public class FlyingNimbusEntity extends VehicleEntity {
 
@@ -57,11 +55,11 @@ public class FlyingNimbusEntity extends VehicleEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-        controllerRegistrar.add(new AnimationController<>(this, "controller", 0, this::predicate));
+        controllerRegistrar.add(new AnimationController<>("controller", 0, this::predicate));
     }
 
-    private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> tAnimationState) {
-        tAnimationState.getController().setAnimation(IDLE);
+    private <T extends GeoAnimatable> PlayState predicate(AnimationTest<T> tAnimationState) {
+        tAnimationState.controller().setAnimation(IDLE);
         return PlayState.CONTINUE;
     }
 }

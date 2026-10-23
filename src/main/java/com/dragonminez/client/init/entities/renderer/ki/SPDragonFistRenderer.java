@@ -7,7 +7,7 @@ import com.dragonminez.common.init.entities.ki.SPDragonFistEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import com.geckolib.util.Color;
 import com.geckolib.renderer.GeoEntityRenderer;
 
-public class SPDragonFistRenderer<T extends SPDragonFistEntity> extends GeoEntityRenderer<T> {
+public class SPDragonFistRenderer<T extends SPDragonFistEntity> extends com.dragonminez.platform.client.render.ExtractedGeoEntityRenderer<T> {
     private static final float[] TRAIL_COLOR = ColorUtils.rgbIntToFloat(0xFFC21A);
     private static final float TRAIL_ALPHA = 0.75f;
     private static final float FIST_OFFSET = 1.5f;
@@ -79,7 +79,7 @@ public class SPDragonFistRenderer<T extends SPDragonFistEntity> extends GeoEntit
 
     @Override
     public RenderType getRenderType(T animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityTranslucentEmissive(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucentEmissive(texture);
     }
 
     @Override

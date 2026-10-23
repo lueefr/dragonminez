@@ -1,6 +1,8 @@
 package com.dragonminez.server.events.players;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import com.dragonminez.platform.event.living.LivingEntityUseItemEvent;
+import com.dragonminez.platform.event.living.LivingFallEvent;
+import com.dragonminez.platform.event.living.LivingIncomingDamageEvent;
+import com.dragonminez.platform.event.tick.EntityTickEvent;
 
 import com.dragonminez.Reference;
 import com.dragonminez.common.combat.logic.player.PlayerAttackHelper;
@@ -41,7 +43,6 @@ import com.dragonminez.common.stats.character.SecondaryStatEffects;
 import com.dragonminez.common.stats.techniques.KiAttackData;
 import com.dragonminez.common.stats.techniques.TechniqueData;
 import com.dragonminez.server.events.DragonBallsHandler;
-import com.dragonminez.server.util.FusionLogic;
 import com.dragonminez.server.util.GravityLogic;
 import com.dragonminez.server.util.MutantManager;
 import com.dragonminez.server.util.PotionEffectHelper;
@@ -57,27 +58,21 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.FluidState;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.EntityEvent;
-import net.neoforged.neoforge.event.entity.living.*;
-import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.common.NeoForgeMod;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.PlayerTickEvent;
+import com.dragonminez.platform.event.entity.EntityEvent;
+import com.dragonminez.platform.event.living.*;
+import com.dragonminez.platform.event.player.AttackEntityEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.player.PlayerInteractEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import net.minecraft.core.registries.BuiltInRegistries;
-import com.dragonminez.common.util.CuriosUtil;
 import com.dragonminez.common.init.item.consumables.SenzuBeanItem;
 
 import java.util.*;
@@ -156,7 +151,7 @@ public class StatsEvents {
 
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Post event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 		Player player = event.getEntity();
 		if (!(player instanceof ServerPlayer serverPlayer)) return;
 
@@ -254,7 +249,7 @@ public class StatsEvents {
 	@SubscribeEvent
 	public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
 		if (event.getEntity() instanceof ServerPlayer player) {
-			DragonBallsHandler.syncRadar(player.serverLevel());
+			DragonBallsHandler.syncRadar(player.level());
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 				applyHealthBonus(player);
 				player.setHealth(player.getMaxHealth());
@@ -278,7 +273,7 @@ public class StatsEvents {
 	@SubscribeEvent
 	public static void cookDropsOnKiKill(LivingDeathEvent event) {
 		LivingEntity entity = event.getEntity();
-		if (entity.level().isClientSide) return;
+		if (entity.level().isClientSide()) return;
 		if (entity.fireImmune()) return;
 
 		DamageSource source = event.getSource();
@@ -290,7 +285,7 @@ public class StatsEvents {
 
 	@SubscribeEvent
 	public static void onEntityDeath(LivingDeathEvent event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 		boolean[] addAlignment = new boolean[]{false};
 		boolean[] removeAlignment = new boolean[]{false};
 
@@ -333,7 +328,7 @@ public class StatsEvents {
 					killerData.getStatus().setShadowDummyKillCount(killerData.getStatus().getShadowDummyKillCount() + 1));
 		}
 
-		if (event.getEntity() instanceof ShadowDummyEntity dummyEntity && dummyEntity.getPersistentData().getBoolean(SummonPlayerShadowDummyC2S.TAG_PLAYER_SHADOW)) {
+		if (event.getEntity() instanceof ShadowDummyEntity dummyEntity && com.dragonminez.platform.entity.EntityData.get(dummyEntity).getBooleanOr(SummonPlayerShadowDummyC2S.TAG_PLAYER_SHADOW, false)) {
 			SummonPlayerShadowDummyC2S.dismissByDummy(dummyEntity);
 		}
 
@@ -375,7 +370,7 @@ public class StatsEvents {
 
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void onEntityHit(LivingIncomingDamageEvent event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 
 		if (event.getSource().getEntity() instanceof ServerPlayer attacker) {
 			StatsProvider.get(StatsCapability.INSTANCE, attacker).ifPresent(attackerData -> {
@@ -463,7 +458,7 @@ public class StatsEvents {
 	@SubscribeEvent
 	public static void onLivingTick(PlayerTickEvent.Post event) {
 		Player player = event.getEntity();
-		if (player.level().isClientSide) return;
+		if (player.level().isClientSide()) return;
 		FluidState fluidState = player.level().getFluidState(player.blockPosition());
 		if (fluidState.isEmpty()) return;
 
@@ -517,7 +512,7 @@ public class StatsEvents {
 
 	@SubscribeEvent
 	public static void onItemRightClick(PlayerInteractEvent.RightClickItem event) {
-		if (event.getLevel().isClientSide) return;
+		if (event.getLevel().isClientSide()) return;
 
 		Player player = event.getEntity();
 		ItemStack stack = event.getItemStack();
@@ -538,7 +533,7 @@ public class StatsEvents {
 
 	@SubscribeEvent
 	public static void onItemUseFinish(LivingEntityUseItemEvent.Finish event) {
-		if (event.getEntity().level().isClientSide || !(event.getEntity() instanceof ServerPlayer player)) return;
+		if (event.getEntity().level().isClientSide() || !(event.getEntity() instanceof ServerPlayer player)) return;
 
 		ItemStack stack = event.getItem();
 		Identifier itemKey = BuiltInRegistries.ITEM.getKey(stack.getItem());
@@ -643,7 +638,7 @@ public class StatsEvents {
 
 	@SubscribeEvent
 	public static void onItemUseStart(LivingEntityUseItemEvent.Start event) {
-		if (event.getEntity().level().isClientSide || !(event.getEntity() instanceof ServerPlayer player)) return;
+		if (event.getEntity().level().isClientSide() || !(event.getEntity() instanceof ServerPlayer player)) return;
 
 		ItemStack stack = event.getItem();
 		Identifier itemKey = BuiltInRegistries.ITEM.getKey(stack.getItem());
@@ -667,13 +662,13 @@ public class StatsEvents {
 
 	@SubscribeEvent
 	public static void onPlayerAttack(AttackEntityEvent event) {
-		if (event.getEntity().level().isClientSide) return;
-		if (isStunnedOrDowned(event.getEntity()) && event instanceof net.neoforged.bus.api.ICancellableEvent cancellable) cancellable.setCanceled(true);
+		if (event.getEntity().level().isClientSide()) return;
+		if (isStunnedOrDowned(event.getEntity()) && event instanceof com.dragonminez.platform.event.ICancellableEvent cancellable) cancellable.setCanceled(true);
 	}
 
 	@SubscribeEvent
 	public static void onLivingAttack(LivingIncomingDamageEvent event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 		if (event.getSource().getEntity() instanceof LivingEntity attacker && isStunnedOrDowned(attacker))
 			event.setCanceled(true);
 	}
@@ -704,14 +699,14 @@ public class StatsEvents {
 	}
 
 	private static void handlePlayerInteract(PlayerInteractEvent event) {
-		if (event.getLevel().isClientSide) return;
+		if (event.getLevel().isClientSide()) return;
 		if (event.getEntity() == null) return;
-		if (isStunnedOrDowned(event.getEntity()) && event instanceof net.neoforged.bus.api.ICancellableEvent cancellable) cancellable.setCanceled(true);
+		if (isStunnedOrDowned(event.getEntity()) && event instanceof com.dragonminez.platform.event.ICancellableEvent cancellable) cancellable.setCanceled(true);
 	}
 
 	@SubscribeEvent
 	public static void onLivingJump(LivingEvent.LivingJumpEvent event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 
 		if (isStunnedOrDowned(event.getEntity()))
 			event.getEntity().setDeltaMovement(event.getEntity().getDeltaMovement().multiply(1, 0, 1));
@@ -720,7 +715,7 @@ public class StatsEvents {
 	@SubscribeEvent
 	public static void onLivingUpdate(EntityTickEvent.Post event) {
 		if (!(event.getEntity() instanceof LivingEntity entity)) return;
-		if (entity.level().isClientSide) return;
+		if (entity.level().isClientSide()) return;
 
 		if (entity.hasEffect(MainEffects.STUN)) {
 			entity.setDeltaMovement(0, entity.getDeltaMovement().y, 0);

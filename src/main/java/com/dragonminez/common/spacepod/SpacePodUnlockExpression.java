@@ -1,7 +1,6 @@
 package com.dragonminez.common.spacepod;
 
 import com.dragonminez.common.config.ConfigManager;
-import com.dragonminez.common.quest.PlayerQuestData;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;

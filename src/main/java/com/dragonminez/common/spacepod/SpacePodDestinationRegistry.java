@@ -16,12 +16,11 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -83,12 +82,12 @@ public class SpacePodDestinationRegistry extends SimpleJsonResourceReloadListene
 		return null;
 	}
 
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	public static List<SpacePodDestinationDefinition> getClientDestinations() {
 		return clientDestinations;
 	}
 
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	public static void setClientDestinations(List<SpacePodDestinationDefinition> destinations) {
 		clientDestinations = List.copyOf(destinations);
 	}

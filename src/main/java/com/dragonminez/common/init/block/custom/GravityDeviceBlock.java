@@ -7,7 +7,6 @@ import com.dragonminez.common.init.block.entity.GravityDeviceBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -93,7 +92,7 @@ public class GravityDeviceBlock extends BaseEntityBlock {
 			BlockEntity entity = pLevel.getBlockEntity(pPos);
 			if (entity instanceof GravityDeviceBlockEntity device) {
 				device.refreshRoom();
-				if (pPlayer instanceof ServerPlayer sp) sp.openMenu(device, buf -> buf.writeBlockPos(pPos));
+				if (pPlayer instanceof ServerPlayer sp) sp.openMenu(device);
 			}
 		}
 		return InteractionResult.sidedSuccess(pLevel.isClientSide());

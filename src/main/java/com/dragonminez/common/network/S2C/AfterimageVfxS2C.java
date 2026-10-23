@@ -3,7 +3,7 @@ package com.dragonminez.common.network.S2C;
 import com.dragonminez.client.render.effects.AfterimageEffect;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -55,7 +55,7 @@ public class AfterimageVfxS2C {
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 				() -> () -> AfterimageEffect.start(entityId, durationTicks, positions, yaws, breakLockOn)));
 		ctx.get().setPacketHandled(true);
 	}

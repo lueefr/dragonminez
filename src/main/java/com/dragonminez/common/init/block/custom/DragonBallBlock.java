@@ -16,7 +16,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -36,7 +35,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.common.NeoForge;
+import com.dragonminez.platform.event.GameEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import org.jetbrains.annotations.Nullable;
 
@@ -128,7 +127,7 @@ public class DragonBallBlock extends BaseEntityBlock implements EntityBlock {
 
 	@Override
 	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			return InteractionResult.SUCCESS;
 		}
 
@@ -149,7 +148,7 @@ public class DragonBallBlock extends BaseEntityBlock implements EntityBlock {
 			}
 			List<BlockPos> consumedPositions = removeAllDragonBalls(level, pos, ballSetDefinition);
 			DragonBallsHandler.registerSummon(serverLevel, dragon, ballSetId);
-			NeoForge.EVENT_BUS.post(new DMZEvent.DragonSummonedEvent(
+			GameEvents.BUS.post(new DMZEvent.DragonSummonedEvent(
 					player,
 					serverLevel,
 					pos,
@@ -165,7 +164,7 @@ public class DragonBallBlock extends BaseEntityBlock implements EntityBlock {
 	}
 
 	private DragonWishEntity summonDragon(ServerLevel serverLevel, BlockPos pos, Player player, DragonDefinition dragonDefinition) {
-		EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(Identifier.fromNamespaceAndPath("dragonminez", dragonDefinition.getId()));
+		EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.fromNamespaceAndPath("dragonminez", dragonDefinition.getId()));
 		if (entityType == null) {
 			return null;
 		}

@@ -1,5 +1,6 @@
 package com.dragonminez.common.init.entities;
 
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.dragonminez.common.init.MainDamageTypes;
 import com.dragonminez.common.init.MainItems;
 import net.minecraft.ChatFormatting;
@@ -19,8 +20,8 @@ import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
 import com.geckolib.animation.*;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.state.AnimationTest;
+import com.geckolib.animation.object.PlayState;
 
 public class PunchMachineEntity extends Mob implements GeoEntity {
 
@@ -43,8 +44,8 @@ public class PunchMachineEntity extends Mob implements GeoEntity {
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
-        if (this.level().isClientSide) return false;
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource source, float amount) {
+        if (this.level().isClientSide()) return false;
 
 		if (source.getEntity() instanceof Player player) {
 			if (player.isCrouching()) {
@@ -61,7 +62,7 @@ public class PunchMachineEntity extends Mob implements GeoEntity {
 			return false;
 		}
 
-		return super.hurt(source, amount);
+		return super.hurtServer(dmz$level, source, amount);
     }
 
 	public void processHit(float damage, Player attacker) {
@@ -116,11 +117,11 @@ public class PunchMachineEntity extends Mob implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 0, this::predicate));
+        controllers.add(new AnimationController<>("controller", 0, this::predicate));
     }
 
-    private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> tAnimationState) {
-        tAnimationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
+    private <T extends GeoAnimatable> PlayState predicate(AnimationTest<T> tAnimationState) {
+        tAnimationState.controller().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
         return PlayState.CONTINUE;
     }
 

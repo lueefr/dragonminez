@@ -9,7 +9,6 @@ import com.dragonminez.common.init.MainParticles;
 import com.dragonminez.common.init.MainSounds;
 import com.dragonminez.common.init.particles.KiTrailParticle;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -24,14 +23,6 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import com.geckolib.animatable.GeoEntity;
-import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
-import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
 
 import java.util.List;
 
@@ -91,7 +82,7 @@ public class SPBlueHurricaneEntity extends AbstractKiProjectile {
 
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -110,7 +101,7 @@ public class SPBlueHurricaneEntity extends AbstractKiProjectile {
 
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -126,7 +117,7 @@ public class SPBlueHurricaneEntity extends AbstractKiProjectile {
         Entity owner = this.getOwner();
 
         if (owner == null || !owner.isAlive()) {
-            if (!this.level().isClientSide) this.discard();
+            if (!this.level().isClientSide()) this.discard();
             return;
         }
 
@@ -136,7 +127,7 @@ public class SPBlueHurricaneEntity extends AbstractKiProjectile {
             this.setFiring(true);
             isFiring = true;
 
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 this.level().playSound(null, this.getX(), this.getY(), this.getZ(), MainSounds.KIBLAST_ATTACK.get(), SoundSource.PLAYERS, 1.5F, 0.8F);
             }
         }
@@ -156,7 +147,7 @@ public class SPBlueHurricaneEntity extends AbstractKiProjectile {
                 }
             }
 
-            if (this.level().isClientSide) {
+            if (this.level().isClientSide()) {
                 float[] rgb = ColorUtils.rgbIntToFloat(this.getColorBorder());
 
                 for (int i = 0; i < 4; i++) {
@@ -196,7 +187,7 @@ public class SPBlueHurricaneEntity extends AbstractKiProjectile {
 
             if (!detached && owner instanceof Player) this.slowOwner(owner);
 
-            if (this.level().isClientSide) {
+            if (this.level().isClientSide()) {
                 float[] rgb = ColorUtils.rgbIntToFloat(this.getColorBorder());
 
                 for (int i = 0; i < 4; i++) {
@@ -214,7 +205,7 @@ public class SPBlueHurricaneEntity extends AbstractKiProjectile {
                 }
             }
 
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 pullNearby();
 
                 if (this.tickCount % 10 == 0) {
@@ -277,7 +268,7 @@ public class SPBlueHurricaneEntity extends AbstractKiProjectile {
 
                 // Damage is gated to ~1s pulses; the vortex pull still applies every call.
                 if (this.getOwner() instanceof Player playerOwner) {
-                    if (target.invulnerableTime <= 0 && target.hurt(MainDamageTypes.strikeAttack(this.level(), playerOwner, STRIKE_ID), this.getDamagePerHit())) {
+                    if (target.invulnerableTime <= 0 && target.hurtOrSimulate(MainDamageTypes.strikeAttack(this.level(), playerOwner, STRIKE_ID), this.getDamagePerHit())) {
                         target.invulnerableTime = CONTINUOUS_HIT_INTERVAL;
                     }
                 } else {
@@ -317,20 +308,27 @@ public class SPBlueHurricaneEntity extends AbstractKiProjectile {
     public void setFiringTicks(int ticks) { this.entityData.set(FIRING_TICKS, Math.max(CONTINUOUS_HIT_INTERVAL, ticks)); }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putInt("CastTime", this.getCastTime());
         pCompound.putBoolean("IsFiring", this.isFiring());
         pCompound.putInt("FiringTicks", this.getFiringTicks());
         pCompound.putBoolean("Detached", this.isDetached());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        if (pCompound.contains("CastTime")) this.setCastTime(pCompound.getInt("CastTime"));
-        if (pCompound.contains("IsFiring")) this.setFiring(pCompound.getBoolean("IsFiring"));
-        if (pCompound.contains("FiringTicks")) this.setFiringTicks(pCompound.getInt("FiringTicks"));
-        this.entityData.set(DETACHED, pCompound.getBoolean("Detached"));
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        if (pCompound.contains("CastTime")) this.setCastTime(pCompound.getIntOr("CastTime", 0));
+        if (pCompound.contains("IsFiring")) this.setFiring(pCompound.getBooleanOr("IsFiring", false));
+        if (pCompound.contains("FiringTicks")) this.setFiringTicks(pCompound.getIntOr("FiringTicks", 0));
+        this.entityData.set(DETACHED, pCompound.getBooleanOr("Detached", false));
     }
 }

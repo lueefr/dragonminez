@@ -1,7 +1,6 @@
 package com.dragonminez.client.gui.radial.nodes;
 
 import com.dragonminez.client.gui.radial.AbstractRadialNode;
-import com.dragonminez.common.config.FormConfig;
 import com.dragonminez.common.network.C2S.SelectKiWeaponC2S;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.stats.StatsCapability;

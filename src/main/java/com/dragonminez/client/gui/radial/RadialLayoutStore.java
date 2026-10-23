@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.neoforged.fml.loading.FMLPaths;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,7 +17,7 @@ import java.util.Map;
 
 public final class RadialLayoutStore {
 
-	private static final Path FILE = FMLPaths.CONFIGDIR.get().resolve("dragonminez").resolve("radial_layout.json");
+	private static final Path FILE = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("dragonminez").resolve("radial_layout.json");
 	private static final Map<String, List<String>> ORDER = new HashMap<>();
 	private static boolean loaded = false;
 

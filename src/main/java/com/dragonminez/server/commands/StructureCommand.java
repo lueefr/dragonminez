@@ -39,7 +39,7 @@ public class StructureCommand {
 	}
 
 	private static List<Found> structuresAt(ServerLevel level, BlockPos pos) {
-		var registry = level.registryAccess().registryOrThrow(Registries.STRUCTURE);
+		var registry = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
 		List<Found> found = new ArrayList<>();
 		for (Structure structure : level.structureManager().getAllStructuresAt(pos).keySet()) {
 			StructureStart start = level.structureManager().getStructureAt(pos, structure);
@@ -110,7 +110,7 @@ public class StructureCommand {
 				MutableComponent location = ComponentUtils.wrapInSquareBrackets(Component.literal(coords))
 						.withStyle(style -> style.withColor(ChatFormatting.GREEN)
 								.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND,
-										"/execute in " + level.dimension().location() + " run tp @s " + coords)));
+										"/execute in " + level.dimension().identifier() + " run tp @s " + coords)));
 				Component state = Component.translatable(tracking.hasPlacement(definition.trackingKey(entry.start()))
 						? "command.dragonminez.structure.npc_spawned"
 						: "command.dragonminez.structure.npc_pending");

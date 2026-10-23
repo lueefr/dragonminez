@@ -43,10 +43,10 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 import com.geckolib.util.GeckoLibUtil;
 
 import java.util.Map;
@@ -351,14 +351,14 @@ public class GumBindEntity extends Entity implements GeoEntity {
 
 	@Override
 	public void remove(RemovalReason reason) {
-		if (!this.level().isClientSide) this.release(false);
+		if (!this.level().isClientSide()) this.release(false);
 		super.remove(reason);
 	}
 
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		controllers.add(new AnimationController<>(this, "gum", 0, state -> state.setAndContinue(this.isReleasing() ? BURST : WRAP)));
-		controllers.add(new AnimationController<>(this, "struggle", 0, state -> PlayState.STOP).triggerableAnim("struggle", STRUGGLE));
+		controllers.add(new AnimationController<>("gum", 0, state -> state.setAndContinue(this.isReleasing() ? BURST : WRAP)));
+		controllers.add(new AnimationController<>("struggle", 0, state -> PlayState.STOP).triggerableAnim("struggle", STRUGGLE));
 	}
 
 	@Override
@@ -382,12 +382,19 @@ public class GumBindEntity extends Entity implements GeoEntity {
 	}
 
 	@Override
-	protected void readAdditionalSaveData(CompoundTag tag) {
+	protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag tag = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
 	}
 
 	@Override
-	protected void addAdditionalSaveData(CompoundTag tag) {
-	}
+	protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag tag = new CompoundTag();
+        try {
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, tag);
+        }
+    }
 
 	public static class Ball extends ThrowableProjectile {
 
@@ -424,7 +431,7 @@ public class GumBindEntity extends Entity implements GeoEntity {
 		@Override
 		public void tick() {
 			super.tick();
-			if (!this.level().isClientSide && this.isAlive() && this.tickCount > MAX_LIFE) this.splat();
+			if (!this.level().isClientSide() && this.isAlive() && this.tickCount > MAX_LIFE) this.splat();
 		}
 
 		@Override
@@ -432,7 +439,7 @@ public class GumBindEntity extends Entity implements GeoEntity {
 			if (!super.canHitEntity(entity) || !(entity instanceof LivingEntity living)) return false;
 			Entity owner = this.getOwner();
 			if (entity == owner) return false;
-			if (this.level().isClientSide) return true;
+			if (this.level().isClientSide()) return true;
 			if (!(owner instanceof LivingEntity caster) || !HeldVictim.canHold(caster, living)) return false;
 			if (caster instanceof Player player) return TargetHelper.getRelation(player, living) != TargetHelper.Relation.FRIENDLY;
 			return !caster.isAlliedTo(living) && !(living instanceof DBSagasEntity);
@@ -449,7 +456,7 @@ public class GumBindEntity extends Entity implements GeoEntity {
 		@Override
 		protected void onHitBlock(BlockHitResult result) {
 			super.onHitBlock(result);
-			if (!this.level().isClientSide) this.splat();
+			if (!this.level().isClientSide()) this.splat();
 		}
 
 		private void splat() {

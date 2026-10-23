@@ -1,8 +1,6 @@
 package com.dragonminez.server.events.players.combat;
 import com.dragonminez.common.init.MainEnchants;
 
-import com.dragonminez.Env;
-import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
 import com.dragonminez.common.combat.logic.weapon.WeaponRegistry;
 import com.dragonminez.common.combat.util.Player_DMZ;
@@ -59,29 +57,21 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
-import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
-import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.GameEvents;
+import com.dragonminez.platform.event.tick.PlayerTickEvent;
+import com.dragonminez.platform.event.entity.EntityLeaveLevelEvent;
+import com.dragonminez.platform.event.entity.ProjectileImpactEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.living.LivingIncomingDamageEvent;
+import com.dragonminez.platform.event.living.LivingDamageEvent;
+import com.dragonminez.platform.event.living.LivingHealEvent;
+import com.dragonminez.platform.event.living.LivingKnockBackEvent;
+import com.dragonminez.platform.event.living.MobEffectEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -183,8 +173,8 @@ public class CombatEvent {
 			}
 			LAST_PLAYER_HIT_GUARD_MS.put(hitKey, now);
 
-			attacker.getPersistentData().putInt(DMZ_LAST_HIT_TARGET_ID_TAG, livingTarget.getId());
-			attacker.getPersistentData().putLong(DMZ_LAST_HIT_TARGET_TIME_TAG, now);
+			com.dragonminez.platform.entity.EntityData.get(attacker).putInt(DMZ_LAST_HIT_TARGET_ID_TAG, livingTarget.getId());
+			com.dragonminez.platform.entity.EntityData.get(attacker).putLong(DMZ_LAST_HIT_TARGET_TIME_TAG, now);
 
 			boolean isPunchMachine = event.getEntity() instanceof PunchMachineEntity;
 
@@ -224,15 +214,15 @@ public class CombatEvent {
 				}
 
 				DMZEvent.DamageModifyEvent modifyEvent = new DMZEvent.DamageModifyEvent(attacker, livingTarget, dmzDamage, 0.0, DMZEvent.DamageSourceType.MELEE);
-					if (NeoForge.EVENT_BUS.post(modifyEvent).isCanceled()) {
+					if (GameEvents.BUS.post(modifyEvent).isCanceled()) {
 						dmzDamage = 0.0;
 					} else {
 						dmzDamage = Math.max(0.0, modifyEvent.getAmount());
 						passiveDefensePen[0] = modifyEvent.getDefensePenetration();
 					}
 
-				double currentSpeed = attacker.getPersistentData().getDouble("dmz_server_speed");
-				boolean wasFlying = attacker.getPersistentData().getBoolean("dmz_was_flying");
+				double currentSpeed = com.dragonminez.platform.entity.EntityData.get(attacker).getDoubleOr("dmz_server_speed", 0D);
+				boolean wasFlying = com.dragonminez.platform.entity.EntityData.get(attacker).getBooleanOr("dmz_was_flying", false);
 				boolean isMomentumStrike = currentSpeed >= MomentumImpactHandler.MOMENTUM_SPEED_THRESHOLD && wasFlying;
 
 				if (isMomentumStrike) {
@@ -240,9 +230,9 @@ public class CombatEvent {
 					double multiplier = 1.15 + (ratio * 0.35);
 					dmzDamage *= multiplier;
 
-					double mx = attacker.getPersistentData().getDouble("dmz_momentum_x");
-					double my = attacker.getPersistentData().getDouble("dmz_momentum_y");
-					double mz = attacker.getPersistentData().getDouble("dmz_momentum_z");
+					double mx = com.dragonminez.platform.entity.EntityData.get(attacker).getDoubleOr("dmz_momentum_x", 0D);
+					double my = com.dragonminez.platform.entity.EntityData.get(attacker).getDoubleOr("dmz_momentum_y", 0D);
+					double mz = com.dragonminez.platform.entity.EntityData.get(attacker).getDoubleOr("dmz_momentum_z", 0D);
 
 					Vec3 knockbackDir = new Vec3(mx, my, mz).normalize();
 					if (knockbackDir.lengthSqr() < 1.0E-6) knockbackDir = attacker.getLookAngle();
@@ -258,7 +248,7 @@ public class CombatEvent {
 				double gravityMult = GravityLogic.getConsumptionMultiplier(attacker);
 				int staminaRequired = (int) (baseStaminaRequired * gravityMult * attackerData.getAdjustedStaminaDrainMultiplier());
 
-				long parryPenaltyEnd = attacker.getPersistentData().getLong("dmz_parry_penalty");
+				long parryPenaltyEnd = com.dragonminez.platform.entity.EntityData.get(attacker).getLongOr("dmz_parry_penalty", 0L);
 				if (System.currentTimeMillis() < parryPenaltyEnd) staminaRequired *= ConfigManager.getCombatConfig().getParryStaminaCostPenalty();
 
 				float currentStamina = attackerData.getResources().getCurrentStamina();
@@ -266,7 +256,7 @@ public class CombatEvent {
 
 				if (!attackerData.getStatus().isAlive() && attacker.level().dimension().equals(OtherworldDimension.OTHERWORLD_KEY)) staminaRequired = 0;
 
-				boolean firstHit = !attacker.getPersistentData().contains("dmz_first_hit") || attacker.getPersistentData().getBoolean("dmz_first_hit");
+				boolean firstHit = !com.dragonminez.platform.entity.EntityData.get(attacker).contains("dmz_first_hit") || com.dragonminez.platform.entity.EntityData.get(attacker).getBooleanOr("dmz_first_hit", false);
 				double staminaRatio;
 
 				if (firstHit) {
@@ -277,10 +267,10 @@ public class CombatEvent {
 						staminaRatio = Mth.clamp((double) currentStamina / staminaRequired, 0.0, 1.0);
 						if (!attacker.isCreative()) attackerData.getResources().setCurrentStamina(0);
 					}
-					attacker.getPersistentData().putDouble("dmz_swing_stamina_ratio", staminaRatio);
+					com.dragonminez.platform.entity.EntityData.get(attacker).putDouble("dmz_swing_stamina_ratio", staminaRatio);
 				} else {
-					staminaRatio = attacker.getPersistentData().contains("dmz_swing_stamina_ratio")
-							? attacker.getPersistentData().getDouble("dmz_swing_stamina_ratio") : 1.0;
+					staminaRatio = com.dragonminez.platform.entity.EntityData.get(attacker).contains("dmz_swing_stamina_ratio")
+							? com.dragonminez.platform.entity.EntityData.get(attacker).getDoubleOr("dmz_swing_stamina_ratio", 0D) : 1.0;
 				}
 
 				finalDmzDamage = dmzDamage * staminaRatio;
@@ -330,9 +320,9 @@ public class CombatEvent {
 				}
 
 				double growthMeleeDamage = kiWeaponInUse ? (kiWeaponBonus + kiInfuseBonus) : (normalMeleeDamage + kiInfuseBonus);
-				attacker.getPersistentData().putDouble("dmz_growth_melee_damage", growthMeleeDamage);
-				attacker.getPersistentData().putBoolean("dmz_growth_ki_weapon", kiWeaponInUse);
-				attacker.getPersistentData().putBoolean("dmz_growth_ki_infuse", kiInfuseActive);
+				com.dragonminez.platform.entity.EntityData.get(attacker).putDouble("dmz_growth_melee_damage", growthMeleeDamage);
+				com.dragonminez.platform.entity.EntityData.get(attacker).putBoolean("dmz_growth_ki_weapon", kiWeaponInUse);
+				com.dragonminez.platform.entity.EntityData.get(attacker).putBoolean("dmz_growth_ki_infuse", kiInfuseActive);
 
 				if (ConfigManager.getCombatConfig().getKillPlayersOnCombatLogout() && event.getEntity() instanceof Player) {
 					attackerData.getCooldowns().addCooldown(Cooldowns.COMBAT, 200);
@@ -400,7 +390,7 @@ public class CombatEvent {
 
 					maybeForceCombatFly(victim);
 					if (source.getEntity() instanceof Player attackerPlayer) maybeForceCombatFly(attackerPlayer);
-					if (source.getEntity() instanceof LivingEntity sourceLiving) victim.getPersistentData().putInt(DMZ_LAST_ATTACKER_ID_TAG, sourceLiving.getId());
+					if (source.getEntity() instanceof LivingEntity sourceLiving) com.dragonminez.platform.entity.EntityData.get(victim).putInt(DMZ_LAST_ATTACKER_ID_TAG, sourceLiving.getId());
 
 					boolean isPvP = source.getEntity() instanceof Player;
 					if (ConfigManager.getCombatConfig().getKillPlayersOnCombatLogout() && isPvP) victimData.getCooldowns().addCooldown(Cooldowns.COMBAT, 120);
@@ -489,7 +479,7 @@ public class CombatEvent {
 											attackerLiving.knockback(1.5D, victim.getX() - attackerLiving.getX(), victim.getZ() - attackerLiving.getZ());
 											attackerLiving.setDeltaMovement(attackerLiving.getDeltaMovement().scale(0.5));
 											attackerLiving.addEffect(new MobEffectInstance(MainEffects.STAGGER, 60, 1, false, false, true));
-											attackerLiving.getPersistentData().putLong("dmz_parry_penalty", System.currentTimeMillis() + 4000);
+											com.dragonminez.platform.entity.EntityData.get(attackerLiving).putLong("dmz_parry_penalty", System.currentTimeMillis() + 4000);
 											if (attackerLiving instanceof ServerPlayer parriedPlayer) playParriedAnimation(parriedPlayer);
 
 											if (attackerLiving instanceof DBSagasEntity saga && saga.isComboing()) {
@@ -553,7 +543,7 @@ public class CombatEvent {
 										float finalDmg = (float) (estimatedPostMitigation * blockMultiplier);
 
 										DMZEvent.PlayerBlockEvent blockEvent = new DMZEvent.PlayerBlockEvent(sPlayer, source.getEntity() instanceof LivingEntity ? (LivingEntity) source.getEntity() : null, (float)currentDamage[0], finalDmg, isParry, poiseDamage);
-										NeoForge.EVENT_BUS.post(blockEvent);
+										GameEvents.BUS.post(blockEvent);
 
 										if (blockEvent.isCanceled()) {
 											wasBlocked[0] = false;
@@ -566,9 +556,9 @@ public class CombatEvent {
 						}
 					}
 
-					victim.getPersistentData().putDouble("dmz_raw_damage", currentDamage[0]);
-					victim.getPersistentData().putDouble("dmz_block_multiplier", blockMultiplier);
-					victim.getPersistentData().putDouble("dmz_defense_pen", finalDefensePenetration);
+					com.dragonminez.platform.entity.EntityData.get(victim).putDouble("dmz_raw_damage", currentDamage[0]);
+					com.dragonminez.platform.entity.EntityData.get(victim).putDouble("dmz_block_multiplier", blockMultiplier);
+					com.dragonminez.platform.entity.EntityData.get(victim).putDouble("dmz_defense_pen", finalDefensePenetration);
 
 					if (victim instanceof ServerPlayer serverPlayer) {
 						StatsDeltaSync.markDirty(serverPlayer);
@@ -588,7 +578,7 @@ public class CombatEvent {
 
 		if (!cancelled[0] && source.getMsgId().equals("player")
 				&& source.getEntity() instanceof Player dmgAttacker) {
-			NeoForge.EVENT_BUS.post(new DMZEvent.DamageDealtEvent(
+			GameEvents.BUS.post(new DMZEvent.DamageDealtEvent(
 					dmgAttacker, event.getEntity(), currentDamage[0], wasBlocked[0], wasParry[0], DMZEvent.DamageSourceType.MELEE));
 		}
 
@@ -654,10 +644,10 @@ public class CombatEvent {
 	}
 
 	@SubscribeEvent
-	public static void stopParriedStun(net.neoforged.neoforge.event.tick.EntityTickEvent.Post event) {
+	public static void stopParriedStun(com.dragonminez.platform.event.tick.EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof net.minecraft.world.entity.LivingEntity living)) return;
 		LivingEntity entity = living;
-		if (entity.level().isClientSide || !PARRIED_STUN_ACTIVE.contains(entity.getUUID()) || entity.hasEffect(MainEffects.STUN)) return;
+		if (entity.level().isClientSide() || !PARRIED_STUN_ACTIVE.contains(entity.getUUID()) || entity.hasEffect(MainEffects.STUN)) return;
 		PARRIED_STUN_ACTIVE.remove(entity.getUUID());
 		if (entity instanceof ServerPlayer player) {
 			NetworkHandler.sendToTrackingEntityAndSelf(new TriggerAnimationS2C(player.getUUID(), TriggerAnimationS2C.AnimationType.KI_ANIMATION_STOP, 0, -1, ""), player);
@@ -761,7 +751,7 @@ public class CombatEvent {
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void blockSelfHealingDuringExplosionRecovery(LivingHealEvent event) {
-		if (!(event.getEntity() instanceof Player victim) || victim.level().isClientSide) return;
+		if (!(event.getEntity() instanceof Player victim) || victim.level().isClientSide()) return;
 		if (HealContext.isAllyTechniqueHeal()) return;
 
 		StatsProvider.get(StatsCapability.INSTANCE, victim).ifPresent(data -> {
@@ -771,7 +761,7 @@ public class CombatEvent {
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void protectKnockedDownPlayers(LivingIncomingDamageEvent event) {
-		if (!(event.getEntity() instanceof Player victim) || victim.level().isClientSide) return;
+		if (!(event.getEntity() instanceof Player victim) || victim.level().isClientSide()) return;
 		if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
 
 		StatsProvider.get(StatsCapability.INSTANCE, victim).ifPresent(data -> {
@@ -802,7 +792,7 @@ public class CombatEvent {
 	@SubscribeEvent
 	public static void deflectProjectilesWhileCharging(ProjectileImpactEvent event) {
 		if (!(event.getRayTraceResult() instanceof EntityHitResult hit)) return;
-		if (!(hit.getEntity() instanceof Player victim) || victim.level().isClientSide) return;
+		if (!(hit.getEntity() instanceof Player victim) || victim.level().isClientSide()) return;
 		if (event.getProjectile() instanceof AbstractKiProjectile) return;
 
 		Entity shooter = event.getProjectile().getOwner();
@@ -825,8 +815,8 @@ public class CombatEvent {
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void keepSurgeBurstNonLethal(LivingDamageEvent.Pre event) {
 		LivingEntity victim = event.getEntity();
-		if (victim.level().isClientSide) return;
-		if (!victim.getPersistentData().getBoolean(KiSurgeService.NON_LETHAL_TAG)) return;
+		if (victim.level().isClientSide()) return;
+		if (!com.dragonminez.platform.entity.EntityData.get(victim).getBooleanOr(KiSurgeService.NON_LETHAL_TAG, false)) return;
 
 		float headroom = victim.getHealth() - 1.0f;
 		if (headroom <= 0.0f) {
@@ -839,27 +829,27 @@ public class CombatEvent {
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void captureKnockdownForNonPlayers(LivingDamageEvent.Pre event) {
 		LivingEntity victim = event.getEntity();
-		if (victim.level().isClientSide || victim instanceof Player) return;
+		if (victim.level().isClientSide() || victim instanceof Player) return;
 		if (victim.getHealth() - event.getNewDamage() > 0) return;
 		if (!(event.getSource().getEntity() instanceof ServerPlayer attacker)) return;
 		if (!RacialCapture.forcesKnockdown(attacker)) return;
 
 		long now = victim.level().getGameTime();
-		if (victim.getPersistentData().getLong(CAPTURE_KNOCKDOWN_UNTIL_TAG) > now) return;
+		if (com.dragonminez.platform.entity.EntityData.get(victim).getLongOr(CAPTURE_KNOCKDOWN_UNTIL_TAG, 0L) > now) return;
 
 		int stunTicks = ConfigManager.getCombatConfig().getKnockdownDurationSeconds() * 20;
 		event.setNewDamage(Math.max(0.0F, victim.getHealth() - 1.0F));
 		victim.addEffect(new MobEffectInstance(MainEffects.STUN, stunTicks, 0, false, false, true));
-		victim.getPersistentData().putLong(CAPTURE_KNOCKDOWN_UNTIL_TAG, now + stunTicks);
+		com.dragonminez.platform.entity.EntityData.get(victim).putLong(CAPTURE_KNOCKDOWN_UNTIL_TAG, now + stunTicks);
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void overrideVanillaArmorReduction(LivingDamageEvent.Pre event) {
 		if (event.getEntity() instanceof Player victim) {
-			if (victim.getPersistentData().contains("dmz_raw_damage")) {
-				double rawDamage = victim.getPersistentData().getDouble("dmz_raw_damage");
-				double defensePenetration = victim.getPersistentData().contains("dmz_defense_pen") ?
-						victim.getPersistentData().getDouble("dmz_defense_pen") : 0.0;
+			if (com.dragonminez.platform.entity.EntityData.get(victim).contains("dmz_raw_damage")) {
+				double rawDamage = com.dragonminez.platform.entity.EntityData.get(victim).getDoubleOr("dmz_raw_damage", 0D);
+				double defensePenetration = com.dragonminez.platform.entity.EntityData.get(victim).contains("dmz_defense_pen") ?
+						com.dragonminez.platform.entity.EntityData.get(victim).getDoubleOr("dmz_defense_pen", 0D) : 0.0;
 
 				StatsProvider.get(StatsCapability.INSTANCE, victim).ifPresent(stats -> {
 					boolean isGuardBroken = stats.getStatus().isStunEffect() && stats.getResources().getCurrentPoise() <= 0;
@@ -867,9 +857,9 @@ public class CombatEvent {
 					boolean defenseFullyNegated = postMitigation <= 0.0;
 					double afterDefense = postMitigation;
 
-					if (victim.getPersistentData().contains("dmz_block_multiplier")) {
-						postMitigation *= victim.getPersistentData().getDouble("dmz_block_multiplier");
-						victim.getPersistentData().remove("dmz_block_multiplier");
+					if (com.dragonminez.platform.entity.EntityData.get(victim).contains("dmz_block_multiplier")) {
+						postMitigation *= com.dragonminez.platform.entity.EntityData.get(victim).getDoubleOr("dmz_block_multiplier", 0D);
+						com.dragonminez.platform.entity.EntityData.get(victim).remove("dmz_block_multiplier");
 					}
 					double afterBlock = postMitigation;
 
@@ -930,7 +920,7 @@ public class CombatEvent {
 							finalDamage = Math.max(0.0F, victim.getHealth() - 1.0F);
 						} else {
 							boolean shadowKnockdown = damageSource instanceof ShadowDummyEntity dummy
-									&& dummy.getPersistentData().getBoolean(SummonPlayerShadowDummyC2S.TAG_PLAYER_SHADOW);
+									&& com.dragonminez.platform.entity.EntityData.get(dummy).getBooleanOr(SummonPlayerShadowDummyC2S.TAG_PLAYER_SHADOW, false);
 							boolean friendlyKnockdown = false;
 							boolean captureKnockdown = false;
 							if (damageSource instanceof Player attacker) {
@@ -971,7 +961,7 @@ public class CombatEvent {
 					if (victim instanceof ServerPlayer mitigatedVictim) {
 						double blockMitigated = Math.max(0.0, afterDefense - afterBlock);
 						double defenseMitigated = Math.max(0.0, rawDamage - mitigatedFinal - blockMitigated);
-						NeoForge.EVENT_BUS.post(new DMZEvent.PlayerDamageMitigatedEvent(mitigatedVictim, event.getSource(),
+						GameEvents.BUS.post(new DMZEvent.PlayerDamageMitigatedEvent(mitigatedVictim, event.getSource(),
 								rawDamage, defenseMitigated, blockMitigated, mitigatedFinal));
 					}
 
@@ -991,8 +981,8 @@ public class CombatEvent {
 					event.setNewDamage(finalDamage);
 				});
 
-				victim.getPersistentData().remove("dmz_raw_damage");
-				victim.getPersistentData().remove("dmz_defense_pen");
+				com.dragonminez.platform.entity.EntityData.get(victim).remove("dmz_raw_damage");
+				com.dragonminez.platform.entity.EntityData.get(victim).remove("dmz_defense_pen");
 			}
 		}
 		RageEvents.onFinalDamage(event);
@@ -1015,23 +1005,23 @@ public class CombatEvent {
 	}
 
 	private static void markHitKnockback(LivingEntity victim, double multiplier) {
-		victim.getPersistentData().putDouble(HIT_KNOCKBACK_MULT_TAG, multiplier);
-		victim.getPersistentData().putLong(HIT_KNOCKBACK_TICK_TAG, victim.level().getGameTime());
+		com.dragonminez.platform.entity.EntityData.get(victim).putDouble(HIT_KNOCKBACK_MULT_TAG, multiplier);
+		com.dragonminez.platform.entity.EntityData.get(victim).putLong(HIT_KNOCKBACK_TICK_TAG, victim.level().getGameTime());
 	}
 
 	@SubscribeEvent
 	public static void scaleKnockbackByDamage(LivingKnockBackEvent event) {
 		LivingEntity target = event.getEntity();
-		if (target.level().isClientSide) return;
-		if (!target.getPersistentData().contains(HIT_KNOCKBACK_MULT_TAG)) return;
+		if (target.level().isClientSide()) return;
+		if (!com.dragonminez.platform.entity.EntityData.get(target).contains(HIT_KNOCKBACK_MULT_TAG)) return;
 
-		if (target.getPersistentData().getLong(HIT_KNOCKBACK_TICK_TAG) != target.level().getGameTime()) {
-			target.getPersistentData().remove(HIT_KNOCKBACK_MULT_TAG);
-			target.getPersistentData().remove(HIT_KNOCKBACK_TICK_TAG);
+		if (com.dragonminez.platform.entity.EntityData.get(target).getLongOr(HIT_KNOCKBACK_TICK_TAG, 0L) != target.level().getGameTime()) {
+			com.dragonminez.platform.entity.EntityData.get(target).remove(HIT_KNOCKBACK_MULT_TAG);
+			com.dragonminez.platform.entity.EntityData.get(target).remove(HIT_KNOCKBACK_TICK_TAG);
 			return;
 		}
 
-		double multiplier = target.getPersistentData().getDouble(HIT_KNOCKBACK_MULT_TAG);
+		double multiplier = com.dragonminez.platform.entity.EntityData.get(target).getDoubleOr(HIT_KNOCKBACK_MULT_TAG, 0D);
 		if (multiplier <= 0.0) {
 			event.setCanceled(true);
 			return;

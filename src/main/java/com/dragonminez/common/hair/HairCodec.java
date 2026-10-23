@@ -76,7 +76,7 @@ public final class HairCodec {
 		CompoundTag tag = decodeTag(trimmed);
 		if (tag == null) return null;
 		if (tag.contains("Base") && (tag.contains("SSJ") || tag.contains("SSJ2") || tag.contains("SSJ3"))) {
-			return CustomHair.fromTag(withoutJointStyles(tag.getCompound("Base")));
+			return CustomHair.fromTag(withoutJointStyles(tag.getCompoundOrEmpty("Base")));
 		}
 		return CustomHair.fromTag(withoutJointStyles(tag));
 	}
@@ -90,7 +90,7 @@ public final class HairCodec {
 		EnumMap<HairStyleSlot, CustomHair> styles = new EnumMap<>(HairStyleSlot.class);
 		for (HairStyleSlot slot : HairStyleSlot.values()) {
 			String key = tag.contains(slot.getCodeKey()) ? slot.getCodeKey() : (tag.contains(slot.getLegacyCodeKey()) ? slot.getLegacyCodeKey() : null);
-			if (key != null) styles.put(slot, CustomHair.fromTag(withoutJointStyles(tag.getCompound(key))));
+			if (key != null) styles.put(slot, CustomHair.fromTag(withoutJointStyles(tag.getCompoundOrEmpty(key))));
 		}
 
 		CustomHair base = styles.computeIfAbsent(HairStyleSlot.BASE, slot -> new CustomHair());
@@ -107,9 +107,9 @@ public final class HairCodec {
 	private static CompoundTag withoutJointStyles(CompoundTag style) {
 		for (CustomHair.HairFace face : CustomHair.HairFace.values()) {
 			for (String key : new String[]{face.key, face.name()}) {
-				if (!style.contains(key, Tag.TAG_LIST)) continue;
-				ListTag strands = style.getList(key, Tag.TAG_COMPOUND);
-				for (int i = 0; i < strands.size(); i++) strands.getCompound(i).remove("js");
+				if (!com.dragonminez.platform.nbt.NbtCompat.contains(style, key, Tag.TAG_LIST)) continue;
+				ListTag strands = com.dragonminez.platform.nbt.NbtCompat.getList(style, key, Tag.TAG_COMPOUND);
+				for (int i = 0; i < strands.size(); i++) strands.getCompoundOrEmpty(i).remove("js");
 			}
 		}
 		return style;

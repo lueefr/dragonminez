@@ -10,7 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.common.NeoForge;
+import com.dragonminez.platform.event.GameEvents;
 
 @Setter
 @Getter
@@ -80,7 +80,7 @@ public class Stats {
         int newValue = clampStatValue(value);
         if (oldValue != newValue && player != null) {
             DMZEvent.StatChangeEvent event = new DMZEvent.StatChangeEvent(player, DMZEvent.StatChangeEvent.StatType.STRENGTH, oldValue, newValue);
-            if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+            if (!GameEvents.BUS.post(event).isCanceled()) {
                 setAttributeBaseValue(MainAttributes.STRENGTH, newValue);
             }
         } else {
@@ -93,7 +93,7 @@ public class Stats {
         int newValue = clampStatValue(value);
         if (oldValue != newValue && player != null) {
             DMZEvent.StatChangeEvent event = new DMZEvent.StatChangeEvent(player, DMZEvent.StatChangeEvent.StatType.STRIKE_POWER, oldValue, newValue);
-            if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+            if (!GameEvents.BUS.post(event).isCanceled()) {
                 setAttributeBaseValue(MainAttributes.STRIKE_POWER, newValue);
             }
         } else {
@@ -106,7 +106,7 @@ public class Stats {
         int newValue = clampStatValue(value);
         if (oldValue != newValue && player != null) {
             DMZEvent.StatChangeEvent event = new DMZEvent.StatChangeEvent(player, DMZEvent.StatChangeEvent.StatType.RESISTANCE, oldValue, newValue);
-            if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+            if (!GameEvents.BUS.post(event).isCanceled()) {
                 setAttributeBaseValue(MainAttributes.RESISTANCE, newValue);
             }
         } else {
@@ -119,7 +119,7 @@ public class Stats {
         int newValue = clampStatValue(value);
         if (oldValue != newValue && player != null) {
             DMZEvent.StatChangeEvent event = new DMZEvent.StatChangeEvent(player, DMZEvent.StatChangeEvent.StatType.VITALITY, oldValue, newValue);
-            if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+            if (!GameEvents.BUS.post(event).isCanceled()) {
                 setAttributeBaseValue(MainAttributes.VITALITY, newValue);
             }
         } else {
@@ -132,7 +132,7 @@ public class Stats {
         int newValue = clampStatValue(value);
         if (oldValue != newValue && player != null) {
             DMZEvent.StatChangeEvent event = new DMZEvent.StatChangeEvent(player, DMZEvent.StatChangeEvent.StatType.KI_POWER, oldValue, newValue);
-            if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+            if (!GameEvents.BUS.post(event).isCanceled()) {
                 setAttributeBaseValue(MainAttributes.KI_POWER, newValue);
             }
         } else {
@@ -145,7 +145,7 @@ public class Stats {
         int newValue = clampStatValue(value);
         if (oldValue != newValue && player != null) {
             DMZEvent.StatChangeEvent event = new DMZEvent.StatChangeEvent(player, DMZEvent.StatChangeEvent.StatType.ENERGY, oldValue, newValue);
-            if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+            if (!GameEvents.BUS.post(event).isCanceled()) {
                 setAttributeBaseValue(MainAttributes.ENERGY, newValue);
             }
         } else {
@@ -205,12 +205,12 @@ public class Stats {
     }
 
     public void load(CompoundTag tag) {
-        setStrength(tag.getInt("STR"));
-        setStrikePower(tag.getInt("SKP"));
-        setResistance(tag.getInt("RES"));
-        setVitality(tag.getInt("VIT"));
-        setKiPower(tag.getInt("PWR"));
-        setEnergy(tag.getInt("ENE"));
+        setStrength(tag.getIntOr("STR", 0));
+        setStrikePower(tag.getIntOr("SKP", 0));
+        setResistance(tag.getIntOr("RES", 0));
+        setVitality(tag.getIntOr("VIT", 0));
+        setKiPower(tag.getIntOr("PWR", 0));
+        setEnergy(tag.getIntOr("ENE", 0));
     }
 
     public void copyFrom(Stats other) {

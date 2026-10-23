@@ -1,7 +1,6 @@
 package com.dragonminez.common.compat;
 
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.fml.ModList;
 import net.weaponleveling.api.LevelingAPI;
 
 public final class WeaponLevelingCompat {
@@ -11,7 +10,7 @@ public final class WeaponLevelingCompat {
 	private WeaponLevelingCompat() {}
 
 	public static boolean isLoaded() {
-		if (loaded == null) loaded = ModList.get().isLoaded(MOD_ID);
+		if (loaded == null) loaded = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded(MOD_ID);
 		return loaded;
 	}
 

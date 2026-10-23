@@ -1,6 +1,6 @@
 package com.dragonminez.server.world.structure.helper;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -15,15 +15,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.ServerTickEvent;
+import com.dragonminez.platform.event.server.ServerStartingEvent;
+import com.dragonminez.platform.event.server.ServerStoppedEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -132,7 +127,7 @@ public final class QuestStructureHints {
 
 	private static QuestPrerequisites.StructureHint resolve(MinecraftServer server, String structureId,
 														   Pair<ResourceKey<Structure>, ResourceKey<Level>> info) {
-		String dimensionId = info.getSecond().location().toString();
+		String dimensionId = info.getSecond().identifier().toString();
 		if (server == null) return new QuestPrerequisites.StructureHint(dimensionId, null, null, null);
 
 		ServerLevel targetLevel = server.getLevel(info.getSecond());

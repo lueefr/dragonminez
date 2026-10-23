@@ -40,7 +40,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 
 import java.util.Collection;
@@ -380,8 +380,8 @@ public class StatsData {
 		if (adjustedStaminaDrain > 0.0) regenMultiplier = Math.max(0.0, 1.0 - (adjustedStaminaDrain / 50.0));
 		else if (adjustedStaminaDrain < 0.0) regenMultiplier = 1.0 + Math.abs(adjustedStaminaDrain);
 
-		double actionMod = (player != null && player.getPersistentData().contains("dmz_stamina_regen_mod"))
-				? player.getPersistentData().getDouble("dmz_stamina_regen_mod") : 1.0;
+		double actionMod = (player != null && com.dragonminez.platform.entity.EntityData.get(player).contains("dmz_stamina_regen_mod"))
+				? com.dragonminez.platform.entity.EntityData.get(player).getDoubleOr("dmz_stamina_regen_mod", 0D) : 1.0;
 
 		double regenPerSecond = (sp5 / 5.0) * meditationBonus * enchMult * regenMultiplier * actionMod * GlindDivinity.regenMultiplier(this) * secondaryStatEffects.getMultiplier(SecondaryStatEffects.STM_REGEN);
 		return PotionEffectHelper.applyStaminaRegenMultiplier(player, regenPerSecond);
@@ -1093,12 +1093,12 @@ public class StatsData {
 	}
 
 	private boolean isClientPlayer() {
-		return player != null && player.level().isClientSide;
+		return player != null && player.level().isClientSide();
 	}
 
 	private int getSyncedTrainingZone() {
 		if (isClientPlayer()) {
-			Integer zone = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> ClientGravityState::getZone);
+			Integer zone = DistExecutor.unsafeCallWhenOn(EnvType.CLIENT, () -> ClientGravityState::getZone);
 			return zone != null ? zone : 0;
 		}
 		return GravityLogic.getTrainingZone(player);
@@ -1492,7 +1492,7 @@ public class StatsData {
 
 	public double getTpGravityMultiplier() {
 		if (isClientPlayer()) {
-			Float synced = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> ClientGravityState::getTpGravityMult);
+			Float synced = DistExecutor.unsafeCallWhenOn(EnvType.CLIENT, () -> ClientGravityState::getTpGravityMult);
 			return synced != null ? synced : 1.0;
 		}
 		var gravityConfig = ConfigManager.getServerConfig().getGravity();
@@ -1516,7 +1516,7 @@ public class StatsData {
 
 	public double getTpWeightBellMultiplier() {
 		if (isClientPlayer()) {
-			Float synced = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> ClientGravityState::getWeightTpMult);
+			Float synced = DistExecutor.unsafeCallWhenOn(EnvType.CLIENT, () -> ClientGravityState::getWeightTpMult);
 			return synced != null ? synced : 1.0;
 		}
 		return GravityLogic.getWeightTpMultiplier(player);
@@ -1811,26 +1811,26 @@ public class StatsData {
 	public void load(CompoundTag nbt) throws ClassNotFoundException {
 		if (nbt.contains("CompletedContent")) contentProgress.load(nbt.getCompoundOrEmpty("CompletedContent"));
 		boolean fullPayload = nbt.contains("Character") && nbt.contains("Stats");
-		if (nbt.contains("Stats")) stats.load(nbt.getCompound("Stats"));
-		if (nbt.contains("Status")) status.load(nbt.getCompound("Status"));
-		if (nbt.contains("Cooldowns")) cooldowns.load(nbt.getCompound("Cooldowns"));
-		if (nbt.contains("Character")) character.load(nbt.getCompound("Character"));
-		if (nbt.contains("Resources")) resources.load(nbt.getCompound("Resources"));
-		if (nbt.contains("Skills")) skills.load(nbt.getCompound("Skills"));
-		if (nbt.contains("Effects")) effects.load(nbt.getCompound("Effects"));
-		if (nbt.contains("SecondaryStatEffects")) secondaryStatEffects.load(nbt.getCompound("SecondaryStatEffects"));
+		if (nbt.contains("Stats")) stats.load(nbt.getCompoundOrEmpty("Stats"));
+		if (nbt.contains("Status")) status.load(nbt.getCompoundOrEmpty("Status"));
+		if (nbt.contains("Cooldowns")) cooldowns.load(nbt.getCompoundOrEmpty("Cooldowns"));
+		if (nbt.contains("Character")) character.load(nbt.getCompoundOrEmpty("Character"));
+		if (nbt.contains("Resources")) resources.load(nbt.getCompoundOrEmpty("Resources"));
+		if (nbt.contains("Skills")) skills.load(nbt.getCompoundOrEmpty("Skills"));
+		if (nbt.contains("Effects")) effects.load(nbt.getCompoundOrEmpty("Effects"));
+		if (nbt.contains("SecondaryStatEffects")) secondaryStatEffects.load(nbt.getCompoundOrEmpty("SecondaryStatEffects"));
 		else if (fullPayload) secondaryStatEffects.clear();
-		if (nbt.contains("PlayerQuestData")) playerQuestData.deserializeNBT(nbt.getCompound("PlayerQuestData"));
+		if (nbt.contains("PlayerQuestData")) playerQuestData.deserializeNBT(nbt.getCompoundOrEmpty("PlayerQuestData"));
 		else if (fullPayload) throw new ClassNotFoundException("PlayerQuestData not found in NBT. This is required for quest progression to work correctly. " +
 				"Please update the mod or re-generate your config files.");
-		if (nbt.contains("BonusStats")) bonusStats.load(nbt.getCompound("BonusStats"));
-		if (nbt.contains("Techniques")) techniques.load(nbt.getCompound("Techniques"));
-		if (nbt.contains("DynamicGrowth")) dynamicGrowth.load(nbt.getCompound("DynamicGrowth"));
-		if (nbt.contains("RacialData")) racialData.load(nbt.getCompound("RacialData"));
+		if (nbt.contains("BonusStats")) bonusStats.load(nbt.getCompoundOrEmpty("BonusStats"));
+		if (nbt.contains("Techniques")) techniques.load(nbt.getCompoundOrEmpty("Techniques"));
+		if (nbt.contains("DynamicGrowth")) dynamicGrowth.load(nbt.getCompoundOrEmpty("DynamicGrowth"));
+		if (nbt.contains("RacialData")) racialData.load(nbt.getCompoundOrEmpty("RacialData"));
 		else if (fullPayload) migrateRacialDataFromLegacy();
-		if (nbt.contains(FusedData.NBT_KEY)) fusedData = FusedData.fromTag(nbt.getCompound(FusedData.NBT_KEY), fusedData);
+		if (nbt.contains(FusedData.NBT_KEY)) fusedData = FusedData.fromTag(nbt.getCompoundOrEmpty(FusedData.NBT_KEY), fusedData);
 		else if (nbt.contains("Skills")) fusedData = null;
-		if (nbt.contains("HasInitializedHealth")) hasInitializedHealth = nbt.getBoolean("HasInitializedHealth");
+		if (nbt.contains("HasInitializedHealth")) hasInitializedHealth = nbt.getBooleanOr("HasInitializedHealth", false);
 		if (character.getRaceName() != null && !character.getRaceName().isEmpty()) updateTransformationSkillLimits(character.getRaceName());
 		this.isDataLoaded = true;
 	}

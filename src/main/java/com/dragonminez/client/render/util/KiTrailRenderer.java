@@ -81,7 +81,7 @@ public final class KiTrailRenderer {
 		Deque<Vec3> recorded = TRAILS.get(entity.getId());
 		if (shader == null || recorded == null || recorded.isEmpty()) return;
 
-		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
 		Vec3 head = centre(entity, partialTick);
 		Vec3 offset = new Vec3(
 				Mth.lerp(partialTick, entity.xo, entity.getX()) - camera.x,

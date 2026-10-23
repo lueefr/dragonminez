@@ -43,7 +43,7 @@ public class ReviveTechniqueData extends TechniqueData {
 	public void load(CompoundTag tag) {
 		this.id = ID;
 		this.name = NAME_KEY;
-		this.author = tag.contains("Author") ? tag.getString("Author") : "dragonminez";
-		this.experience = tag.getInt("Experience");
+		this.author = tag.contains("Author") ? tag.getStringOr("Author", "") : "dragonminez";
+		this.experience = tag.getIntOr("Experience", 0);
 	}
 }

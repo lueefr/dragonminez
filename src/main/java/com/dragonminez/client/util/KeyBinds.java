@@ -131,7 +131,7 @@ public class KeyBinds {
 
 	private static boolean isAltGrDown() {
 		if (Minecraft.ON_OSX) return false;
-		long window = Minecraft.getInstance().getWindow().getWindow();
+		var window = Minecraft.getInstance().getWindow();
 		return InputConstants.isKeyDown(window, GLFW.GLFW_KEY_RIGHT_ALT);
 	}
 
@@ -144,12 +144,12 @@ public class KeyBinds {
 	public static boolean isPhysicallyDown(KeyMapping mapping) {
 		InputConstants.Key key = mapping.getKey();
 		if (key.getValue() == InputConstants.UNKNOWN.getValue()) return mapping.isDown();
-		long window = Minecraft.getInstance().getWindow().getWindow();
+		var window = Minecraft.getInstance().getWindow();
 		if (key.getType() == InputConstants.Type.KEYSYM) {
 			return InputConstants.isKeyDown(window, key.getValue());
 		}
 		if (key.getType() == InputConstants.Type.MOUSE) {
-			return GLFW.glfwGetMouseButton(window, key.getValue()) == GLFW.GLFW_PRESS;
+			return GLFW.glfwGetMouseButton(window.handle(), key.getValue()) == GLFW.GLFW_PRESS;
 		}
 		return mapping.isDown();
 	}

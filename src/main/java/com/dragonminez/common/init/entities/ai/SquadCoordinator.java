@@ -12,7 +12,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,11 +31,11 @@ public final class SquadCoordinator {
     public static String factionKey(Mob mob) {
         if (mob instanceof DBSagasEntity saga) {
             if (saga.hasQuestTeam()) return "team:" + saga.getQuestTeam();
-            if (saga.getPersistentData().contains(DBSagasEntity.RAID_ID_TAG)) {
-                return "raid:" + saga.getPersistentData().getString(DBSagasEntity.RAID_ID_TAG);
+            if (com.dragonminez.platform.entity.EntityData.get(saga).contains(DBSagasEntity.RAID_ID_TAG)) {
+                return "raid:" + com.dragonminez.platform.entity.EntityData.get(saga).getStringOr(DBSagasEntity.RAID_ID_TAG, "");
             }
-            if (saga.getPersistentData().contains(TOURNAMENT_MATCH_TAG)) {
-                return "match:" + saga.getPersistentData().getString(TOURNAMENT_MATCH_TAG);
+            if (com.dragonminez.platform.entity.EntityData.get(saga).contains(TOURNAMENT_MATCH_TAG)) {
+                return "match:" + com.dragonminez.platform.entity.EntityData.get(saga).getStringOr(TOURNAMENT_MATCH_TAG, "");
             }
         }
         if (mob instanceof CellJrEntity jr) {

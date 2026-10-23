@@ -12,12 +12,12 @@ import com.dragonminez.server.util.BabaReviveService;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.List;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 final class MasterServices {
 	private static final int POTENTIAL_LEVEL = 10;
 	private static final int GURU_MIN_ALIGNMENT = 50;

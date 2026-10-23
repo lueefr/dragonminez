@@ -9,7 +9,6 @@ import com.dragonminez.server.events.players.combat.KiTechniqueHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -23,7 +22,7 @@ import java.util.Optional;
 public class TechniqueDispatcher {
 
 	public static boolean executeKiAttack(LivingEntity owner, Level level, KiAttackData data, StatsData statsData, float chargeMultiplier) {
-		if (level.isClientSide) return false;
+		if (level.isClientSide()) return false;
 
 		boolean isInitialSpawn = chargeMultiplier < 0.05f;
 		float clampedCharge = Mth.clamp(chargeMultiplier, 0.1f, 2.0f);
@@ -98,7 +97,7 @@ public class TechniqueDispatcher {
             ring.setHeal(isHeal);
             ring.setLockTarget(homingTargetId);
 
-            if (!level.isClientSide) level.addFreshEntity(ring);
+            if (!level.isClientSide()) level.addFreshEntity(ring);
             return true;
         }
 
@@ -120,7 +119,7 @@ public class TechniqueDispatcher {
             hellzone.setArmorPenetration(data.getArmorPenetration());
             hellzone.setHeal(isHeal);
 
-            if (!level.isClientSide) level.addFreshEntity(hellzone);
+            if (!level.isClientSide()) level.addFreshEntity(hellzone);
             return true;
         }
 
@@ -134,7 +133,7 @@ public class TechniqueDispatcher {
             triBeam.setHeal(isHeal);
             triBeam.setHomingTarget(homingTargetId);
 
-            if (!level.isClientSide) level.addFreshEntity(triBeam);
+            if (!level.isClientSide()) level.addFreshEntity(triBeam);
             return true;
         }
 
@@ -166,7 +165,7 @@ public class TechniqueDispatcher {
                 smallBall.setYRot(owner.getYRot());
                 smallBall.setXRot(owner.getXRot());
 
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     smallBall.playInitialSound(com.dragonminez.common.init.MainSounds.KIBLAST_ATTACK.get());
                     level.addFreshEntity(smallBall);
                 }
@@ -182,7 +181,7 @@ public class TechniqueDispatcher {
                     medBall.setColors(data.getColorInterior(), data.getColorExterior(), data.getColorOutline());
                 } else if("burning_attack".equals(data.getId())){
                     medBall.setupKiBlastPlayer(owner, realDamage, kiSpeed, data.getColorInterior(), data.getColorExterior(), castSize);
-                    if (!level.isClientSide) level.playSound(null, medBall.getX(), medBall.getY(), medBall.getZ(), MainSounds.KI_BURNING_CHARGE.get(), SoundSource.PLAYERS, 4.0F, 1.0F);
+                    if (!level.isClientSide()) level.playSound(null, medBall.getX(), medBall.getY(), medBall.getZ(), MainSounds.KI_BURNING_CHARGE.get(), SoundSource.PLAYERS, 4.0F, 1.0F);
                 } else {
                 medBall.setupKiBlastPlayer(owner, realDamage, kiSpeed, data.getColorInterior(),
                         data.getColorExterior(), data.getColorOutline(), castSize);
@@ -194,7 +193,7 @@ public class TechniqueDispatcher {
                 medBall.setHeal(isHeal);
                 medBall.setHomingTarget(homingTargetId);
 
-                if (!level.isClientSide) level.addFreshEntity(medBall);
+                if (!level.isClientSide()) level.addFreshEntity(medBall);
                 break;
             case GIANT_BALL:
                 KiBlastEntity giantBall = new KiBlastEntity(level, owner);
@@ -219,7 +218,7 @@ public class TechniqueDispatcher {
                 giantBall.setArmorPenetration(data.getArmorPenetration());
                 giantBall.setHeal(isHeal);
 
-                if (!level.isClientSide) level.addFreshEntity(giantBall);
+                if (!level.isClientSide()) level.addFreshEntity(giantBall);
                 break;
             case WAVE:
                 KiWaveEntity wave = new KiWaveEntity(level, owner);
@@ -257,7 +256,7 @@ public class TechniqueDispatcher {
                     wave.setCastWave(data.getBaseChargeTicks());
                 } else wave.setFiring(true);
 
-                if (!level.isClientSide) level.addFreshEntity(wave);
+                if (!level.isClientSide()) level.addFreshEntity(wave);
                 break;
             case LASER:
                 KiLaserEntity laser = new KiLaserEntity(level, owner);
@@ -274,7 +273,7 @@ public class TechniqueDispatcher {
                 laser.setArmorPenetration(data.getArmorPenetration());
                 laser.setHeal(isHeal);
 
-                if (!level.isClientSide) level.addFreshEntity(laser);
+                if (!level.isClientSide()) level.addFreshEntity(laser);
                 break;
             case BEAM:
                 KiLaserEntity beam = new KiLaserEntity(level, owner);
@@ -293,7 +292,7 @@ public class TechniqueDispatcher {
                     beam.setHeal(isHeal);
                 }
 
-                    if (!level.isClientSide) level.addFreshEntity(beam);
+                    if (!level.isClientSide()) level.addFreshEntity(beam);
                 break;
             case DISK:
                 if ("kienzan_doble".equals(data.getId())) {
@@ -318,7 +317,7 @@ public class TechniqueDispatcher {
                     diskLeft.setHeal(isHeal);
                     diskLeft.setHomingTarget(homingTargetId);
 
-                    if (!level.isClientSide) {
+                    if (!level.isClientSide()) {
                         level.addFreshEntity(diskRight);
                         level.addFreshEntity(diskLeft);
                     }
@@ -332,7 +331,7 @@ public class TechniqueDispatcher {
                     disk.setHeal(isHeal);
                     disk.setHomingTarget(homingTargetId);
 
-                    if (!level.isClientSide) level.addFreshEntity(disk);
+                    if (!level.isClientSide()) level.addFreshEntity(disk);
                 } else {
                     KiDiskEntity disk = new KiDiskEntity(level, owner);
                     disk.setupKiDiskPlayer(owner, realDamage, kiSpeed, data.getColorInterior(), castSize);
@@ -343,7 +342,7 @@ public class TechniqueDispatcher {
                     disk.setHeal(isHeal);
                     disk.setHomingTarget(homingTargetId);
 
-                    if (!level.isClientSide) level.addFreshEntity(disk);
+                    if (!level.isClientSide()) level.addFreshEntity(disk);
                 }
                 break;
             case SHIELD:
@@ -357,7 +356,7 @@ public class TechniqueDispatcher {
                 // A HEAL shield aimed at a friendly target wraps that ally instead of the caster.
                 if (isHeal && homingTarget != null) barrier.setShieldHost(homingTarget.getId());
 
-                if (!level.isClientSide) level.addFreshEntity(barrier);
+                if (!level.isClientSide()) level.addFreshEntity(barrier);
                 break;
             case EXPLOSION:
                 KiExplosionEntity explosion = new KiExplosionEntity(level, owner);
@@ -371,7 +370,7 @@ public class TechniqueDispatcher {
                 explosion.setArmorPenetration(data.getArmorPenetration());
                 explosion.setHeal(isHeal);
 
-                if (!level.isClientSide) level.addFreshEntity(explosion);
+                if (!level.isClientSide()) level.addFreshEntity(explosion);
                 break;
             case AREA:
                 if (isInitialSpawn) {
@@ -394,7 +393,7 @@ public class TechniqueDispatcher {
                     area.setFiring(false);
                     area.setMaxLife(99999);
 
-                    if (!level.isClientSide) level.addFreshEntity(area);
+                    if (!level.isClientSide()) level.addFreshEntity(area);
                 }
                 break;
             case BARRAGE:
@@ -434,7 +433,7 @@ public class TechniqueDispatcher {
                     volley.setFiring(false);
                     volley.setMaxLife(99999);
 
-                    if (!level.isClientSide) level.addFreshEntity(volley);
+                    if (!level.isClientSide()) level.addFreshEntity(volley);
                 }
                 break;
             default:
@@ -568,7 +567,7 @@ public class TechniqueDispatcher {
 	}
 
 	public static LivingEntity resolveHomingTarget(LivingEntity owner, Level level, KiAttackData data, StatsData statsData) {
-		if (!(owner instanceof Player player) || level.isClientSide) return null;
+		if (!(owner instanceof Player player) || level.isClientSide()) return null;
 		boolean heal = data.getEffectiveUtility() == KiAttackData.Utility.HEAL;
 
 		int lockedId = statsData.getTechniques().getHomingTargetId();

@@ -2,11 +2,10 @@ package com.dragonminez.client.init.entities.model;
 
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.FlyingNimbusEntity;
-import com.dragonminez.common.init.entities.SpacePodEntity;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class FlyingNimbusModel<T extends FlyingNimbusEntity> extends GeoModel<T> {
+public class FlyingNimbusModel<T extends FlyingNimbusEntity> extends ExtractedGeoModel<T> {
 
     @Override
     public Identifier getModelResource(T animatable) {

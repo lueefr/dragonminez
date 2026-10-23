@@ -87,7 +87,7 @@ public final class FusionDanceAligner {
 		ServerPlayer partner = null;
 		StatsData partnerData = null;
 		double best = PAIR_RANGE_SQ;
-		for (ServerPlayer other : player.serverLevel().players()) {
+		for (ServerPlayer other : player.level().players()) {
 			if (other == player || SLOTS.containsKey(other.getUUID())) continue;
 			double distance = other.distanceToSqr(player);
 			if (distance > best) continue;

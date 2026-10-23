@@ -5,9 +5,9 @@ import com.dragonminez.common.dragonball.DragonBallDefinitions;
 import com.dragonminez.common.dragonball.DragonBallSetAssetDefinition;
 import com.dragonminez.common.init.block.entity.DragonBallBlockEntity;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class DragonBallBlockModel extends GeoModel<DragonBallBlockEntity> {
+public class DragonBallBlockModel extends ExtractedGeoModel<DragonBallBlockEntity> {
 	@Override
 	public Identifier getModelResource(DragonBallBlockEntity blockEntity) {
 		DragonBallSetAssetDefinition assets = DragonBallDefinitions.getBallSet(blockEntity.getBallSetId()) != null

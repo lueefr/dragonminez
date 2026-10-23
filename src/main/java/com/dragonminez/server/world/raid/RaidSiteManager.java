@@ -1,6 +1,6 @@
 package com.dragonminez.server.world.raid;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -34,7 +34,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -50,14 +50,9 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.LevelTickEvent;
+import com.dragonminez.platform.event.living.LivingDeathEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,7 +131,7 @@ public final class RaidSiteManager {
 
 	@SubscribeEvent
 	public static void onLevelTick(LevelTickEvent.Post event) {
-		if (event.getLevel().isClientSide) return;
+		if (event.getLevel().isClientSide()) return;
 		if (!(event.getLevel() instanceof ServerLevel level)) return;
 		if (level.getGameTime() % SCAN_INTERVAL != 0L) return;
 
@@ -147,15 +142,15 @@ public final class RaidSiteManager {
 	public static void onScoutDeath(LivingDeathEvent event) {
 		LivingEntity entity = event.getEntity();
 		if (!(entity.level() instanceof ServerLevel level)) return;
-		CompoundTag data = entity.getPersistentData();
+		CompoundTag data = com.dragonminez.platform.entity.EntityData.get(entity);
 		if (!data.contains(SITE_TAG)) return;
-		Data.get(level).consume(data.getLong(SITE_TAG));
+		Data.get(level).consume(data.getLongOr(SITE_TAG, 0L));
 	}
 
 	private static void scan(ServerLevel level, Kind kind) {
 		if (level.getDifficulty() == Difficulty.PEACEFUL || level.players().isEmpty()) return;
 
-		Registry<Structure> registry = level.registryAccess().registryOrThrow(Registries.STRUCTURE);
+		Registry<Structure> registry = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
 		List<Structure> structures = new ArrayList<>();
 		for (ResourceKey<Structure> key : kind.structures) {
 			Structure structure = registry.get(key);
@@ -270,8 +265,8 @@ public final class RaidSiteManager {
 
 	private static Mob findScout(ServerLevel level, AABB area, long key) {
 		for (Mob mob : level.getEntitiesOfClass(Mob.class, area, Mob::isAlive)) {
-			CompoundTag data = mob.getPersistentData();
-			if (data.contains(SITE_TAG) && data.getLong(SITE_TAG) == key) return mob;
+			CompoundTag data = com.dragonminez.platform.entity.EntityData.get(mob);
+			if (data.contains(SITE_TAG) && data.getLongOr(SITE_TAG, 0L) == key) return mob;
 		}
 		return null;
 	}
@@ -315,11 +310,11 @@ public final class RaidSiteManager {
 		}
 
 		scout.moveTo(stand.getX() + 0.5D, stand.getY(), stand.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
-		scout.finalizeSpawn(level, level.getCurrentDifficultyAt(stand), MobSpawnType.STRUCTURE, null);
+		scout.finalizeSpawn(level, level.getCurrentDifficultyAt(stand), EntitySpawnReason.STRUCTURE, null);
 		scout.setPersistenceRequired();
 		if (scout instanceof PathfinderMob pathfinder) pathfinder.restrictTo(home, SCOUT_LEASH);
 
-		CompoundTag data = scout.getPersistentData();
+		CompoundTag data = com.dragonminez.platform.entity.EntityData.get(scout);
 		data.putString(RaidTriggerEvents.PENDING_RAID_TAG, kind.raidId);
 		data.putLong(SITE_TAG, siteKey);
 		data.putBoolean("dmz_stats_configured", true);
@@ -420,7 +415,7 @@ public final class RaidSiteManager {
 			if (type == null) return;
 			if (!(type.create(level) instanceof PathfinderMob soldier)) return;
 			soldier.moveTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
-			soldier.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.STRUCTURE, null);
+			soldier.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), EntitySpawnReason.STRUCTURE, null);
 			soldier.setPersistenceRequired();
 			if (soldier instanceof RedRibbonEntity redRibbon) redRibbon.setSupervillain(true);
 			soldier.restrictTo(pos, GUARD_LEASH);
@@ -451,13 +446,13 @@ public final class RaidSiteManager {
 
 		static Data load(CompoundTag tag) {
 			Data data = new Data();
-			ListTag list = tag.getList("Sites", Tag.TAG_COMPOUND);
+			ListTag list = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "Sites", Tag.TAG_COMPOUND);
 			for (int i = 0; i < list.size(); i++) {
-				CompoundTag siteTag = list.getCompound(i);
-				Entry entry = data.entry(siteTag.getLong("Key"));
-				entry.consumed = siteTag.getBoolean("Consumed");
-				if (siteTag.hasUUID("Scout")) entry.scout = siteTag.getUUID("Scout");
-				ListTag announced = siteTag.getList("Announced", Tag.TAG_INT_ARRAY);
+				CompoundTag siteTag = list.getCompoundOrEmpty(i);
+				Entry entry = data.entry(siteTag.getLongOr("Key", 0L));
+				entry.consumed = siteTag.getBooleanOr("Consumed", false);
+				if (com.dragonminez.platform.nbt.NbtCompat.hasUUID(siteTag, "Scout")) entry.scout = com.dragonminez.platform.nbt.NbtCompat.getUUID(siteTag, "Scout");
+				ListTag announced = com.dragonminez.platform.nbt.NbtCompat.getList(siteTag, "Announced", Tag.TAG_INT_ARRAY);
 				for (Tag uuid : announced) entry.announced.add(NbtUtils.loadUUID(uuid));
 			}
 			return data;
@@ -471,7 +466,7 @@ public final class RaidSiteManager {
 				CompoundTag siteTag = new CompoundTag();
 				siteTag.putLong("Key", mapEntry.getKey());
 				siteTag.putBoolean("Consumed", entry.consumed);
-				if (entry.scout != null) siteTag.putUUID("Scout", entry.scout);
+				if (entry.scout != null) com.dragonminez.platform.nbt.NbtCompat.putUUID(siteTag, "Scout", entry.scout);
 				if (!entry.consumed) {
 					ListTag announced = new ListTag();
 					for (UUID uuid : entry.announced) announced.add(NbtUtils.createUUID(uuid));

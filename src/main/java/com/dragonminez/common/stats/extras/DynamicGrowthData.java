@@ -147,15 +147,15 @@ public class DynamicGrowthData {
 
 	public void load(CompoundTag tag) {
 		practiceXp.clear();
-		CompoundTag xpTag = tag.getCompound("PracticeXp");
-		for (String key : xpTag.getAllKeys()) {
-			double value = xpTag.getDouble(key);
+		CompoundTag xpTag = tag.getCompoundOrEmpty("PracticeXp");
+		for (String key : xpTag.keySet()) {
+			double value = xpTag.getDoubleOr(key, 0D);
 			practiceXp.put(key, Double.isFinite(value) && value > 0.0 ? value : 0.0);
 		}
 		disabledStats.clear();
-		ListTag disabledTag = tag.getList("DisabledStats", Tag.TAG_STRING);
-		for (int i = 0; i < disabledTag.size(); i++) disabledStats.add(disabledTag.getString(i));
-		growthStats = Math.max(0, tag.getInt("GrowthStats"));
+		ListTag disabledTag = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "DisabledStats", Tag.TAG_STRING);
+		for (int i = 0; i < disabledTag.size(); i++) disabledStats.add(disabledTag.getStringOr(i, ""));
+		growthStats = Math.max(0, tag.getIntOr("GrowthStats", 0));
 	}
 
 	public void toBytes(FriendlyByteBuf buf) {

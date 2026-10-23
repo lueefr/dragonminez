@@ -38,24 +38,17 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import com.dragonminez.platform.event.GameEvents;
+import com.dragonminez.platform.event.tick.PlayerTickEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.living.LivingDeathEvent;
+import com.dragonminez.platform.event.living.LivingIncomingDamageEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.player.PlayerInteractEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -66,7 +59,7 @@ import java.util.Set;
 public class QuestEvents {
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Post event) {
-		if (event.getEntity().level().isClientSide) {
+		if (event.getEntity().level().isClientSide()) {
 			return;
 		}
 		if (event.getEntity().tickCount % 20 != 0) {
@@ -105,22 +98,22 @@ public class QuestEvents {
 	@SubscribeEvent
 	public static void onSparHurt(LivingIncomingDamageEvent event) {
 		LivingEntity target = event.getEntity();
-		if (target.level().isClientSide) return;
+		if (target.level().isClientSide()) return;
 		if (!(event.getSource().getEntity() instanceof ServerPlayer attacker)) return;
-		if (!target.getPersistentData().contains(QuestService.QUEST_KEY_TAG)) return;
+		if (!com.dragonminez.platform.entity.EntityData.get(target).contains(QuestService.QUEST_KEY_TAG)) return;
 		if (target.isRemoved()) {
 			event.setCanceled(true);
 			return;
 		}
 
-		String questKey = target.getPersistentData().getString(QuestService.QUEST_KEY_TAG);
-		int objectiveIndex = target.getPersistentData().getInt(QuestService.QUEST_OBJECTIVE_INDEX_TAG);
+		String questKey = com.dragonminez.platform.entity.EntityData.get(target).getStringOr(QuestService.QUEST_KEY_TAG, "");
+		int objectiveIndex = com.dragonminez.platform.entity.EntityData.get(target).getIntOr(QuestService.QUEST_OBJECTIVE_INDEX_TAG, 0);
 		Quest quest = QuestRegistry.getQuest(questKey);
 		if (quest == null || objectiveIndex < 0 || objectiveIndex >= quest.getObjectives().size()) return;
 		if (!(quest.getObjectives().get(objectiveIndex) instanceof SparObjective)) return;
 
 		List<ServerPlayer> attackerParty = PartyManager.getAllPartyMembers(attacker);
-		String owner = target.getPersistentData().getString(QuestService.QUEST_OWNER_TAG);
+		String owner = com.dragonminez.platform.entity.EntityData.get(target).getStringOr(QuestService.QUEST_OWNER_TAG, "");
 		boolean ownParty = false;
 		for (ServerPlayer member : attackerParty) {
 			if (member.getStringUUID().equals(owner)) {
@@ -182,7 +175,7 @@ public class QuestEvents {
 			return;
 		}
 
-		long gameTime = player.serverLevel().getGameTime();
+		long gameTime = player.level().getGameTime();
 		Set<String> failedQuestIds = new LinkedHashSet<>();
 		for (String questKey : acceptedQuestIds) {
 			Quest quest = QuestRegistry.getQuest(questKey);
@@ -255,7 +248,7 @@ public class QuestEvents {
 				QuestParty.allParticipants(player, questKey),
 				reason
 		);
-		if (NeoForge.EVENT_BUS.post(failEvent).isCanceled()) {
+		if (GameEvents.BUS.post(failEvent).isCanceled()) {
 			return false;
 		}
 
@@ -395,7 +388,7 @@ public class QuestEvents {
 			return true;
 		}
 		Identifier id = Identifier.tryParse(dimension);
-		return id != null && player.level().dimension().location().equals(id);
+		return id != null && player.level().dimension().identifier().equals(id);
 	}
 
 	private static void processKillObjectives(ServerPlayer player, PlayerQuestData pqd, String questKey, Quest quest,
@@ -490,7 +483,7 @@ public class QuestEvents {
 		if (targetStr != null) {
 			Identifier id = Identifier.tryParse(targetStr);
 			if (id == null || !BuiltInRegistries.ENTITY_TYPE.containsKey(id)) return false;
-			EntityType<?> requiredType = BuiltInRegistries.ENTITY_TYPE.get(id);
+			EntityType<?> requiredType = BuiltInRegistries.ENTITY_TYPE.getValue(id);
 			if (!event.getTarget().getType().equals(requiredType)) return false;
 		}
 		String requiredName = objective.getEntityName();
@@ -596,24 +589,24 @@ public class QuestEvents {
 	}
 
 	private static boolean hasQuestSpawnTags(LivingEntity killedEntity) {
-		return killedEntity.getPersistentData().contains(QuestService.QUEST_KEY_TAG)
-				|| killedEntity.getPersistentData().contains(QuestService.QUEST_OBJECTIVE_INDEX_TAG)
-				|| killedEntity.getPersistentData().contains(QuestService.QUEST_OWNER_TAG);
+		return com.dragonminez.platform.entity.EntityData.get(killedEntity).contains(QuestService.QUEST_KEY_TAG)
+				|| com.dragonminez.platform.entity.EntityData.get(killedEntity).contains(QuestService.QUEST_OBJECTIVE_INDEX_TAG)
+				|| com.dragonminez.platform.entity.EntityData.get(killedEntity).contains(QuestService.QUEST_OWNER_TAG);
 	}
 
 	private static boolean matchesQuestSpawnTags(LivingEntity killedEntity, String questKey, int objectiveIndex,
 												List<ServerPlayer> partyMembers) {
-		if (!killedEntity.getPersistentData().contains(QuestService.QUEST_KEY_TAG)
-				|| !killedEntity.getPersistentData().contains(QuestService.QUEST_OBJECTIVE_INDEX_TAG)
-				|| !killedEntity.getPersistentData().contains(QuestService.QUEST_OWNER_TAG)) {
+		if (!com.dragonminez.platform.entity.EntityData.get(killedEntity).contains(QuestService.QUEST_KEY_TAG)
+				|| !com.dragonminez.platform.entity.EntityData.get(killedEntity).contains(QuestService.QUEST_OBJECTIVE_INDEX_TAG)
+				|| !com.dragonminez.platform.entity.EntityData.get(killedEntity).contains(QuestService.QUEST_OWNER_TAG)) {
 			return false;
 		}
-		if (!questKey.equals(killedEntity.getPersistentData().getString(QuestService.QUEST_KEY_TAG))
-				|| objectiveIndex != killedEntity.getPersistentData().getInt(QuestService.QUEST_OBJECTIVE_INDEX_TAG)) {
+		if (!questKey.equals(com.dragonminez.platform.entity.EntityData.get(killedEntity).getStringOr(QuestService.QUEST_KEY_TAG, ""))
+				|| objectiveIndex != com.dragonminez.platform.entity.EntityData.get(killedEntity).getIntOr(QuestService.QUEST_OBJECTIVE_INDEX_TAG, 0)) {
 			return false;
 		}
 
-		String ownerUuid = killedEntity.getPersistentData().getString(QuestService.QUEST_OWNER_TAG);
+		String ownerUuid = com.dragonminez.platform.entity.EntityData.get(killedEntity).getStringOr(QuestService.QUEST_OWNER_TAG, "");
 		for (ServerPlayer member : partyMembers) {
 			if (member.getStringUUID().equals(ownerUuid)) {
 				return true;
@@ -675,7 +668,7 @@ public class QuestEvents {
 				newProgress,
 				required
 		);
-		if (NeoForge.EVENT_BUS.post(progressEvent).isCanceled()) {
+		if (GameEvents.BUS.post(progressEvent).isCanceled()) {
 			return;
 		}
 		newProgress = Math.max(0, progressEvent.getNewProgress());
@@ -718,7 +711,7 @@ public class QuestEvents {
 				quest,
 				QuestParty.allParticipants(player, questKey)
 		);
-		NeoForge.EVENT_BUS.post(completeEvent);
+		GameEvents.BUS.post(completeEvent);
 
 		pqd.completeQuest(questKey);
 		QuestFieldSessions.clearQuest(player, questKey);

@@ -8,7 +8,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import net.minecraft.client.gui.LayeredDraw;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -62,7 +61,7 @@ public final class NotificationHUD {
 					null), PRIORITY_NORMAL));
 	private static long sequence;
 
-	public static final LayeredDraw.Layer HUD_NOTIFICATIONS = (guiGraphics, deltaTracker) -> {
+	public static final net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement HUD_NOTIFICATIONS = (guiGraphics, deltaTracker) -> {
         float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
         int width = guiGraphics.guiWidth();
         int height = guiGraphics.guiHeight();

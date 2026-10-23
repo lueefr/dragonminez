@@ -10,7 +10,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +79,7 @@ public final class QuestParty {
 		if (player == null || itemId == null) return 0;
 		Identifier id = Identifier.tryParse(itemId);
 		if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) return 0;
-		Item item = BuiltInRegistries.ITEM.get(id);
+		Item item = BuiltInRegistries.ITEM.getValue(id);
 		Container inventory = player.getInventory();
 		int count = 0;
 		for (int slot = 0; slot < inventory.getContainerSize(); slot++) {

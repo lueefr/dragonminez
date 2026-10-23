@@ -8,7 +8,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -35,7 +35,7 @@ public final class GeteStarRenderers {
                 .setOverlay(OverlayTexture.NO_OVERLAY).setLight(light), normal, (float) n.x, (float) n.y, (float) n.z);
     }
 
-    public static class BindRenderer extends EntityRenderer<GeteStarEntities.Bind> {
+    public static class BindRenderer extends EntityRenderer<GeteStarEntities.Bind, net.minecraft.client.renderer.entity.state.EntityRenderState> {
 
         private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/gete_cable.png");
         private static final int SEGMENTS = 10;
@@ -75,7 +75,7 @@ public final class GeteStarRenderers {
             };
             Vec3[] targets = this.targets(bind, origin, right, partialTick);
 
-            VertexConsumer consumer = buffer.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
+            VertexConsumer consumer = buffer.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(TEXTURE));
             PoseStack.Pose last = poseStack.last();
             float scroll = age * SCROLL_SPEED;
             for (int i = 0; i < anchors.length; i++) {
@@ -140,7 +140,7 @@ public final class GeteStarRenderers {
         }
     }
 
-    public static class ScrapRenderer extends EntityRenderer<GeteStarEntities.Scrap> {
+    public static class ScrapRenderer extends EntityRenderer<GeteStarEntities.Scrap, net.minecraft.client.renderer.entity.state.EntityRenderState> {
 
         private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/item/gete_scrap.png");
         private static final int PIECES = 9;

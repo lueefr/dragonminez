@@ -9,7 +9,6 @@ import com.dragonminez.client.render.layer.BodyLayerFadeTracker;
 import com.dragonminez.client.render.layer.DMZSkinLayer;
 import com.dragonminez.client.render.util.ModRenderTypes;
 import com.dragonminez.client.render.effects.KiWeaponRenderer;
-import org.joml.Vector3f;
 import com.dragonminez.client.render.util.PlayerEffectQueue;
 import com.dragonminez.client.util.SkinGathererProvider;
 import com.dragonminez.common.config.ConfigManager;
@@ -21,18 +20,17 @@ import com.dragonminez.common.init.armor.DbzArmorTextured;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
-import com.dragonminez.common.util.TransformationsHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -43,18 +41,17 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@OnlyIn(Dist.CLIENT)
-public class DMZRenderHand extends LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
+@Environment(EnvType.CLIENT)
+public class DMZRenderHand extends LivingEntityRenderer<AbstractClientPlayer, net.minecraft.client.renderer.entity.state.AvatarRenderState, PlayerModel> {
 	private static final float KI_GEO_TX = -0.06F;
 	private static final float KI_GEO_TY = -0.03F;
 	private static final float KI_GEO_TZ = -0.1F;
@@ -65,7 +62,7 @@ public class DMZRenderHand extends LivingEntityRenderer<AbstractClientPlayer, Pl
 	private static final float[] WHITE_COLOR = {1.0F, 1.0F, 1.0F};
 	private final float[] colorBuffer = new float[3];
 
-	public DMZRenderHand(EntityRendererProvider.Context pContext, PlayerModel<AbstractClientPlayer> pModel) {
+	public DMZRenderHand(EntityRendererProvider.Context pContext, PlayerModel pModel) {
 		super(pContext, new PlayerModel(pContext.bakeLayer(ModelLayers.PLAYER), false), 0.4f);
 	}
 
@@ -256,7 +253,7 @@ public class DMZRenderHand extends LivingEntityRenderer<AbstractClientPlayer, Pl
 	}
 
 	private void renderPart(PoseStack stack, MultiBufferSource buffer, int light, ModelPart part, Identifier texture, float[] rgb, float alpha) {
-		VertexConsumer vc = buffer.getBuffer(RenderType.entityTranslucent(texture));
+		VertexConsumer vc = buffer.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture));
 		part.render(stack, vc, light, OverlayTexture.NO_OVERLAY, net.minecraft.util.FastColor.ARGB32.color((int)((alpha) * 255.0F), (int)((rgb[0]) * 255.0F), (int)((rgb[1]) * 255.0F), (int)((rgb[2]) * 255.0F)));
 	}
 
@@ -269,15 +266,15 @@ public class DMZRenderHand extends LivingEntityRenderer<AbstractClientPlayer, Pl
 		if (itemstack.isEmpty()) return HumanoidModel.ArmPose.EMPTY;
 		else {
 			if (pPlayer.getUsedItemHand() == pHand && pPlayer.getUseItemRemainingTicks() > 0) {
-				UseAnim useanim = itemstack.getUseAnimation();
-				if (useanim == UseAnim.BLOCK) return HumanoidModel.ArmPose.BLOCK;
-				if (useanim == UseAnim.BOW) return HumanoidModel.ArmPose.BOW_AND_ARROW;
-				if (useanim == UseAnim.SPEAR) return HumanoidModel.ArmPose.THROW_SPEAR;
-				if (useanim == UseAnim.CROSSBOW && pHand == pPlayer.getUsedItemHand())
+				ItemUseAnimation useanim = itemstack.getUseAnimation();
+				if (useanim == ItemUseAnimation.BLOCK) return HumanoidModel.ArmPose.BLOCK;
+				if (useanim == ItemUseAnimation.BOW) return HumanoidModel.ArmPose.BOW_AND_ARROW;
+				if (useanim == ItemUseAnimation.SPEAR) return HumanoidModel.ArmPose.THROW_SPEAR;
+				if (useanim == ItemUseAnimation.CROSSBOW && pHand == pPlayer.getUsedItemHand())
 					return HumanoidModel.ArmPose.CROSSBOW_CHARGE;
-				if (useanim == UseAnim.SPYGLASS) return HumanoidModel.ArmPose.SPYGLASS;
-				if (useanim == UseAnim.TOOT_HORN) return HumanoidModel.ArmPose.TOOT_HORN;
-				if (useanim == UseAnim.BRUSH) return HumanoidModel.ArmPose.BRUSH;
+				if (useanim == ItemUseAnimation.SPYGLASS) return HumanoidModel.ArmPose.SPYGLASS;
+				if (useanim == ItemUseAnimation.TOOT_HORN) return HumanoidModel.ArmPose.TOOT_HORN;
+				if (useanim == ItemUseAnimation.BRUSH) return HumanoidModel.ArmPose.BRUSH;
 			} else if (!pPlayer.swinging && itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack)) {
 				return HumanoidModel.ArmPose.CROSSBOW_HOLD;
 			}

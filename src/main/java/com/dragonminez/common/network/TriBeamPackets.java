@@ -4,7 +4,7 @@ import com.dragonminez.client.events.ClientStatsEvents;
 import com.dragonminez.server.events.players.combat.KiTechniqueHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -30,7 +30,7 @@ public final class TriBeamPackets {
 		}
 
 		public void handle(Supplier<NetworkEvent.Context> ctx) {
-			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 					() -> () -> ClientStatsEvents.setTriBeamFollowUpWindow(windowTicks)));
 			ctx.get().setPacketHandled(true);
 		}

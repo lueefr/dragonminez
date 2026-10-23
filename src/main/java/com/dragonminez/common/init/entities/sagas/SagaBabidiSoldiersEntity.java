@@ -2,7 +2,6 @@ package com.dragonminez.common.init.entities.sagas;
 
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.init.MainItems;
-import com.dragonminez.common.init.entities.IBattlePower;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
 import net.minecraft.server.level.ServerPlayer;
@@ -86,7 +85,7 @@ public class SagaBabidiSoldiersEntity {
                         data.getCharacter().clearActiveForm(this);
                         data.getCharacter().clearActiveStackForm(this);
 
-                        this.hurt(damageSources().magic(), dmg);
+                        this.hurtOrSimulate(damageSources().magic(), dmg);
                     }
 
                 });

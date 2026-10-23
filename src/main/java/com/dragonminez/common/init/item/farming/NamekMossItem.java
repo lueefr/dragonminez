@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public class NamekMossItem extends Item {
 
 	public NamekMossItem() {
-		super(new Properties().stacksTo(64));
+		super(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(64));
 	}
 
 	@Override
@@ -22,7 +22,7 @@ public class NamekMossItem extends Item {
 		BlockPos plantPos = clicked.above();
 
 		if (level.getBlockState(clicked).is(MainBlocks.NAMEK_GRASS_BLOCK.get()) && level.isEmptyBlock(plantPos)) {
-			if (!level.isClientSide) {
+			if (!level.isClientSide()) {
 				level.setBlock(plantPos, MainBlocks.NAMEK_MOSS_CROP.get().defaultBlockState(), 3);
 			}
 			Player player = context.getPlayer();

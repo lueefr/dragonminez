@@ -1,5 +1,7 @@
 package com.dragonminez.common.init.block.entity;
 
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.state.AnimationTest;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.GeneralServerConfig;
 import com.dragonminez.common.init.MainBlockEntities;
@@ -25,22 +27,22 @@ import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import team.reborn.energy.api.EnergyStorage;
+import com.dragonminez.server.energy.EnergyTransfers;
 import org.jetbrains.annotations.Nullable;
 import com.geckolib.animatable.GeoBlockEntity;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
 import com.geckolib.animation.*;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 import com.geckolib.util.RenderUtil;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GravityDeviceBlockEntity extends BlockEntity implements MenuProvider, GeoBlockEntity {
+public class GravityDeviceBlockEntity extends BlockEntity implements net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider<net.minecraft.core.BlockPos>, GeoBlockEntity {
 	private final AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
 
 	private final StarEnergyStorage energyStorage;
@@ -102,7 +104,7 @@ public class GravityDeviceBlockEntity extends BlockEntity implements MenuProvide
 	@Override
 	public void setRemoved() {
 		super.setRemoved();
-		if (level != null && !level.isClientSide) {
+		if (level != null && !level.isClientSide()) {
 			GravityDeviceManager.unregister(level, worldPosition);
 		}
 	}
@@ -126,7 +128,7 @@ public class GravityDeviceBlockEntity extends BlockEntity implements MenuProvide
 	}
 
 	public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
-		if (pLevel.isClientSide) return;
+		if (pLevel.isClientSide()) return;
 
 		long time = pLevel.getGameTime();
 		boolean nowRunning = false;
@@ -268,7 +270,7 @@ public class GravityDeviceBlockEntity extends BlockEntity implements MenuProvide
 		return state.getCollisionShape(level, pos).isEmpty();
 	}
 
-	public IEnergyStorage getEnergyStorage() { return energyStorage; }
+	public StarEnergyStorage getEnergyStorage() { return energyStorage; }
 	public boolean isRoomValid() { return roomValid; }
 	public boolean isActive() { return active; }
 	public int getTargetGravity() { return targetGravity; }
@@ -276,24 +278,28 @@ public class GravityDeviceBlockEntity extends BlockEntity implements MenuProvide
 	public BlockPos getRoomMax() { return roomMax; }
 
 	@Override
-	protected void saveAdditional(CompoundTag pTag, net.minecraft.core.HolderLookup.Provider registries) {
+	protected void saveAdditional(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag pTag = new CompoundTag();
 		pTag.putBoolean("active", active);
 		pTag.putInt("targetGravity", targetGravity);
 		pTag.putBoolean("roomValid", roomValid);
 		pTag.putLong("roomMin", roomMin.asLong());
 		pTag.putLong("roomMax", roomMax.asLong());
 		energyStorage.saveNBT(pTag);
-		super.saveAdditional(pTag, registries);
-	}
+		super.saveAdditional(output);
+
+        com.dragonminez.platform.nbt.NbtValues.write(output, pTag);
+    }
 
 	@Override
-	protected void loadAdditional(CompoundTag pTag, net.minecraft.core.HolderLookup.Provider registries) {
-		super.loadAdditional(pTag, registries);
-		active = pTag.getBoolean("active");
-		targetGravity = pTag.getInt("targetGravity");
-		roomValid = pTag.getBoolean("roomValid");
-		roomMin = BlockPos.of(pTag.getLong("roomMin"));
-		roomMax = BlockPos.of(pTag.getLong("roomMax"));
+	protected void loadAdditional(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag pTag = com.dragonminez.platform.nbt.NbtValues.read(input);
+		super.loadAdditional(input);
+		active = pTag.getBooleanOr("active", false);
+		targetGravity = pTag.getIntOr("targetGravity", 0);
+		roomValid = pTag.getBooleanOr("roomValid", false);
+		roomMin = BlockPos.of(pTag.getLongOr("roomMin", 0L));
+		roomMax = BlockPos.of(pTag.getLongOr("roomMax", 0L));
 		energyStorage.loadNBT(pTag);
 	}
 
@@ -308,25 +314,15 @@ public class GravityDeviceBlockEntity extends BlockEntity implements MenuProvide
 		return tag;
 	}
 
-	@Override
-	public void handleUpdateTag(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
-		active = tag.getBoolean("active");
-		roomValid = tag.getBoolean("roomValid");
-		targetGravity = tag.getInt("targetGravity");
-		roomMin = BlockPos.of(tag.getLong("roomMin"));
-		roomMax = BlockPos.of(tag.getLong("roomMax"));
-	}
-
 	@Nullable
 	@Override
 	public Packet<ClientGamePacketListener> getUpdatePacket() {
 		return ClientboundBlockEntityDataPacket.create(this);
 	}
 
-	@Override
-	public void onDataPacket(net.minecraft.network.Connection net, ClientboundBlockEntityDataPacket pkt, net.minecraft.core.HolderLookup.Provider registries) {
-		if (pkt.getTag() != null) handleUpdateTag(pkt.getTag(), registries);
-	}
+    @Override public net.minecraft.core.BlockPos getScreenOpeningData(net.minecraft.server.level.ServerPlayer player) {
+        return getBlockPos();
+    }
 
 	@Override
 	public Component getDisplayName() {
@@ -337,10 +333,10 @@ public class GravityDeviceBlockEntity extends BlockEntity implements MenuProvide
 
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-		controllerRegistrar.add(new AnimationController<>(this, "controller", 0, this::predicate));
+		controllerRegistrar.add(new AnimationController<>("controller", 0, this::predicate));
 	}
 
-	private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> tAnimationState) {
+	private <T extends GeoAnimatable> PlayState predicate(AnimationTest<T> tAnimationState) {
 		BlockState state = this.getBlockState();
 		boolean on = state.hasProperty(GravityDeviceBlock.ACTIVE) && state.getValue(GravityDeviceBlock.ACTIVE);
 		if (on) {

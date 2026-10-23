@@ -1,6 +1,5 @@
 package com.dragonminez.client.util;
 
-import com.dragonminez.Reference;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;

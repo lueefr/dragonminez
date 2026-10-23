@@ -63,7 +63,7 @@ public final class NpcDispositionService {
 			return TargetHelper.Relation.HOSTILE;
 		}
 
-		TargetHelper.Relation override = readRelationOverride(target.getPersistentData());
+		TargetHelper.Relation override = readRelationOverride(com.dragonminez.platform.entity.EntityData.get(target));
 		if (override != null) {
 			return override;
 		}
@@ -76,7 +76,7 @@ public final class NpcDispositionService {
 			}
 		}
 
-		Integer npcAlignment = readNpcAlignment(target.getPersistentData());
+		Integer npcAlignment = readNpcAlignment(com.dragonminez.platform.entity.EntityData.get(target));
 		if (npcAlignment != null) {
 			return relationFromNpcAlignment(npcAlignment);
 		}
@@ -172,17 +172,17 @@ public final class NpcDispositionService {
 		if (entity instanceof MastersEntity master && master.getMasterName() != null && !master.getMasterName().isBlank()) {
 			return normalizeNpcKey(master.getMasterName());
 		}
-		CompoundTag data = entity.getPersistentData();
-		if (data.contains(NPCPlacementManager.PLACEMENT_TAG, Tag.TAG_STRING)) {
-			return normalizeNpcKey(data.getString(NPCPlacementManager.PLACEMENT_TAG));
+		CompoundTag data = com.dragonminez.platform.entity.EntityData.get(entity);
+		if (com.dragonminez.platform.nbt.NbtCompat.contains(data, NPCPlacementManager.PLACEMENT_TAG, Tag.TAG_STRING)) {
+			return normalizeNpcKey(data.getStringOr(NPCPlacementManager.PLACEMENT_TAG, ""));
 		}
 		return entity.getStringUUID();
 	}
 
 	public static String resolveHostilityKey(Entity entity) {
-		CompoundTag data = entity.getPersistentData();
-		if (data.contains(NPCPlacementManager.PLACEMENT_TAG, Tag.TAG_STRING)) {
-			return normalizeNpcKey(data.getString(NPCPlacementManager.PLACEMENT_TAG));
+		CompoundTag data = com.dragonminez.platform.entity.EntityData.get(entity);
+		if (com.dragonminez.platform.nbt.NbtCompat.contains(data, NPCPlacementManager.PLACEMENT_TAG, Tag.TAG_STRING)) {
+			return normalizeNpcKey(data.getStringOr(NPCPlacementManager.PLACEMENT_TAG, ""));
 		}
 		return resolveNpcKey(entity);
 	}
@@ -219,19 +219,19 @@ public final class NpcDispositionService {
 
 	@Nullable
 	private static Integer readNpcAlignment(CompoundTag tag) {
-		if (tag.contains(NPC_ALIGNMENT_TAG, Tag.TAG_INT)) {
-			return Math.max(0, Math.min(100, tag.getInt(NPC_ALIGNMENT_TAG)));
+		if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, NPC_ALIGNMENT_TAG, Tag.TAG_INT)) {
+			return Math.max(0, Math.min(100, tag.getIntOr(NPC_ALIGNMENT_TAG, 0)));
 		}
 		return null;
 	}
 
 	@Nullable
 	private static TargetHelper.Relation readRelationOverride(CompoundTag tag) {
-		if (!tag.contains(NPC_RELATION_OVERRIDE_TAG, Tag.TAG_STRING)) {
+		if (!com.dragonminez.platform.nbt.NbtCompat.contains(tag, NPC_RELATION_OVERRIDE_TAG, Tag.TAG_STRING)) {
 			return null;
 		}
 		try {
-			return TargetHelper.Relation.valueOf(tag.getString(NPC_RELATION_OVERRIDE_TAG).trim().toUpperCase());
+			return TargetHelper.Relation.valueOf(tag.getStringOr(NPC_RELATION_OVERRIDE_TAG, "").trim().toUpperCase());
 		} catch (IllegalArgumentException ignored) {
 			return null;
 		}

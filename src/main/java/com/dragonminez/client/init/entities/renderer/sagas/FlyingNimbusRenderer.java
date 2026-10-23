@@ -6,13 +6,13 @@ import com.dragonminez.client.render.effects.AuraTrailRenderer;
 import com.dragonminez.client.util.ColorUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import com.geckolib.renderer.GeoEntityRenderer;
 
-public class FlyingNimbusRenderer extends GeoEntityRenderer<FlyingNimbusEntity> {
+public class FlyingNimbusRenderer extends com.dragonminez.platform.client.render.ExtractedGeoEntityRenderer<FlyingNimbusEntity> {
     private static final float[] TRAIL_COLOR = ColorUtils.rgbIntToFloat(0xFFF852);
     private static final float TRAIL_ALPHA = 0.55f;
     private static final int TRAIL_SAMPLES = 64;
@@ -33,6 +33,6 @@ public class FlyingNimbusRenderer extends GeoEntityRenderer<FlyingNimbusEntity> 
 
     @Override
     public RenderType getRenderType(FlyingNimbusEntity animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityTranslucent(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture);
     }
 }

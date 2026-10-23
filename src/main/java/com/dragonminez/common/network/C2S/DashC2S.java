@@ -1,6 +1,5 @@
 package com.dragonminez.common.network.C2S;
 
-import com.dragonminez.server.events.players.combat.CombatEvent;
 import com.dragonminez.server.events.players.combat.DashHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;

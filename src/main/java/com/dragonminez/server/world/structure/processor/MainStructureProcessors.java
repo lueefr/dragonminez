@@ -3,9 +3,8 @@ package com.dragonminez.server.world.structure.processor;
 import com.dragonminez.Reference;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredRegister;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 public class MainStructureProcessors {
 	public static final DeferredRegister<StructureProcessorType<?>> PROCESSORS =
@@ -16,7 +15,7 @@ public class MainStructureProcessors {
 	public static final DeferredHolder<StructureProcessorType<?>, StructureProcessorType<ExteriorAirProcessor>> EXTERIOR_AIR =
 			PROCESSORS.register("exterior_air", () -> () -> ExteriorAirProcessor.CODEC);
 
-	public static void register(IEventBus eventBus) {
-		PROCESSORS.register(eventBus);
+	public static void register() {
+		PROCESSORS.register();
 	}
 }

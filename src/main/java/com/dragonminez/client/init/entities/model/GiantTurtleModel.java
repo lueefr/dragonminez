@@ -3,9 +3,9 @@ package com.dragonminez.client.init.entities.model;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.animal.GiantTurtleEntity;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class GiantTurtleModel<T extends GiantTurtleEntity> extends GeoModel<T> {
+public class GiantTurtleModel<T extends GiantTurtleEntity> extends ExtractedGeoModel<T> {
 
     @Override
     public Identifier getModelResource(T animatable) {

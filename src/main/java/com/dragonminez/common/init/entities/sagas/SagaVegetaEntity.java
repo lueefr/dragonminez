@@ -333,14 +333,14 @@ public class SagaVegetaEntity{
         }
 
         @Override
-        public boolean hurt(DamageSource pSource, float pAmount) {
+        public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource pSource, float pAmount) {
             if (this.isCasting() && this.getSkillType() == KiSkillType.KI_EXPLOSION.getId()) {
                 return false;
             }
 
-            boolean actuallyHurt = super.hurt(pSource, pAmount);
+            boolean actuallyHurt = super.hurtServer(dmz$level, pSource, pAmount);
 
-            if (actuallyHurt && !this.level().isClientSide) {
+            if (actuallyHurt && !this.level().isClientSide()) {
                 float umbralVida = this.getMaxHealth() * 0.15F;
 
                 if (this.getHealth() <= umbralVida && !this.hasUsedFinalExplosion) {

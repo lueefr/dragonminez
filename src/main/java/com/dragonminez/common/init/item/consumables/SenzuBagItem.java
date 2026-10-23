@@ -2,9 +2,6 @@ package com.dragonminez.common.init.item.consumables;
 
 import com.dragonminez.common.init.MainTags;
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -21,9 +18,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.event.EventHooks;
+import com.dragonminez.platform.event.living.ItemUseHooks;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,7 +114,7 @@ public class SenzuBagItem extends Item {
             if (player.getCooldowns().isOnCooldown(stored.getItem())) continue;
             if (fireUseStart) {
                 ItemStack probe = stored.copyWithCount(1);
-                if (EventHooks.onItemUseStart(player, probe, probe.getUseDuration(player)) < 0) continue;
+                if (ItemUseHooks.start(player, probe, probe.getUseDuration(player)) < 0) continue;
             }
             return i;
         }
@@ -131,7 +127,7 @@ public class SenzuBagItem extends Item {
         ItemStack bean = items.get(index).copyWithCount(1);
         shrinkEntry(bag, index, 1);
         ItemStack eaten = bean.copy();
-        EventHooks.onItemUseFinish(player, eaten, 0, bean.finishUsingItem(level, player));
+        ItemUseHooks.finish(player, eaten, 0, bean.finishUsingItem(level, player));
     }
 
 	@Override
@@ -229,8 +225,9 @@ public class SenzuBagItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, Item.TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
-        net.minecraft.world.level.Level level = context.level();
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag flag) {
+        java.util.List<Component> tooltip = new java.util.ArrayList<>();
+        try {
 		List<ItemStack> contents = getContents(stack).toList();
 		if (contents.isEmpty()) {
 			tooltip.add(Component.translatable("item.dragonminez.senzu_bean_bag.empty").withStyle(ChatFormatting.GRAY));
@@ -242,7 +239,9 @@ public class SenzuBagItem extends Item {
 		}
 		tooltip.add(Component.translatable("item.dragonminez.senzu_bean_bag.fullness",
 				getContentCount(stack), MAX_BEANS).withStyle(ChatFormatting.GRAY));
-	}
+
+        } finally { tooltip.forEach(dmz$consumer); }
+    }
 
 	private void playRemoveOneSound(Player player) {
 		player.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 0.8F, 0.8F + player.level().getRandom().nextFloat() * 0.4F);

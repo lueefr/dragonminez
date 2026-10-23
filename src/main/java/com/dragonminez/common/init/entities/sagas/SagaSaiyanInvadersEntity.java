@@ -1,5 +1,6 @@
 package com.dragonminez.common.init.entities.sagas;
 
+import net.minecraft.world.item.equipment.ArmorType;
 import com.dragonminez.common.hair.HairPresets;
 import com.dragonminez.common.init.EntityAttributes;
 import com.dragonminez.common.init.MainEntities;
@@ -26,7 +27,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ public final class SagaSaiyanInvadersEntity {
 	private static final int[] SKIN_TONES = {0xFFD3C9, 0xF4C7AE, 0xE8B593, 0xD9A07B, 0xC48A64};
 	private static final int[] HAIR_TONES = {0x222629, 0x1C1F24, 0x26222A, 0x201C1F, 0x2A2628, 0x191C21};
 
-	private static final List<Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>>> ARMOR_SETS = List.of(
+	private static final List<Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>>> ARMOR_SETS = List.of(
 			MainItems.VEGETA_SAIYAN_ARMOR, MainItems.RADITZ_ARMOR, MainItems.TURLES_ARMOR, MainItems.BARDOCK_DBZ_ARMOR);
 	private static final List<DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> SCOUTERS = List.of(
 			MainItems.GREEN_SCOUTER, MainItems.RED_SCOUTER, MainItems.BLUE_SCOUTER, MainItems.PURPLE_SCOUTER);
@@ -77,12 +78,12 @@ public final class SagaSaiyanInvadersEntity {
 
 		public static Look load(CompoundTag tag) {
 			if (tag == null || !tag.contains("Hair")) return DEFAULT;
-			return new Look(tag.getInt("Hair"), tag.getInt("HairColor"), tag.getInt("SkinColor"),
-					Math.floorMod(tag.getInt("Armor"), ARMOR_SETS.size()),
-					Math.floorMod(tag.getInt("Scouter"), SCOUTERS.size()));
+			return new Look(tag.getIntOr("Hair", 0), tag.getIntOr("HairColor", 0), tag.getIntOr("SkinColor", 0),
+					Math.floorMod(tag.getIntOr("Armor", 0), ARMOR_SETS.size()),
+					Math.floorMod(tag.getIntOr("Scouter", 0), SCOUTERS.size()));
 		}
 
-		public ItemStack armorPiece(ArmorItem.Type type) {
+		public ItemStack armorPiece(ArmorType type) {
 			DeferredHolder<net.minecraft.world.item.Item, ? extends Item> item = ARMOR_SETS.get(Math.floorMod(this.armor, ARMOR_SETS.size())).get(type);
 			return item != null ? new ItemStack(item.get()) : ItemStack.EMPTY;
 		}
@@ -150,7 +151,7 @@ public final class SagaSaiyanInvadersEntity {
 				this.addKiSkill(KiSkillType.KI_MEDIUM_BALL, 260, 1.4F);
 			}
 
-			if (!level.isClientSide) this.setLook(Look.random(this.random));
+			if (!level.isClientSide()) this.setLook(Look.random(this.random));
 		}
 
 		public boolean isElite() {
@@ -195,7 +196,7 @@ public final class SagaSaiyanInvadersEntity {
 		@Override
 		public void tick() {
 			super.tick();
-			if (this.level().isClientSide || !this.isAlive()) return;
+			if (this.level().isClientSide() || !this.isAlive()) return;
 
 			this.tickHome();
 			if (this.elite) this.tickMoon();
@@ -209,7 +210,7 @@ public final class SagaSaiyanInvadersEntity {
 		}
 
 		private boolean canCallMoon() {
-			return !this.isTransformationDisabled() && !this.getPersistentData().getBoolean("dmz_quest_no_transform");
+			return !this.isTransformationDisabled() && !com.dragonminez.platform.entity.EntityData.get(this).getBooleanOr("dmz_quest_no_transform", false);
 		}
 
 		private void tickMoon() {
@@ -353,19 +354,26 @@ public final class SagaSaiyanInvadersEntity {
 		}
 
 		@Override
-		public void addAdditionalSaveData(CompoundTag tag) {
-			super.addAdditionalSaveData(tag);
+		public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag tag = new CompoundTag();
+        try {
+			super.addAdditionalSaveData(dmz$output);
 			tag.put("SaiyanLook", this.getLook().save());
 			if (this.home != null) tag.putLong("CraterHome", this.home.asLong());
 			tag.putBoolean("MoonSighted", this.moonSighted);
-		}
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, tag);
+        }
+    }
 
 		@Override
-		public void readAdditionalSaveData(CompoundTag tag) {
-			super.readAdditionalSaveData(tag);
-			if (tag.contains("SaiyanLook")) this.setLook(Look.load(tag.getCompound("SaiyanLook")));
-			if (tag.contains("CraterHome")) this.home = BlockPos.of(tag.getLong("CraterHome"));
-			this.moonSighted = tag.getBoolean("MoonSighted");
+		public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag tag = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+			super.readAdditionalSaveData(dmz$input);
+			if (tag.contains("SaiyanLook")) this.setLook(Look.load(tag.getCompoundOrEmpty("SaiyanLook")));
+			if (tag.contains("CraterHome")) this.home = BlockPos.of(tag.getLongOr("CraterHome", 0L));
+			this.moonSighted = tag.getBooleanOr("MoonSighted", false);
 		}
 	}
 
@@ -387,7 +395,7 @@ public final class SagaSaiyanInvadersEntity {
 			this.setDBZStyle(2);
 			this.addKiSkill(KiSkillType.OOZARU_FIST, 260);
 			this.addKiSkill(KiSkillType.OOZARU_SLAM, 200);
-			if (!level.isClientSide) this.setLook(Look.random(this.random));
+			if (!level.isClientSide()) this.setLook(Look.random(this.random));
 		}
 
 		public static AttributeSupplier.Builder createAttributes() {
@@ -434,15 +442,22 @@ public final class SagaSaiyanInvadersEntity {
 		}
 
 		@Override
-		public void addAdditionalSaveData(CompoundTag tag) {
-			super.addAdditionalSaveData(tag);
+		public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag tag = new CompoundTag();
+        try {
+			super.addAdditionalSaveData(dmz$output);
 			tag.put("SaiyanLook", this.getLook().save());
-		}
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, tag);
+        }
+    }
 
 		@Override
-		public void readAdditionalSaveData(CompoundTag tag) {
-			super.readAdditionalSaveData(tag);
-			if (tag.contains("SaiyanLook")) this.setLook(Look.load(tag.getCompound("SaiyanLook")));
+		public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag tag = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+			super.readAdditionalSaveData(dmz$input);
+			if (tag.contains("SaiyanLook")) this.setLook(Look.load(tag.getCompoundOrEmpty("SaiyanLook")));
 		}
 	}
 }

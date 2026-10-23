@@ -4,7 +4,7 @@ import com.dragonminez.client.render.layer.RedRibbonOutfitLayer;
 import com.dragonminez.client.util.SkinCacheManager;
 import com.dragonminez.common.init.entities.redribbon.RedRibbonSoldierEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +25,6 @@ public class RedRibbonSoldierRenderer<T extends RedRibbonSoldierEntity> extends 
 
     @Override
     public RenderType getRenderType(T animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityCutout(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutCull(texture);
     }
 }

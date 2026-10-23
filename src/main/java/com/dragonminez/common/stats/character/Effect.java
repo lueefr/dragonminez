@@ -41,9 +41,9 @@ public class Effect {
     }
 
     public static Effect load(CompoundTag nbt) {
-        String name = nbt.getString("Name");
-        double power = nbt.getDouble("Power");
-        int duration = nbt.getInt("Duration");
+        String name = nbt.getStringOr("Name", "");
+        double power = nbt.getDoubleOr("Power", 0D);
+        int duration = nbt.getIntOr("Duration", 0);
         return new Effect(name, power, duration);
     }
 

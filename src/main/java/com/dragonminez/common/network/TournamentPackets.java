@@ -8,7 +8,7 @@ import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
@@ -235,7 +235,7 @@ public final class TournamentPackets {
 		}
 
 		public static void handle(OpenBracketS2C msg, Supplier<NetworkEvent.Context> ctx) {
-			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 					() -> () -> TournamentBracketScreen.open(msg)));
 			ctx.get().setPacketHandled(true);
 		}
@@ -274,7 +274,7 @@ public final class TournamentPackets {
 		}
 
 		public static void handle(PhaseS2C msg, Supplier<NetworkEvent.Context> ctx) {
-			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 					() -> () -> TournamentOverlay.onPhase(msg)));
 			ctx.get().setPacketHandled(true);
 		}

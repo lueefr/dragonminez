@@ -17,15 +17,15 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.cache.object.GeoCube;
-import com.geckolib.cache.object.GeoQuad;
-import com.geckolib.cache.object.GeoVertex;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.cache.model.cuboid.GeoCube;
+import com.geckolib.cache.model.GeoQuad;
+import com.geckolib.cache.model.GeoVertex;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.model.GeoModel;
 import com.geckolib.renderer.GeoEntityRenderer;
@@ -37,7 +37,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 final class NpcPortrait {
 	private static final float TURN_DEGREES = 24.0f;
 	private static final Set<String> PROP_BONES = Set.of("chair");
@@ -51,7 +51,7 @@ final class NpcPortrait {
 					   float headX, float headY, float headSize) {
 		Minecraft minecraft = Minecraft.getInstance();
 		EntityRenderDispatcher dispatcher = minecraft.getEntityRenderDispatcher();
-		EntityRenderer<? super LivingEntity> renderer = dispatcher.getRenderer(entity);
+		EntityRenderer<? super LivingEntity, net.minecraft.client.renderer.entity.state.EntityRenderState> renderer = dispatcher.getRenderer(entity);
 		Head head = head(entity, renderer);
 		float scale = headSize / Math.max(MIN_HEAD_SIZE, head.height());
 
@@ -85,7 +85,7 @@ final class NpcPortrait {
 		if (nameVisible) entity.setCustomNameVisible(false);
 		dispatcher.crosshairPickEntity = null;
 
-		if (renderer instanceof GeoEntityRenderer<?> geoRenderer) {
+		if (renderer instanceof GeoEntityRenderer<?, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> geoRenderer) {
 			((GeoModelAccessor) (Object) geoRenderer.getGeoModel()).dmz$setLastRenderedInstance(-1L);
 		}
 		boolean[] propHidden = new boolean[head.props().size()];
@@ -125,9 +125,9 @@ final class NpcPortrait {
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Head head(LivingEntity entity, EntityRenderer<? super LivingEntity> renderer) {
+	private static Head head(LivingEntity entity, EntityRenderer<? super LivingEntity, net.minecraft.client.renderer.entity.state.EntityRenderState> renderer) {
 		float renderScale = renderer instanceof MasterEntityRenderer<?> && entity instanceof MastersEntity master ? master.getScale() : 1.0f;
-		if (renderer instanceof GeoEntityRenderer<?> geoRenderer && entity instanceof GeoAnimatable animatable) {
+		if (renderer instanceof GeoEntityRenderer<?, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> geoRenderer && entity instanceof GeoAnimatable animatable) {
 			GeoModel model = geoRenderer.getGeoModel();
 			Identifier modelId = model.getModelResource(animatable);
 			if (modelId != null) {

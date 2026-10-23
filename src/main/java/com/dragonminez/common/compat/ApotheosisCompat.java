@@ -4,14 +4,13 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.fml.ModList;
 
 /** Copies the selected Apotheosis 1.21 item components without making it a required mod. */
 public final class ApotheosisCompat {
     public static final String MOD_ID = "apotheosis";
     private ApotheosisCompat() {}
 
-    public static boolean isLoaded() { return ModList.get().isLoaded(MOD_ID); }
+    public static boolean isLoaded() { return net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded(MOD_ID); }
 
     public static void copyRarity(ItemStack from, ItemStack to) { copy(from, to, "rarity"); }
     public static void copyAffixes(ItemStack from, ItemStack to) {

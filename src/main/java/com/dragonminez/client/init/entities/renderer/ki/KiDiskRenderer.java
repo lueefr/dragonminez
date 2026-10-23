@@ -5,7 +5,6 @@ import com.dragonminez.client.render.shader.DMZShaders;
 import com.dragonminez.client.render.util.KiMeshFactory;
 import com.dragonminez.client.render.util.PlayerEffectQueue;
 import com.dragonminez.common.init.entities.ki.KiDiskEntity;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.math.Axis;
@@ -16,7 +15,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 
-public class KiDiskRenderer extends EntityRenderer<KiDiskEntity> {
+public class KiDiskRenderer extends EntityRenderer<KiDiskEntity, net.minecraft.client.renderer.entity.state.EntityRenderState> {
 
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kidisc.png");
 

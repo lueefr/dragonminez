@@ -7,8 +7,6 @@ import lombok.Setter;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
-import com.google.gson.GsonBuilder;
-import java.util.Map;
 @Getter
 @Setter
 @NoArgsConstructor

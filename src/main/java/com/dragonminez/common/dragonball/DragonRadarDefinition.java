@@ -62,7 +62,7 @@ public class DragonRadarDefinition {
 	public String getId() { return id; }
 	public String getItemRegistryName() { return itemRegistryName; }
 	public Set<Identifier> getValidDimensions() { return validDimensions; }
-	public boolean supportsDimension(ResourceKey<Level> dimension) { return validDimensions.contains(dimension.location()); }
+	public boolean supportsDimension(ResourceKey<Level> dimension) { return validDimensions.contains(dimension.identifier()); }
 	public boolean supportsBallSet(String setId) { return ballSetId != null && ballSetId.equals(setId); }
 	public String getBallSetId() { return ballSetId; }
 	public Set<String> getValidBallSetIds() { return ballSetId == null ? Set.of() : Set.of(ballSetId); }

@@ -19,7 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 
 public class CarEntity extends VehicleEntity {
 
@@ -117,15 +117,22 @@ public class CarEntity extends VehicleEntity {
 	}
 
 	@Override
-	public void addAdditionalSaveData(CompoundTag tag) {
-		super.addAdditionalSaveData(tag);
+	public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag tag = new CompoundTag();
+        try {
+		super.addAdditionalSaveData(dmz$output);
 		tag.putInt(COLOR_TAG, getColor().ordinal());
-	}
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, tag);
+        }
+    }
 
 	@Override
-	public void readAdditionalSaveData(CompoundTag tag) {
-		super.readAdditionalSaveData(tag);
-		setColor(Color.byId(tag.getInt(COLOR_TAG)));
+	public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag tag = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+		super.readAdditionalSaveData(dmz$input);
+		setColor(Color.byId(tag.getIntOr(COLOR_TAG, 0)));
 	}
 
 	@Override

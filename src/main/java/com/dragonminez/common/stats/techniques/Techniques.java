@@ -331,29 +331,29 @@ public class Techniques {
 	}
 
 	public void load(CompoundTag tag) {
-		this.selectedSlot = tag.getInt("SelectedSlot");
-		this.chargingTechniqueId = tag.getString("ChargingTechniqueId");
-		this.techniqueChargePercent = Math.max(0.0f, Math.min(200.0f, tag.getFloat(CHARGE_PERCENT_KEY)));
-		this.techniqueCharging = tag.getBoolean(CHARGING_KEY);
-		this.chargeHolding = tag.getBoolean("ChargeHolding");
+		this.selectedSlot = tag.getIntOr("SelectedSlot", 0);
+		this.chargingTechniqueId = tag.getStringOr("ChargingTechniqueId", "");
+		this.techniqueChargePercent = Math.max(0.0f, Math.min(200.0f, tag.getFloatOr(CHARGE_PERCENT_KEY, 0F)));
+		this.techniqueCharging = tag.getBooleanOr(CHARGING_KEY, false);
+		this.chargeHolding = tag.getBooleanOr("ChargeHolding", false);
 
-		CompoundTag slotsTag = tag.getCompound("EquippedSlots");
+		CompoundTag slotsTag = tag.getCompoundOrEmpty("EquippedSlots");
 		for (int i = 0; i < SLOT_COUNT; i++) {
-			this.equippedSlots[i] = slotsTag.getString("Slot" + i);
+			this.equippedSlots[i] = slotsTag.getStringOr("Slot" + i, "");
 		}
 
 		this.unlockedTechniques.clear();
-		ListTag unlockedTag = tag.getList("UnlockedTechniques", 10);
+		ListTag unlockedTag = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "UnlockedTechniques", 10);
 		for (int i = 0; i < unlockedTag.size(); i++) {
-			CompoundTag techTag = unlockedTag.getCompound(i);
-			String type = techTag.getString("TechClassType");
-			String savedId = techTag.getString("Id");
+			CompoundTag techTag = unlockedTag.getCompoundOrEmpty(i);
+			String type = techTag.getStringOr("TechClassType", "");
+			String savedId = techTag.getStringOr("Id", "");
 
 			if ("KI".equals(type) && PredefinedTechniques.EVASION_REGISTRY.containsKey(savedId)) {
 				EvasionAttackData template = PredefinedTechniques.EVASION_REGISTRY.get(savedId);
 				EvasionAttackData migrated = new EvasionAttackData();
 				migrated.load(template.save());
-				migrated.setExperience(techTag.contains("Experience") ? techTag.getInt("Experience") : 0);
+				migrated.setExperience(techTag.contains("Experience") ? techTag.getIntOr("Experience", 0) : 0);
 				this.unlockedTechniques.put(migrated.getId(), migrated);
 				continue;
 			}
@@ -364,14 +364,14 @@ public class Techniques {
 			tech.load(techTag);
 			this.unlockedTechniques.put(tech.getId(), tech);
 		}
-		this.reviveDisplacedTechnique = tag.getString("ReviveDisplacedTechnique");
+		this.reviveDisplacedTechnique = tag.getStringOr("ReviveDisplacedTechnique", "");
 
-		this.formLoadoutActive = tag.getBoolean("FormLoadoutActive");
-		CompoundTag backupTag = tag.getCompound("FormLoadoutBackup");
-		for (int i = 0; i < FORM_LOADOUT_SIZE; i++) this.formLoadoutBackup[i] = backupTag.getString("Slot" + i);
+		this.formLoadoutActive = tag.getBooleanOr("FormLoadoutActive", false);
+		CompoundTag backupTag = tag.getCompoundOrEmpty("FormLoadoutBackup");
+		for (int i = 0; i < FORM_LOADOUT_SIZE; i++) this.formLoadoutBackup[i] = backupTag.getStringOr("Slot" + i, "");
 		this.formLoadoutGranted.clear();
-		ListTag grantedTag = tag.getList("FormLoadoutGranted", Tag.TAG_STRING);
-		for (int i = 0; i < grantedTag.size(); i++) this.formLoadoutGranted.add(grantedTag.getString(i));
+		ListTag grantedTag = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "FormLoadoutGranted", Tag.TAG_STRING);
+		for (int i = 0; i < grantedTag.size(); i++) this.formLoadoutGranted.add(grantedTag.getStringOr(i, ""));
 	}
 
 	public void copyFrom(Techniques other) {

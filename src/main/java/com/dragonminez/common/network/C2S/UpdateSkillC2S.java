@@ -153,10 +153,10 @@ public class UpdateSkillC2S {
 
 	private static boolean isOfferedByNearbyMaster(ServerPlayer player, String skillName) {
 		AABB range = player.getBoundingBox().inflate(MASTER_SHOP_RANGE);
-		for (MastersEntity master : player.serverLevel().getEntitiesOfClass(MastersEntity.class, range)) {
+		for (MastersEntity master : player.level().getEntitiesOfClass(MastersEntity.class, range)) {
 			if (offersSkill(player, master.getMasterName(), skillName)) return true;
 		}
-		for (QuestNPCEntity npc : player.serverLevel().getEntitiesOfClass(QuestNPCEntity.class, range)) {
+		for (QuestNPCEntity npc : player.level().getEntitiesOfClass(QuestNPCEntity.class, range)) {
 			if (offersSkill(player, npc.getNpcId(), skillName)) return true;
 		}
 		return false;

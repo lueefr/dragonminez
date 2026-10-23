@@ -8,14 +8,14 @@ import com.dragonminez.common.init.entities.redribbon.RedRibbonEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.renderer.GeoRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
-public class RedRibbonSupervillainLayer<T extends RedRibbonEntity> extends GeoRenderLayer<T> {
+public class RedRibbonSupervillainLayer<T extends RedRibbonEntity> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 
-	public RedRibbonSupervillainLayer(GeoRenderer<T> geoRenderer) {
+	public RedRibbonSupervillainLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> geoRenderer) {
 		super(geoRenderer);
 	}
 

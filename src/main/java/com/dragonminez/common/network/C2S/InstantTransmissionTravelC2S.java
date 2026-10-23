@@ -52,7 +52,7 @@ public class InstantTransmissionTravelC2S {
 				}
 
 				var masterData = masters.get(masterId);
-				String currentDim = player.level().dimension().location().toString();
+				String currentDim = player.level().dimension().identifier().toString();
 				boolean sameDimension = masterData.getDimension().equals(currentDim);
 
 				if (skillLevel < 10 && !sameDimension) {

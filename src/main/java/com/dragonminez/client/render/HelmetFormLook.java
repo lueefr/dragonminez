@@ -1,5 +1,6 @@
 package com.dragonminez.client.render;
 
+import net.minecraft.world.item.equipment.ArmorType;
 import com.dragonminez.client.render.compat.CosmeticArmorCompat;
 import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.common.config.FormConfig;
@@ -101,6 +102,6 @@ public final class HelmetFormLook {
 			ItemStack cosmetic = CosmeticArmorCompat.getCosmeticStack(player, EquipmentSlot.HEAD);
 			if (cosmetic != null) head = cosmetic;
 		}
-		return !head.isEmpty() && head.is(MainItems.BROLY_Z_ARMOR.get(ArmorItem.Type.HELMET).get());
+		return !head.isEmpty() && head.is(MainItems.BROLY_Z_ARMOR.get(ArmorType.HELMET).get());
 	}
 }

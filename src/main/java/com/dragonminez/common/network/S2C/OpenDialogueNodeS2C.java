@@ -4,7 +4,7 @@ import lombok.*;
 import com.dragonminez.common.network.ClientPacketHandler;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -68,7 +68,7 @@ public class OpenDialogueNodeS2C {
 	}
 
 	public static void handle(OpenDialogueNodeS2C msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 				() -> () -> ClientPacketHandler.handleDialogueNodePacket(msg)));
 		ctx.get().setPacketHandled(true);
 	}

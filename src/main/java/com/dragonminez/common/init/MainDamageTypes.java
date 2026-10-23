@@ -28,7 +28,7 @@ public class MainDamageTypes {
     public static final ResourceKey<DamageType> STRIKE_ATTACK = ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "strike_attack"));
 
 	public static DamageSource kiblast(Level level, Entity projectile, Entity owner) {
-		Holder<DamageType> holder = level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(KIBLAST);
+		Holder<DamageType> holder = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(KIBLAST);
 		String messageId = resolveKiMessageId(projectile);
 		boolean randomVariant = messageId.startsWith("kiblast.");
 		Component techniqueName = (randomVariant || messageId.equals("soul_punisher")) ? resolveKiName(projectile, owner) : null;
@@ -70,7 +70,7 @@ public class MainDamageTypes {
 	}
 
 	public static DamageSource strikeAttack(Level level, Entity attacker, String strikeId) {
-		Holder<DamageType> holder = level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(STRIKE_ATTACK);
+		Holder<DamageType> holder = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(STRIKE_ATTACK);
 		String id = (strikeId != null && PredefinedTechniques.STRIKE_IDS.contains(strikeId)) ? strikeId : "generic";
 		return new DMZDamageSource(holder, attacker, attacker, "strike_attack." + id, false, null);
 	}

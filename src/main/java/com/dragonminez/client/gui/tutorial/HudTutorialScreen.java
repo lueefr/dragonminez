@@ -10,13 +10,13 @@ import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public class HudTutorialScreen extends ScaledScreen {
 	private static final int SYNC_TIMEOUT_TICKS = 200;
 	private static final int SETTLE_TICKS = 12;

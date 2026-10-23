@@ -1,6 +1,6 @@
 package com.dragonminez.server.world.raid;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -10,23 +10,19 @@ import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.network.S2C.RaidMusicS2C;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.nbt.CompoundTag;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
-import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.entity.EntityJoinLevelEvent;
+import com.dragonminez.platform.event.living.LivingDeathEvent;
+import com.dragonminez.platform.event.living.MobEffectEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 import java.util.UUID;
 
@@ -39,11 +35,11 @@ public class RaidTriggerEvents {
 
 	@SubscribeEvent
 	public static void onNaturalSpawn(net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent event) {
-		if (event.getSpawnType() != MobSpawnType.NATURAL) return;
+		if (event.getSpawnType() != EntitySpawnReason.NATURAL) return;
 		if (!(event.getEntity() instanceof DBSagasEntity saga)) return;
 		ServerLevel level = event.getLevel().getLevel();
 		// Already marked (a re-fired finalize, or a mob restored from disk).
-		if (saga.getPersistentData().contains(PENDING_RAID_TAG)) return;
+		if (com.dragonminez.platform.entity.EntityData.get(saga).contains(PENDING_RAID_TAG)) return;
 
 		for (RaidType type : RaidTypes.triggerable()) {
 			RaidDefinition.Trigger trigger = type.getTrigger();
@@ -51,7 +47,7 @@ public class RaidTriggerEvents {
 			if (!RaidEntityResolver.matches(saga.getType(), trigger.getEntityId())) continue;
 			if (level.getRandom().nextDouble() >= trigger.spawnChanceOr(DEFAULT_SPAWN_CHANCE)) continue;
 
-			saga.getPersistentData().putString(PENDING_RAID_TAG, type.getId());
+			com.dragonminez.platform.entity.EntityData.get(saga).putString(PENDING_RAID_TAG, type.getId());
 			saga.setSupervillain(trigger.isSupervillain());
 			return;
 		}
@@ -62,13 +58,13 @@ public class RaidTriggerEvents {
 		if (event.getLevel().isClientSide()) return;
 		if (!(event.getEntity() instanceof DBSagasEntity saga)) return;
 
-		CompoundTag data = saga.getPersistentData();
+		CompoundTag data = com.dragonminez.platform.entity.EntityData.get(saga);
 		if (!data.contains(DBSagasEntity.RAID_REPLACES_TAG)) return;
 
-		UUID oldId = data.getUUID(DBSagasEntity.RAID_REPLACES_TAG);
+		UUID oldId = com.dragonminez.platform.nbt.NbtCompat.getUUID(data, DBSagasEntity.RAID_REPLACES_TAG);
 		data.remove(DBSagasEntity.RAID_REPLACES_TAG);
 
-		String rawRaidId = data.getString(DBSagasEntity.RAID_ID_TAG);
+		String rawRaidId = data.getStringOr(DBSagasEntity.RAID_ID_TAG, "");
 		if (rawRaidId.isBlank()) return;
 
 		Raid raid = RaidSavedData.get(event.getLevel().getServer()).getRaid(UUID.fromString(rawRaidId));
@@ -92,9 +88,9 @@ public class RaidTriggerEvents {
 	public static void onMarkedMobKilled(LivingDeathEvent event) {
 		LivingEntity dead = event.getEntity();
 		if (dead.level().isClientSide()) return;
-		if (!dead.getPersistentData().contains(PENDING_RAID_TAG)) return;
+		if (!com.dragonminez.platform.entity.EntityData.get(dead).contains(PENDING_RAID_TAG)) return;
 
-		String raidId = dead.getPersistentData().getString(PENDING_RAID_TAG);
+		String raidId = com.dragonminez.platform.entity.EntityData.get(dead).getStringOr(PENDING_RAID_TAG, "");
 		RaidType type = RaidTypes.get(raidId);
 		if (type == null) return;
 
@@ -104,7 +100,7 @@ public class RaidTriggerEvents {
 		// Already counting down for something; don't stack omens.
 		if (killer.hasEffect(MainEffects.RAID_WRATH)) return;
 
-		killer.getPersistentData().putString(PENDING_RAID_TAG, raidId);
+		com.dragonminez.platform.entity.EntityData.get(killer).putString(PENDING_RAID_TAG, raidId);
 		killer.addEffect(new MobEffectInstance(MainEffects.RAID_WRATH,
 				type.preparationTicks(), 0, false, true, true));
 		NetworkHandler.sendToPlayer(new RaidMusicS2C(type.preparationMusic()), killer);
@@ -130,8 +126,8 @@ public class RaidTriggerEvents {
 		if (event.getEffectInstance().getEffect() != MainEffects.RAID_WRATH) return;
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
-		String raidId = player.getPersistentData().getString(PENDING_RAID_TAG);
-		player.getPersistentData().remove(PENDING_RAID_TAG);
+		String raidId = com.dragonminez.platform.entity.EntityData.get(player).getStringOr(PENDING_RAID_TAG, "");
+		com.dragonminez.platform.entity.EntityData.get(player).remove(PENDING_RAID_TAG);
 		if (raidId.isBlank()) return;
 
 		RaidType type = RaidTypes.get(raidId);
@@ -155,7 +151,7 @@ public class RaidTriggerEvents {
 	public static void onOmenRemoved(MobEffectEvent.Remove event) {
 		if (event.getEffect() != MainEffects.RAID_WRATH) return;
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
-		player.getPersistentData().remove(PENDING_RAID_TAG);
+		com.dragonminez.platform.entity.EntityData.get(player).remove(PENDING_RAID_TAG);
 		NetworkHandler.sendToPlayer(new RaidMusicS2C(""), player);
 	}
 }

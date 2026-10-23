@@ -52,7 +52,7 @@ import net.minecraft.server.packs.PackSelectionConfig;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.world.level.GrassColor;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -66,17 +66,15 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.*;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
-import net.neoforged.neoforge.event.AddPackFindersEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import com.dragonminez.platform.resource.AddPackFindersEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.system.MemoryStack;
@@ -87,31 +85,30 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = EnvType.CLIENT)
 public class ModClientEvents {
 
-	@SubscribeEvent
-	public static void registerGuiOverlays(RegisterGuiLayersEvent e) {
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "ki_sense_hud"), com.dragonminez.client.gui.hud.KiSenseOverlay.HUD_KI_SENSE);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "party_marker_hud"), com.dragonminez.client.gui.hud.PartyMarkerOverlay.HUD_PARTY_MARKER);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "xenoversehud"), XenoverseHUD.HUD_XENOVERSE);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "alternativehud"), AlternativeHUD.HUD_ALTERNATIVE);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "technique_charge_hud"), TechniqueChargeOverlay.HUD_TECHNIQUE_CHARGE);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "scouterhud"), ScouterHUD.HUD_SCOUTER);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "tournament_countdown"), com.dragonminez.client.gui.tournament.TournamentOverlay.OVERLAY);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "techniquehud"), TechniqueHotbarHUD.HUD_TECHNIQUES);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "beam_clash_hud"), BeamClashOverlay.HUD_BEAM_CLASH);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "baba_return_timer_hud"), BabaReturnTimerHUD.HUD_BABA_RETURN);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "saga_title_card_hud"), SagaTitleCardHUD.HUD_SAGA_TITLE_CARD);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "modernhud"), ModernHUD.HUD_MODERN);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "minecrafthud"), MinecraftHUD.HUD_MINECRAFT);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "ki_reserve_hud"), KiReserveHUD.HUD_KI_RESERVE);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "rage_meter_hud"), RageMeterHUD.HUD_RAGE_METER);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "party_hud"), PartyHUD.HUD_PARTY);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "notifications_hud"), com.dragonminez.client.gui.hud.NotificationHUD.HUD_NOTIFICATIONS);
+	public static void registerGuiOverlays() {
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "ki_sense_hud"), com.dragonminez.client.gui.hud.KiSenseOverlay.HUD_KI_SENSE);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "party_marker_hud"), com.dragonminez.client.gui.hud.PartyMarkerOverlay.HUD_PARTY_MARKER);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "xenoversehud"), XenoverseHUD.HUD_XENOVERSE);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "alternativehud"), AlternativeHUD.HUD_ALTERNATIVE);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "technique_charge_hud"), TechniqueChargeOverlay.HUD_TECHNIQUE_CHARGE);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "scouterhud"), ScouterHUD.HUD_SCOUTER);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "tournament_countdown"), com.dragonminez.client.gui.tournament.TournamentOverlay.OVERLAY);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "techniquehud"), TechniqueHotbarHUD.HUD_TECHNIQUES);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "beam_clash_hud"), BeamClashOverlay.HUD_BEAM_CLASH);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "baba_return_timer_hud"), BabaReturnTimerHUD.HUD_BABA_RETURN);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "saga_title_card_hud"), SagaTitleCardHUD.HUD_SAGA_TITLE_CARD);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "modernhud"), ModernHUD.HUD_MODERN);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "minecrafthud"), MinecraftHUD.HUD_MINECRAFT);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "ki_reserve_hud"), KiReserveHUD.HUD_KI_RESERVE);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "rage_meter_hud"), RageMeterHUD.HUD_RAGE_METER);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "party_hud"), PartyHUD.HUD_PARTY);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "notifications_hud"), com.dragonminez.client.gui.hud.NotificationHUD.HUD_NOTIFICATIONS);
 		com.dragonminez.client.gui.hud.NotificationFeeds.registerDefaults();
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "boss_contribution_hud"), com.dragonminez.client.gui.hud.WorldBossContributionHUD.HUD_BOSS_CONTRIBUTION);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "worldboss_revive_hud"), com.dragonminez.client.gui.hud.WorldBossReviveOverlay.HUD_WORLDBOSS_REVIVE);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "boss_contribution_hud"), com.dragonminez.client.gui.hud.WorldBossContributionHUD.HUD_BOSS_CONTRIBUTION);
+		net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "worldboss_revive_hud"), com.dragonminez.client.gui.hud.WorldBossReviveOverlay.HUD_WORLDBOSS_REVIVE);
 	}
 	@SubscribeEvent
 	public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
@@ -409,7 +406,7 @@ public class ModClientEvents {
 			return;
 		}
 
-		long windowId = mc.getWindow().getWindow();
+		long windowId = mc.getWindow().handle();
 		String[] iconNames = {"icon_16x16.png", "icon_32x32.png", "icon_48x48.png", "icon_128x128.png", "icon_256x256.png"};
 		List<NativeImage> loadedImages = new ArrayList<>();
 

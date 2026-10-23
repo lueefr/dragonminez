@@ -527,37 +527,37 @@ public class PlayerQuestData {
     private void deserializeCoreQuestState(CompoundTag tag) {
         clearActiveQuestState();
 
-        ListTag questList = tag.getList("quests", Tag.TAG_COMPOUND);
+        ListTag questList = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "quests", Tag.TAG_COMPOUND);
         for (int i = 0; i < questList.size(); i++) {
-            CompoundTag questTag = questList.getCompound(i);
+            CompoundTag questTag = questList.getCompoundOrEmpty(i);
             QuestProgress progress = QuestProgress.deserialize(questTag);
             quests.put(progress.getQuestId(), progress);
         }
 
         if (tag.contains("sagaUnlocks")) {
-            CompoundTag sagaUnlocks = tag.getCompound("sagaUnlocks");
-            for (String key : sagaUnlocks.getAllKeys()) {
-                sagaUnlockState.put(key, sagaUnlocks.getBoolean(key));
+            CompoundTag sagaUnlocks = tag.getCompoundOrEmpty("sagaUnlocks");
+            for (String key : sagaUnlocks.keySet()) {
+                sagaUnlockState.put(key, sagaUnlocks.getBooleanOr(key, false));
             }
         }
 
-        if (tag.contains("startRequirementTimings", Tag.TAG_COMPOUND)) {
-            CompoundTag timingTag = tag.getCompound("startRequirementTimings");
-            for (String key : timingTag.getAllKeys()) {
-                if (!timingTag.contains(key, Tag.TAG_COMPOUND)) continue;
-                startRequirementTimings.put(key, QuestStartRequirementTiming.deserialize(timingTag.getCompound(key)));
+        if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "startRequirementTimings", Tag.TAG_COMPOUND)) {
+            CompoundTag timingTag = tag.getCompoundOrEmpty("startRequirementTimings");
+            for (String key : timingTag.keySet()) {
+                if (!com.dragonminez.platform.nbt.NbtCompat.contains(timingTag, key, Tag.TAG_COMPOUND)) continue;
+                startRequirementTimings.put(key, QuestStartRequirementTiming.deserialize(timingTag.getCompoundOrEmpty(key)));
             }
         }
 
-        if (tag.contains("trackedQuestId", Tag.TAG_STRING)) {
-            String tracked = tag.getString("trackedQuestId");
+        if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "trackedQuestId", Tag.TAG_STRING)) {
+            String tracked = tag.getStringOr("trackedQuestId", "");
             if (!tracked.isBlank()) trackedQuestId = tracked;
         }
 
-        if (tag.contains("hostileNpcKeys", Tag.TAG_LIST)) {
-            ListTag hostileNpcs = tag.getList("hostileNpcKeys", Tag.TAG_STRING);
+        if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "hostileNpcKeys", Tag.TAG_LIST)) {
+            ListTag hostileNpcs = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "hostileNpcKeys", Tag.TAG_STRING);
             for (int i = 0; i < hostileNpcs.size(); i++) {
-                String npcKey = hostileNpcs.getString(i);
+                String npcKey = hostileNpcs.getStringOr(i, "");
                 if (!npcKey.isBlank()) {
                     hostileNpcKeys.add(npcKey);
                 }
@@ -575,17 +575,17 @@ public class PlayerQuestData {
     private void deserializeFullQuestState(CompoundTag tag) {
         clearActiveQuestState();
 
-        if (tag.contains("questState", Tag.TAG_COMPOUND)) {
-            difficulty = Difficulty.fromName(tag.getString("difficulty"));
-            deserializeCoreQuestState(tag.getCompound("questState"));
-        } else if (tag.contains("difficultyStates", Tag.TAG_COMPOUND)) {
-            difficulty = Difficulty.fromName(tag.getString("difficulty"));
-            CompoundTag states = tag.getCompound("difficultyStates");
-            if (states.contains(difficulty.name(), Tag.TAG_COMPOUND)) {
-                deserializeCoreQuestState(states.getCompound(difficulty.name()));
+        if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "questState", Tag.TAG_COMPOUND)) {
+            difficulty = Difficulty.fromName(tag.getStringOr("difficulty", ""));
+            deserializeCoreQuestState(tag.getCompoundOrEmpty("questState"));
+        } else if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "difficultyStates", Tag.TAG_COMPOUND)) {
+            difficulty = Difficulty.fromName(tag.getStringOr("difficulty", ""));
+            CompoundTag states = tag.getCompoundOrEmpty("difficultyStates");
+            if (com.dragonminez.platform.nbt.NbtCompat.contains(states, difficulty.name(), Tag.TAG_COMPOUND)) {
+                deserializeCoreQuestState(states.getCompoundOrEmpty(difficulty.name()));
             }
         } else {
-            difficulty = tag.getBoolean("hardModeEnabled") ? Difficulty.HARD : Difficulty.NORMAL;
+            difficulty = tag.getBooleanOr("hardModeEnabled", false) ? Difficulty.HARD : Difficulty.NORMAL;
             deserializeCoreQuestState(tag);
         }
     }
@@ -644,9 +644,9 @@ public class PlayerQuestData {
     }
     public void deserializeNBT(CompoundTag tag) {
         deserializeFullQuestState(tag);
-        difficultyChosen = tag.getBoolean("difficultyChosen");
-        storyResetCount = Math.max(0, tag.getInt("storyResetCount"));
-        migratedFor = tag.contains("migratedFor", Tag.TAG_STRING) ? tag.getString("migratedFor") : null;
+        difficultyChosen = tag.getBooleanOr("difficultyChosen", false);
+        storyResetCount = Math.max(0, tag.getIntOr("storyResetCount", 0));
+        migratedFor = com.dragonminez.platform.nbt.NbtCompat.contains(tag, "migratedFor", Tag.TAG_STRING) ? tag.getStringOr("migratedFor", "") : null;
 
         activePartyId = null;
         partyLeaderId = null;
@@ -655,36 +655,36 @@ public class PlayerQuestData {
         partyMemberIds.clear();
         pendingPartyInvites.clear();
 
-        if (tag.contains("partyState", Tag.TAG_COMPOUND)) {
-            CompoundTag partyTag = tag.getCompound("partyState");
+        if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "partyState", Tag.TAG_COMPOUND)) {
+            CompoundTag partyTag = tag.getCompoundOrEmpty("partyState");
 
-            if (partyTag.contains("partyId", Tag.TAG_STRING)) {
-                activePartyId = parseUuid(partyTag.getString("partyId"));
+            if (com.dragonminez.platform.nbt.NbtCompat.contains(partyTag, "partyId", Tag.TAG_STRING)) {
+                activePartyId = parseUuid(partyTag.getStringOr("partyId", ""));
             }
-            if (partyTag.contains("leaderId", Tag.TAG_STRING)) {
-                partyLeaderId = parseUuid(partyTag.getString("leaderId"));
+            if (com.dragonminez.platform.nbt.NbtCompat.contains(partyTag, "leaderId", Tag.TAG_STRING)) {
+                partyLeaderId = parseUuid(partyTag.getStringOr("leaderId", ""));
             }
-            if (partyTag.contains("ownerId", Tag.TAG_STRING)) {
-                partyOwnerId = parseUuid(partyTag.getString("ownerId"));
+            if (com.dragonminez.platform.nbt.NbtCompat.contains(partyTag, "ownerId", Tag.TAG_STRING)) {
+                partyOwnerId = parseUuid(partyTag.getStringOr("ownerId", ""));
             }
-            partyPvpEnabled = partyTag.getBoolean("pvpEnabled");
-            if (partyTag.contains("members", Tag.TAG_LIST)) {
-                ListTag memberList = partyTag.getList("members", Tag.TAG_STRING);
+            partyPvpEnabled = partyTag.getBooleanOr("pvpEnabled", false);
+            if (com.dragonminez.platform.nbt.NbtCompat.contains(partyTag, "members", Tag.TAG_LIST)) {
+                ListTag memberList = com.dragonminez.platform.nbt.NbtCompat.getList(partyTag, "members", Tag.TAG_STRING);
                 for (int i = 0; i < memberList.size(); i++) {
-                    UUID memberId = parseUuid(memberList.getString(i));
+                    UUID memberId = parseUuid(memberList.getStringOr(i, ""));
                     if (memberId != null && !partyMemberIds.contains(memberId)) {
                         partyMemberIds.add(memberId);
                     }
                 }
             }
-            if (partyTag.contains("pendingInvites", Tag.TAG_LIST)) {
-                ListTag invitesTag = partyTag.getList("pendingInvites", Tag.TAG_COMPOUND);
+            if (com.dragonminez.platform.nbt.NbtCompat.contains(partyTag, "pendingInvites", Tag.TAG_LIST)) {
+                ListTag invitesTag = com.dragonminez.platform.nbt.NbtCompat.getList(partyTag, "pendingInvites", Tag.TAG_COMPOUND);
                 for (int i = 0; i < invitesTag.size() && pendingPartyInvites.size() < MAX_PENDING_PARTY_INVITES; i++) {
-                    pendingPartyInvites.add(PartyInviteData.deserialize(invitesTag.getCompound(i)));
+                    pendingPartyInvites.add(PartyInviteData.deserialize(invitesTag.getCompoundOrEmpty(i)));
                 }
-            } else if (partyTag.contains("pendingInvite", Tag.TAG_COMPOUND)) {
+            } else if (com.dragonminez.platform.nbt.NbtCompat.contains(partyTag, "pendingInvite", Tag.TAG_COMPOUND)) {
                 // Saves from before invitations could stack.
-                pendingPartyInvites.add(PartyInviteData.deserialize(partyTag.getCompound("pendingInvite")));
+                pendingPartyInvites.add(PartyInviteData.deserialize(partyTag.getCompoundOrEmpty("pendingInvite")));
             }
         }
     }
@@ -801,56 +801,56 @@ public class PlayerQuestData {
         }
 
         public static QuestProgress deserialize(CompoundTag tag) {
-            String questId = tag.getString("questId");
+            String questId = tag.getStringOr("questId", "");
             QuestProgress progress = new QuestProgress(questId);
 
             try {
-                progress.status = QuestStatus.valueOf(tag.getString("status"));
+                progress.status = QuestStatus.valueOf(tag.getStringOr("status", ""));
             } catch (IllegalArgumentException e) {
                 progress.status = QuestStatus.NOT_STARTED;
             }
 
-            CompoundTag objectivesTag = tag.getCompound("objectives");
-            for (String key : objectivesTag.getAllKeys()) {
+            CompoundTag objectivesTag = tag.getCompoundOrEmpty("objectives");
+            for (String key : objectivesTag.keySet()) {
                 Integer index = parseIndex(key);
-                if (index != null) progress.objectiveProgress.put(index, Math.max(0, objectivesTag.getInt(key)));
+                if (index != null) progress.objectiveProgress.put(index, Math.max(0, objectivesTag.getIntOr(key, 0)));
             }
 
-            CompoundTag objectiveRequirementsTag = tag.getCompound("objectiveRequirements");
-            for (String key : objectiveRequirementsTag.getAllKeys()) {
+            CompoundTag objectiveRequirementsTag = tag.getCompoundOrEmpty("objectiveRequirements");
+            for (String key : objectiveRequirementsTag.keySet()) {
                 Integer index = parseIndex(key);
-                if (index != null) progress.objectiveRequired.put(index, objectiveRequirementsTag.getInt(key));
+                if (index != null) progress.objectiveRequired.put(index, objectiveRequirementsTag.getIntOr(key, 0));
             }
-            if (tag.contains("acceptedDimension", Tag.TAG_STRING)) {
-                progress.acceptedDimension = tag.getString("acceptedDimension");
+            if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "acceptedDimension", Tag.TAG_STRING)) {
+                progress.acceptedDimension = tag.getStringOr("acceptedDimension", "");
             }
-            if (tag.contains("objectiveSignature", Tag.TAG_STRING)) {
-                progress.objectiveSignature = tag.getString("objectiveSignature");
+            if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "objectiveSignature", Tag.TAG_STRING)) {
+                progress.objectiveSignature = tag.getStringOr("objectiveSignature", "");
             }
-            if (tag.contains("failureCount", Tag.TAG_INT)) {
-                progress.failureCount = tag.getInt("failureCount");
+            if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "failureCount", Tag.TAG_INT)) {
+                progress.failureCount = tag.getIntOr("failureCount", 0);
             }
-            if (tag.contains("lastCompletedRealMs", Tag.TAG_LONG)) {
-                progress.lastCompletedRealMs = tag.getLong("lastCompletedRealMs");
+            if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "lastCompletedRealMs", Tag.TAG_LONG)) {
+                progress.lastCompletedRealMs = tag.getLongOr("lastCompletedRealMs", 0L);
             }
-            if (tag.contains("timesCompleted", Tag.TAG_INT)) {
-                progress.timesCompleted = tag.getInt("timesCompleted");
+            if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "timesCompleted", Tag.TAG_INT)) {
+                progress.timesCompleted = tag.getIntOr("timesCompleted", 0);
             }
-            if (tag.contains("acceptedGameTime", Tag.TAG_LONG)) {
-                progress.acceptedGameTime = tag.getLong("acceptedGameTime");
+            if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "acceptedGameTime", Tag.TAG_LONG)) {
+                progress.acceptedGameTime = tag.getLongOr("acceptedGameTime", 0L);
             } else {
                 progress.acceptedGameTime = -1L;
             }
-            if (tag.contains("difficulty", Tag.TAG_STRING)) {
-                progress.difficulty = Difficulty.fromName(tag.getString("difficulty"));
-            } else if (tag.contains("hardMode", Tag.TAG_BYTE)) {
-                progress.difficulty = tag.getBoolean("hardMode") ? Difficulty.HARD : Difficulty.NORMAL;
+            if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "difficulty", Tag.TAG_STRING)) {
+                progress.difficulty = Difficulty.fromName(tag.getStringOr("difficulty", ""));
+            } else if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "hardMode", Tag.TAG_BYTE)) {
+                progress.difficulty = tag.getBooleanOr("hardMode", false) ? Difficulty.HARD : Difficulty.NORMAL;
             }
 
-            CompoundTag rewardsTag = tag.getCompound("rewards");
-            for (String key : rewardsTag.getAllKeys()) {
+            CompoundTag rewardsTag = tag.getCompoundOrEmpty("rewards");
+            for (String key : rewardsTag.keySet()) {
                 Integer index = parseIndex(key);
-                if (index != null) progress.rewardsClaimed.put(index, rewardsTag.getBoolean(key));
+                if (index != null) progress.rewardsClaimed.put(index, rewardsTag.getBooleanOr(key, false));
             }
 
             return progress;
@@ -885,8 +885,8 @@ public class PlayerQuestData {
 
         public static QuestStartRequirementTiming deserialize(CompoundTag tag) {
             return new QuestStartRequirementTiming(
-                    tag.getLong("gameTimeStarted"),
-                    tag.getLong("realTimeStartedMs")
+                    tag.getLongOr("gameTimeStarted", 0L),
+                    tag.getLongOr("realTimeStartedMs", 0L)
             );
         }
     }
@@ -930,12 +930,12 @@ public class PlayerQuestData {
 
         public static PartyInviteData deserialize(CompoundTag tag) {
             return new PartyInviteData(
-                    parseUuid(tag.getString("inviterUUID")),
-                    parseUuid(tag.getString("partyId")),
-                    parseUuid(tag.getString("partyLeaderId")),
-                    tag.getString("inviterName"),
-                    tag.getLong("expiresAtMs"),
-                    Difficulty.fromName(tag.getString("partyDifficulty"))
+                    parseUuid(tag.getStringOr("inviterUUID", "")),
+                    parseUuid(tag.getStringOr("partyId", "")),
+                    parseUuid(tag.getStringOr("partyLeaderId", "")),
+                    tag.getStringOr("inviterName", ""),
+                    tag.getLongOr("expiresAtMs", 0L),
+                    Difficulty.fromName(tag.getStringOr("partyDifficulty", ""))
             );
         }
     }

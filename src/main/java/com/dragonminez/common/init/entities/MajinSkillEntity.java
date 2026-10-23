@@ -1,6 +1,5 @@
 package com.dragonminez.common.init.entities;
 
-import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -15,11 +14,11 @@ import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 public class MajinSkillEntity  extends PathfinderMob implements GeoEntity {
 
@@ -43,11 +42,11 @@ public class MajinSkillEntity  extends PathfinderMob implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "base_controller", 5, this::walkPredicate));
+        controllers.add(new AnimationController<>("base_controller", 5, this::walkPredicate));
     }
 
-    private <T extends GeoAnimatable> PlayState walkPredicate(AnimationState<T> event) {
-        event.getController().setAnimation(RawAnimation.begin().thenLoop("idle"));
+    private <T extends GeoAnimatable> PlayState walkPredicate(AnimationTest<T> event) {
+        event.controller().setAnimation(RawAnimation.begin().thenLoop("idle"));
         return PlayState.CONTINUE;
     }
 
@@ -66,16 +65,23 @@ public class MajinSkillEntity  extends PathfinderMob implements GeoEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putInt("BodyColor", this.getBodyColor());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
         if (pCompound.contains("BodyColor")) {
-            this.setBodyColor(pCompound.getInt("BodyColor"));
+            this.setBodyColor(pCompound.getIntOr("BodyColor", 0));
         }
     }
 

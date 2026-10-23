@@ -1,5 +1,6 @@
 package com.dragonminez.common.init;
 
+import net.minecraft.world.item.equipment.ArmorType;
 import com.dragonminez.Reference;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -9,9 +10,8 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.LiquidBlock;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredRegister;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 @SuppressWarnings("unused")
 public final class MainTabs {
@@ -75,7 +75,7 @@ public final class MainTabs {
 	);
 
 	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ARMORS_TAB =  CREATIVE_TABS_REGISTER.register("dragonminez_armors_tab",
-			() -> CreativeModeTab.builder().icon(() -> new ItemStack(MainItems.BARDOCK_DBZ_ARMOR.get(ArmorItem.Type.CHESTPLATE).get()))
+			() -> CreativeModeTab.builder().icon(() -> new ItemStack(MainItems.BARDOCK_DBZ_ARMOR.get(ArmorType.CHESTPLATE).get()))
 
 					.title(Component.translatable("itemGroup.dragonminez.armors"))
 					.displayItems((parameters, output) -> MainItems.ITEM_REGISTER.getEntries().forEach((item) -> {
@@ -101,7 +101,7 @@ public final class MainTabs {
 					})).build()
 	);
 
-	public static void register(IEventBus bus) {
-		CREATIVE_TABS_REGISTER.register(bus);
+	public static void register() {
+		CREATIVE_TABS_REGISTER.register();
 	}
 }

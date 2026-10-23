@@ -17,9 +17,9 @@ public class VillagePoolInjector {
 
 	public static void injectAll(MinecraftServer server) {
 		Registry<StructureTemplatePool> pools = server.registryAccess()
-				.registryOrThrow(Registries.TEMPLATE_POOL);
+				.lookupOrThrow(Registries.TEMPLATE_POOL);
 		Registry<StructureProcessorList> procs = server.registryAccess()
-				.registryOrThrow(Registries.PROCESSOR_LIST);
+				.lookupOrThrow(Registries.PROCESSOR_LIST);
 
 		Holder<StructureProcessorList> empty = procs.getHolderOrThrow(
 				ResourceKey.create(Registries.PROCESSOR_LIST, Identifier.fromNamespaceAndPath("minecraft", "empty")));

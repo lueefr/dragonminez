@@ -11,7 +11,7 @@ import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import org.jetbrains.annotations.Nullable;
 
 public final class TransformationMaskBufferSource implements MultiBufferSource {

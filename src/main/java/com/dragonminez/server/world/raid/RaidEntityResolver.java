@@ -46,7 +46,7 @@ public final class RaidEntityResolver {
 			return null;
 		}
 
-		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(location);
+		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getValue(location);
 		if (type == null) {
 			LogUtil.warn(Env.SERVER, "Raid wave points at unknown entity '{}'; skipping it", entityId);
 		}

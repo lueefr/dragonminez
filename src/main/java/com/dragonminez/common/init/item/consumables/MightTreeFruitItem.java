@@ -13,7 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class MightTreeFruitItem extends Item {
     private static final int EFFECT_DURATION_TICKS = 20 * 60;
 
     public MightTreeFruitItem() {
-        super(new Properties().stacksTo(6).food(
+        super(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(6).food(
                 new FoodProperties.Builder()
                         .nutrition(HUNGER)
                         .saturationModifier(SATURATION)
@@ -38,14 +37,17 @@ public class MightTreeFruitItem extends Item {
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack pStack, @NotNull Item.TooltipContext context, List<Component> pTooltipComponents, @NotNull TooltipFlag pIsAdvanced) {
-        net.minecraft.world.level.Level level = context.level();
+    public void appendHoverText(ItemStack pStack, Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag pIsAdvanced) {
+        java.util.List<Component> pTooltipComponents = new java.util.ArrayList<>();
+        try {
         pTooltipComponents.add(Component.translatable("item.dragonminez.might_tree_fruit.tooltip").withStyle(ChatFormatting.GRAY));
+
+        } finally { pTooltipComponents.forEach(dmz$consumer); }
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack pStack, Level pLevel, LivingEntity pLivingEntity) {
-        if (!pLevel.isClientSide && pLivingEntity instanceof ServerPlayer player) {
+        if (!pLevel.isClientSide() && pLivingEntity instanceof ServerPlayer player) {
             StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
                 double effectPower = ConfigManager.getServerConfig().getGameplay().getMightFruitPower();
                 data.getEffects().addEffect("mightfruit", effectPower, EFFECT_DURATION_TICKS);

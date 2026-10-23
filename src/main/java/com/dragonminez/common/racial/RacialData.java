@@ -108,31 +108,31 @@ public class RacialData {
 	}
 
 	public void load(CompoundTag tag) {
-		zenkaiPermanentUses = tag.getInt("ZenkaiPermanentUses");
-		zenkaiReleaseBonus = tag.getDouble("ZenkaiReleaseBonus");
-		peakRawHitWindow = tag.getFloat("PeakRawHitWindow");
-		peakRawHitTicksLeft = tag.getInt("PeakRawHitTicksLeft");
-		tempZenkaiBuffName = tag.getString("TempZenkaiBuffName");
+		zenkaiPermanentUses = tag.getIntOr("ZenkaiPermanentUses", 0);
+		zenkaiReleaseBonus = tag.getDoubleOr("ZenkaiReleaseBonus", 0D);
+		peakRawHitWindow = tag.getFloatOr("PeakRawHitWindow", 0F);
+		peakRawHitTicksLeft = tag.getIntOr("PeakRawHitTicksLeft", 0);
+		tempZenkaiBuffName = tag.getStringOr("TempZenkaiBuffName", "");
 		assimilations.clear();
-		assimilations.addAll(loadSlots(tag.getList("Assimilations", Tag.TAG_COMPOUND), AssimilationSlot::fromNbt));
+		assimilations.addAll(loadSlots(com.dragonminez.platform.nbt.NbtCompat.getList(tag, "Assimilations", Tag.TAG_COMPOUND), AssimilationSlot::fromNbt));
 		absorptions.clear();
-		absorptions.addAll(loadSlots(tag.getList("Absorptions", Tag.TAG_COMPOUND), AbsorptionSlot::fromNbt));
-		absorptionSlotCounter = Math.max(tag.getInt("AbsorptionSlotCounter"), absorptions.size());
-		adrenalineArmed = !tag.contains("AdrenalineArmed") || tag.getBoolean("AdrenalineArmed");
-		energyReserve = tag.getFloat("EnergyReserve");
-		reserveActive = tag.getBoolean("ReserveActive");
+		absorptions.addAll(loadSlots(com.dragonminez.platform.nbt.NbtCompat.getList(tag, "Absorptions", Tag.TAG_COMPOUND), AbsorptionSlot::fromNbt));
+		absorptionSlotCounter = Math.max(tag.getIntOr("AbsorptionSlotCounter", 0), absorptions.size());
+		adrenalineArmed = !tag.contains("AdrenalineArmed") || tag.getBooleanOr("AdrenalineArmed", false);
+		energyReserve = tag.getFloatOr("EnergyReserve", 0F);
+		reserveActive = tag.getBooleanOr("ReserveActive", false);
 		cellJrs.clear();
-		ListTag cellJrTag = tag.getList("CellJrs", Tag.TAG_STRING);
-		for (int i = 0; i < cellJrTag.size(); i++) cellJrs.add(UUID.fromString(cellJrTag.getString(i)));
-		cellJrStatPenalty = tag.getDouble("CellJrStatPenalty");
-		String storedSkill = tag.getString("BioSelectedSkill");
+		ListTag cellJrTag = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "CellJrs", Tag.TAG_STRING);
+		for (int i = 0; i < cellJrTag.size(); i++) cellJrs.add(UUID.fromString(cellJrTag.getStringOr(i, "")));
+		cellJrStatPenalty = tag.getDoubleOr("CellJrStatPenalty", 0D);
+		String storedSkill = tag.getStringOr("BioSelectedSkill", "");
 		bioSelectedSkill = BIO_SKILL_EXPLODE.equals(storedSkill) ? BIO_SKILL_EXPLODE : BIO_SKILL_DRAIN;
-		bioSwell = tag.getFloat("BioSwell");
-		bioChargeTicks = tag.getInt("BioChargeTicks");
-		bioSwellLocked = tag.getBoolean("BioSwellLocked");
+		bioSwell = tag.getFloatOr("BioSwell", 0F);
+		bioChargeTicks = tag.getIntOr("BioChargeTicks", 0);
+		bioSwellLocked = tag.getBooleanOr("BioSwellLocked", false);
 		ownedBonusNames.clear();
-		ListTag ownedTag = tag.getList("OwnedBonusNames", Tag.TAG_STRING);
-		for (int i = 0; i < ownedTag.size(); i++) ownedBonusNames.add(ownedTag.getString(i));
+		ListTag ownedTag = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "OwnedBonusNames", Tag.TAG_STRING);
+		for (int i = 0; i < ownedTag.size(); i++) ownedBonusNames.add(ownedTag.getStringOr(i, ""));
 	}
 
 	private static final String[] CAPTURE_STAT_KEYS = {"STR", "SKP", "PWR"};
@@ -186,7 +186,7 @@ public class RacialData {
 
 	private static <T> List<T> loadSlots(ListTag list, Function<CompoundTag, T> factory) {
 		List<T> result = new ArrayList<>();
-		for (int i = 0; i < list.size(); i++) result.add(factory.apply(list.getCompound(i)));
+		for (int i = 0; i < list.size(); i++) result.add(factory.apply(list.getCompoundOrEmpty(i)));
 		return result;
 	}
 

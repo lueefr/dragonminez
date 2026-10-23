@@ -67,7 +67,7 @@ public class GrantWishC2S {
 		context.get().enqueueWork(() -> {
 			ServerPlayer player = context.get().getSender();
 			if (player == null || StorageManager.isLoadPending(player)) return;
-			ServerLevel level = player.serverLevel();
+			ServerLevel level = player.level();
 			Entity entity = level.getEntity(dragonEntityId);
 			if (!(entity instanceof DragonWishEntity dragon) || dragon.isRemoved() || dragon.hasGrantedWish()) return;
 			if (!dragon.getOwnerName().equals(player.getName().getString())) return;

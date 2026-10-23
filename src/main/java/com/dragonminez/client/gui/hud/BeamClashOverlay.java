@@ -10,7 +10,6 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.minecraft.client.gui.LayeredDraw;
 
 public class BeamClashOverlay {
 	private static final Identifier BAR_TEXTURE =
@@ -37,7 +36,7 @@ public class BeamClashOverlay {
 
 	private static final float FLASH_SHARE = 0.25f;
 
-	public static final LayeredDraw.Layer HUD_BEAM_CLASH = (guiGraphics, deltaTracker) -> {
+	public static final net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement HUD_BEAM_CLASH = (guiGraphics, deltaTracker) -> {
 		float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(false);
 		int width = guiGraphics.guiWidth();
 		int height = guiGraphics.guiHeight();

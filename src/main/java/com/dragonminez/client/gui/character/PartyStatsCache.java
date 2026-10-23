@@ -1,8 +1,8 @@
 package com.dragonminez.client.gui.character;
 
 import com.dragonminez.common.network.PartyPackets;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public final class PartyStatsCache {
 
 	private static final Map<UUID, PartyPackets.MemberStats> MEMBERS = new LinkedHashMap<>();

@@ -45,8 +45,8 @@ public class UsedForms {
 
     public void load(CompoundTag nbt) {
         usedForms.clear();
-        for (String key : nbt.getAllKeys()) {
-            usedForms.put(key, Arrays.stream(nbt.getString(key).split(":")).toList());
+        for (String key : nbt.keySet()) {
+            usedForms.put(key, Arrays.stream(nbt.getStringOr(key, "").split(":")).toList());
         }
     }
 

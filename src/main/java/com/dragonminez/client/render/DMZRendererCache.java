@@ -70,7 +70,7 @@ public final class DMZRendererCache {
 
 			Map<UUID, CachedRendererEntry> cache = pov ? POV_RENDERERS : TP_RENDERERS;
 			CachedRendererEntry entry = cache.get(acp.getUUID());
-			GeoEntityRenderer<?> renderer = (entry != null && entry.matches(stateSignature)) ? entry.renderer() : null;
+			GeoEntityRenderer<?, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderer = (entry != null && entry.matches(stateSignature)) ? entry.renderer() : null;
 
 			if (renderer == null) {
 				renderer = createRenderer(race, gender, form, pov);
@@ -94,7 +94,7 @@ public final class DMZRendererCache {
 			String stateSignature = buildStateSignature(race, gender, form);
 
 			CachedRendererEntry entry = TP_RENDERERS.get(acp.getUUID());
-			GeoEntityRenderer<?> renderer = (entry != null && entry.matches(stateSignature)) ? entry.renderer() : null;
+			GeoEntityRenderer<?, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderer = (entry != null && entry.matches(stateSignature)) ? entry.renderer() : null;
 			if (renderer == null) {
 				renderer = createRenderer(race, gender, form, false);
 				TP_RENDERERS.put(acp.getUUID(), new CachedRendererEntry(stateSignature, renderer));
@@ -117,7 +117,7 @@ public final class DMZRendererCache {
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	private static GeoEntityRenderer<?> createRenderer(String race, String gender, String form, boolean pov) {
+	private static GeoEntityRenderer<?, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> createRenderer(String race, String gender, String form, boolean pov) {
 		String safeRace = race != null ? race.toLowerCase() : "human";
 
 		RaceCharacterConfig raceConfig = ConfigManager.getRaceCharacter(safeRace);
@@ -134,7 +134,7 @@ public final class DMZRendererCache {
 		}
 	}
 
-	private record CachedRendererEntry(String stateSignature, GeoEntityRenderer<?> renderer) {
+	private record CachedRendererEntry(String stateSignature, GeoEntityRenderer<?, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderer) {
 		private boolean matches(String otherSignature) {
 			return stateSignature.equals(otherSignature);
 		}

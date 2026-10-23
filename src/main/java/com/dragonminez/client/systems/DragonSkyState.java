@@ -18,7 +18,7 @@ public final class DragonSkyState {
 
 	public static void update(Identifier dimension, boolean isActive) {
 		ClientLevel level = Minecraft.getInstance().level;
-		if (level == null || !level.dimension().location().equals(dimension)) return;
+		if (level == null || !level.dimension().identifier().equals(dimension)) return;
 		active = isActive;
 		if (level != syncedLevel) {
 			syncedLevel = level;

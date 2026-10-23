@@ -7,7 +7,6 @@ import com.dragonminez.common.quest.objectives.StructureObjective;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -101,7 +100,7 @@ public final class QuestLocationHelper {
 
 		try {
 			Identifier structRL = Identifier.parse(targetStructure);
-			Structure structure = level.registryAccess().registryOrThrow(Registries.STRUCTURE).get(structRL);
+			Structure structure = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).get(structRL);
 			return structure != null && level.structureManager().getStructureWithPieceAt(pos, structure).isValid();
 		} catch (Exception e) {
 			return false;
@@ -115,7 +114,7 @@ public final class QuestLocationHelper {
 
 		try {
 			Identifier dimensionRL = Identifier.parse(targetDimension);
-			return level.dimension().location().equals(dimensionRL);
+			return level.dimension().identifier().equals(dimensionRL);
 		} catch (Exception e) {
 			return false;
 		}

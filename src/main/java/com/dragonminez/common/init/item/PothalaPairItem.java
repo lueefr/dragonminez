@@ -14,7 +14,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -34,13 +33,13 @@ public class PothalaPairItem extends Item {
 
 	@Override
 	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-		if (!level.isClientSide) ensurePairId(stack, level);
+		if (!level.isClientSide()) ensurePairId(stack, level);
 	}
 
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack pair = player.getItemInHand(hand);
-		if (!level.isClientSide) {
+		if (!level.isClientSide()) {
 			int pairId = ensurePairId(pair, level);
 
 			ItemStack left = new ItemStack(leftEarring.get());
@@ -56,13 +55,16 @@ public class PothalaPairItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        net.minecraft.world.level.Level level = context.level();
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag flag) {
+        java.util.List<Component> tooltip = new java.util.ArrayList<>();
+        try {
 		tooltip.add(Component.translatable("item.dragonminez.pothala.pair.tooltip.split").withStyle(ChatFormatting.GRAY));
 		tooltip.add(Component.translatable("item.dragonminez.pothala.pair.tooltip.aura").withStyle(ChatFormatting.GRAY));
 		appendPairIdTooltip(stack, tooltip);
-		super.appendHoverText(stack, context, tooltip, flag);
-	}
+		super.appendHoverText(stack, context, dmz$display, tooltip::add, flag);
+
+        } finally { tooltip.forEach(dmz$consumer); }
+    }
 
 	private static void giveOrDrop(Player player, ItemStack stack) {
 		if (!player.addItem(stack)) player.drop(stack, false);
@@ -70,7 +72,7 @@ public class PothalaPairItem extends Item {
 
 	public static int ensurePairId(ItemStack stack, Level level) {
 		int pairId = getPairId(stack);
-		if (level.isClientSide || level.getServer() == null) return pairId;
+		if (level.isClientSide() || level.getServer() == null) return pairId;
 
 		PothalaPairSavedData data = PothalaPairSavedData.get(level.getServer());
 		if (pairId != 0) {
@@ -85,7 +87,7 @@ public class PothalaPairItem extends Item {
 
 	public static void reservePairId(ItemStack stack, Level level) {
 		int pairId = getPairId(stack);
-		if (pairId == 0 || level.isClientSide || level.getServer() == null) return;
+		if (pairId == 0 || level.isClientSide() || level.getServer() == null) return;
 		PothalaPairSavedData.get(level.getServer()).reserve(pairId);
 	}
 
@@ -96,7 +98,7 @@ public class PothalaPairItem extends Item {
 	public static int getPairId(ItemStack stack) {
 		CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
 		CompoundTag tag = data.copyTag();
-		return tag.contains(PAIR_ID_KEY) ? tag.getInt(PAIR_ID_KEY) : 0;
+		return tag.contains(PAIR_ID_KEY) ? tag.getIntOr(PAIR_ID_KEY, 0) : 0;
 	}
 
 	public static void appendPairIdTooltip(ItemStack stack, List<Component> tooltip) {

@@ -10,7 +10,7 @@ import lombok.Setter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.common.NeoForge;
+import com.dragonminez.platform.event.GameEvents;
 
 @Getter
 @Setter
@@ -175,7 +175,7 @@ public class Resources {
         }
         DMZEvent.TPGainEvent event = new DMZEvent.TPGainEvent(player, (int) Math.min(oldValue, Integer.MAX_VALUE), (int) amount, shareWithParty, preBoosted);
 
-        if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+        if (!GameEvents.BUS.post(event).isCanceled()) {
             setTrainingPointsExact(oldValue + event.getTpGain());
         }
     }
@@ -256,31 +256,31 @@ public class Resources {
     }
 
     public void load(CompoundTag tag) {
-        if (tag.contains("CurrentEnergy", 5)) this.currentEnergy = tag.getFloat("CurrentEnergy");
-        else this.currentEnergy = tag.getInt("CurrentEnergy");
+        if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "CurrentEnergy", 5)) this.currentEnergy = tag.getFloatOr("CurrentEnergy", 0F);
+        else this.currentEnergy = tag.getIntOr("CurrentEnergy", 0);
 
-        if (tag.contains("CurrentStamina", 5)) this.currentStamina = tag.getFloat("CurrentStamina");
-        else this.currentStamina = tag.getInt("CurrentStamina");
+        if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "CurrentStamina", 5)) this.currentStamina = tag.getFloatOr("CurrentStamina", 0F);
+        else this.currentStamina = tag.getIntOr("CurrentStamina", 0);
 
-        if (tag.contains("CurrentPoise", 5)) this.currentPoise = tag.getFloat("CurrentPoise");
-        else this.currentPoise = tag.getInt("CurrentPoise");
+        if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "CurrentPoise", 5)) this.currentPoise = tag.getFloatOr("CurrentPoise", 0F);
+        else this.currentPoise = tag.getIntOr("CurrentPoise", 0);
 
-        this.surgeCharge = tag.getFloat("SurgeCharge");
-        setRage(tag.getFloat("Rage"));
+        this.surgeCharge = tag.getFloatOr("SurgeCharge", 0F);
+        setRage(tag.getFloatOr("Rage", 0F));
 
-        this.release = tag.getInt("Release");
-        this.releaseLimit = tag.getInt("ReleaseLimit");
-        this.flightSpeedLimit = tag.getInt("FlightSpeed");
-        this.actionCharge = tag.getInt("FormRelease");
-        this.alignment = tag.getInt("Alignment");
+        this.release = tag.getIntOr("Release", 0);
+        this.releaseLimit = tag.getIntOr("ReleaseLimit", 0);
+        this.flightSpeedLimit = tag.getIntOr("FlightSpeed", 0);
+        this.actionCharge = tag.getIntOr("FormRelease", 0);
+        this.alignment = tag.getIntOr("Alignment", 0);
 
-        if (tag.contains("TrainingPointsD", 6)) this.trainingPoints = tag.getDouble("TrainingPointsD");
-        else if (tag.contains("TrainingPointsF", 5)) this.trainingPoints = tag.getFloat("TrainingPointsF");
-        else this.trainingPoints = tag.getInt("TrainingPoints");
+        if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "TrainingPointsD", 6)) this.trainingPoints = tag.getDoubleOr("TrainingPointsD", 0D);
+        else if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "TrainingPointsF", 5)) this.trainingPoints = tag.getFloatOr("TrainingPointsF", 0F);
+        else this.trainingPoints = tag.getIntOr("TrainingPoints", 0);
 
-        this.pendingAttributePoints = tag.getInt("PendingAttributePoints");
+        this.pendingAttributePoints = tag.getIntOr("PendingAttributePoints", 0);
 
-        this.racialSkillCount = tag.getInt("ZenkaiCount");
+        this.racialSkillCount = tag.getIntOr("ZenkaiCount", 0);
     }
 
     public void copyFrom(Resources other) {

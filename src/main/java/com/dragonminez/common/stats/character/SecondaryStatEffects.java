@@ -103,13 +103,13 @@ public class SecondaryStatEffects {
 
 	public void load(CompoundTag nbt) {
 		mods.clear();
-		if (!nbt.contains("Modifiers", Tag.TAG_LIST)) return;
-		ListTag list = nbt.getList("Modifiers", Tag.TAG_COMPOUND);
+		if (!com.dragonminez.platform.nbt.NbtCompat.contains(nbt, "Modifiers", Tag.TAG_LIST)) return;
+		ListTag list = com.dragonminez.platform.nbt.NbtCompat.getList(nbt, "Modifiers", Tag.TAG_COMPOUND);
 		for (int i = 0; i < list.size(); i++) {
-			CompoundTag modTag = list.getCompound(i);
-			String stat = modTag.getString("Stat");
+			CompoundTag modTag = list.getCompoundOrEmpty(i);
+			String stat = modTag.getStringOr("Stat", "");
 			if (stat == null || stat.isEmpty()) continue;
-			mods.put(stat.toUpperCase(), new Mod(stat.toUpperCase(), modTag.getDouble("Factor"), modTag.getInt("Duration")));
+			mods.put(stat.toUpperCase(), new Mod(stat.toUpperCase(), modTag.getDoubleOr("Factor", 0D), modTag.getIntOr("Duration", 0)));
 		}
 	}
 

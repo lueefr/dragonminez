@@ -4,15 +4,13 @@ import com.dragonminez.client.init.entities.model.MasterGlobalModel;
 import com.dragonminez.common.init.entities.MastersEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.model.GeoModel;
 import com.geckolib.renderer.GeoEntityRenderer;
 
-public class MasterEntityRenderer <T extends MastersEntity> extends GeoEntityRenderer<T> {
+public class MasterEntityRenderer <T extends MastersEntity> extends com.dragonminez.platform.client.render.ExtractedGeoEntityRenderer<T> {
 
     public MasterEntityRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new MasterGlobalModel<>());
@@ -38,6 +36,6 @@ public class MasterEntityRenderer <T extends MastersEntity> extends GeoEntityRen
 
     @Override
     public RenderType getRenderType(T animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityCutout(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutCull(texture);
     }
 }

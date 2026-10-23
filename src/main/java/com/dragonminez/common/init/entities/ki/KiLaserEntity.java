@@ -101,7 +101,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
         this.setCastOffsets(0.3F, -0.1F, 0.5F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -126,7 +126,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
         this.setCastOffsets(0.3F, 0.1F, 0.5F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -147,7 +147,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
         this.setCastOffsets(0.3F, -0.1F, 0.5F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -167,7 +167,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
         this.setCastTime(20);
         this.setCastOffsets(0.3F, 0.4F, 0.5F);
         updatePositionRelativeToOwner(owner);
-        
+
     }
 
     public void setupKiLaserPlayer(LivingEntity owner, float damage, float speed, int color, int colorBorder, float size) {
@@ -185,7 +185,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
         this.setCastTime(40);
         this.setCastOffsets(-0.2F, 0.7F, 0.5F);
         updatePositionRelativeToOwner(owner);
-        
+
     }
 
     public void setupKiMakkankosanpoPlayer(LivingEntity owner, float damage, float speed, float size){
@@ -203,7 +203,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
         this.setCastTime(20);
         this.setCastOffsets(0.3F, -0.1F, 0.5F);
         updatePositionRelativeToOwner(owner);
-        
+
     }
 
     public void setupKiBeamPlayer(LivingEntity owner, float damage, float speed, int color, int colorBorder, int colorOutline, float size) {
@@ -269,7 +269,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
         this.setCastTime(0);
         this.setMaxLife(life);
         this.setPos(origin.x, origin.y, origin.z);
-        if (!this.level().isClientSide) this.level().addFreshEntity(this);
+        if (!this.level().isClientSide()) this.level().addFreshEntity(this);
     }
 
     private void strikeImpact(Vec3 pos) {
@@ -290,7 +290,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
     }
 
     private void startEmperorChain() {
-        if (this.chainStarted || this.isHeal() || this.level().isClientSide) return;
+        if (this.chainStarted || this.isHeal() || this.level().isClientSide()) return;
         if (!KiTechniqueHandler.EmperorDeathBeam.is(this.getTechniqueId())) return;
         if (!(this.getOwner() instanceof LivingEntity owner)) return;
         this.chainStarted = true;
@@ -301,7 +301,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
     public void fireHability(int finalMaxLife) {
         if (this.pendingFireTick >= 0) return;
 
-        int delay = this.level().isClientSide ? 0 : KiTechniqueHandler.getFireDelayTicks(this.getTechniqueId());
+        int delay = this.level().isClientSide() ? 0 : KiTechniqueHandler.getFireDelayTicks(this.getTechniqueId());
         if (delay > 0) {
             this.pendingFireTick = this.tickCount + delay;
             this.pendingFireLife = finalMaxLife;
@@ -394,7 +394,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
     public void tick() {
         this.baseTick();
 
-        if (this.pendingFireTick >= 0 && !this.level().isClientSide && this.tickCount >= this.pendingFireTick) {
+        if (this.pendingFireTick >= 0 && !this.level().isClientSide() && this.tickCount >= this.pendingFireTick) {
             int life = this.pendingFireLife;
             this.pendingFireTick = -1;
             this.startFiring(life, false);
@@ -416,21 +416,21 @@ public class KiLaserEntity extends AbstractKiProjectile{
                 this.setYRot(livingOwner.getYRot());
                 this.setXRot(livingOwner.getXRot());
 
-                if (!this.level().isClientSide) {
+                if (!this.level().isClientSide()) {
                     int renderType = this.getKiRenderType();
                     if ((renderType == 1 || renderType == 2) && this.tickCount == 1) {
                         this.playSound(MainSounds.KI_BEAM_CHARGE.get(), 0.7F, 1.0F);
                     }
                 }
 
-            } else if (!this.level().isClientSide) {
+            } else if (!this.level().isClientSide()) {
                 this.discard();
                 return;
             }
         } else {
             this.setDeltaMovement(0, 0, 0);
 
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 // CLASH LOCK: el haz queda fijo en el punto de choque, sin extenderse ni dañar.
                 if (this.isClashLocked()) {
                     this.setBeamLength(this.getClashLockedLength());
@@ -481,7 +481,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
             }
         }
 
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             spawnLaserParticles();
         }
 

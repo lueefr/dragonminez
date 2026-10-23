@@ -22,17 +22,16 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 /**
  * A single, generic, data-driven quest NPC entity.
@@ -85,9 +84,9 @@ public class QuestNPCEntity extends MastersEntity {
 	}
 
 	@Override
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
+	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason reason,
 										@Nullable SpawnGroupData spawnData) {
-		if (reason == MobSpawnType.STRUCTURE && this.hasHome) {
+		if (reason == EntitySpawnReason.STRUCTURE && this.hasHome) {
 			this.setHomePosition(this.getX(), this.getZ());
 		}
 		return super.finalizeSpawn(level, difficulty, reason, spawnData);
@@ -96,7 +95,7 @@ public class QuestNPCEntity extends MastersEntity {
 	@Override
 	public void tick() {
 		super.tick();
-		if (this.level().isClientSide || !this.hasHome) {
+		if (this.level().isClientSide() || !this.hasHome) {
 			return;
 		}
 
@@ -112,12 +111,12 @@ public class QuestNPCEntity extends MastersEntity {
 	}
 
 	@Override
-	public boolean hurt(DamageSource source, float amount) {
+	public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource source, float amount) {
 		if (source.is(DamageTypes.FELL_OUT_OF_WORLD) || source.is(DamageTypes.GENERIC) || source.is(DamageTypes.GENERIC_KILL)) {
-			return super.hurt(source, amount);
+			return super.hurtServer(dmz$level, source, amount);
 		}
 		if (source.getEntity() instanceof Player player && TargetHelper.getRelation(player, this) == TargetHelper.Relation.HOSTILE) {
-			return super.hurt(source, amount);
+			return super.hurtServer(dmz$level, source, amount);
 		}
 
 		return false;
@@ -178,7 +177,7 @@ public class QuestNPCEntity extends MastersEntity {
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 		super.registerControllers(controllers);
-		controllers.add(new AnimationController<>(this, "cape_controller", 5,
+		controllers.add(new AnimationController<>("cape_controller", 5,
 				event -> this.sagaRig ? event.setAndContinue(DBSagasAnimations.ANIM_CAPE) : PlayState.STOP));
 	}
 
@@ -216,8 +215,10 @@ public class QuestNPCEntity extends MastersEntity {
 	// ---- NBT persistence ----
 
 	@Override
-	public void addAdditionalSaveData(CompoundTag tag) {
-		super.addAdditionalSaveData(tag);
+	public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag tag = new CompoundTag();
+        try {
+		super.addAdditionalSaveData(dmz$output);
 		tag.putString("QuestNpcId", getNpcId());
 		String model = getNpcModel();
 		if (model != null && !model.isEmpty()) {
@@ -235,23 +236,28 @@ public class QuestNPCEntity extends MastersEntity {
 			tag.putDouble("QuestNpcHomeX", this.homeX);
 			tag.putDouble("QuestNpcHomeZ", this.homeZ);
 		}
-	}
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, tag);
+        }
+    }
 
 	@Override
-	public void readAdditionalSaveData(CompoundTag tag) {
-		super.readAdditionalSaveData(tag);
+	public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag tag = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+		super.readAdditionalSaveData(dmz$input);
 		if (tag.contains("QuestNpcId")) {
-			setNpcId(tag.getString("QuestNpcId"));
+			setNpcId(tag.getStringOr("QuestNpcId", ""));
 		}
 		if (tag.contains("QuestNpcModel")) {
-			setNpcModel(tag.getString("QuestNpcModel"));
+			setNpcModel(tag.getStringOr("QuestNpcModel", ""));
 		}
 		if (tag.contains("QuestNpcTexture")) {
-			setNpcTexture(tag.getString("QuestNpcTexture"));
+			setNpcTexture(tag.getStringOr("QuestNpcTexture", ""));
 		}
-		setMasterNpc(tag.getBoolean("QuestNpcMaster"));
-		if (tag.getBoolean("QuestNpcHasHome")) {
-			setHomePosition(tag.getDouble("QuestNpcHomeX"), tag.getDouble("QuestNpcHomeZ"));
+		setMasterNpc(tag.getBooleanOr("QuestNpcMaster", false));
+		if (tag.getBooleanOr("QuestNpcHasHome", false)) {
+			setHomePosition(tag.getDoubleOr("QuestNpcHomeX", 0D), tag.getDoubleOr("QuestNpcHomeZ", 0D));
 		}
 	}
 
@@ -259,7 +265,7 @@ public class QuestNPCEntity extends MastersEntity {
 
 	@Override
 	protected InteractionResult mobInteract(Player pPlayer, InteractionHand pHand) {
-		if (!this.level().isClientSide && pPlayer instanceof ServerPlayer serverPlayer) {
+		if (!this.level().isClientSide() && pPlayer instanceof ServerPlayer serverPlayer) {
 			String npcId = getNpcId();
 
 			StatsProvider.get(StatsCapability.INSTANCE, serverPlayer).ifPresent(data -> {

@@ -1,6 +1,6 @@
 package com.dragonminez.client.render.effects;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.clash.ClientBeamClashState;
 import com.dragonminez.client.gui.hud.HudRender;
@@ -10,15 +10,14 @@ import com.dragonminez.client.render.util.IrisCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
+import net.fabricmc.api.EnvType;
+import com.dragonminez.platform.event.client.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public final class BeamClashScreenRenderer {
 	private static final FullscreenPostEffect EFFECT = new FullscreenPostEffect(
 			Identifier.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/beam_clash.json"), "beam clash speed lines");
@@ -61,7 +60,7 @@ public final class BeamClashScreenRenderer {
 
 	@SubscribeEvent
 	public static void onRenderOverlay(RenderGuiLayerEvent.Pre event) {
-		if (!net.neoforged.neoforge.client.gui.VanillaGuiLayers.CAMERA_OVERLAYS.equals(event.getName())) return;
+		if (!net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.MISC_OVERLAYS.equals(event.getName())) return;
 		if (!EFFECT.isLoadFailed()) return;
 		float intensity = INTENSITY.value();
 		if (intensity <= 0.004f) return;

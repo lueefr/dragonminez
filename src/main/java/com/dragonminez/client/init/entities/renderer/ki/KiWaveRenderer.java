@@ -24,7 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 
-public class KiWaveRenderer extends EntityRenderer<KiWaveEntity> {
+public class KiWaveRenderer extends EntityRenderer<KiWaveEntity, net.minecraft.client.renderer.entity.state.EntityRenderState> {
     private static final Identifier TEXTURE_WAVE_CORE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kiwave.png");
 
     private static final float MUZZLE_FLAME_SCALE = 1.55F;

@@ -31,14 +31,14 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public class WorldBossResultsScreen extends ScaledScreen {
 	private static final Identifier BUTTONS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
 	private static final Identifier REWARD_GENERIC_ICON = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/quest/reward_generic.png");
@@ -438,7 +438,7 @@ public class WorldBossResultsScreen extends ScaledScreen {
 	private static ItemStack rewardIcon(QuestReward reward) {
 		return switch (reward.getType()) {
 			case ITEM -> reward instanceof ItemReward item
-					? new ItemStack(BuiltInRegistries.ITEM.get(Identifier.parse(item.getItemId())), Math.max(1, item.getCount()))
+					? new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.parse(item.getItemId())), Math.max(1, item.getCount()))
 					: null;
 			case GENERIC_ITEM -> reward instanceof GenericItemReward generic && !generic.getItemReward().getItemStack().isEmpty()
 					? generic.getItemReward().getItemStack()

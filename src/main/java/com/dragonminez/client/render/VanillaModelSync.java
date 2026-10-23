@@ -1,18 +1,18 @@
 package com.dragonminez.client.render;
 
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 
 public final class VanillaModelSync {
 	private VanillaModelSync() {
 	}
 
-	public static void sync(BakedGeoModel geoModel, PlayerModel<AbstractClientPlayer> vanillaModel, AbstractClientPlayer player) {
+	public static void sync(BakedGeoModel geoModel, PlayerModel vanillaModel, AbstractClientPlayer player) {
 		GeoBone waist = geoModel.getBone("waist").orElse(null);
 
 		syncBone(geoModel, "head", vanillaModel.head, waist);

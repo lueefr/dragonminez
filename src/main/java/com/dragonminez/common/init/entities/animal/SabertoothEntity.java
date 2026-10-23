@@ -8,7 +8,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -17,11 +17,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
 import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 public class SabertoothEntity extends DinoGlobalEntity{
 
@@ -57,15 +57,22 @@ public class SabertoothEntity extends DinoGlobalEntity{
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putInt("Variant", getVariantTiger());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        setVariantTiger(pCompound.getInt("Variant"));
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        setVariantTiger(pCompound.getIntOr("Variant", 0));
     }
 
     public int getVariantTiger() {return this.entityData.get(VARIANT);}
@@ -80,7 +87,7 @@ public class SabertoothEntity extends DinoGlobalEntity{
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, EntitySpawnReason pReason, @Nullable SpawnGroupData pSpawnData) {
         this.setVariantTiger(this.random.nextInt(VARIANT_COUNT));
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
     }
@@ -88,44 +95,44 @@ public class SabertoothEntity extends DinoGlobalEntity{
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 
-        controllers.add(new AnimationController<>(this, "base_controller", 5, this::walkPredicate));
+        controllers.add(new AnimationController<>("base_controller", 5, this::walkPredicate));
 
-        controllers.add(new AnimationController<>(this, "attack_controller", 0, this::attackPredicate));
+        controllers.add(new AnimationController<>("attack_controller", 0, this::attackPredicate));
 
-        controllers.add(new AnimationController<>(this, "tail_controller", 0, this::tailPredicate));
+        controllers.add(new AnimationController<>("tail_controller", 0, this::tailPredicate));
     }
 
-    private <T extends GeoAnimatable> PlayState walkPredicate(AnimationState<T> event) {
-        SabertoothEntity entity = (SabertoothEntity) event.getAnimatable();
+    private <T extends GeoAnimatable> PlayState walkPredicate(AnimationTest<T> event) {
+        SabertoothEntity entity = (SabertoothEntity) event.animatable();
 
         if (event.isMoving()) {
             if (entity.isAggressive() || entity.getTarget() != null) {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("run"));
+                event.controller().setAnimation(RawAnimation.begin().thenLoop("run"));
             } else {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("walk"));
+                event.controller().setAnimation(RawAnimation.begin().thenLoop("walk"));
             }
             return PlayState.CONTINUE;
         }
 
-        event.getController().setAnimation(RawAnimation.begin().thenLoop("idle"));
+        event.controller().setAnimation(RawAnimation.begin().thenLoop("idle"));
         return PlayState.CONTINUE;
     }
 
-    private <T extends GeoAnimatable> PlayState attackPredicate(AnimationState<T> event) {
-        DinoGlobalEntity entity = (DinoGlobalEntity) event.getAnimatable();
+    private <T extends GeoAnimatable> PlayState attackPredicate(AnimationTest<T> event) {
+        DinoGlobalEntity entity = (DinoGlobalEntity) event.animatable();
 
         if (entity.swingTime > 0 && !isAttacking) {
             isAttacking = true;
 
-            event.getController().forceAnimationReset();
+            event.controller().forceAnimationReset();
 
-            event.getController().setAnimation(RawAnimation.begin().thenPlay("attack"));
+            event.controller().setAnimation(RawAnimation.begin().thenPlay("attack"));
 
             return PlayState.CONTINUE;
         }
 
         if (isAttacking) {
-            if (event.getController().getAnimationState() == AnimationController.State.STOPPED) {
+            if (event.controller().getAnimationState() == AnimationController.State.STOPPED) {
                 isAttacking = false;
                 return PlayState.STOP;
             }
@@ -135,9 +142,9 @@ public class SabertoothEntity extends DinoGlobalEntity{
         return PlayState.STOP;
     }
 
-    private <T extends GeoAnimatable> PlayState tailPredicate(AnimationState<T> event) {
+    private <T extends GeoAnimatable> PlayState tailPredicate(AnimationTest<T> event) {
 
-        event.getController().setAnimation(RawAnimation.begin().thenLoop("tail"));
+        event.controller().setAnimation(RawAnimation.begin().thenLoop("tail"));
 
         return PlayState.CONTINUE;
     }

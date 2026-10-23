@@ -1,6 +1,6 @@
 package com.dragonminez.server.events.players.combat;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.combat.SilentDamage;
 import com.dragonminez.common.combat.util.MultipartTargeting;
@@ -23,15 +23,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import com.dragonminez.platform.event.tick.ServerTickEvent;
+import com.dragonminez.platform.event.server.ServerStoppedEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.ServerLifecycleHooks;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -50,7 +45,7 @@ public class KiTechniqueHandler {
 	}
 
 	public static void onLaserFired(Player player, String techniqueId) {
-		if (player.level().isClientSide || techniqueId == null) return;
+		if (player.level().isClientSide() || techniqueId == null) return;
 		if (EmperorDeathBeam.is(techniqueId)) EmperorDeathBeam.holdFireAnimation(player);
 		else if (Dodonpa.is(techniqueId)) Dodonpa.holdFireAnimation(player);
 	}
@@ -140,7 +135,7 @@ public class KiTechniqueHandler {
 		}
 
 		public static void start(LivingEntity owner, KiLaserEntity leader) {
-			if (owner.level().isClientSide) return;
+			if (owner.level().isClientSide()) return;
 			CHAINS.put(owner.getUUID(), new Chain(owner, leader));
 		}
 

@@ -1,6 +1,6 @@
 package com.dragonminez.common.training;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -27,20 +27,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Item;
 
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import com.dragonminez.platform.event.tick.ServerTickEvent;
+import com.dragonminez.platform.event.player.AttackEntityEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.server.ServerStoppingEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -176,7 +170,7 @@ public final class MinigameSessionManager {
 			String problem = null;
 			BuiltinSongs.Song song = BuiltinSongs.find(track);
 			Identifier itemId = song == null ? Identifier.tryParse(track) : null;
-			Item item = itemId == null ? null : BuiltInRegistries.ITEM.get(itemId);
+			Item item = itemId == null ? null : BuiltInRegistries.ITEM.getValue(itemId);
 			var record = MusicDiscHelper.song(item);
             String soundId = song != null ? song.sound() : record != null ? record.soundEvent().value().getLocation().toString() : null;
 			int lengthMs = song != null ? song.durationMs() : record != null ? record.lengthInTicks() * 50 : 0;

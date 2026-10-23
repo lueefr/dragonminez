@@ -1,6 +1,6 @@
 package com.dragonminez.server.events;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.MainEntities;
 import com.dragonminez.common.init.entities.sagas.SagaMoviesEntity;
@@ -24,9 +24,9 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -34,13 +34,8 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.LevelTickEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -83,7 +78,7 @@ public class GeteSpawnEvents {
 	public static void onLevelTick(LevelTickEvent.Post event) {
 		if (!(event.getLevel() instanceof ServerLevel level)) return;
 		if (!level.dimension().equals(NamekDimension.NAMEK_KEY) || level.players().isEmpty()) return;
-		if (level.getDifficulty() == Difficulty.PEACEFUL || !level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) return;
+		if (level.getDifficulty() == Difficulty.PEACEFUL || !com.dragonminez.platform.rules.RuleValues.get(level, GameRules.SPAWN_MOBS)) return;
 
 		long time = level.getGameTime();
 		if (time % SCAN_INTERVAL_TICKS == 0L) scanVillages(level);
@@ -91,7 +86,7 @@ public class GeteSpawnEvents {
 	}
 
 	private static void scanVillages(ServerLevel level) {
-		Registry<Structure> registry = level.registryAccess().registryOrThrow(Registries.STRUCTURE);
+		Registry<Structure> registry = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
 		List<Structure> villages = new ArrayList<>();
 		for (ResourceKey<Structure> key : VILLAGES) {
 			Structure structure = registry.get(key);
@@ -214,13 +209,13 @@ public class GeteSpawnEvents {
 	private static void spawnRobot(ServerLevel level, BlockPos pos, BlockPos home) {
 		SagaMoviesEntity.GeteRobotEntity robot = MainEntities.SAGA_GETE_ROBOT.get().create(level);
 		if (robot == null) return;
-		robot.getPersistentData().putLong(SagaMoviesEntity.GeteRobotEntity.VILLAGE_TAG, home.asLong());
+		com.dragonminez.platform.entity.EntityData.get(robot).putLong(SagaMoviesEntity.GeteRobotEntity.VILLAGE_TAG, home.asLong());
 		place(level, robot, pos);
 	}
 
 	private static boolean place(ServerLevel level, Mob mob, BlockPos pos) {
 		mob.moveTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
-		mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.EVENT, null);
+		mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), EntitySpawnReason.EVENT, null);
 		return level.addFreshEntity(mob);
 	}
 

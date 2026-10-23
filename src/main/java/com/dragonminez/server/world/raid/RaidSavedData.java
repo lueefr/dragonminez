@@ -30,9 +30,9 @@ public class RaidSavedData extends SavedData {
 
 	public static RaidSavedData load(CompoundTag tag, HolderLookup.Provider registries) {
 		RaidSavedData data = new RaidSavedData();
-		ListTag list = tag.getList("Raids", Tag.TAG_COMPOUND);
+		ListTag list = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "Raids", Tag.TAG_COMPOUND);
 		for (int i = 0; i < list.size(); i++) {
-			Raid raid = Raid.load(list.getCompound(i));
+			Raid raid = Raid.load(list.getCompoundOrEmpty(i));
 			if (!raid.isFinished()) data.raids.put(raid.getRaidId(), raid);
 		}
 		return data;

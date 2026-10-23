@@ -14,7 +14,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Function;
@@ -24,7 +23,7 @@ public class VehicleItem extends Item {
 	private final Function<Level, ? extends VehicleEntity> factory;
 
 	public VehicleItem(Function<Level, ? extends VehicleEntity> factory) {
-		super(new Properties().stacksTo(1));
+		super(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1));
 		this.factory = factory;
 	}
 
@@ -32,7 +31,7 @@ public class VehicleItem extends Item {
 	public InteractionResult useOn(UseOnContext context) {
 		Level level = context.getLevel();
 		Player player = context.getPlayer();
-		if (level.isClientSide) return InteractionResult.SUCCESS;
+		if (level.isClientSide()) return InteractionResult.SUCCESS;
 
 		Direction face = context.getClickedFace();
 		BlockPos pos = face == Direction.UP ? context.getClickedPos().above() : context.getClickedPos().relative(face);
@@ -53,8 +52,11 @@ public class VehicleItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltip, @NotNull TooltipFlag flag) {
-        net.minecraft.world.level.Level level = context.level();
+	public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag flag) {
+        java.util.List<Component> tooltip = new java.util.ArrayList<>();
+        try {
 		tooltip.add(Component.translatable(this.getDescriptionId() + ".tooltip").withStyle(ChatFormatting.GRAY));
-	}
+
+        } finally { tooltip.forEach(dmz$consumer); }
+    }
 }

@@ -235,9 +235,9 @@ public class CustomHair {
 	}
 
 	public void load(CompoundTag tag) {
-		int version = tag.contains("v") ? tag.getInt("v") : (tag.contains("Version") ? tag.getInt("Version") : 1);
-		this.name = tag.contains("n") ? tag.getString("n") : (tag.contains("Name") ? tag.getString("Name") : "Custom");
-		setGlobalColor(tag.contains("gc") ? tag.getString("gc") : tag.getString("GlobalColor"));
+		int version = tag.contains("v") ? tag.getIntOr("v", 0) : (tag.contains("Version") ? tag.getIntOr("Version", 0) : 1);
+		this.name = tag.contains("n") ? tag.getStringOr("n", "") : (tag.contains("Name") ? tag.getStringOr("Name", "") : "Custom");
+		setGlobalColor(tag.contains("gc") ? tag.getStringOr("gc", "") : tag.getStringOr("GlobalColor", ""));
 
 		for (HairFace face : HairFace.values()) {
 			HairStrand[] strands = strandsByFace.get(face);
@@ -246,9 +246,9 @@ public class CustomHair {
 			String key = tag.contains(face.key) ? face.key : (tag.contains(face.name()) ? face.name() : null);
 			if (key == null) continue;
 
-			ListTag strandList = tag.getList(key, Tag.TAG_COMPOUND);
+			ListTag strandList = com.dragonminez.platform.nbt.NbtCompat.getList(tag, key, Tag.TAG_COMPOUND);
 			for (int i = 0; i < strandList.size(); i++) {
-				CompoundTag strandTag = strandList.getCompound(i);
+				CompoundTag strandTag = strandList.getCompoundOrEmpty(i);
 				int index = resolveStrandIndex(face, strandTag, i, version);
 				if (index < 0 || index >= strands.length) continue;
 
@@ -269,7 +269,7 @@ public class CustomHair {
 
 	private static int resolveStrandIndex(HairFace face, CompoundTag strandTag, int listIndex, int version) {
 		if (version < 2) return listIndex;
-		int id = strandTag.contains("i") ? strandTag.getInt("i") : strandTag.getInt("Id");
+		int id = strandTag.contains("i") ? strandTag.getIntOr("i", 0) : strandTag.getIntOr("Id", 0);
 		int index = id - face.ordinal() * 100;
 		return index >= 0 && index < face.maxStrands ? index : listIndex;
 	}

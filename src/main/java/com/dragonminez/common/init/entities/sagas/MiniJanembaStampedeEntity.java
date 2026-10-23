@@ -110,7 +110,7 @@ public class MiniJanembaStampedeEntity extends DBSagasEntity {
     @Override
     public void tick() {
         super.tick();
-        if (this.level().isClientSide) return;
+        if (this.level().isClientSide()) return;
 
         if (this.isScattering()) {
             if (--this.scatterTicks <= 0) {

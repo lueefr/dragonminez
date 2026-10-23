@@ -28,7 +28,7 @@ public class LocateCommand {
 	private static final SuggestionProvider<CommandSourceStack> SUGGESTIONS = (context, builder) ->
 			SharedSuggestionProvider.suggest(
 					Stream.concat(
-							context.getSource().registryAccess().registryOrThrow(Registries.STRUCTURE).keySet().stream()
+							context.getSource().registryAccess().lookupOrThrow(Registries.STRUCTURE).keySet().stream()
 									.filter(id -> id.getNamespace().equals(Reference.MOD_ID))
 									.map(Identifier::getPath),
 							Stream.of(OTHERWORLD_TOURNAMENT)),
@@ -49,7 +49,7 @@ public class LocateCommand {
 		if (id != null && id.getNamespace().equals(Reference.MOD_ID) && id.getPath().equals(OTHERWORLD_TOURNAMENT)) {
 			return locateOtherworldTournament(source);
 		}
-		if (id == null || !source.registryAccess().registryOrThrow(Registries.STRUCTURE).containsKey(id)) {
+		if (id == null || !source.registryAccess().lookupOrThrow(Registries.STRUCTURE).containsKey(id)) {
 			source.sendFailure(Component.translatable("command.dragonminez.locate.invalid", name));
 			return 0;
 		}
@@ -60,7 +60,7 @@ public class LocateCommand {
 		ServerLevel level = source.getLevel();
 		BlockPos from = BlockPos.containing(source.getPosition());
 		BlockPos foundPos = StructureLocator.locateStructure(level, structureKey, from);
-		String structName = structureKey.location().getPath();
+		String structName = structureKey.identifier().getPath();
 
 		if (foundPos == null) {
 			StructureLocator.SpawnHint hint = StructureLocator.spawnHint(source.getServer(), structureKey);
@@ -90,7 +90,7 @@ public class LocateCommand {
 				Component.literal(foundPos.getX() + ", ~, " + foundPos.getZ())
 		).withStyle(style -> style
 				.withColor(ChatFormatting.GREEN)
-				.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/execute in " + level.dimension().location() + " run tp @s " + foundPos.getX() + " " + tpY + " " + foundPos.getZ()))
+				.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/execute in " + level.dimension().identifier() + " run tp @s " + foundPos.getX() + " " + tpY + " " + foundPos.getZ()))
 				.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click -> TP")))
 		);
 

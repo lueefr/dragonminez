@@ -3,9 +3,9 @@ package com.dragonminez.client.init.blocks.model;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.block.entity.KikonoStationBlockEntity;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class KikonoStationBlockModel extends GeoModel<KikonoStationBlockEntity> {
+public class KikonoStationBlockModel extends ExtractedGeoModel<KikonoStationBlockEntity> {
 	@Override
 	public Identifier getModelResource(KikonoStationBlockEntity animatable) {
 		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/block/kikono_station.geo.json");

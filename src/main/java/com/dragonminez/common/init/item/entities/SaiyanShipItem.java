@@ -14,13 +14,12 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class SaiyanShipItem extends Item {
 	public SaiyanShipItem( ) {
-		super(new Properties().stacksTo(1));
+		super(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1));
 	}
 
 	@Override
@@ -40,7 +39,7 @@ public class SaiyanShipItem extends Item {
 
 			pContext.getItemInHand().shrink(1);
 
-			return InteractionResult.sidedSuccess(level.isClientSide);
+			return InteractionResult.sidedSuccess(level.isClientSide());
 		}
 
 
@@ -51,7 +50,7 @@ public class SaiyanShipItem extends Item {
 //    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
 //        ItemStack itemstack = pPlayer.getItemInHand(pHand);
 //
-//        if (!pLevel.isClientSide) {
+//        if (!pLevel.isClientSide()) {
 //
 //            KiBarrierEntity disc = new KiBarrierEntity(pLevel, pPlayer);
 //
@@ -69,8 +68,11 @@ public class SaiyanShipItem extends Item {
 //    }
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack pStack, @NotNull Item.TooltipContext context, List<Component> pTooltipComponents, @NotNull TooltipFlag pIsAdvanced) {
-        net.minecraft.world.level.Level level = context.level();
+	public void appendHoverText(ItemStack pStack, Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag pIsAdvanced) {
+        java.util.List<Component> pTooltipComponents = new java.util.ArrayList<>();
+        try {
 		pTooltipComponents.add(Component.translatable("item.dragonminez.saiyan_ship.tooltip").withStyle(ChatFormatting.GRAY));
-	}
+
+        } finally { pTooltipComponents.forEach(dmz$consumer); }
+    }
 }

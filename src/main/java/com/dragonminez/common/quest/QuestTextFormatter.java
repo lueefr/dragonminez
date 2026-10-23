@@ -271,7 +271,7 @@ public final class QuestTextFormatter {
 			return Component.literal(humanizeResourceIdentifier(entityId));
 		}
 
-		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(id);
+		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getValue(id);
 		return type != null ? type.getDescription() : Component.literal(humanizeResourceIdentifier(entityId));
 	}
 
@@ -281,7 +281,7 @@ public final class QuestTextFormatter {
 			return Component.literal(humanizeResourceIdentifier(itemId));
 		}
 
-		Item item = BuiltInRegistries.ITEM.get(id);
+		Item item = BuiltInRegistries.ITEM.getValue(id);
 		if (item == null || item == Items.AIR) {
 			return Component.literal(humanizeResourceIdentifier(itemId));
 		}
@@ -444,7 +444,7 @@ public final class QuestTextFormatter {
 	}
 
 	private static boolean isClientContext(RequirementContext context) {
-		return context != null && context.level() != null && context.level().isClientSide;
+		return context != null && context.level() != null && context.level().isClientSide();
 	}
 
 	private static Component resolveSagaQuestName(String sagaId, Integer questId, boolean clientSide) {

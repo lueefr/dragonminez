@@ -10,7 +10,6 @@ import com.dragonminez.server.events.players.combat.KiTechniqueHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -152,7 +151,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         this.playInitialSound(MainSounds.KI_KAME_FIRE.get());
         this.setCastOffsets(0.4F, calcWaveCenterOffsetY(owner), calcWaveForwardOffset(owner));
         updatePositionRelativeToOwner(owner, false);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -178,7 +177,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         this.setCastWave(0);
         this.setCastOffsets(0.4F, 0.6F, 0.0F);
         updatePositionRelativeToOwner(owner, false);
-        
+
     }
 
     public void setupKiWavePlayer(LivingEntity owner, float damage, float speed, int color, int colorBorder, float size) {
@@ -202,7 +201,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         this.playInitialSound(MainSounds.KI_KAME_FIRE.get());
         this.setCastOffsets(0.4F, -0.2F, 0.0F);
         updatePositionRelativeToOwner(owner, true);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -223,7 +222,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         this.setCastWave(0);
         this.setCastOffsets(0.4F, -0.6F, 0.0F);
         updatePositionRelativeToOwner(owner, true);
-        
+
     }
 
     public void setupKiHamePlayer(LivingEntity owner, float damage, float speed, float size) {
@@ -243,7 +242,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         this.setCastOffsets(0.4F, 0.2F, 0.0F);
         updatePositionRelativeToOwner(owner, true);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -264,7 +263,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         this.setCastWave(0);
         this.setCastOffsets(0.4F, 0.2F, 0.0F);
         updatePositionRelativeToOwner(owner, true);
-        
+
     }
 
     public void setupKiGalickGunPlayer(LivingEntity owner, float damage, float speed, float size) {
@@ -284,7 +283,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         this.playInitialSound(MainSounds.KI_FINALFLASH_CHARGE.get());
         this.setCastOffsets(0.0F, -0.3F, 0.4F);
         updatePositionRelativeToOwner(owner, true);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -305,7 +304,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         this.setCastWave(50);
         this.setCastOffsets(0.0F, 0.3F, 2.5F);
         updatePositionRelativeToOwner(owner, false);
-        
+
     }
 
     public void setupFinalFlashPlayer(LivingEntity owner, float damage, float speed, float size) {
@@ -325,7 +324,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         this.playInitialSound(MainSounds.KI_FINALFLASH_CHARGE.get());
         this.setCastOffsets(0.0F, 0.4F, 0.5F);
         updatePositionRelativeToOwner(owner, true);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -349,7 +348,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         this.playInitialSound(MainSounds.KI_KAME_FIRE.get());
         this.setCastOffsets(0.0F, 0.0F, 0.6F);
         updatePositionRelativeToOwner(owner, true);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -405,7 +404,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         this.setMaxLife(castTime * 2);
         this.setCastOffsets(0.0F, 0.2F, 0.0F);
         updatePositionRelativeToOwner(owner, true);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -452,7 +451,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
 
         if (this.getOwner() instanceof LivingEntity livingOwner) {
             updatePositionRelativeToOwner(livingOwner, false);
-            if (!this.level().isClientSide && this.isHeatDome()) {
+            if (!this.level().isClientSide() && this.isHeatDome()) {
                 KiTechniqueHandler.HeatDome.launchTarget(livingOwner, this);
             }
         }
@@ -612,12 +611,12 @@ public class KiWaveEntity extends AbstractKiProjectile {
                     updatePositionRelativeToOwner(livingOwner, false);
                 }
             }
-        } else if (!this.level().isClientSide) {
+        } else if (!this.level().isClientSide()) {
             this.discard();
             return;
         }
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (!isFiring) {
                 if (this.tickCount == 1) {
                     if (this.getKiRenderType() == 3 || this.getKiRenderType() == 5) {
@@ -878,7 +877,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
             }
         }
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             BlockPos center = BlockPos.containing(pos);
 
             this.carveKiSphere(center, this.scaledDestructionRadius(explosionRadius), 2);
@@ -902,24 +901,31 @@ public class KiWaveEntity extends AbstractKiProjectile {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putInt("CastWave", getCastWave());
         pCompound.putFloat("CastSize", getCastSize());
         pCompound.putFloat("OffsetX", this.entityData.get(OFFSET_X));
         pCompound.putFloat("OffsetY", this.entityData.get(OFFSET_Y));
         pCompound.putFloat("OffsetZ", this.entityData.get(OFFSET_Z));
         pCompound.putBoolean("ContinuousFollow", isContinuousFollow());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        if (pCompound.contains("CastWave")) setCastWave(pCompound.getInt("CastWave"));
-        if (pCompound.contains("CastSize")) setCastSize(pCompound.getFloat("CastSize"));
-        if (pCompound.contains("OffsetX")) this.entityData.set(OFFSET_X, pCompound.getFloat("OffsetX"));
-        if (pCompound.contains("OffsetY")) this.entityData.set(OFFSET_Y, pCompound.getFloat("OffsetY"));
-        if (pCompound.contains("OffsetZ")) this.entityData.set(OFFSET_Z, pCompound.getFloat("OffsetZ"));
-        if (pCompound.contains("ContinuousFollow")) setContinuousFollow(pCompound.getBoolean("ContinuousFollow"));
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        if (pCompound.contains("CastWave")) setCastWave(pCompound.getIntOr("CastWave", 0));
+        if (pCompound.contains("CastSize")) setCastSize(pCompound.getFloatOr("CastSize", 0F));
+        if (pCompound.contains("OffsetX")) this.entityData.set(OFFSET_X, pCompound.getFloatOr("OffsetX", 0F));
+        if (pCompound.contains("OffsetY")) this.entityData.set(OFFSET_Y, pCompound.getFloatOr("OffsetY", 0F));
+        if (pCompound.contains("OffsetZ")) this.entityData.set(OFFSET_Z, pCompound.getFloatOr("OffsetZ", 0F));
+        if (pCompound.contains("ContinuousFollow")) setContinuousFollow(pCompound.getBooleanOr("ContinuousFollow", false));
     }
 }

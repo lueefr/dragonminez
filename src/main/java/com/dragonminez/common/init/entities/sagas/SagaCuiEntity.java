@@ -2,14 +2,8 @@ package com.dragonminez.common.init.entities.sagas;
 
 import com.dragonminez.common.init.entities.IBattlePower;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
-import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.animation.AnimatableManager;
-import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.animation.PlayState;
 
 public class SagaCuiEntity extends DBSagasEntity {
 

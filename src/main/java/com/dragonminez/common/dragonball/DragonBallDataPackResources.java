@@ -7,7 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.resources.IoSupplier;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +25,7 @@ public class DragonBallDataPackResources implements PackResources {
         this.location = location;
         JsonObject packInfo = new JsonObject();
         packInfo.addProperty("description", "DMZ Dragonballs Runtime Data");
-        packInfo.addProperty("pack_format", 48);
+        com.dragonminez.platform.resource.PackMetadata.addCurrentFormat(packInfo, PackType.SERVER_DATA);
 
         JsonObject root = new JsonObject();
         root.add("pack", packInfo);
@@ -128,11 +128,11 @@ public class DragonBallDataPackResources implements PackResources {
 
     @Nullable
     @Override
-    public <T> T getMetadataSection(MetadataSectionSerializer<T> deserializer) {
+    public <T> T getMetadataSection(MetadataSectionType<T> deserializer) {
         try (InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream(packMcmetaBytes), StandardCharsets.UTF_8)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
-            String sectionName = deserializer.getMetadataSectionName();
-            if (json.has(sectionName)) return deserializer.fromJson(json.getAsJsonObject(sectionName));
+            String sectionName = deserializer.name();
+            if (json.has(sectionName)) return deserializer.codec().parse(com.mojang.serialization.JsonOps.INSTANCE, json.get(sectionName)).getOrThrow();
             return null;
         } catch (Exception e) {
             return null;
@@ -143,6 +143,4 @@ public class DragonBallDataPackResources implements PackResources {
     public PackLocationInfo location() { return location; }
     @Override
     public void close() {}
-    @Override
-    public boolean isHidden() { return false; }
 }

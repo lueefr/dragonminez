@@ -8,7 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -49,7 +49,7 @@ public class RacialDataSyncS2C implements StatsGroupsPacket {
 	}
 
 	public static void handle(RacialDataSyncS2C msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> apply(msg)));
+		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> () -> apply(msg)));
 		ctx.get().setPacketHandled(true);
 	}
 
@@ -60,7 +60,7 @@ public class RacialDataSyncS2C implements StatsGroupsPacket {
 		var entity = clientLevel.getEntity(msg.playerId);
 		if (entity instanceof Player player) {
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
-				if (msg.nbt.contains("RacialData")) data.getRacialData().load(msg.nbt.getCompound("RacialData"));
+				if (msg.nbt.contains("RacialData")) data.getRacialData().load(msg.nbt.getCompoundOrEmpty("RacialData"));
 			});
 		}
 	}

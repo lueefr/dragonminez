@@ -20,10 +20,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;
@@ -32,12 +31,12 @@ public class SacredWaterItem extends Item {
 	private static final int DRINK_TICKS = 32;
 
 	public SacredWaterItem() {
-		super(new Properties().stacksTo(16).rarity(Rarity.EPIC));
+		super(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(16).rarity(Rarity.EPIC));
 	}
 
 	@Override
-	public @NotNull UseAnim getUseAnimation(@NotNull ItemStack stack) {
-		return UseAnim.DRINK;
+	public @NotNull ItemUseAnimation getUseAnimation(@NotNull ItemStack stack) {
+		return ItemUseAnimation.DRINK;
 	}
 
 	@Override
@@ -52,7 +51,7 @@ public class SacredWaterItem extends Item {
 
 	@Override
 	public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity entity) {
-		if (level.isClientSide || !(entity instanceof ServerPlayer player)) return stack;
+		if (level.isClientSide() || !(entity instanceof ServerPlayer player)) return stack;
 
 		StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 			if (!data.getStatus().isHasCreatedCharacter()) {
@@ -77,12 +76,15 @@ public class SacredWaterItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
-        net.minecraft.world.level.Level level = context.level();
+	public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag flag) {
+        java.util.List<Component> tooltip = new java.util.ArrayList<>();
+        try {
 		double multiplier = ConfigManager.getServerConfig().getGameplay().getSacredWaterMultiplier();
 		tooltip.add(Component.translatable("item.dragonminez.sacred_water.tooltip", formatMultiplier(multiplier)).withStyle(ChatFormatting.GRAY));
 		tooltip.add(Component.translatable("item.dragonminez.sacred_water.tooltip2").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
-	}
+
+        } finally { tooltip.forEach(dmz$consumer); }
+    }
 
 	private static String formatMultiplier(double multiplier) {
 		return String.format(Locale.US, "%.2f", multiplier);

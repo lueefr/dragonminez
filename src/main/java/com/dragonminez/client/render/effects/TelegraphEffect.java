@@ -1,6 +1,6 @@
 package com.dragonminez.client.render.effects;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.shader.EffectBloomRenderer;
 import com.dragonminez.client.render.util.IrisCompat;
@@ -20,23 +20,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.ClientTickEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public final class TelegraphEffect {
 
 	private static final int MAX_MARKS = 24;
@@ -175,7 +170,7 @@ public final class TelegraphEffect {
 
 	private static void drawAll(PoseStack poseStack, float partialTick) {
 		Minecraft mc = Minecraft.getInstance();
-		Vec3 camPos = mc.gameRenderer.getMainCamera().getPosition();
+		Vec3 camPos = mc.gameRenderer.getMainCamera().position();
 		boolean bloom = EffectBloomRenderer.bloomPass;
 
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
@@ -348,8 +343,8 @@ public final class TelegraphEffect {
 
 	private static PoseStack viewStack(Camera camera) {
 		PoseStack stack = new PoseStack();
-		stack.mulPose(Axis.XP.rotationDegrees(camera.getXRot()));
-		stack.mulPose(Axis.YP.rotationDegrees(camera.getYRot() + 180.0F));
+		stack.mulPose(Axis.XP.rotationDegrees(camera.xRot()));
+		stack.mulPose(Axis.YP.rotationDegrees(camera.yRot() + 180.0F));
 		return stack;
 	}
 }

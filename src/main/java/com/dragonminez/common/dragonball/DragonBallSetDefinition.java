@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -72,7 +72,7 @@ public class DragonBallSetDefinition {
 
 	public String getId() { return id; }
 	public Set<Identifier> getValidDimensions() { return validDimensions; }
-	public boolean supportsDimension(ResourceKey<Level> dimension) { return validDimensions.contains(dimension.location()); }
+	public boolean supportsDimension(ResourceKey<Level> dimension) { return validDimensions.contains(dimension.identifier()); }
 	public int getCopies() { return Math.max(1, copiesSupplier.getAsInt()); }
 	public int getSpawnRange() { return Math.max(1, spawnRangeSupplier.getAsInt()); }
 	public int getSummonRadius() { return summonRadius; }

@@ -2,16 +2,10 @@ package com.dragonminez.client.init.entities.model;
 
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.MajinSkillEntity;
-import com.dragonminez.common.init.entities.animal.NamekFrogEntity;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
-import com.geckolib.constant.DataTickets;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.model.GeoModel;
-import com.geckolib.model.data.EntityModelData;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class MajinSkillModel<T extends MajinSkillEntity> extends GeoModel<T> {
+public class MajinSkillModel<T extends MajinSkillEntity> extends ExtractedGeoModel<T> {
 
     @Override
     public Identifier getModelResource(T animatable) {

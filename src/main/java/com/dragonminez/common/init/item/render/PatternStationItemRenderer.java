@@ -4,7 +4,7 @@ import com.dragonminez.common.init.item.PatternStationItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.model.BakedGeoModel;
 import com.geckolib.renderer.GeoItemRenderer;
 
 public class PatternStationItemRenderer extends GeoItemRenderer<PatternStationItem> {

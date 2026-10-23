@@ -1,5 +1,6 @@
 package com.dragonminez.common.init.entities.demon;
 
+import net.minecraft.world.item.equipment.ArmorType;
 import com.dragonminez.Reference;
 import com.dragonminez.common.hair.HairPresets;
 import com.dragonminez.common.init.CapsuleCorpMapTrade;
@@ -34,7 +35,7 @@ import net.minecraft.world.entity.ai.goal.PanicGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.TradeWithPlayerGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
@@ -44,9 +45,8 @@ import net.minecraft.world.item.MapItem;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ public final class DemonVillagersEntity {
 	public static final int PATROLLER_HAIR = 0xF2C2FF;
 	private static final int[] VILLAGER_HAIR = {0xF2C2FF, 0xF0F0CC, 0xCCEDF0};
 
-	private static final List<Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>>> OUTFITS = List.of(
+	private static final List<Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>>> OUTFITS = List.of(
 			MainItems.AGE1000_ARMOR, MainItems.WARRIOR_CLAN_ARMOR, MainItems.WONDER_MAJIN_ARMOR,
 			MainItems.DRAGON_CLAN_ARMOR, MainItems.MIGHTY_MAJIN_ARMOR, MainItems.MYSTIC_ARMOR);
 	private static final int PATROLLER_OUTFIT = 0;
@@ -109,11 +109,11 @@ public final class DemonVillagersEntity {
 
 		public static Look load(CompoundTag tag) {
 			if (tag == null || !tag.contains("Hair")) return DEFAULT;
-			return new Look(tag.getInt("Hair"), tag.getInt("HairColor"),
-					Math.floorMod(tag.getInt("Outfit"), OUTFITS.size()), tag.getBoolean("Female"));
+			return new Look(tag.getIntOr("Hair", 0), tag.getIntOr("HairColor", 0),
+					Math.floorMod(tag.getIntOr("Outfit", 0), OUTFITS.size()), tag.getBooleanOr("Female", false));
 		}
 
-		public ItemStack armorPiece(ArmorItem.Type type) {
+		public ItemStack armorPiece(ArmorType type) {
 			DeferredHolder<net.minecraft.world.item.Item, ? extends Item> item = OUTFITS.get(Math.floorMod(this.outfit, OUTFITS.size())).get(type);
 			return item != null ? new ItemStack(item.get()) : ItemStack.EMPTY;
 		}
@@ -137,7 +137,7 @@ public final class DemonVillagersEntity {
 		public Resident(EntityType<? extends Resident> type, Level level) {
 			super(type, level);
 			this.setPersistenceRequired();
-			if (!level.isClientSide) {
+			if (!level.isClientSide()) {
 				this.setLook(this.randomLook(this.random));
 				this.bugTrader = this.random.nextFloat() < BUG_TRADER_CHANCE;
 			}
@@ -193,8 +193,10 @@ public final class DemonVillagersEntity {
 		}
 
 		@Override
-		public void addAdditionalSaveData(CompoundTag tag) {
-			super.addAdditionalSaveData(tag);
+		public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag tag = new CompoundTag();
+        try {
+			super.addAdditionalSaveData(dmz$output);
 			tag.put("DemonLook", this.look.save());
 			tag.putBoolean("BugTrader", this.bugTrader);
 			tag.putLong("LastRestock", this.lastRestock);
@@ -202,26 +204,31 @@ public final class DemonVillagersEntity {
 				tag.putLong("Home", this.getRestrictCenter().asLong());
 				tag.putInt("HomeRadius", (int) this.getRestrictRadius());
 			}
-		}
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, tag);
+        }
+    }
 
 		@Override
-		public void readAdditionalSaveData(CompoundTag tag) {
-			super.readAdditionalSaveData(tag);
-			if (tag.contains("DemonLook")) this.setLook(Look.load(tag.getCompound("DemonLook")));
-			this.bugTrader = tag.getBoolean("BugTrader");
-			if (tag.contains("LastRestock")) this.lastRestock = tag.getLong("LastRestock");
-			if (tag.contains("Home")) this.restrictTo(BlockPos.of(tag.getLong("Home")), tag.getInt("HomeRadius"));
+		public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag tag = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+			super.readAdditionalSaveData(dmz$input);
+			if (tag.contains("DemonLook")) this.setLook(Look.load(tag.getCompoundOrEmpty("DemonLook")));
+			this.bugTrader = tag.getBooleanOr("BugTrader", false);
+			if (tag.contains("LastRestock")) this.lastRestock = tag.getLongOr("LastRestock", 0L);
+			if (tag.contains("Home")) this.restrictTo(BlockPos.of(tag.getLongOr("Home", 0L)), tag.getIntOr("HomeRadius", 0));
 		}
 
 		@Override
 		public InteractionResult mobInteract(Player player, InteractionHand hand) {
 			if (!this.isAlive() || this.isTrading() || this.isBaby()) return super.mobInteract(player, hand);
 			if (hand == InteractionHand.MAIN_HAND) player.awardStat(Stats.TALKED_TO_VILLAGER);
-			if (!this.level().isClientSide && !this.prepareOffers().isEmpty()) {
+			if (!this.level().isClientSide() && !this.prepareOffers().isEmpty()) {
 				this.setTradingPlayer(player);
 				this.openTradingScreen(player, this.getDisplayName(), 1);
 			}
-			return InteractionResult.sidedSuccess(this.level().isClientSide);
+			return InteractionResult.sidedSuccess(this.level().isClientSide());
 		}
 
 		protected MerchantOffers prepareOffers() {
@@ -231,7 +238,7 @@ public final class DemonVillagersEntity {
 				this.lastRestock = time;
 				for (MerchantOffer offer : offers) {
 					CompoundTag result = offer.getResult().getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
-					if (result == null || !result.getBoolean(CapsuleCorpMapTrade.PENDING_TAG)) offer.resetUses();
+					if (result == null || !result.getBooleanOr(CapsuleCorpMapTrade.PENDING_TAG, false)) offer.resetUses();
 				}
 			}
 			return offers;
@@ -325,7 +332,7 @@ public final class DemonVillagersEntity {
 				BossMap bossMap = bossMapOf(tag);
 				if (bossMap == null) continue;
 				present.add(bossMap.key());
-				if (!tag.getBoolean(CapsuleCorpMapTrade.PENDING_TAG) && tag.contains(BOSS_MAP_TAG)) continue;
+				if (!tag.getBooleanOr(CapsuleCorpMapTrade.PENDING_TAG, false) && tag.contains(BOSS_MAP_TAG)) continue;
 				if (WorldBossManager.getLair(level.getServer(), bossMap.key()) != null || !tag.contains(BOSS_MAP_TAG)) {
 					offers.set(i, bossMapOffer(level, bossMap));
 				}
@@ -339,8 +346,8 @@ public final class DemonVillagersEntity {
 		@Nullable
 		private static BossMap bossMapOf(@Nullable CompoundTag tag) {
 			if (tag == null) return null;
-			String key = tag.contains(BOSS_MAP_TAG) ? tag.getString(BOSS_MAP_TAG)
-					: tag.contains(TAMAGAMI_TAG) ? WorldBossEntity.tamagamiKey(tag.getInt(TAMAGAMI_TAG)) : null;
+			String key = tag.contains(BOSS_MAP_TAG) ? tag.getStringOr(BOSS_MAP_TAG, "")
+					: tag.contains(TAMAGAMI_TAG) ? WorldBossEntity.tamagamiKey(tag.getIntOr(TAMAGAMI_TAG, 0)) : null;
 			if (key == null) return null;
 			for (BossMap bossMap : BOSS_MAPS) {
 				if (bossMap.key().equals(key)) return bossMap;

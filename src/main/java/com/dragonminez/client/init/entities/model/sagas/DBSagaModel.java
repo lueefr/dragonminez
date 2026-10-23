@@ -6,17 +6,15 @@ import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.minecraft.core.registries.BuiltInRegistries;
 import com.geckolib.constant.DataTickets;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.model.GeoModel;
-import com.geckolib.model.data.EntityModelData;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.animation.state.AnimationTest;
+import com.dragonminez.platform.client.model.HeadTrackingGeoModel;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class DBSagaModel<T extends DBSagasEntity> extends GeoModel<T> {
+public class DBSagaModel<T extends DBSagasEntity> extends HeadTrackingGeoModel<T> {
 
     private static final Map<Identifier, Boolean> RESOURCE_CACHE = new HashMap<>();
     private static final Map<String, Integer> VARIANT_COUNT_CACHE = new HashMap<>();
@@ -90,17 +88,8 @@ public class DBSagaModel<T extends DBSagasEntity> extends GeoModel<T> {
         return PLAYER_ANIMATION_FALLBACKS;
     }
 
-    @Override
-    public void setCustomAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
-        GeoBone head = getAnimationProcessor().getBone("head");
+    @Override protected boolean trackHead(T animatable) { return !GumBindEntity.isClientBound(animatable); }
 
-        if (head != null && !GumBindEntity.isClientBound(animatable)) {
-            EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
-
-            head.setRotX(entityData.headPitch() * Mth.DEG_TO_RAD);
-            head.setRotY(entityData.netHeadYaw() * Mth.DEG_TO_RAD);
-        }
-    }
 
     /**
      * Picks one of the textures that actually ship for this entity. Keyed off the entity's UUID so the

@@ -7,19 +7,19 @@ import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
-public class SagaSupervillainLayer<T extends DBSagasEntity> extends GeoRenderLayer<T> {
+public class SagaSupervillainLayer<T extends DBSagasEntity> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 
 	public static final float[] BORDER_COLOR = ColorUtils.hexToRgb("#9A1CFF");
 	public static final float[] TINT = ColorUtils.hexToRgb("#9B30D9");
 	public static final float TINT_ALPHA = 0.42f;
 
-	public SagaSupervillainLayer(GeoRenderer<T> geoRenderer) {
+	public SagaSupervillainLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> geoRenderer) {
 		super(geoRenderer);
 	}
 

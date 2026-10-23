@@ -34,7 +34,7 @@ public class CommandReward extends QuestReward {
 		CommandSourceStack source = player.getServer().createCommandSourceStack()
 				.withPermission(4)
 				.withEntity(player)
-				.withLevel(player.serverLevel())
+				.withLevel(player.level())
 				.withPosition(player.position())
 				.withRotation(player.getRotationVector());
 		player.getServer().getCommands().performPrefixedCommand(source, commandToExecute);

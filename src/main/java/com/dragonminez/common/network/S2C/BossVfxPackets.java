@@ -3,7 +3,7 @@ package com.dragonminez.common.network.S2C;
 import com.dragonminez.client.render.effects.GaleEffect;
 import com.dragonminez.client.render.effects.TelegraphEffect;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -71,7 +71,7 @@ public final class BossVfxPackets {
 		}
 
 		public void handle(Supplier<NetworkEvent.Context> ctx) {
-			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 					() -> () -> TelegraphEffect.spawnLane(ownerId, startX, startY, startZ, endX, endY, endZ, halfWidth, color, lifetime, locked)));
 			ctx.get().setPacketHandled(true);
 		}
@@ -126,7 +126,7 @@ public final class BossVfxPackets {
 		}
 
 		public void handle(Supplier<NetworkEvent.Context> ctx) {
-			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+			ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 					() -> () -> GaleEffect.start(sourceId, x, y, z, dirX, dirZ, radius, intensity, duration)));
 			ctx.get().setPacketHandled(true);
 		}

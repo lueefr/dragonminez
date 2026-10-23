@@ -1,12 +1,11 @@
 package com.dragonminez.common.init.item.weapons.model;
 
 import com.dragonminez.Reference;
-import com.dragonminez.common.init.item.weapons.BraveSwordItem;
 import com.dragonminez.common.init.item.weapons.DimensionalSwordItem;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class DimensionalSwordModel extends GeoModel<DimensionalSwordItem> {
+public class DimensionalSwordModel extends ExtractedGeoModel<DimensionalSwordItem> {
 	@Override
 	public Identifier getModelResource(DimensionalSwordItem animatable) {
 		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/dimensional_sword.geo.json");

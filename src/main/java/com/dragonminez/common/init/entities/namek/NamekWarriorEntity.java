@@ -4,8 +4,6 @@ import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.IBattlePower;
 import com.dragonminez.common.init.entities.goals.NamekDefendVillageGoal;
 import com.dragonminez.common.init.entities.goals.VillageAlertSystem;
-import com.dragonminez.common.init.entities.redribbon.RedRibbonEntity;
-import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -23,30 +21,25 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import com.dragonminez.common.init.entities.ai.EnemyMeleeBrainGoal;
 import net.minecraft.world.entity.ai.goal.*;
-import net.minecraft.world.entity.ai.goal.target.DefendVillageTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.Nullable;
 import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 public class NamekWarriorEntity extends PathfinderMob implements GeoEntity {
 
@@ -114,15 +107,22 @@ public class NamekWarriorEntity extends PathfinderMob implements GeoEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putInt("Variant", getVariantNamek());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        setVariantNamek(pCompound.getInt("Variant"));
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        setVariantNamek(pCompound.getIntOr("Variant", 0));
     }
 
     public int getVariantNamek() {return this.entityData.get(VARIANT);}
@@ -141,12 +141,12 @@ public class NamekWarriorEntity extends PathfinderMob implements GeoEntity {
     }
 
     @Override
-    public boolean causeFallDamage(float pFallDistance, float pMultiplier, DamageSource pSource) {
+    public boolean causeFallDamage(double pFallDistance, float pMultiplier, DamageSource pSource) {
         return false;
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, EntitySpawnReason pReason, @Nullable SpawnGroupData pSpawnData) {
         this.setVariantNamek(this.random.nextInt(VARIANT_COUNT));
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
     }
@@ -159,8 +159,8 @@ public class NamekWarriorEntity extends PathfinderMob implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "base_controller", 5, this::walkPredicate));
-        controllers.add(new AnimationController<>(this, "attack_controller", 0, this::attackPredicate));
+        controllers.add(new AnimationController<>("base_controller", 5, this::walkPredicate));
+        controllers.add(new AnimationController<>("attack_controller", 0, this::attackPredicate));
     }
 
     @Override
@@ -175,7 +175,7 @@ public class NamekWarriorEntity extends PathfinderMob implements GeoEntity {
             }
         }
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (target != null && target.isAlive()) {
                 double yDiff = target.getY() - this.getY();
                 if (yDiff > 2.0D) {
@@ -228,43 +228,43 @@ public class NamekWarriorEntity extends PathfinderMob implements GeoEntity {
         this.setDeltaMovement(movement.add(0, gravityDrag, 0));
     }
 
-    private <T extends GeoAnimatable> PlayState walkPredicate(com.geckolib.animation.AnimationState<T> event) {
-        NamekWarriorEntity entity = (NamekWarriorEntity) event.getAnimatable();
+    private <T extends GeoAnimatable> PlayState walkPredicate(com.geckolib.animation.AnimationTest<T> event) {
+        NamekWarriorEntity entity = (NamekWarriorEntity) event.animatable();
 
         if (entity.isFlying()) {
-            event.getController().setAnimation(RawAnimation.begin().thenLoop("fly"));
+            event.controller().setAnimation(RawAnimation.begin().thenLoop("fly"));
             return PlayState.CONTINUE;
         }
 
         if (event.isMoving()) {
             if (entity.isAggressive() || entity.getTarget() != null) {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("run"));
+                event.controller().setAnimation(RawAnimation.begin().thenLoop("run"));
             } else {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("walk"));
+                event.controller().setAnimation(RawAnimation.begin().thenLoop("walk"));
             }
             return PlayState.CONTINUE;
         }
 
-        event.getController().setAnimation(RawAnimation.begin().thenLoop("idle"));
+        event.controller().setAnimation(RawAnimation.begin().thenLoop("idle"));
         return PlayState.CONTINUE;
     }
 
-    private <T extends GeoAnimatable> PlayState attackPredicate(AnimationState<T> event) {
-        NamekWarriorEntity entity = (NamekWarriorEntity) event.getAnimatable();
+    private <T extends GeoAnimatable> PlayState attackPredicate(AnimationTest<T> event) {
+        NamekWarriorEntity entity = (NamekWarriorEntity) event.animatable();
 
         if (entity.swingTime > 0 && !isAttacking) {
             isAttacking = true;
-            event.getController().forceAnimationReset();
+            event.controller().forceAnimationReset();
             if (this.random.nextBoolean()) {
-                event.getController().setAnimation(RawAnimation.begin().thenPlay("attack1"));
+                event.controller().setAnimation(RawAnimation.begin().thenPlay("attack1"));
             } else {
-                event.getController().setAnimation(RawAnimation.begin().thenPlay("attack2"));
+                event.controller().setAnimation(RawAnimation.begin().thenPlay("attack2"));
             }
             return PlayState.CONTINUE;
         }
 
         if (isAttacking) {
-            if (event.getController().getAnimationState() == AnimationController.State.STOPPED) {
+            if (event.controller().getAnimationState() == AnimationController.State.STOPPED) {
                 isAttacking = false;
                 return PlayState.STOP;
             }
@@ -280,11 +280,11 @@ public class NamekWarriorEntity extends PathfinderMob implements GeoEntity {
     }
 
     @Override
-    public boolean checkSpawnRules(LevelAccessor pLevel, MobSpawnType reason) {
+    public boolean checkSpawnRules(LevelAccessor pLevel, EntitySpawnReason reason) {
         return true;
     }
 
-    public static boolean canSpawnHere(EntityType<? extends NamekWarriorEntity> entity, ServerLevelAccessor world, MobSpawnType spawn, BlockPos pos, RandomSource random) {
+    public static boolean canSpawnHere(EntityType<? extends NamekWarriorEntity> entity, ServerLevelAccessor world, EntitySpawnReason spawn, BlockPos pos, RandomSource random) {
         if (world.getDifficulty() == Difficulty.PEACEFUL) return false;
 
         BlockState stateAtPos = world.getBlockState(pos);

@@ -3,7 +3,7 @@ package com.dragonminez.common.network.S2C;
 import lombok.*;
 import com.dragonminez.common.network.ClientPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 import java.util.function.Supplier;
@@ -58,7 +58,7 @@ public class StoryToastS2C {
 	}
 
 	public static void handle(StoryToastS2C msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandler.handleStoryToastPacket(msg)));
+		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> () -> ClientPacketHandler.handleStoryToastPacket(msg)));
 		ctx.get().setPacketHandled(true);
 	}
 }

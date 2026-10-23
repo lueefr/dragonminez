@@ -14,14 +14,13 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.minecraft.client.gui.LayeredDraw;
 
 public class TechniqueChargeOverlay {
 	private static final Identifier CHARGE_HUD_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/hud/kicharge_hud.png");
 	private static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
 	private static volatile float currentChargePercent = 0.0f;
 
-	public static final LayeredDraw.Layer HUD_TECHNIQUE_CHARGE = (guiGraphics, deltaTracker) -> {
+	public static final net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement HUD_TECHNIQUE_CHARGE = (guiGraphics, deltaTracker) -> {
 		float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(false);
 		int width = guiGraphics.guiWidth();
 		int height = guiGraphics.guiHeight();

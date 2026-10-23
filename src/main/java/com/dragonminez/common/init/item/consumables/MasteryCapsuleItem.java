@@ -17,7 +17,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class MasteryCapsuleItem extends Item {
 	private static final double MASTERY_GAIN = 5.0;
 
 	public MasteryCapsuleItem() {
-		super(new Properties());
+		super(com.dragonminez.platform.registry.RegistrationScope.itemProperties());
 	}
 
 	@Override
@@ -39,7 +38,7 @@ public class MasteryCapsuleItem extends Item {
 	public @NotNull InteractionResultHolder<ItemStack> use(Level level, Player player, @NotNull InteractionHand hand) {
 		ItemStack capsule = player.getItemInHand(hand);
 		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.NEUTRAL, 1.5F, 1.0F);
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			return InteractionResultHolder.fail(capsule);
 		}
 
@@ -81,8 +80,11 @@ public class MasteryCapsuleItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltip, @NotNull TooltipFlag flag) {
-        net.minecraft.world.level.Level level = context.level();
+	public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag flag) {
+        java.util.List<Component> tooltip = new java.util.ArrayList<>();
+        try {
 		tooltip.add(Component.translatable("item.dragonminez.mastery_capsule.tooltip").withStyle(ChatFormatting.GRAY));
-	}
+
+        } finally { tooltip.forEach(dmz$consumer); }
+    }
 }

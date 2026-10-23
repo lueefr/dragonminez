@@ -1,7 +1,7 @@
 package com.dragonminez.client.render.camera;
 
 import lombok.*;
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.clash.BeamClashCinematicCamera;
 import com.dragonminez.client.events.FlySkillEvent;
@@ -30,20 +30,15 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.ClientTickEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public final class OverShoulderCamera {
 	public static final int MODE_NONE = 0;
 	public static final int MODE_LOCK_ON = 1;
@@ -281,9 +276,9 @@ public final class OverShoulderCamera {
 		PROJECTION.set(event.getProjectionMatrix());
 		VIEW.identity()
 				.rotateZ(((RollCamera) camera).dragonminez$getRoll() * Mth.DEG_TO_RAD)
-				.rotateX(camera.getXRot() * Mth.DEG_TO_RAD)
-				.rotateY((camera.getYRot() + 180.0F) * Mth.DEG_TO_RAD);
-		projectionCamera = camera.getPosition();
+				.rotateX(camera.xRot() * Mth.DEG_TO_RAD)
+				.rotateY((camera.yRot() + 180.0F) * Mth.DEG_TO_RAD);
+		projectionCamera = camera.position();
 		projectionReady = true;
 	}
 
@@ -395,16 +390,16 @@ public final class OverShoulderCamera {
 	}
 
 	private static double clampToObstruction(Camera camera, BlockGetter level, Entity entity, double moveForward, double moveUp, double moveLeft, float partialTick) {
-		Vector3f look = camera.getLookVector();
-		Vector3f up = camera.getUpVector();
-		Vector3f left = camera.getLeftVector();
+		Vector3f look = camera.forwardVector();
+		Vector3f up = camera.upVector();
+		Vector3f left = camera.leftVector();
 		Vec3 worldOffset = new Vec3(look.x() * moveForward + up.x() * moveUp + left.x() * moveLeft, look.y() * moveForward + up.y() * moveUp + left.y() * moveLeft, look.z() * moveForward + up.z() * moveUp + left.z() * moveLeft);
 		double distance = worldOffset.length();
 		if (distance < 1.0E-4) return distance;
 		Vec3 eyePosition = entity.getEyePosition(partialTick);
 		for (int i = 0; i < 8; i++) {
 			Vec3 corner = new Vec3(i & 1, i >> 1 & 1, i >> 2 & 1).scale(2).subtract(1, 1, 1);
-			Vec3 fromOffset = corner.scale(Mth.clamp(entity.getBbWidth() / 2.0F / Mth.sqrt(2), 0.0F, 0.15F)).xRot(-camera.getXRot() * Mth.DEG_TO_RAD).yRot(-camera.getYRot() * Mth.DEG_TO_RAD);
+			Vec3 fromOffset = corner.scale(Mth.clamp(entity.getBbWidth() / 2.0F / Mth.sqrt(2), 0.0F, 0.15F)).xRot(-camera.xRot() * Mth.DEG_TO_RAD).yRot(-camera.yRot() * Mth.DEG_TO_RAD);
 			Vec3 from = eyePosition.add(fromOffset);
 			Vec3 to = from.add(worldOffset);
 			ClipContext context = new ClipContext(from, to, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, entity);

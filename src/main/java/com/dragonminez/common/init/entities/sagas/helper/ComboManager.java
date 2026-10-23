@@ -143,7 +143,7 @@ public class ComboManager {
     }
 
     public static void onComboStopped(DBSagasEntity user, int comboId, LivingEntity target) {
-        if (user.level().isClientSide) return;
+        if (user.level().isClientSide()) return;
         StrikeCinematics.stop(user);
         if (comboId == DBSagasEntity.ComboType.METEOR_BURST.getId()) {
             MeteorBurstCombo.State state = METEOR_BURSTS.remove(user);
@@ -302,7 +302,7 @@ public class ComboManager {
         public void strikeHit(LivingEntity victim, float amount, boolean lethal) {
             float damage = amount;
             if (!lethal && victim.getHealth() - damage <= 1.0F) damage = Math.max(0.01F, victim.getHealth() - 1.0F);
-            victim.hurt(MainDamageTypes.strikeAttack(this.user.level(), this.user, MysticBallCombo.TECHNIQUE_ID), damage);
+            victim.hurtOrSimulate(MainDamageTypes.strikeAttack(this.user.level(), this.user, MysticBallCombo.TECHNIQUE_ID), damage);
         }
     }
 
@@ -355,7 +355,7 @@ public class ComboManager {
         public void strikeHit(LivingEntity victim, float amount, boolean lethal) {
             float damage = amount;
             if (!lethal && victim.getHealth() - damage <= 1.0F) damage = Math.max(0.01F, victim.getHealth() - 1.0F);
-            victim.hurt(MainDamageTypes.strikeAttack(this.user.level(), this.user, BeamSwordSlashCombo.TECHNIQUE_ID), damage);
+            victim.hurtOrSimulate(MainDamageTypes.strikeAttack(this.user.level(), this.user, BeamSwordSlashCombo.TECHNIQUE_ID), damage);
         }
     }
 
@@ -398,7 +398,7 @@ public class ComboManager {
         public void strikeHit(LivingEntity victim, float amount, boolean lethal) {
             float damage = amount;
             if (!lethal && victim.getHealth() - damage <= 1.0F) damage = Math.max(0.01F, victim.getHealth() - 1.0F);
-            victim.hurt(MainDamageTypes.strikeAttack(this.user.level(), this.user, SpiritBreakerCombo.TECHNIQUE_ID), damage);
+            victim.hurtOrSimulate(MainDamageTypes.strikeAttack(this.user.level(), this.user, SpiritBreakerCombo.TECHNIQUE_ID), damage);
         }
     }
 
@@ -441,7 +441,7 @@ public class ComboManager {
         public void strikeHit(LivingEntity victim, float amount, boolean lethal) {
             float damage = amount;
             if (!lethal && victim.getHealth() - damage <= 1.0F) damage = Math.max(0.01F, victim.getHealth() - 1.0F);
-            victim.hurt(MainDamageTypes.strikeAttack(this.user.level(), this.user, PerfectRushCombo.TECHNIQUE_ID), damage);
+            victim.hurtOrSimulate(MainDamageTypes.strikeAttack(this.user.level(), this.user, PerfectRushCombo.TECHNIQUE_ID), damage);
         }
     }
 
@@ -494,14 +494,14 @@ public class ComboManager {
         public void strikeHit(LivingEntity victim, float amount, boolean lethal) {
             float damage = amount;
             if (!lethal && victim.getHealth() - damage <= 1.0F) damage = Math.max(0.01F, victim.getHealth() - 1.0F);
-            victim.hurt(MainDamageTypes.strikeAttack(this.user.level(), this.user, MeteorBurstCombo.TECHNIQUE_ID), damage);
+            victim.hurtOrSimulate(MainDamageTypes.strikeAttack(this.user.level(), this.user, MeteorBurstCombo.TECHNIQUE_ID), damage);
         }
 
         @Override
         public void kiHit(LivingEntity victim, float amount, boolean lethal) {
             float damage = amount;
             if (!lethal && victim.getHealth() - damage <= 1.0F) damage = Math.max(0.01F, victim.getHealth() - 1.0F);
-            victim.hurt(MainDamageTypes.kiblast(this.user.level(), this.user, this.user), damage);
+            victim.hurtOrSimulate(MainDamageTypes.kiblast(this.user.level(), this.user, this.user), damage);
         }
 
         @Override
@@ -511,7 +511,7 @@ public class ComboManager {
     }
 
     private static void handleSuperGodFist(DBSagasEntity user, LivingEntity target, int timer) {
-        if (user.level().isClientSide) return;
+        if (user.level().isClientSide()) return;
 
         user.invulnerableTime = 20;
         if (timer < GOD_FIST_IMPACT_TICK) faceTowards(target, user);
@@ -540,7 +540,7 @@ public class ComboManager {
                     4.5F * sizeFactor, GOD_FIST_SHOCKWAVE_COLOR, 13), user);
 
             target.invulnerableTime = 0;
-            target.hurt(user.damageSources().mobAttack(user), damage);
+            target.hurtOrSimulate(user.damageSources().mobAttack(user), damage);
 
             user.level().playSound(null, impactPos.x, impactPos.y, impactPos.z, MainSounds.CRITICO2.get(), SoundSource.HOSTILE, 2.5F, 0.7F);
             NetworkHandler.sendToTrackingEntity(new ImpactBurstVfxS2C(impactPos, user.getLookAngle(), GOD_FIST_BURST_SCALE,
@@ -561,7 +561,7 @@ public class ComboManager {
     }
 
     private static void handleDeadlyDanceVegetto(DBSagasEntity user, LivingEntity target, int timer) {
-        if (user.level().isClientSide) return;
+        if (user.level().isClientSide()) return;
 
         float total = comboHitDamage(user, DBSagasEntity.ComboType.DEADLY_DANCE_VEGETTO, 1);
         int hitCount = (DEADLY_DANCE_FINAL_TICK - DEADLY_DANCE_DASH_END_TICK) / DEADLY_DANCE_HIT_INTERVAL - 1;
@@ -614,7 +614,7 @@ public class ComboManager {
     private static void deadlyDanceHit(DBSagasEntity user, LivingEntity target, float damage, double heightRatio, float burstScale,
                                        int burstTicks, Vec3 burstDir, SoundEvent sound, float volume, float pitch) {
         target.invulnerableTime = 0;
-        target.hurt(user.damageSources().mobAttack(user), damage);
+        target.hurtOrSimulate(user.damageSources().mobAttack(user), damage);
 
         Vec3 impactPos = new Vec3(target.getX(), target.getY() + target.getBbHeight() * heightRatio, target.getZ());
         user.level().playSound(null, impactPos.x, impactPos.y, impactPos.z, sound, SoundSource.HOSTILE, volume, pitch);
@@ -633,7 +633,7 @@ public class ComboManager {
     }
 
     private static void handleSpiritBreakingCannon(DBSagasEntity user, LivingEntity target, int timer) {
-        if (user.level().isClientSide) return;
+        if (user.level().isClientSide()) return;
 
         float total = comboHitDamage(user, DBSagasEntity.ComboType.SPIRIT_BREAKING_CANNON, 1);
         float hitDamage = total * (1.0F - SPIRIT_CANNON_FINAL_HIT_RATIO) / 3.0F;
@@ -704,7 +704,7 @@ public class ComboManager {
                 (finalHit ? 4.5F : 1.8F) * sizeFactor, SPIRIT_CANNON_COLOR_SECONDARY, finalHit ? 13 : 7), user);
 
         target.invulnerableTime = 0;
-        target.hurt(user.damageSources().mobAttack(user), applied);
+        target.hurtOrSimulate(user.damageSources().mobAttack(user), applied);
 
         Vec3 impactPos = new Vec3(target.getX(), target.getY() + target.getBbHeight() * heightRatio, target.getZ());
         user.level().playSound(null, impactPos.x, impactPos.y, impactPos.z, sound, SoundSource.HOSTILE, 2.0F, pitch);
@@ -779,7 +779,7 @@ public class ComboManager {
         }
         if (timer == 20) {
             target.invulnerableTime = 0;
-            target.hurt(user.damageSources().mobAttack(user), perHit);
+            target.hurtOrSimulate(user.damageSources().mobAttack(user), perHit);
             user.playSound(MainSounds.CRITICO1.get(), 1.0F, 0.8F);
             user.spawnPunchParticles(target);
             target.setDeltaMovement(0, -2.5D, 0);
@@ -799,7 +799,7 @@ public class ComboManager {
         }
         if (timer == 6) {
             user.spawnPunchParticles(target);
-            target.hurt(user.damageSources().mobAttack(user), perHit);
+            target.hurtOrSimulate(user.damageSources().mobAttack(user), perHit);
             user.setDeltaMovement(0, 0, 0);
             target.setDeltaMovement(0, 0, 0);
         }
@@ -852,7 +852,7 @@ public class ComboManager {
         }
         if (timer > 0 && timer < duration && timer % 10 == 0) {
             float drain = target.getMaxHealth() * 0.05F;
-            target.hurt(user.damageSources().mobAttack(user), drain);
+            target.hurtOrSimulate(user.damageSources().mobAttack(user), drain);
             user.heal(drain);
             user.getCombatBrain().onAbsorb(drain);
             if (target instanceof ServerPlayer sp) {
@@ -881,7 +881,7 @@ public class ComboManager {
         user.teleportTo(target.getX() + (offsetDir.x * distance), target.getY(), target.getZ() + (offsetDir.z * distance));
         user.playSound(MainSounds.TP.get(), 1.0F, pitch);
         target.invulnerableTime = 0;
-        target.hurt(user.damageSources().mobAttack(user), damage);
+        target.hurtOrSimulate(user.damageSources().mobAttack(user), damage);
         user.playSound(sound, 0.8F, pitch);
         user.spawnPunchParticles(target);
     }
@@ -889,7 +889,7 @@ public class ComboManager {
     private static void meleeHit(DBSagasEntity user, LivingEntity target, float damage, double pushY, double pushStrength) {
         user.lookAt(target, 360, 360);
         target.invulnerableTime = 0;
-        target.hurt(user.damageSources().mobAttack(user), damage);
+        target.hurtOrSimulate(user.damageSources().mobAttack(user), damage);
         user.swing(InteractionHand.MAIN_HAND);
         user.playSound(MainSounds.CRITICO1.get(), 0.8F, 1.2F);
         if (pushStrength > 0) {
@@ -901,7 +901,7 @@ public class ComboManager {
 
     private static void finalBlow(DBSagasEntity user, LivingEntity target, float damage, double pushPower) {
         target.invulnerableTime = 0;
-        target.hurt(user.damageSources().mobAttack(user), damage);
+        target.hurtOrSimulate(user.damageSources().mobAttack(user), damage);
         user.playSound(MainSounds.CRITICO1.get(), 1.0F, 0.8F);
         user.spawnPunchParticles(target);
         Vec3 push = target.position().subtract(user.position()).normalize();
@@ -922,7 +922,7 @@ public class ComboManager {
             float damage = comboHitDamage(user, DBSagasEntity.ComboType.GUM_PUNCH, 1);
 
             target.invulnerableTime = 0;
-            target.hurt(user.damageSources().mobAttack(user), damage);
+            target.hurtOrSimulate(user.damageSources().mobAttack(user), damage);
             user.playSound(MainSounds.CRITICO1.get(), 1.2F, 0.7F);
             user.spawnPunchParticles(target);
 
@@ -949,7 +949,7 @@ public class ComboManager {
             float damage = comboHitDamage(user, DBSagasEntity.ComboType.GUM_EXPAND, 1);
 
             target.invulnerableTime = 0;
-            target.hurt(user.damageSources().mobAttack(user), damage);
+            target.hurtOrSimulate(user.damageSources().mobAttack(user), damage);
             user.playSound(MainSounds.CRITICO1.get(), 1.0F, 1.2F);
             user.spawnPunchParticles(target);
 
@@ -1012,7 +1012,7 @@ public class ComboManager {
                     float damage = comboHitDamage(user, DBSagasEntity.ComboType.RAPID_KICKS, 9);
 
                     target.invulnerableTime = 0;
-                    target.hurt(user.damageSources().mobAttack(user), damage);
+                    target.hurtOrSimulate(user.damageSources().mobAttack(user), damage);
 
                     user.playSound(MainSounds.CRITICO1.get(), 0.4F, 1.6F);
                     user.spawnPunchParticles(target);

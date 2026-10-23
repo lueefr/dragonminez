@@ -1,44 +1,38 @@
 package com.dragonminez.server.energy;
 
 import net.minecraft.nbt.CompoundTag;
-import net.neoforged.neoforge.energy.EnergyStorage;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import team.reborn.energy.api.base.SimpleEnergyStorage;
 
-public class StarEnergyStorage extends EnergyStorage {
-	public StarEnergyStorage(int capacity, int maxTransfer) {
-		super(capacity, maxTransfer);
-	}
-
-	@Override
-	public int extractEnergy(int maxExtract, boolean simulate) {
-		int extracted = super.extractEnergy(maxExtract, simulate);
-		if (extracted != 0) {
-			onEnergyChanged();
-		}
-		return extracted;
-	}
-
-	@Override
-	public int receiveEnergy(int maxReceive, boolean simulate) {
-		int received = super.receiveEnergy(maxReceive, simulate);
-		if (received != 0) {
-			onEnergyChanged();
-		}
-		return received;
-	}
-
-	public void setEnergy(int energy) {
-		this.energy = energy;
-		onEnergyChanged();
-	}
-
-	public void onEnergyChanged() {
-	}
-
-	public void saveNBT(CompoundTag tag) {
-		tag.putInt("energy", energy);
-	}
-
-	public void loadNBT(CompoundTag tag) {
-		energy = tag.getInt("energy");
-	}
+/** Transactional Fabric energy with the machine-facing integer operations retained. */
+public class StarEnergyStorage extends SimpleEnergyStorage {
+    public StarEnergyStorage(int capacity, int maxTransfer) { super(capacity, maxTransfer, maxTransfer); }
+    public int extractEnergy(int requested, boolean simulate) {
+        if (requested <= 0) return 0;
+        try (var transaction = Transaction.openOuter()) {
+            int extracted = (int) extract(requested, transaction);
+            if (!simulate) transaction.commit();
+            return extracted;
+        }
+    }
+    public int receiveEnergy(int requested, boolean simulate) {
+        if (requested <= 0) return 0;
+        try (var transaction = Transaction.openOuter()) {
+            int received = (int) insert(requested, transaction);
+            if (!simulate) transaction.commit();
+            return received;
+        }
+    }
+    public int getEnergyStored() { return (int) amount; }
+    public int getMaxEnergyStored() { return (int) capacity; }
+    public boolean canReceive() { return supportsInsertion(); }
+    public boolean canExtract() { return supportsExtraction(); }
+    public void setEnergy(int energy) {
+        long clamped = Math.clamp((long) energy, 0, capacity);
+        if (amount != clamped) { amount = clamped; onEnergyChanged(); }
+    }
+    @Override protected void onFinalCommit() { onEnergyChanged(); }
+    public void onEnergyChanged() {}
+    public void saveNBT(CompoundTag tag) { tag.putInt("energy", (int) amount); }
+    public void loadNBT(CompoundTag tag) { amount = Math.clamp((long) tag.getIntOr("energy", 0), 0, capacity); }
 }

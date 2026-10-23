@@ -7,10 +7,9 @@ import com.dragonminez.common.init.block.custom.DragonBallBlock;
 import com.dragonminez.common.init.block.entity.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.dragonminez.platform.registry.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +20,10 @@ public final class MainBlockEntities {
 
 	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DragonBallBlockEntity>> DRAGON_BALL_BLOCK_ENTITY =
 			BLOCK_ENTITY_TYPES_REGISTER.register("dragon_ball", () ->
-					BlockEntityType.Builder.of((pos, state) -> {
+					net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create((pos, state) -> {
 						DragonBallBlock block = (DragonBallBlock) state.getBlock();
 						return new DragonBallBlockEntity(pos, state, block.getBallType(), block.getBallSetId());
-					}, getAllDragonBallBlocks()).build(null));
+					}, getAllDragonBallBlocks()).build());
 
 	private static Block[] getAllDragonBallBlocks() {
 		List<Block> blocks = new ArrayList<>();
@@ -39,41 +38,41 @@ public final class MainBlockEntities {
 
 	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<KikonoStationBlockEntity>> KIKONO_STATION_BE =
 			BLOCK_ENTITY_TYPES_REGISTER.register("kikono_station", () ->
-					BlockEntityType.Builder.of(KikonoStationBlockEntity::new,
+					net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(KikonoStationBlockEntity::new,
 							MainBlocks.KIKONO_STATION.get()
-					).build(null));
+					).build());
 
 	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FuelGeneratorBlockEntity>> FUEL_GENERATOR_BE =
 			BLOCK_ENTITY_TYPES_REGISTER.register("fuel_generator", () ->
-					BlockEntityType.Builder.of(FuelGeneratorBlockEntity::new,
+					net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(FuelGeneratorBlockEntity::new,
 							MainBlocks.FUEL_GENERATOR.get()
-					).build(null));
+					).build());
 
 	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PatternStationBlockEntity>> PATTERN_STATION_BE =
 			BLOCK_ENTITY_TYPES_REGISTER.register("pattern_station", () ->
-					BlockEntityType.Builder.of(PatternStationBlockEntity::new,
+					net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(PatternStationBlockEntity::new,
 							MainBlocks.PATTERN_STATION.get()
-					).build(null));
+					).build());
 
 	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GravityDeviceBlockEntity>> GRAVITY_DEVICE_BE =
 			BLOCK_ENTITY_TYPES_REGISTER.register("gravity_device", () ->
-					BlockEntityType.Builder.of(GravityDeviceBlockEntity::new,
+					net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(GravityDeviceBlockEntity::new,
 							MainBlocks.GRAVITY_DEVICE.get()
-					).build(null));
+					).build());
 
 	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EnergyCableBlockEntity>> ENERGY_CABLE_BE =
 			BLOCK_ENTITY_TYPES_REGISTER.register("energy_cable", () ->
-					BlockEntityType.Builder.of(EnergyCableBlockEntity::new,
+					net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(EnergyCableBlockEntity::new,
 							MainBlocks.ENERGY_CABLE.get()
-					).build(null));
+					).build());
 
 	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TimeChamberPortalBlockEntity>> TIME_CHAMBER_PORTAL =
 			BLOCK_ENTITY_TYPES_REGISTER.register("time_chamber_portal", () ->
-					BlockEntityType.Builder.of(TimeChamberPortalBlockEntity::new,
+					net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(TimeChamberPortalBlockEntity::new,
 							MainBlocks.TIME_CHAMBER_PORTAL.get()
-					).build(null));
+					).build());
 
-	public static void register(IEventBus bus) {
-		BLOCK_ENTITY_TYPES_REGISTER.register(bus);
+	public static void register() {
+		BLOCK_ENTITY_TYPES_REGISTER.register();
 	}
 }

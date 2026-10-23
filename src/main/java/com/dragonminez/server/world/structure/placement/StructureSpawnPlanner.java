@@ -10,7 +10,7 @@ import com.dragonminez.server.world.structure.fitted.HeightSampler;
 import com.dragonminez.server.world.structure.fitted.SitePlan;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import com.dragonminez.platform.ServerLifecycleHooks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -188,7 +188,7 @@ public final class StructureSpawnPlanner {
 		if (holder == null) return;
 		if (StructurePlanSavedData.get(level).isBuilt(salt)) {
 			LogUtil.info(Env.SERVER, "[DMZ] Refusing to relocate salt " + salt
-					+ " in " + level.dimension().location() + "; it is already built.");
+					+ " in " + level.dimension().identifier() + "; it is already built.");
 			return;
 		}
 		synchronized (holder.writeLock) {
@@ -201,7 +201,7 @@ public final class StructureSpawnPlanner {
 		}
 		StructurePlanSavedData.get(level).removePosition(salt);
 		LogUtil.info(Env.SERVER, "[DMZ] Relocating structure with salt " + salt
-				+ " in " + level.dimension().location() + "; previous site was unusable.");
+				+ " in " + level.dimension().identifier() + "; previous site was unusable.");
 		StructureAsyncResolver.buildPlan(holder);
 	}
 
@@ -650,7 +650,7 @@ public final class StructureSpawnPlanner {
 			if (!(set.placement() instanceof BiomeAwareUniquePlacement placement)) continue;
 			if (set.structures().isEmpty()) continue;
 			String name = set.structures().get(0).structure().unwrapKey()
-					.map(key -> key.location().toString()).orElse("salt:" + placement.placementSalt());
+					.map(key -> key.identifier().toString()).orElse("salt:" + placement.placementSalt());
 			result.put(placement.placementSalt(), name);
 		}
 		return result;

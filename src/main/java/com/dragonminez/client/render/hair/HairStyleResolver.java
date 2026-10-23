@@ -13,7 +13,7 @@ import com.dragonminez.common.hair.HairStyleSlot;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.character.Character;
 import com.dragonminez.common.util.lists.SaiyanForms;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 

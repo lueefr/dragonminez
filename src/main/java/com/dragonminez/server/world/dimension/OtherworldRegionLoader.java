@@ -144,13 +144,13 @@ public class OtherworldRegionLoader {
 	}
 
 	private static void collectChunkPaletteBlocks(CompoundTag chunkTag, Set<String> blockNames) {
-		ListTag sections = chunkTag.getList("sections", Tag.TAG_COMPOUND);
+		ListTag sections = com.dragonminez.platform.nbt.NbtCompat.getList(chunkTag, "sections", Tag.TAG_COMPOUND);
 		for (int sectionIndex = 0; sectionIndex < sections.size(); sectionIndex++) {
-			CompoundTag section = sections.getCompound(sectionIndex);
-			CompoundTag blockStates = section.getCompound("block_states");
-			ListTag palette = blockStates.getList("palette", Tag.TAG_COMPOUND);
+			CompoundTag section = sections.getCompoundOrEmpty(sectionIndex);
+			CompoundTag blockStates = section.getCompoundOrEmpty("block_states");
+			ListTag palette = com.dragonminez.platform.nbt.NbtCompat.getList(blockStates, "palette", Tag.TAG_COMPOUND);
 			for (int paletteIndex = 0; paletteIndex < palette.size(); paletteIndex++) {
-				String blockName = palette.getCompound(paletteIndex).getString("Name");
+				String blockName = palette.getCompoundOrEmpty(paletteIndex).getString("Name");
 				if (!blockName.isBlank()) {
 					blockNames.add(blockName);
 				}

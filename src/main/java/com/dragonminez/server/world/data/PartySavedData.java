@@ -36,30 +36,30 @@ public class PartySavedData extends SavedData {
 
 	public static PartySavedData load(CompoundTag tag, HolderLookup.Provider registries) {
 		PartySavedData data = new PartySavedData();
-		ListTag partiesList = tag.getList("Parties", Tag.TAG_COMPOUND);
+		ListTag partiesList = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "Parties", Tag.TAG_COMPOUND);
 		for (int i = 0; i < partiesList.size(); i++) {
 			try {
-				CompoundTag partyTag = partiesList.getCompound(i);
-				if (!partyTag.hasUUID("PartyId")) continue;
-				UUID partyId = partyTag.getUUID("PartyId");
+				CompoundTag partyTag = partiesList.getCompoundOrEmpty(i);
+				if (!com.dragonminez.platform.nbt.NbtCompat.hasUUID(partyTag, "PartyId")) continue;
+				UUID partyId = com.dragonminez.platform.nbt.NbtCompat.getUUID(partyTag, "PartyId");
 				if (data.parties.containsKey(partyId)) continue;
 
 				List<UUID> members = new ArrayList<>();
-				ListTag membersList = partyTag.getList("Members", Tag.TAG_COMPOUND);
+				ListTag membersList = com.dragonminez.platform.nbt.NbtCompat.getList(partyTag, "Members", Tag.TAG_COMPOUND);
 				for (int j = 0; j < membersList.size(); j++) {
-					CompoundTag mTag = membersList.getCompound(j);
-					if (!mTag.hasUUID("Id")) continue;
-					UUID memberId = mTag.getUUID("Id");
+					CompoundTag mTag = membersList.getCompoundOrEmpty(j);
+					if (!com.dragonminez.platform.nbt.NbtCompat.hasUUID(mTag, "Id")) continue;
+					UUID memberId = com.dragonminez.platform.nbt.NbtCompat.getUUID(mTag, "Id");
 					if (members.contains(memberId) || data.playerPartyMap.containsKey(memberId)) continue;
 					members.add(memberId);
 				}
 				if (members.isEmpty()) continue;
 
-				UUID leaderId = partyTag.hasUUID("LeaderId") ? partyTag.getUUID("LeaderId") : null;
-				UUID ownerId = partyTag.hasUUID("OwnerId") ? partyTag.getUUID("OwnerId") : leaderId;
+				UUID leaderId = com.dragonminez.platform.nbt.NbtCompat.hasUUID(partyTag, "LeaderId") ? com.dragonminez.platform.nbt.NbtCompat.getUUID(partyTag, "LeaderId") : null;
+				UUID ownerId = com.dragonminez.platform.nbt.NbtCompat.hasUUID(partyTag, "OwnerId") ? com.dragonminez.platform.nbt.NbtCompat.getUUID(partyTag, "OwnerId") : leaderId;
 				if (ownerId == null || !members.contains(ownerId)) ownerId = members.get(0);
 				if (leaderId == null || !members.contains(leaderId)) leaderId = ownerId;
-				boolean pvpEnabled = partyTag.contains("PvpEnabled") && partyTag.getBoolean("PvpEnabled");
+				boolean pvpEnabled = partyTag.contains("PvpEnabled") && partyTag.getBooleanOr("PvpEnabled", false);
 
 				PartyInstance instance = new PartyInstance(partyId, ownerId, leaderId, members, pvpEnabled);
 				data.parties.put(partyId, instance);
@@ -78,14 +78,14 @@ public class PartySavedData extends SavedData {
 		ListTag partiesList = new ListTag();
 		for (PartyInstance instance : parties.values()) {
 			CompoundTag partyTag = new CompoundTag();
-			partyTag.putUUID("PartyId", instance.getPartyId());
-			partyTag.putUUID("OwnerId", instance.getOwnerId());
-			partyTag.putUUID("LeaderId", instance.getLeaderId());
+			com.dragonminez.platform.nbt.NbtCompat.putUUID(partyTag, "PartyId", instance.getPartyId());
+			com.dragonminez.platform.nbt.NbtCompat.putUUID(partyTag, "OwnerId", instance.getOwnerId());
+			com.dragonminez.platform.nbt.NbtCompat.putUUID(partyTag, "LeaderId", instance.getLeaderId());
 			partyTag.putBoolean("PvpEnabled", instance.isPvpEnabled());
 			ListTag membersList = new ListTag();
 			for (UUID memberId : instance.getMembers()) {
 				CompoundTag mTag = new CompoundTag();
-				mTag.putUUID("Id", memberId);
+				com.dragonminez.platform.nbt.NbtCompat.putUUID(mTag, "Id", memberId);
 				membersList.add(mTag);
 			}
 			partyTag.put("Members", membersList);

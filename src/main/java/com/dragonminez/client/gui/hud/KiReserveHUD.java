@@ -8,14 +8,13 @@ import com.dragonminez.common.stats.StatsProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
-import net.minecraft.client.gui.LayeredDraw;
 
 public class KiReserveHUD {
 	private static final HudBar RESERVE_BAR = new HudBar(HudStatNumberAnimator.StatKind.KI).flowing();
 	private static final HudSmoother VISIBILITY = new HudSmoother(0.18f, 0.01f);
 	private static final HudSmoother ACTIVE = new HudSmoother(0.15f);
 
-	public static final LayeredDraw.Layer HUD_KI_RESERVE = (guiGraphics, deltaTracker) -> {
+	public static final net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement HUD_KI_RESERVE = (guiGraphics, deltaTracker) -> {
         float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
         int width = guiGraphics.guiWidth();
         int height = guiGraphics.guiHeight();

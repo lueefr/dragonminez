@@ -170,7 +170,7 @@ public final class NPCPlacementManager {
 	private static NPCPlacement parsePlacement(JsonObject json) {
 		String id = getString(json, "id", null);
 		String entity = getString(json, "entity", null);
-		String dimension = getString(json, "dimension", Level.OVERWORLD.location().toString());
+		String dimension = getString(json, "dimension", Level.OVERWORLD.identifier().toString());
 		if (id == null || id.isBlank() || entity == null || entity.isBlank()) {
 			return null;
 		}
@@ -215,7 +215,7 @@ public final class NPCPlacementManager {
 			return;
 		}
 
-		EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(entityId);
+		EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.getValue(entityId);
 		if (entityType == null) {
 			LogUtil.warn(Env.SERVER, "NPCPlacementManager: unknown entity '{}' for placement '{}'", placement.entity(), placement.id());
 			return;
@@ -288,7 +288,7 @@ public final class NPCPlacementManager {
 	private static Entity findPlacedEntity(ServerLevel level, String placementId) {
 		List<Entity> matches = new ArrayList<>();
 		for (Entity entity : level.getAllEntities()) {
-			if (entity != null && placementId.equals(entity.getPersistentData().getString(PLACEMENT_TAG))) {
+			if (entity != null && placementId.equals(com.dragonminez.platform.entity.EntityData.get(entity).getStringOr(PLACEMENT_TAG, ""))) {
 				matches.add(entity);
 			}
 		}
@@ -314,12 +314,12 @@ public final class NPCPlacementManager {
 		if (entity instanceof Mob mob) {
 			mob.setPersistenceRequired();
 		}
-		entity.getPersistentData().putString(PLACEMENT_TAG, placement.id());
+		com.dragonminez.platform.entity.EntityData.get(entity).putString(PLACEMENT_TAG, placement.id());
 		if (placement.alignment() != null) {
-			entity.getPersistentData().putInt(NpcDispositionService.NPC_ALIGNMENT_TAG, Math.max(0, Math.min(100, placement.alignment())));
+			com.dragonminez.platform.entity.EntityData.get(entity).putInt(NpcDispositionService.NPC_ALIGNMENT_TAG, Math.max(0, Math.min(100, placement.alignment())));
 		}
 		if (placement.relationOverride() != null && !placement.relationOverride().isBlank()) {
-			entity.getPersistentData().putString(NpcDispositionService.NPC_RELATION_OVERRIDE_TAG, placement.relationOverride());
+			com.dragonminez.platform.entity.EntityData.get(entity).putString(NpcDispositionService.NPC_RELATION_OVERRIDE_TAG, placement.relationOverride());
 		}
 
 		if (entity instanceof QuestNPCEntity questNPC) {
@@ -509,7 +509,7 @@ public final class NPCPlacementManager {
 	}
 
 	private static boolean shouldForceManualSpawn(NPCPlacement placement) {
-		if (!"dragonminez:otherworld".equals(placement.dimension().location().toString())) {
+		if (!"dragonminez:otherworld".equals(placement.dimension().identifier().toString())) {
 			return false;
 		}
 

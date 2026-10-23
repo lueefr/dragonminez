@@ -18,7 +18,7 @@ public class NamekGrassBlock extends Block implements BonemealableBlock {
 
 	@Override
 	public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
-		if (!world.isClientSide) {
+		if (!world.isClientSide()) {
 			if (!world.isAreaLoaded(pos, 2)) return;
 
 			BlockState blockAbove = world.getBlockState(pos.above());

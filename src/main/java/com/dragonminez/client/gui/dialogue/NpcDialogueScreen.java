@@ -1,6 +1,6 @@
 package com.dragonminez.client.gui.dialogue;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.gui.character.util.ScaledScreen;
 import com.dragonminez.client.gui.hud.HudRender;
@@ -11,7 +11,7 @@ import com.dragonminez.common.init.entities.questnpc.QuestNPCEntity;
 import com.dragonminez.common.network.S2C.DialogueResultS2C;
 import com.dragonminez.common.network.S2C.OpenDialogueNodeS2C;
 import com.dragonminez.common.network.S2C.OpenQuestNPCDialogueS2C;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -25,12 +25,11 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -39,7 +38,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public class NpcDialogueScreen extends ScaledScreen {
 	static final Identifier FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
 
@@ -648,7 +647,7 @@ public class NpcDialogueScreen extends ScaledScreen {
 	private record FooterButton(Component label, DialogueSkin.Row row, int x, Runnable action) {
 	}
 
-	@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+	@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 	public static final class HudVisibility {
 		private HudVisibility() {
 		}

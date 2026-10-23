@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -52,7 +51,7 @@ public class StatPlantItem extends Item {
 	private final Supplier<? extends Block> cropBlock;
 
 	public StatPlantItem(StatType statType, Supplier<? extends Block> cropBlock) {
-		super(new Properties().food(new FoodProperties.Builder()
+		super(com.dragonminez.platform.registry.RegistrationScope.itemProperties().food(new FoodProperties.Builder()
 				.nutrition(1)
 				.saturationModifier(0.1f)
 				.alwaysEdible()
@@ -70,7 +69,7 @@ public class StatPlantItem extends Item {
 
 		// Solo planta si se hace clic sobre tierra de cultivo con espacio libre encima.
 		if (clickedState.is(Blocks.FARMLAND) && level.isEmptyBlock(plantPos)) {
-			if (!level.isClientSide) {
+			if (!level.isClientSide()) {
 				level.setBlock(plantPos, cropBlock.get().defaultBlockState(), 3);
 			}
 			Player player = context.getPlayer();
@@ -85,7 +84,7 @@ public class StatPlantItem extends Item {
 
 	@Override
 	public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, Level level, @NotNull LivingEntity entity) {
-		if (!level.isClientSide && entity instanceof ServerPlayer player) {
+		if (!level.isClientSide() && entity instanceof ServerPlayer player) {
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 				if (!data.getStatus().isHasCreatedCharacter()) {
 					player.displayClientMessage(Component.translatable("error.dmz.createcharacter")
@@ -168,8 +167,9 @@ public class StatPlantItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, @NotNull java.util.List<Component> tooltip, @NotNull TooltipFlag flag) {
-        net.minecraft.world.level.Level level = context.level();
+	public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag flag) {
+        java.util.List<Component> tooltip = new java.util.ArrayList<>();
+        try {
 		String key = switch (statType) {
 			case MASTERY -> "item.dragonminez.zenkai_lotus.tooltip";
 			case ENE -> "item.dragonminez.kaioshin_fruit.tooltip";
@@ -180,5 +180,7 @@ public class StatPlantItem extends Item {
 		} else {
 			tooltip.add(Component.translatable(key, statType.name()).withStyle(ChatFormatting.GRAY));
 		}
-	}
+
+        } finally { tooltip.forEach(dmz$consumer); }
+    }
 }

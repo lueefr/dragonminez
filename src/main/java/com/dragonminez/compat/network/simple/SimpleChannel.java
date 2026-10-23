@@ -7,15 +7,14 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.compat.network.NetworkDirection;
 import com.dragonminez.compat.network.NetworkEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
-import net.neoforged.neoforge.network.handling.IPayloadHandler;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import com.dragonminez.platform.ServerLifecycleHooks;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import com.dragonminez.platform.network.ClientNetworking;
+import com.dragonminez.platform.network.ProtocolHandshake;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,21 +25,29 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Compatibility shim that presents the Forge SimpleChannel API and registers NeoForge payloads under the hood.
+ * Preserves the existing packet codecs and handlers using native Fabric payload registration.
  */
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public final class SimpleChannel {
 	private static final List<SimpleChannel> CHANNELS = new ArrayList<>();
 
 	private final Identifier name;
     private final Supplier<String> protocolVersion;
+    private final java.util.function.Predicate<String> clientAccepted;
+    private final java.util.function.Predicate<String> serverAccepted;
 	private final List<PendingRegistration<?>> pending = new ArrayList<>();
 	private final Map<Class<?>, PayloadBinding<?>> bindings = new ConcurrentHashMap<>();
 	private boolean registered;
 
 	public SimpleChannel(Identifier name, Supplier<String> protocolVersion) {
+        this(name, protocolVersion, remote -> protocolVersion.get().equals(remote), remote -> protocolVersion.get().equals(remote));
+    }
+
+    public SimpleChannel(Identifier name, Supplier<String> protocolVersion,
+            java.util.function.Predicate<String> clientAccepted, java.util.function.Predicate<String> serverAccepted) {
 		this.name = name;
         this.protocolVersion = protocolVersion;
+        this.clientAccepted = clientAccepted;
+        this.serverAccepted = serverAccepted;
 		CHANNELS.add(this);
 	}
 
@@ -54,7 +61,7 @@ public final class SimpleChannel {
 		if (binding == null) {
 			throw new IllegalStateException("No payload binding for " + message.getClass().getName());
 		}
-		PacketDistributor.sendToServer(binding.wrap(message));
+		ClientNetworking.send(binding.wrap(message));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -63,7 +70,7 @@ public final class SimpleChannel {
 		if (binding == null) {
 			throw new IllegalStateException("No payload binding for " + message.getClass().getName());
 		}
-		PacketDistributor.sendToPlayer(player, binding.wrap(message));
+		ServerPlayNetworking.send(player, binding.wrap(message));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -72,7 +79,9 @@ public final class SimpleChannel {
 		if (binding == null) {
 			throw new IllegalStateException("No payload binding for " + message.getClass().getName());
 		}
-		PacketDistributor.sendToAllPlayers(binding.wrap(message));
+		var server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) return;
+        for (ServerPlayer player : PlayerLookup.all(server)) ServerPlayNetworking.send(player, binding.wrap(message));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -81,7 +90,9 @@ public final class SimpleChannel {
 		if (binding == null) {
 			throw new IllegalStateException("No payload binding for " + message.getClass().getName());
 		}
-		PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, binding.wrap(message));
+		var recipients = new java.util.HashSet<>(PlayerLookup.tracking(entity));
+        if (entity instanceof ServerPlayer self) recipients.add(self);
+        for (ServerPlayer player : recipients) ServerPlayNetworking.send(player, binding.wrap(message));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -90,23 +101,23 @@ public final class SimpleChannel {
 		if (binding == null) {
 			throw new IllegalStateException("No payload binding for " + message.getClass().getName());
 		}
-		PacketDistributor.sendToPlayersTrackingEntity(entity, binding.wrap(message));
+		for (ServerPlayer player : PlayerLookup.tracking(entity)) ServerPlayNetworking.send(player, binding.wrap(message));
 	}
 
-	@SubscribeEvent
-	public static void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
-		for (SimpleChannel channel : List.copyOf(CHANNELS)) {
-			channel.flush(event.registrar(channel.protocolVersion.get()));
-		}
-	}
+    public void register() {
+        if (registered) return;
+        for (PendingRegistration<?> reg : pending) reg.register(name, bindings);
+        ProtocolHandshake.register(name, protocolVersion, serverAccepted);
+        registered = true;
+    }
 
-	private void flush(PayloadRegistrar registrar) {
-		if (registered) return;
-		registered = true;
-		for (PendingRegistration<?> reg : pending) {
-			reg.register(registrar, name, bindings);
-		}
-	}
+    public static void registerClientReceivers() {
+        for (SimpleChannel channel : List.copyOf(CHANNELS)) {
+            if (!channel.registered) throw new IllegalStateException("Channel not registered: " + channel.name);
+            for (PendingRegistration<?> reg : channel.pending) reg.registerClient(channel.name);
+            ProtocolHandshake.registerClient(channel.name, channel.protocolVersion, channel.clientAccepted);
+        }
+    }
 
 	public final class MessageBuilder<MSG> {
 		private final Class<MSG> type;
@@ -145,6 +156,9 @@ public final class SimpleChannel {
         }
 
         public void add() {
+            if (registered) throw new IllegalStateException("Channel already registered: " + name);
+            if (encoder == null || decoder == null || consumer == null) throw new IllegalStateException("Incomplete packet: " + type.getName());
+            if (pending.stream().anyMatch(reg -> reg.id() == id || reg.type() == type)) throw new IllegalArgumentException("Duplicate packet ID or class: " + id + " / " + type.getName());
 			pending.add(new PendingRegistration<>(type, id, direction, encoder, decoder, consumer, networkThread));
 		}
 	}
@@ -158,37 +172,38 @@ public final class SimpleChannel {
 			BiConsumer<MSG, Supplier<NetworkEvent.Context>> consumer,
             boolean networkThread
 	) {
-		void register(PayloadRegistrar registrar, Identifier channelName, Map<Class<?>, PayloadBinding<?>> bindings) {
-			Identifier payloadId = Identifier.fromNamespaceAndPath(
-					channelName.getNamespace(),
-					channelName.getPath() + "/" + id + "_" + type.getSimpleName().toLowerCase()
-			);
-			CustomPacketPayload.Type<WrappedPayload<MSG>> payloadType = new CustomPacketPayload.Type<>(payloadId);
-			StreamCodec<RegistryFriendlyByteBuf, WrappedPayload<MSG>> codec = StreamCodec.of(
-					(buf, wrapped) -> encoder.accept(wrapped.message(), buf),
-					buf -> new WrappedPayload<>(payloadType, decoder.apply(buf))
-			);
+        private CustomPacketPayload.Type<WrappedPayload<MSG>> payloadType(Identifier channelName) {
+            return new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(channelName.getNamespace(),
+                    channelName.getPath() + "/" + id + "_" + type.getSimpleName().toLowerCase(java.util.Locale.ROOT)));
+        }
 
-			IPayloadHandler<WrappedPayload<MSG>> handler = (payload, ctx) ->
-					consumer.accept(payload.message(), NetworkEvent.wrap(ctx));
-
-			PayloadRegistrar target = registrar.executesOn(networkThread ? net.neoforged.neoforge.network.registration.HandlerThread.NETWORK : net.neoforged.neoforge.network.registration.HandlerThread.MAIN);
+        void register(Identifier channelName, Map<Class<?>, PayloadBinding<?>> bindings) {
+            var payloadType = payloadType(channelName);
+            StreamCodec<RegistryFriendlyByteBuf, WrappedPayload<MSG>> codec = StreamCodec.of(
+                    (buf, wrapped) -> encoder.accept(wrapped.message(), buf),
+                    buf -> new WrappedPayload<>(payloadType, decoder.apply(buf), System.nanoTime()));
             if (direction == NetworkDirection.PLAY_TO_SERVER) {
-				target.playToServer(payloadType, codec, handler);
-			} else {
-				target.playToClient(payloadType, codec, handler);
-			}
-			bindings.put(type, new PayloadBinding<>(payloadType));
-		}
-	}
+                PayloadTypeRegistry.serverboundPlay().register(payloadType, codec);
+                ServerPlayNetworking.registerGlobalReceiver(payloadType, (payload, context) ->
+                        consumer.accept(payload.message(), NetworkEvent.wrap(context.player(), context.server(), payload.receivedNanos())));
+            } else {
+                PayloadTypeRegistry.clientboundPlay().register(payloadType, codec);
+            }
+            bindings.put(type, new PayloadBinding<>(payloadType));
+        }
+
+        void registerClient(Identifier channelName) {
+            if (direction == NetworkDirection.PLAY_TO_CLIENT) ClientNetworking.register(payloadType(channelName), consumer);
+        }
+    }
 
 	private record PayloadBinding<MSG>(CustomPacketPayload.Type<WrappedPayload<MSG>> payloadType) {
 		WrappedPayload<MSG> wrap(MSG message) {
-			return new WrappedPayload<>(payloadType, message);
+			return new WrappedPayload<>(payloadType, message, System.nanoTime());
 		}
 	}
 
-	public record WrappedPayload<MSG>(CustomPacketPayload.Type<WrappedPayload<MSG>> payloadType, MSG message) implements CustomPacketPayload {
+	public record WrappedPayload<MSG>(CustomPacketPayload.Type<WrappedPayload<MSG>> payloadType, MSG message, long receivedNanos) implements CustomPacketPayload {
 		@Override
 		public Type<? extends CustomPacketPayload> type() {
 			return payloadType;

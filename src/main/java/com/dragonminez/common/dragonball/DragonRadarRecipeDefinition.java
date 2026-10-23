@@ -3,7 +3,6 @@ package com.dragonminez.common.dragonball;
 
 import com.google.gson.JsonObject;
 import net.minecraft.data.recipes.RecipeOutput;
-import java.util.function.Consumer;
 
 public abstract class DragonRadarRecipeDefinition {
 	private final String id;

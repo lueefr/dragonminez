@@ -105,10 +105,10 @@ public final class DemonRealmBlocks {
 
 		@Override
 		public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-			if (level.isClientSide || !(entity instanceof LivingEntity living) || !pos.equals(entity.blockPosition())) return;
+			if (level.isClientSide() || !(entity instanceof LivingEntity living) || !pos.equals(entity.blockPosition())) return;
 			living.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 80, 0, false, false));
 			living.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 0, false, false));
-			living.hurt(level.damageSources().magic(), Math.max(4.0F, living.getMaxHealth() * 0.25F));
+			living.hurtOrSimulate(level.damageSources().magic(), Math.max(4.0F, living.getMaxHealth() * 0.25F));
 		}
 
 		@Override

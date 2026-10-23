@@ -1,5 +1,6 @@
 package com.dragonminez.common.init;
 
+import net.minecraft.world.item.equipment.ArmorType;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.armor.DbzArmorCapeItem;
 import com.dragonminez.common.init.armor.DbzArmorItem;
@@ -30,11 +31,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.*;
-import net.neoforged.neoforge.common.DeferredSpawnEggItem;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.dragonminez.platform.item.DeferredSpawnEggItem;
+import com.dragonminez.platform.registry.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -42,7 +42,7 @@ import java.util.Map;
 
 @SuppressWarnings("ALL")
 public final class MainItems {
-	public static final Item.Properties properties = new Item.Properties();
+	private static Item.Properties properties() { return com.dragonminez.platform.registry.RegistrationScope.itemProperties(); }
 	public static final DeferredRegister<Item> ITEM_REGISTER = DeferredRegister.create(BuiltInRegistries.ITEM, Reference.MOD_ID);
 
 	private static final int MEDI_SHELL_TICKS = 45 * 20;
@@ -85,14 +85,14 @@ public final class MainItems {
 			() -> new SenzuSeedsItem(MainBlocks.SENZU_YELLOW_CROP));
 
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> SENZU_BEAN_BAG = ITEM_REGISTER.register("senzu_bean_bag",
-			() -> new SenzuBagItem(new Item.Properties().stacksTo(1)));
+			() -> new SenzuBagItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1)));
 
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> MEDI_BUG_ANT = ITEM_REGISTER.register("medi_bug_ant",
 			() -> new FoodItem(2, 1.2f, 64, "item.dragonminez.medi_bug_ant.tooltip"));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> MEDI_BUG_BEETLE = ITEM_REGISTER.register("medi_bug_beetle",
 			MediBugBeetleItem::new);
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> MEDI_BUG_BEETLE_PAIR = ITEM_REGISTER.register("medi_bug_beetle_pair",
-			() -> new MediBugBeetlePairItem(new Item.Properties().stacksTo(1), () -> MEDI_BUG_BEETLE.get()));
+			() -> new MediBugBeetlePairItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1), () -> MEDI_BUG_BEETLE.get()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> MEDI_BUG_RHINO = ITEM_REGISTER.register("medi_bug_rhino",
 			() -> new FoodItem(2, 1.2f, 64, "item.dragonminez.medi_bug_rhino.tooltip",
 					() -> new MobEffectInstance(MainEffects.MEDI_SHELL, MEDI_SHELL_TICKS, 0)));
@@ -105,7 +105,7 @@ public final class MainItems {
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> SACRED_WATER = ITEM_REGISTER.register("sacred_water",
 			SacredWaterItem::new);
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> SATAN_BADGE = ITEM_REGISTER.register("satan_badge",
-			() -> new Item(new Item.Properties()));
+			() -> new Item(com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> DINO_MEAT_RAW = ITEM_REGISTER.register("raw_dino_meat",
 			() -> new FoodItem(4, 3.6f, 64));
 	public static final DeferredHolder<Item, ? extends Item> DINO_MEAT_COOKED = ITEM_REGISTER.register("cooked_dino_meat",
@@ -156,44 +156,44 @@ public final class MainItems {
 
 	//POTHALAS
 	public static final DeferredHolder<Item, ? extends Item> POTHALA_LEFT =
-			ITEM_REGISTER.register("pothala_left", () -> new DMZCuriosItem(new Item.Properties().fireResistant().stacksTo(1).durability(3), DMZCuriosItem.CurioType.HEAD_TECH));
+			ITEM_REGISTER.register("pothala_left", () -> new DMZCuriosItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1).durability(3), DMZCuriosItem.CurioType.HEAD_TECH));
 	public static final DeferredHolder<Item, ? extends Item> POTHALA_RIGHT =
-			ITEM_REGISTER.register("pothala_right", () -> new DMZCuriosItem(new Item.Properties().fireResistant().stacksTo(1).durability(3), DMZCuriosItem.CurioType.HEAD_TECH));
+			ITEM_REGISTER.register("pothala_right", () -> new DMZCuriosItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1).durability(3), DMZCuriosItem.CurioType.HEAD_TECH));
 	public static final DeferredHolder<Item, ? extends Item> GREEN_POTHALA_LEFT =
-			ITEM_REGISTER.register("green_pothala_left", () -> new DMZCuriosItem(new Item.Properties().fireResistant().stacksTo(1).durability(3), DMZCuriosItem.CurioType.HEAD_TECH));
+			ITEM_REGISTER.register("green_pothala_left", () -> new DMZCuriosItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1).durability(3), DMZCuriosItem.CurioType.HEAD_TECH));
 	public static final DeferredHolder<Item, ? extends Item> GREEN_POTHALA_RIGHT =
-			ITEM_REGISTER.register("green_pothala_right", () -> new DMZCuriosItem(new Item.Properties().fireResistant().stacksTo(1).durability(3), DMZCuriosItem.CurioType.HEAD_TECH));
+			ITEM_REGISTER.register("green_pothala_right", () -> new DMZCuriosItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1).durability(3), DMZCuriosItem.CurioType.HEAD_TECH));
 	public static final DeferredHolder<Item, ? extends Item> POTHALA_PAIR =
-			ITEM_REGISTER.register("pothala_pair", () -> new PothalaPairItem(new Item.Properties().fireResistant().stacksTo(1), () -> POTHALA_LEFT.get(), () -> POTHALA_RIGHT.get()));
+			ITEM_REGISTER.register("pothala_pair", () -> new PothalaPairItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), () -> POTHALA_LEFT.get(), () -> POTHALA_RIGHT.get()));
 	public static final DeferredHolder<Item, ? extends Item> GREEN_POTHALA_PAIR =
-			ITEM_REGISTER.register("green_pothala_pair", () -> new PothalaPairItem(new Item.Properties().fireResistant().stacksTo(1), () -> GREEN_POTHALA_LEFT.get(), () -> GREEN_POTHALA_RIGHT.get()));
+			ITEM_REGISTER.register("green_pothala_pair", () -> new PothalaPairItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), () -> GREEN_POTHALA_LEFT.get(), () -> GREEN_POTHALA_RIGHT.get()));
 
 	public static final DeferredHolder<Item, ? extends Item> RED_SCOUTER =
-			ITEM_REGISTER.register("red_scouter", () -> new DMZCuriosItem(new Item.Properties().stacksTo(1).fireResistant().durability(15), DMZCuriosItem.CurioType.HEAD_TECH));
+			ITEM_REGISTER.register("red_scouter", () -> new DMZCuriosItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1).fireResistant().durability(15), DMZCuriosItem.CurioType.HEAD_TECH));
 	public static final DeferredHolder<Item, ? extends Item> BLUE_SCOUTER =
-			ITEM_REGISTER.register("blue_scouter", () -> new DMZCuriosItem(new Item.Properties().stacksTo(1).fireResistant().durability(15), DMZCuriosItem.CurioType.HEAD_TECH));
+			ITEM_REGISTER.register("blue_scouter", () -> new DMZCuriosItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1).fireResistant().durability(15), DMZCuriosItem.CurioType.HEAD_TECH));
 	public static final DeferredHolder<Item, ? extends Item> GREEN_SCOUTER =
-			ITEM_REGISTER.register("green_scouter", () -> new DMZCuriosItem(new Item.Properties().stacksTo(1).fireResistant().durability(15), DMZCuriosItem.CurioType.HEAD_TECH));
+			ITEM_REGISTER.register("green_scouter", () -> new DMZCuriosItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1).fireResistant().durability(15), DMZCuriosItem.CurioType.HEAD_TECH));
 	public static final DeferredHolder<Item, ? extends Item> PURPLE_SCOUTER =
-			ITEM_REGISTER.register("purple_scouter", () -> new DMZCuriosItem(new Item.Properties().stacksTo(1).fireResistant().durability(15), DMZCuriosItem.CurioType.HEAD_TECH));
+			ITEM_REGISTER.register("purple_scouter", () -> new DMZCuriosItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1).fireResistant().durability(15), DMZCuriosItem.CurioType.HEAD_TECH));
 
 	//ARMAS
 	// 0 + X = Daño | 4 +/- X = Velocidad de ataque | 0 + X = Durabilidad (0 = Irrompible)
-	public static final DeferredHolder<Item, SwordItem> KATANA_YAJIROBE =
+	public static final DeferredHolder<Item, WeaponItem> KATANA_YAJIROBE =
 			ITEM_REGISTER.register("yajirobe_katana", () -> new YajirobeKatanaItem());
-	public static final DeferredHolder<Item, SwordItem> Z_SWORD =
+	public static final DeferredHolder<Item, WeaponItem> Z_SWORD =
 			ITEM_REGISTER.register("z_sword", () -> new ZSwordItem());
-	public static final DeferredHolder<Item, SwordItem> BRAVE_SWORD =
+	public static final DeferredHolder<Item, WeaponItem> BRAVE_SWORD =
 			ITEM_REGISTER.register("brave_sword", () -> new BraveSwordItem());
-    public static final DeferredHolder<Item, SwordItem> DIMENSIONAL_SWORD =
+    public static final DeferredHolder<Item, WeaponItem> DIMENSIONAL_SWORD =
             ITEM_REGISTER.register("dimensional_sword", () -> new DimensionalSwordItem());
-	public static final DeferredHolder<Item, SwordItem> POWER_POLE =
+	public static final DeferredHolder<Item, WeaponItem> POWER_POLE =
 			ITEM_REGISTER.register("power_pole", () -> new PowerPoleItem());
-	public static final DeferredHolder<net.minecraft.world.item.Item, SwordItem> TAMAGAMI_SWORD =
+	public static final DeferredHolder<net.minecraft.world.item.Item, WeaponItem> TAMAGAMI_SWORD =
 			ITEM_REGISTER.register("tamagami_sword", () -> new TamagamiSwordItem());
-	public static final DeferredHolder<net.minecraft.world.item.Item, SwordItem> TAMAGAMI_TRIDENT =
+	public static final DeferredHolder<net.minecraft.world.item.Item, WeaponItem> TAMAGAMI_TRIDENT =
 			ITEM_REGISTER.register("tamagami_trident", () -> new TamagamiTridentItem());
-	public static final DeferredHolder<net.minecraft.world.item.Item, SwordItem> TAMAGAMI_HAMMER =
+	public static final DeferredHolder<net.minecraft.world.item.Item, WeaponItem> TAMAGAMI_HAMMER =
 			ITEM_REGISTER.register("tamagami_hammer", () -> new TamagamiHammerItem());
 
 	//ARMAS A RANGO/PISTOLAS
@@ -203,179 +203,179 @@ public final class MainItems {
 			ITEM_REGISTER.register("blaster_cannon", () -> new BlasterCannonItem());
 
 	//ARMADURAS
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> A13_ARMOR = fullArmorNoHelmetSet("a13_armor", "a13");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> A14_ARMOR = fullArmorNoHelmetSet("a14_armor", "a14");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> A13_ARMOR = fullArmorNoHelmetSet("a13_armor", "a13");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> A14_ARMOR = fullArmorNoHelmetSet("a14_armor", "a14");
 	// A16
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> A16_ARMOR = fullArmorNoHelmetSet("a16_armor", "a16");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> A16_ARMOR = fullArmorNoHelmetSet("a16_armor", "a16");
 	// A17
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> A17_ARMOR = fullArmorNoHelmetSet("a17_armor", "a17");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> A17_ARMOR = fullArmorNoHelmetSet("a17_armor", "a17");
 	// ANDROID 17 SUPER
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> A17_SUPER_ARMOR = fullArmorNoHelmetSet("a17_super_armor", "a17super");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> A17_SUPER_ARMOR = fullArmorNoHelmetSet("a17_super_armor", "a17super");
 	// A18
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> A18_ARMOR = fullArmorNoHelmetSet("a18_armor", "a18");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> A18_ARMOR = fullArmorNoHelmetSet("a18_armor", "a18");
 	// ANDROID 18 CELL SAGA
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> A18_CELL_ARMOR = fullArmorNoHelmetSet("a18_cell_armor", "a18cell");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> A18_CELL_ARMOR = fullArmorNoHelmetSet("a18_cell_armor", "a18cell");
 	// ANDROID 18 BUU SAGA (KAME HOUSE)
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> A18_KAME_ARMOR = fullArmorNoHelmetSet("a18_kame_armor", "a18kame");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> A18_KAME_ARMOR = fullArmorNoHelmetSet("a18_kame_armor", "a18kame");
 	// ANDROID 18 BUU SAGA (WORLD TOURNAMENT)
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> A18_TOURNAMENT_ARMOR = fullArmorNoHelmetSet("a18_tournament_armor", "a18tournament");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> A20_ARMOR = fullArmorSet("a20_armor", "a20");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> A18_TOURNAMENT_ARMOR = fullArmorNoHelmetSet("a18_tournament_armor", "a18tournament");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> A20_ARMOR = fullArmorSet("a20_armor", "a20");
 	// KEEP1000
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> AGE1000_ARMOR = fullArmorNoHelmetSet("age1000_armor", "age1000");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> AGE1000_ARMOR = fullArmorNoHelmetSet("age1000_armor", "age1000");
 	// BARDOCK DBZ
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> BARDOCK_DBZ_ARMOR = fullArmorNoHelmetSet("bardock_dbz_armor", "bardock_armor");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> BARDOCK_DBZ_ARMOR = fullArmorNoHelmetSet("bardock_dbz_armor", "bardock_armor");
 	// BARDOCK SUPER
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> BARDOCK_SUPER_ARMOR = fullArmorNoHelmetSet("bardock_super_armor", "bardockdbs_armor");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> BARDOCK_SUPER_ARMOR = fullArmorNoHelmetSet("bardock_super_armor", "bardockdbs_armor");
 	// BEERUS
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> BEERUS_ARMOR = fullArmorNoHelmetSet("beerus_armor", "beerus");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> BEERUS_ARMOR = fullArmorNoHelmetSet("beerus_armor", "beerus");
 	// BLACK GOKU
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> BLACKGOKU_ARMOR = fullArmorNoHelmetSet("blackgoku_armor", "blackgoku");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> BLACKGOKU_ARMOR = fullArmorNoHelmetSet("blackgoku_armor", "blackgoku");
 	// BROLY SUPER
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> BROLY_SUPER_ARMOR = fullArmorNoHelmetSet("broly_super_armor", "broly_dbs");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> BROLY_SUPER_ARMOR = fullArmorNoHelmetSet("broly_super_armor", "broly_dbs");
 	// BROLY Z
-	public static final Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> BROLY_Z_ARMOR = fullArmorSet("broly_z_armor", "broly_dbz");
+	public static final Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> BROLY_Z_ARMOR = fullArmorSet("broly_z_armor", "broly_dbz");
 	// BRIGHTLY'S REGULAR WEAR
-	public static final Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> BRIGHTLYS_REGULAR_WEAR_ARMOR = fullArmorNoHelmetSet("brightlys_regular_wear_armor", "brightlys_regular_wear");
-	public static final Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> CAPSULE_CORP_ARMOR = fullArmorNoHelmetSet("capsule_corp_armor", "capsule_corp");
+	public static final Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> BRIGHTLYS_REGULAR_WEAR_ARMOR = fullArmorNoHelmetSet("brightlys_regular_wear_armor", "brightlys_regular_wear");
+	public static final Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> CAPSULE_CORP_ARMOR = fullArmorNoHelmetSet("capsule_corp_armor", "capsule_corp");
 	// CAULIFLA
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> CAULIFLA_ARMOR = fullArmorNoHelmetSet("caulifla_armor", "caulifla");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> CHAOZ_ARMOR = fullArmorSet("chaoz_armor", "chaoz");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> COOLER_SOLDIER_ARMOR = fullArmorNoHelmetSet("cooler_soldier_armor", "cooler_soldier");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> CAULIFLA_ARMOR = fullArmorNoHelmetSet("caulifla_armor", "caulifla");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> CHAOZ_ARMOR = fullArmorSet("chaoz_armor", "chaoz");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> COOLER_SOLDIER_ARMOR = fullArmorNoHelmetSet("cooler_soldier_armor", "cooler_soldier");
 	// DEMON GI (AZUL)
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> DEMON_GI_BLUE_ARMOR = fullArmorNoHelmetSet("demon_gi_blue_armor", "demon_gi_gohan");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> DEMON_GI_BLUE_ARMOR = fullArmorNoHelmetSet("demon_gi_blue_armor", "demon_gi_gohan");
 	// DRAGON CLAN
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> DRAGON_CLAN_ARMOR = fullArmorNoHelmetSet("dragon_clan_armor", "dragon_clan");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> EVIL_BUU_ARMOR = fullArmorCapeNoHelmetSet("evil_buu_armor", "evil_buu");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> DRAGON_CLAN_ARMOR = fullArmorNoHelmetSet("dragon_clan_armor", "dragon_clan");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> EVIL_BUU_ARMOR = fullArmorCapeNoHelmetSet("evil_buu_armor", "evil_buu");
 	// FIGHTER
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> FIGHTER_ARMOR = fullArmorNoHelmetSet("fighter_armor", "fighter");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> FIGHTER_ARMOR = fullArmorNoHelmetSet("fighter_armor", "fighter");
 	// FUSED ZAMASU
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> FUSION_ZAMASU_ARMOR = fullArmorNoHelmetSet("fusion_zamasu_armor", "fzamasu_gi");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> FUSION_ZAMASU_ARMOR = fullArmorNoHelmetSet("fusion_zamasu_armor", "fzamasu_gi");
 	// FUTURE GOHAN
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> FUTURE_GOHAN_ARMOR = fullArmorNoHelmetSet("future_gohan_armor", "future_gohan");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> FUTURE_GOHAN_ARMOR = fullArmorNoHelmetSet("future_gohan_armor", "future_gohan");
 	// GAMMA 1
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GAMMA1_ARMOR = fullArmorCapeNoHelmetSet("gamma1_armor", "gamma1");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GAMMA1_ARMOR = fullArmorCapeNoHelmetSet("gamma1_armor", "gamma1");
 	// GAMMA 2
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GAMMA2_ARMOR = fullArmorCapeNoHelmetSet("gamma2_armor", "gamma2");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GAMMA2_ARMOR = fullArmorCapeNoHelmetSet("gamma2_armor", "gamma2");
 	// GAS DBS
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GAS_ARMOR = fullArmorNoHelmetSet("gas_armor", "gas");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GERO_ARMOR = fullArmorNoHelmetSet("gero_armor", "gero");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GAS_ARMOR = fullArmorNoHelmetSet("gas_armor", "gas");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GERO_ARMOR = fullArmorNoHelmetSet("gero_armor", "gero");
 	// GINE
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GINE_ARMOR = fullArmorNoHelmetSet("gine_armor", "gine");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GINE_ARMOR = fullArmorNoHelmetSet("gine_armor", "gine");
 	// GOGETA
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GOGETA_ARMOR = fullArmorNoHelmetSet("gogeta_armor", "gogeta");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GOGETA_ARMOR = fullArmorNoHelmetSet("gogeta_armor", "gogeta");
 	// GOHAN GI (SUPER)
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GOHAN_SUPER_ARMOR = fullArmorNoHelmetSet("gohan_super_armor", "gohan_dbs");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GOHAN_SUPER_ARMOR = fullArmorNoHelmetSet("gohan_super_armor", "gohan_dbs");
 	//GOKU GI
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GOKU_ARMOR = fullArmorNoHelmetSet("goku_armor", "goku_gi");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GOKU_ARMOR = fullArmorNoHelmetSet("goku_armor", "goku_gi");
 	// GOKU GT
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GOKU_GT_ARMOR = fullArmorNoHelmetSet("goku_gt_armor", "goku_gt");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GOKU_GT_ARMOR = fullArmorNoHelmetSet("goku_gt_armor", "goku_gt");
 	// GOKU NIÑO
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GOKU_KID_ARMOR = fullArmorNoHelmetSet("goku_kid_armor", "goku_kid");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GOKU_KID_ARMOR = fullArmorNoHelmetSet("goku_kid_armor", "goku_kid");
 	//Goku Super
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GOKU_SUPER_ARMOR = fullArmorNoHelmetSet("goku_super_armor", "goku_super");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GOKU_SUPER_ARMOR = fullArmorNoHelmetSet("goku_super_armor", "goku_super");
 	// GOKU WHIS GI
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GOKU_WHIS_ARMOR = fullArmorNoHelmetSet("goku_whis_armor", "gokuwhis");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GOKU_WHIS_ARMOR = fullArmorNoHelmetSet("goku_whis_armor", "gokuwhis");
 	// GOTEN Z
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GOTEN_ARMOR = fullArmorNoHelmetSet("goten_armor", "goten_gi");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GOTEN_ARMOR = fullArmorNoHelmetSet("goten_armor", "goten_gi");
 	// GOTEN TEEN (SUPER)
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GOTEN_SUPER_ARMOR = fullArmorNoHelmetSet("goten_super_armor", "goten_dbs");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GOTEN_SUPER_ARMOR = fullArmorNoHelmetSet("goten_super_armor", "goten_dbs");
 	// GRANOLA
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GRANOLA_ARMOR = fullArmorNoHelmetSet("granola_armor", "granola");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GREAT_SAIYAMAN_2_ARMOR = fullArmorCapeSet("great_saiyaman_2_armor", "great_saiyaman_2");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GRANOLA_ARMOR = fullArmorNoHelmetSet("granola_armor", "granola");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GREAT_SAIYAMAN_2_ARMOR = fullArmorCapeSet("great_saiyaman_2_armor", "great_saiyaman_2");
 	// GOHAN GREAT SAIYAMAN
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> GREAT_SAIYAMAN_ARMOR = fullArmorCapeSet("great_saiyaman_armor", "saiyaman_gi");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> GREAT_SAIYAMAN_ARMOR = fullArmorCapeSet("great_saiyaman_armor", "saiyaman_gi");
 	// HIT
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> HIT_ARMOR = fullArmorNoHelmetSet("hit_armor", "hit");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> HIT_ARMOR = fullArmorNoHelmetSet("hit_armor", "hit");
 	//INVENCIBLE
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> INVENCIBLE_ARMOR = fullArmorSet("invencible_armor", "invencible");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> INVENCIBLE_BLUE_ARMOR = fullArmorSet("invencible_blue_armor", "invencible_blue");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> INVENCIBLE_ARMOR = fullArmorSet("invencible_armor", "invencible");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> INVENCIBLE_BLUE_ARMOR = fullArmorSet("invencible_blue_armor", "invencible_blue");
 	// KALE
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> KALE_ARMOR = fullArmorNoHelmetSet("kale_armor", "kale");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> KALE_ARMOR = fullArmorNoHelmetSet("kale_armor", "kale");
 	// KEFLA
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> KEFLA_ARMOR = fullArmorNoHelmetSet("kefla_armor", "kefla");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> KIBITO_ARMOR = fullArmorNoHelmetSet("kibito_armor", "kibito");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> KING_VEGETA_ARMOR = fullArmorCapeNoHelmetSet("king_vegeta_armor", "king_vegeta");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> KEFLA_ARMOR = fullArmorNoHelmetSet("kefla_armor", "kefla");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> KIBITO_ARMOR = fullArmorNoHelmetSet("kibito_armor", "kibito");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> KING_VEGETA_ARMOR = fullArmorCapeNoHelmetSet("king_vegeta_armor", "king_vegeta");
 	// MAJIN 21
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> MAJIN21_ARMOR = fullArmorNoHelmetSet("majin21_armor", "majin21");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> MAJIN21_ARMOR = fullArmorNoHelmetSet("majin21_armor", "majin21");
 	// MAJIN BUU
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> MAJIN_BUU_ARMOR = fullArmorCapeNoHelmetSet("majin_buu_armor", "majinbuu_gi");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> MAJIN_BUU_ARMOR = fullArmorCapeNoHelmetSet("majin_buu_armor", "majinbuu_gi");
 	// MIGHTY MAJIN
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> MIGHTY_MAJIN_ARMOR = fullArmorNoHelmetSet("mighty_majin_armor", "mighty_majin");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> MIGHTY_MAJIN_ARMOR = fullArmorNoHelmetSet("mighty_majin_armor", "mighty_majin");
 	// MYSTIC
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> MYSTIC_ARMOR = fullArmorNoHelmetSet("mystic_armor", "mystic");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> MYSTIC_ARMOR = fullArmorNoHelmetSet("mystic_armor", "mystic");
 	// NARUKE ARMOR
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> NARUKE_ARMOR = fullArmorNoHelmetSet("naruke_armor", "naruke");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> NARUKE_ARMOR = fullArmorNoHelmetSet("naruke_armor", "naruke");
 	// ORANGE STAR HIGH SCHOOL UNIFORM
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> ORANGE_HIGH_ARMOR = fullArmorNoHelmetSet("orange_high_armor", "orange_high");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> ORANGE_HIGH_ARMOR = fullArmorNoHelmetSet("orange_high_armor", "orange_high");
 	// PICCOLO
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> PICCOLO_ARMOR = fullArmorCapeSet("piccolo_armor", "piccolo_gi");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> PICCOLO_ARMOR = fullArmorCapeSet("piccolo_armor", "piccolo_gi");
 	// TROPAS DEL ORGULLO
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> PRIDE_TROOPS_ARMOR = fullArmorNoHelmetSet("pride_troops_armor", "pride_troper");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> RADITZ_ARMOR = fullArmorNoHelmetSet("raditz_armor", "raditz");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> PRIDE_TROOPS_ARMOR = fullArmorNoHelmetSet("pride_troops_armor", "pride_troper");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> RADITZ_ARMOR = fullArmorNoHelmetSet("raditz_armor", "raditz");
 	// SHIN
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> SHIN_ARMOR = fullArmorNoHelmetSet("shin_armor", "kaioshin");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> SLUG_ARMOR = fullArmorSet("slug_armor", "slug");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> SHIN_ARMOR = fullArmorNoHelmetSet("shin_armor", "kaioshin");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> SLUG_ARMOR = fullArmorSet("slug_armor", "slug");
 	// THE STRONGEST
-	public static final Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> STRONGEST_ARMOR = fullArmorNoHelmetSet("strongest_armor", "strongest");
-	public static final Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> SUBARU_NATSUKI_ARC6_ARMOR = fullArmorCapeNoHelmetSet("subaru_natsuki_arc6_armor", "subaru_natsuki_arc6");
-	public static final Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> SUBARU_NATSUKI_ARMOR = fullArmorNoHelmetSet("subaru_natsuki_armor", "subaru_natsuki");
-	public static final Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> SUPER_BUU_ARMOR = fullArmorNoHelmetSet("super_buu_armor", "super_buu");
-	public static final Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> THRAGG_ARMOR = fullArmorNoHelmetSet("thragg_armor", "thragg");
-    public static final Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> GILGAMESH_ARMOR = fullArmorNoHelmetSet("gilgamesh_armor", "gilgamesh");
-    public static final Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> SCARLETBLAZE_ARMOR = fullArmorNoHelmetSet("scarletblaze_armor", "scarletblaze");
+	public static final Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> STRONGEST_ARMOR = fullArmorNoHelmetSet("strongest_armor", "strongest");
+	public static final Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> SUBARU_NATSUKI_ARC6_ARMOR = fullArmorCapeNoHelmetSet("subaru_natsuki_arc6_armor", "subaru_natsuki_arc6");
+	public static final Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> SUBARU_NATSUKI_ARMOR = fullArmorNoHelmetSet("subaru_natsuki_armor", "subaru_natsuki");
+	public static final Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> SUPER_BUU_ARMOR = fullArmorNoHelmetSet("super_buu_armor", "super_buu");
+	public static final Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> THRAGG_ARMOR = fullArmorNoHelmetSet("thragg_armor", "thragg");
+    public static final Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> GILGAMESH_ARMOR = fullArmorNoHelmetSet("gilgamesh_armor", "gilgamesh");
+    public static final Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> SCARLETBLAZE_ARMOR = fullArmorNoHelmetSet("scarletblaze_armor", "scarletblaze");
 
 	// TAIYOU GI
-	public static final Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> TAIYOU_GI_ARMOR = fullArmorPatrollerNoHelmetSet("taiyou_gi_armor", "taiyou_gi");
+	public static final Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> TAIYOU_GI_ARMOR = fullArmorPatrollerNoHelmetSet("taiyou_gi_armor", "taiyou_gi");
     //TIEN
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> TIEN_ARMOR = fullArmorNoHelmetSet("tien_armor", "tenshinhan_armor");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> TIEN_ARMOR = fullArmorNoHelmetSet("tien_armor", "tenshinhan_armor");
 	//TRUNKS KID DBZ
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> TRUNKS_KID_ARMOR = fullArmorNoHelmetSet("trunks_kid_armor", "trunks_gi");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> TRUNKS_KID_ARMOR = fullArmorNoHelmetSet("trunks_kid_armor", "trunks_gi");
 	//TRUNKS SUPER
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> TRUNKS_SUPER_ARMOR = fullArmorNoHelmetSet("trunks_super_armor", "trunks_dbs");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> TRUNKS_SUPER_ARMOR = fullArmorNoHelmetSet("trunks_super_armor", "trunks_dbs");
 	//TRUNKS Z
-	public static final Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> TRUNKS_Z_ARMOR = fullArmorNoHelmetSet("trunks_z_armor", "trunks_armor");
+	public static final Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> TRUNKS_Z_ARMOR = fullArmorNoHelmetSet("trunks_z_armor", "trunks_armor");
 	//TRUNKS XENO
-	public static final Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> TRUNKS_XENO_ARMOR = fullArmorNoHelmetSet("trunks_xeno_armor", "trunks_xeno");
+	public static final Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> TRUNKS_XENO_ARMOR = fullArmorNoHelmetSet("trunks_xeno_armor", "trunks_xeno");
 	// TURLES
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> TURLES_ARMOR = fullArmorNoHelmetSet("turles_armor", "turles_armor");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> TURLES_ARMOR = fullArmorNoHelmetSet("turles_armor", "turles_armor");
 	// VEGETA SAGA BUU
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> VEGETA_BUU_ARMOR = fullArmorNoHelmetSet("vegeta_buu_armor", "vegetabuu");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> VEGETA_BUU_ARMOR = fullArmorNoHelmetSet("vegeta_buu_armor", "vegetabuu");
 	// VEGETA GT
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> VEGETA_GT_ARMOR = fullArmorNoHelmetSet("vegeta_gt_armor", "vegetagt");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> VEGETA_GT_ARMOR = fullArmorNoHelmetSet("vegeta_gt_armor", "vegetagt");
 	// VEGETA SAGA NAMEK
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> VEGETA_NAMEK_ARMOR = fullArmorNoHelmetSet("vegeta_namek_armor", "vegetanamek_armor");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> VEGETA_NAMEK_ARMOR = fullArmorNoHelmetSet("vegeta_namek_armor", "vegetanamek_armor");
 	// VEGETA SAGA SAIYAJIN (Cambiar luego a saiyanArmor para hombreras)
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> VEGETA_SAIYAN_ARMOR = fullArmorNoHelmetSet("vegeta_saiyan_armor", "vegeta_saiyan_armor");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> VEGETA_SAIYAN_ARMOR = fullArmorNoHelmetSet("vegeta_saiyan_armor", "vegeta_saiyan_armor");
 	// VEGETA ARMADURA DE SUPER
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> VEGETA_SUPER_ARMOR = fullArmorNoHelmetSet("vegeta_super_armor", "vegetasuper");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> VEGETA_SUPER_ARMOR = fullArmorNoHelmetSet("vegeta_super_armor", "vegetasuper");
 	// VEGETA WHIS GI
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> VEGETA_WHIS_ARMOR = fullArmorNoHelmetSet("vegeta_whis_armor", "vegetawhis");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> VEGETA_WHIS_ARMOR = fullArmorNoHelmetSet("vegeta_whis_armor", "vegetawhis");
 	// VEGETA SAGA CELL
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> VEGETA_Z_ARMOR = fullArmorNoHelmetSet("vegeta_z_armor", "vegetaz_armor");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> VEGETA_Z_ARMOR = fullArmorNoHelmetSet("vegeta_z_armor", "vegetaz_armor");
 	// VEGETTO
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> VEGETTO_ARMOR = fullArmorNoHelmetSet("vegetto_armor", "vegetto");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> VERGIL_ARMOR = fullArmorNoHelmetSet("vergil_armor", "vergil");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> VEGETTO_ARMOR = fullArmorNoHelmetSet("vegetto_armor", "vegetto");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> VERGIL_ARMOR = fullArmorNoHelmetSet("vergil_armor", "vergil");
 	// VIDEL
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> VIDEL_ARMOR = fullArmorNoHelmetSet("videl_armor", "videl");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> VIDEL_ARMOR = fullArmorNoHelmetSet("videl_armor", "videl");
 	// WARRIOR CLAN
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> WARRIOR_CLAN_ARMOR = fullArmorNoHelmetSet("warrior_clan_armor", "warrior_clan");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> WARRIOR_CLAN_ARMOR = fullArmorNoHelmetSet("warrior_clan_armor", "warrior_clan");
 	// WHIS
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> WHIS_ARMOR = fullArmorNoHelmetSet("whis_armor", "whis");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> WHIS_ARMOR = fullArmorNoHelmetSet("whis_armor", "whis");
 	// WONDER MAJIN
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> WONDER_MAJIN_ARMOR = fullArmorNoHelmetSet("wonder_majin_armor", "wonder_majin");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> XENO_GOKU_ARMOR = fullArmorNoHelmetSet("xeno_goku_armor", "xeno_goku");
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> XENO_GOKU_PATREON_ARMOR = fullArmorNoHelmetSet("xeno_goku_patreon_armor", "xeno_goku_patreon");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> WONDER_MAJIN_ARMOR = fullArmorNoHelmetSet("wonder_majin_armor", "wonder_majin");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> XENO_GOKU_ARMOR = fullArmorNoHelmetSet("xeno_goku_armor", "xeno_goku");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> XENO_GOKU_PATREON_ARMOR = fullArmorNoHelmetSet("xeno_goku_patreon_armor", "xeno_goku_patreon");
 	// YARDRAT
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> YARDRAT_ARMOR = fullArmorNoHelmetSet("yardrat_armor", "yardrat_gi");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> YARDRAT_ARMOR = fullArmorNoHelmetSet("yardrat_armor", "yardrat_gi");
 	// ZAMASU
-	public static final Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> ZAMASU_ARMOR = fullArmorNoHelmetSet("zamasu_armor", "zamasu_gi");
+	public static final Map<ArmorType, DeferredHolder<Item, ? extends Item>> ZAMASU_ARMOR = fullArmorNoHelmetSet("zamasu_armor", "zamasu_gi");
 
 	//LÍQUIDOS
 	public static final DeferredHolder<Item, ? extends Item> HEALING_BUCKET = ITEM_REGISTER.register("healing_liquid_bucket",
-			() -> new BucketItem(MainFluids.SOURCE_HEALING.get(), properties.stacksTo(1)));
+			() -> new BucketItem(MainFluids.SOURCE_HEALING.get(), properties().stacksTo(1)));
 
 	public static final DeferredHolder<Item, ? extends Item> NAMEK_WATER_BUCKET = ITEM_REGISTER.register("namek_water_bucket",
-			() -> new BucketItem(MainFluids.SOURCE_NAMEK.get(), properties.stacksTo(1)));
+			() -> new BucketItem(MainFluids.SOURCE_NAMEK.get(), properties().stacksTo(1)));
 
 	//MINERALES
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> GETE_SCRAP = regItem("gete_scrap");
@@ -384,31 +384,31 @@ public final class MainItems {
 	public static final DeferredHolder<Item, ? extends Item> KI_BATTERY = ITEM_REGISTER.register("ki_battery",
 			() -> new KiBatteryItem());
 	public static final DeferredHolder<Item, ? extends Item> ANTI_KI_CLOAK = ITEM_REGISTER.register("anti_ki_cloak",
-			() -> new DMZCuriosItem(new Item.Properties().stacksTo(1).fireResistant(), DMZCuriosItem.CurioType.HEAD_TECH));
+			() -> new DMZCuriosItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1).fireResistant(), DMZCuriosItem.CurioType.HEAD_TECH));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> DEMON_EYE = ITEM_REGISTER.register("demon_eye",
-			() -> new DMZCuriosItem(new Item.Properties().stacksTo(1).fireResistant().rarity(Rarity.EPIC), DMZCuriosItem.CurioType.HEAD_TECH));
+			() -> new DMZCuriosItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1).fireResistant().rarity(Rarity.EPIC), DMZCuriosItem.CurioType.HEAD_TECH));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> KIKONO_SHARD = regItem("kikono_shard");
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> KIKONO_STICK = regItem("kikono_stick");
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> MAJILITE = regItem("majilite");
 
 	// WEIGHTS
-	public static final DeferredHolder<Item, ? extends Item> WEIGHT_TURTLE_SHELL = ITEM_REGISTER.register("weight_turtle_shell", () -> new WeightItem(new Item.Properties().stacksTo(1), WeightItem.WeightType.TURTLE_SHELL));
-	public static final DeferredHolder<Item, ? extends Item> WORKOUT_WEIGHTS = ITEM_REGISTER.register("workout_weights", () -> new WeightItem(new Item.Properties().stacksTo(1), WeightItem.WeightType.WORKOUT_WEIGHTS));
-	public static final DeferredHolder<Item, ? extends Item> WEIGHT_PICCOLO_CAPE = ITEM_REGISTER.register("weight_piccolo_cape", () -> new WeightItem(new Item.Properties().stacksTo(1), WeightItem.WeightType.PICCOLO_CAPE));
+	public static final DeferredHolder<Item, ? extends Item> WEIGHT_TURTLE_SHELL = ITEM_REGISTER.register("weight_turtle_shell", () -> new WeightItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1), WeightItem.WeightType.TURTLE_SHELL));
+	public static final DeferredHolder<Item, ? extends Item> WORKOUT_WEIGHTS = ITEM_REGISTER.register("workout_weights", () -> new WeightItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1), WeightItem.WeightType.WORKOUT_WEIGHTS));
+	public static final DeferredHolder<Item, ? extends Item> WEIGHT_PICCOLO_CAPE = ITEM_REGISTER.register("weight_piccolo_cape", () -> new WeightItem(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1), WeightItem.WeightType.PICCOLO_CAPE));
 
 	// HERRAMIENTAS
 	public static final DeferredHolder<Item, ? extends Item> PATTERN_GETE = regItem("pattern_gete");
 	public static final DeferredHolder<Item, ? extends Item> GETE_PICKAXE = ITEM_REGISTER.register("gete_pickaxe",
-			() -> new PickaxeItem(ToolTiers.GETE_TIER, new Item.Properties().fireResistant()));
+			() -> new Item(com.dragonminez.platform.registry.RegistrationScope.itemProperties().pickaxe(ToolTiers.GETE_TIER, 1, -2.8F).fireResistant()));
 
 	public static final DeferredHolder<Item, ? extends Item> GETE_AXE = ITEM_REGISTER.register("gete_axe",
-			() -> new AxeItem(ToolTiers.GETE_TIER, new Item.Properties().fireResistant()));
+			() -> new AxeItem(ToolTiers.GETE_TIER, 5.0F, -3.0F, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant()));
 
 	public static final DeferredHolder<Item, ? extends Item> GETE_SHOVEL = ITEM_REGISTER.register("gete_shovel",
-			() -> new ShovelItem(ToolTiers.GETE_TIER, new Item.Properties().fireResistant()));
+			() -> new ShovelItem(ToolTiers.GETE_TIER, 1.5F, -3.0F, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant()));
 
 	public static final DeferredHolder<Item, ? extends Item> GETE_HOE = ITEM_REGISTER.register("gete_hoe",
-			() -> new HoeItem(ToolTiers.GETE_TIER, new Item.Properties().fireResistant()));
+			() -> new HoeItem(ToolTiers.GETE_TIER, -4, 0.0F, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant()));
 
 	//DRAGON BALL RADAR
 	private static final Map<String, DeferredHolder<Item, ? extends Item>> DRAGON_RADAR_ITEMS = registerDragonRadarItems();
@@ -419,28 +419,28 @@ public final class MainItems {
 	public static final DeferredHolder<Item, ? extends Item> NAMEKDBALL_RADAR_ITEM = getDragonRadarItemOrThrow("namek_radar");
 	public static final DeferredHolder<Item, ? extends Item> FUSED_DBALL_RADAR_ITEM = getDragonRadarItemOrThrow("fused_radar");
 	public static final DeferredHolder<Item, ? extends Item> RADAR_PIECE = ITEM_REGISTER.register("radar_piece",
-			() -> new Item(properties.stacksTo(16)));
+			() -> new Item(properties().stacksTo(16)));
 	public static final DeferredHolder<Item, ? extends Item> T1_RADAR_CHIP = ITEM_REGISTER.register("t1_radar_chip",
-			() -> new Item(properties.stacksTo(16)));
+			() -> new Item(properties().stacksTo(16)));
 	public static final DeferredHolder<Item, ? extends Item> T1_RADAR_CPU = ITEM_REGISTER.register("t1_radar_cpu",
-			() -> new Item(properties.stacksTo(16)));
+			() -> new Item(properties().stacksTo(16)));
 	public static final DeferredHolder<Item, ? extends Item> T2_RADAR_CHIP = ITEM_REGISTER.register("t2_radar_chip",
-			() -> new Item(properties.stacksTo(16)));
+			() -> new Item(properties().stacksTo(16)));
 	public static final DeferredHolder<Item, ? extends Item> T2_RADAR_CPU = ITEM_REGISTER.register("t2_radar_cpu",
-			() -> new Item(properties.stacksTo(16)));
+			() -> new Item(properties().stacksTo(16)));
 
 	//ENTIDADES (VEHÍCULOS)
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> NUBE_ITEM = ITEM_REGISTER.register("flying_nimbus", FlyingNimbusItem::new);
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> NUBE_NEGRA_ITEM = ITEM_REGISTER.register("black_nimbus", BlackNimbusItem::new);
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> NAVE_SAIYAN_ITEM = ITEM_REGISTER.register("saiyan_ship", SaiyanShipItem::new);
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> VEHICLE_ENGINE = ITEM_REGISTER.register("vehicle_engine",
-			() -> new Item(new Item.Properties().stacksTo(16)));
+			() -> new Item(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(16)));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> VEHICLE_PROPELLER = ITEM_REGISTER.register("vehicle_propeller",
-			() -> new Item(new Item.Properties().stacksTo(16)));
+			() -> new Item(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(16)));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> VEHICLE_SEAT = ITEM_REGISTER.register("vehicle_seat",
-			() -> new Item(new Item.Properties().stacksTo(16)));
+			() -> new Item(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(16)));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> VEHICLE_PLATING = ITEM_REGISTER.register("vehicle_plating",
-			() -> new Item(new Item.Properties().stacksTo(32)));
+			() -> new Item(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(32)));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> CAR_RED_ITEM = ITEM_REGISTER.register("car_red",
 			() -> new VehicleItem(level -> CarEntity.create(level, CarEntity.Color.RED)));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> CAR_YELLOW_ITEM = ITEM_REGISTER.register("car_yellow",
@@ -494,7 +494,7 @@ public final class MainItems {
 
 	//KIKONO STATION/ARMOR CRAFTING PATTERNS
 	public static final DeferredHolder<Item, ? extends Item> ARMOR_CRAFTING_KIT = ITEM_REGISTER.register("armor_crafting_kit",
-			() -> new ArmorCraftingKitItem(properties.stacksTo(1)));
+			() -> new ArmorCraftingKitItem(properties().stacksTo(1)));
 	public static final DeferredHolder<Item, ? extends Item> KIKONO_STRING = regItem("kikono_string");
 	public static final DeferredHolder<Item, ? extends Item> KIKONO_CLOTH = regItem("kikono_cloth");
 	public static final DeferredHolder<Item, ? extends Item> BLANK_PATTERN_Z = regItem("blank_pattern_z");
@@ -602,135 +602,135 @@ public final class MainItems {
 
 	// SPAWN EGGS
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> DINO_1 = ITEM_REGISTER.register("dino1_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.DINOSAUR1, 0xED5B18, 0x6ED610, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.DINOSAUR1, 0xED5B18, 0x6ED610, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> DINO_2 = ITEM_REGISTER.register("dino2_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.DINOSAUR2, 0xED5B18, 0x6ED610, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.DINOSAUR2, 0xED5B18, 0x6ED610, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> DINO_3 = ITEM_REGISTER.register("dino3_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.DINOSAUR3, 0xED5B18, 0x6ED610, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.DINOSAUR3, 0xED5B18, 0x6ED610, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> DINO_KID = ITEM_REGISTER.register("dinokid_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.DINO_KID, 0xED5B18, 0x6ED610, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.DINO_KID, 0xED5B18, 0x6ED610, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> GIRAN_SE = ITEM_REGISTER.register("giran_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.WILD_GIRAN, 0x4E8A3A, 0xC9A66B, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.WILD_GIRAN, 0x4E8A3A, 0xC9A66B, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> NAMEK_FROG_SE = ITEM_REGISTER.register("namek_frog_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.NAMEK_FROG, 0x22C96B, 0xD62B52, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.NAMEK_FROG, 0x22C96B, 0xD62B52, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> GINYU_FROG_SE = ITEM_REGISTER.register("ginyu_frog_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.NAMEK_FROG_GINYU, 0x22C96B, 0x6D0480, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.NAMEK_FROG_GINYU, 0x22C96B, 0x6D0480, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> GIANT_FISH_SE = ITEM_REGISTER.register("giant_fish_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.GIANT_FISH, 0x2E6E9E, 0xD9E4EC, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.GIANT_FISH, 0x2E6E9E, 0xD9E4EC, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> GIANT_TURTLE_SE = ITEM_REGISTER.register("giant_turtle_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.GIANT_TURTLE, 0x4C7A3F, 0xC7B27A, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.GIANT_TURTLE, 0x4C7A3F, 0xC7B27A, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> SOLDIER01_SE = ITEM_REGISTER.register("soldier01_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.SAGA_FRIEZA_SOLDIER, 0x010714, 0xE6E7EB, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.SAGA_FRIEZA_SOLDIER, 0x010714, 0xE6E7EB, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> SOLDIER02_SE = ITEM_REGISTER.register("soldier02_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.SAGA_FRIEZA_SOLDIER2, 0X5D1066, 0xA18B33, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.SAGA_FRIEZA_SOLDIER2, 0X5D1066, 0xA18B33, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> SOLDIER03_SE = ITEM_REGISTER.register("soldier03_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.SAGA_FRIEZA_SOLDIER3, 0x95F0CB, 0xDABAE6, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.SAGA_FRIEZA_SOLDIER3, 0x95F0CB, 0xDABAE6, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> NWARRIOR_SE = ITEM_REGISTER.register("nwarrior_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.NAMEK_WARRIOR, 0x246E18, 0x12848A, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.NAMEK_WARRIOR, 0x246E18, 0x12848A, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> DEMON_VILLAGER_SE = ITEM_REGISTER.register("demon_villager_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.DEMON_VILLAGER, 0xA1DAF0, 0xF2C2FF, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.DEMON_VILLAGER, 0xA1DAF0, 0xF2C2FF, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> TIME_PATROLLER_SE = ITEM_REGISTER.register("time_patroller_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.TIME_PATROLLER, 0xA1DAF0, 0x2B3A8C, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.TIME_PATROLLER, 0xA1DAF0, 0x2B3A8C, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> SAIBAMAN_SE = ITEM_REGISTER.register("saibaman_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.SAGA_SAIBAMAN, 0x6ED610, 0x2A6E18, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.SAGA_SAIBAMAN, 0x6ED610, 0x2A6E18, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> KAIWAREMAN_SE = ITEM_REGISTER.register("kaiwareman_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.SAGA_SAIBAMAN2, 0x54e8b2, 0x298ba3, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.SAGA_SAIBAMAN2, 0x54e8b2, 0x298ba3, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> KYUKONMAN_SE = ITEM_REGISTER.register("kyukonman_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.SAGA_SAIBAMAN3, 0xe6d575, 0x6b5e12, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.SAGA_SAIBAMAN3, 0xe6d575, 0x6b5e12, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> COPYMAN_SE = ITEM_REGISTER.register("copyman_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.SAGA_SAIBAMAN4, 0x47463d, 0x242321, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.SAGA_SAIBAMAN4, 0x47463d, 0x242321, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> TENNENMAN_SE = ITEM_REGISTER.register("tennenman_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.SAGA_SAIBAMAN5, 0xb971d1, 0x298ba3, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.SAGA_SAIBAMAN5, 0xb971d1, 0x298ba3, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> JINKOUMAN_SE = ITEM_REGISTER.register("jinkouman_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.SAGA_SAIBAMAN6, 0xb3acb5, 0x242321, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.SAGA_SAIBAMAN6, 0xb3acb5, 0x242321, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> BIOMAN_SE = ITEM_REGISTER.register("bioman_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.SAGA_BIOMAN, 0x78D4D4, 0x3E5294, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.SAGA_BIOMAN, 0x78D4D4, 0x3E5294, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> EVIL_CLONE_GOKU_SE = ITEM_REGISTER.register("evil_clone_goku_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.EVIL_CLONE_GOKU, 0x2E2E33, 0xF7F0B8, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.EVIL_CLONE_GOKU, 0x2E2E33, 0xF7F0B8, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> EVIL_CLONE_VEGETA_SE = ITEM_REGISTER.register("evil_clone_vegeta_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.EVIL_CLONE_VEGETA, 0x2E2E33, 0x8C8C92, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.EVIL_CLONE_VEGETA, 0x2E2E33, 0x8C8C92, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> EVIL_CLONE_PICCOLO_SE = ITEM_REGISTER.register("evil_clone_piccolo_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.EVIL_CLONE_PICCOLO, 0x2E2E33, 0x80B240, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.EVIL_CLONE_PICCOLO, 0x2E2E33, 0x80B240, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> EVIL_CLONE_NAPPA_SE = ITEM_REGISTER.register("evil_clone_nappa_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.EVIL_CLONE_NAPPA, 0x2E2E33, 0xC8C3B8, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.EVIL_CLONE_NAPPA, 0x2E2E33, 0xC8C3B8, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> EVIL_CLONE_KRILLIN_SE = ITEM_REGISTER.register("evil_clone_krillin_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.EVIL_CLONE_KRILLIN, 0x2E2E33, 0xF0D0B8, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.EVIL_CLONE_KRILLIN, 0x2E2E33, 0xF0D0B8, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> REDRIBBONSOLDIER_SE = ITEM_REGISTER.register("redribbon_soldier_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.RED_RIBBON_SOLDIER, 0xe6975e, 0xe63c29, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.RED_RIBBON_SOLDIER, 0xe6975e, 0xe63c29, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> REDRIBBONROBOT1_SE = ITEM_REGISTER.register("redribbon_robot1_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.RED_RIBBON_ROBOT1, 0xe6975e, 0xe63c29, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.RED_RIBBON_ROBOT1, 0xe6975e, 0xe63c29, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> REDRIBBONROBOT2_SE = ITEM_REGISTER.register("redribbon_robot2_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.RED_RIBBON_ROBOT2, 0xe6975e, 0xe63c29, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.RED_RIBBON_ROBOT2, 0xe6975e, 0xe63c29, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> REDRIBBONROBOT3_SE = ITEM_REGISTER.register("redribbon_robot3_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.RED_RIBBON_ROBOT3, 0xe6975e, 0xe63c29, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.RED_RIBBON_ROBOT3, 0xe6975e, 0xe63c29, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> BANDIT_SE = ITEM_REGISTER.register("bandit_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.BANDIT, 0x8B4513, 0xFFFF00, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.BANDIT, 0x8B4513, 0xFFFF00, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> OGRE_RED_SE = ITEM_REGISTER.register("ogre_red_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.SAGA_OGRE_RED, 0xC62828, 0xE3F2FD, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.SAGA_OGRE_RED, 0xC62828, 0xE3F2FD, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 	public static final DeferredHolder<net.minecraft.world.item.Item, ? extends Item> OGRE_BLUE_SE = ITEM_REGISTER.register("ogre_blue_spawn_egg", () ->
-			new DeferredSpawnEggItem(MainEntities.SAGA_OGRE_BLUE, 0x42A5F5, 0xE3F2FD, new Item.Properties()));
+			new DeferredSpawnEggItem(MainEntities.SAGA_OGRE_BLUE, 0x42A5F5, 0xE3F2FD, com.dragonminez.platform.registry.RegistrationScope.itemProperties()));
 
 
 	public static DeferredHolder<net.minecraft.world.item.Item, ? extends Item> regItem(String name) {
-		return ITEM_REGISTER.register(name, () -> new Item(properties.stacksTo(64)));
+		return ITEM_REGISTER.register(name, () -> new Item(properties().stacksTo(64)));
 	}
 
 	private static DeferredHolder<Item, ? extends Item> regMusicDisc(String name, DeferredHolder<SoundEvent, ? extends SoundEvent> sound, int lengthInTicks) {
-		DeferredHolder<Item, ? extends Item> disc = ITEM_REGISTER.register(name, () -> new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
+		DeferredHolder<Item, ? extends Item> disc = ITEM_REGISTER.register(name, () -> new Item(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1).rarity(Rarity.RARE)));
 		MUSIC_DISCS.add(disc);
 		return disc;
 	}
 
-	private static Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> registerArmorSet(String name, String texture, boolean hasHelmet) {
-		Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> armorPieces = new HashMap<>();
-		if (hasHelmet) armorPieces.put(ArmorItem.Type.HELMET, ITEM_REGISTER.register(name + "_helmet", () -> new DbzArmorItem(ModArmorMaterials.KIKONO, ArmorItem.Type.HELMET, new Item.Properties().fireResistant().stacksTo(1), texture)));
-		armorPieces.put(ArmorItem.Type.CHESTPLATE, ITEM_REGISTER.register(name + "_chestplate", () -> new DbzArmorItem(ModArmorMaterials.KIKONO, ArmorItem.Type.CHESTPLATE, new Item.Properties().fireResistant().stacksTo(1), texture)));
-		armorPieces.put(ArmorItem.Type.LEGGINGS, ITEM_REGISTER.register(name + "_leggings", () -> new DbzArmorItem(ModArmorMaterials.KIKONO, ArmorItem.Type.LEGGINGS, new Item.Properties().fireResistant().stacksTo(1), texture)));
-		armorPieces.put(ArmorItem.Type.BOOTS, ITEM_REGISTER.register(name + "_boots", () -> new DbzArmorItem(ModArmorMaterials.KIKONO, ArmorItem.Type.BOOTS, new Item.Properties().fireResistant().stacksTo(1), texture)));
+	private static Map<ArmorType, DeferredHolder<Item, ? extends Item>> registerArmorSet(String name, String texture, boolean hasHelmet) {
+		Map<ArmorType, DeferredHolder<Item, ? extends Item>> armorPieces = new HashMap<>();
+		if (hasHelmet) armorPieces.put(ArmorType.HELMET, ITEM_REGISTER.register(name + "_helmet", () -> new DbzArmorItem(ModArmorMaterials.KIKONO, ArmorType.HELMET, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), texture)));
+		armorPieces.put(ArmorType.CHESTPLATE, ITEM_REGISTER.register(name + "_chestplate", () -> new DbzArmorItem(ModArmorMaterials.KIKONO, ArmorType.CHESTPLATE, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), texture)));
+		armorPieces.put(ArmorType.LEGGINGS, ITEM_REGISTER.register(name + "_leggings", () -> new DbzArmorItem(ModArmorMaterials.KIKONO, ArmorType.LEGGINGS, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), texture)));
+		armorPieces.put(ArmorType.BOOTS, ITEM_REGISTER.register(name + "_boots", () -> new DbzArmorItem(ModArmorMaterials.KIKONO, ArmorType.BOOTS, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), texture)));
 		return armorPieces;
 	}
 
-	private static Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> registerArmorSetCape(String name, String texture, boolean hasHelmet) {
-		Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> armorPieces = new HashMap<>();
+	private static Map<ArmorType, DeferredHolder<Item, ? extends Item>> registerArmorSetCape(String name, String texture, boolean hasHelmet) {
+		Map<ArmorType, DeferredHolder<Item, ? extends Item>> armorPieces = new HashMap<>();
 		if (hasHelmet) {
-			armorPieces.put(ArmorItem.Type.HELMET, ITEM_REGISTER.register(name + "_helmet", () -> new DbzArmorCapeItem(ModArmorMaterials.KIKONO, ArmorItem.Type.HELMET, new Item.Properties().fireResistant().stacksTo(1), texture)));
+			armorPieces.put(ArmorType.HELMET, ITEM_REGISTER.register(name + "_helmet", () -> new DbzArmorCapeItem(ModArmorMaterials.KIKONO, ArmorType.HELMET, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), texture)));
 		}
-		armorPieces.put(ArmorItem.Type.CHESTPLATE, ITEM_REGISTER.register(name + "_chestplate", () -> new DbzArmorCapeItem(ModArmorMaterials.KIKONO, ArmorItem.Type.CHESTPLATE, new Item.Properties().fireResistant().stacksTo(1), texture)));
-		armorPieces.put(ArmorItem.Type.LEGGINGS, ITEM_REGISTER.register(name + "_leggings", () -> new DbzArmorCapeItem(ModArmorMaterials.KIKONO, ArmorItem.Type.LEGGINGS, new Item.Properties().fireResistant().stacksTo(1), texture)));
-		armorPieces.put(ArmorItem.Type.BOOTS, ITEM_REGISTER.register(name + "_boots", () -> new DbzArmorCapeItem(ModArmorMaterials.KIKONO, ArmorItem.Type.BOOTS, new Item.Properties().fireResistant().stacksTo(1), texture)));
+		armorPieces.put(ArmorType.CHESTPLATE, ITEM_REGISTER.register(name + "_chestplate", () -> new DbzArmorCapeItem(ModArmorMaterials.KIKONO, ArmorType.CHESTPLATE, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), texture)));
+		armorPieces.put(ArmorType.LEGGINGS, ITEM_REGISTER.register(name + "_leggings", () -> new DbzArmorCapeItem(ModArmorMaterials.KIKONO, ArmorType.LEGGINGS, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), texture)));
+		armorPieces.put(ArmorType.BOOTS, ITEM_REGISTER.register(name + "_boots", () -> new DbzArmorCapeItem(ModArmorMaterials.KIKONO, ArmorType.BOOTS, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), texture)));
 		return armorPieces;
 	}
 
-	public static Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> fullArmorSet(String itemId, String textureId) {
+	public static Map<ArmorType, DeferredHolder<Item, ? extends Item>> fullArmorSet(String itemId, String textureId) {
 		return registerArmorSet(itemId, textureId, true);
 	}
 
-	public static Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> fullArmorNoHelmetSet(String itemId, String textureId) {
+	public static Map<ArmorType, DeferredHolder<Item, ? extends Item>> fullArmorNoHelmetSet(String itemId, String textureId) {
 		return registerArmorSet(itemId, textureId, false);
 	}
 
-	public static Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> fullArmorCapeSet(String itemId, String textureId) {
+	public static Map<ArmorType, DeferredHolder<Item, ? extends Item>> fullArmorCapeSet(String itemId, String textureId) {
 		return registerArmorSetCape(itemId, textureId, true);
 	}
 
-	public static Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> fullArmorCapeNoHelmetSet(String itemId, String textureId) {
+	public static Map<ArmorType, DeferredHolder<Item, ? extends Item>> fullArmorCapeNoHelmetSet(String itemId, String textureId) {
 		return registerArmorSetCape(itemId, textureId, false);
 	}
 
-	private static Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> registerArmorSetPatroller(String name, String texture, boolean hasHelmet) {
-		Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> armorPieces = new HashMap<>();
-		if (hasHelmet) armorPieces.put(ArmorItem.Type.HELMET, ITEM_REGISTER.register(name + "_helmet", () -> new DbzArmorPatrollerItem(ModArmorMaterials.KIKONO, ArmorItem.Type.HELMET, new Item.Properties().fireResistant().stacksTo(1), texture)));
-		armorPieces.put(ArmorItem.Type.CHESTPLATE, ITEM_REGISTER.register(name + "_chestplate", () -> new DbzArmorPatrollerItem(ModArmorMaterials.KIKONO, ArmorItem.Type.CHESTPLATE, new Item.Properties().fireResistant().stacksTo(1), texture)));
-		armorPieces.put(ArmorItem.Type.LEGGINGS, ITEM_REGISTER.register(name + "_leggings", () -> new DbzArmorPatrollerItem(ModArmorMaterials.KIKONO, ArmorItem.Type.LEGGINGS, new Item.Properties().fireResistant().stacksTo(1), texture)));
-		armorPieces.put(ArmorItem.Type.BOOTS, ITEM_REGISTER.register(name + "_boots", () -> new DbzArmorPatrollerItem(ModArmorMaterials.KIKONO, ArmorItem.Type.BOOTS, new Item.Properties().fireResistant().stacksTo(1), texture)));
+	private static Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> registerArmorSetPatroller(String name, String texture, boolean hasHelmet) {
+		Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> armorPieces = new HashMap<>();
+		if (hasHelmet) armorPieces.put(ArmorType.HELMET, ITEM_REGISTER.register(name + "_helmet", () -> new DbzArmorPatrollerItem(ModArmorMaterials.KIKONO, ArmorType.HELMET, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), texture)));
+		armorPieces.put(ArmorType.CHESTPLATE, ITEM_REGISTER.register(name + "_chestplate", () -> new DbzArmorPatrollerItem(ModArmorMaterials.KIKONO, ArmorType.CHESTPLATE, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), texture)));
+		armorPieces.put(ArmorType.LEGGINGS, ITEM_REGISTER.register(name + "_leggings", () -> new DbzArmorPatrollerItem(ModArmorMaterials.KIKONO, ArmorType.LEGGINGS, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), texture)));
+		armorPieces.put(ArmorType.BOOTS, ITEM_REGISTER.register(name + "_boots", () -> new DbzArmorPatrollerItem(ModArmorMaterials.KIKONO, ArmorType.BOOTS, com.dragonminez.platform.registry.RegistrationScope.itemProperties().fireResistant().stacksTo(1), texture)));
 		return armorPieces;
 	}
 
-	public static Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> fullArmorPatrollerSet(String itemId, String textureId) {
+	public static Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> fullArmorPatrollerSet(String itemId, String textureId) {
 		return registerArmorSetPatroller(itemId, textureId, true);
 	}
 
-	public static Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> fullArmorPatrollerNoHelmetSet(String itemId, String textureId) {
+	public static Map<ArmorType, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> fullArmorPatrollerNoHelmetSet(String itemId, String textureId) {
 		return registerArmorSetPatroller(itemId, textureId, false);
 	}
 
@@ -742,7 +742,7 @@ public final class MainItems {
 				int star = entry.getKey();
 				String registryName = entry.getValue();
 				DeferredHolder<net.minecraft.world.item.Item, ? extends Item> item = ITEM_REGISTER.register(registryName,
-						() -> new DragonBallBlockItem(MainBlocks.getDragonBallBlockOrThrow(definition.getId(), star).get(), new Item.Properties().stacksTo(1).fireResistant()));
+						() -> new DragonBallBlockItem(MainBlocks.getDragonBallBlockOrThrow(definition.getId(), star).get(), com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(1).fireResistant()));
 				setItems.put(star, item);
 			}
 			registered.put(definition.getId(), Map.copyOf(setItems));
@@ -776,7 +776,7 @@ public final class MainItems {
 		Map<String, DeferredHolder<Item, ? extends Item>> registered = new LinkedHashMap<>();
 		for (DragonRadarDefinition definition : DragonBallDefinitions.getBootstrapRadars()) {
 			definition.getChipRegistryName().ifPresent(registryName -> {
-				DeferredHolder<Item, ? extends Item> item = ITEM_REGISTER.register(registryName, () -> new Item(properties.stacksTo(16)));
+				DeferredHolder<Item, ? extends Item> item = ITEM_REGISTER.register(registryName, () -> new Item(properties().stacksTo(16)));
 				registered.put(definition.getId(), item);
 			});
 		}
@@ -787,7 +787,7 @@ public final class MainItems {
 		Map<String, DeferredHolder<Item, ? extends Item>> registered = new LinkedHashMap<>();
 		for (DragonRadarDefinition definition : DragonBallDefinitions.getBootstrapRadars()) {
 			definition.getCpuRegistryName().ifPresent(registryName -> {
-				DeferredHolder<Item, ? extends Item> item = ITEM_REGISTER.register(registryName, () -> new Item(properties.stacksTo(16)));
+				DeferredHolder<Item, ? extends Item> item = ITEM_REGISTER.register(registryName, () -> new Item(properties().stacksTo(16)));
 				registered.put(definition.getId(), item);
 			});
 		}
@@ -810,7 +810,7 @@ public final class MainItems {
 		return DRAGON_RADAR_CPU_ITEMS.get(radarId);
 	}
 
-	public static void register(IEventBus bus) {
-		ITEM_REGISTER.register(bus);
+	public static void register() {
+		ITEM_REGISTER.register();
 	}
 }

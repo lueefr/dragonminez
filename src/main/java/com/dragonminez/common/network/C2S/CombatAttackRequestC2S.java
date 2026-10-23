@@ -12,19 +12,12 @@ import com.dragonminez.common.combat.logic.player.TargetHelper;
 import com.dragonminez.common.combat.weapon.WeaponAttributes;
 import com.dragonminez.common.training.MinigameSessionManager;
 import lombok.Getter;
-import com.dragonminez.common.combat.util.SoundHelper;
-import com.dragonminez.common.network.NetworkHandler;
-import com.dragonminez.common.network.S2C.MeleeAnimationS2C;
-import com.dragonminez.common.stats.StatsCapability;
-import com.dragonminez.common.stats.StatsProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
 import com.dragonminez.compat.network.NetworkEvent;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -85,7 +78,7 @@ public class CombatAttackRequestC2S {
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
-		long arrivalNanos = System.nanoTime();
+		long arrivalNanos = ctx.get().receivedNanos();
 		ctx.get().enqueueWork(() -> {
 			ServerPlayer player = ctx.get().getSender();
 			if (player == null) return;
@@ -179,10 +172,10 @@ public class CombatAttackRequestC2S {
 					struckOwners.add(owner);
 
 					if (firstHit) {
-						player.getPersistentData().putBoolean("dmz_first_hit", true);
+						com.dragonminez.platform.entity.EntityData.get(player).putBoolean("dmz_first_hit", true);
 						firstHit = false;
 					} else {
-						player.getPersistentData().putBoolean("dmz_first_hit", false);
+						com.dragonminez.platform.entity.EntityData.get(player).putBoolean("dmz_first_hit", false);
 					}
 					TargetHelper.onSuccessfulAttack(player, entity, relation);
 					TargetHelper.attackApproved(player, entity);
@@ -191,7 +184,7 @@ public class CombatAttackRequestC2S {
 					((ConfigurableKnockback) livingEntity).setKnockbackMultiplier(1.0F);
 				}
 			}
-			player.getPersistentData().remove("dmz_first_hit");
+			com.dragonminez.platform.entity.EntityData.get(player).remove("dmz_first_hit");
 			player.resetLastActionTime();
 			if (comboAttributes != null) player.getAttributes().removeAttributeModifiers(comboAttributes);
 			if (dualWieldingAttributes != null) player.getAttributes().removeAttributeModifiers(dualWieldingAttributes);

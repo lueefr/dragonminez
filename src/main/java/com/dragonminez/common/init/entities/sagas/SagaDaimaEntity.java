@@ -710,7 +710,7 @@ public class SagaDaimaEntity {
         @Override
         public void tick() {
             super.tick();
-            if (this.level().isClientSide || !this.isAlive()) return;
+            if (this.level().isClientSide() || !this.isAlive()) return;
 
             float damageTaken = Mth.clamp(1.0F - this.getHealth() / this.getMaxHealth(), 0.0F, 1.0F);
             float target = Mth.lerp(damageTaken, BASE_SCALE, MAX_SCALE);
@@ -793,8 +793,9 @@ public class SagaDaimaEntity {
         }
 
         @Override
-        public void readAdditionalSaveData(CompoundTag pCompound) {
-            super.readAdditionalSaveData(pCompound);
+        public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+            super.readAdditionalSaveData(dmz$input);
             this.applyScale();
         }
     }
@@ -886,16 +887,17 @@ public class SagaDaimaEntity {
         }
 
         @Override
-        public void readAdditionalSaveData(CompoundTag pCompound) {
-            super.readAdditionalSaveData(pCompound);
+        public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+            super.readAdditionalSaveData(dmz$input);
             this.applyTamagamiScale();
         }
 
         @Override
         public void tick() {
             super.tick();
-            CompoundTag data = this.getPersistentData();
-            if (!this.level().isClientSide && !data.contains(ANCHOR_X)) {
+            CompoundTag data = com.dragonminez.platform.entity.EntityData.get(this);
+            if (!this.level().isClientSide() && !data.contains(ANCHOR_X)) {
                 data.putDouble(ANCHOR_X, this.getX());
                 data.putDouble(ANCHOR_Y, this.getY());
                 data.putDouble(ANCHOR_Z, this.getZ());
@@ -906,10 +908,10 @@ public class SagaDaimaEntity {
         protected void finishTransformationSpawn(DBSagasEntity newEntity, boolean fullHealth) {
             float healthFraction = this.getHealth() / this.getMaxHealth();
             super.finishTransformationSpawn(newEntity, fullHealth);
-            if (newEntity != null && !this.level().isClientSide) {
+            if (newEntity != null && !this.level().isClientSide()) {
                 newEntity.setHealth(Math.max(1.0F, newEntity.getMaxHealth() * healthFraction));
-                CompoundTag from = this.getPersistentData();
-                CompoundTag to = newEntity.getPersistentData();
+                CompoundTag from = com.dragonminez.platform.entity.EntityData.get(this);
+                CompoundTag to = com.dragonminez.platform.entity.EntityData.get(newEntity);
                 for (String key : CARRIED_TAGS) {
                     Tag value = from.get(key);
                     if (value != null) to.put(key, value.copy());
@@ -924,7 +926,7 @@ public class SagaDaimaEntity {
         @Override
         public void remove(RemovalReason reason) {
             if (reason == RemovalReason.KILLED && this.level() instanceof ServerLevel serverLevel
-                    && QuestService.hasPendingKills(serverLevel, this.getPersistentData())) {
+                    && QuestService.hasPendingKills(serverLevel, com.dragonminez.platform.entity.EntityData.get(this))) {
                 this.reform(serverLevel);
             }
             super.remove(reason);
@@ -934,14 +936,14 @@ public class SagaDaimaEntity {
             TamagamiEntity reformed = this.reformType().create(level);
             if (reformed == null) return;
 
-            CompoundTag data = this.getPersistentData();
-            double x = data.contains(ANCHOR_X) ? data.getDouble(ANCHOR_X) : this.getX();
-            double y = data.contains(ANCHOR_Y) ? data.getDouble(ANCHOR_Y) : this.getY();
-            double z = data.contains(ANCHOR_Z) ? data.getDouble(ANCHOR_Z) : this.getZ();
+            CompoundTag data = com.dragonminez.platform.entity.EntityData.get(this);
+            double x = data.contains(ANCHOR_X) ? data.getDoubleOr(ANCHOR_X, 0D) : this.getX();
+            double y = data.contains(ANCHOR_Y) ? data.getDoubleOr(ANCHOR_Y, 0D) : this.getY();
+            double z = data.contains(ANCHOR_Z) ? data.getDoubleOr(ANCHOR_Z, 0D) : this.getZ();
 
             CompoundTag carried = data.copy();
             carried.remove("dmz_stats_configured");
-            reformed.getPersistentData().merge(carried);
+            com.dragonminez.platform.entity.EntityData.get(reformed).merge(carried);
             reformed.moveTo(x, y, z, this.getYRot(), 0.0F);
 
             Player owner = this.questOwner(level);
@@ -954,7 +956,7 @@ public class SagaDaimaEntity {
 
         private Player questOwner(ServerLevel level) {
             try {
-                return level.getServer().getPlayerList().getPlayer(UUID.fromString(this.getPersistentData().getString(QuestService.QUEST_OWNER_TAG)));
+                return level.getServer().getPlayerList().getPlayer(UUID.fromString(com.dragonminez.platform.entity.EntityData.get(this).getStringOr(QuestService.QUEST_OWNER_TAG, "")));
             } catch (IllegalArgumentException e) {
                 return null;
             }

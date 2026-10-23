@@ -78,7 +78,7 @@ public class KiDiskEntity extends AbstractKiProjectile {
         this.setCastOffsets(0.4F, 0.7F, 0.2F);
         this.playInitialSound(MainSounds.KI_EXPLOSION_CHARGE.get());
         updatePositionRelativeToOwner(owner);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -98,7 +98,7 @@ public class KiDiskEntity extends AbstractKiProjectile {
         this.setCastTime(40);
         this.setCastOffsets(0.4F, 0.7F, 0.2F);
         updatePositionRelativeToOwner(owner);
-        
+
     }
 
     public void setupKiDiskPlayer(LivingEntity owner, float damage, float speed, int color, float size) {
@@ -144,7 +144,7 @@ public class KiDiskEntity extends AbstractKiProjectile {
                 updatePositionRelativeToOwner(livingOwner);
                 this.setDeltaMovement(0, 0, 0);
                 this.setXRot(-90.0F);
-            } else if (!this.level().isClientSide) {
+            } else if (!this.level().isClientSide()) {
                 this.discard();
                 return;
             }
@@ -193,14 +193,14 @@ public class KiDiskEntity extends AbstractKiProjectile {
 
     @Override
     protected void onKiTick() {
-        if (!this.level().isClientSide && this.getOwner() == null) {
+        if (!this.level().isClientSide() && this.getOwner() == null) {
             this.discard();
             return;
         }
 
         boolean isFiring = this.isFiring();
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (!isFiring) {
                 if (this.tickCount == 1) {
                     this.playSound(MainSounds.KI_DISK_CHARGE.get(), 0.7F, 1.2F);
@@ -213,7 +213,7 @@ public class KiDiskEntity extends AbstractKiProjectile {
             }
         }
 
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             float[] rgb = ColorUtils.rgbIntToFloat(this.getColor());
             float scale = this.getSize();
 
@@ -341,15 +341,22 @@ public class KiDiskEntity extends AbstractKiProjectile {
     public void setFiring(boolean firing) { this.entityData.set(IS_FIRING, firing); }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putInt("CastTime", getCastTime());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        if (pCompound.contains("CastTime")) setCastTime(pCompound.getInt("CastTime"));
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        if (pCompound.contains("CastTime")) setCastTime(pCompound.getIntOr("CastTime", 0));
     }
 
     @Override
@@ -357,7 +364,7 @@ public class KiDiskEntity extends AbstractKiProjectile {
         if (!this.isFiring()) return;
         super.onHitEntity(pResult);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             Entity targetEntity = pResult.getEntity();
             if (this.shouldDamage(targetEntity)) {
                 boolean wasHit = this.applyDamageOrHeal(targetEntity, this.getKiDamage());
@@ -380,7 +387,7 @@ public class KiDiskEntity extends AbstractKiProjectile {
     }
 
     private void tryCutSaiyanTail(Entity targetEntity) {
-        if (this.level().isClientSide) return;
+        if (this.level().isClientSide()) return;
         if (!(targetEntity instanceof ServerPlayer targetPlayer)) return;
 
         StatsData data = StatsProvider.get(StatsCapability.INSTANCE, targetPlayer).orElse(null);

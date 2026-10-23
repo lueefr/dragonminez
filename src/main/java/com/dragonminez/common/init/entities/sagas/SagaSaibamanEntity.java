@@ -18,11 +18,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 import java.util.List;
 
@@ -115,9 +115,9 @@ public class SagaSaibamanEntity extends DBSagasEntity{
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "base_controller", 5, this::walkPredicate));
-        controllers.add(new AnimationController<>(this, "attack_controller", 0, this::attackPredicate));
-        controllers.add(new AnimationController<>(this, HURT_CONTROLLER, 0, DBSagasAnimationHandler::hurtPredicate)
+        controllers.add(new AnimationController<>("base_controller", 5, this::walkPredicate));
+        controllers.add(new AnimationController<>("attack_controller", 0, this::attackPredicate));
+        controllers.add(new AnimationController<>(HURT_CONTROLLER, 0, DBSagasAnimationHandler::hurtPredicate)
                 .triggerableAnim(HURT_ANIM_LEFT, DBSagasAnimations.ANIM_HURT_LEFT)
                 .triggerableAnim(HURT_ANIM_RIGHT, DBSagasAnimations.ANIM_HURT_RIGHT)
                 .triggerableAnim(HURT_ANIM_GODFIST, DBSagasAnimations.ANIM_HURT_GODFIST)
@@ -126,41 +126,41 @@ public class SagaSaibamanEntity extends DBSagasEntity{
                 .triggerableAnim(HURT_ANIM_DOWN, DBSagasAnimations.ANIM_HURT_DOWN)
                 .triggerableAnim(HURT_ANIM_PARRIED, DBSagasAnimations.ANIM_HURT_PARRIED)
                 .receiveTriggeredAnimations());
-        controllers.add(new AnimationController<>(this, "explode_controller", 0, this::explodePredicate));
+        controllers.add(new AnimationController<>("explode_controller", 0, this::explodePredicate));
     }
 
-    private <T extends GeoAnimatable> PlayState explodePredicate(AnimationState<T> event) {
+    private <T extends GeoAnimatable> PlayState explodePredicate(AnimationTest<T> event) {
         if (this.isExploding()) {
-            event.getController().setAnimation(RawAnimation.begin().thenPlay("explode"));
+            event.controller().setAnimation(RawAnimation.begin().thenPlay("explode"));
             return PlayState.CONTINUE;
         }
         return PlayState.STOP;
     }
 
-    private <T extends GeoAnimatable> PlayState walkPredicate(AnimationState<T> event) {
-        DBSagasEntity entity = (DBSagasEntity) event.getAnimatable();
+    private <T extends GeoAnimatable> PlayState walkPredicate(AnimationTest<T> event) {
+        DBSagasEntity entity = (DBSagasEntity) event.animatable();
         if (event.isMoving()) {
             if (entity.isAggressive() || entity.getTarget() != null) {
-                event.getController().setAnimation(DBSagasAnimations.ANIM_RUN);
+                event.controller().setAnimation(DBSagasAnimations.ANIM_RUN);
             } else {
-                event.getController().setAnimation(DBSagasAnimations.ANIM_WALK);
+                event.controller().setAnimation(DBSagasAnimations.ANIM_WALK);
             }
             return PlayState.CONTINUE;
         }
-        event.getController().setAnimation(DBSagasAnimations.ANIM_IDLE);
+        event.controller().setAnimation(DBSagasAnimations.ANIM_IDLE);
         return PlayState.CONTINUE;
     }
 
-    private <T extends GeoAnimatable> PlayState attackPredicate(AnimationState<T> event) {
-        DBSagasEntity entity = (DBSagasEntity) event.getAnimatable();
+    private <T extends GeoAnimatable> PlayState attackPredicate(AnimationTest<T> event) {
+        DBSagasEntity entity = (DBSagasEntity) event.animatable();
         if (entity.swingTime > 0 && !isAttacking) {
             isAttacking = true;
-            event.getController().forceAnimationReset();
-            event.getController().setAnimation(RawAnimation.begin().thenPlay("attack"));
+            event.controller().forceAnimationReset();
+            event.controller().setAnimation(RawAnimation.begin().thenPlay("attack"));
             return PlayState.CONTINUE;
         }
         if (isAttacking) {
-            if (event.getController().getAnimationState() == AnimationController.State.STOPPED) {
+            if (event.controller().getAnimationState() == AnimationController.State.STOPPED) {
                 isAttacking = false;
                 return PlayState.STOP;
             }
@@ -170,7 +170,7 @@ public class SagaSaibamanEntity extends DBSagasEntity{
     }
 
 	private void explode() {
-		if (!this.level().isClientSide) {
+		if (!this.level().isClientSide()) {
 			float radius = 4.0F;
 
 			double baseDamage = this.getAttributeValue(Attributes.ATTACK_DAMAGE);
@@ -183,7 +183,7 @@ public class SagaSaibamanEntity extends DBSagasEntity{
 
 			for (LivingEntity target : entities) {
 				if (target != this && this.distanceToSqr(target) <= radius * radius) {
-					target.hurt(damageSource, finalDamage);
+					target.hurtOrSimulate(damageSource, finalDamage);
 				}
 			}
 

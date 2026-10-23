@@ -7,7 +7,6 @@ import com.dragonminez.common.init.block.custom.DemonRealmBlocks;
 import com.dragonminez.common.init.entities.demon.DemonVillagersEntity;
 import com.dragonminez.server.world.gen.DemonRealmGeneration;
 import com.dragonminez.server.world.structure.helper.MainStructureTypes;
-import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -18,7 +17,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
@@ -204,7 +203,7 @@ public class DemonVillageStructure extends Structure {
 		if (resident == null) return;
 		BlockPos feet = floor.above();
 		resident.moveTo(feet.getX() + 0.5D, feet.getY(), feet.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
-		resident.finalizeSpawn(level, level.getCurrentDifficultyAt(feet), MobSpawnType.STRUCTURE, null);
+		resident.finalizeSpawn(level, level.getCurrentDifficultyAt(feet), EntitySpawnReason.STRUCTURE, null);
 		resident.setHome(home, radius);
 		level.addFreshEntityWithPassengers(resident);
 	}
@@ -213,7 +212,7 @@ public class DemonVillageStructure extends Structure {
 		StructureTemplate template = templates.getOrCreate(location);
 		for (StructureTemplate.StructureBlockInfo info : template.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), Blocks.JIGSAW)) {
 			CompoundTag nbt = info.nbt();
-			if (nbt != null && ENTRANCE.equals(nbt.getString("name"))) {
+			if (nbt != null && ENTRANCE.equals(nbt.getStringOr("name", ""))) {
 				return new Door(info.pos(), JigsawBlock.getFrontFacing(info.state()));
 			}
 		}
@@ -573,8 +572,8 @@ public class DemonVillageStructure extends Structure {
 
 		public BuildingPiece(StructureTemplateManager templates, CompoundTag tag) {
 			super(MainStructureTypes.DEMON_VILLAGE_BUILDING.get(), tag, templates,
-					location -> settings(Rotation.valueOf(tag.getString("Rot")), pivot(templates, location)));
-			this.rotation = Rotation.valueOf(tag.getString("Rot"));
+					location -> settings(Rotation.valueOf(tag.getStringOr("Rot", "")), pivot(templates, location)));
+			this.rotation = Rotation.valueOf(tag.getStringOr("Rot", ""));
 		}
 
 		private static BlockPos pivot(StructureTemplateManager templates, Identifier location) {
@@ -610,7 +609,7 @@ public class DemonVillageStructure extends Structure {
 			List<BlockPos> spots = new ArrayList<>();
 			for (StructureTemplate.StructureBlockInfo info : this.template.filterBlocks(this.templatePosition, this.placeSettings, Blocks.JIGSAW)) {
 				CompoundTag nbt = info.nbt();
-				if (nbt != null && VILLAGER_MARKER.equals(nbt.getString("name"))) spots.add(info.pos());
+				if (nbt != null && VILLAGER_MARKER.equals(nbt.getStringOr("name", ""))) spots.add(info.pos());
 			}
 			return spots;
 		}
@@ -645,18 +644,18 @@ public class DemonVillageStructure extends Structure {
 
 		public GroundPiece(CompoundTag tag) {
 			super(MainStructureTypes.DEMON_VILLAGE_GROUND.get(), tag);
-			this.centerX = tag.getInt("CenterX");
-			this.centerY = tag.getInt("CenterY");
-			this.centerZ = tag.getInt("CenterZ");
-			this.paths = readArrays(tag.getList("Paths", Tag.TAG_INT_ARRAY));
-			this.farms = readArrays(tag.getList("Farms", Tag.TAG_INT_ARRAY));
-			this.lamps = tag.getIntArray("Lamps");
-			this.seed = tag.getLong("Seed");
+			this.centerX = tag.getIntOr("CenterX", 0);
+			this.centerY = tag.getIntOr("CenterY", 0);
+			this.centerZ = tag.getIntOr("CenterZ", 0);
+			this.paths = readArrays(com.dragonminez.platform.nbt.NbtCompat.getList(tag, "Paths", Tag.TAG_INT_ARRAY));
+			this.farms = readArrays(com.dragonminez.platform.nbt.NbtCompat.getList(tag, "Farms", Tag.TAG_INT_ARRAY));
+			this.lamps = tag.getIntArray("Lamps").orElseGet(() -> new int[0]);
+			this.seed = tag.getLongOr("Seed", 0L);
 		}
 
 		private static List<int[]> readArrays(ListTag list) {
 			List<int[]> arrays = new ArrayList<>(list.size());
-			for (int i = 0; i < list.size(); i++) arrays.add(list.getIntArray(i));
+			for (int i = 0; i < list.size(); i++) arrays.add(list.getIntArray(i).orElseGet(() -> new int[0]));
 			return arrays;
 		}
 

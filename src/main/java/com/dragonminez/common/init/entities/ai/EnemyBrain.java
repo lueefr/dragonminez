@@ -139,7 +139,7 @@ public final class EnemyBrain {
     }
 
     public void tick() {
-        if (this.self.level().isClientSide) return;
+        if (this.self.level().isClientSide()) return;
         long now = this.now();
         AiProfile profile = this.self.getAiProfile();
         this.economy.tick(now);
@@ -388,7 +388,7 @@ public final class EnemyBrain {
     }
 
     public void onHurt(DamageSource source, float amount) {
-        if (this.self.level().isClientSide) return;
+        if (this.self.level().isClientSide()) return;
         long now = this.now();
         Entity attacker = source.getEntity();
         UUID attackerId = attacker != null ? attacker.getUUID() : null;

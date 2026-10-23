@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 
-public class KiExplosionRenderer extends EntityRenderer<KiExplosionEntity> {
+public class KiExplosionRenderer extends EntityRenderer<KiExplosionEntity, net.minecraft.client.renderer.entity.state.EntityRenderState> {
 
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/ki_laser.png");
 

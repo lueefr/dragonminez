@@ -83,7 +83,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -93,7 +93,6 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -103,12 +102,12 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 import org.joml.Vector3f;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -212,7 +211,7 @@ public class AllWorldBossesEntity {
             this.setBlasterMeteorCastTicks(METEOR_CHARGE_TICKS);
 
             this.applyFixedStats();
-            this.getPersistentData().putBoolean("dmz_stats_configured", true);
+            com.dragonminez.platform.entity.EntityData.get(this).putBoolean("dmz_stats_configured", true);
             this.fallAsleep();
         }
 
@@ -292,14 +291,14 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        public boolean hurt(DamageSource pSource, float pAmount) {
+        public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource pSource, float pAmount) {
             boolean absolute = pSource.is(DamageTypes.FELL_OUT_OF_WORLD) || pSource.is(DamageTypes.GENERIC_KILL);
 
-            if (!this.level().isClientSide && !absolute && !this.minis.isEmpty()) {
+            if (!this.level().isClientSide() && !absolute && !this.minis.isEmpty()) {
                 playGuardFeedback();
                 return false;
             }
-            return super.hurt(pSource, pAmount);
+            return super.hurtServer(dmz$level, pSource, pAmount);
         }
 
         private void playGuardFeedback() {
@@ -333,7 +332,7 @@ public class AllWorldBossesEntity {
         @Override
         public void tick() {
             super.tick();
-            if (this.level().isClientSide || !this.isAlive()) return;
+            if (this.level().isClientSide() || !this.isAlive()) return;
 
             if (this.stompCooldown > 0) this.stompCooldown--;
             tickMinis();
@@ -440,7 +439,7 @@ public class AllWorldBossesEntity {
                 if (dist > STOMP_RADIUS) continue;
 
                 victim.invulnerableTime = 0;
-                victim.hurt(this.damageSources().mobAttack(this), damage);
+                victim.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
 
                 double push = dist < 0.1D ? 0.0D : 0.9D * (1.0D - dist * 0.03D);
                 victim.setDeltaMovement(victim.getDeltaMovement().add(dx * push * 0.2D, 0.75D, dz * push * 0.2D));
@@ -591,7 +590,7 @@ public class AllWorldBossesEntity {
 
             this.applyFixedStats();
             this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(MainItems.DIMENSIONAL_SWORD.get()));
-            this.getPersistentData().putBoolean("dmz_stats_configured", true);
+            com.dragonminez.platform.entity.EntityData.get(this).putBoolean("dmz_stats_configured", true);
         }
 
         @Override
@@ -624,7 +623,7 @@ public class AllWorldBossesEntity {
         @Override
         public void startCasting(int type) {
             super.startCasting(type);
-            if (this.level().isClientSide || !this.isCasting()) return;
+            if (this.level().isClientSide() || !this.isCasting()) return;
             if (type != MOUTH_BLAST_SKILL) return;
 
             LivingEntity target = this.getTarget();
@@ -661,7 +660,7 @@ public class AllWorldBossesEntity {
                     CUT_COLOR, CUT_CORE_COLOR, CUT_SPEED, CUT_MAX_DISTANCE, CUT_HIT_RADIUS, victim -> {
                         if (victim.isAlliedTo(this) || victim instanceof WorldBossEntity || victim instanceof MiniJanemba) return false;
                         victim.invulnerableTime = 0;
-                        victim.hurt(this.damageSources().mobAttack(this), damage);
+                        victim.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
                         victim.hurtMarked = true;
                         return true;
                     });
@@ -672,7 +671,7 @@ public class AllWorldBossesEntity {
         @Override
         public void tick() {
             super.tick();
-            if (this.level().isClientSide || !this.isAlive()) return;
+            if (this.level().isClientSide() || !this.isAlive()) return;
 
             if (this.cutsCooldown > 0) this.cutsCooldown--;
 
@@ -744,7 +743,7 @@ public class AllWorldBossesEntity {
             this.setHealth(this.getMaxHealth());
             this.setAiTier(AiTier.ELITE);
 
-            this.getPersistentData().putBoolean("dmz_stats_configured", true);
+            com.dragonminez.platform.entity.EntityData.get(this).putBoolean("dmz_stats_configured", true);
         }
 
         @Override
@@ -796,7 +795,7 @@ public class AllWorldBossesEntity {
         @Override
         public void tick() {
             super.tick();
-            if (!this.level().isClientSide && this.retreatTicks > 0) this.retreatTicks--;
+            if (!this.level().isClientSide() && this.retreatTicks > 0) this.retreatTicks--;
         }
 
         public void vanishInSmoke() {
@@ -963,12 +962,12 @@ public class AllWorldBossesEntity {
 
             @Override
             public void strikeHit(LivingEntity victim, float amount, boolean lethal) {
-                victim.hurt(MainDamageTypes.strikeAttack(Turles.this.level(), Turles.this, MeteorBurstCombo.TECHNIQUE_ID), amount);
+                victim.hurtOrSimulate(MainDamageTypes.strikeAttack(Turles.this.level(), Turles.this, MeteorBurstCombo.TECHNIQUE_ID), amount);
             }
 
             @Override
             public void kiHit(LivingEntity victim, float amount, boolean lethal) {
-                victim.hurt(MainDamageTypes.kiblast(Turles.this.level(), Turles.this, Turles.this), amount);
+                victim.hurtOrSimulate(MainDamageTypes.kiblast(Turles.this.level(), Turles.this, Turles.this), amount);
             }
 
             @Override
@@ -991,7 +990,7 @@ public class AllWorldBossesEntity {
             this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
 
             this.applyFixedStats();
-            this.getPersistentData().putBoolean("dmz_stats_configured", true);
+            com.dragonminez.platform.entity.EntityData.get(this).putBoolean("dmz_stats_configured", true);
             this.fallAsleep();
         }
 
@@ -1088,7 +1087,7 @@ public class AllWorldBossesEntity {
         @Override
         public void tick() {
             super.tick();
-            if (this.level().isClientSide || !this.isAlive()) return;
+            if (this.level().isClientSide() || !this.isAlive()) return;
 
             this.tickMight();
             if (this.isBossAsleep()) return;
@@ -1305,7 +1304,7 @@ public class AllWorldBossesEntity {
 
             float damage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * GRAB_DAMAGE_RATIO;
             target.invulnerableTime = 0;
-            target.hurt(MainDamageTypes.strikeAttack(level, this, null), damage);
+            target.hurtOrSimulate(MainDamageTypes.strikeAttack(level, this, null), damage);
             level.playSound(null, target.getX(), target.getY(), target.getZ(), MainSounds.CRITICO1.get(), SoundSource.HOSTILE, 2.0F, 1.0F);
             if (!target.isAlive()) return;
 
@@ -1435,17 +1434,24 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        public void addAdditionalSaveData(CompoundTag pCompound) {
-            super.addAdditionalSaveData(pCompound);
+        public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+            super.addAdditionalSaveData(dmz$output);
             pCompound.putInt("MightTicks", this.mightTicks);
             pCompound.putInt("MightCooldown", this.mightCooldown);
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
         }
+    }
 
         @Override
-        public void readAdditionalSaveData(CompoundTag pCompound) {
-            super.readAdditionalSaveData(pCompound);
-            this.mightTicks = Math.max(0, pCompound.getInt("MightTicks"));
-            if (pCompound.contains("MightCooldown")) this.mightCooldown = pCompound.getInt("MightCooldown");
+        public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+            super.readAdditionalSaveData(dmz$input);
+            this.mightTicks = Math.max(0, pCompound.getIntOr("MightTicks", 0));
+            if (pCompound.contains("MightCooldown")) this.mightCooldown = pCompound.getIntOr("MightCooldown", 0);
             boolean empowered = this.mightTicks > 0;
             this.entityData.set(MIGHT_EMPOWERED, empowered);
             this.applyMightModifier(empowered);
@@ -1589,7 +1595,7 @@ public class AllWorldBossesEntity {
             this.addKiSkill(KiSkillType.OOZARU_FIST, 260);
 
             this.applyFixedStats();
-            this.getPersistentData().putBoolean("dmz_stats_configured", true);
+            com.dragonminez.platform.entity.EntityData.get(this).putBoolean("dmz_stats_configured", true);
             this.fallAsleep();
         }
 
@@ -1810,17 +1816,17 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        public boolean hurt(DamageSource pSource, float pAmount) {
+        public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource pSource, float pAmount) {
             if (GeteStarEntities.sameFaction(this, pSource.getEntity())) return false;
             boolean absolute = pSource.is(DamageTypes.FELL_OUT_OF_WORLD) || pSource.is(DamageTypes.GENERIC_KILL);
-            if (!this.level().isClientSide && !absolute && this.isChargingSupernova()) {
+            if (!this.level().isClientSide() && !absolute && this.isChargingSupernova()) {
                 if (pSource.getEntity() instanceof Player && this.tickCount % 5 == 0) {
                     this.level().playSound(null, this.getX(), this.getY() + 7.0D, this.getZ(), SoundEvents.SHIELD_BLOCK, SoundSource.HOSTILE, 2.0F, 0.6F);
                 }
                 return false;
             }
-            if (!this.level().isClientSide && !absolute && this.getBossAbility() == ABILITY_OVERLOAD) pAmount *= OVERLOAD_DAMAGE_BONUS;
-            return super.hurt(pSource, pAmount);
+            if (!this.level().isClientSide() && !absolute && this.getBossAbility() == ABILITY_OVERLOAD) pAmount *= OVERLOAD_DAMAGE_BONUS;
+            return super.hurtServer(dmz$level, pSource, pAmount);
         }
 
         public boolean isChargingSupernova() {
@@ -2167,12 +2173,12 @@ public class AllWorldBossesEntity {
             float total = this.getMaxHealth() * SUPERNOVA_REFLECT_RATIO;
             if (heroes.isEmpty()) {
                 this.invulnerableTime = 0;
-                this.hurt(this.damageSources().explosion(null, null), total);
+                this.hurtOrSimulate(this.damageSources().explosion(null, null), total);
             } else {
                 float share = total / heroes.size();
                 for (ServerPlayer hero : heroes) {
                     this.invulnerableTime = 0;
-                    this.hurt(MainDamageTypes.kiblast(level, hero, hero), share);
+                    this.hurtOrSimulate(MainDamageTypes.kiblast(level, hero, hero), share);
                 }
             }
             this.stopBossAbility();
@@ -2196,7 +2202,7 @@ public class AllWorldBossesEntity {
             float damage = this.getKiBlastDamage() * SUPERNOVA_DAMAGE_RATIO;
             for (ServerPlayer player : this.participants(level)) {
                 player.invulnerableTime = 0;
-                player.hurt(MainDamageTypes.kiblast(level, this, this), damage);
+                player.hurtOrSimulate(MainDamageTypes.kiblast(level, this, this), damage);
                 player.setDeltaMovement(player.getDeltaMovement().add(0.0D, 0.6D, 0.0D));
                 player.hurtMarked = true;
             }
@@ -2227,7 +2233,7 @@ public class AllWorldBossesEntity {
             if (guardian == null) return;
             GeteStarEntities.setOwner(guardian, this.getUUID());
             guardian.moveTo(position.x, position.y, position.z, this.random.nextFloat() * 360.0F, 0.0F);
-            guardian.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(position)), MobSpawnType.MOB_SUMMONED, null);
+            guardian.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(position)), EntitySpawnReason.MOB_SUMMONED, null);
             guardian.setPersistenceRequired();
             List<ServerPlayer> players = this.participants(level);
             if (!players.isEmpty()) guardian.setTarget(players.get(this.random.nextInt(players.size())));
@@ -2248,7 +2254,7 @@ public class AllWorldBossesEntity {
                 double x = capsule.getX() + 0.5D + (this.random.nextDouble() - 0.5D);
                 double z = capsule.getZ() + 0.5D + (this.random.nextDouble() - 0.5D);
                 copy.moveTo(x, capsule.getY(), z, this.random.nextFloat() * 360.0F, 0.0F);
-                copy.finalizeSpawn(level, level.getCurrentDifficultyAt(capsule), MobSpawnType.MOB_SUMMONED, null);
+                copy.finalizeSpawn(level, level.getCurrentDifficultyAt(capsule), EntitySpawnReason.MOB_SUMMONED, null);
                 copy.setPersistenceRequired();
                 if (!players.isEmpty()) copy.setTarget(players.get(this.random.nextInt(players.size())));
                 if (!level.addFreshEntity(copy)) continue;
@@ -2348,22 +2354,29 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        public void addAdditionalSaveData(CompoundTag pCompound) {
-            super.addAdditionalSaveData(pCompound);
+        public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+            super.addAdditionalSaveData(dmz$output);
             if (this.chamberCenter != null) pCompound.putLong("ChamberCenter", this.chamberCenter.asLong());
             pCompound.putLongArray("CapsuleSpots", this.capsuleSpots.stream().mapToLong(BlockPos::asLong).toArray());
             pCompound.putBoolean("SwarmFirst", this.swarmFirst);
             pCompound.putBoolean("SwarmSecond", this.swarmSecond);
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
         }
+    }
 
         @Override
-        public void readAdditionalSaveData(CompoundTag pCompound) {
-            super.readAdditionalSaveData(pCompound);
-            if (pCompound.contains("ChamberCenter")) this.chamberCenter = BlockPos.of(pCompound.getLong("ChamberCenter"));
+        public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+            super.readAdditionalSaveData(dmz$input);
+            if (pCompound.contains("ChamberCenter")) this.chamberCenter = BlockPos.of(pCompound.getLongOr("ChamberCenter", 0L));
             this.capsuleSpots.clear();
-            for (long packed : pCompound.getLongArray("CapsuleSpots")) this.capsuleSpots.add(BlockPos.of(packed));
-            this.swarmFirst = pCompound.getBoolean("SwarmFirst");
-            this.swarmSecond = pCompound.getBoolean("SwarmSecond");
+            for (long packed : pCompound.getLongArray("CapsuleSpots").orElseGet(() -> new long[0])) this.capsuleSpots.add(BlockPos.of(packed));
+            this.swarmFirst = pCompound.getBooleanOr("SwarmFirst", false);
+            this.swarmSecond = pCompound.getBooleanOr("SwarmSecond", false);
         }
 
         static final class SupernovaClash implements BeamClashManager.ExternalClash {
@@ -2584,7 +2597,7 @@ public class AllWorldBossesEntity {
             this.applyStats(MetalCoolerCore.baseHealth() * GUARDIAN_HEALTH_RATIO, MetalCoolerCore.baseMelee() * GUARDIAN_MELEE_RATIO,
                     MetalCoolerCore.baseKi() * GUARDIAN_KI_RATIO);
             this.setAiTier(AiTier.ELITE);
-            this.getPersistentData().putBoolean("dmz_stats_configured", true);
+            com.dragonminez.platform.entity.EntityData.get(this).putBoolean("dmz_stats_configured", true);
         }
 
         @Override
@@ -2626,9 +2639,9 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        public boolean hurt(DamageSource pSource, float pAmount) {
+        public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource pSource, float pAmount) {
             if (GeteStarEntities.sameFaction(this, pSource.getEntity())) return false;
-            boolean hurt = super.hurt(pSource, pAmount);
+            boolean hurt = super.hurtServer(dmz$level, pSource, pAmount);
             if (hurt) this.calmTicks = 0;
             return hurt;
         }
@@ -2667,15 +2680,22 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        public void addAdditionalSaveData(CompoundTag pCompound) {
-            super.addAdditionalSaveData(pCompound);
+        public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+            super.addAdditionalSaveData(dmz$output);
             pCompound.putBoolean("GeteScout", this.scout);
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
         }
+    }
 
         @Override
-        public void readAdditionalSaveData(CompoundTag pCompound) {
-            super.readAdditionalSaveData(pCompound);
-            this.scout = pCompound.getBoolean("GeteScout");
+        public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+            super.readAdditionalSaveData(dmz$input);
+            this.scout = pCompound.getBooleanOr("GeteScout", false);
             if (this.scout) this.setAiTier(AiTier.SMART);
         }
     }
@@ -2714,7 +2734,7 @@ public class AllWorldBossesEntity {
             this.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(0.0D);
             this.setHealth(this.getMaxHealth());
             this.setAiTier(AiTier.ELITE);
-            this.getPersistentData().putBoolean("dmz_stats_configured", true);
+            com.dragonminez.platform.entity.EntityData.get(this).putBoolean("dmz_stats_configured", true);
         }
 
         @Override
@@ -2736,7 +2756,7 @@ public class AllWorldBossesEntity {
         @Override
         public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
             super.registerControllers(controllers);
-            controllers.add(new AnimationController<>(this, "latch_controller", 3, state ->
+            controllers.add(new AnimationController<>("latch_controller", 3, state ->
                     this.isLatched() ? state.setAndContinue(LATCH_ANIMATION) : PlayState.STOP));
         }
 
@@ -2774,15 +2794,15 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        public boolean hurt(DamageSource pSource, float pAmount) {
+        public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource pSource, float pAmount) {
             if (GeteStarEntities.sameFaction(this, pSource.getEntity())) return false;
-            return super.hurt(pSource, pAmount);
+            return super.hurtServer(dmz$level, pSource, pAmount);
         }
 
         @Override
         public void tick() {
             super.tick();
-            if (this.level().isClientSide || !this.isAlive()) return;
+            if (this.level().isClientSide() || !this.isAlive()) return;
             if (this.latchCooldown > 0) this.latchCooldown--;
 
             if (this.isLatched()) {
@@ -2889,7 +2909,7 @@ public class AllWorldBossesEntity {
             this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(this.weaponItem()));
             this.applyScale();
             this.applyFixedStats();
-            this.getPersistentData().putBoolean("dmz_stats_configured", true);
+            com.dragonminez.platform.entity.EntityData.get(this).putBoolean("dmz_stats_configured", true);
             if (!powered) this.fallAsleep();
         }
 
@@ -3059,7 +3079,7 @@ public class AllWorldBossesEntity {
         protected void finishTransformationSpawn(DBSagasEntity newEntity, boolean fullHealth) {
             float fraction = this.getHealth() / this.getMaxHealth();
             super.finishTransformationSpawn(newEntity, fullHealth);
-            if (newEntity instanceof Tamagami next && !this.level().isClientSide) {
+            if (newEntity instanceof Tamagami next && !this.level().isClientSide()) {
                 next.setHealth(Math.max(1.0F, next.getMaxHealth() * Math.max(fraction, MIN_POWERED_HEALTH)));
             }
         }
@@ -3086,13 +3106,13 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        public boolean hurt(DamageSource pSource, float pAmount) {
-            if (!this.level().isClientSide && this.isBossAsleep() && !isAbsolute(pSource)) {
+        public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource pSource, float pAmount) {
+            if (!this.level().isClientSide() && this.isBossAsleep() && !isAbsolute(pSource)) {
                 if (pSource.getEntity() instanceof Player player && this.isEligible(player)) this.wakeUp(player);
                 return false;
             }
-            if (!this.level().isClientSide && this.isExposed()) pAmount *= EXPOSED_DAMAGE_TAKEN;
-            return super.hurt(pSource, pAmount);
+            if (!this.level().isClientSide() && this.isExposed()) pAmount *= EXPOSED_DAMAGE_TAKEN;
+            return super.hurtServer(dmz$level, pSource, pAmount);
         }
 
         @Override
@@ -3194,7 +3214,7 @@ public class AllWorldBossesEntity {
 
         @Override
         public void tick() {
-            if (!this.level().isClientSide && this.getHealth() <= 0.0F && !this.dead && !this.isRemoved()) {
+            if (!this.level().isClientSide() && this.getHealth() <= 0.0F && !this.dead && !this.isRemoved()) {
                 if (this.canTransform()) {
                     this.setHealth(1.0F);
                     this.deathTime = 0;
@@ -3292,8 +3312,9 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        public void readAdditionalSaveData(CompoundTag pCompound) {
-            super.readAdditionalSaveData(pCompound);
+        public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+            super.readAdditionalSaveData(dmz$input);
             this.applyScale();
             if (this.getMainHandItem().isEmpty()) this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(this.weaponItem()));
         }
@@ -3525,7 +3546,7 @@ public class AllWorldBossesEntity {
         @Override
         public void tick() {
             super.tick();
-            if (this.level().isClientSide) {
+            if (this.level().isClientSide()) {
                 if (this.isCycloneSpinning()) this.spinBody();
                 return;
             }
@@ -3767,7 +3788,7 @@ public class AllWorldBossesEntity {
                 if (distance > SLAM_RADIUS) continue;
 
                 victim.invulnerableTime = 0;
-                victim.hurt(this.damageSources().mobAttack(this), damage);
+                victim.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
                 double push = distance < 0.1D ? 0.0D : 0.9D * (1.0D - distance / (SLAM_RADIUS * 2.0D)) / distance;
                 victim.setDeltaMovement(victim.getDeltaMovement().add(dx * push, 0.8D, dz * push));
                 victim.hasImpulse = true;
@@ -3880,7 +3901,7 @@ public class AllWorldBossesEntity {
                 if (distance > CYCLONE_HIT_RADIUS) continue;
 
                 victim.invulnerableTime = 0;
-                victim.hurt(this.damageSources().mobAttack(this), damage);
+                victim.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
                 Vec3 out = distance < 0.1D ? Vec3.directionFromRotation(0.0F, this.yBodyRot) : new Vec3(dx / distance, 0.0D, dz / distance);
                 Vec3 swirl = new Vec3(-out.z, 0.0D, out.x);
                 KnockbackHelper.apply(victim, out.scale(0.5D).add(swirl.scale(0.5D)).add(0.0D, 0.35D, 0.0D));
@@ -3959,7 +3980,7 @@ public class AllWorldBossesEntity {
                 if (dx * dx + dz * dz > METEOR_HIT_RADIUS * METEOR_HIT_RADIUS) continue;
 
                 victim.invulnerableTime = 0;
-                victim.hurt(this.damageSources().mobAttack(this), damage);
+                victim.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
                 KnockbackHelper.apply(victim, new Vec3(0.0D, METEOR_SPIKE, 0.0D));
                 this.spiked.put(victim.getId(), 0);
                 level.sendParticles(ParticleTypes.CRIT, victim.getX(), victim.getY() + victim.getBbHeight() * 0.5D, victim.getZ(), 20, 0.4D, 0.4D, 0.4D, 0.4D);
@@ -4011,7 +4032,7 @@ public class AllWorldBossesEntity {
                 if (distance > CRASH_RADIUS) continue;
 
                 victim.invulnerableTime = 0;
-                victim.hurt(this.damageSources().mobAttack(this), damage);
+                victim.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
                 double push = distance < 0.1D ? 0.0D : 0.8D / distance;
                 KnockbackHelper.apply(victim, new Vec3(dx * push, 0.5D, dz * push));
             }
@@ -4092,7 +4113,7 @@ public class AllWorldBossesEntity {
                     if (dx * dx + dz * dz > reach * reach) continue;
 
                     victim.invulnerableTime = 0;
-                    victim.hurt(this.damageSources().mobAttack(this), damage);
+                    victim.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
                     KnockbackHelper.apply(victim, new Vec3(0.0D, PILLAR_LAUNCH, 0.0D));
                 }
                 this.pillarVisual(level, pillar);
@@ -4282,7 +4303,7 @@ public class AllWorldBossesEntity {
         @Override
         public void tick() {
             super.tick();
-            if (this.level().isClientSide) {
+            if (this.level().isClientSide()) {
                 if (this.isDashing()) this.faceTravel();
                 return;
             }
@@ -4547,7 +4568,7 @@ public class AllWorldBossesEntity {
 
                 this.lungeStruck.add(victim.getId());
                 victim.invulnerableTime = 0;
-                victim.hurt(this.damageSources().mobAttack(this), damage);
+                victim.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
                 KnockbackHelper.apply(victim, new Vec3(this.lungeDir.x * LUNGE_KNOCKBACK, 0.35D, this.lungeDir.z * LUNGE_KNOCKBACK));
                 level.sendParticles(ParticleTypes.CRIT, center.x, center.y, center.z, 16, 0.3D, 0.3D, 0.3D, 0.4D);
                 level.playSound(null, center.x, center.y, center.z, MainSounds.CRITICO1.get(), SoundSource.HOSTILE, 2.0F, 0.9F);
@@ -4793,8 +4814,8 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        public boolean hurt(DamageSource pSource, float pAmount) {
-            if (!this.level().isClientSide && this.level() instanceof ServerLevel level && !this.isBossAsleep() && !isAbsolute(pSource)) {
+        public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource pSource, float pAmount) {
+            if (!this.level().isClientSide() && this.level() instanceof ServerLevel level && !this.isBossAsleep() && !isAbsolute(pSource)) {
                 if (this.isStanceActive() && this.getBossAbilityTicks() >= 2 && pSource.getEntity() instanceof LivingEntity attacker
                         && attacker != this && attacker.isAlive()) {
                     this.counter(level, attacker);
@@ -4804,7 +4825,7 @@ public class AllWorldBossesEntity {
                     pAmount *= DUEL_DAMAGE_TAKEN;
                 }
             }
-            return super.hurt(pSource, pAmount);
+            return super.hurtServer(dmz$level, pSource, pAmount);
         }
 
         @Override
@@ -4916,7 +4937,7 @@ public class AllWorldBossesEntity {
                 double distance = Math.sqrt(dx * dx + dz * dz);
                 if (distance > STANCE_SLASH_RADIUS) continue;
                 victim.invulnerableTime = 0;
-                victim.hurt(this.damageSources().mobAttack(this), damage);
+                victim.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
                 double push = distance < 0.1D ? 0.0D : 0.9D / distance;
                 KnockbackHelper.apply(victim, new Vec3(dx * push, 0.4D, dz * push));
             }
@@ -4947,7 +4968,7 @@ public class AllWorldBossesEntity {
 
             float damage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * COUNTER_RATIO;
             target.invulnerableTime = 0;
-            target.hurt(this.damageSources().mobAttack(this), damage);
+            target.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
             Vec3 away = target.position().subtract(this.position());
             away = away.horizontalDistanceSqr() < 1.0E-4D ? Vec3.directionFromRotation(0.0F, this.getYRot()) : new Vec3(away.x, 0.0D, away.z).normalize();
             KnockbackHelper.apply(target, away.scale(COUNTER_KNOCKBACK).add(0.0D, 0.4D, 0.0D));
@@ -5032,7 +5053,7 @@ public class AllWorldBossesEntity {
                 if (center.distanceToSqr(from.add(segment.scale(t))) > reach * reach) continue;
 
                 victim.invulnerableTime = 0;
-                victim.hurt(this.damageSources().mobAttack(this), damage);
+                victim.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
                 KnockbackHelper.apply(victim, new Vec3(push.x * 0.6D, 0.5D, push.z * 0.6D));
                 level.sendParticles(ParticleTypes.CRIT, center.x, center.y, center.z, 16, 0.3D, 0.3D, 0.3D, 0.4D);
                 level.playSound(null, center.x, center.y, center.z, MainSounds.CRITICO1.get(), SoundSource.HOSTILE, 2.0F, 1.1F);
@@ -5075,7 +5096,7 @@ public class AllWorldBossesEntity {
                 return;
             }
             target.invulnerableTime = 0;
-            target.hurt(this.damageSources().mobAttack(this), (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * CHASE_DAMAGE_RATIO);
+            target.hurtOrSimulate(this.damageSources().mobAttack(this), (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * CHASE_DAMAGE_RATIO);
             KnockbackHelper.apply(target, new Vec3(0.0D, CHASE_SPIKE, 0.0D));
             level.sendParticles(ParticleTypes.CRIT, center.x, center.y, center.z, 20, 0.4D, 0.4D, 0.4D, 0.4D);
             level.playSound(null, center.x, center.y, center.z, MainSounds.CRITICO1.get(), SoundSource.HOSTILE, 2.5F, 0.7F);
@@ -5215,7 +5236,7 @@ public class AllWorldBossesEntity {
         @Override
         public void tick() {
             super.tick();
-            if (this.level().isClientSide) {
+            if (this.level().isClientSide()) {
                 if (!this.isLodged()) this.spinTicks++;
                 return;
             }
@@ -5323,7 +5344,7 @@ public class AllWorldBossesEntity {
                 if (!this.struck.add(victim.getId())) continue;
 
                 victim.invulnerableTime = 0;
-                victim.hurt(owner.damageSources().mobAttack(owner), this.damage);
+                victim.hurtOrSimulate(owner.damageSources().mobAttack(owner), this.damage);
                 KnockbackHelper.apply(victim, new Vec3(push.x * KNOCKBACK, 0.45D, push.z * KNOCKBACK));
                 level.sendParticles(ParticleTypes.CRIT, victim.getX(), victim.getY() + victim.getBbHeight() * 0.5D, victim.getZ(), 14, 0.3D, 0.3D, 0.3D, 0.3D);
                 level.playSound(null, victim.getX(), victim.getY(), victim.getZ(), MainSounds.CRITICO1.get(), SoundSource.HOSTILE, 1.6F, 0.8F);
@@ -5337,12 +5358,19 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        protected void readAdditionalSaveData(CompoundTag tag) {
+        protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag tag = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag tag) {
+        protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag tag = new CompoundTag();
+        try {
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, tag);
         }
+    }
     }
 
     public static class TamagamiPillar extends Entity {
@@ -5416,12 +5444,19 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        protected void readAdditionalSaveData(CompoundTag tag) {
+        protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag tag = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
         }
 
         @Override
-        protected void addAdditionalSaveData(CompoundTag tag) {
+        protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag tag = new CompoundTag();
+        try {
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, tag);
         }
+    }
     }
 
     public static class Gomah extends WorldBossEntity {
@@ -5642,7 +5677,7 @@ public class AllWorldBossesEntity {
             this.setBlasterMeteorCastTicks(METEOR_CHARGE_TICKS);
             this.applyStackScale(true);
             this.applyFixedStats();
-            this.getPersistentData().putBoolean("dmz_stats_configured", true);
+            com.dragonminez.platform.entity.EntityData.get(this).putBoolean("dmz_stats_configured", true);
             this.fallAsleep();
         }
 
@@ -5792,7 +5827,7 @@ public class AllWorldBossesEntity {
         }
 
         public static boolean isEscort(Entity entity) {
-            return entity != null && entity.getPersistentData().getBoolean(ESCORT_TAG);
+            return entity != null && com.dragonminez.platform.entity.EntityData.get(entity).getBooleanOr(ESCORT_TAG, false);
         }
 
         @Override
@@ -5815,13 +5850,13 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        public boolean hurt(DamageSource pSource, float pAmount) {
-            if (!this.level().isClientSide && this.isBossAsleep() && !isAbsolute(pSource)) {
+        public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource pSource, float pAmount) {
+            if (!this.level().isClientSide() && this.isBossAsleep() && !isAbsolute(pSource)) {
                 if (pSource.getEntity() instanceof Player player && this.isEligible(player)) this.wakeUp(player);
                 return false;
             }
             if (isEscort(pSource.getEntity())) return false;
-            boolean hurt = super.hurt(pSource, pAmount);
+            boolean hurt = super.hurtServer(dmz$level, pSource, pAmount);
             if (hurt && this.level() instanceof ServerLevel level && this.isAlive()) this.noteBackHit(level, pSource);
             return hurt;
         }
@@ -6309,12 +6344,12 @@ public class AllWorldBossesEntity {
             float total = this.getMaxHealth() * SPHERE_REFLECT_RATIO;
             if (heroes.isEmpty()) {
                 this.invulnerableTime = 0;
-                this.hurt(this.damageSources().explosion(null, null), total);
+                this.hurtOrSimulate(this.damageSources().explosion(null, null), total);
             } else {
                 float share = total / heroes.size();
                 for (ServerPlayer hero : heroes) {
                     this.invulnerableTime = 0;
-                    this.hurt(MainDamageTypes.kiblast(level, hero, hero), share);
+                    this.hurtOrSimulate(MainDamageTypes.kiblast(level, hero, hero), share);
                 }
             }
             this.stopBossAbility();
@@ -6336,7 +6371,7 @@ public class AllWorldBossesEntity {
                 double closeness = 1.0D - distance / SPHERE_BLAST_RADIUS;
                 float falloff = (float) (SPHERE_MIN_FALLOFF + (1.0D - SPHERE_MIN_FALLOFF) * closeness * closeness);
                 player.invulnerableTime = 0;
-                player.hurt(MainDamageTypes.kiblast(level, this, this), damage * falloff);
+                player.hurtOrSimulate(MainDamageTypes.kiblast(level, this, this), damage * falloff);
                 Vec3 push = new Vec3(player.getX() - impact.x, 0.0D, player.getZ() - impact.z);
                 push = push.lengthSqr() < 1.0E-4D ? Vec3.ZERO : push.normalize().scale(1.6D * closeness);
                 player.setDeltaMovement(player.getDeltaMovement().add(push.x, 0.5D + 0.6D * closeness, push.z));
@@ -6433,7 +6468,7 @@ public class AllWorldBossesEntity {
                 double distance = Math.sqrt(dx * dx + dz * dz);
                 if (distance > QUAKE_CORE_RADIUS || Math.abs(player.getY() - cy) > 5.0D) continue;
                 player.invulnerableTime = 0;
-                player.hurt(this.damageSources().mobAttack(this), damage);
+                player.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
                 player.setDeltaMovement(player.getDeltaMovement().add(0.0D, 0.9D, 0.0D));
                 player.hurtMarked = true;
             }
@@ -6471,7 +6506,7 @@ public class AllWorldBossesEntity {
                 if (Math.abs(ground - this.ringCenter.y) > 6.0D) continue;
                 this.ringHit.add(player.getUUID());
                 player.invulnerableTime = 0;
-                player.hurt(this.damageSources().mobAttack(this), damage);
+                player.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
                 player.setDeltaMovement(player.getDeltaMovement().add(dx / Math.max(1.0D, distance) * 0.6D, 0.7D, dz / Math.max(1.0D, distance) * 0.6D));
                 player.hurtMarked = true;
             }
@@ -6532,7 +6567,7 @@ public class AllWorldBossesEntity {
                 if (box.clip(this.beamOrigin, end).isEmpty() && !box.contains(this.beamOrigin)) continue;
                 this.beamHit.add(player.getUUID());
                 player.invulnerableTime = 0;
-                player.hurt(MainDamageTypes.kiblast(level, this, this), damage);
+                player.hurtOrSimulate(MainDamageTypes.kiblast(level, this, this), damage);
                 level.sendParticles(new DustParticleOptions(new Vector3f(1.0F, 0.1F, 0.2F), 2.0F), player.getX(), player.getEyeY(), player.getZ(),
                         16, 0.3D, 0.3D, 0.3D, 0.0D);
             }
@@ -6670,7 +6705,7 @@ public class AllWorldBossesEntity {
 
             if (held > 0 && held % GRAB_SQUEEZE_INTERVAL == 0) {
                 victim.invulnerableTime = 0;
-                victim.hurt(this.damageSources().mobAttack(this), (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * GRAB_SQUEEZE_RATIO);
+                victim.hurtOrSimulate(this.damageSources().mobAttack(this), (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * GRAB_SQUEEZE_RATIO);
                 level.playSound(null, victim.getX(), victim.getY(), victim.getZ(), MainSounds.CRITICO1.get(), SoundSource.HOSTILE, 1.6F, 0.6F);
             }
             if (held >= GRAB_HOLD_MAX) {
@@ -6720,7 +6755,7 @@ public class AllWorldBossesEntity {
             Vec3 forward = Vec3.directionFromRotation(0.0F, this.yBodyRot);
             this.releaseGrab(false);
             victim.invulnerableTime = 0;
-            victim.hurt(this.damageSources().mobAttack(this), (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * GRAB_THROW_RATIO);
+            victim.hurtOrSimulate(this.damageSources().mobAttack(this), (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * GRAB_THROW_RATIO);
             KnockbackHelper.apply(victim, new Vec3(forward.x * GRAB_THROW_SPEED, GRAB_THROW_DROP, forward.z * GRAB_THROW_SPEED));
             level.playSound(null, victim.getX(), victim.getY(), victim.getZ(), MainSounds.KNOCKBACK_CHARACTER.get(), SoundSource.HOSTILE, 2.5F, 0.6F);
         }
@@ -6778,7 +6813,7 @@ public class AllWorldBossesEntity {
             float damage = this.getKiBlastDamage() * ERUPTION_DAMAGE_RATIO;
             for (ServerPlayer player : this.participants(level)) {
                 player.invulnerableTime = 0;
-                player.hurt(MainDamageTypes.kiblast(level, this, this), damage);
+                player.hurtOrSimulate(MainDamageTypes.kiblast(level, this, this), damage);
                 Vec3 away = new Vec3(player.getX() - center.x, 0.0D, player.getZ() - center.z);
                 away = away.lengthSqr() < 1.0E-4D ? Vec3.ZERO : away.normalize();
                 KnockbackHelper.apply(player, away.scale(1.2D).add(0.0D, 1.2D, 0.0D));
@@ -6813,7 +6848,7 @@ public class AllWorldBossesEntity {
                 soldier.moveTo(x, y, z, this.yBodyRot, 0.0F);
                 soldier.setSoldierScale(ESCORT_SCALE);
                 soldier.setPersistenceRequired();
-                CompoundTag data = soldier.getPersistentData();
+                CompoundTag data = com.dragonminez.platform.entity.EntityData.get(soldier);
                 data.putBoolean(ESCORT_TAG, true);
                 data.putDouble("dmz_quest_hp", baseHealth() * ESCORT_HEALTH_RATIO);
                 data.putDouble("dmz_quest_melee", baseMelee() * ESCORT_MELEE_RATIO);
@@ -6857,22 +6892,29 @@ public class AllWorldBossesEntity {
         }
 
         @Override
-        public void addAdditionalSaveData(CompoundTag pCompound) {
-            super.addAdditionalSaveData(pCompound);
+        public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+            super.addAdditionalSaveData(dmz$output);
             pCompound.putInt("EyeStacks", this.getEyeStacks());
             pCompound.putInt("EyeTimer", Math.round(this.stackProgress * STACK_INTERVAL));
             ListTag list = new ListTag();
             for (UUID id : this.escorts) list.add(NbtUtils.createUUID(id));
             pCompound.put("Escorts", list);
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
         }
+    }
 
         @Override
-        public void readAdditionalSaveData(CompoundTag pCompound) {
-            super.readAdditionalSaveData(pCompound);
-            this.entityData.set(EYE_STACKS, Mth.clamp(pCompound.getInt("EyeStacks"), 0, MAX_STACKS));
-            this.stackProgress = Mth.clamp(pCompound.getInt("EyeTimer") / (float) STACK_INTERVAL, 0.0F, 0.99F);
+        public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+            super.readAdditionalSaveData(dmz$input);
+            this.entityData.set(EYE_STACKS, Mth.clamp(pCompound.getIntOr("EyeStacks", 0), 0, MAX_STACKS));
+            this.stackProgress = Mth.clamp(pCompound.getIntOr("EyeTimer", 0) / (float) STACK_INTERVAL, 0.0F, 0.99F);
             this.escorts.clear();
-            for (Tag tag : pCompound.getList("Escorts", Tag.TAG_INT_ARRAY)) this.escorts.add(NbtUtils.loadUUID(tag));
+            for (Tag tag : com.dragonminez.platform.nbt.NbtCompat.getList(pCompound, "Escorts", Tag.TAG_INT_ARRAY)) this.escorts.add(NbtUtils.loadUUID(tag));
             this.appliedScale = -1.0F;
             this.applyStackScale(true);
             this.applyStackPower();

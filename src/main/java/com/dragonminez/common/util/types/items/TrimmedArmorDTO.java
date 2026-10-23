@@ -7,10 +7,8 @@ import com.google.gson.JsonSyntaxException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.ArmorItem;
-import com.google.gson.GsonBuilder;
+import com.dragonminez.platform.item.ArmorData;
 import net.minecraft.world.item.ItemStack;
 import java.util.Map;
 
@@ -62,7 +60,7 @@ public class TrimmedArmorDTO extends EnchantedItemDTO {
 	}
 
 	protected void applyTrim(ItemStack itemStack) {
-		if (!(itemStack.getItem() instanceof ArmorItem)) {
+		if (!(ArmorData.isArmor(itemStack))) {
 			LogUtil.warn(Env.COMMON, "Item '{}' is not armour, skipping its trim.", this.itemId);
 			return;
 		}

@@ -19,7 +19,6 @@ import com.dragonminez.client.util.SkinGathererProvider;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.FormConfig;
 import com.dragonminez.common.config.RaceCharacterConfig;
-import com.dragonminez.common.init.MainEffects;
 import com.dragonminez.common.init.MainItems;
 import com.dragonminez.common.init.item.WeightItem;
 import com.dragonminez.common.stats.FusedData;
@@ -36,16 +35,16 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
 import top.theillusivec4.curios.api.CuriosApi;
@@ -53,7 +52,7 @@ import top.theillusivec4.curios.api.CuriosApi;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T> {
+public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 	private static final Identifier RACES_PARTS_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/raceparts.geo.json");
 	private static final Identifier RACES_PARTS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/raceparts.png");
 	private static final Identifier RACES_PARTS_SHADOW_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/raceparts_shadow.png");
@@ -93,7 +92,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 
 	private final SaiyanTailMeshBuilder tailMesh = new SaiyanTailMeshBuilder();
 
-	public DMZRacePartsLayer(GeoRenderer<T> entityRendererIn) {
+	public DMZRacePartsLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> entityRendererIn) {
 		super(entityRendererIn);
 	}
 
@@ -126,7 +125,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 				if (!isOozaru && stats.getStatus().isRenderKatana()) {
 					BakedGeoModel yajirobeModel = getGeoModel().getBakedModel(YAJIROBE_SWORD_MODEL);
 					if (yajirobeModel != null) {
-						RenderType type = RenderType.entityCutoutNoCull(YAJIROBE_SWORD_TEXTURE);
+						RenderType type = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(YAJIROBE_SWORD_TEXTURE);
 						renderWeaponFromBodyAnchor(yajirobeModel, "katana", playerBone, poseStack, bufferSource, animatable, type, partialTick, packedLight, 1.0f);
 					}
 				}
@@ -200,8 +199,8 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 		BakedGeoModel partsModel = getGeoModel().getBakedModel(RACES_PARTS_MODEL);
 		if (partsModel == null) return;
 
-		RenderType partsRenderType = RenderType.entityTranslucent(RACES_PARTS_TEXTURE);
-		RenderType partsShadowRenderType = RenderType.entityTranslucent(RACES_PARTS_SHADOW_TEXTURE);
+		RenderType partsRenderType = net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(RACES_PARTS_TEXTURE);
+		RenderType partsShadowRenderType = net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(RACES_PARTS_SHADOW_TEXTURE);
 		FormConfig.FormData tintForm = DMZSkinLayer.resolveTintForm(stats);
 		float[] formTintColor = tintForm != null ? tintForm.getRgbTintColor() : null;
 		float formTintIntensity = tintForm != null ? (float) tintForm.getTintIntensity() : 0.0f;
@@ -350,7 +349,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 					syncTargetBoneAndParents(bone, playerModel);
 					float[] color = part.category() == FusionTraits.Category.HORNS ? HORN_COLOR
 							: tint(part.category() == FusionTraits.Category.OTHER ? accessoryColor : resolveBodyColor1(stats), formTint, formTintIntensity, auraColor, tintProgress, PARTS_AURA_TINT);
-					renderTargetedBone(bone, poseStack, bufferSource, animatable, RenderType.entityTranslucent(RACES_PARTS_TEXTURE), color[0], color[1], color[2], alpha, partialTick, packedLight);
+					renderTargetedBone(bone, poseStack, bufferSource, animatable, net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(RACES_PARTS_TEXTURE), color[0], color[1], color[2], alpha, partialTick, packedLight);
 				}
 				case SAIYAN_TAIL -> renderBorrowedSaiyanTail(poseStack, animatable, playerModel, partsModel, bufferSource, stats, part.leader(), partialTick, packedLight, packedOverlay, alpha, formTint, formTintIntensity, auraColor, tintProgress);
 				case FROST_DEMON, BIO_ANDROID -> {
@@ -370,7 +369,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 			DonorBoneRenderer.visit(animatable, playerModel, SAIYAN_TAIL_MODEL, "tail1", true, poseStack, partialTick, (bone, stack) -> {
 				if (SaiyanTailMeshBuilder.isTailBone(bone.getName())) tailMesh.add(bone, stack.last().pose(), stack.last().normal());
 			});
-			RenderType type = alpha < 1.0f ? RenderType.entityTranslucent(SaiyanTailMeshBuilder.TEXTURE) : RenderType.entityCutoutNoCull(SaiyanTailMeshBuilder.TEXTURE);
+			RenderType type = alpha < 1.0f ? net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(SaiyanTailMeshBuilder.TEXTURE) : net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(SaiyanTailMeshBuilder.TEXTURE);
 			tailMesh.emit(bufferSource.getBuffer(type), color, packedLight, packedOverlay, alpha, DMZHairLayer.wantsPixelDetail(animatable));
 			return;
 		}
@@ -407,7 +406,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 		return new SkinGathererProvider.BodyLayerSink() {
 			@Override
 			public void base(Identifier texture, float[] color) {
-				add(alpha < 1.0f ? RenderType.entityTranslucent(texture) : RenderType.entityCutoutNoCull(texture), color, 1.0f);
+				add(alpha < 1.0f ? net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture) : net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture), color, 1.0f);
 			}
 
 			@Override
@@ -417,7 +416,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 
 			@Override
 			public void translucent(Identifier texture, float[] color) {
-				add(RenderType.entityTranslucent(texture), color, 1.0f);
+				add(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture), color, 1.0f);
 			}
 
 			@Override
@@ -575,7 +574,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 			com.geckolib.util.RenderUtil.prepMatrixForBone(poseStack, bone);
 			poseStack.translate(bone.getPivotX() / 16f, bone.getPivotY() / 16f, bone.getPivotZ() / 16f);
 			PoseStack.Pose pose = poseStack.last();
-			VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(DEMON_EYE_TEXTURE));
+			VertexConsumer consumer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(DEMON_EYE_TEXTURE));
 			float h = DEMON_EYE_HALF_SIZE;
 			demonEyeVertex(consumer, pose, h, h, 0f, 0f, packedLight);
 			demonEyeVertex(consumer, pose, -h, h, 1f, 0f, packedLight);
@@ -607,7 +606,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 		if (accModel == null) return;
 
 		String pothalaColor = stack.getDescriptionId().contains("green") ? "green" : "yellow";
-		RenderType accRenderType = RenderType.entityCutoutNoCull(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/" + pothalaColor + "pothala.png"));
+		RenderType accRenderType = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/" + pothalaColor + "pothala.png"));
 
 		if (hasPothalaRight || isFused) {
 			accModel.getBone("pothala_right").ifPresent(bone -> {
@@ -664,7 +663,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 		BakedGeoModel weightModel = getGeoModel().getBakedModel(WEIGHTED_ITEMS_MODEL);
 		if (weightModel == null) return;
 
-		RenderType type = RenderType.entityCutoutNoCull(WEIGHTED_ITEMS_TEXTURE);
+		RenderType type = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(WEIGHTED_ITEMS_TEXTURE);
 
 		switch (weightItem.getWeightType()) {
 			case TURTLE_SHELL -> {
@@ -740,7 +739,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 		if (stats.getStatus().isRenderKatana()) {
 			BakedGeoModel yajirobeModel = getGeoModel().getBakedModel(YAJIROBE_SWORD_MODEL);
 			if (yajirobeModel != null) {
-				RenderType type = RenderType.entityCutoutNoCull(YAJIROBE_SWORD_TEXTURE);
+				RenderType type = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(YAJIROBE_SWORD_TEXTURE);
 				renderWeaponFromBodyAnchor(yajirobeModel, "katana", playerBodyBone, poseStack, bufferSource, animatable, type, partialTick, packedLight, 1.0f);
 			}
 		}
@@ -760,7 +759,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 			if (!isHolding(animatable, MainItems.Z_SWORD.get())) {
 				BakedGeoModel zModel = getGeoModel().getBakedModel(Z_SWORD_MODEL);
 				if (zModel != null) {
-					RenderType type = RenderType.entityCutoutNoCull(Z_SWORD_TEXTURE);
+					RenderType type = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(Z_SWORD_TEXTURE);
 					renderWeaponFromBodyAnchor(zModel, "espada", playerBodyBone, poseStack, bufferSource, animatable, type, partialTick, packedLight, 1.0f);
 				}
 			}
@@ -786,7 +785,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 		boolean bladeWasHidden = blade != null && blade.isHidden();
 		if (blade != null) blade.setHidden(true);
 
-		RenderType type = RenderType.entityCutoutNoCull(BRAVE_SWORD_TEXTURE);
+		RenderType type = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(BRAVE_SWORD_TEXTURE);
 		poseStack.pushPose();
 		poseStack.translate(BRAVE_BACK_X, BRAVE_BACK_Y, BRAVE_BACK_Z);
 		if (BRAVE_BACK_ROT_X != 0.0F) poseStack.mulPose(Axis.XP.rotationDegrees(BRAVE_BACK_ROT_X));
@@ -810,7 +809,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 		boolean poleWasHidden = pole != null && pole.isHidden();
 		if (pole != null) pole.setHidden(true);
 
-		RenderType type = RenderType.entityCutoutNoCull(POWER_POLE_TEXTURE);
+		RenderType type = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(POWER_POLE_TEXTURE);
 		renderWeaponFromBodyAnchor(powerpole, "baculo", playerBodyBone, poseStack, bufferSource, animatable, type, partialTick, packedLight, 1.0f);
 
 		if (pole != null) pole.setHidden(poleWasHidden);

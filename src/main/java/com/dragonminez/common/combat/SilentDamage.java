@@ -16,7 +16,7 @@ public final class SilentDamage {
 	}
 
 	public static float apply(LivingEntity entity, double amount, float minHealth) {
-		if (entity == null || entity.level().isClientSide || !entity.isAlive()) return 0.0F;
+		if (entity == null || entity.level().isClientSide() || !entity.isAlive()) return 0.0F;
 		if (!Double.isFinite(amount) || amount <= 0.0) return 0.0F;
 
 		float health = entity.getHealth();

@@ -24,37 +24,18 @@ import net.minecraft.world.entity.player.Player;
 import com.dragonminez.compat.capabilities.Capability;
 import com.dragonminez.compat.capabilities.CapabilityManager;
 import com.dragonminez.compat.capabilities.CapabilityToken;
-import com.dragonminez.compat.capabilities.RegisterCapabilitiesEvent;
-import com.dragonminez.compat.capabilities.AttachCapabilitiesEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@EventBusSubscriber(modid = Reference.MOD_ID)
 public class StatsCapability {
 	public static final Capability<StatsData> INSTANCE = CapabilityManager.get(new CapabilityToken<>() {
 	});
-	private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
-			DeferredRegister.create(net.neoforged.neoforge.registries.NeoForgeRegistries.ATTACHMENT_TYPES, Reference.MOD_ID);
-	public static final DeferredHolder<AttachmentType<?>, AttachmentType<StatsProvider>> PLAYER_STATS =
-			ATTACHMENTS.register("player_stats", () -> AttachmentType
-					.serializable(holder -> new StatsProvider((Player) holder))
-					.copyOnDeath()
-					.build());
+    public static final net.fabricmc.fabric.api.attachment.v1.AttachmentType<StatsProvider> PLAYER_STATS =
+            net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry.<StatsProvider>create(
+                net.minecraft.resources.Identifier.fromNamespaceAndPath(Reference.MOD_ID, "player_stats"),
+                builder -> builder.initializer(StatsProvider::new).persistent(StatsProvider.CODEC).copyOnDeath());
+    private static boolean registered;
 
 	private static StatsData CLIENT_CACHE;
 
@@ -62,21 +43,33 @@ public class StatsCapability {
 		CLIENT_CACHE = null;
 	}
 
-	public static void register(IEventBus modEventBus) {
-		ATTACHMENTS.register(modEventBus);
-	}
+    public static synchronized void register() {
+        if (registered) return;
+        net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> onPlayerClone(newPlayer, oldPlayer));
+        com.dragonminez.platform.event.GameEvents.BUS.addListener(
+                com.dragonminez.platform.event.player.PlayerEvent.PlayerRespawnEvent.class,
+                com.dragonminez.platform.event.EventPriority.LOWEST, false, event -> onPlayerRespawn(event.getEntity()));
+        com.dragonminez.platform.event.GameEvents.BUS.addListener(
+                com.dragonminez.platform.event.player.PlayerEvent.PlayerLoggedInEvent.class,
+                com.dragonminez.platform.event.EventPriority.HIGHEST, false, event -> sendLoginConfiguration(event.getEntity()));
+        com.dragonminez.platform.event.GameEvents.BUS.addListener(
+                com.dragonminez.platform.event.player.PlayerEvent.PlayerLoggedInEvent.class,
+                com.dragonminez.platform.event.EventPriority.LOWEST, false, event -> onPlayerLogin(event.getEntity()));
+        com.dragonminez.platform.event.GameEvents.BUS.addListener(
+                com.dragonminez.platform.event.player.PlayerEvent.PlayerChangedDimensionEvent.class,
+                com.dragonminez.platform.event.EventPriority.LOWEST, false, event -> onPlayerChangedDimension(event.getEntity()));
+        net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents.START_TRACKING.register((target, viewer) -> onStartTracking(viewer, target));
+        registered = true;
+    }
 
-	@SubscribeEvent
-	public static void onPlayerClone(PlayerEvent.Clone event) {
-		Player player = event.getEntity();
-		Player original = event.getOriginal();
+	public static void onPlayerClone(Player player, Player original) {
 
 		TickHandler.registerForceKillGrace(player.getUUID());
 		StatsProvider.get(INSTANCE, player).ifPresent(newData -> {
 			StatsProvider.get(INSTANCE, original).ifPresent(oldData -> {
 				newData.copyFrom(oldData);
 
-				if (player.level().isClientSide) {
+				if (player.level().isClientSide()) {
 					if (oldData.getStatus().isHasCreatedCharacter()) CLIENT_CACHE = oldData;
 					else if (CLIENT_CACHE != null) newData.copyFrom(CLIENT_CACHE);
 				}
@@ -86,13 +79,17 @@ public class StatsCapability {
 		StatsProvider.remove(original);
 	}
 
-	@SubscribeEvent
-	public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-		if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-			ConfigManager.sendConfigSync(serverPlayer);
-			SyncQuestRegistryS2C.sendTo(serverPlayer);
+    private static void sendLoginConfiguration(Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            ConfigManager.sendConfigSync(serverPlayer);
+            SyncQuestRegistryS2C.sendTo(serverPlayer);
+        }
+    }
 
-			MinecraftServer server = serverPlayer.getServer();
+	public static void onPlayerLogin(Player player) {
+		if (player instanceof ServerPlayer serverPlayer) {
+
+			MinecraftServer server = serverPlayer.level().getServer();
 			if (server != null && !QuestStructureHints.isResolved()) {
 				UUID playerId = serverPlayer.getUUID();
 				QuestStructureHints.ensureResolvedAsync(server).thenRun(() -> server.execute(() -> {
@@ -126,12 +123,11 @@ public class StatsCapability {
 				syncSkinPixels(serverPlayer, data);
 			});
 		}
-		event.getEntity().refreshDimensions();
+		player.refreshDimensions();
 	}
 
-	@SubscribeEvent
-	public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
-		if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+	public static void onPlayerRespawn(Player player) {
+		if (player instanceof ServerPlayer serverPlayer) {
 			StatsProvider.get(INSTANCE, serverPlayer).ifPresent(data -> {
 				data.getResources().setCurrentEnergy(data.getMaxEnergy());
 				data.getResources().setCurrentStamina(data.getMaxStamina());
@@ -147,9 +143,8 @@ public class StatsCapability {
 		}
 	}
 
-	@SubscribeEvent
-	public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
-		if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+	public static void onPlayerChangedDimension(Player player) {
+		if (player instanceof ServerPlayer serverPlayer) {
 			StatsProvider.get(INSTANCE, serverPlayer).ifPresent(data -> {
 				markCurrentDimensionVisited(serverPlayer, data);
 				data.getSkills().setSkillActive("kisense", false);
@@ -169,9 +164,8 @@ public class StatsCapability {
 		}
 	}
 
-	@SubscribeEvent
-	public static void onStartTracking(PlayerEvent.StartTracking event) {
-		if (!(event.getTarget() instanceof ServerPlayer target) || !(event.getEntity() instanceof ServerPlayer viewer)) return;
+	public static void onStartTracking(Player viewerPlayer, Entity targetEntity) {
+		if (!(targetEntity instanceof ServerPlayer target) || !(viewerPlayer instanceof ServerPlayer viewer)) return;
 		StatsSyncS2C snapshot = StatsDeltaSync.trackerSnapshot(target);
 		if (snapshot != null) NetworkHandler.sendToPlayer(snapshot, viewer);
 		StatsProvider.get(INSTANCE, target).ifPresent(data -> {
@@ -184,6 +178,6 @@ public class StatsCapability {
 	}
 
 	private static void markCurrentDimensionVisited(ServerPlayer player, StatsData data) {
-		data.getStatus().markVisitedDimension(player.serverLevel().dimension().location().toString());
+		data.getStatus().markVisitedDimension(player.level().dimension().identifier().toString());
 	}
 }

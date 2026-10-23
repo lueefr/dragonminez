@@ -8,19 +8,19 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
-import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.model.BakedGeoModel;
 import com.geckolib.util.Color;
 import com.geckolib.renderer.GeoEntityRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
-public class DragonDBRenderer extends GeoEntityRenderer<DragonWishEntity> {
+public class DragonDBRenderer extends com.dragonminez.platform.client.render.ExtractedGeoEntityRenderer<DragonWishEntity> {
 
     private static final float HALF_SQRT_3 = (float)(Math.sqrt(3.0) / 2.0);
 
@@ -54,7 +54,7 @@ public class DragonDBRenderer extends GeoEntityRenderer<DragonWishEntity> {
 
 	@Override
 	public RenderType getRenderType(DragonWishEntity animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-		return animatable.isFading() ? RenderType.entityTranslucent(texture) : RenderType.entityCutoutNoCull(texture);
+		return animatable.isFading() ? net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture) : net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture);
 	}
 
 	@Override
@@ -86,7 +86,7 @@ public class DragonDBRenderer extends GeoEntityRenderer<DragonWishEntity> {
         float intensity = 0.6F;
 
         RandomSource randomsource = RandomSource.create(432L);
-        VertexConsumer vertexconsumer = buffer.getBuffer(RenderType.lightning());
+        VertexConsumer vertexconsumer = buffer.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lightning());
 
         poseStack.pushPose();
         poseStack.translate(0.0F, 1.0F, 0.0F);

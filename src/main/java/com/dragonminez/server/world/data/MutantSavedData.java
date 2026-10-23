@@ -30,12 +30,12 @@ public class MutantSavedData extends SavedData {
 
 	public static MutantSavedData load(CompoundTag tag, HolderLookup.Provider registries) {
 		MutantSavedData data = new MutantSavedData();
-		ListTag holdersList = tag.getList("Holders", Tag.TAG_COMPOUND);
+		ListTag holdersList = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "Holders", Tag.TAG_COMPOUND);
 		for (int i = 0; i < holdersList.size(); i++) {
-			CompoundTag holderTag = holdersList.getCompound(i);
-			if (holderTag.hasUUID("Id")) data.holders.add(holderTag.getUUID("Id"));
+			CompoundTag holderTag = holdersList.getCompoundOrEmpty(i);
+			if (com.dragonminez.platform.nbt.NbtCompat.hasUUID(holderTag, "Id")) data.holders.add(com.dragonminez.platform.nbt.NbtCompat.getUUID(holderTag, "Id"));
 		}
-		data.nextRollTick = tag.contains("NextRollTick") ? tag.getLong("NextRollTick") : -1L;
+		data.nextRollTick = tag.contains("NextRollTick") ? tag.getLongOr("NextRollTick", 0L) : -1L;
 		return data;
 	}
 
@@ -44,7 +44,7 @@ public class MutantSavedData extends SavedData {
 		ListTag holdersList = new ListTag();
 		for (UUID holder : holders) {
 			CompoundTag holderTag = new CompoundTag();
-			holderTag.putUUID("Id", holder);
+			com.dragonminez.platform.nbt.NbtCompat.putUUID(holderTag, "Id", holder);
 			holdersList.add(holderTag);
 		}
 		tag.put("Holders", holdersList);

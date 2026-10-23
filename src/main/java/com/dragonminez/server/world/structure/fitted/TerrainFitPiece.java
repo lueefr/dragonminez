@@ -55,15 +55,15 @@ public class TerrainFitPiece extends StructurePiece {
 
 	public TerrainFitPiece(CompoundTag tag) {
 		super(MainStructureTypes.TERRAIN_FIT_PIECE.get(), tag);
-		this.template = Identifier.parse(tag.getString("Template"));
-		this.origin = new BlockPos(tag.getInt("OX"), tag.getInt("OY"), tag.getInt("OZ"));
-		this.rotation = Rotation.valueOf(tag.getString("Rot"));
-		this.groundLevel = tag.getInt("Ground");
-		this.skirt = tag.getInt("Skirt");
-		this.slope = tag.getFloat("Slope");
-		this.foundation = tag.getInt("Foundation");
-		this.carve = tag.getInt("Carve");
-		this.templateFoundation = tag.getBoolean("TemplateFoundation");
+		this.template = Identifier.parse(tag.getStringOr("Template", ""));
+		this.origin = new BlockPos(tag.getIntOr("OX", 0), tag.getIntOr("OY", 0), tag.getIntOr("OZ", 0));
+		this.rotation = Rotation.valueOf(tag.getStringOr("Rot", ""));
+		this.groundLevel = tag.getIntOr("Ground", 0);
+		this.skirt = tag.getIntOr("Skirt", 0);
+		this.slope = tag.getFloatOr("Slope", 0F);
+		this.foundation = tag.getIntOr("Foundation", 0);
+		this.carve = tag.getIntOr("Carve", 0);
+		this.templateFoundation = tag.getBooleanOr("TemplateFoundation", false);
 	}
 
 	private static BoundingBox footprint(SitePlan site) {

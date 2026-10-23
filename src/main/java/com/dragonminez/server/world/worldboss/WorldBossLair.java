@@ -22,7 +22,7 @@ import com.dragonminez.server.world.structure.helper.DMZStructures;
 import com.dragonminez.server.world.structure.placement.StructureSpawnPlanner;
 import com.dragonminez.server.world.structure.BossStructures.TreeOfMightShape;
 import com.dragonminez.server.world.structure.BossStructures.TreeOfMightShapes;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;

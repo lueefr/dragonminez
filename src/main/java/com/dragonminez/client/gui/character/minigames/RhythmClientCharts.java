@@ -10,14 +10,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.RandomSource;
-import net.neoforged.fml.loading.FMLPaths;
 import org.lwjgl.stb.STBVorbis;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -50,7 +49,7 @@ final class RhythmClientCharts {
 	}
 
 	private static Path chartFolder() {
-		return FMLPaths.GAMEDIR.get().resolve("dragonminez").resolve("rhythm_charts");
+		return net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().resolve("dragonminez").resolve("rhythm_charts");
 	}
 
 	private static String fileStem(String key) {

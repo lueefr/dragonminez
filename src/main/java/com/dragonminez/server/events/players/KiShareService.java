@@ -1,6 +1,6 @@
 package com.dragonminez.server.events.players;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -23,23 +23,18 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
-import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import com.dragonminez.platform.event.tick.ServerTickEvent;
+import com.dragonminez.platform.event.living.LivingIncomingDamageEvent;
+import com.dragonminez.platform.event.living.LivingDamageEvent;
+import com.dragonminez.platform.event.living.LivingDeathEvent;
+import com.dragonminez.platform.event.living.LivingEntityUseItemEvent;
+import com.dragonminez.platform.event.player.AttackEntityEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.player.PlayerInteractEvent;
+import com.dragonminez.platform.event.server.ServerStoppedEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.ServerLifecycleHooks;
 
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
@@ -270,7 +265,7 @@ public final class KiShareService {
 	private static ServerPlayer nearestGenkiCaster(ServerPlayer donor) {
 		ServerPlayer best = null;
 		double bestDistance = GENKI_RANGE * GENKI_RANGE;
-		for (ServerPlayer other : donor.serverLevel().players()) {
+		for (ServerPlayer other : donor.level().players()) {
 			if (other == donor || !other.isAlive() || other.isSpectator()) continue;
 			double distance = donor.distanceToSqr(other);
 			if (distance > bestDistance || chargingGenki(other) == null) continue;
@@ -294,7 +289,7 @@ public final class KiShareService {
 			Long last = GENKI_CALLS.get(caster.getUUID());
 			if (last != null && now - last < GENKI_CALL_INTERVAL) continue;
 			GENKI_CALLS.put(caster.getUUID(), now);
-			for (ServerPlayer other : caster.serverLevel().players()) {
+			for (ServerPlayer other : caster.level().players()) {
 				if (other == caster || !other.isAlive() || other.isSpectator() || LINKS.containsKey(other.getUUID())) continue;
 				if (other.distanceTo(caster) > GENKI_RANGE || called.contains(other.getUUID())) continue;
 				StatsData otherData = stats(other);
@@ -516,7 +511,7 @@ public final class KiShareService {
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void onLivingAttack(LivingIncomingDamageEvent event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 		if (event.getSource().getEntity() instanceof Player attacker && isLocked(attacker)) event.setCanceled(true);
 	}
 

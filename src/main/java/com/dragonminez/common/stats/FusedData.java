@@ -307,16 +307,16 @@ public class FusedData {
 			hairTag = previous.hairTag;
 			return;
 		}
-		int source = tag.getByte("Source");
+		int source = tag.getByteOr("Source", (byte) 0);
 		hairSource = source >= 0 && source < HairSource.values().length ? HairSource.values()[source] : HairSource.NONE;
-		hairColor = tag.getString("Color");
-		hairBase = tag.getBoolean("Base");
+		hairColor = tag.getStringOr("Color", "");
+		hairBase = tag.getBooleanOr("Base", false);
 		for (HairStyleSlot slot : HairStyleSlot.values()) {
 			String key = slot.getNbtKey();
-			if (tag.contains(key, Tag.TAG_COMPOUND)) {
-				hairStyles.put(slot, CustomHair.fromTag(tag.getCompound(key)));
-			} else if (tag.contains(key, Tag.TAG_STRING)) {
-				HairStyleSlot earlier = slotByNbtKey(tag.getString(key));
+			if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, key, Tag.TAG_COMPOUND)) {
+				hairStyles.put(slot, CustomHair.fromTag(tag.getCompoundOrEmpty(key)));
+			} else if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, key, Tag.TAG_STRING)) {
+				HairStyleSlot earlier = slotByNbtKey(tag.getStringOr(key, ""));
 				if (earlier != null && hairStyles.containsKey(earlier)) hairStyles.put(slot, hairStyles.get(earlier));
 			}
 		}
@@ -336,25 +336,25 @@ public class FusedData {
 
 	public static FusedData fromTag(CompoundTag tag, FusedData previous) {
 		FusedData fused = new FusedData();
-		fused.partnerRace = tag.getString("PartnerRace");
-		fused.crossRace = tag.getBoolean("CrossRace");
-		fused.leaderMutant = tag.getBoolean("LeaderMutant");
-		fused.partnerMutant = tag.getBoolean("PartnerMutant");
-		fused.partnerAndroid = tag.getBoolean("PartnerAndroid");
-		fused.skills.load(tag.getCompound("Skills"));
-		fused.partnerFormSkills.load(tag.getCompound("PartnerFormSkills"));
-		fused.techniques.load(tag.getCompound("Techniques"));
-		fused.formMasteries.load(tag.getCompound("FormMasteries"));
-		fused.stackFormMasteries.load(tag.getCompound("StackFormMasteries"));
-		fused.formMasteriesAtStart.load(tag.getCompound("FormMasteriesAtStart"));
-		fused.stackFormMasteriesAtStart.load(tag.getCompound("StackFormMasteriesAtStart"));
-		CompoundTag experienceTag = tag.getCompound("TechniqueExperienceAtStart");
-		for (String key : experienceTag.getAllKeys()) fused.techniqueExperienceAtStart.put(key, experienceTag.getInt(key));
-		fused.partnerHeadBone = tag.getString("PartnerHeadBone");
-		fused.partnerSaiyanTail = tag.getBoolean("PartnerSaiyanTail");
-		fused.partnerBodyType = tag.getInt("PartnerBodyType");
-		fused.partnerGender = tag.contains("PartnerGender") ? tag.getString("PartnerGender") : Character.GENDER_MALE;
-		fused.loadHair(tag.getCompound("Hair"), previous);
+		fused.partnerRace = tag.getStringOr("PartnerRace", "");
+		fused.crossRace = tag.getBooleanOr("CrossRace", false);
+		fused.leaderMutant = tag.getBooleanOr("LeaderMutant", false);
+		fused.partnerMutant = tag.getBooleanOr("PartnerMutant", false);
+		fused.partnerAndroid = tag.getBooleanOr("PartnerAndroid", false);
+		fused.skills.load(tag.getCompoundOrEmpty("Skills"));
+		fused.partnerFormSkills.load(tag.getCompoundOrEmpty("PartnerFormSkills"));
+		fused.techniques.load(tag.getCompoundOrEmpty("Techniques"));
+		fused.formMasteries.load(tag.getCompoundOrEmpty("FormMasteries"));
+		fused.stackFormMasteries.load(tag.getCompoundOrEmpty("StackFormMasteries"));
+		fused.formMasteriesAtStart.load(tag.getCompoundOrEmpty("FormMasteriesAtStart"));
+		fused.stackFormMasteriesAtStart.load(tag.getCompoundOrEmpty("StackFormMasteriesAtStart"));
+		CompoundTag experienceTag = tag.getCompoundOrEmpty("TechniqueExperienceAtStart");
+		for (String key : experienceTag.keySet()) fused.techniqueExperienceAtStart.put(key, experienceTag.getIntOr(key, 0));
+		fused.partnerHeadBone = tag.getStringOr("PartnerHeadBone", "");
+		fused.partnerSaiyanTail = tag.getBooleanOr("PartnerSaiyanTail", false);
+		fused.partnerBodyType = tag.getIntOr("PartnerBodyType", 0);
+		fused.partnerGender = tag.contains("PartnerGender") ? tag.getStringOr("PartnerGender", "") : Character.GENDER_MALE;
+		fused.loadHair(tag.getCompoundOrEmpty("Hair"), previous);
 		return fused;
 	}
 

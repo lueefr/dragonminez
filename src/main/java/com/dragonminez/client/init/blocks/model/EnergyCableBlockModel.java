@@ -3,9 +3,9 @@ package com.dragonminez.client.init.blocks.model;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.block.entity.EnergyCableBlockEntity;
 import net.minecraft.resources.Identifier;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class EnergyCableBlockModel extends GeoModel<EnergyCableBlockEntity> {
+public class EnergyCableBlockModel extends ExtractedGeoModel<EnergyCableBlockEntity> {
 	@Override
 	public Identifier getModelResource(EnergyCableBlockEntity animatable) {
 		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/block/energy_cable.geo.json");

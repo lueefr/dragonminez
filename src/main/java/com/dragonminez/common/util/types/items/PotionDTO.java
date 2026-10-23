@@ -9,8 +9,6 @@ import com.google.gson.annotations.JsonAdapter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.google.gson.GsonBuilder;
-import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -19,8 +17,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +79,7 @@ public class PotionDTO extends GenericItemDTO {
 
 	protected void applyPotionData(ItemStack itemStack) {
 		if (this.potion != null) {
-			Potion resolved = BuiltInRegistries.POTION.get(this.potion);
+			Potion resolved = BuiltInRegistries.POTION.getValue(this.potion);
 			if (resolved == null) {
 				LogUtil.warn(Env.COMMON, "Unknown potion '{}' on item '{}', skipping.", this.potion, this.itemId);
 			} else {
@@ -107,7 +103,7 @@ public class PotionDTO extends GenericItemDTO {
 			if (entry == null || entry.getEffect() == null) {
 				continue;
 			}
-			MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(entry.getEffect());
+			MobEffect effect = BuiltInRegistries.MOB_EFFECT.getValue(entry.getEffect());
 			if (effect == null) {
 				LogUtil.warn(Env.COMMON, "Unknown mob effect '{}' on item '{}', skipping.",
 						entry.getEffect(), this.itemId);

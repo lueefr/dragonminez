@@ -35,8 +35,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.common.NeoForge;
-import net.minecraft.core.registries.BuiltInRegistries;
+import com.dragonminez.platform.event.GameEvents;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -148,7 +147,7 @@ public final class QuestService {
 				joiners,
 				data.getPlayerQuestData().getDifficulty()
 		);
-		if (NeoForge.EVENT_BUS.post(startEvent).isCanceled()) {
+		if (GameEvents.BUS.post(startEvent).isCanceled()) {
 			return unavailable();
 		}
 
@@ -250,7 +249,7 @@ public final class QuestService {
 				participants,
 				npcId
 		);
-		if (NeoForge.EVENT_BUS.post(turnInEvent).isCanceled()) {
+		if (GameEvents.BUS.post(turnInEvent).isCanceled()) {
 			return unavailable();
 		}
 
@@ -299,7 +298,7 @@ public final class QuestService {
 				quest,
 				participants
 		);
-		NeoForge.EVENT_BUS.post(completeEvent);
+		GameEvents.BUS.post(completeEvent);
 
 		pqd.completeQuest(questKey);
 		if (questKey.equals(pqd.getTrackedQuestId())) {
@@ -312,9 +311,9 @@ public final class QuestService {
 
 	private static boolean isTurnInNpcNearby(ServerPlayer player, String npcId) {
 		AABB range = player.getBoundingBox().inflate(TURN_IN_NPC_RANGE);
-		if (!player.serverLevel().getEntitiesOfClass(MastersEntity.class, range,
+		if (!player.level().getEntitiesOfClass(MastersEntity.class, range,
 				master -> npcId.equalsIgnoreCase(master.getMasterName())).isEmpty()) return true;
-		return !player.serverLevel().getEntitiesOfClass(QuestNPCEntity.class, range,
+		return !player.level().getEntitiesOfClass(QuestNPCEntity.class, range,
 				npc -> npcId.equalsIgnoreCase(npc.getNpcId())).isEmpty();
 	}
 
@@ -640,7 +639,7 @@ public final class QuestService {
 				newProgress,
 				required
 		);
-		if (NeoForge.EVENT_BUS.post(progressEvent).isCanceled()) {
+		if (GameEvents.BUS.post(progressEvent).isCanceled()) {
 			return false;
 		}
 
@@ -702,8 +701,8 @@ public final class QuestService {
 		}
 
 		pqd.acceptQuest(questKey);
-		pqd.setQuestAcceptedGameTime(questKey, player.serverLevel().getGameTime());
-		pqd.setAcceptedDimension(questKey, player.level().dimension().location().toString());
+		pqd.setQuestAcceptedGameTime(questKey, player.level().getGameTime());
+		pqd.setAcceptedDimension(questKey, player.level().dimension().identifier().toString());
 		pqd.setObjectiveSignature(questKey, objectiveSignature(quest));
 		pqd.setQuestDifficulty(questKey, difficulty);
 		pqd.setTrackedQuestId(questKey);
@@ -803,7 +802,7 @@ public final class QuestService {
 					partyMembers,
 					i
 			);
-			if (NeoForge.EVENT_BUS.post(rewardEvent).isCanceled()) {
+			if (GameEvents.BUS.post(rewardEvent).isCanceled()) {
 				continue;
 			}
 			pqd.claimReward(questKey, i);
@@ -836,9 +835,9 @@ public final class QuestService {
 		Map<Integer, Integer> alive = new HashMap<>();
 		for (Entity entity : level.getAllEntities()) {
 			if (!(entity instanceof LivingEntity living) || !living.isAlive()) continue;
-			CompoundTag tags = entity.getPersistentData();
-			if (!questKey.equals(tags.getString(QUEST_KEY_TAG)) || !ownerIds.contains(tags.getString(QUEST_OWNER_TAG))) continue;
-			alive.merge(tags.getInt(QUEST_OBJECTIVE_INDEX_TAG), 1, Integer::sum);
+			CompoundTag tags = com.dragonminez.platform.entity.EntityData.get(entity);
+			if (!questKey.equals(tags.getStringOr(QUEST_KEY_TAG, "")) || !ownerIds.contains(tags.getStringOr(QUEST_OWNER_TAG, ""))) continue;
+			alive.merge(tags.getIntOr(QUEST_OBJECTIVE_INDEX_TAG, 0), 1, Integer::sum);
 		}
 		return alive;
 	}
@@ -856,7 +855,7 @@ public final class QuestService {
 			ownerIds.add(memberId.toString());
 		}
 		ownerIds.add(requester.getStringUUID());
-		Map<Integer, Integer> alive = countAliveQuestMobs(requester.serverLevel(), questKey, ownerIds);
+		Map<Integer, Integer> alive = countAliveQuestMobs(requester.level(), questKey, ownerIds);
 
 		int[] toSpawn = new int[quest.getObjectives().size()];
 		int totalToSpawn = 0;
@@ -899,64 +898,64 @@ public final class QuestService {
 				positionQuestEntity(requester, entity);
 
 				if (difficulty != null && difficulty != Difficulty.NORMAL) {
-					entity.getPersistentData().putString("dmz_difficulty", difficulty.name());
+					com.dragonminez.platform.entity.EntityData.get(entity).putString("dmz_difficulty", difficulty.name());
 				}
 				if (resolved.saga() != null) {
-					entity.getPersistentData().putString(SAGA_ID_TAG, resolved.saga().getId());
+					com.dragonminez.platform.entity.EntityData.get(entity).putString(SAGA_ID_TAG, resolved.saga().getId());
 				}
 
-				entity.getPersistentData().putString(QUEST_KEY_TAG, questKey);
-				entity.getPersistentData().putInt(QUEST_OBJECTIVE_INDEX_TAG, i);
-				entity.getPersistentData().putString(QUEST_OWNER_TAG, requester.getStringUUID());
+				com.dragonminez.platform.entity.EntityData.get(entity).putString(QUEST_KEY_TAG, questKey);
+				com.dragonminez.platform.entity.EntityData.get(entity).putInt(QUEST_OBJECTIVE_INDEX_TAG, i);
+				com.dragonminez.platform.entity.EntityData.get(entity).putString(QUEST_OWNER_TAG, requester.getStringUUID());
 				if (questTeam != null) {
-					entity.getPersistentData().putString(QUEST_TEAM_TAG, questTeam);
+					com.dragonminez.platform.entity.EntityData.get(entity).putString(QUEST_TEAM_TAG, questTeam);
 				}
-				entity.getPersistentData().putDouble("dmz_quest_hp", quest.getScaledKillHealth(killObjective, partySize));
-				entity.getPersistentData().putDouble("dmz_quest_melee", quest.getScaledKillMeleeDamage(killObjective, partySize));
-				entity.getPersistentData().putDouble("dmz_quest_ki", quest.getScaledKillKiDamage(killObjective, partySize));
+				com.dragonminez.platform.entity.EntityData.get(entity).putDouble("dmz_quest_hp", quest.getScaledKillHealth(killObjective, partySize));
+				com.dragonminez.platform.entity.EntityData.get(entity).putDouble("dmz_quest_melee", quest.getScaledKillMeleeDamage(killObjective, partySize));
+				com.dragonminez.platform.entity.EntityData.get(entity).putDouble("dmz_quest_ki", quest.getScaledKillKiDamage(killObjective, partySize));
 				if (killObjective.getTextureVariant() >= 0) {
-					entity.getPersistentData().putInt("dmz_quest_texture_variant", killObjective.getTextureVariant());
+					com.dragonminez.platform.entity.EntityData.get(entity).putInt("dmz_quest_texture_variant", killObjective.getTextureVariant());
 				}
 				int aiTier = killObjective.getAiTier() > 0
 						? killObjective.getAiTier()
 						: AiTierResolver.storyTier(difficulty, entityType);
-				entity.getPersistentData().putInt("dmz_quest_ai_tier", aiTier);
+				com.dragonminez.platform.entity.EntityData.get(entity).putInt("dmz_quest_ai_tier", aiTier);
 				if (!killObjective.isCanTransform()) {
-					entity.getPersistentData().putBoolean("dmz_quest_no_transform", true);
+					com.dragonminez.platform.entity.EntityData.get(entity).putBoolean("dmz_quest_no_transform", true);
 				}
 
 				// Per-quest transform tuning. Absolute values are party-scaled here (difficulty is
 				// applied later, when the new form spawns); multipliers/trigger pass through as-is.
 				Double transformHealth = quest.getScaledTransformHealth(killObjective, partySize);
 				if (transformHealth != null) {
-					entity.getPersistentData().putDouble("dmz_quest_tf_hp_abs", transformHealth);
+					com.dragonminez.platform.entity.EntityData.get(entity).putDouble("dmz_quest_tf_hp_abs", transformHealth);
 				}
 				Double transformMelee = quest.getScaledTransformMeleeDamage(killObjective, partySize);
 				if (transformMelee != null) {
-					entity.getPersistentData().putDouble("dmz_quest_tf_melee_abs", transformMelee);
+					com.dragonminez.platform.entity.EntityData.get(entity).putDouble("dmz_quest_tf_melee_abs", transformMelee);
 				}
 				Double transformKi = quest.getScaledTransformKiDamage(killObjective, partySize);
 				if (transformKi != null) {
-					entity.getPersistentData().putDouble("dmz_quest_tf_ki_abs", transformKi);
+					com.dragonminez.platform.entity.EntityData.get(entity).putDouble("dmz_quest_tf_ki_abs", transformKi);
 				}
 				if (killObjective.getTransformHealthMultiplier() != null) {
-					entity.getPersistentData().putDouble("dmz_quest_tf_hp_mult", killObjective.getTransformHealthMultiplier());
+					com.dragonminez.platform.entity.EntityData.get(entity).putDouble("dmz_quest_tf_hp_mult", killObjective.getTransformHealthMultiplier());
 				}
 				if (killObjective.getTransformMeleeMultiplier() != null) {
-					entity.getPersistentData().putDouble("dmz_quest_tf_melee_mult", killObjective.getTransformMeleeMultiplier());
+					com.dragonminez.platform.entity.EntityData.get(entity).putDouble("dmz_quest_tf_melee_mult", killObjective.getTransformMeleeMultiplier());
 				}
 				if (killObjective.getTransformKiMultiplier() != null) {
-					entity.getPersistentData().putDouble("dmz_quest_tf_ki_mult", killObjective.getTransformKiMultiplier());
+					com.dragonminez.platform.entity.EntityData.get(entity).putDouble("dmz_quest_tf_ki_mult", killObjective.getTransformKiMultiplier());
 				}
 				if (killObjective.getTransformTriggerPercent() != null) {
-					entity.getPersistentData().putDouble("dmz_quest_tf_trigger", killObjective.getTransformTriggerPercent());
+					com.dragonminez.platform.entity.EntityData.get(entity).putDouble("dmz_quest_tf_trigger", killObjective.getTransformTriggerPercent());
 				}
 
 				if (entity instanceof Mob mob) {
 					mob.setTarget(requester);
 				}
 
-				requester.serverLevel().addFreshEntity(entity);
+				requester.level().addFreshEntity(entity);
 				if (oneAtATime) {
 					break;
 				}
@@ -972,14 +971,14 @@ public final class QuestService {
 
 		ServerPlayer owner;
 		try {
-			owner = level.getServer().getPlayerList().getPlayer(UUID.fromString(questTags.getString(QUEST_OWNER_TAG)));
+			owner = level.getServer().getPlayerList().getPlayer(UUID.fromString(questTags.getStringOr(QUEST_OWNER_TAG, "")));
 		} catch (IllegalArgumentException e) {
 			return false;
 		}
 		if (owner == null) return false;
 
-		String questKey = questTags.getString(QUEST_KEY_TAG);
-		int objectiveIndex = questTags.getInt(QUEST_OBJECTIVE_INDEX_TAG);
+		String questKey = questTags.getStringOr(QUEST_KEY_TAG, "");
+		int objectiveIndex = questTags.getIntOr(QUEST_OBJECTIVE_INDEX_TAG, 0);
 		Quest quest = QuestRegistry.getQuest(questKey);
 		if (quest == null || objectiveIndex < 0 || objectiveIndex >= quest.getObjectives().size()) return false;
 
@@ -1000,7 +999,7 @@ public final class QuestService {
 	private static final int QUEST_SPAWN_ANGLE_ATTEMPTS = 16;
 
 	private static void positionQuestEntity(ServerPlayer requester, Entity entity) {
-		ServerLevel level = requester.serverLevel();
+		ServerLevel level = requester.level();
 		RandomSource random = requester.getRandom();
 
 		for (int attempt = 0; attempt < QUEST_SPAWN_ANGLE_ATTEMPTS; attempt++) {

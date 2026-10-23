@@ -1,6 +1,6 @@
 package com.dragonminez.client.render.effects;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.util.IrisCompat;
 import com.dragonminez.client.render.util.PlayerEffectQueue;
@@ -12,34 +12,29 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.ClientTickEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import com.geckolib.cache.GeckoLibCache;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.cache.object.GeoCube;
-import com.geckolib.cache.object.GeoQuad;
-import com.geckolib.cache.object.GeoVertex;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.cache.model.cuboid.GeoCube;
+import com.geckolib.cache.model.GeoQuad;
+import com.geckolib.cache.model.GeoVertex;
 
 
 import java.util.ArrayList;
@@ -47,7 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public final class CandyEffect {
 
 	private static final Identifier CANDY_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/candy.geo.json");
@@ -98,7 +93,7 @@ public final class CandyEffect {
 
 		float scale = Math.max(0.6F, living.getBbHeight() / PLAYER_HEIGHT);
 		float bodyYaw = Mth.rotLerp(partialTick, living.yBodyRotO, living.yBodyRot);
-		VertexConsumer consumer = buffer.getBuffer(RenderType.entityCutoutNoCull(CANDY_TEXTURE));
+		VertexConsumer consumer = buffer.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(CANDY_TEXTURE));
 
 		poseStack.pushPose();
 		poseStack.translate(x, y, z);
@@ -173,7 +168,7 @@ public final class CandyEffect {
 	private static void drawBolts(PoseStack poseStack, Matrix4f projection, float partialTick) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null) return;
-		Vec3 camPos = mc.gameRenderer.getMainCamera().getPosition();
+		Vec3 camPos = mc.gameRenderer.getMainCamera().position();
 
 		for (Bolt bolt : BOLTS) {
 			Entity caster = mc.level.getEntity(bolt.casterId);
@@ -199,8 +194,8 @@ public final class CandyEffect {
 
 	private static PoseStack viewStack(Camera camera) {
 		PoseStack stack = new PoseStack();
-		stack.mulPose(Axis.XP.rotationDegrees(camera.getXRot()));
-		stack.mulPose(Axis.YP.rotationDegrees(camera.getYRot() + 180.0F));
+		stack.mulPose(Axis.XP.rotationDegrees(camera.xRot()));
+		stack.mulPose(Axis.YP.rotationDegrees(camera.yRot() + 180.0F));
 		return stack;
 	}
 }

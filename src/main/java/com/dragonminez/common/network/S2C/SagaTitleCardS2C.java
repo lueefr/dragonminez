@@ -4,7 +4,7 @@ import lombok.*;
 import com.dragonminez.client.gui.hud.SagaTitleCardHUD;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -29,7 +29,7 @@ public class SagaTitleCardS2C {
 	}
 
 	public static void handle(SagaTitleCardS2C msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 				() -> () -> SagaTitleCardHUD.show(msg.sagaName)));
 		ctx.get().setPacketHandled(true);
 	}

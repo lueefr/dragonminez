@@ -106,7 +106,7 @@ public abstract class AbstractKiProjectile extends Projectile {
     }
 
     private void applyHomingSteering() {
-        if (this.level().isClientSide || !this.isFiring() || !this.canHome()) return;
+        if (this.level().isClientSide() || !this.isFiring() || !this.canHome()) return;
         if (this.firingStartTick < 0) this.firingStartTick = this.tickCount;
         if (this.homingTargetId < 0 || !(this.level() instanceof ServerLevel serverLevel)) return;
 
@@ -311,7 +311,7 @@ public abstract class AbstractKiProjectile extends Projectile {
         this.setSize(size);
         this.setKiSpeed(speed);
         this.setColors(colorMain, colorBorder, colorOutline);
-        
+
     }
 
     public void setup(LivingEntity owner, float damage, float size, float speed, int colorMain, int colorBorder) {
@@ -397,19 +397,19 @@ public abstract class AbstractKiProjectile extends Projectile {
                 }
                 return false;
             } else {
-                if (!this.level().isClientSide && this.getOwner() instanceof Player ownerPlayer) {
+                if (!this.level().isClientSide() && this.getOwner() instanceof Player ownerPlayer) {
                     float[] mod = { amount };
                     StatsProvider.get(StatsCapability.INSTANCE, ownerPlayer).ifPresent(stats -> {
                         mod[0] *= (float) stats.getKiAttackDamageModifier();
-                        double bonusDmg = ownerPlayer.getPersistentData().getDouble("dmz_human_ki_bonus_dmg");
+                        double bonusDmg = com.dragonminez.platform.entity.EntityData.get(ownerPlayer).getDoubleOr("dmz_human_ki_bonus_dmg", 0D);
                         if (bonusDmg > 0.0) {
                             mod[0] += (float) bonusDmg;
-                            ownerPlayer.getPersistentData().remove("dmz_human_ki_bonus_dmg");
+                            com.dragonminez.platform.entity.EntityData.get(ownerPlayer).remove("dmz_human_ki_bonus_dmg");
                         }
                     });
                     amount = mod[0];
                 }
-                return livingTarget.hurt(MainDamageTypes.kiblast(this.level(), this, this.getOwner()), amount);
+                return livingTarget.hurtOrSimulate(MainDamageTypes.kiblast(this.level(), this, this.getOwner()), amount);
             }
         }
         return false;
@@ -567,7 +567,7 @@ public abstract class AbstractKiProjectile extends Projectile {
             this.homingTargetId = -1;
         }
 
-        if (!this.level().isClientSide && this.getOwner() instanceof net.minecraft.world.entity.player.Player player) {
+        if (!this.level().isClientSide() && this.getOwner() instanceof net.minecraft.world.entity.player.Player player) {
             String techId = this.getTechniqueId();
             if (techId != null && !techId.isEmpty()) {
                 StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(stats -> {
@@ -590,7 +590,7 @@ public abstract class AbstractKiProjectile extends Projectile {
     }
 
     public void applyTechniqueSecondaryEffect(Entity target) {
-        if (this.level().isClientSide) return;
+        if (this.level().isClientSide()) return;
         if (!(this.getOwner() instanceof Player player)) return;
         String techId = this.getTechniqueId();
         if (techId == null || techId.isEmpty()) return;
@@ -661,7 +661,7 @@ public abstract class AbstractKiProjectile extends Projectile {
 
     @Override
     public void tick() {
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             Entity owner = this.getOwner();
             if (owner != null && owner.level() != this.level()) {
                 this.discard();
@@ -679,14 +679,14 @@ public abstract class AbstractKiProjectile extends Projectile {
 
         ProjectileUtil.rotateTowardsMovement(this, 0.2F);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
             if (hitResult.getType() != HitResult.Type.MISS) {
                 this.onHit(hitResult);
             }
         }
 
-        if (!this.level().isClientSide && this.isFiring() && this.kiLifetimeDrainPerTick > 0.0f
+        if (!this.level().isClientSide() && this.isFiring() && this.kiLifetimeDrainPerTick > 0.0f
                 && this.getOwner() instanceof Player ownerPlayer) {
             this.kiDrainAccumulator += this.kiLifetimeDrainPerTick;
             int whole = (int) this.kiDrainAccumulator;
@@ -770,7 +770,7 @@ public abstract class AbstractKiProjectile extends Projectile {
 
     private void setTechniqueIdInternal(String id, boolean triggerAnimation) {
         this.entityData.set(TECHNIQUE_ID, id);
-        if (!triggerAnimation || id.isEmpty() || this.level().isClientSide || this.isFiring()) return;
+        if (!triggerAnimation || id.isEmpty() || this.level().isClientSide() || this.isFiring()) return;
         this.triggerAnimationPacket("_cast");
     }
     public int getArmorPenetration() { return this.entityData.get(ARMOR_PENETRATION); }
@@ -786,8 +786,10 @@ public abstract class AbstractKiProjectile extends Projectile {
     public void setFireTick(int tick) { this.entityData.set(FIRE_TICK, tick); }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putInt("ColorMain", getColor());
         pCompound.putInt("ColorBorder", getColorBorder());
         pCompound.putInt("ColorOutline", getColorOutline());
@@ -799,23 +801,28 @@ public abstract class AbstractKiProjectile extends Projectile {
         pCompound.putBoolean("IsHeal", isHeal());
         pCompound.putBoolean("IsFiring", isFiring());
         pCompound.putInt("FireTick", getFireTick());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
         if (pCompound.contains("ColorMain")) {
-            int outline = pCompound.contains("ColorOutline") ? pCompound.getInt("ColorOutline") : 0xFFFFFF;
-            this.setColors(pCompound.getInt("ColorMain"), pCompound.getInt("ColorBorder"), outline);
+            int outline = pCompound.contains("ColorOutline") ? pCompound.getIntOr("ColorOutline", 0) : 0xFFFFFF;
+            this.setColors(pCompound.getIntOr("ColorMain", 0), pCompound.getIntOr("ColorBorder", 0), outline);
         }
-        if (pCompound.contains("Damage")) setKiDamage(pCompound.getFloat("Damage"));
-        if (pCompound.contains("Size")) setSize(pCompound.getFloat("Size"));
-        if (pCompound.contains("Speed")) setKiSpeed(pCompound.getFloat("Speed"));
-        if (pCompound.contains("TechniqueId")) setTechniqueIdInternal(pCompound.getString("TechniqueId"), false);
-        if (pCompound.contains("ArmorPenetration")) setArmorPenetration(pCompound.getInt("ArmorPenetration"));
-        if (pCompound.contains("IsHeal")) setHeal(pCompound.getBoolean("IsHeal"));
-        if (pCompound.contains("IsFiring")) setFiring(pCompound.getBoolean("IsFiring"));
-        if (pCompound.contains("FireTick")) setFireTick(pCompound.getInt("FireTick"));
+        if (pCompound.contains("Damage")) setKiDamage(pCompound.getFloatOr("Damage", 0F));
+        if (pCompound.contains("Size")) setSize(pCompound.getFloatOr("Size", 0F));
+        if (pCompound.contains("Speed")) setKiSpeed(pCompound.getFloatOr("Speed", 0F));
+        if (pCompound.contains("TechniqueId")) setTechniqueIdInternal(pCompound.getStringOr("TechniqueId", ""), false);
+        if (pCompound.contains("ArmorPenetration")) setArmorPenetration(pCompound.getIntOr("ArmorPenetration", 0));
+        if (pCompound.contains("IsHeal")) setHeal(pCompound.getBooleanOr("IsHeal", false));
+        if (pCompound.contains("IsFiring")) setFiring(pCompound.getBooleanOr("IsFiring", false));
+        if (pCompound.contains("FireTick")) setFireTick(pCompound.getIntOr("FireTick", 0));
     }
 
     @Override
@@ -867,7 +874,7 @@ public abstract class AbstractKiProjectile extends Projectile {
     }
 
     public void triggerAnimationPacket(String suffix) {
-        if (!this.level().isClientSide && this.getOwner() instanceof ServerPlayer sp) {
+        if (!this.level().isClientSide() && this.getOwner() instanceof ServerPlayer sp) {
             String techId = this.getTechniqueId();
             if (techId != null && !techId.isEmpty()) {
                 StatsProvider.get(StatsCapability.INSTANCE, sp).ifPresent(data -> {

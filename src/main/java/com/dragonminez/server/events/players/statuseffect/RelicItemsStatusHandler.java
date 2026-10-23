@@ -20,7 +20,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import com.dragonminez.platform.event.living.LivingDamageEvent;
 import top.theillusivec4.curios.api.CuriosApi;
 
 public class RelicItemsStatusHandler implements IStatusEffectHandler {
@@ -110,10 +110,10 @@ public class RelicItemsStatusHandler implements IStatusEffectHandler {
 		int required = ConfigManager.getServerConfig().getGameplay().getDemonEyeBackHitsToRemove();
 		if (required <= 0 || !isWearingDemonEye(victim) || !isBehind(victim, attacker)) return;
 
-		CompoundTag persistent = victim.getPersistentData();
+		CompoundTag persistent = com.dragonminez.platform.entity.EntityData.get(victim);
 		long now = victim.level().getGameTime();
 		long window = ConfigManager.getServerConfig().getGameplay().getDemonEyeBackHitWindowSeconds() * 20L;
-		int hits = now - persistent.getLong(BACK_HIT_TICK_KEY) <= window ? persistent.getInt(BACK_HITS_KEY) + 1 : 1;
+		int hits = now - persistent.getLongOr(BACK_HIT_TICK_KEY, 0L) <= window ? persistent.getIntOr(BACK_HITS_KEY, 0) + 1 : 1;
 
 		if (hits < required) {
 			persistent.putInt(BACK_HITS_KEY, hits);

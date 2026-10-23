@@ -25,7 +25,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.NeoForge;
+import com.dragonminez.platform.event.GameEvents;
 
 public class DashHandler {
 	private static final int PERFECT_EVASION_COOLDOWN_TICKS = 30;
@@ -65,7 +65,7 @@ public class DashHandler {
 			int evasionWindow = ConfigManager.getCombatConfig().getPerfectEvasionWindowMs();
 			boolean isEvasion = (currentTime - lastHurtTime) <= evasionWindow && !data.getCooldowns().hasCooldown(Cooldowns.PERFECT_EVASION_CD);
 			boolean evasionActive = ConfigManager.getCombatConfig().getEnablePerfectEvasion();
-			int recentAttackerId = player.getPersistentData().getInt(CombatEvent.DMZ_LAST_ATTACKER_ID_TAG);
+			int recentAttackerId = com.dragonminez.platform.entity.EntityData.get(player).getIntOr(CombatEvent.DMZ_LAST_ATTACKER_ID_TAG, 0);
 			LivingEntity recentAttacker = player.level().getEntity(recentAttackerId) instanceof LivingEntity living ? living : null;
 			int vanishWindow = Math.max(50, evasionWindow / 2);
 			boolean isVanish = recentAttacker != null && (currentTime - lastHurtTime) <= vanishWindow;
@@ -75,7 +75,7 @@ public class DashHandler {
 				int kiCost = (int) Math.ceil(baseDrain * 0.65);
 
 				DMZEvent.PlayerEvasionEvent evasionEvent = new DMZEvent.PlayerEvasionEvent(player, recentAttacker, 0, kiCost);
-				NeoForge.EVENT_BUS.post(evasionEvent);
+				GameEvents.BUS.post(evasionEvent);
 
 				if (evasionEvent.isCanceled()) return;
 
@@ -98,7 +98,7 @@ public class DashHandler {
 
 							recentAttacker.knockback(1.1D, recentAttacker.getX() - player.getX(), recentAttacker.getZ() - player.getZ());
 							float vanishDamage = (float) Math.max(1.0, data.getMeleeDamage() * 0.2);
-							recentAttacker.hurt(player.damageSources().playerAttack(player), vanishDamage);
+							recentAttacker.hurtOrSimulate(player.damageSources().playerAttack(player), vanishDamage);
 						} else {
 							recentAttacker.knockback(1.35D, recentAttacker.getX() - player.getX(), recentAttacker.getZ() - player.getZ());
 							recentAttacker.setDeltaMovement(recentAttacker.getDeltaMovement().scale(0.6));
@@ -153,7 +153,7 @@ public class DashHandler {
 			}
 
 			DMZEvent.PlayerDashEvent dashEvent = new DMZEvent.PlayerDashEvent(player, dashType, distance, kiCost);
-			NeoForge.EVENT_BUS.post(dashEvent);
+			GameEvents.BUS.post(dashEvent);
 			if (dashEvent.isCanceled()) return;
 
 			distance = dashEvent.getDistance();
@@ -183,7 +183,7 @@ public class DashHandler {
 			Vec3 currentMotion = player.getDeltaMovement();
 			Vec3 velocity;
 			if (isFlyingSkillActive) {
-				double trackedFlightSpeed = player.getPersistentData().getDouble("dmz_server_speed");
+				double trackedFlightSpeed = com.dragonminez.platform.entity.EntityData.get(player).getDoubleOr("dmz_server_speed", 0D);
 				double sampledSpeed = Math.max(currentMotion.length(), trackedFlightSpeed);
 				double flightImpulse = Math.min(3.8, Math.max(0.55, (distance * 0.30) + (sampledSpeed * 2.5)));
 				velocity = direction.scale(flightImpulse);

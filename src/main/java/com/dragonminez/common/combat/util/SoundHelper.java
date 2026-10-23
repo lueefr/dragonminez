@@ -42,7 +42,7 @@ public class SoundHelper {
         if (soundLoc == null) {
             soundLoc = Identifier.fromNamespaceAndPath(Reference.MOD_ID, sound.id());
         }
-        return BuiltInRegistries.SOUND_EVENT.get(soundLoc);
+        return BuiltInRegistries.SOUND_EVENT.getValue(soundLoc);
     }
 
     public static float computePitch(WeaponAttributes.Sound sound) {

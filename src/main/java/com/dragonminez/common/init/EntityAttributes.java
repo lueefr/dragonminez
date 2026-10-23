@@ -4,8 +4,8 @@ import com.dragonminez.Reference;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.dragonminez.platform.registry.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredRegister;
 
 public class EntityAttributes {
     public static final DeferredRegister<Attribute> ATTRIBUTES =

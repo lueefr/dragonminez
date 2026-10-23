@@ -1,12 +1,10 @@
 package com.dragonminez.common.init.entities.ki;
 
-import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.common.init.MainDamageTypes;
 import com.dragonminez.common.init.MainEntities;
 import com.dragonminez.common.init.MainParticles;
 import com.dragonminez.common.init.MainSounds;
 import com.dragonminez.common.init.particles.KiTrailParticle;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -15,20 +13,18 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 import java.util.List;
 
@@ -87,7 +83,7 @@ public class SPDragonFistEntity extends AbstractKiProjectile implements GeoEntit
         // staying fixed at the launch position and fading as the player moves away.
         this.level().playSound(null, owner, MainSounds.DRAGON_FIST.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().addFreshEntity(this);
         }
     }
@@ -100,7 +96,7 @@ public class SPDragonFistEntity extends AbstractKiProjectile implements GeoEntit
         Entity owner = this.getOwner();
 
         if (owner == null || !owner.isAlive()) {
-            if (!this.level().isClientSide) this.discard();
+            if (!this.level().isClientSide()) this.discard();
             return;
         }
 
@@ -132,7 +128,7 @@ public class SPDragonFistEntity extends AbstractKiProjectile implements GeoEntit
                 this.level().playSound(null, this.getX(), this.getY(), this.getZ(), MainSounds.KI_EXPLOSION_IMPACT.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
             }
 
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 devastateEnemies(owner, this.fixedDirection);
             } else {
                 spawnDragonAuraParticles(owner, this.fixedDirection);
@@ -149,7 +145,7 @@ public class SPDragonFistEntity extends AbstractKiProjectile implements GeoEntit
 
         for (Entity target : targets) {
             if (target.invulnerableTime <= 0) {
-                boolean hit = target.hurt(MainDamageTypes.strikeAttack(this.level(), owner, "dragon_fist"), this.getDamagePerHit());
+                boolean hit = target.hurtOrSimulate(MainDamageTypes.strikeAttack(this.level(), owner, "dragon_fist"), this.getDamagePerHit());
 
                 if (hit) {
                     target.invulnerableTime = CONTINUOUS_HIT_INTERVAL;
@@ -206,25 +202,32 @@ public class SPDragonFistEntity extends AbstractKiProjectile implements GeoEntit
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putFloat("LockedYaw", this.entityData.get(LOCKED_YAW));
         pCompound.putFloat("LockedPitch", this.entityData.get(LOCKED_PITCH));
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        if (pCompound.contains("LockedYaw")) this.entityData.set(LOCKED_YAW, pCompound.getFloat("LockedYaw"));
-        if (pCompound.contains("LockedPitch")) this.entityData.set(LOCKED_PITCH, pCompound.getFloat("LockedPitch"));
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        if (pCompound.contains("LockedYaw")) this.entityData.set(LOCKED_YAW, pCompound.getFloatOr("LockedYaw", 0F));
+        if (pCompound.contains("LockedPitch")) this.entityData.set(LOCKED_PITCH, pCompound.getFloatOr("LockedPitch", 0F));
     }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 0, this::predicate));
+        controllers.add(new AnimationController<>("controller", 0, this::predicate));
     }
 
-    private PlayState predicate(AnimationState<SPDragonFistEntity> event) {
+    private PlayState predicate(AnimationTest<SPDragonFistEntity> event) {
         return event.setAndContinue(RawAnimation.begin().thenLoop("rush"));
     }
 

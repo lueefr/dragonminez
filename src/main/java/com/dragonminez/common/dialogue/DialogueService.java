@@ -110,12 +110,12 @@ public final class DialogueService {
 		QuestService.NPCQuestOptions options = QuestService.collectNpcQuestOptions(npcId, data);
 		NetworkHandler.sendToPlayer(
 				new OpenQuestNPCDialogueS2C(npcId, options, true,
-						NpcDispositionService.dislikes(player, player.serverLevel().getEntity(entityId), npcId), entityId),
+						NpcDispositionService.dislikes(player, player.level().getEntity(entityId), npcId), entityId),
 				player);
 	}
 
 	private static boolean isNearMatchingNpc(ServerPlayer player, String npcId, int entityId) {
-		Entity entity = player.serverLevel().getEntity(entityId);
+		Entity entity = player.level().getEntity(entityId);
 		if (!(entity instanceof MastersEntity master)) return false;
 		if (!npcId.equalsIgnoreCase(master.getMasterName())) return false;
 		return player.distanceToSqr(entity) <= MAX_NPC_DISTANCE_SQR;

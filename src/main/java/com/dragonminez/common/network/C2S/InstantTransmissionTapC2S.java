@@ -60,7 +60,7 @@ public class InstantTransmissionTapC2S {
 					return;
 				}
 
-				ServerLevel level = player.serverLevel();
+				ServerLevel level = player.level();
 				LivingEntity finalTarget = null;
 
 				double range = 25.0 + (skillLevel * 10.0);
@@ -145,9 +145,9 @@ public class InstantTransmissionTapC2S {
 	}
 
 	private static LivingEntity getRecentHitTarget(ServerPlayer player, ServerLevel level) {
-		long lastTime = player.getPersistentData().getLong(CombatEvent.DMZ_LAST_HIT_TARGET_TIME_TAG);
+		long lastTime = com.dragonminez.platform.entity.EntityData.get(player).getLongOr(CombatEvent.DMZ_LAST_HIT_TARGET_TIME_TAG, 0L);
 		if (lastTime <= 0 || System.currentTimeMillis() - lastTime > RECENT_HIT_WINDOW_MS) return null;
-		int id = player.getPersistentData().getInt(CombatEvent.DMZ_LAST_HIT_TARGET_ID_TAG);
+		int id = com.dragonminez.platform.entity.EntityData.get(player).getIntOr(CombatEvent.DMZ_LAST_HIT_TARGET_ID_TAG, 0);
 		return level.getEntity(id) instanceof LivingEntity le && le.isAlive() ? le : null;
 	}
 

@@ -3,16 +3,16 @@ package com.dragonminez.client.render.util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import com.geckolib.cache.GeckoLibCache;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animation.state.BoneSnapshot;
-import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.base.GeoRenderer;
 
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public final class DonorBoneRenderer {
 
 	private DonorBoneRenderer() {}
 
-	public static <T extends AbstractClientPlayer & GeoAnimatable> void render(GeoRenderer<T> renderer, T animatable, BakedGeoModel playerModel,
+	public static <T extends AbstractClientPlayer & GeoAnimatable> void render(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderer, T animatable, BakedGeoModel playerModel,
 			Identifier donorModel, String boneName, boolean tail, List<Layer> layers, PoseStack poseStack,
 			MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
 		if (layers.isEmpty()) return;
@@ -47,7 +47,7 @@ public final class DonorBoneRenderer {
 		});
 	}
 
-	public static <T extends AbstractClientPlayer & GeoAnimatable> void renderOwn(GeoRenderer<T> renderer, T animatable, GeoBone root, List<Layer> layers,
+	public static <T extends AbstractClientPlayer & GeoAnimatable> void renderOwn(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> renderer, T animatable, GeoBone root, List<Layer> layers,
 			PoseStack poseStack, MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
 		if (layers.isEmpty()) return;
 		boolean hidden = root.isHidden();

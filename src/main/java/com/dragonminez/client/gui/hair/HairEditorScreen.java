@@ -18,7 +18,7 @@ import com.dragonminez.common.network.C2S.StatsSyncC2S;
 import com.dragonminez.common.network.C2S.UpdateCustomHairC2S;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.stats.character.Character;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;

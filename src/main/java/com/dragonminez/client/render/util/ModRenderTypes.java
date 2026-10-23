@@ -1,6 +1,5 @@
 package com.dragonminez.client.render.util;
 
-import com.dragonminez.client.events.ModClientEvents;
 import com.dragonminez.client.render.shader.DMZShaders;
 import com.dragonminez.client.render.shader.TransformationMaskRenderState;
 import com.dragonminez.mixin.client.CompositeRenderTypeAccessor;
@@ -8,12 +7,11 @@ import com.dragonminez.mixin.client.CompositeStateAccessor;
 import com.dragonminez.mixin.client.TextureStateShardInvoker;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.opengl.GL11;
 
@@ -527,7 +525,7 @@ public class ModRenderTypes extends RenderType {
         if (sourceRenderType.mode() != VertexFormat.Mode.QUADS) return null;
         Identifier texture = resolveSourceTexture(sourceRenderType);
         if (texture == null) return null;
-        if (!customShader) return RenderType.entityTranslucent(texture);
+        if (!customShader) return net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture);
         String sourceName = sourceRenderType.toString();
         if (sourceName.contains(SKIN_OVERLAY_LAYERING_TOKEN)) return AFTERIMAGE_SKIN_OVERLAY.apply(texture);
         if (sourceName.contains(POLYGON_OFFSET_LAYERING_TOKEN)) return AFTERIMAGE_OFFSET.apply(texture);

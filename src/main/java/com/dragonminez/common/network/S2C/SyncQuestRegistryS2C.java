@@ -46,7 +46,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
@@ -128,7 +128,7 @@ public class SyncQuestRegistryS2C {
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() ->
-				DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> this::handleOnClient)
+				DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> this::handleOnClient)
 		);
 		ctx.get().setPacketHandled(true);
 	}

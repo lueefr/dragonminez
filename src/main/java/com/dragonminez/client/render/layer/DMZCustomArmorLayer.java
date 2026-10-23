@@ -7,7 +7,6 @@ import com.dragonminez.client.render.util.ArmorPieceInflation;
 import com.dragonminez.client.render.util.BoneRenderState;
 import com.dragonminez.client.util.ArmorTextureResolver;
 import com.dragonminez.client.util.SkinGathererProvider;
-import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.init.armor.DbzArmorTextured;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.character.Character;
@@ -17,29 +16,26 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ArmorItem;
+import com.dragonminez.platform.item.ArmorData;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.ClientHooks;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import org.joml.Vector3f;
 import net.minecraft.world.item.component.DyedItemColor;
-import net.neoforged.neoforge.common.CommonHooks;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
 import java.util.Set;
 
-public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T> {
+public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 
     private static final Identifier MAJIN_ARMOR_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/armor/armormajinfat.geo.json");
     private static final Identifier MAJIN_SLIM_ARMOR_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/armor/armormajinslim.geo.json");
@@ -48,7 +44,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
             "majin_evil", "majin_kid", "majin_super", "majin_ultra", "majin", "saiyan", "human", "ssj4gt", "ssj4d"
     );
 
-    public DMZCustomArmorLayer(GeoRenderer<T> entityRendererIn) {
+    public DMZCustomArmorLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> entityRendererIn) {
         super(entityRendererIn);
     }
 
@@ -57,7 +53,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
         if (animatable.isSpectator() || !"body".equals(playerBone.getName())) return;
 
         ItemStack stack = resolveChestArmorStack(animatable);
-        if (stack.isEmpty() || !(stack.getItem() instanceof ArmorItem)) return;
+        if (stack.isEmpty() || !(ArmorData.isArmor(stack))) return;
 
         StatsData stats = StatsProvider.get(StatsCapability.INSTANCE, animatable).orElse(new StatsData(animatable));
         if (stats.getCharacter().getArmored()) return;
@@ -307,7 +303,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
             }
         }
 
-        RenderType armorRenderType = RenderType.armorCutoutNoCull(texture);
+        RenderType armorRenderType = net.minecraft.client.renderer.rendertype.RenderTypes.armorCutoutNoCull(texture);
         getRenderer().renderRecursively(poseStack, animatable, targetBone, armorRenderType, bufferSource, bufferSource.getBuffer(armorRenderType), true, partialTick, packedLight, OverlayTexture.NO_OVERLAY, -1);
 
         for (int i = 0; i < excludedFound.size(); i++) {
@@ -333,7 +329,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
         targetBone.setScaleY(targetBone.getScaleY() * inflation);
         targetBone.setScaleZ(targetBone.getScaleZ() * inflation);
 
-        RenderType armorRenderType = RenderType.armorCutoutNoCull(texture);
+        RenderType armorRenderType = net.minecraft.client.renderer.rendertype.RenderTypes.armorCutoutNoCull(texture);
         getRenderer().renderRecursively(poseStack, animatable, targetBone, armorRenderType, bufferSource, bufferSource.getBuffer(armorRenderType), true, partialTick, packedLight, OverlayTexture.NO_OVERLAY, -1);
 
         saved.restore();
@@ -348,19 +344,10 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
     }
 
     private Identifier getVanillaArmorTexture(LivingEntity entity, ItemStack stack, EquipmentSlot slot, String type) {
-        ArmorItem item = (ArmorItem) stack.getItem();
-        String materialName = item.getMaterial().unwrapKey().map(k -> k.location().getPath()).orElse("unknown");
-        String domain = "minecraft";
-        if (materialName.contains(":")) {
-            String[] split = materialName.split(":", 2);
-            domain = split[0];
-            materialName = split[1];
-        } else {
-            Identifier itemRegistryName = BuiltInRegistries.ITEM.getKey(item);
-            if (itemRegistryName != null) domain = itemRegistryName.getNamespace();
-        }
-        String typeSuffix = (type == null || type.isEmpty()) ? "" : "_" + type;
-        String textureLocation = String.format("%s:textures/models/armor/%s_layer_1%s.png", domain, materialName, typeSuffix);
+        Identifier asset = ArmorData.asset(stack);
+        String kind = slot == EquipmentSlot.LEGS ? "humanoid_leggings" : "humanoid";
+        String suffix = (type == null || type.isEmpty()) ? "" : "_" + type;
+        String textureLocation = asset.getNamespace() + ":textures/entity/equipment/" + kind + "/" + asset.getPath() + suffix + ".png";
         return Identifier.parse(textureLocation);
     }
 

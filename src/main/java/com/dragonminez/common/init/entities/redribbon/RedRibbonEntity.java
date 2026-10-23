@@ -6,7 +6,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import com.dragonminez.common.init.entities.ai.EnemyMeleeBrainGoal;
@@ -15,7 +15,7 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -23,11 +23,11 @@ import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 public class RedRibbonEntity extends Monster implements GeoEntity {
 
@@ -73,15 +73,22 @@ public class RedRibbonEntity extends Monster implements GeoEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putBoolean(NBT_SUPERVILLAIN, isSupervillain());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        setSupervillain(pCompound.getBoolean(NBT_SUPERVILLAIN));
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        setSupervillain(pCompound.getBooleanOr(NBT_SUPERVILLAIN, false));
     }
 
     public boolean isSupervillain() {
@@ -94,42 +101,42 @@ public class RedRibbonEntity extends Monster implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "base_controller", 5, this::walkPredicate));
-        controllers.add(new AnimationController<>(this, "attack_controller", 0, this::attackPredicate));
+        controllers.add(new AnimationController<>("base_controller", 5, this::walkPredicate));
+        controllers.add(new AnimationController<>("attack_controller", 0, this::attackPredicate));
 
     }
 
-    private <T extends GeoAnimatable> PlayState walkPredicate(AnimationState<T> event) {
-        RedRibbonEntity entity = (RedRibbonEntity) event.getAnimatable();
+    private <T extends GeoAnimatable> PlayState walkPredicate(AnimationTest<T> event) {
+        RedRibbonEntity entity = (RedRibbonEntity) event.animatable();
 
         if (event.isMoving()) {
             if (entity.isAggressive() || entity.getTarget() != null) {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("run"));
+                event.controller().setAnimation(RawAnimation.begin().thenLoop("run"));
             } else {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("walk"));
+                event.controller().setAnimation(RawAnimation.begin().thenLoop("walk"));
             }
             return PlayState.CONTINUE;
         }
 
-        event.getController().setAnimation(RawAnimation.begin().thenLoop("idle"));
+        event.controller().setAnimation(RawAnimation.begin().thenLoop("idle"));
         return PlayState.CONTINUE;
     }
 
-    private <T extends GeoAnimatable> PlayState attackPredicate(AnimationState<T> event) {
-        RedRibbonEntity entity = (RedRibbonEntity) event.getAnimatable();
+    private <T extends GeoAnimatable> PlayState attackPredicate(AnimationTest<T> event) {
+        RedRibbonEntity entity = (RedRibbonEntity) event.animatable();
 
         if (entity.swingTime > 0 && !isAttacking) {
             isAttacking = true;
 
-            event.getController().forceAnimationReset();
+            event.controller().forceAnimationReset();
 
-            event.getController().setAnimation(RawAnimation.begin().thenPlay("attack"));
+            event.controller().setAnimation(RawAnimation.begin().thenPlay("attack"));
 
             return PlayState.CONTINUE;
         }
 
         if (isAttacking) {
-            if (event.getController().getAnimationState() == AnimationController.State.STOPPED) {
+            if (event.controller().getAnimationState() == AnimationController.State.STOPPED) {
                 isAttacking = false;
                 return PlayState.STOP;
             }
@@ -145,7 +152,7 @@ public class RedRibbonEntity extends Monster implements GeoEntity {
     }
 
     @Override
-    public boolean checkSpawnRules(LevelAccessor pLevel, MobSpawnType reason) {
+    public boolean checkSpawnRules(LevelAccessor pLevel, EntitySpawnReason reason) {
         return pLevel.getDifficulty() != Difficulty.PEACEFUL && this.checkSpawnObstruction(pLevel);
     }
 }

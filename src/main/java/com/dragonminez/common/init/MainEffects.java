@@ -6,10 +6,9 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.dragonminez.platform.registry.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 public class MainEffects {
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(BuiltInRegistries.MOB_EFFECT, Reference.MOD_ID);
@@ -75,5 +74,5 @@ public class MainEffects {
 	public static final DeferredHolder<MobEffect, MobEffect> HERMIT_FERN = EFFECTS.register("hermit_fern", () -> new DMZEffect(MobEffectCategory.BENEFICIAL, 0x27AE60));
 	public static final DeferredHolder<MobEffect, MobEffect> KAIOSHIN_FRUIT = EFFECTS.register("kaioshin_fruit", () -> new DMZEffect(MobEffectCategory.BENEFICIAL, 0x3C7DFF));
 
-    public static void register(IEventBus eventBus) { EFFECTS.register(eventBus); }
+    public static void register() { EFFECTS.register(); }
 }

@@ -12,7 +12,7 @@ import com.dragonminez.common.hair.HairPresets;
 import com.dragonminez.common.hair.HairStrand;
 import com.dragonminez.common.hair.HairStyleSlot;
 import com.dragonminez.common.hair.HairTransformGenerator;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.EnumMap;

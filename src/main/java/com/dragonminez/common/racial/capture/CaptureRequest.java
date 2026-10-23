@@ -5,7 +5,6 @@ import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.network.S2C.RacialRequestS2C;
 import com.dragonminez.common.racial.impl.NamekAssimilation;
 import com.dragonminez.common.stats.StatsCapability;
-import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;

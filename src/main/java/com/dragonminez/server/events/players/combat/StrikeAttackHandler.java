@@ -57,18 +57,13 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.RelativeMovement;
 import net.neoforged.neoforge.entity.PartEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.GameEvents;
+import com.dragonminez.platform.event.tick.PlayerTickEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
 import java.util.HashMap;
 import java.util.List;
@@ -264,7 +259,7 @@ public class StrikeAttackHandler {
 	private static final java.util.Set<RelativeMovement> RELATIVE_ROTATION = java.util.EnumSet.of(RelativeMovement.Y_ROT, RelativeMovement.X_ROT);
 
 	public static void requestStrike(ServerPlayer player, int preferredTargetId) {
-		if (player.level().isClientSide) return;
+		if (player.level().isClientSide()) return;
 		StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(stats -> {
 			if (!stats.getStatus().isHasCreatedCharacter()) return;
 			if (stats.getStatus().isStunned()) return;
@@ -290,19 +285,19 @@ public class StrikeAttackHandler {
 			NetworkHandler.sendToTrackingEntityAndSelf(new StatsSyncS2C(player), player);
 
 			if (OOZARU_SLAM_ID.equals(strike.getId())) {
-				NeoForge.EVENT_BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
+				GameEvents.BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
 				startSlam(player, stats, strike);
 				return;
 			}
 
 			if (DIM_PUNCH_ID.equals(strike.getId())) {
-				NeoForge.EVENT_BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
+				GameEvents.BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
 				startDimensionalPunch(player, stats, strike, preferredTargetId);
 				return;
 			}
 
 			if (DIM_SLASH_ID.equals(strike.getId())) {
-				NeoForge.EVENT_BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
+				GameEvents.BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
 				startDimensionalSlash(player, stats, strike, preferredTargetId);
 				return;
 			}
@@ -325,7 +320,7 @@ public class StrikeAttackHandler {
 					RUSH_TICKS
 			);
 
-			NeoForge.EVENT_BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
+			GameEvents.BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
 
 			if (SPBlueHurricaneEntity.STRIKE_ID.equals(strike.getId())) {
 				startTargetlessStrike(player, stats, strike, pending, false);
@@ -364,7 +359,7 @@ public class StrikeAttackHandler {
 	}
 
 	public static boolean interrupt(ServerPlayer player) {
-		if (player == null || player.level().isClientSide) return false;
+		if (player == null || player.level().isClientSide()) return false;
 
 		UUID id = player.getUUID();
 		boolean interrupted = false;
@@ -398,7 +393,7 @@ public class StrikeAttackHandler {
 
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Post event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
 		processPending(player);
@@ -564,7 +559,7 @@ public class StrikeAttackHandler {
 			double damage = stats.getStrikeDamage() * strike.getDamageMultiplier() * Math.max(0.0,
 					ConfigManager.getTechniqueConfig().getStrikeConfig(strike.getId()).getDamageMultiplier());
 			DMZEvent.DamageModifyEvent modifyEvent = new DMZEvent.DamageModifyEvent(player, target, damage, 0.0, DMZEvent.DamageSourceType.STRIKE);
-			return NeoForge.EVENT_BUS.post(modifyEvent).isCanceled() ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
+			return GameEvents.BUS.post(modifyEvent).isCanceled() ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
 		}).orElse(0.0);
 	}
 
@@ -756,7 +751,7 @@ public class StrikeAttackHandler {
 
             if (active.ticksElapsed() >= active.durationTicks()) {
 
-                if (target != null && !player.level().isClientSide) {
+                if (target != null && !player.level().isClientSide()) {
                     try {
                         KiExplosionVisualEntity explosion = new KiExplosionVisualEntity(MainEntities.KI_EXPLOSION_VISUAL.get(), player.level());
                         explosion.setPos(target.getX(), target.getY() + 1.0, target.getZ());
@@ -821,7 +816,7 @@ public class StrikeAttackHandler {
 
             if (currentTick >= active.durationTicks()) {
 
-                if (!player.level().isClientSide) {
+                if (!player.level().isClientSide()) {
                     try {
                         KiExplosionVisualEntity explosion = new KiExplosionVisualEntity(MainEntities.KI_EXPLOSION_VISUAL.get(), player.level());
                         explosion.setPos(target.getX(), target.getY() + 1.0, target.getZ());
@@ -1473,7 +1468,7 @@ public class StrikeAttackHandler {
 			DMZEvent.DamageModifyEvent modifyEvent =
 					new DMZEvent.DamageModifyEvent(player, target, totalDamage, 0.0,
 							DMZEvent.DamageSourceType.STRIKE);
-			totalDamage = NeoForge.EVENT_BUS.post(modifyEvent).isCanceled() ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
+			totalDamage = GameEvents.BUS.post(modifyEvent).isCanceled() ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
 
 			int durationTicks = Math.max(20, pending.durationTicks());
 			int hitCount = Math.max(1, (int) Math.ceil(durationTicks / (double) HIT_INTERVAL_TICKS));
@@ -1497,7 +1492,7 @@ public class StrikeAttackHandler {
 			// Grant invulnerability the instant the strike locks on, before the next tick's
 			// processActive runs, so the target can't land a free hit during the engage window.
 			player.invulnerableTime = 20;
-			NeoForge.EVENT_BUS.post(
+			GameEvents.BUS.post(
 					new DMZEvent.StrikeAttackFireEvent(player, stats, strike, target));
 
 			if (!NO_ENGAGE_DAMAGE_STRIKES.contains(pending.techniqueId())) applyStrikeDamage(player, target, perHitDamage, pending.techniqueId(), false);
@@ -1773,7 +1768,7 @@ public class StrikeAttackHandler {
 			float damage = (float) (amount * modifier);
 			if (!lethal && victim.getHealth() - damage <= 1.0F) damage = Math.max(0.01F, victim.getHealth() - 1.0F);
 			if (damage <= 0.0F) return;
-			victim.hurt(MainDamageTypes.kiblast(this.player.level(), this.player, this.player), damage);
+			victim.hurtOrSimulate(MainDamageTypes.kiblast(this.player.level(), this.player, this.player), damage);
 			if (lethal) grantKillXpIfNeeded(this.player, victim, EYE_BEAM_ID);
 		}
 	}
@@ -2026,7 +2021,7 @@ public class StrikeAttackHandler {
 			float damage = (float) (amount * modifier);
 			if (!lethal && victim.getHealth() - damage <= 1.0F) damage = Math.max(0.01F, victim.getHealth() - 1.0F);
 			if (damage <= 0.0F) return;
-			victim.hurt(MainDamageTypes.kiblast(this.player.level(), this.player, this.player), damage);
+			victim.hurtOrSimulate(MainDamageTypes.kiblast(this.player.level(), this.player, this.player), damage);
 			if (lethal) grantKillXpIfNeeded(this.player, victim, ANDROID_COMBO_ID);
 		}
 	}
@@ -2186,7 +2181,7 @@ public class StrikeAttackHandler {
 			float damage = (float) (amount * modifier);
 			if (!lethal && victim.getHealth() - damage <= 1.0F) damage = Math.max(0.01F, victim.getHealth() - 1.0F);
 			if (damage <= 0.0F) return;
-			victim.hurt(MainDamageTypes.kiblast(this.player.level(), this.player, this.player), damage);
+			victim.hurtOrSimulate(MainDamageTypes.kiblast(this.player.level(), this.player, this.player), damage);
 			if (lethal) grantKillXpIfNeeded(this.player, victim, METEOR_BURST_ID);
 		}
 
@@ -2382,7 +2377,7 @@ public class StrikeAttackHandler {
 		if (target != null) return damage;
 		DMZEvent.DamageModifyEvent modifyEvent = new DMZEvent.DamageModifyEvent(
 				player, victim, damage, 0.0, DMZEvent.DamageSourceType.STRIKE);
-		return NeoForge.EVENT_BUS.post(modifyEvent).isCanceled() ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
+		return GameEvents.BUS.post(modifyEvent).isCanceled() ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
 	}
 
 	private static Vec3 strikeImpactPoint(ServerPlayer player, LivingEntity victim, double heightRatio) {
@@ -2394,7 +2389,7 @@ public class StrikeAttackHandler {
 	}
 
 	private static void spawnSuperGodFistTrail(ServerPlayer player) {
-		ServerLevel level = player.serverLevel();
+		ServerLevel level = player.level();
 		Vec3 motion = player.getDeltaMovement();
 		Vec3 center = player.position().add(0.0, player.getBbHeight() * 0.5, 0.0);
 
@@ -2654,7 +2649,7 @@ public class StrikeAttackHandler {
 			hit.add(victim.getUUID());
 			DMZEvent.DamageModifyEvent modifyEvent = new DMZEvent.DamageModifyEvent(
 					player, victim, active.totalDamage(), 0.0, DMZEvent.DamageSourceType.STRIKE);
-			double damage = NeoForge.EVENT_BUS.post(modifyEvent).isCanceled() ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
+			double damage = GameEvents.BUS.post(modifyEvent).isCanceled() ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
 			applyStrikeDamage(player, victim, damage, active.techniqueId(), true);
 			grantKillXpIfNeeded(player, victim, active.techniqueId());
 		}
@@ -3016,7 +3011,7 @@ public class StrikeAttackHandler {
 
 		playStrikeHitAnimation(player, target, techniqueId);
 		spawnHitShockwave(player, target, techniqueId, isFinalHit);
-		target.hurt(MainDamageTypes.strikeAttack(player.level(), player, techniqueId), (float) damage);
+		target.hurtOrSimulate(MainDamageTypes.strikeAttack(player.level(), player, techniqueId), (float) damage);
 		RECENTLY_DAMAGED.put(player.getUUID(), new RecentHit(target.getUUID(), System.currentTimeMillis()));
 
 		double finalDamage = damage;
@@ -3078,7 +3073,7 @@ public class StrikeAttackHandler {
 	static void applyCollisionImpactDamage(ServerPlayer player, LivingEntity victim, float damage, String techniqueId) {
 		if (!victim.isAlive() || damage <= 0.0F) return;
 		victim.invulnerableTime = 0;
-		victim.hurt(MainDamageTypes.strikeAttack(player.level(), player, techniqueId), damage);
+		victim.hurtOrSimulate(MainDamageTypes.strikeAttack(player.level(), player, techniqueId), damage);
 		grantKillXpIfNeeded(player, victim, techniqueId);
 	}
 

@@ -6,15 +6,13 @@ import lombok.Getter;
 import net.minecraft.world.item.Item;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 import com.geckolib.animatable.GeoItem;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.RawAnimation;
 import com.geckolib.util.GeckoLibUtil;
@@ -52,18 +50,21 @@ public class WeightItem extends DMZCuriosItem implements GeoItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        net.minecraft.world.level.Level level = context.level();
-		super.appendHoverText(stack, context, tooltip, flag);
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag flag) {
+        java.util.List<Component> tooltip = new java.util.ArrayList<>();
+        try {
+		super.appendHoverText(stack, context, dmz$display, tooltip::add, flag);
 		int weight = getWeight(stack);
 		if (weight > 0) {
 			tooltip.add(Component.translatable("item.dragonminez.weight.tooltip", NumberFormattingUtil.formatLargeNumber(weight)).withStyle(ChatFormatting.GOLD));
 		}
-	}
+
+        } finally { tooltip.forEach(dmz$consumer); }
+    }
 
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		controllers.add(new AnimationController<>(this, "controller", 5, event -> {
+		controllers.add(new AnimationController<>("controller", 5, event -> {
 			if (event.isMoving()) {
 				return event.setAndContinue(RawAnimation.begin().thenLoop("walk"));
 			} else {

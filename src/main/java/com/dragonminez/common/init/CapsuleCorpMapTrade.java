@@ -13,9 +13,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.npc.AbstractVillager;
-import net.minecraft.world.entity.npc.VillagerTrades;
-import net.minecraft.core.component.DataComponentPredicate;
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
+import net.minecraft.world.item.trading.VillagerTrades;
+import net.minecraft.core.component.predicates.DataComponentPredicate;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
@@ -87,7 +87,7 @@ public class CapsuleCorpMapTrade implements VillagerTrades.ItemListing {
 	private static ItemStack createPendingMapStack(ResourceKey<Structure> destination, String displayName) {
 		ItemStack map = new ItemStack(Items.FILLED_MAP);
 		map.set(DataComponents.CUSTOM_NAME, Component.translatable("filled_map." + displayName));
-		CustomData.update(DataComponents.CUSTOM_DATA, map, tag -> tag.putString(STRUCTURE_TAG, destination.location().toString()));
+		CustomData.update(DataComponents.CUSTOM_DATA, map, tag -> tag.putString(STRUCTURE_TAG, destination.identifier().toString()));
 		CustomData.update(DataComponents.CUSTOM_DATA, map, tag -> tag.putBoolean(PENDING_TAG, true));
 		return map;
 	}
@@ -98,7 +98,7 @@ public class CapsuleCorpMapTrade implements VillagerTrades.ItemListing {
 		MapItem.renderBiomePreviewMap(level, map);
 		MapItemSavedData.addTargetDecoration(map, pos, "+", destinationType);
 		map.set(DataComponents.CUSTOM_NAME, Component.translatable("filled_map." + displayName));
-		CustomData.update(DataComponents.CUSTOM_DATA, map, tag -> tag.putString(STRUCTURE_TAG, destination.location().toString()));
+		CustomData.update(DataComponents.CUSTOM_DATA, map, tag -> tag.putString(STRUCTURE_TAG, destination.identifier().toString()));
 		return map;
 	}
 
@@ -128,7 +128,7 @@ public class CapsuleCorpMapTrade implements VillagerTrades.ItemListing {
 			boolean wasPending = resultTag != null && resultTag.getBoolean(PENDING_TAG);
 
 			ItemStack fresh = createMapStack(level, pos, key,
-					Reference.MOD_ID + "." + key.location().getPath(), net.minecraft.world.level.saveddata.maps.MapDecorationTypes.RED_X);
+					Reference.MOD_ID + "." + key.identifier().getPath(), net.minecraft.world.level.saveddata.maps.MapDecorationTypes.RED_X);
 			offers.set(i, new MerchantOffer(offer.getItemCostA(), offer.getItemCostB(), fresh,
 					wasPending ? 0 : offer.getUses(), offer.getMaxUses(), offer.getXp(),
 					offer.getPriceMultiplier(), offer.getDemand()));
@@ -150,7 +150,7 @@ public class CapsuleCorpMapTrade implements VillagerTrades.ItemListing {
 			}
 		}
 		if (id == null) return null;
-		if (!level.registryAccess().registryOrThrow(Registries.STRUCTURE).containsKey(id)) return null;
+		if (!level.registryAccess().lookupOrThrow(Registries.STRUCTURE).containsKey(id)) return null;
 		return ResourceKey.create(Registries.STRUCTURE, id);
 	}
 

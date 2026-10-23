@@ -4,11 +4,10 @@ import com.dragonminez.client.render.DMZRenderHand;
 import com.dragonminez.client.render.effects.KiWeaponRenderer;
 import com.dragonminez.client.render.firstperson.dto.FirstPersonManager;
 import com.dragonminez.common.combat.util.Minecraft_DMZ;
-import com.dragonminez.common.config.ConfigManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -120,13 +119,13 @@ public class HeldItemRendererMixin {
 //            method = { "renderPlayerArm", "renderMapHand" },
 //            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;getRenderer(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/client/renderer/entity/EntityRenderer;")
 //    )
-//    private <T extends Entity> EntityRenderer<? super T> dmz$useVanillaHands(EntityRenderDispatcher instance, T entity) {
-//        EntityRenderer<? super T> renderer = instance.getRenderer(entity);
+//    private <T extends Entity> EntityRenderer<? super T, net.minecraft.client.renderer.entity.state.EntityRenderState> dmz$useVanillaHands(EntityRenderDispatcher instance, T entity) {
+//        EntityRenderer<? super T, net.minecraft.client.renderer.entity.state.EntityRenderState> renderer = instance.getRenderer(entity);
 //
 //        if (renderer instanceof PlayerDMZRenderer && entity instanceof AbstractClientPlayer player) {
 //            String modelName = player.getSkin().model().id();
 //
-//            return (EntityRenderer<? super T>) instance.getSkinMap().get(modelName);
+//            return (EntityRenderer<? super T, net.minecraft.client.renderer.entity.state.EntityRenderState>) instance.getSkinMap().get(modelName);
 //        }
 //
 //        return renderer;

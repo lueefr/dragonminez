@@ -3,7 +3,7 @@ package com.dragonminez.common.network.S2C;
 import com.dragonminez.client.gui.worldboss.WorldBossResultsScreen;
 import com.dragonminez.common.worldboss.WorldBossResults;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
 
@@ -25,7 +25,7 @@ public class WorldBossResultsS2C {
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(EnvType.CLIENT,
 				() -> () -> WorldBossResultsScreen.open(results)));
 		ctx.get().setPacketHandled(true);
 	}

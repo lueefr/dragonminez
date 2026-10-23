@@ -79,7 +79,7 @@ public class UpdateStatC2S {
 						if (msg.value) {
 							MeleeWindupTracker.cancel(player);
 							if (data.getStatus().isBlocking()) break;
-							if (now - player.getPersistentData().getLong(BLOCK_END_TIME_TAG) < BLOCK_REACTIVATION_DELAY_MS) {
+							if (now - com.dragonminez.platform.entity.EntityData.get(player).getLongOr(BLOCK_END_TIME_TAG, 0L) < BLOCK_REACTIVATION_DELAY_MS) {
 								resyncStaleStatus(player);
 								break;
 							}
@@ -87,7 +87,7 @@ public class UpdateStatC2S {
 							data.getStatus().setLastBlockTime(now);
 						} else if (data.getStatus().isBlocking()) {
 							data.getStatus().setBlocking(false);
-							player.getPersistentData().putLong(BLOCK_END_TIME_TAG, now);
+							com.dragonminez.platform.entity.EntityData.get(player).putLong(BLOCK_END_TIME_TAG, now);
 						}
 						break;
                 }

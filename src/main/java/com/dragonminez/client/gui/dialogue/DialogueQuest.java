@@ -7,17 +7,17 @@ import com.dragonminez.common.quest.QuestRegistry;
 import com.dragonminez.common.quest.QuestService;
 import com.dragonminez.common.quest.QuestUnlockOrder;
 import com.dragonminez.common.stats.StatsData;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 final class DialogueQuest {
 	enum Status { TURN_IN, OFFER, IN_PROGRESS, COOLDOWN, LOCKED, COMPLETED }
 

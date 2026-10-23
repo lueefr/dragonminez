@@ -7,10 +7,10 @@ import com.dragonminez.common.network.NetworkHandler;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public final class ClientBeamClashState {
 	public static final long FEEDBACK_NANOS = 750_000_000L;
 

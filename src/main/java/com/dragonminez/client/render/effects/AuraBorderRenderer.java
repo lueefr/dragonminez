@@ -156,7 +156,7 @@ public final class AuraBorderRenderer {
 			bindScene(bound, main);
 
 			Matrix4f view = viewMatrix(mc, poseStack);
-			Vec3 camera = mc.gameRenderer.getMainCamera().getPosition();
+			Vec3 camera = mc.gameRenderer.getMainCamera().position();
 			REQUESTS.sort(Comparator.comparingDouble((Request request) -> request.entity().distanceToSqr(camera)).reversed());
 			for (Request request : REQUESTS) {
 				Placement placement = place(mc, request, view, projection, main);
@@ -206,8 +206,8 @@ public final class AuraBorderRenderer {
 		if (!IrisCompat.isShaderPackInUse()) return new Matrix4f(poseStack.last().pose());
 		Camera camera = mc.gameRenderer.getMainCamera();
 		return new Matrix4f()
-				.rotateX(camera.getXRot() * Mth.DEG_TO_RAD)
-				.rotateY((camera.getYRot() + 180.0f) * Mth.DEG_TO_RAD);
+				.rotateX(camera.xRot() * Mth.DEG_TO_RAD)
+				.rotateY((camera.yRot() + 180.0f) * Mth.DEG_TO_RAD);
 	}
 
 	private record Placement(float centerX, float centerY, float upX, float upY, float thickness, float alpha,
@@ -216,7 +216,7 @@ public final class AuraBorderRenderer {
 	private static Placement place(Minecraft mc, Request request, Matrix4f view, Matrix4f projection, RenderTarget main) {
 		Entity entity = request.entity();
 		float partialTick = request.partialTick();
-		Vec3 camera = mc.gameRenderer.getMainCamera().getPosition();
+		Vec3 camera = mc.gameRenderer.getMainCamera().position();
 		float height = entity.getBbHeight();
 		float radius = Math.max(height, entity.getBbWidth()) * 0.5f + BOUNDS_PADDING;
 

@@ -72,7 +72,7 @@ public class KiBarrierEntity extends AbstractKiProjectile {
         this.setSize(2.0f);
         this.setFiring(false);
         this.setFireTick(-1);
-        if (!this.level().isClientSide) this.level().addFreshEntity(this);
+        if (!this.level().isClientSide()) this.level().addFreshEntity(this);
     }
 
     public void setupKiBarrier(LivingEntity owner, int color, int colorBorder, int castTime) {
@@ -86,7 +86,7 @@ public class KiBarrierEntity extends AbstractKiProjectile {
         this.setFireTick(-1);
         this.setMaxLife(99999);
         this.setCastTime(40);
-        
+
     }
 
     public void setupBarrierPlayer(LivingEntity owner, float damage, float size, int colorMain, int colorBorder) {
@@ -102,7 +102,7 @@ public class KiBarrierEntity extends AbstractKiProjectile {
         this.setBarrierMaxHp(hp);
         this.setBarrierHp(hp);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
                     MainSounds.KI_EXPLOSION_IMPACT.get(), net.minecraft.sounds.SoundSource.PLAYERS, 0.7F, 1.2F);
         }
@@ -152,7 +152,7 @@ public class KiBarrierEntity extends AbstractKiProjectile {
     }
 
     public void absorbDamage(float amount, Entity attacker) {
-        if (this.level().isClientSide || !this.isFiring() || amount <= 0.0F) return;
+        if (this.level().isClientSide() || !this.isFiring() || amount <= 0.0F) return;
 
         this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
                 MainSounds.BLOCK1.get(), SoundSource.PLAYERS, 0.8F, 1.0F);
@@ -190,7 +190,7 @@ public class KiBarrierEntity extends AbstractKiProjectile {
     }
 
     private void playEndEffects(float pitch) {
-        if (this.level().isClientSide) return;
+        if (this.level().isClientSide()) return;
         this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
                 MainSounds.KI_EXPLOSION_IMPACT.get(), SoundSource.PLAYERS, 1.0F, pitch);
     }
@@ -250,16 +250,16 @@ public class KiBarrierEntity extends AbstractKiProjectile {
         if (anchor != null && anchor.isAlive()) {
             centerOn(anchor);
             this.setDeltaMovement(0, 0, 0);
-        } else if (hostMode && this.level().isClientSide) {
+        } else if (hostMode && this.level().isClientSide()) {
             this.setDeltaMovement(0, 0, 0);
         } else {
-            if (!this.level().isClientSide) this.discard();
+            if (!this.level().isClientSide()) this.discard();
             return;
         }
 
         boolean isFiring = this.isFiring();
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (!isFiring) {
                 this.setCurrentSize(0.1F);
             } else {
@@ -285,7 +285,7 @@ public class KiBarrierEntity extends AbstractKiProjectile {
             }
         }
 
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             if (!isFiring) {
                 spawnAbsorptionParticles();
             } else {
@@ -294,7 +294,7 @@ public class KiBarrierEntity extends AbstractKiProjectile {
         }
 
         if (this.tickCount >= this.getMaxLife()) {
-            if (!this.level().isClientSide) this.expireBarrier();
+            if (!this.level().isClientSide()) this.expireBarrier();
         }
     }
 
@@ -333,7 +333,7 @@ public class KiBarrierEntity extends AbstractKiProjectile {
             target.hasImpulse = true;
 
             if (contactDamage > 0.0F
-                    && living.hurt(MainDamageTypes.kiblast(this.level(), this, this.getOwner()), contactDamage)) {
+                    && living.hurtOrSimulate(MainDamageTypes.kiblast(this.level(), this, this.getOwner()), contactDamage)) {
                 this.applyTechniqueSecondaryEffect(living);
             }
         }
@@ -405,7 +405,7 @@ public class KiBarrierEntity extends AbstractKiProjectile {
     }
 
     @Override
-    public boolean hurt(DamageSource pSource, float pAmount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource pSource, float pAmount) {
         return false;
     }
 

@@ -1,5 +1,6 @@
 package com.dragonminez.client.init.entities.renderer.sagas;
 
+import net.minecraft.world.item.equipment.ArmorType;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.client.init.entities.renderer.sagas.layer.SagaSupervillainLayer;
@@ -24,7 +25,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
@@ -35,17 +36,17 @@ import net.minecraft.world.item.ItemStack;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.state.AnimationTest;
+import com.geckolib.animation.object.PlayState;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
-public class SaiyanInvaderRenderer<T extends DBSagasEntity & SagaSaiyanInvadersEntity.Invader> extends EntityRenderer<T> {
+public class SaiyanInvaderRenderer<T extends DBSagasEntity & SagaSaiyanInvadersEntity.Invader> extends EntityRenderer<T, net.minecraft.client.renderer.entity.state.EntityRenderState> {
 
 	private static final Map<Integer, Puppet> PUPPETS = new HashMap<>();
 	private static final int SWEEP_INTERVAL = 200;
@@ -234,21 +235,21 @@ public class SaiyanInvaderRenderer<T extends DBSagasEntity & SagaSaiyanInvadersE
 
 		@Override
 		public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-			controllers.add(new AnimationController<>(this, "base_controller", 5,
+			controllers.add(new AnimationController<>("base_controller", 5,
 					state -> DBSagasAnimationHandler.walkPredicate(state, this.owner)));
-			controllers.add(new AnimationController<>(this, "skill_controller", 5, this::skillPredicate));
-			controllers.add(new AnimationController<>(this, "evasion_controller", 5,
+			controllers.add(new AnimationController<>("skill_controller", 5, this::skillPredicate));
+			controllers.add(new AnimationController<>("evasion_controller", 5,
 					state -> DBSagasAnimationHandler.evasionPredicate(state, this.owner)));
-			controllers.add(new AnimationController<>(this, "attack_controller", 0,
+			controllers.add(new AnimationController<>("attack_controller", 0,
 					state -> DBSagasAnimationHandler.attackPredicate(state, this.owner)));
-			controllers.add(new AnimationController<>(this, DBSagasEntity.HURT_CONTROLLER, 0,
+			controllers.add(new AnimationController<>(DBSagasEntity.HURT_CONTROLLER, 0,
 					state -> DBSagasAnimationHandler.hurtPredicate(state, this.owner))
 					.triggerableAnim(DBSagasEntity.HURT_ANIM_LEFT, DBSagasAnimations.ANIM_HURT_LEFT)
 					.triggerableAnim(DBSagasEntity.HURT_ANIM_RIGHT, DBSagasAnimations.ANIM_HURT_RIGHT));
-			controllers.add(new AnimationController<>(this, "tail_controller", 5, DBSagasAnimationHandler::tailPredicate));
+			controllers.add(new AnimationController<>("tail_controller", 5, DBSagasAnimationHandler::tailPredicate));
 		}
 
-		private PlayState skillPredicate(AnimationState<Puppet> state) {
+		private PlayState skillPredicate(AnimationTest<Puppet> state) {
 			if (this.owner instanceof SagaSaiyanInvadersEntity.Soldier soldier) {
 				int action = soldier.getAction();
 				if (action == SagaSaiyanInvadersEntity.Soldier.ACTION_MOON_CHARGE) return state.setAndContinue(DBSagasAnimations.ANIM_LARGE_BALL_CAST);
@@ -340,9 +341,9 @@ public class SaiyanInvaderRenderer<T extends DBSagasEntity & SagaSaiyanInvadersE
 			status.setHasCreatedCharacter(true);
 			status.setTailVisible(oozaru);
 
-			this.getInventory().armor.set(EquipmentSlot.CHEST.getIndex(), look.armorPiece(ArmorItem.Type.CHESTPLATE));
-			this.getInventory().armor.set(EquipmentSlot.LEGS.getIndex(), look.armorPiece(ArmorItem.Type.LEGGINGS));
-			this.getInventory().armor.set(EquipmentSlot.FEET.getIndex(), look.armorPiece(ArmorItem.Type.BOOTS));
+			this.getInventory().armor.set(EquipmentSlot.CHEST.getIndex(), look.armorPiece(ArmorType.CHESTPLATE));
+			this.getInventory().armor.set(EquipmentSlot.LEGS.getIndex(), look.armorPiece(ArmorType.LEGGINGS));
+			this.getInventory().armor.set(EquipmentSlot.FEET.getIndex(), look.armorPiece(ArmorType.BOOTS));
 			this.scouter = look.scouterStack();
 
 			this.appliedLook = look;

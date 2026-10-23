@@ -10,14 +10,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
-import org.jetbrains.annotations.NotNull;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.model.GeoModel;
 
@@ -41,7 +40,7 @@ public class DMZPOVPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable
             return;
         }
 
-        final Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        final Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().position();
         final Vec3 playerPos = localPlayer.getPosition(partialTick);
         final Vector3f offset = FirstPersonManager.offsetFirstPersonView(localPlayer);
         final float BODY_PUSHBACK_Z = 0.25F;

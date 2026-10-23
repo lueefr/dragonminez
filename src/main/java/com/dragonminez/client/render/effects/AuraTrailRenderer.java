@@ -13,7 +13,7 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -146,7 +146,7 @@ public final class AuraTrailRenderer {
 		update(entity, anchor, moving, maxSamples, true);
 		if (!TRAILS.containsKey(entity.getId())) return;
 
-		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
 		Matrix4f view = new Matrix4f(entityPose).translate(
 				(float) -(Mth.lerp(partialTick, entity.xo, entity.getX()) - camera.x),
 				(float) -(Mth.lerp(partialTick, entity.yo, entity.getY()) - camera.y),
@@ -224,7 +224,7 @@ public final class AuraTrailRenderer {
 		ShaderInstance shader = DMZShaders.auraTrailShader;
 		if (shader == null) return false;
 
-		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
 
 		List<Vec3> points = new ArrayList<>(trail.points);
 

@@ -51,7 +51,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -361,7 +360,7 @@ public class TriggerCommand {
 			return 0;
 		}
 
-		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.containsKey(mobId) ? BuiltInRegistries.ENTITY_TYPE.get(mobId) : null;
+		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.containsKey(mobId) ? BuiltInRegistries.ENTITY_TYPE.getValue(mobId) : null;
 		double maxHealth = baseMaxHealth(type);
 		if (maxHealth <= 0.0) {
 			source.sendFailure(Component.translatable("command.dragonminez.trigger.racial.majin.invalid_mob", mobId.toString()));

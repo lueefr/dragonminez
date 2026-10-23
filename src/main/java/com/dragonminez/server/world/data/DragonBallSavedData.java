@@ -126,31 +126,31 @@ public class DragonBallSavedData extends SavedData {
 	public static DragonBallSavedData load(CompoundTag tag) {
 		DragonBallSavedData data = new DragonBallSavedData();
 		if (tag.contains("SetData")) {
-			CompoundTag setData = tag.getCompound("SetData");
-			for (String setId : setData.getAllKeys()) {
-				CompoundTag entry = setData.getCompound(setId);
-				loadMap(entry.getList("Active", 10), data.getActiveBalls(setId));
-				loadMap(entry.getList("Pending", 10), data.getPendingBalls(setId));
-				if (entry.getBoolean("FirstSpawned")) data.firstSpawnedSetIds.add(setId);
-				if (entry.contains("SpawnedCopies")) data.spawnedCopiesBySet.put(setId, entry.getInt("SpawnedCopies"));
+			CompoundTag setData = tag.getCompoundOrEmpty("SetData");
+			for (String setId : setData.keySet()) {
+				CompoundTag entry = setData.getCompoundOrEmpty(setId);
+				loadMap(com.dragonminez.platform.nbt.NbtCompat.getList(entry, "Active", 10), data.getActiveBalls(setId));
+				loadMap(com.dragonminez.platform.nbt.NbtCompat.getList(entry, "Pending", 10), data.getPendingBalls(setId));
+				if (entry.getBooleanOr("FirstSpawned", false)) data.firstSpawnedSetIds.add(setId);
+				if (entry.contains("SpawnedCopies")) data.spawnedCopiesBySet.put(setId, entry.getIntOr("SpawnedCopies", 0));
 			}
 		} else {
 			loadLegacySet(tag, data, "earth", "ActiveEarth", "PendingEarth", "FirstSpawnEarth");
 			loadLegacySet(tag, data, "namek", "ActiveNamek", "PendingNamek", "FirstSpawnNamek");
 		}
-		ListTag summonList = tag.getList("Summons", 10);
+		ListTag summonList = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "Summons", 10);
 		for (int i = 0; i < summonList.size(); i++) {
-			CompoundTag item = summonList.getCompound(i);
-			if (!item.hasUUID("Dragon")) continue;
-			data.summons.put(item.getUUID("Dragon"), new Summon(item.getString("Set"), item.getLong("ExpiresAt")));
+			CompoundTag item = summonList.getCompoundOrEmpty(i);
+			if (!com.dragonminez.platform.nbt.NbtCompat.hasUUID(item, "Dragon")) continue;
+			data.summons.put(com.dragonminez.platform.nbt.NbtCompat.getUUID(item, "Dragon"), new Summon(item.getStringOr("Set", ""), item.getLongOr("ExpiresAt", 0L)));
 		}
 		return data;
 	}
 
 	private static void loadLegacySet(CompoundTag tag, DragonBallSavedData data, String setId, String activeKey, String pendingKey, String firstKey) {
-		if (tag.contains(activeKey)) loadMap(tag.getList(activeKey, 10), data.getActiveBalls(setId));
-		if (tag.contains(pendingKey)) loadMap(tag.getList(pendingKey, 10), data.getPendingBalls(setId));
-		if (tag.getBoolean(firstKey)) data.firstSpawnedSetIds.add(setId);
+		if (tag.contains(activeKey)) loadMap(com.dragonminez.platform.nbt.NbtCompat.getList(tag, activeKey, 10), data.getActiveBalls(setId));
+		if (tag.contains(pendingKey)) loadMap(com.dragonminez.platform.nbt.NbtCompat.getList(tag, pendingKey, 10), data.getPendingBalls(setId));
+		if (tag.getBooleanOr(firstKey, false)) data.firstSpawnedSetIds.add(setId);
 	}
 
 	@Override
@@ -175,7 +175,7 @@ public class DragonBallSavedData extends SavedData {
 		ListTag summonList = new ListTag();
 		for (Map.Entry<UUID, Summon> entry : summons.entrySet()) {
 			CompoundTag item = new CompoundTag();
-			item.putUUID("Dragon", entry.getKey());
+			com.dragonminez.platform.nbt.NbtCompat.putUUID(item, "Dragon", entry.getKey());
 			item.putString("Set", entry.getValue().setId());
 			item.putLong("ExpiresAt", entry.getValue().expiresAt());
 			summonList.add(item);
@@ -186,8 +186,8 @@ public class DragonBallSavedData extends SavedData {
 
 	private static void loadMap(ListTag list, Map<Integer, List<BlockPos>> map) {
 		for (int i = 0; i < list.size(); i++) {
-			CompoundTag item = list.getCompound(i);
-			int star = item.getInt("Star");
+			CompoundTag item = list.getCompoundOrEmpty(i);
+			int star = item.getIntOr("Star", 0);
 			BlockPos pos = NbtUtils.readBlockPos(item, "Pos").orElse(BlockPos.ZERO);
 			List<BlockPos> positions = map.computeIfAbsent(star, ignored -> new ArrayList<>());
 			if (!positions.contains(pos)) positions.add(pos);

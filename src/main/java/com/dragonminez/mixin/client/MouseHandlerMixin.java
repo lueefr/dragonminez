@@ -20,9 +20,9 @@ public class MouseHandlerMixin {
 
 	@Inject(method = "onScroll", at = @At("HEAD"), cancellable = true)
 	private void dragonminez$trackMouseWheel(long pWindowPointer, double pXOffset, double pYOffset, CallbackInfo ci) {
-		if (this.minecraft.screen != null && pWindowPointer == this.minecraft.getWindow().getWindow()) {
-			if (InputConstants.isKeyDown(pWindowPointer, GLFW.GLFW_KEY_LEFT_ALT)) {
-				if (InputConstants.isKeyDown(pWindowPointer, GLFW.GLFW_KEY_LEFT_SHIFT)) ScrollTracker.addHorizontalScroll((int) Math.signum(pYOffset));
+		if (this.minecraft.screen != null && pWindowPointer == this.minecraft.getWindow().handle()) {
+			if (InputConstants.isKeyDown(this.minecraft.getWindow(), GLFW.GLFW_KEY_LEFT_ALT)) {
+				if (InputConstants.isKeyDown(this.minecraft.getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)) ScrollTracker.addHorizontalScroll((int) Math.signum(pYOffset));
 				else {
 					ScrollTracker.addVerticalScroll((int) Math.signum(pYOffset));
 					ScrollTracker.addHorizontalScroll((int) Math.signum(pXOffset));

@@ -7,7 +7,6 @@ import com.dragonminez.common.init.block.entity.KikonoStationBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -98,7 +97,7 @@ public class KikonoStationBlock extends BaseEntityBlock {
 
 	@Override
 	public BlockState playerWillDestroy(Level pLevel, BlockPos pPos, BlockState pState, Player pPlayer) {
-		if (!pLevel.isClientSide) {
+		if (!pLevel.isClientSide()) {
 			if (pPlayer.isCreative()) {
 				preventCreativeDropFromBottomPart(pLevel, pPos, pState, pPlayer);
 			}
@@ -138,7 +137,7 @@ public class KikonoStationBlock extends BaseEntityBlock {
 
 			BlockEntity entity = pLevel.getBlockEntity(targetPos);
 			if (entity instanceof KikonoStationBlockEntity station) {
-				if (pPlayer instanceof ServerPlayer sp) sp.openMenu(station, buf -> buf.writeBlockPos(targetPos));
+				if (pPlayer instanceof ServerPlayer sp) sp.openMenu(station);
 			} else {
 				throw new IllegalStateException("Container provider missing at " + targetPos);
 			}

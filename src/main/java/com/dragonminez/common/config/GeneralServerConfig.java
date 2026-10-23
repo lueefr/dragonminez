@@ -3,7 +3,6 @@ package com.dragonminez.common.config;
 import lombok.*;
 import com.dragonminez.common.diagnostics.RemovedConfigKeys;
 import com.dragonminez.common.init.item.consumables.CapsuleType;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

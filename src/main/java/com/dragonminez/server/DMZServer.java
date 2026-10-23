@@ -6,7 +6,8 @@ import com.dragonminez.server.commands.*;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 
-public class DMZServer {
+public class DMZServer implements net.fabricmc.api.DedicatedServerModInitializer {
+    @Override public void onInitializeServer() { init(); }
 
 	public static void init() {
 		LogUtil.info(Env.SERVER, "Initializing DragonMineZ Server...");

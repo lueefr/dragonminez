@@ -1,6 +1,6 @@
 package com.dragonminez.server.world.worldboss;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.combat.HealContext;
 import com.dragonminez.common.events.DMZEvent;
@@ -16,13 +16,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.living.LivingIncomingDamageEvent;
+import com.dragonminez.platform.event.living.LivingDamageEvent;
+import com.dragonminez.platform.event.living.LivingDeathEvent;
+import com.dragonminez.platform.event.living.LivingHealEvent;
+import com.dragonminez.platform.event.EventPriority;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 @EventBusSubscriber(modid = Reference.MOD_ID)
 public final class WorldBossCombatEvents {
@@ -77,7 +76,7 @@ public final class WorldBossCombatEvents {
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onPlayerDeath(LivingDeathEvent event) {
-		if (!(event.getEntity() instanceof ServerPlayer player) || player.level().isClientSide) return;
+		if (!(event.getEntity() instanceof ServerPlayer player) || player.level().isClientSide()) return;
 		if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
 		StatsData stats = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
 		if (stats == null || !WorldBossManager.tryKnockOut(player, stats, event.getSource())) return;

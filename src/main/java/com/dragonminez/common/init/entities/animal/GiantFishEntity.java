@@ -16,7 +16,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -31,8 +31,8 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
-import net.minecraft.world.entity.animal.WaterAnimal;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.animal.fish.WaterAnimal;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -43,18 +43,18 @@ import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 import java.util.EnumSet;
 
 public class GiantFishEntity extends WaterAnimal implements GeoEntity, ITextureVariant {
 
     private static final EntityDataAccessor<Integer> VARIANT = SynchedEntityData.defineId(GiantFishEntity.class, EntityDataSerializers.INT);
-    
+
     private static final EntityDataAccessor<Boolean> HUNTING = SynchedEntityData.defineId(GiantFishEntity.class, EntityDataSerializers.BOOLEAN);
 
     public static final int VARIANT_COUNT = 4;
@@ -139,7 +139,7 @@ public class GiantFishEntity extends WaterAnimal implements GeoEntity, ITextureV
     public boolean doHurtTarget(Entity pTarget) {
         boolean hurt = super.doHurtTarget(pTarget);
 
-        if (hurt && !this.level().isClientSide) {
+        if (hurt && !this.level().isClientSide()) {
             triggerAnim(ATTACK_CONTROLLER, "attack");
         }
         return hurt;
@@ -234,28 +234,35 @@ public class GiantFishEntity extends WaterAnimal implements GeoEntity, ITextureV
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putInt("Variant", getVariant());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        setVariant(pCompound.getInt("Variant"));
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
+        setVariant(pCompound.getIntOr("Variant", 0));
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason,
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, EntitySpawnReason pReason,
                                         @Nullable SpawnGroupData pSpawnData) {
         this.setVariant(this.random.nextFloat() < SPECIAL_CHANCE
                 ? SPECIAL_VARIANT
                 : this.random.nextInt(VARIANT_COUNT - 1));
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
     }
-    public static boolean canSpawnHere(EntityType<GiantFishEntity> pType, ServerLevelAccessor pLevel, MobSpawnType pReason,
+    public static boolean canSpawnHere(EntityType<GiantFishEntity> pType, ServerLevelAccessor pLevel, EntitySpawnReason pReason,
                                        BlockPos pPos, RandomSource pRandom) {
-        if (pReason == MobSpawnType.SPAWNER) return true;
+        if (pReason == EntitySpawnReason.SPAWNER) return true;
         if (pPos.getY() > pLevel.getSeaLevel() - MIN_SPAWN_DEPTH) return false;
 
         for (int dy = -WATER_COLUMN_RADIUS; dy <= WATER_COLUMN_RADIUS; dy++) {
@@ -266,18 +273,18 @@ public class GiantFishEntity extends WaterAnimal implements GeoEntity, ITextureV
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "base_controller", 5, this::swimPredicate)
+        controllers.add(new AnimationController<>("base_controller", 5, this::swimPredicate)
                 .setAnimationSpeedHandler(fish -> fish.isHunting() ? HUNT_ANIM_SPEED : 1.0D));
-        controllers.add(new AnimationController<>(this, ATTACK_CONTROLLER, 0, state -> PlayState.STOP)
+        controllers.add(new AnimationController<>(ATTACK_CONTROLLER, 0, state -> PlayState.STOP)
                 .triggerableAnim("attack", ATTACK));
     }
 
-    private <T extends GeoAnimatable> PlayState swimPredicate(AnimationState<T> event) {
+    private <T extends GeoAnimatable> PlayState swimPredicate(AnimationTest<T> event) {
         if (event.isMoving()) {
-            event.getController().setAnimation(RawAnimation.begin().thenLoop("swim"));
+            event.controller().setAnimation(RawAnimation.begin().thenLoop("swim"));
             return PlayState.CONTINUE;
         }
-        event.getController().setAnimation(RawAnimation.begin().thenLoop("idle"));
+        event.controller().setAnimation(RawAnimation.begin().thenLoop("idle"));
         return PlayState.CONTINUE;
     }
 

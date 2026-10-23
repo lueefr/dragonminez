@@ -1,6 +1,6 @@
 package com.dragonminez.client.render.effects;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -36,24 +36,19 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.fabricmc.api.EnvType;
+import com.dragonminez.platform.event.client.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.ViewportEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
+import com.dragonminez.platform.event.client.ViewportEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public final class TechniquePreview {
 	private enum Phase { CHARGE, FIRE, REST }
 
@@ -706,7 +701,7 @@ public final class TechniquePreview {
 	@SuppressWarnings("unchecked")
 	private static void enqueue(Minecraft mc, PoseStack poseStack, float partialTick) {
 		if (PIECES.isEmpty() && IMPACTS.isEmpty()) return;
-		Vec3 camera = mc.gameRenderer.getMainCamera().getPosition();
+		Vec3 camera = mc.gameRenderer.getMainCamera().position();
 		MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
 		enqueue(mc, PIECES, camera, poseStack, buffers, partialTick);
 		enqueue(mc, IMPACTS, camera, poseStack, buffers, partialTick);
@@ -716,7 +711,7 @@ public final class TechniquePreview {
 	private static void enqueue(Minecraft mc, List<Piece> pieces, Vec3 camera, PoseStack poseStack, MultiBufferSource buffers, float partialTick) {
 		for (Piece piece : pieces) {
 			Entity entity = piece.entity;
-			EntityRenderer<Entity> renderer = (EntityRenderer<Entity>) mc.getEntityRenderDispatcher().getRenderer(entity);
+			EntityRenderer<Entity, net.minecraft.client.renderer.entity.state.EntityRenderState> renderer = (EntityRenderer<Entity, net.minecraft.client.renderer.entity.state.EntityRenderState>) mc.getEntityRenderDispatcher().getRenderer(entity);
 			if (renderer == null) continue;
 			poseStack.pushPose();
 			poseStack.translate(

@@ -1,6 +1,6 @@
 package com.dragonminez.common.network;
 
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.network.S2C.StatsDeltaS2C;
 import com.dragonminez.common.network.S2C.StatsSyncS2C;
@@ -16,13 +16,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.ServerTickEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -82,7 +77,7 @@ public final class StatsDeltaSync {
 	private static void syncGroups(ServerPlayer player, CompoundTag groups, boolean withTrackers) {
 		Baseline baseline = BASELINES.get(player.getUUID());
 		if (baseline == null) return;
-		for (String key : groups.getAllKeys()) {
+		for (String key : groups.keySet()) {
 			Tag sent = groups.get(key);
 			if (sent.equals(baseline.tag.get(key))) continue;
 			if (withTrackers) baseline.tag.put(key, sent.copy());
@@ -92,10 +87,10 @@ public final class StatsDeltaSync {
 
 	private static void syncCharge(ServerPlayer player, TechniqueChargeSyncS2C charge, boolean withTrackers) {
 		Baseline baseline = BASELINES.get(player.getUUID());
-		if (baseline == null || !baseline.tag.contains(TECHNIQUES, Tag.TAG_COMPOUND)) return;
-		CompoundTag techniques = baseline.tag.getCompound(TECHNIQUES);
-		if (techniques.getFloat(Techniques.CHARGE_PERCENT_KEY) == charge.percent()
-				&& techniques.getBoolean(Techniques.CHARGING_KEY) == charge.charging()) return;
+		if (baseline == null || !baseline.com.dragonminez.platform.nbt.NbtCompat.contains(tag, TECHNIQUES, Tag.TAG_COMPOUND)) return;
+		CompoundTag techniques = baseline.tag.getCompoundOrEmpty(TECHNIQUES);
+		if (techniques.getFloatOr(Techniques.CHARGE_PERCENT_KEY, 0F) == charge.percent()
+				&& techniques.getBooleanOr(Techniques.CHARGING_KEY, false) == charge.charging()) return;
 		if (!withTrackers) {
 			baseline.tag.remove(TECHNIQUES);
 			return;
@@ -148,7 +143,7 @@ public final class StatsDeltaSync {
 
 	public static CompoundTag diff(CompoundTag now, CompoundTag last, Set<String> forced) {
 		CompoundTag delta = new CompoundTag();
-		for (String key : now.getAllKeys()) {
+		for (String key : now.keySet()) {
 			if (key.equals(CHARACTER)) continue;
 			Tag tag = now.get(key);
 			if (isForced(forced, key) || !tag.equals(last.get(key))) delta.put(key, tag);
@@ -159,16 +154,16 @@ public final class StatsDeltaSync {
 			if (now.contains(FusedData.NBT_KEY)) delta.put(FusedData.NBT_KEY, now.get(FusedData.NBT_KEY));
 		}
 
-		CompoundTag nowCharacter = now.getCompound(CHARACTER);
-		CompoundTag lastCharacter = last.getCompound(CHARACTER);
+		CompoundTag nowCharacter = now.getCompoundOrEmpty(CHARACTER);
+		CompoundTag lastCharacter = last.getCompoundOrEmpty(CHARACTER);
 		boolean forceCharacter = isForced(forced, CHARACTER);
 		CompoundTag patch = new CompoundTag();
-		for (String key : nowCharacter.getAllKeys()) {
+		for (String key : nowCharacter.keySet()) {
 			Tag tag = nowCharacter.get(key);
 			if (forceCharacter || !tag.equals(lastCharacter.get(key))) patch.put(key, tag);
 		}
 		ListTag removed = new ListTag();
-		for (String key : lastCharacter.getAllKeys()) {
+		for (String key : lastCharacter.keySet()) {
 			if (!nowCharacter.contains(key)) removed.add(StringTag.valueOf(key));
 		}
 		if (!patch.isEmpty()) delta.put(StatsDeltaS2C.CHARACTER_PATCH, patch);
@@ -177,12 +172,12 @@ public final class StatsDeltaSync {
 	}
 
 	public static void advance(CompoundTag last, CompoundTag delta, CompoundTag now) {
-		for (String key : delta.getAllKeys()) {
+		for (String key : delta.keySet()) {
 			if (key.equals(StatsDeltaS2C.CHARACTER_PATCH) || key.equals(StatsDeltaS2C.CHARACTER_REMOVED)) continue;
 			last.put(key, delta.get(key).copy());
 		}
 		if (!now.contains(FusedData.NBT_KEY)) last.remove(FusedData.NBT_KEY);
-		CompoundTag lastCharacter = last.getCompound(CHARACTER);
+		CompoundTag lastCharacter = last.getCompoundOrEmpty(CHARACTER);
 		StatsDeltaS2C.applyCharacterPatch(lastCharacter, delta, true);
 		last.put(CHARACTER, lastCharacter);
 	}
@@ -193,7 +188,7 @@ public final class StatsDeltaSync {
 
 	private static CompoundTag snapshot(StatsData data) {
 		CompoundTag tag = data.save();
-		tag.getCompound(CHARACTER).remove(SkinPixels.NBT_KEY);
+		tag.getCompoundOrEmpty(CHARACTER).remove(SkinPixels.NBT_KEY);
 		return tag;
 	}
 

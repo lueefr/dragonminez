@@ -5,16 +5,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.fml.loading.FMLPaths;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public final class DebugFileWriter {
 
 	private DebugFileWriter() {
@@ -31,7 +30,7 @@ public final class DebugFileWriter {
 		String safeName = playerName.replaceAll("[^A-Za-z0-9_\\-]", "_");
 		if (safeName.isEmpty()) safeName = "player";
 
-		Path debugDir = FMLPaths.GAMEDIR.get().resolve("dmzdebug");
+		Path debugDir = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().resolve("dmzdebug");
 		Path outputPath = debugDir.resolve(safeName + ".json");
 		try {
 			Files.createDirectories(debugDir);

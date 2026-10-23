@@ -18,30 +18,22 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.RenderNameTagEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
-import org.joml.Matrix4f;
+import com.dragonminez.platform.event.tick.ClientTickEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import org.lwjgl.opengl.GL11;
 import java.util.List;
 import java.util.Optional;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public class LockOnEvent {
 	private static final Identifier LOCK_ICON = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/lock_on.png");
 	private static final double NEAR_FOLLOW_BLEND = 1.0;
@@ -191,7 +183,7 @@ public class LockOnEvent {
 		double lerpX = Mth.lerp(partialTick, lockedTarget.xo, lockedTarget.getX());
 		double lerpY = Mth.lerp(partialTick, lockedTarget.yo, lockedTarget.getY());
 		double lerpZ = Mth.lerp(partialTick, lockedTarget.zo, lockedTarget.getZ());
-		Vec3 cameraPos = event.getCamera().getPosition();
+		Vec3 cameraPos = event.getCamera().position();
 		poseStack.pushPose();
 		poseStack.translate(lerpX - cameraPos.x, (lerpY - cameraPos.y) + lockedTarget.getBbHeight() * 0.5, lerpZ - cameraPos.z);
 		poseStack.mulPose(Minecraft.getInstance().getEntityRenderDispatcher().cameraOrientation());

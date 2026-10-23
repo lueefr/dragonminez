@@ -2,14 +2,12 @@ package com.dragonminez.common.init;
 
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.particles.VehicleSmokeOptions;
-import com.mojang.serialization.Codec;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.dragonminez.platform.registry.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 public class MainParticles {
 
@@ -78,8 +76,8 @@ public class MainParticles {
             });
 
 
-    public static void register(IEventBus eventBus) {
-        PARTICLE_TYPES.register(eventBus);
+    public static void register() {
+        PARTICLE_TYPES.register();
     }
 
 }

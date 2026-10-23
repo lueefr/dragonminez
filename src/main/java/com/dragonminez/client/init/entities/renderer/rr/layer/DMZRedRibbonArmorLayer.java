@@ -8,21 +8,21 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
+import com.dragonminez.platform.item.ArmorData;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.renderer.GeoRenderer;
-import com.geckolib.renderer.layer.ItemArmorGeoLayer;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.renderer.base.GeoRenderer;
+import com.geckolib.renderer.layer.builtin.ItemArmorGeoLayer;
 
 import org.jetbrains.annotations.Nullable;
 
-public class DMZRedRibbonArmorLayer<T extends RedRibbonEntity> extends ItemArmorGeoLayer<T> {
+public class DMZRedRibbonArmorLayer<T extends RedRibbonEntity> extends ItemArmorGeoLayer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> {
 
-	public DMZRedRibbonArmorLayer(GeoRenderer<T> geoRenderer) {
+	public DMZRedRibbonArmorLayer(GeoRenderer<T, Void, net.minecraft.client.renderer.entity.state.LivingEntityRenderState> geoRenderer) {
 		super(geoRenderer);
 	}
 
@@ -58,7 +58,7 @@ public class DMZRedRibbonArmorLayer<T extends RedRibbonEntity> extends ItemArmor
         ItemStack stack = animatable.getItemBySlot(slot);
 
         if (stack.isEmpty()) return null;
-        if (!(stack.getItem() instanceof ArmorItem) && !(stack.getItem() instanceof DbzArmorItem)) return null;
+        if (!(ArmorData.isArmor(stack)) && !(stack.getItem() instanceof DbzArmorItem)) return null;
         if (!stack.canEquip(slot, animatable) && !(stack.getItem() instanceof DbzArmorItem)) return null;
 
         return stack;

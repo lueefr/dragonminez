@@ -1,7 +1,7 @@
 package com.dragonminez.compat.capabilities;
 
 import net.minecraft.resources.Identifier;
-import net.neoforged.bus.api.Event;
+import com.dragonminez.platform.event.Event;
 
 import java.util.Collections;
 import java.util.HashMap;

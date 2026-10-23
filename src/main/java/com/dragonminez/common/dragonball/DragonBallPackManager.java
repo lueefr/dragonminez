@@ -11,7 +11,6 @@ import com.dragonminez.common.wish.Wish;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.neoforged.fml.loading.FMLPaths;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -34,7 +33,7 @@ public final class DragonBallPackManager {
 	private DragonBallPackManager() {}
 
 	public static Path getRootDirectory() {
-		Path root = FMLPaths.GAMEDIR.get().resolve(ROOT_FOLDER_NAME).toAbsolutePath().normalize();
+		Path root = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().resolve(ROOT_FOLDER_NAME).toAbsolutePath().normalize();
 		try {
 			Files.createDirectories(root);
 		} catch (Exception exception) {
@@ -50,7 +49,7 @@ public final class DragonBallPackManager {
 		try {
 			roots.add(Paths.get("").toAbsolutePath().normalize().resolve(ROOT_FOLDER_NAME));
 		} catch (Exception ignored) {}
-		Path gameDir = FMLPaths.GAMEDIR.get().toAbsolutePath().normalize();
+		Path gameDir = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().toAbsolutePath().normalize();
 		if (gameDir.getParent() != null) {
 			roots.add(gameDir.getParent().resolve(ROOT_FOLDER_NAME));
 		}

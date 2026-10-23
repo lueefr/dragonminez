@@ -3,7 +3,6 @@ package com.dragonminez.server.world.structure.placement;
 
 import lombok.*;
 import com.dragonminez.common.config.ConfigManager;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Vec3i;

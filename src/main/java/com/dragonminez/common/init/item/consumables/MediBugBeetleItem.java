@@ -10,7 +10,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class MediBugBeetleItem extends FoodItem {
 
 	@Override
 	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-		if (!level.isClientSide) PothalaPairItem.reservePairId(stack, level);
+		if (!level.isClientSide()) PothalaPairItem.reservePairId(stack, level);
 	}
 
 	@Override
@@ -38,12 +37,15 @@ public class MediBugBeetleItem extends FoodItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        net.minecraft.world.level.Level level = context.level();
+	public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay dmz$display, java.util.function.Consumer<Component> dmz$consumer, TooltipFlag flag) {
+        java.util.List<Component> tooltip = new java.util.ArrayList<>();
+        try {
 		if (PothalaPairItem.getPairId(stack) != 0) {
 			tooltip.add(Component.translatable("item.dragonminez.medi_bug_beetle.tooltip.paired").withStyle(ChatFormatting.GRAY));
 			PothalaPairItem.appendPairIdTooltip(stack, tooltip);
 		}
-		super.appendHoverText(stack, context, tooltip, flag);
-	}
+		super.appendHoverText(stack, context, dmz$display, tooltip::add, flag);
+
+        } finally { tooltip.forEach(dmz$consumer); }
+    }
 }

@@ -2,14 +2,10 @@ package com.dragonminez.client.init.entities.model.ki;
 
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.ki.OzaruFistEntity;
-import com.dragonminez.common.init.entities.ki.SPDragonFistEntity;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.model.GeoModel;
+import com.dragonminez.platform.client.model.ExtractedGeoModel;
 
-public class SPOzaruFistModel<T extends OzaruFistEntity> extends GeoModel<T> {
+public class SPOzaruFistModel<T extends OzaruFistEntity> extends ExtractedGeoModel<T> {
 
     @Override
     public Identifier getModelResource(T animatable) {

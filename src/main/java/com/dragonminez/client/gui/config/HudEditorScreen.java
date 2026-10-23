@@ -31,8 +31,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayDeque;
@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public class HudEditorScreen extends Screen {
 	private static final int DIM_COLOR = 0xA8000000;
 	private static final int BOX_COLOR = 0x70FFFFFF;

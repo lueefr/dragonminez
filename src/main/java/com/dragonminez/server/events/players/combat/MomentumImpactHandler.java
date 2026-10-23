@@ -14,26 +14,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.PlayerTickEvent;
+import com.dragonminez.platform.event.tick.EntityTickEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import com.dragonminez.Reference;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -67,22 +59,22 @@ public class MomentumImpactHandler {
 
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Post event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 
 		ServerPlayer player = (ServerPlayer) event.getEntity();
 		Vec3 currentPos = player.position();
 
-		boolean wasOnGround = player.getPersistentData().getBoolean("dmz_was_grounded");
+		boolean wasOnGround = com.dragonminez.platform.entity.EntityData.get(player).getBooleanOr("dmz_was_grounded", false);
 		boolean isGrounded = player.onGround();
 
 		boolean isFlying = StatsProvider.get(StatsCapability.INSTANCE, player)
 				.map(data -> data.getSkills().isSkillActive("fly"))
 				.orElse(false);
 
-		if (player.getPersistentData().contains("dmz_last_x")) {
-			double lastX = player.getPersistentData().getDouble("dmz_last_x");
-			double lastY = player.getPersistentData().getDouble("dmz_last_y");
-			double lastZ = player.getPersistentData().getDouble("dmz_last_z");
+		if (com.dragonminez.platform.entity.EntityData.get(player).contains("dmz_last_x")) {
+			double lastX = com.dragonminez.platform.entity.EntityData.get(player).getDoubleOr("dmz_last_x", 0D);
+			double lastY = com.dragonminez.platform.entity.EntityData.get(player).getDoubleOr("dmz_last_y", 0D);
+			double lastZ = com.dragonminez.platform.entity.EntityData.get(player).getDoubleOr("dmz_last_z", 0D);
 
 			double dx = currentPos.x - lastX;
 			double dy = currentPos.y - lastY;
@@ -91,28 +83,28 @@ public class MomentumImpactHandler {
 			double speed = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
 			if (speed < 10.0) {
-				player.getPersistentData().putDouble("dmz_server_speed", speed);
+				com.dragonminez.platform.entity.EntityData.get(player).putDouble("dmz_server_speed", speed);
 				if (speed > 0.05) {
-					player.getPersistentData().putDouble("dmz_momentum_x", dx);
-					player.getPersistentData().putDouble("dmz_momentum_y", dy);
-					player.getPersistentData().putDouble("dmz_momentum_z", dz);
+					com.dragonminez.platform.entity.EntityData.get(player).putDouble("dmz_momentum_x", dx);
+					com.dragonminez.platform.entity.EntityData.get(player).putDouble("dmz_momentum_y", dy);
+					com.dragonminez.platform.entity.EntityData.get(player).putDouble("dmz_momentum_z", dz);
 				}
 			}
 		}
 
-		player.getPersistentData().putDouble("dmz_last_x", currentPos.x);
-		player.getPersistentData().putDouble("dmz_last_y", currentPos.y);
-		player.getPersistentData().putDouble("dmz_last_z", currentPos.z);
-		player.getPersistentData().putBoolean("dmz_was_grounded", isGrounded);
+		com.dragonminez.platform.entity.EntityData.get(player).putDouble("dmz_last_x", currentPos.x);
+		com.dragonminez.platform.entity.EntityData.get(player).putDouble("dmz_last_y", currentPos.y);
+		com.dragonminez.platform.entity.EntityData.get(player).putDouble("dmz_last_z", currentPos.z);
+		com.dragonminez.platform.entity.EntityData.get(player).putBoolean("dmz_was_grounded", isGrounded);
 
-		if (!isGrounded) player.getPersistentData().putBoolean("dmz_was_flying", isFlying);
-		else player.getPersistentData().putBoolean("dmz_was_flying", false);
+		if (!isGrounded) com.dragonminez.platform.entity.EntityData.get(player).putBoolean("dmz_was_flying", isFlying);
+		else com.dragonminez.platform.entity.EntityData.get(player).putBoolean("dmz_was_flying", false);
 	}
 
 	@SubscribeEvent
 	public static void onLivingTick(EntityTickEvent.Post event) {
 		if (!(event.getEntity() instanceof LivingEntity living)) return;
-		if (living.level().isClientSide) return;
+		if (living.level().isClientSide()) return;
 
 		if (IMPACT_ANIM_PLAYING.contains(living.getUUID()) && !living.hasEffect(MainEffects.STUN)) {
 			IMPACT_ANIM_PLAYING.remove(living.getUUID());

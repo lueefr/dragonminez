@@ -25,7 +25,7 @@ public class KiBatteryItem extends Item {
 	private static final int COOLDOWN_TICKS = 60;
 
 	public KiBatteryItem() {
-		super(new Properties().stacksTo(16));
+		super(com.dragonminez.platform.registry.RegistrationScope.itemProperties().stacksTo(16));
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class KiBatteryItem extends Item {
 		level.playSound(null, player.getX(), player.getY(), player.getZ(),
 				SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.PLAYERS, 1.0f, 1.4f);
 
-		if (!level.isClientSide) {
+		if (!level.isClientSide()) {
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 				if (!data.getStatus().isHasCreatedCharacter()) return;
 				data.getResources().addEnergy(data.getMaxEnergy() * RESTORE_FRACTION);

@@ -4,206 +4,204 @@ import com.dragonminez.Reference;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.server.permission.PermissionAPI;
-import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent;
-import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
-import net.neoforged.neoforge.server.permission.nodes.PermissionTypes;
-import net.neoforged.neoforge.event.CommandEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import net.fabricmc.fabric.api.permission.v1.PermissionNode;
+import net.fabricmc.fabric.api.permission.v1.PermissionContextOwner;
+import net.minecraft.server.permissions.Permissions;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class DMZPermissions {
 
-	private static final List<PermissionNode<Boolean>> NODES = new ArrayList<>();
+	public record Definition(PermissionNode<Boolean> node, String description, boolean defaultAllowed) {}
+	private static final Map<PermissionNode<Boolean>, Definition> NODES = new LinkedHashMap<>();
 
 	// Admin (All)
-	public static final PermissionNode<Boolean> ADMIN = register("admin", "Grants all DragonMineZ permissions.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> ADMIN = register("admin", "Grants all DragonMineZ permissions.", false);
 
 	// Stats
-	public static final PermissionNode<Boolean> STATS_SET_SELF = register("dmzstats.set.self", "Allows setting your own stats.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> STATS_SET_OTHERS = register("dmzstats.set.others", "Allows setting other players' stats.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> STATS_ADD_SELF = register("dmzstats.add.self", "Allows adding to your own stats.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> STATS_ADD_OTHERS = register("dmzstats.add.others", "Allows adding to other players' stats.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> STATS_INFO_SELF = register("dmzstats.info.self", "Allows viewing your own stats.", (player, uuid, context) -> true);
-	public static final PermissionNode<Boolean> STATS_INFO_OTHERS = register("dmzstats.info.others", "Allows viewing other players' stats.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> STATS_RESET_SELF = register("dmzstats.reset.self", "Allows resetting your own stats.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> STATS_RESET_OTHERS = register("dmzstats.reset.others", "Allows resetting other players' stats.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> STATS_SET_SELF = register("dmzstats.set.self", "Allows setting your own stats.", false);
+	public static final PermissionNode<Boolean> STATS_SET_OTHERS = register("dmzstats.set.others", "Allows setting other players' stats.", false);
+	public static final PermissionNode<Boolean> STATS_ADD_SELF = register("dmzstats.add.self", "Allows adding to your own stats.", false);
+	public static final PermissionNode<Boolean> STATS_ADD_OTHERS = register("dmzstats.add.others", "Allows adding to other players' stats.", false);
+	public static final PermissionNode<Boolean> STATS_INFO_SELF = register("dmzstats.info.self", "Allows viewing your own stats.", true);
+	public static final PermissionNode<Boolean> STATS_INFO_OTHERS = register("dmzstats.info.others", "Allows viewing other players' stats.", false);
+	public static final PermissionNode<Boolean> STATS_RESET_SELF = register("dmzstats.reset.self", "Allows resetting your own stats.", false);
+	public static final PermissionNode<Boolean> STATS_RESET_OTHERS = register("dmzstats.reset.others", "Allows resetting other players' stats.", false);
 
 	// Skills
-	public static final PermissionNode<Boolean> SKILLS_SET_SELF = register("dmzskill.set.self", "Allows setting your own skills.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> SKILLS_SET_OTHERS = register("dmzskill.set.others", "Allows setting other players' skills.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> SKILLS_ADD_SELF = register("dmzskill.add.self", "Allows adding skills to yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> SKILLS_ADD_OTHERS = register("dmzskill.add.others", "Allows adding skills to other players.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> SKILLS_REMOVE_SELF = register("dmzskill.remove.self", "Allows removing your own skills.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> SKILLS_REMOVE_OTHERS = register("dmzskill.remove.others", "Allows removing other players' skills.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> SKILLS_LIST_SELF = register("dmzskill.list.self", "Allows listing your own skills.", (player, uuid, context) -> true);
-	public static final PermissionNode<Boolean> SKILLS_LIST_OTHERS = register("dmzskill.list.others", "Allows listing other players' skills.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> SKILLS_SET_SELF = register("dmzskill.set.self", "Allows setting your own skills.", false);
+	public static final PermissionNode<Boolean> SKILLS_SET_OTHERS = register("dmzskill.set.others", "Allows setting other players' skills.", false);
+	public static final PermissionNode<Boolean> SKILLS_ADD_SELF = register("dmzskill.add.self", "Allows adding skills to yourself.", false);
+	public static final PermissionNode<Boolean> SKILLS_ADD_OTHERS = register("dmzskill.add.others", "Allows adding skills to other players.", false);
+	public static final PermissionNode<Boolean> SKILLS_REMOVE_SELF = register("dmzskill.remove.self", "Allows removing your own skills.", false);
+	public static final PermissionNode<Boolean> SKILLS_REMOVE_OTHERS = register("dmzskill.remove.others", "Allows removing other players' skills.", false);
+	public static final PermissionNode<Boolean> SKILLS_LIST_SELF = register("dmzskill.list.self", "Allows listing your own skills.", true);
+	public static final PermissionNode<Boolean> SKILLS_LIST_OTHERS = register("dmzskill.list.others", "Allows listing other players' skills.", false);
 
 	// Techniques
-	public static final PermissionNode<Boolean> TECH_ADD_SELF = register("dmztech.add.self", "Allows adding ki techniques to yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> TECH_ADD_OTHERS = register("dmztech.add.others", "Allows adding ki techniques to other players.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> TECH_REMOVE_SELF = register("dmztech.remove.self", "Allows removing your own ki techniques.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> TECH_REMOVE_OTHERS = register("dmztech.remove.others", "Allows removing ki techniques from other players.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> TECH_LIST_SELF = register("dmztech.list.self", "Allows listing your own ki techniques.", (player, uuid, context) -> true);
-	public static final PermissionNode<Boolean> TECH_LIST_OTHERS = register("dmztech.list.others", "Allows listing other players' ki techniques.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> TECH_EXP_SELF = register("dmztech.experience.self", "Allows changing the experience of your own ki techniques.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> TECH_EXP_OTHERS = register("dmztech.experience.others", "Allows changing the experience of other players' ki techniques.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> TECH_ADD_SELF = register("dmztech.add.self", "Allows adding ki techniques to yourself.", false);
+	public static final PermissionNode<Boolean> TECH_ADD_OTHERS = register("dmztech.add.others", "Allows adding ki techniques to other players.", false);
+	public static final PermissionNode<Boolean> TECH_REMOVE_SELF = register("dmztech.remove.self", "Allows removing your own ki techniques.", false);
+	public static final PermissionNode<Boolean> TECH_REMOVE_OTHERS = register("dmztech.remove.others", "Allows removing ki techniques from other players.", false);
+	public static final PermissionNode<Boolean> TECH_LIST_SELF = register("dmztech.list.self", "Allows listing your own ki techniques.", true);
+	public static final PermissionNode<Boolean> TECH_LIST_OTHERS = register("dmztech.list.others", "Allows listing other players' ki techniques.", false);
+	public static final PermissionNode<Boolean> TECH_EXP_SELF = register("dmztech.experience.self", "Allows changing the experience of your own ki techniques.", false);
+	public static final PermissionNode<Boolean> TECH_EXP_OTHERS = register("dmztech.experience.others", "Allows changing the experience of other players' ki techniques.", false);
 
 	// Technique cooldowns
-	public static final PermissionNode<Boolean> COOLDOWNS_SELF = register("dmzcooldowns.self", "Allows changing your own ki/strike technique cooldowns.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> COOLDOWNS_OTHERS = register("dmzcooldowns.others", "Allows changing other players' ki/strike technique cooldowns.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> COOLDOWNS_SELF = register("dmzcooldowns.self", "Allows changing your own ki/strike technique cooldowns.", false);
+	public static final PermissionNode<Boolean> COOLDOWNS_OTHERS = register("dmzcooldowns.others", "Allows changing other players' ki/strike technique cooldowns.", false);
 
 	// Bonus
-	public static final PermissionNode<Boolean> BONUS_ADD_SELF = register("dmzbonus.add.self", "Allows adding bonus stats to yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> BONUS_ADD_OTHERS = register("dmzbonus.add.others", "Allows adding bonus stats to other players.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> BONUS_CLEAR_SELF = register("dmzbonus.clear.self", "Allows clearing your own bonus stats.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> BONUS_CLEAR_OTHERS = register("dmzbonus.clear.others", "Allows clearing other players' bonus stats.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> BONUS_ADD_SELF = register("dmzbonus.add.self", "Allows adding bonus stats to yourself.", false);
+	public static final PermissionNode<Boolean> BONUS_ADD_OTHERS = register("dmzbonus.add.others", "Allows adding bonus stats to other players.", false);
+	public static final PermissionNode<Boolean> BONUS_CLEAR_SELF = register("dmzbonus.clear.self", "Allows clearing your own bonus stats.", false);
+	public static final PermissionNode<Boolean> BONUS_CLEAR_OTHERS = register("dmzbonus.clear.others", "Allows clearing other players' bonus stats.", false);
 
 	// Effects
-	public static final PermissionNode<Boolean> EFFECTS_GIVE_SELF = register("dmzeffect.give.self", "Allows giving effects to yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> EFFECTS_GIVE_OTHERS = register("dmzeffect.give.others", "Allows giving effects to other players.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> EFFECTS_REMOVE_SELF = register("dmzeffect.remove.self", "Allows removing your own effects.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> EFFECTS_REMOVE_OTHERS = register("dmzeffect.remove.others", "Allows removing other players' effects.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> EFFECTS_CLEAR_SELF = register("dmzeffect.clear.self", "Allows clearing your own effects.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> EFFECTS_CLEAR_OTHERS = register("dmzeffect.clear.others", "Allows clearing other players' effects.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> EFFECTS_LIST_SELF = register("dmzeffect.list.self", "Allows listing your own effects.", (player, uuid, context) -> true);
-	public static final PermissionNode<Boolean> EFFECTS_LIST_OTHERS = register("dmzeffect.list.others", "Allows listing other players' effects.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> EFFECTS_GIVE_SELF = register("dmzeffect.give.self", "Allows giving effects to yourself.", false);
+	public static final PermissionNode<Boolean> EFFECTS_GIVE_OTHERS = register("dmzeffect.give.others", "Allows giving effects to other players.", false);
+	public static final PermissionNode<Boolean> EFFECTS_REMOVE_SELF = register("dmzeffect.remove.self", "Allows removing your own effects.", false);
+	public static final PermissionNode<Boolean> EFFECTS_REMOVE_OTHERS = register("dmzeffect.remove.others", "Allows removing other players' effects.", false);
+	public static final PermissionNode<Boolean> EFFECTS_CLEAR_SELF = register("dmzeffect.clear.self", "Allows clearing your own effects.", false);
+	public static final PermissionNode<Boolean> EFFECTS_CLEAR_OTHERS = register("dmzeffect.clear.others", "Allows clearing other players' effects.", false);
+	public static final PermissionNode<Boolean> EFFECTS_LIST_SELF = register("dmzeffect.list.self", "Allows listing your own effects.", true);
+	public static final PermissionNode<Boolean> EFFECTS_LIST_OTHERS = register("dmzeffect.list.others", "Allows listing other players' effects.", false);
 
 	// Points
-	public static final PermissionNode<Boolean> POINTS_SET_SELF = register("dmzpoints.set.self", "Allows setting your own points.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> POINTS_SET_OTHERS = register("dmzpoints.set.others", "Allows setting other players' points.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> POINTS_ADD_SELF = register("dmzpoints.add.self", "Allows adding to your own points.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> POINTS_ADD_OTHERS = register("dmzpoints.add.others", "Allows adding to other players' points.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> POINTS_REMOVE_SELF = register("dmzpoints.remove.self", "Allows removing your own points.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> POINTS_REMOVE_OTHERS = register("dmzpoints.remove.others", "Allows removing other players' points.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> POINTS_INFO_SELF = register("dmzpoints.info.self", "Allows viewing your own points.", (player, uuid, context) -> true);
-	public static final PermissionNode<Boolean> POINTS_INFO_OTHERS = register("dmzpoints.info.others", "Allows viewing other players' points.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> POINTS_SET_SELF = register("dmzpoints.set.self", "Allows setting your own points.", false);
+	public static final PermissionNode<Boolean> POINTS_SET_OTHERS = register("dmzpoints.set.others", "Allows setting other players' points.", false);
+	public static final PermissionNode<Boolean> POINTS_ADD_SELF = register("dmzpoints.add.self", "Allows adding to your own points.", false);
+	public static final PermissionNode<Boolean> POINTS_ADD_OTHERS = register("dmzpoints.add.others", "Allows adding to other players' points.", false);
+	public static final PermissionNode<Boolean> POINTS_REMOVE_SELF = register("dmzpoints.remove.self", "Allows removing your own points.", false);
+	public static final PermissionNode<Boolean> POINTS_REMOVE_OTHERS = register("dmzpoints.remove.others", "Allows removing other players' points.", false);
+	public static final PermissionNode<Boolean> POINTS_INFO_SELF = register("dmzpoints.info.self", "Allows viewing your own points.", true);
+	public static final PermissionNode<Boolean> POINTS_INFO_OTHERS = register("dmzpoints.info.others", "Allows viewing other players' points.", false);
 
 	// Quests
-	public static final PermissionNode<Boolean> QUEST_LIST_SELF = register("dmzquest.list.self", "Allows listing your own quest progress.", (player, uuid, context) -> true);
-	public static final PermissionNode<Boolean> QUEST_LIST_OTHERS = register("dmzquest.list.others", "Allows listing other players' quest progress.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_INFO = register("dmzquest.info", "Allows viewing quest metadata.", (player, uuid, context) -> true);
-	public static final PermissionNode<Boolean> QUEST_START_SELF = register("dmzquest.start.self", "Allows force-starting quests for yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_START_OTHERS = register("dmzquest.start.others", "Allows force-starting quests for other players.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_FINISH_SELF = register("dmzquest.finish.self", "Allows finishing quests for yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_FINISH_OTHERS = register("dmzquest.finish.others", "Allows finishing quests for other players.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_FAIL_SELF = register("dmzquest.fail.self", "Allows force-failing quests for yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_FAIL_OTHERS = register("dmzquest.fail.others", "Allows force-failing quests for other players.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_RESET_SELF = register("dmzquest.reset.self", "Allows resetting quests for yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_RESET_OTHERS = register("dmzquest.reset.others", "Allows resetting quests for other players.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_TRACK_SELF = register("dmzquest.track.self", "Allows setting your own tracked quest.", (player, uuid, context) -> true);
-	public static final PermissionNode<Boolean> QUEST_TRACK_OTHERS = register("dmzquest.track.others", "Allows setting other players' tracked quest.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_STARTSAGA_SELF = register("dmzquest.startsaga.self", "Allows force-starting all quests in a saga for yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_STARTSAGA_OTHERS = register("dmzquest.startsaga.others", "Allows force-starting all quests in a saga for other players.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_FINISHSAGA_SELF = register("dmzquest.finishsaga.self", "Allows finishing all quests in a saga for yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_FINISHSAGA_OTHERS = register("dmzquest.finishsaga.others", "Allows finishing all quests in a saga for other players.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_RESETSAGA_SELF = register("dmzquest.resetsaga.self", "Allows resetting saga progress for yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_RESETSAGA_OTHERS = register("dmzquest.resetsaga.others", "Allows resetting saga progress for other players.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_DIFFICULTY_SELF = register("dmzquest.difficulty.self", "Allows changing your own story difficulty.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> QUEST_DIFFICULTY_OTHERS = register("dmzquest.difficulty.others", "Allows changing other players' story difficulty.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> QUEST_LIST_SELF = register("dmzquest.list.self", "Allows listing your own quest progress.", true);
+	public static final PermissionNode<Boolean> QUEST_LIST_OTHERS = register("dmzquest.list.others", "Allows listing other players' quest progress.", false);
+	public static final PermissionNode<Boolean> QUEST_INFO = register("dmzquest.info", "Allows viewing quest metadata.", true);
+	public static final PermissionNode<Boolean> QUEST_START_SELF = register("dmzquest.start.self", "Allows force-starting quests for yourself.", false);
+	public static final PermissionNode<Boolean> QUEST_START_OTHERS = register("dmzquest.start.others", "Allows force-starting quests for other players.", false);
+	public static final PermissionNode<Boolean> QUEST_FINISH_SELF = register("dmzquest.finish.self", "Allows finishing quests for yourself.", false);
+	public static final PermissionNode<Boolean> QUEST_FINISH_OTHERS = register("dmzquest.finish.others", "Allows finishing quests for other players.", false);
+	public static final PermissionNode<Boolean> QUEST_FAIL_SELF = register("dmzquest.fail.self", "Allows force-failing quests for yourself.", false);
+	public static final PermissionNode<Boolean> QUEST_FAIL_OTHERS = register("dmzquest.fail.others", "Allows force-failing quests for other players.", false);
+	public static final PermissionNode<Boolean> QUEST_RESET_SELF = register("dmzquest.reset.self", "Allows resetting quests for yourself.", false);
+	public static final PermissionNode<Boolean> QUEST_RESET_OTHERS = register("dmzquest.reset.others", "Allows resetting quests for other players.", false);
+	public static final PermissionNode<Boolean> QUEST_TRACK_SELF = register("dmzquest.track.self", "Allows setting your own tracked quest.", true);
+	public static final PermissionNode<Boolean> QUEST_TRACK_OTHERS = register("dmzquest.track.others", "Allows setting other players' tracked quest.", false);
+	public static final PermissionNode<Boolean> QUEST_STARTSAGA_SELF = register("dmzquest.startsaga.self", "Allows force-starting all quests in a saga for yourself.", false);
+	public static final PermissionNode<Boolean> QUEST_STARTSAGA_OTHERS = register("dmzquest.startsaga.others", "Allows force-starting all quests in a saga for other players.", false);
+	public static final PermissionNode<Boolean> QUEST_FINISHSAGA_SELF = register("dmzquest.finishsaga.self", "Allows finishing all quests in a saga for yourself.", false);
+	public static final PermissionNode<Boolean> QUEST_FINISHSAGA_OTHERS = register("dmzquest.finishsaga.others", "Allows finishing all quests in a saga for other players.", false);
+	public static final PermissionNode<Boolean> QUEST_RESETSAGA_SELF = register("dmzquest.resetsaga.self", "Allows resetting saga progress for yourself.", false);
+	public static final PermissionNode<Boolean> QUEST_RESETSAGA_OTHERS = register("dmzquest.resetsaga.others", "Allows resetting saga progress for other players.", false);
+	public static final PermissionNode<Boolean> QUEST_DIFFICULTY_SELF = register("dmzquest.difficulty.self", "Allows changing your own story difficulty.", false);
+	public static final PermissionNode<Boolean> QUEST_DIFFICULTY_OTHERS = register("dmzquest.difficulty.others", "Allows changing other players' story difficulty.", false);
 
 	// Locate
-	public static final PermissionNode<Boolean> LOCATE = register("dmzlocate", "Allows locating special structures.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> STRUCTURE = register("dmzstructure", "Allows reading structure-local coordinates and structure NPCs.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> LOCATE = register("dmzlocate", "Allows locating special structures.", false);
+	public static final PermissionNode<Boolean> STRUCTURE = register("dmzstructure", "Allows reading structure-local coordinates and structure NPCs.", false);
 
 	// Dragon Balls
-	public static final PermissionNode<Boolean> DRAGONBALLS_STATUS = register("dmzdragonballs.status", "Allows viewing where every Dragon Ball set is tracked.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> DRAGONBALLS_REGENERATE = register("dmzdragonballs.regenerate", "Allows refilling a Dragon Ball set up to its configured copies.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> DRAGONBALLS_STATUS = register("dmzdragonballs.status", "Allows viewing where every Dragon Ball set is tracked.", false);
+	public static final PermissionNode<Boolean> DRAGONBALLS_REGENERATE = register("dmzdragonballs.regenerate", "Allows refilling a Dragon Ball set up to its configured copies.", false);
 
 	// Revive
-	public static final PermissionNode<Boolean> REVIVE_SELF = register("dmzrevive.self", "Allows reviving yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> REVIVE_OTHERS = register("dmzrevive.others", "Allows reviving other players.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> REVIVE_SELF = register("dmzrevive.self", "Allows reviving yourself.", false);
+	public static final PermissionNode<Boolean> REVIVE_OTHERS = register("dmzrevive.others", "Allows reviving other players.", false);
 
 	// Party
-	public static final PermissionNode<Boolean> PARTY_USE = register("dmzparty.use", "Allows using party commands.", (player, uuid, context) -> true);
+	public static final PermissionNode<Boolean> PARTY_USE = register("dmzparty.use", "Allows using party commands.", true);
 
 	// Mastery
-	public static final PermissionNode<Boolean> MASTERY_SET = register("dmzmastery.set", "Allows setting transformation mastery.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> MASTERY_ADD = register("dmzmastery.add", "Allows adding transformation mastery.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> MASTERY_SET = register("dmzmastery.set", "Allows setting transformation mastery.", false);
+	public static final PermissionNode<Boolean> MASTERY_ADD = register("dmzmastery.add", "Allows adding transformation mastery.", false);
 
 	// Reload
-	public static final PermissionNode<Boolean> RELOAD = register("dmz.reload", "Allows reloading server configurations.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> RELOAD = register("dmz.reload", "Allows reloading server configurations.", false);
 
 	// Forms
-	public static final PermissionNode<Boolean> FORMS_SET_SELF = register("dmzform.set.self", "Allows setting your own forms.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> FORMS_SET_OTHERS = register("dmzform.set.others", "Allows setting other players' forms.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> FORMS_ADD_SELF = register("dmzform.add.self", "Allows adding forms to yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> FORMS_ADD_OTHERS = register("dmzform.add.others", "Allows adding forms to other players.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> FORMS_REMOVE_SELF = register("dmzform.remove.self", "Allows removing your own forms.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> FORMS_REMOVE_OTHERS = register("dmzform.remove.others", "Allows removing other players' forms.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> FORMS_LIST_SELF = register("dmzform.list.self", "Allows listing your own forms.", (player, uuid, context) -> true);
-	public static final PermissionNode<Boolean> FORMS_LIST_OTHERS = register("dmzform.list.others", "Allows listing other players' forms.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> FORMS_SET_SELF = register("dmzform.set.self", "Allows setting your own forms.", false);
+	public static final PermissionNode<Boolean> FORMS_SET_OTHERS = register("dmzform.set.others", "Allows setting other players' forms.", false);
+	public static final PermissionNode<Boolean> FORMS_ADD_SELF = register("dmzform.add.self", "Allows adding forms to yourself.", false);
+	public static final PermissionNode<Boolean> FORMS_ADD_OTHERS = register("dmzform.add.others", "Allows adding forms to other players.", false);
+	public static final PermissionNode<Boolean> FORMS_REMOVE_SELF = register("dmzform.remove.self", "Allows removing your own forms.", false);
+	public static final PermissionNode<Boolean> FORMS_REMOVE_OTHERS = register("dmzform.remove.others", "Allows removing other players' forms.", false);
+	public static final PermissionNode<Boolean> FORMS_LIST_SELF = register("dmzform.list.self", "Allows listing your own forms.", true);
+	public static final PermissionNode<Boolean> FORMS_LIST_OTHERS = register("dmzform.list.others", "Allows listing other players' forms.", false);
 
 	// Racial Skill reset
-	public static final PermissionNode<Boolean> RACIAL_RESET_SELF = register("dmzracial.reset.self", "Allows resetting your own racial skills.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> RACIAL_RESET_OTHERS = register("dmzracial.reset.others", "Allows resetting other players' racial skills.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> RACIAL_RESET_SELF = register("dmzracial.reset.self", "Allows resetting your own racial skills.", false);
+	public static final PermissionNode<Boolean> RACIAL_RESET_OTHERS = register("dmzracial.reset.others", "Allows resetting other players' racial skills.", false);
 
 	// Weights
-	public static final PermissionNode<Boolean> WEIGHT_GIVE = register("dmzweight.give", "Allows giving Weight items.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> WEIGHT_GIVE = register("dmzweight.give", "Allows giving Weight items.", false);
 
 	// Alignment
-	public static final PermissionNode<Boolean> ALIGNMENT_SET_SELF = register("dmzalignment.set.self", "Allows setting your own alignment.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> ALIGNMENT_SET_OTHERS = register("dmzalignment.set.others", "Allows setting other players' alignment.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> ALIGNMENT_ADD_SELF = register("dmzalignment.add.self", "Allows adding to your own alignment.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> ALIGNMENT_ADD_OTHERS = register("dmzalignment.add.others", "Allows adding to other players' alignment.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> ALIGNMENT_REMOVE_SELF = register("dmzalignment.remove.self", "Allows removing your own alignment.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> ALIGNMENT_REMOVE_OTHERS = register("dmzalignment.remove.others", "Allows removing other players' alignment.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> ALIGNMENT_INFO_SELF = register("dmzalignment.info.self", "Allows viewing your own alignment.", (player, uuid, context) -> true);
-	public static final PermissionNode<Boolean> ALIGNMENT_INFO_OTHERS = register("dmzalignment.info.others", "Allows viewing other players' alignment.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> ALIGNMENT_SET_SELF = register("dmzalignment.set.self", "Allows setting your own alignment.", false);
+	public static final PermissionNode<Boolean> ALIGNMENT_SET_OTHERS = register("dmzalignment.set.others", "Allows setting other players' alignment.", false);
+	public static final PermissionNode<Boolean> ALIGNMENT_ADD_SELF = register("dmzalignment.add.self", "Allows adding to your own alignment.", false);
+	public static final PermissionNode<Boolean> ALIGNMENT_ADD_OTHERS = register("dmzalignment.add.others", "Allows adding to other players' alignment.", false);
+	public static final PermissionNode<Boolean> ALIGNMENT_REMOVE_SELF = register("dmzalignment.remove.self", "Allows removing your own alignment.", false);
+	public static final PermissionNode<Boolean> ALIGNMENT_REMOVE_OTHERS = register("dmzalignment.remove.others", "Allows removing other players' alignment.", false);
+	public static final PermissionNode<Boolean> ALIGNMENT_INFO_SELF = register("dmzalignment.info.self", "Allows viewing your own alignment.", true);
+	public static final PermissionNode<Boolean> ALIGNMENT_INFO_OTHERS = register("dmzalignment.info.others", "Allows viewing other players' alignment.", false);
 
 	// Tail
-	public static final PermissionNode<Boolean> TAIL_SELF = register("dmztail.self", "Allows cutting/growing your own tail.", (player, uuid, context) -> true);
-	public static final PermissionNode<Boolean> TAIL_OTHERS = register("dmztail.others", "Allows cutting/growing other players' tails.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> TAIL_SELF = register("dmztail.self", "Allows cutting/growing your own tail.", true);
+	public static final PermissionNode<Boolean> TAIL_OTHERS = register("dmztail.others", "Allows cutting/growing other players' tails.", false);
 
 	// Minigames
-	public static final PermissionNode<Boolean> MINIGAME_SELF = register("dmzminigame.self", "Allows opening or learning minigames for yourself via command.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> MINIGAME_OTHERS = register("dmzminigame.others", "Allows opening or teaching minigames to other players via command.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> MINIGAME_SELF = register("dmzminigame.self", "Allows opening or learning minigames for yourself via command.", false);
+	public static final PermissionNode<Boolean> MINIGAME_OTHERS = register("dmzminigame.others", "Allows opening or teaching minigames to other players via command.", false);
 
 	// Halo
-	public static final PermissionNode<Boolean> HALO_SELF = register("dmzhalo.self", "Allows toggling your own halo.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> HALO_OTHERS = register("dmzhalo.others", "Allows toggling other players' halos.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> HALO_SELF = register("dmzhalo.self", "Allows toggling your own halo.", false);
+	public static final PermissionNode<Boolean> HALO_OTHERS = register("dmzhalo.others", "Allows toggling other players' halos.", false);
 
 	// Hair
-	public static final PermissionNode<Boolean> HAIR_SELF = register("dmzhair.self", "Allows resyncing/resetting your own hair.", (player, uuid, context) -> true);
-	public static final PermissionNode<Boolean> HAIR_OTHERS = register("dmzhair.others", "Allows resyncing/resetting other players' hair.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> HAIR_SELF = register("dmzhair.self", "Allows resyncing/resetting your own hair.", true);
+	public static final PermissionNode<Boolean> HAIR_OTHERS = register("dmzhair.others", "Allows resyncing/resetting other players' hair.", false);
 
 	// Class
-	public static final PermissionNode<Boolean> CLASS_SET_SELF = register("dmzclass.set.self", "Allows changing your own class.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> CLASS_SET_OTHERS = register("dmzclass.set.others", "Allows changing other players' class.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> CLASS_SET_SELF = register("dmzclass.set.self", "Allows changing your own class.", false);
+	public static final PermissionNode<Boolean> CLASS_SET_OTHERS = register("dmzclass.set.others", "Allows changing other players' class.", false);
 
 	// Trigger
-	public static final PermissionNode<Boolean> TRIGGER_SELF = register("dmztrigger.self", "Allows triggering test forms and racial skills on yourself.", (player, uuid, context) -> false);
-	public static final PermissionNode<Boolean> TRIGGER_OTHERS = register("dmztrigger.others", "Allows triggering test forms and racial skills on other players.", (player, uuid, context) -> false);
+	public static final PermissionNode<Boolean> TRIGGER_SELF = register("dmztrigger.self", "Allows triggering test forms and racial skills on yourself.", false);
+	public static final PermissionNode<Boolean> TRIGGER_OTHERS = register("dmztrigger.others", "Allows triggering test forms and racial skills on other players.", false);
 
 	public static void init() {}
 
-	private static PermissionNode<Boolean> register(String node, String description, PermissionNode.PermissionResolver<Boolean> defaultResolver) {
-		PermissionNode<Boolean> permissionNode = new PermissionNode<>(Reference.MOD_ID, node, PermissionTypes.BOOLEAN, defaultResolver);
-		permissionNode.setInformation(Component.literal(description), Component.literal(description));
-		NODES.add(permissionNode);
-		return permissionNode;
-	}
+    private static PermissionNode<Boolean> register(String node, String description, boolean defaultAllowed) {
+        var permission = PermissionNode.of(Reference.MOD_ID, node);
+        if (NODES.putIfAbsent(permission, new Definition(permission, description, defaultAllowed)) != null)
+            throw new IllegalArgumentException("Duplicate permission: " + node);
+        return permission;
+    }
 
-	@SubscribeEvent
-	public static void onPermissionGather(PermissionGatherEvent.Nodes event) {
-		NODES.forEach(event::addNodes);
-	}
+    /** Complete permission catalog, including defaults, for server integrations. */
+    public static List<Definition> definitions() { return List.copyOf(NODES.values()); }
 
-	public static boolean hasPermission(CommandSourceStack source, PermissionNode<Boolean> node) {
-		if (source.getEntity() instanceof ServerPlayer player) {
-			return PermissionAPI.getPermission(player, node) || hasRegularPermission(player);
-		}
-		return true;
-	}
+    private static boolean granted(ServerPlayer player, PermissionNode<Boolean> node) {
+        var definition = NODES.get(node);
+        if (definition == null) throw new IllegalArgumentException("Unknown permission: " + node.key());
+        return ((PermissionContextOwner) player).checkPermission(node, definition.defaultAllowed());
+    }
 
-	private static boolean hasRegularPermission(ServerPlayer player) {
-		return PermissionAPI.getPermission(player, ADMIN) || player.hasPermissions(2);
-	}
+    public static boolean hasPermission(CommandSourceStack source, PermissionNode<Boolean> node) {
+        if (source.getEntity() instanceof ServerPlayer player) {
+            return granted(player, node) || granted(player, ADMIN)
+                    || player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER);
+        }
+        return true;
+    }
 
 	public static boolean check(CommandSourceStack source, PermissionNode<Boolean> selfNode, PermissionNode<Boolean> othersNode) {
 		return hasPermission(source, selfNode) || hasPermission(source, othersNode);

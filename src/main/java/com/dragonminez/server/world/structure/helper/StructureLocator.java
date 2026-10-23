@@ -43,8 +43,8 @@ public class StructureLocator {
 
 	@Nullable
 	public static BlockPos locateStructure(ServerLevel level, ResourceKey<Structure> structureKey, BlockPos searchFrom) {
-		var structureRegistry = level.registryAccess().registryOrThrow(Registries.STRUCTURE);
-		var structureSetRegistry = level.registryAccess().registryOrThrow(Registries.STRUCTURE_SET);
+		var structureRegistry = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
+		var structureSetRegistry = level.registryAccess().lookupOrThrow(Registries.STRUCTURE_SET);
 
 		List<StructurePlacement> placements = new ArrayList<>();
 		for (var entry : structureSetRegistry.entrySet()) {
@@ -124,7 +124,7 @@ public class StructureLocator {
 			}
 		}
 
-		String key = level.dimension().location() + "|" + level.getSeed() + "|" + chunkPos.toLong() + "|" + System.identityHashCode(structure);
+		String key = level.dimension().identifier() + "|" + level.getSeed() + "|" + chunkPos.toLong() + "|" + System.identityHashCode(structure);
 		BlockPos cached = PREDICTED_CENTERS.get(key);
 		if (cached != null) return cached;
 		try {
@@ -160,8 +160,8 @@ public class StructureLocator {
 
 	@Nullable
 	public static SpawnHint spawnHint(MinecraftServer server, ResourceKey<Structure> structureKey) {
-		var structureRegistry = server.registryAccess().registryOrThrow(Registries.STRUCTURE);
-		var structureSetRegistry = server.registryAccess().registryOrThrow(Registries.STRUCTURE_SET);
+		var structureRegistry = server.registryAccess().lookupOrThrow(Registries.STRUCTURE);
+		var structureSetRegistry = server.registryAccess().lookupOrThrow(Registries.STRUCTURE_SET);
 		Holder<Structure> holder = structureRegistry.getHolder(structureKey).orElse(null);
 		if (holder == null) return null;
 
@@ -183,7 +183,7 @@ public class StructureLocator {
 			Set<Holder<Biome>> possible = level.getChunkSource().getGenerator().getBiomeSource().possibleBiomes();
 			List<Holder<Biome>> matching = candidates.stream().filter(possible::contains).toList();
 			if (matching.isEmpty()) continue;
-			Identifier dim = level.dimension().location();
+			Identifier dim = level.dimension().identifier();
 			dimensions.add(Component.translatableWithFallback("dimension." + dim.getNamespace() + "." + dim.getPath(), dim.toString()));
 			biomes.addAll(matching);
 		}
@@ -192,7 +192,7 @@ public class StructureLocator {
 		List<Component> biomeNames = new ArrayList<>();
 		for (Holder<Biome> biome : biomes) {
 			biome.unwrapKey().ifPresent(key -> biomeNames.add(Component.translatableWithFallback(
-					"biome." + key.location().getNamespace() + "." + key.location().getPath(), key.location().toString())));
+					"biome." + key.identifier().getNamespace() + "." + key.identifier().getPath(), key.identifier().toString())));
 			if (biomeNames.size() >= MAX_HINT_BIOMES) break;
 		}
 		MutableComponent biomeList = ComponentUtils.formatList(biomeNames, Component.literal(", ")).copy();
@@ -201,7 +201,7 @@ public class StructureLocator {
 	}
 
 	public static boolean usesCustomPlacement(ServerLevel level, ResourceKey<Structure> structureKey) {
-		var structureSetRegistry = level.registryAccess().registryOrThrow(Registries.STRUCTURE_SET);
+		var structureSetRegistry = level.registryAccess().lookupOrThrow(Registries.STRUCTURE_SET);
 		for (var entry : structureSetRegistry.entrySet()) {
 			StructureSet set = entry.getValue();
 			for (var structureEntry : set.structures()) {

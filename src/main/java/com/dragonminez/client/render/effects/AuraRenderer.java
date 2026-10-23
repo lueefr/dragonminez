@@ -28,14 +28,13 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -43,7 +42,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
-import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.model.BakedGeoModel;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -417,7 +416,7 @@ public class AuraRenderer {
 			}
 		}
 
-		Vec3 camera = mc.gameRenderer.getMainCamera().getPosition();
+		Vec3 camera = mc.gameRenderer.getMainCamera().position();
 		List<List<PreparedAura>> groups = groupTouchingAuras(prepared);
 		groups.sort(Comparator.comparingDouble((List<PreparedAura> group) -> group.get(0).position().distanceToSqr(camera)).reversed());
 		for (List<PreparedAura> group : groups) {
@@ -456,7 +455,7 @@ public class AuraRenderer {
 
 					if (hasLightning) {
 						PoseStack fpStack = new PoseStack();
-						Vec3 cameraPos = mc.gameRenderer.getMainCamera().getPosition();
+						Vec3 cameraPos = mc.gameRenderer.getMainCamera().position();
 						double lerpX = Mth.lerp(partialTick, localPlayer.xo, localPlayer.getX());
 						double lerpY = Mth.lerp(partialTick, localPlayer.yo, localPlayer.getY());
 						double lerpZ = Mth.lerp(partialTick, localPlayer.zo, localPlayer.getZ());
@@ -809,7 +808,7 @@ public class AuraRenderer {
 			poseStack = shaderpackViewStack(mc);
 		}
 
-		Vec3 cameraPos = mc.gameRenderer.getMainCamera().getPosition();
+		Vec3 cameraPos = mc.gameRenderer.getMainCamera().position();
 		double lerpX = Mth.lerp(partialTick, player.xo, player.getX());
 		double lerpY = Mth.lerp(partialTick, player.yo, player.getY());
 		double lerpZ = Mth.lerp(partialTick, player.zo, player.getZ());
@@ -888,7 +887,7 @@ public class AuraRenderer {
 
 		// Match DMZ 1.20.1: the deferred stage starts from the world-render base pose,
 		// so position the aura with the interpolated camera-relative entity position.
-		Vec3 cameraPos = mc.gameRenderer.getMainCamera().getPosition();
+		Vec3 cameraPos = mc.gameRenderer.getMainCamera().position();
 		double offsetX = position.x - cameraPos.x;
 		double offsetY = position.y - cameraPos.y;
 		double offsetZ = position.z - cameraPos.z;
@@ -1042,7 +1041,7 @@ public class AuraRenderer {
 			poseStack = shaderpackViewStack(mc);
 		}
 
-		Vec3 cameraPos = mc.gameRenderer.getMainCamera().getPosition();
+		Vec3 cameraPos = mc.gameRenderer.getMainCamera().position();
 		double lerpX = Mth.lerp(partialTick, player.xo, player.getX());
 		double lerpY = Mth.lerp(partialTick, player.yo, player.getY());
 		double lerpZ = Mth.lerp(partialTick, player.zo, player.getZ());
@@ -1158,7 +1157,7 @@ public class AuraRenderer {
 			}
 		} else if (!isFirstPerson && centreDistance > 1.0e-4) {
 			float elevation = (float) Math.toDegrees(Math.asin(Mth.clamp(Math.abs(centre.dot(auraUp) / centreDistance), 0.0, 1.0)));
-			float lookElevation = (float) Math.toDegrees(Math.asin(Mth.clamp(Math.abs(new Vec3(camera.getLookVector()).dot(auraUp)), 0.0, 1.0)));
+			float lookElevation = (float) Math.toDegrees(Math.asin(Mth.clamp(Math.abs(new Vec3(camera.forwardVector()).dot(auraUp)), 0.0, 1.0)));
 			elevation = Math.max(elevation, lookElevation);
 			if (elevation > AURA_2D_CROSS_START_DEG) {
 				float t = (elevation - AURA_2D_CROSS_START_DEG) / (90.0f - AURA_2D_CROSS_START_DEG);
@@ -1176,7 +1175,7 @@ public class AuraRenderer {
 			poseStack.pushPose();
 
 			poseStack.translate(0.0, baseLift, 0.0);
-			Vec3 facing = flightBillboard ? centre : new Vec3(camera.getLookVector()).scale(-1.0);
+			Vec3 facing = flightBillboard ? centre : new Vec3(camera.forwardVector()).scale(-1.0);
 			float tilt = cameraTilt(auraUp, facing);
 			double pivot = !flightBillboard && tilt < 0.0f ? player.getBbHeight() : 0.0;
 			if (applyAxisBillboard(poseStack, camera, auraUp, facing, tilt, pivot)) {
@@ -1212,7 +1211,7 @@ public class AuraRenderer {
 		if (crossFactor > 0.0f) {
 			poseStack.pushPose();
 			poseStack.translate(0.0, baseLift, 0.0);
-			if (applyAxisBillboard(poseStack, camera, auraUp, new Vec3(camera.getLookVector()), 0.0f, 0.0)) {
+			if (applyAxisBillboard(poseStack, camera, auraUp, new Vec3(camera.forwardVector()), 0.0f, 0.0)) {
 				if (!flightBillboard && centre.dot(auraUp) > 0.0) poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
 				poseStack.scale(finalScaleX, 1.0f, finalScaleZ);
 
@@ -1238,7 +1237,7 @@ public class AuraRenderer {
 	}
 
 	private static float flightAxisAlignment(Player player, Minecraft mc, float partialTick) {
-		Vec3 viewDir = new Vec3(mc.gameRenderer.getMainCamera().getLookVector());
+		Vec3 viewDir = new Vec3(mc.gameRenderer.getMainCamera().forwardVector());
 		return (float) Math.abs(viewDir.dot(flightAxis(player, partialTick)));
 	}
 
@@ -1253,7 +1252,7 @@ public class AuraRenderer {
 	public static boolean applyAxisBillboard(PoseStack poseStack, Camera camera, Vec3 up, Vec3 facing, float tilt, double pivot) {
 		Vec3 forward = facing.subtract(up.scale(facing.dot(up)));
 		if (forward.lengthSqr() < 1.0e-6) {
-			Vec3 cameraUp = new Vec3(camera.getUpVector());
+			Vec3 cameraUp = new Vec3(camera.upVector());
 			forward = cameraUp.subtract(up.scale(cameraUp.dot(up)));
 			if (facing.dot(up) > 0.0) forward = forward.scale(-1.0);
 		}
@@ -1534,7 +1533,7 @@ public class AuraRenderer {
 
 		poseStack.pushPose();
 
-		float cameraPitch = mc.gameRenderer.getMainCamera().getXRot();
+		float cameraPitch = mc.gameRenderer.getMainCamera().xRot();
 		if (cameraPitch < 0.0f) {
 			poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
 		}
@@ -1632,11 +1631,11 @@ public class AuraRenderer {
 		float intensity = 0.6F;
 
 		RandomSource randomsource = RandomSource.create(432L);
-		VertexConsumer vertexconsumer = buffer.getBuffer(RenderType.lightning());
+		VertexConsumer vertexconsumer = buffer.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lightning());
 
 		poseStack.pushPose();
 
-		Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+		Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().position();
 		poseStack.translate(Mth.lerp(partialTick, player.xo, player.getX()) - cameraPos.x,
 				Mth.lerp(partialTick, player.yo, player.getY()) + 1.0 - cameraPos.y,
 				Mth.lerp(partialTick, player.zo, player.getZ()) - cameraPos.z);

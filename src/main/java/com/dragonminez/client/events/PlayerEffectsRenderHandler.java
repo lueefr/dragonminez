@@ -25,22 +25,17 @@ import com.dragonminez.common.init.entities.ki.AbstractKiProjectile;
 import com.dragonminez.common.init.entities.ki.KiExplosionVisualEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import org.joml.Matrix4f;
 import org.joml.Matrix3f;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = EnvType.CLIENT)
 public class PlayerEffectsRenderHandler {
 	private static final Set<Integer> CURRENT_FRAME_PLAYERS = new HashSet<>();
 
@@ -123,14 +118,14 @@ public class PlayerEffectsRenderHandler {
 		if (frustum == null || mc.level == null) return;
 
 		EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
-		Vec3 camera = event.getCamera().getPosition();
+		Vec3 camera = event.getCamera().position();
 		float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(true);
 		PoseStack poseStack = event.getPoseStack();
 		MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
 
 		for (Entity entity : mc.level.entitiesForRendering()) {
 			if (!(entity instanceof AbstractKiProjectile)) continue;
-			EntityRenderer<Entity> renderer = (EntityRenderer<Entity>) dispatcher.getRenderer(entity);
+			EntityRenderer<Entity, net.minecraft.client.renderer.entity.state.EntityRenderState> renderer = (EntityRenderer<Entity, net.minecraft.client.renderer.entity.state.EntityRenderState>) dispatcher.getRenderer(entity);
 			if (renderer == null) continue;
 			if (dispatcher.shouldRender(entity, frustum, camera.x, camera.y, camera.z)) continue;
 			if (!renderer.shouldRender(entity, frustum, camera.x, camera.y, camera.z)) continue;
@@ -149,13 +144,13 @@ public class PlayerEffectsRenderHandler {
 	                                           MultiBufferSource buffers, float partialTick) {
 		if (mc.level == null) return;
 
-		Vec3 camera = mc.gameRenderer.getMainCamera().getPosition();
+		Vec3 camera = mc.gameRenderer.getMainCamera().position();
 
 		for (Entity entity : mc.level.entitiesForRendering()) {
 			if (!(entity instanceof KiExplosionVisualEntity burst)) continue;
 
-			EntityRenderer<KiExplosionVisualEntity> renderer =
-					(EntityRenderer<KiExplosionVisualEntity>) mc.getEntityRenderDispatcher().getRenderer(burst);
+			EntityRenderer<KiExplosionVisualEntity, net.minecraft.client.renderer.entity.state.EntityRenderState> renderer =
+					(EntityRenderer<KiExplosionVisualEntity, net.minecraft.client.renderer.entity.state.EntityRenderState>) mc.getEntityRenderDispatcher().getRenderer(burst);
 			if (renderer == null) continue;
 
 			poseStack.pushPose();
@@ -181,7 +176,7 @@ public class PlayerEffectsRenderHandler {
 		boolean isCameraColliding = false;
 
 		if (!isFirstPerson && mc.cameraEntity != null) {
-			Vec3 cameraPos = mc.gameRenderer.getMainCamera().getPosition();
+			Vec3 cameraPos = mc.gameRenderer.getMainCamera().position();
 			Vec3 entityPos = mc.cameraEntity.getPosition(partialTick);
 			if (cameraPos.distanceToSqr(entityPos) < 0.25) isCameraColliding = true;
 		}

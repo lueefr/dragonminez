@@ -9,10 +9,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 public class DMZPatternRecipeProvider {
 	private static final Map<Character, ItemLike> PALETTE = new LinkedHashMap<>();

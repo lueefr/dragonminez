@@ -10,7 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraft.client.gui.LayeredDraw;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +49,7 @@ public class WorldBossContributionHUD {
 	private static final HudSmoother PANEL_ALPHA = new HudSmoother(0.18f, 0.005f);
 	private static final HudSmoother PANEL_ROWS = new HudSmoother(0.16f, 0.01f);
 
-	public static final LayeredDraw.Layer HUD_BOSS_CONTRIBUTION = (guiGraphics, deltaTracker) -> {
+	public static final net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement HUD_BOSS_CONTRIBUTION = (guiGraphics, deltaTracker) -> {
         float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
         int width = guiGraphics.guiWidth();
         int height = guiGraphics.guiHeight();

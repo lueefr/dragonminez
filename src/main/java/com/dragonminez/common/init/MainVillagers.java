@@ -4,12 +4,11 @@ import com.dragonminez.Reference;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
-import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.dragonminez.platform.registry.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 import java.util.Set;
 
@@ -47,9 +46,9 @@ public final class MainVillagers {
 		return ImmutableSet.copyOf(MainBlocks.FUEL_GENERATOR.get().getStateDefinition().getPossibleStates());
 	}
 
-	public static void register(IEventBus modEventBus) {
-		POI_TYPES.register(modEventBus);
-		PROFESSIONS.register(modEventBus);
+	public static void register() {
+		POI_TYPES.register();
+		PROFESSIONS.register();
 	}
 
 	private MainVillagers() {

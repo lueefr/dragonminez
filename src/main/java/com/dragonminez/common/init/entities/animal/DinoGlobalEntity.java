@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import com.dragonminez.common.init.entities.ai.EnemyMeleeBrainGoal;
 import com.dragonminez.common.init.entities.ai.PartyAwareTargetGoal;
 import net.minecraft.world.entity.ai.goal.*;
@@ -12,7 +12,7 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -23,11 +23,11 @@ import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.PlayState;
+import com.geckolib.animation.object.PlayState;
 
 public class DinoGlobalEntity extends Monster implements GeoEntity {
 
@@ -59,37 +59,37 @@ public class DinoGlobalEntity extends Monster implements GeoEntity {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 
-        controllers.add(new AnimationController<>(this, "base_controller", 5, this::walkPredicate));
+        controllers.add(new AnimationController<>("base_controller", 5, this::walkPredicate));
 
-        controllers.add(new AnimationController<>(this, "attack_controller", 0, this::attackPredicate));
+        controllers.add(new AnimationController<>("attack_controller", 0, this::attackPredicate));
 
-        controllers.add(new AnimationController<>(this, "tail_controller", 0, this::tailPredicate));
+        controllers.add(new AnimationController<>("tail_controller", 0, this::tailPredicate));
     }
 
-    private <T extends GeoAnimatable> PlayState walkPredicate(AnimationState<T> event) {
+    private <T extends GeoAnimatable> PlayState walkPredicate(AnimationTest<T> event) {
         if (event.isMoving()) {
-            event.getController().setAnimation(RawAnimation.begin().thenLoop("walk"));
+            event.controller().setAnimation(RawAnimation.begin().thenLoop("walk"));
             return PlayState.CONTINUE;
         }
-        event.getController().setAnimation(RawAnimation.begin().thenLoop("idle"));
+        event.controller().setAnimation(RawAnimation.begin().thenLoop("idle"));
         return PlayState.CONTINUE;
     }
 
-    private <T extends GeoAnimatable> PlayState attackPredicate(AnimationState<T> event) {
-        DinoGlobalEntity entity = (DinoGlobalEntity) event.getAnimatable();
+    private <T extends GeoAnimatable> PlayState attackPredicate(AnimationTest<T> event) {
+        DinoGlobalEntity entity = (DinoGlobalEntity) event.animatable();
 
         if (entity.swingTime > 0 && !isAttacking) {
             isAttacking = true;
 
-            event.getController().forceAnimationReset();
+            event.controller().forceAnimationReset();
 
-            event.getController().setAnimation(RawAnimation.begin().thenPlay("attack"));
+            event.controller().setAnimation(RawAnimation.begin().thenPlay("attack"));
 
             return PlayState.CONTINUE;
         }
 
         if (isAttacking) {
-            if (event.getController().getAnimationState() == AnimationController.State.STOPPED) {
+            if (event.controller().getAnimationState() == AnimationController.State.STOPPED) {
                 isAttacking = false;
                 return PlayState.STOP;
             }
@@ -99,9 +99,9 @@ public class DinoGlobalEntity extends Monster implements GeoEntity {
         return PlayState.STOP;
     }
 
-    private <T extends GeoAnimatable> PlayState tailPredicate(AnimationState<T> event) {
+    private <T extends GeoAnimatable> PlayState tailPredicate(AnimationTest<T> event) {
 
-        event.getController().setAnimation(RawAnimation.begin().thenLoop("tail"));
+        event.controller().setAnimation(RawAnimation.begin().thenLoop("tail"));
 
         return PlayState.CONTINUE;
     }
@@ -112,11 +112,11 @@ public class DinoGlobalEntity extends Monster implements GeoEntity {
     }
 
     @Override
-    public boolean checkSpawnRules(LevelAccessor pLevel, MobSpawnType reason) {
+    public boolean checkSpawnRules(LevelAccessor pLevel, EntitySpawnReason reason) {
         return pLevel.getDifficulty() != Difficulty.PEACEFUL && this.checkSpawnObstruction(pLevel);
     }
 
-    public static boolean canSpawnHere(EntityType<? extends DinoGlobalEntity> entity, ServerLevelAccessor world, MobSpawnType spawn, BlockPos pos, RandomSource random) {
+    public static boolean canSpawnHere(EntityType<? extends DinoGlobalEntity> entity, ServerLevelAccessor world, EntitySpawnReason spawn, BlockPos pos, RandomSource random) {
         if (world.getDifficulty() == Difficulty.PEACEFUL) return false;
         if (random.nextFloat() < 0.65f) return false;
 

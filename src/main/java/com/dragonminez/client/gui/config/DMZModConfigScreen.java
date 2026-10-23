@@ -2,21 +2,20 @@ package com.dragonminez.client.gui.config;
 
 import com.dragonminez.client.util.ScrollbarState;
 import com.dragonminez.common.config.ConfigManager;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public class DMZModConfigScreen extends Screen {
 
 	private static final int ROW_HEIGHT = 12;

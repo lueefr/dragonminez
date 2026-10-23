@@ -9,7 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
@@ -59,7 +59,7 @@ public class SagaOgreEntity extends DBSagasEntity {
         return AlignmentBand.fromValue(data.getResources().getAlignment()) == AlignmentBand.EVIL;
     }
 
-    public static boolean canSpawnInHell(EntityType<? extends SagaOgreEntity> entity, ServerLevelAccessor world, MobSpawnType spawn, BlockPos pos, RandomSource random) {
+    public static boolean canSpawnInHell(EntityType<? extends SagaOgreEntity> entity, ServerLevelAccessor world, EntitySpawnReason spawn, BlockPos pos, RandomSource random) {
         BlockState ground = world.getBlockState(pos.below());
         boolean hellGround = ground.is(MainBlocks.HELL_GROUND.get())
                 || ground.is(MainBlocks.HELL_STONE.get())

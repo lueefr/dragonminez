@@ -3,7 +3,7 @@ package com.dragonminez.common.init.item.weapons.render;
 import com.dragonminez.common.init.item.weapons.ZSwordItem;
 import com.dragonminez.common.init.item.weapons.model.ZSwordModel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import com.geckolib.renderer.GeoItemRenderer;
@@ -16,6 +16,6 @@ public class ZSwordRenderer extends GeoItemRenderer<ZSwordItem> {
 
     @Override
     public RenderType getRenderType(ZSwordItem animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityCutoutNoCull(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture);
     }
 }

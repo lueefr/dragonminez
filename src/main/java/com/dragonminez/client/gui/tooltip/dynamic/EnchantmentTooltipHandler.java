@@ -22,7 +22,7 @@ public class EnchantmentTooltipHandler {
 	}
 
 	public static void insertDescription(Holder<Enchantment> holder, int level, Consumer<Component> lines) {
-		Identifier id = holder.unwrapKey().map(k -> k.location()).orElse(null);
+		Identifier id = holder.unwrapKey().map(k -> k.identifier()).orElse(null);
 		insertDescriptionById(id, level, lines);
 	}
 

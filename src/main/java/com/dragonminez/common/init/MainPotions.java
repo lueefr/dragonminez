@@ -8,11 +8,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.core.component.DataComponents;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.dragonminez.platform.registry.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.dragonminez.platform.registry.DeferredHolder;
 
 public final class MainPotions {
 
@@ -30,7 +28,7 @@ public final class MainPotions {
 		return stack;
 	}
 
-	public static void register(IEventBus bus) {
-		POTION_REGISTER.register(bus);
+	public static void register() {
+		POTION_REGISTER.register();
 	}
 }

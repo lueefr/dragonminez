@@ -33,7 +33,7 @@ public class MeleeAttackStartC2S {
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
-		long arrivalNanos = System.nanoTime();
+		long arrivalNanos = ctx.get().receivedNanos();
 		ctx.get().enqueueWork(() -> {
 			ServerPlayer player = ctx.get().getSender();
 			if (player == null) return;

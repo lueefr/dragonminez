@@ -5,10 +5,10 @@ import com.dragonminez.common.init.item.weapons.model.TamagamiTridentModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
-import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.model.BakedGeoModel;
 import com.geckolib.renderer.GeoItemRenderer;
 
 public class TamagamiTridentRenderer extends GeoItemRenderer<TamagamiTridentItem> {
@@ -30,6 +30,6 @@ public class TamagamiTridentRenderer extends GeoItemRenderer<TamagamiTridentItem
 
 	@Override
 	public RenderType getRenderType(TamagamiTridentItem animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-		return RenderType.entityCutoutNoCull(texture);
+		return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture);
 	}
 }

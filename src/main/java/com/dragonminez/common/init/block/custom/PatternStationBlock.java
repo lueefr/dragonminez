@@ -5,7 +5,6 @@ import com.dragonminez.common.init.menu.menutypes.PatternStationMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
@@ -107,7 +106,7 @@ public class PatternStationBlock extends BaseEntityBlock {
 
 	@Override
 	public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-		if (!level.isClientSide && player.isCreative() && state.getValue(HALF) == DoubleBlockHalf.UPPER) {
+		if (!level.isClientSide() && player.isCreative() && state.getValue(HALF) == DoubleBlockHalf.UPPER) {
 			BlockPos lowerPos = pos.below();
 			BlockState lowerState = level.getBlockState(lowerPos);
 			if (lowerState.is(this) && lowerState.getValue(HALF) == DoubleBlockHalf.LOWER) {
@@ -130,7 +129,7 @@ public class PatternStationBlock extends BaseEntityBlock {
 
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-		if (level.isClientSide) return InteractionResult.SUCCESS;
+		if (level.isClientSide()) return InteractionResult.SUCCESS;
 		player.openMenu(state.getMenuProvider(level, pos));
 		return InteractionResult.CONSUME;
 	}
@@ -138,8 +137,13 @@ public class PatternStationBlock extends BaseEntityBlock {
 	@Override
 	public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
 		BlockPos lowerPos = state.getValue(HALF) == DoubleBlockHalf.UPPER ? pos.below() : pos;
-		return new SimpleMenuProvider((containerId, inventory, player) ->
-				new PatternStationMenu(containerId, inventory, ContainerLevelAccess.create(level, lowerPos)), CONTAINER_TITLE);
+		return new net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider<BlockPos>() {
+            @Override public BlockPos getScreenOpeningData(net.minecraft.server.level.ServerPlayer player) { return lowerPos; }
+            @Override public net.minecraft.network.chat.Component getDisplayName() { return CONTAINER_TITLE; }
+            @Override public net.minecraft.world.inventory.AbstractContainerMenu createMenu(int containerId, net.minecraft.world.entity.player.Inventory inventory, Player player) {
+                return new PatternStationMenu(containerId, inventory, ContainerLevelAccess.create(level, lowerPos));
+            }
+        };
 	}
 
 	@Nullable

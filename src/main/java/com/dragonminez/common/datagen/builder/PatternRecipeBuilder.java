@@ -1,22 +1,14 @@
 package com.dragonminez.common.datagen.builder;
 
-import com.dragonminez.common.init.MainRecipes;
 import com.dragonminez.server.recipes.PatternRecipe;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 public class PatternRecipeBuilder {
 	private final Item result;

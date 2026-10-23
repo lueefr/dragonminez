@@ -1,20 +1,18 @@
 package com.dragonminez.client.init.entities.renderer.sagas;
 
 import com.dragonminez.client.init.entities.model.BlackNimbusModel;
-import com.dragonminez.client.init.entities.model.FlyingNimbusModel;
 import com.dragonminez.common.init.entities.BlackNimbusEntity;
-import com.dragonminez.common.init.entities.FlyingNimbusEntity;
 import com.dragonminez.client.render.effects.AuraTrailRenderer;
 import com.dragonminez.client.util.ColorUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import com.geckolib.renderer.GeoEntityRenderer;
 
-public class BlackNimbusRenderer extends GeoEntityRenderer<BlackNimbusEntity> {
+public class BlackNimbusRenderer extends com.dragonminez.platform.client.render.ExtractedGeoEntityRenderer<BlackNimbusEntity> {
     private static final float[] TRAIL_COLOR = ColorUtils.rgbIntToFloat(0x272D67);
     private static final float TRAIL_ALPHA = 0.60f;
     private static final int TRAIL_SAMPLES = 64;
@@ -35,6 +33,6 @@ public class BlackNimbusRenderer extends GeoEntityRenderer<BlackNimbusEntity> {
 
     @Override
     public RenderType getRenderType(BlackNimbusEntity animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityTranslucent(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture);
     }
 }

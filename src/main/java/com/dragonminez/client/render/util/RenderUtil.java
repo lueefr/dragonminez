@@ -4,9 +4,9 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CrossbowItem;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import org.joml.Vector3d;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.GeoBone;
 
 public class RenderUtil {
 
@@ -28,9 +28,9 @@ public class RenderUtil {
 
         // Solo aplicar animaciones procedurales para arco y ballesta
         // Las animaciones de ataque normal son manejadas por GeckoLib
-        UseAnim useAction = animatable.getUseItem().getUseAnimation();
+        ItemUseAnimation useAction = animatable.getUseItem().getUseAnimation();
 
-        if (useAction == UseAnim.BOW) {
+        if (useAction == ItemUseAnimation.BOW) {
             RenderUtil.animateBowHand(animatable, armBone, ageInTicks);
             return;
         }

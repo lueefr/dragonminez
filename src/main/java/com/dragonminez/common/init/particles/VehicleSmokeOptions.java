@@ -1,17 +1,11 @@
 package com.dragonminez.common.init.particles;
 
 import com.dragonminez.common.init.MainParticles;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 
-import java.util.Locale;
 
 public record VehicleSmokeOptions(float size, float shade, float alpha, int lifetime) implements ParticleOptions {
 

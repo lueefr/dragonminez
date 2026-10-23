@@ -9,15 +9,14 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.core.registries.BuiltInRegistries;
 import com.geckolib.constant.DataTickets;
-import com.geckolib.cache.object.GeoBone;
-import com.geckolib.animation.AnimationState;
-import com.geckolib.model.GeoModel;
-import com.geckolib.model.data.EntityModelData;
+import com.geckolib.cache.model.GeoBone;
+import com.geckolib.animation.state.AnimationTest;
+import com.dragonminez.platform.client.model.HeadTrackingGeoModel;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class MasterGlobalModel<T extends MastersEntity> extends GeoModel<T> {
+public class MasterGlobalModel<T extends MastersEntity> extends HeadTrackingGeoModel<T> {
 
     private static final Map<String, Boolean> MODEL_CACHE = new HashMap<>();
     private static final Map<String, Boolean> TEXTURE_CACHE = new HashMap<>();
@@ -60,17 +59,6 @@ public class MasterGlobalModel<T extends MastersEntity> extends GeoModel<T> {
         return exists ? original : Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/master/master_goku.animation.json");
     }
 
-    @Override
-    public void setCustomAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
-        GeoBone head = getAnimationProcessor().getBone("head");
-
-        if (head != null) {
-            EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
-
-            head.setRotX(entityData.headPitch() * Mth.DEG_TO_RAD);
-            head.setRotY(entityData.netHeadYaw() * Mth.DEG_TO_RAD);
-        }
-    }
 
     private boolean resourceExists(Identifier location) {
         return Minecraft.getInstance().getResourceManager().getResource(location).isPresent();

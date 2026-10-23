@@ -20,15 +20,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.tick.ClientTickEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 import org.joml.Matrix4f;
 
 import java.util.HashMap;
@@ -39,7 +35,7 @@ import java.util.Set;
 import java.util.UUID;
 
 
-@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = EnvType.CLIENT)
 public final class MajinAbsorptionTracker {
 
 	private static final double ABSORB_RANGE = 8.0;
@@ -167,7 +163,7 @@ public final class MajinAbsorptionTracker {
 
 		float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
 		Camera camera = event.getCamera();
-		Vec3 cam = camera.getPosition();
+		Vec3 cam = camera.position();
 		PoseStack pose = event.getPoseStack();
 		MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
 		VertexConsumer consumer = buffers.getBuffer(ModRenderTypes.gooBlob());

@@ -3,8 +3,8 @@ package com.dragonminez.client.util;
 import com.dragonminez.common.stats.FusedData;
 import com.dragonminez.common.stats.character.Character;
 import com.dragonminez.common.util.FusionTraits;
-import com.geckolib.cache.object.BakedGeoModel;
-import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.model.BakedGeoModel;
+import com.geckolib.cache.model.GeoBone;
 
 import java.util.ArrayList;
 import java.util.List;

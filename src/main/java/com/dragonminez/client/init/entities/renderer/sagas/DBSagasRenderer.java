@@ -30,7 +30,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
@@ -42,7 +42,7 @@ import com.geckolib.util.Color;
 import com.geckolib.renderer.GeoEntityRenderer;
 
 
-public class DBSagasRenderer<T extends DBSagasEntity> extends GeoEntityRenderer<T> {
+public class DBSagasRenderer<T extends DBSagasEntity> extends com.dragonminez.platform.client.render.ExtractedGeoEntityRenderer<T> {
 
     private static final Identifier NAPPA_NORMAL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/sagas/saga_nappa.png");
     private static final Identifier NAPPA_DAMAGED = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/sagas/saga_nappa2.png");
@@ -67,9 +67,9 @@ public class DBSagasRenderer<T extends DBSagasEntity> extends GeoEntityRenderer<
     @Override
     public RenderType getRenderType(T animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
         if (animatable instanceof ShadowDummyEntity) {
-            return RenderType.entityTranslucent(texture);
+            return net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture);
         }
-        return RenderType.entityCutoutNoCull(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture);
     }
 
     @Override
@@ -275,7 +275,7 @@ public class DBSagasRenderer<T extends DBSagasEntity> extends GeoEntityRenderer<
 
         poseStack.pushPose();
 
-        float cameraPitch = mc.gameRenderer.getMainCamera().getXRot();
+        float cameraPitch = mc.gameRenderer.getMainCamera().xRot();
         if (cameraPitch < 0.0f) {
             poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
         }
@@ -332,8 +332,8 @@ public class DBSagasRenderer<T extends DBSagasEntity> extends GeoEntityRenderer<
 
         AuraRenderer.applyAuraColors(shader, color);
 
-        float cameraPitch = mc.gameRenderer.getMainCamera().getXRot();
-        float cameraYaw = mc.gameRenderer.getMainCamera().getYRot();
+        float cameraPitch = mc.gameRenderer.getMainCamera().xRot();
+        float cameraYaw = mc.gameRenderer.getMainCamera().yRot();
         float absPitch = Math.abs(cameraPitch);
         float crossFactor = 0.0f;
         float pitchSquash = 1.0f;
@@ -446,13 +446,13 @@ public class DBSagasRenderer<T extends DBSagasEntity> extends GeoEntityRenderer<
         Vec3 axis = look.lengthSqr() < 1.0e-6 ? new Vec3(0.0, 1.0, 0.0) : look.normalize().scale(-1.0);
         double worldScale = Math.max(animatable.getScale(), 0.01f);
         double baseLift = modelHeight(animatable) * 0.5;
-        Vec3 centre = animatable.getPosition(partialTick).subtract(camera.getPosition())
+        Vec3 centre = animatable.getPosition(partialTick).subtract(camera.position())
                 .add(0.0, baseLift * worldScale, 0.0)
                 .add(axis.scale(AuraRenderer.AURA_2D_FLIGHT_OFFSET * AURA_2D_SCALE * worldScale));
 
         float crossFactor = 0.0f;
         float pitchSquash = 1.0f;
-        float alignment = (float) Math.abs(new Vec3(camera.getLookVector()).dot(axis));
+        float alignment = (float) Math.abs(new Vec3(camera.forwardVector()).dot(axis));
         if (alignment > 0.707f) {
             crossFactor = (float) Math.pow((alignment - 0.707f) / 0.293f, 2.0);
             pitchSquash = 1.0f - (crossFactor * 0.5f);
@@ -499,7 +499,7 @@ public class DBSagasRenderer<T extends DBSagasEntity> extends GeoEntityRenderer<
         if (crossFactor > 0.0f) {
             poseStack.pushPose();
             poseStack.translate(0.0, baseLift, 0.0);
-            if (AuraRenderer.applyAxisBillboard(poseStack, camera, axis, new Vec3(camera.getLookVector()), 0.0f, 0.0)) {
+            if (AuraRenderer.applyAxisBillboard(poseStack, camera, axis, new Vec3(camera.forwardVector()), 0.0f, 0.0)) {
                 poseStack.scale(AURA_2D_SCALE, 1.0f, AURA_2D_SCALE);
 
                 shader.safeGetUniform("alp1").set(crossFactor);

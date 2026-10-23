@@ -65,21 +65,16 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
+import com.dragonminez.platform.event.GameEvents;
+import com.dragonminez.platform.event.tick.PlayerTickEvent;
+import com.dragonminez.platform.event.player.PlayerEvent;
+import com.dragonminez.platform.event.SubscribeEvent;
+import com.dragonminez.platform.event.EventBusSubscriber;
 
 import java.util.*;
 
@@ -117,7 +112,7 @@ public class TickHandler {
 
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Post event) {
-		if (event.getEntity().level().isClientSide) return;
+		if (event.getEntity().level().isClientSide()) return;
 		if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
 
 		MeleeWindupTracker.tick(serverPlayer);
@@ -209,16 +204,16 @@ public class TickHandler {
 			else if (isStill) currentRegenMod = 2.0;
 			else if (isWalk) currentRegenMod = 1.5;
 
-			double savedMod = serverPlayer.getPersistentData().getDouble("dmz_stamina_regen_mod");
-			long modTimestamp = serverPlayer.getPersistentData().getLong("dmz_stamina_mod_time");
+			double savedMod = com.dragonminez.platform.entity.EntityData.get(serverPlayer).getDoubleOr("dmz_stamina_regen_mod", 0D);
+			long modTimestamp = com.dragonminez.platform.entity.EntityData.get(serverPlayer).getLongOr("dmz_stamina_mod_time", 0L);
 			long now = System.currentTimeMillis();
 
 			if (currentRegenMod != savedMod) {
 				if (currentRegenMod < savedMod || (now - modTimestamp) >= 1000) {
-					serverPlayer.getPersistentData().putDouble("dmz_stamina_regen_mod", currentRegenMod);
-					serverPlayer.getPersistentData().putLong("dmz_stamina_mod_time", now);
+					com.dragonminez.platform.entity.EntityData.get(serverPlayer).putDouble("dmz_stamina_regen_mod", currentRegenMod);
+					com.dragonminez.platform.entity.EntityData.get(serverPlayer).putLong("dmz_stamina_mod_time", now);
 				}
-			} else serverPlayer.getPersistentData().putLong("dmz_stamina_mod_time", now);
+			} else com.dragonminez.platform.entity.EntityData.get(serverPlayer).putLong("dmz_stamina_mod_time", now);
 
 			if (shouldRegen) {
 				double meditationBonus = meditationLevel > 0 ? 1.0 + (meditationLevel * MEDITATION_BONUS_PER_LEVEL) : 1.0;
@@ -237,7 +232,7 @@ public class TickHandler {
 
 			boolean isMovementRestricted = TechniqueDispatcher.isMovementRestrictedKiAttack(serverPlayer, data) || isChargingKi;
 			boolean isFiring = TechniqueDispatcher.isFiringKiAttack(serverPlayer);
-			boolean wasExecuting = serverPlayer.getPersistentData().getBoolean("dmz_was_executing_ki");
+			boolean wasExecuting = com.dragonminez.platform.entity.EntityData.get(serverPlayer).getBooleanOr("dmz_was_executing_ki", false);
 
 			if (isMovementRestricted) {
 				boolean flying = data.getSkills().isSkillActive("fly");
@@ -257,11 +252,11 @@ public class TickHandler {
 					serverPlayer.yBodyRot = serverPlayer.yBodyRotO;
 				}
 
-				serverPlayer.getPersistentData().putBoolean("dmz_was_executing_ki", true);
+				com.dragonminez.platform.entity.EntityData.get(serverPlayer).putBoolean("dmz_was_executing_ki", true);
 			} else {
 
 
-				if (wasExecuting) serverPlayer.getPersistentData().putBoolean("dmz_was_executing_ki", false);
+				if (wasExecuting) com.dragonminez.platform.entity.EntityData.get(serverPlayer).putBoolean("dmz_was_executing_ki", false);
 			}
 
 			if (data.getStatus().isActionCharging() && data.getStatus().getSelectedAction() == ActionMode.FUSION) {
@@ -343,10 +338,10 @@ public class TickHandler {
 
 			boolean kiAnimShouldBeActive = playerOwnsKiProjectile(serverPlayer) || data.getTechniques().isTechniqueCharging() || data.getTechniques().isTechniqueChargeActive()
 					|| KiTechniqueHandler.isFireAnimationHeld(serverPlayer);
-			boolean kiAnimWasActive = serverPlayer.getPersistentData().getBoolean("dmz_ki_anim_active");
-			if (kiAnimShouldBeActive) serverPlayer.getPersistentData().putBoolean("dmz_ki_anim_active", true);
+			boolean kiAnimWasActive = com.dragonminez.platform.entity.EntityData.get(serverPlayer).getBooleanOr("dmz_ki_anim_active", false);
+			if (kiAnimShouldBeActive) com.dragonminez.platform.entity.EntityData.get(serverPlayer).putBoolean("dmz_ki_anim_active", true);
 			else if (kiAnimWasActive) {
-				serverPlayer.getPersistentData().putBoolean("dmz_ki_anim_active", false);
+				com.dragonminez.platform.entity.EntityData.get(serverPlayer).putBoolean("dmz_ki_anim_active", false);
 				NetworkHandler.sendToTrackingEntityAndSelf(new TriggerAnimationS2C(serverPlayer.getUUID(), TriggerAnimationS2C.AnimationType.KI_ANIMATION_STOP, 0, -1, ""), serverPlayer);
 			}
 
@@ -431,7 +426,7 @@ public class TickHandler {
 				String currentBackWeapon = data.getStatus().getBackWeapon();
 				// Edge detection only, never read by the client, so it stays out of StatsData and
 				// its save contract. Same idiom as dmz_ki_anim_active further up this method.
-				boolean wasDrawn = serverPlayer.getPersistentData().getBoolean("dmz_weapon_drawn");
+				boolean wasDrawn = com.dragonminez.platform.entity.EntityData.get(serverPlayer).getBooleanOr("dmz_weapon_drawn", false);
 
 				if (!playedSound) {
 					if (weaponDrawn && !wasDrawn) {
@@ -446,7 +441,7 @@ public class TickHandler {
 					}
 				}
 
-				if (weaponDrawn != wasDrawn) serverPlayer.getPersistentData().putBoolean("dmz_weapon_drawn", weaponDrawn);
+				if (weaponDrawn != wasDrawn) com.dragonminez.platform.entity.EntityData.get(serverPlayer).putBoolean("dmz_weapon_drawn", weaponDrawn);
 				if (!currentBackWeapon.equals(newBackWeapon)) data.getStatus().setBackWeapon(newBackWeapon);
 
 				ItemStack scouterStack = CuriosUtil.getFirstStackForItem(serverPlayer, "head_tech", "scouter");
@@ -498,7 +493,7 @@ public class TickHandler {
 	}
 
 	private static void handleOtherworldTransfer(ServerPlayer serverPlayer, StatsData data, UUID playerId) {
-		boolean inOtherworld = serverPlayer.serverLevel().dimension().equals(OtherworldDimension.OTHERWORLD_KEY);
+		boolean inOtherworld = serverPlayer.level().dimension().equals(OtherworldDimension.OTHERWORLD_KEY);
 		boolean shouldTransfer = ConfigManager.getServerConfig().getWorldGen().getOtherworldActive()
 				&& !data.getStatus().isAlive()
 				&& data.getStatus().getTempReturnTimer() <= 0
@@ -526,7 +521,7 @@ public class TickHandler {
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
 
-        serverPlayer.getPersistentData().putBoolean("dmz_was_executing_ki", false);
+        com.dragonminez.platform.entity.EntityData.get(serverPlayer).putBoolean("dmz_was_executing_ki", false);
         CHARGING_CACHE.remove(serverPlayer.getUUID());
         otherworldTpGraceByPlayer.remove(serverPlayer.getUUID());
 
@@ -550,7 +545,7 @@ public class TickHandler {
 	public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
 		UUID playerId = event.getEntity().getUUID();
 		if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-			serverPlayer.getPersistentData().putBoolean("dmz_was_executing_ki", false);
+			com.dragonminez.platform.entity.EntityData.get(serverPlayer).putBoolean("dmz_was_executing_ki", false);
 			NetworkHandler.sendToTrackingEntityAndSelf(new TriggerAnimationS2C(serverPlayer.getUUID(), TriggerAnimationS2C.AnimationType.KI_ANIMATION_STOP, 0, -1, ""), serverPlayer);
 		}
 		CHARGING_CACHE.remove(playerId);
@@ -567,7 +562,7 @@ public class TickHandler {
 		GravityLogic.clearNpcGravityCache(playerId);
 		GravityStateSync.clear(playerId);
 		if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-			removeAuraLight(serverPlayer.serverLevel(), playerId);
+			removeAuraLight(serverPlayer.level(), playerId);
 			clearHumanKiAccumulators(serverPlayer);
 		}
 	}
@@ -585,7 +580,7 @@ public class TickHandler {
 	private static void enforceShadowDummyTether(ServerPlayer player, StatsData data) {
 		if (!data.getStatus().hasActiveShadowDummy()) return;
 
-		Entity dummy = player.serverLevel().getEntity(data.getStatus().getActiveShadowDummyUUID());
+		Entity dummy = player.level().getEntity(data.getStatus().getActiveShadowDummyUUID());
 		if (dummy instanceof ShadowDummyEntity shadow) {
 			if (player.distanceToSqr(shadow) > SHADOW_DUMMY_TETHER_SQR) {
 				SummonPlayerShadowDummyC2S.dismissByDummy(shadow);
@@ -618,7 +613,7 @@ public class TickHandler {
 
 
 	private static void updateAuraLight(ServerPlayer player, StatsData data) {
-		ServerLevel level = player.serverLevel();
+		ServerLevel level = player.level();
 		UUID playerId = player.getUUID();
 		boolean auraActive = (data.getStatus().isAuraActive() && !unlitFlySprintAura.contains(playerId))
 				|| data.getStatus().isPermanentAura() || data.getStatus().isForcedAura();
@@ -706,7 +701,7 @@ public class TickHandler {
 		if (currentHealth >= maxHealth) return;
 
 		DMZEvent.HealthRegenEvent event = new DMZEvent.HealthRegenEvent(player, data, data.getHealthRegenPerSecond());
-		if (NeoForge.EVENT_BUS.post(event).isCanceled()) return;
+		if (GameEvents.BUS.post(event).isCanceled()) return;
 
 		double finalRegen = Math.max(0.0, event.getAmount()) * foodRegenMod;
 		if (!Double.isFinite(finalRegen) || finalRegen <= 0.0) return;
@@ -727,7 +722,7 @@ public class TickHandler {
 
 		if (activeCharging) {
 			DMZEvent.KiChargeEvent kiEvent = new DMZEvent.KiChargeEvent(player, currentEnergy, maxEnergy);
-			if (NeoForge.EVENT_BUS.post(kiEvent).isCanceled()) energyChange = 0;
+			if (GameEvents.BUS.post(kiEvent).isCanceled()) energyChange = 0;
 		}
 
 		UUID masteryPlayerId = player.getUUID();
@@ -773,7 +768,7 @@ public class TickHandler {
 
 		if (energyChange != 0) {
 			DMZEvent.EnergyRegenEvent regenEvent = new DMZEvent.EnergyRegenEvent(player, data, energyChange);
-			energyChange = NeoForge.EVENT_BUS.post(regenEvent).isCanceled() ? 0 : regenEvent.getAmount();
+			energyChange = GameEvents.BUS.post(regenEvent).isCanceled() ? 0 : regenEvent.getAmount();
 		}
 
 		if (energyChange != 0) {
@@ -810,7 +805,7 @@ public class TickHandler {
 		if (regenPerSecond <= 0.0) return;
 
 		DMZEvent.StaminaRegenEvent event = new DMZEvent.StaminaRegenEvent(player, data, regenPerSecond);
-		if (NeoForge.EVENT_BUS.post(event).isCanceled()) return;
+		if (GameEvents.BUS.post(event).isCanceled()) return;
 		regenPerSecond = Math.max(0.0, event.getAmount()) * foodRegenMod;
 		if (regenPerSecond <= 0.0) return;
 
@@ -948,7 +943,7 @@ public class TickHandler {
 		if (kiAttack.getKiType() == KiAttackData.KiType.SHIELD
 				&& kiAttack.getEffectiveUtility() == KiAttackData.Utility.HEAL
 				&& techniques.getHomingTargetId() >= 0) {
-			Entity targetEntity = player.serverLevel().getEntity(techniques.getHomingTargetId());
+			Entity targetEntity = player.level().getEntity(techniques.getHomingTargetId());
 			boolean targetGone = !(targetEntity instanceof LivingEntity living) || !living.isAlive() || player.distanceTo(living) > 30.0;
 			if (targetGone) {
 				var leftover = findChargingEntity(player);
@@ -1053,7 +1048,7 @@ public class TickHandler {
 						boolean creative = player.isCreative();
 						int baseCooldown = creative ? 60 : Math.max(1, (int) Math.ceil(kiAttack.getActualCooldown() * chargeMultiplier));
 						DMZEvent.KiAttackFireEvent fireEvent = new DMZEvent.KiAttackFireEvent(player, data, kiAttack, chargeMultiplier, baseCooldown);
-						NeoForge.EVENT_BUS.post(fireEvent);
+						GameEvents.BUS.post(fireEvent);
 						int cooldownTicks = Math.max(1, fireEvent.getCooldownTicks());
 						data.getCooldowns().setCooldown(getTechniqueCooldownKey(kiAttack.getId()), cooldownTicks);
 
@@ -1068,7 +1063,7 @@ public class TickHandler {
 							if (modifiedFireCost > 0) data.getResources().removeEnergy(modifiedFireCost);
 
 							applyHumanKiPassiveDuringCharge(player, data, originalFireCost);
-							player.getPersistentData().putFloat("dmz_human_hp_drain_accum", 0.0f);
+							com.dragonminez.platform.entity.EntityData.get(player).putFloat("dmz_human_hp_drain_accum", 0.0f);
 
 							if (drainsOverLife) {
 								double lifeCost = 0.25 * base * costMult;
@@ -1085,7 +1080,7 @@ public class TickHandler {
 				boolean creative = player.isCreative();
 				int baseCooldown = creative ? 60 : Math.max(1, kiAttack.getActualCooldown());
 				DMZEvent.KiAttackFireEvent fireEvent = new DMZEvent.KiAttackFireEvent(player, data, kiAttack, 1.0f, baseCooldown);
-				NeoForge.EVENT_BUS.post(fireEvent);
+				GameEvents.BUS.post(fireEvent);
 				int cooldownTicks = Math.max(1, fireEvent.getCooldownTicks());
 				data.getCooldowns().setCooldown(getTechniqueCooldownKey(kiAttack.getId()), cooldownTicks);
 			}
@@ -1293,21 +1288,21 @@ public class TickHandler {
 		if (!data.isHumanRacialActive() || data.isAndroidRacialActive() || originalKiCost <= 0) return;
 		if (KiTechniqueHandler.TriBeam.isNeo(data.getTechniques().getChargingTechniqueId())) return;
 
-		float hpAccum = player.getPersistentData().getFloat("dmz_human_hp_drain_accum") + originalKiCost * 0.125f;
+		float hpAccum = com.dragonminez.platform.entity.EntityData.get(player).getFloatOr("dmz_human_hp_drain_accum", 0F) + originalKiCost * 0.125f;
 		int hpWhole = (int) hpAccum;
 
 		if (hpWhole > 0 && player.getHealth() > hpWhole + 2.0f) {
 			SilentDamage.apply(player, hpWhole);
-			double bonusDmg = player.getPersistentData().getDouble("dmz_human_ki_bonus_dmg") + hpWhole;
-			player.getPersistentData().putDouble("dmz_human_ki_bonus_dmg", bonusDmg);
+			double bonusDmg = com.dragonminez.platform.entity.EntityData.get(player).getDoubleOr("dmz_human_ki_bonus_dmg", 0D) + hpWhole;
+			com.dragonminez.platform.entity.EntityData.get(player).putDouble("dmz_human_ki_bonus_dmg", bonusDmg);
 			hpAccum -= hpWhole;
 		}
-		player.getPersistentData().putFloat("dmz_human_hp_drain_accum", hpAccum);
+		com.dragonminez.platform.entity.EntityData.get(player).putFloat("dmz_human_hp_drain_accum", hpAccum);
 	}
 
 	private static void clearHumanKiAccumulators(ServerPlayer player) {
-		player.getPersistentData().putFloat("dmz_human_hp_drain_accum", 0.0f);
-		player.getPersistentData().putDouble("dmz_human_ki_bonus_dmg", 0.0);
+		com.dragonminez.platform.entity.EntityData.get(player).putFloat("dmz_human_hp_drain_accum", 0.0f);
+		com.dragonminez.platform.entity.EntityData.get(player).putDouble("dmz_human_ki_bonus_dmg", 0.0);
 	}
 
 	public static void registerActionModeHandlers() {

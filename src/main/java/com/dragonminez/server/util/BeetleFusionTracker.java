@@ -57,7 +57,7 @@ public final class BeetleFusionTracker {
 		if (mine == null) return false;
 		long now = player.getServer().getTickCount();
 
-		for (ServerPlayer other : player.serverLevel().getEntitiesOfClass(ServerPlayer.class,
+		for (ServerPlayer other : player.level().getEntitiesOfClass(ServerPlayer.class,
 				player.getBoundingBox().inflate(PAIR_RANGE), p -> p != player)) {
 			Pending theirs = PENDING.get(other.getUUID());
 			if (theirs == null || theirs.pairId() != mine.pairId() || now > theirs.expiresAt()) continue;

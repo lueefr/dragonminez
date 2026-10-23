@@ -8,7 +8,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.neoforged.fml.ModList;
 import net.minecraft.core.registries.BuiltInRegistries;
 
 public final class MobBattlePowerHelper {
@@ -63,7 +62,7 @@ public final class MobBattlePowerHelper {
 	}
 
 	private static double autoLevelingBonus(LivingEntity entity, Identifier id) {
-		if (!ModList.get().isLoaded("autoleveling")) return 0.0;
+		if (!net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("autoleveling")) return 0.0;
 		var holder = BuiltInRegistries.ATTRIBUTE.getHolder(id);
 		if (holder.isEmpty()) return 0.0;
 		AttributeInstance instance = entity.getAttribute(holder.get());

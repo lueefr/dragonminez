@@ -25,22 +25,17 @@ import com.dragonminez.common.init.entities.sagas.helper.DBSagasAnimations;
 import com.dragonminez.common.init.entities.sagas.helper.SkillManager;
 import com.dragonminez.common.quest.QuestService;
 import com.dragonminez.common.stats.StatsCapability;
-import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
-import com.dragonminez.common.stats.techniques.TechniqueDispatcher;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
@@ -52,9 +47,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -72,7 +67,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.RawAnimation;
 
@@ -572,7 +567,7 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
         Entity attacker = pSource.getEntity();
         if (!this.partGateAttackers.add(attacker != null ? attacker.getId() : NO_ATTACKER_GATE_ID)) return false;
 
-        return this.hurt(pSource, pAmount);
+        return this.hurtOrSimulate(pSource, pAmount);
     }
 
     public void setSkillColors(int mainColor, int borderColor, int outlineColor) {
@@ -662,7 +657,7 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
         this.teleportTo(destination.x, destination.y, destination.z);
         this.lookAt(target, 360.0F, 360.0F);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             NetworkHandler.sendToTrackingEntity(new com.dragonminez.common.network.S2C.DimensionalShatterS2C(-1,
                     from.x, from.y, from.z, this.getBbWidth(), this.getBbHeight(), false), this);
             NetworkHandler.sendToTrackingEntity(new com.dragonminez.common.network.S2C.DimensionalShatterS2C(this.getId(),
@@ -738,7 +733,7 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
 
             if (teleported) {
                 this.lookAt(this.getTarget(), 360, 360);
-                if (!this.level().isClientSide && this.zanzokenAfterimagesLeft > 0) {
+                if (!this.level().isClientSide() && this.zanzokenAfterimagesLeft > 0) {
                     this.zanzokenAfterimagesLeft--;
                     NetworkHandler.sendToTrackingEntity(new AfterimageVfxS2C(this.getId(), ZANZOKEN_AFTERIMAGE_TICKS,
                             new Vec3[]{afterimagePos}, new float[]{afterimageYaw}, false), this);
@@ -1053,14 +1048,14 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
 
         if (this.hitboxParts != null) {
             this.positionHitboxParts();
-            if (this.level().isClientSide) this.refreshRenderExtents();
+            if (this.level().isClientSide()) this.refreshRenderExtents();
         }
 
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             this.clientCastTicks = this.isCasting() ? this.clientCastTicks + 1 : 0;
         }
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.entityData.set(IS_STUNNED, this.isAlive() && this.isStunned());
 
             if (!this.isAlive()) {
@@ -1226,7 +1221,7 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
             if (this.isTransforming()) {
                 this.transformTick++;
                 if (this.handleTransformationLogic(this.transformTick, 80)) {
-                    if (!this.level().isClientSide) {
+                    if (!this.level().isClientSide()) {
                         if (!this.canTransform()) {
                             this.setTransforming(false);
                             this.transformTick = 0;
@@ -1355,11 +1350,11 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
     }
 
     public boolean isTournamentBound() {
-        return this.getPersistentData().contains("dmz_tournament_match");
+        return com.dragonminez.platform.entity.EntityData.get(this).contains("dmz_tournament_match");
     }
 
     public boolean isBlindedByTaiyoken() {
-        return this.getPersistentData().getLong("dmz_taiyoken_blind_until") > this.level().getGameTime();
+        return com.dragonminez.platform.entity.EntityData.get(this).getLongOr("dmz_taiyoken_blind_until", 0L) > this.level().getGameTime();
     }
 
     public boolean brainCanTarget(LivingEntity candidate) {
@@ -1650,7 +1645,7 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
 
     @Override
     public void remove(RemovalReason reason) {
-        if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
+        if (!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel) {
             removeAuraLight(serverLevel);
             if (this.isComboing() && !this.isStrikeRushing()) ComboManager.onComboStopped(this, this.getComboId(), this.comboTarget);
         }
@@ -1659,11 +1654,11 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "base_controller", 5, DBSagasAnimationHandler::walkPredicate));
-        controllers.add(new AnimationController<>(this, "skill_controller", 5, DBSagasAnimationHandler::skillPredicate));
-        controllers.add(new AnimationController<>(this, "evasion_controller", 5, DBSagasAnimationHandler::evasionPredicate));
-        controllers.add(new AnimationController<>(this, "attack_controller", 0, DBSagasAnimationHandler::attackPredicate));
-        controllers.add(new AnimationController<>(this, HURT_CONTROLLER, 0, DBSagasAnimationHandler::hurtPredicate)
+        controllers.add(new AnimationController<>("base_controller", 5, DBSagasAnimationHandler::walkPredicate));
+        controllers.add(new AnimationController<>("skill_controller", 5, DBSagasAnimationHandler::skillPredicate));
+        controllers.add(new AnimationController<>("evasion_controller", 5, DBSagasAnimationHandler::evasionPredicate));
+        controllers.add(new AnimationController<>("attack_controller", 0, DBSagasAnimationHandler::attackPredicate));
+        controllers.add(new AnimationController<>(HURT_CONTROLLER, 0, DBSagasAnimationHandler::hurtPredicate)
                 .triggerableAnim(HURT_ANIM_LEFT, DBSagasAnimations.ANIM_HURT_LEFT)
                 .triggerableAnim(HURT_ANIM_RIGHT, DBSagasAnimations.ANIM_HURT_RIGHT)
                 .triggerableAnim(HURT_ANIM_GODFIST, DBSagasAnimations.ANIM_HURT_GODFIST)
@@ -1675,8 +1670,8 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
                 .triggerableAnim(HURT_ANIM_PARRIED, DBSagasAnimations.ANIM_HURT_PARRIED)
                 .triggerableAnim(HURT_ANIM_GUM_BOUND, DBSagasAnimations.ANIM_GUM_BOUND)
                 .receiveTriggeredAnimations());
-        controllers.add(new AnimationController<>(this, "tail_controller", 5, DBSagasAnimationHandler::tailPredicate));
-        controllers.add(new AnimationController<>(this, "cape_controller", 5, DBSagasAnimationHandler::capePredicate));
+        controllers.add(new AnimationController<>("tail_controller", 5, DBSagasAnimationHandler::tailPredicate));
+        controllers.add(new AnimationController<>("cape_controller", 5, DBSagasAnimationHandler::capePredicate));
     }
 
     @Override
@@ -1841,13 +1836,13 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
         this.setComboing(true);
         this.entityData.set(CURRENT_COMBO_ID, resolved);
         this.comboTimer = 0;
-        if (!this.level().isClientSide && ComboManager.usesStrikeRush(resolved)) {
+        if (!this.level().isClientSide() && ComboManager.usesStrikeRush(resolved)) {
             this.entityData.set(IS_STRIKE_RUSHING, true);
             this.strikeRushTicks = ComboManager.STRIKE_RUSH_TICKS;
             ComboManager.startStrikeRush(this);
         }
         this.currentComboCooldown = Math.round(this.comboCooldownMax * ComboType.tierOf(resolved).getCooldownFactor());
-        if (!this.level().isClientSide) this.combatBrain.onComboStarted(resolved);
+        if (!this.level().isClientSide()) this.combatBrain.onComboStarted(resolved);
     }
 
     public void startComboAuto() {
@@ -1858,7 +1853,7 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
     }
 
     @Override
-    public boolean causeFallDamage(float pFallDistance, float pMultiplier, DamageSource pSource) {
+    public boolean causeFallDamage(double pFallDistance, float pMultiplier, DamageSource pSource) {
         return false;
     }
 
@@ -1911,8 +1906,10 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput dmz$output) {
+        CompoundTag pCompound = new CompoundTag();
+        try {
+        super.addAdditionalSaveData(dmz$output);
         pCompound.putDouble("FlySpeed", this.getFlySpeed());
         pCompound.putFloat("KiBlastDamage", this.getKiBlastDamage());
         pCompound.putFloat("KiBlastSpeed", this.getKiBlastSpeed());
@@ -1940,6 +1937,10 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
 
         pCompound.putFloat("EntityScale", this.entityData.get(SCALE_VAL));
         pCompound.putBoolean("isKid", this.isKid());
+
+        } finally {
+            com.dragonminez.platform.nbt.NbtValues.write(dmz$output, pCompound);
+        }
     }
 
     @Override
@@ -1966,49 +1967,50 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput dmz$input) {
+        CompoundTag pCompound = com.dragonminez.platform.nbt.NbtValues.read(dmz$input);
+        super.readAdditionalSaveData(dmz$input);
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() == EquipmentSlot.Type.HAND) this.setItemSlot(slot, this.getItemBySlot(slot));
         }
-        if (pCompound.contains("FlySpeed")) this.setFlySpeed(pCompound.getDouble("FlySpeed"));
-        if (pCompound.contains("KiBlastDamage")) this.setKiBlastDamage(pCompound.getFloat("KiBlastDamage"));
-        if (pCompound.contains("KiBlastSpeed")) this.setKiBlastSpeed(pCompound.getFloat("KiBlastSpeed"));
-        if (pCompound.contains("AuraType")) this.setAuraType(pCompound.getString("AuraType"));
-        if (pCompound.contains("AuraType3D")) this.setAuraType3D(pCompound.getString("AuraType3D"));
-        if (pCompound.contains("DBZStyle")) this.setDBZStyle(pCompound.getInt("DBZStyle"));
-        if (pCompound.contains("isKid")) this.setisKid(pCompound.getBoolean("isKid"));
-        if (pCompound.contains("CanFly") && pCompound.getBoolean("CanFly") && this.getFlySpeed() <= 0.0D) this.setFlySpeed(0.35D);
+        if (pCompound.contains("FlySpeed")) this.setFlySpeed(pCompound.getDoubleOr("FlySpeed", 0D));
+        if (pCompound.contains("KiBlastDamage")) this.setKiBlastDamage(pCompound.getFloatOr("KiBlastDamage", 0F));
+        if (pCompound.contains("KiBlastSpeed")) this.setKiBlastSpeed(pCompound.getFloatOr("KiBlastSpeed", 0F));
+        if (pCompound.contains("AuraType")) this.setAuraType(pCompound.getStringOr("AuraType", ""));
+        if (pCompound.contains("AuraType3D")) this.setAuraType3D(pCompound.getStringOr("AuraType3D", ""));
+        if (pCompound.contains("DBZStyle")) this.setDBZStyle(pCompound.getIntOr("DBZStyle", 0));
+        if (pCompound.contains("isKid")) this.setisKid(pCompound.getBooleanOr("isKid", false));
+        if (pCompound.contains("CanFly") && pCompound.getBooleanOr("CanFly", false) && this.getFlySpeed() <= 0.0D) this.setFlySpeed(0.35D);
         if (pCompound.contains("TextureVariant")) {
-            this.setTextureVariant(pCompound.getInt("TextureVariant"));
+            this.setTextureVariant(pCompound.getIntOr("TextureVariant", 0));
         }
         if (pCompound.contains("Supervillain")) {
-            this.setSupervillain(pCompound.getBoolean("Supervillain"));
+            this.setSupervillain(pCompound.getBooleanOr("Supervillain", false));
         }
         if (pCompound.contains("isCharacterAlive")) {
-            this.setCharacterAlive(pCompound.getBoolean("isCharacterAlive"));
+            this.setCharacterAlive(pCompound.getBooleanOr("isCharacterAlive", false));
         }
         if (pCompound.contains("TransformationDisabled")) {
-            this.transformationDisabled = pCompound.getBoolean("TransformationDisabled");
+            this.transformationDisabled = pCompound.getBooleanOr("TransformationDisabled", false);
         }
-        if (pCompound.contains("CanUseZanzoken")) this.canUseZanzoken = pCompound.getBoolean("CanUseZanzoken");
-        if (pCompound.contains("ZanzokenCooldownMax")) this.zanzokenCooldownMax = pCompound.getInt("ZanzokenCooldownMax");
-        if (pCompound.contains("AITier")) this.setAiTierById(pCompound.getInt("AITier"));
+        if (pCompound.contains("CanUseZanzoken")) this.canUseZanzoken = pCompound.getBooleanOr("CanUseZanzoken", false);
+        if (pCompound.contains("ZanzokenCooldownMax")) this.zanzokenCooldownMax = pCompound.getIntOr("ZanzokenCooldownMax", 0);
+        if (pCompound.contains("AITier")) this.setAiTierById(pCompound.getIntOr("AITier", 0));
 
-        if (pCompound.contains("SkillSize")) this.currentPoolSkillSize = pCompound.getFloat("SkillSize");
-        if (pCompound.contains("ColorMain")) this.currentPoolColorMain = pCompound.getInt("ColorMain");
-        if (pCompound.contains("ColorBorder")) this.currentPoolColorBorder = pCompound.getInt("ColorBorder");
-        if (pCompound.contains("ColorOutline")) this.currentPoolColorOutline = pCompound.getInt("ColorOutline");
+        if (pCompound.contains("SkillSize")) this.currentPoolSkillSize = pCompound.getFloatOr("SkillSize", 0F);
+        if (pCompound.contains("ColorMain")) this.currentPoolColorMain = pCompound.getIntOr("ColorMain", 0);
+        if (pCompound.contains("ColorBorder")) this.currentPoolColorBorder = pCompound.getIntOr("ColorBorder", 0);
+        if (pCompound.contains("ColorOutline")) this.currentPoolColorOutline = pCompound.getIntOr("ColorOutline", 0);
 
-        if (pCompound.contains("CastTimer")) this.castTimer = pCompound.getInt("CastTimer");
-        if (pCompound.contains("TransformTick")) this.transformTick = pCompound.getInt("TransformTick");
-        if (pCompound.contains("ComboTimer")) this.comboTimer = pCompound.getInt("ComboTimer");
-        if (pCompound.contains("CurrentComboId")) {this.entityData.set(CURRENT_COMBO_ID, pCompound.getInt("CurrentComboId"));}
+        if (pCompound.contains("CastTimer")) this.castTimer = pCompound.getIntOr("CastTimer", 0);
+        if (pCompound.contains("TransformTick")) this.transformTick = pCompound.getIntOr("TransformTick", 0);
+        if (pCompound.contains("ComboTimer")) this.comboTimer = pCompound.getIntOr("ComboTimer", 0);
+        if (pCompound.contains("CurrentComboId")) {this.entityData.set(CURRENT_COMBO_ID, pCompound.getIntOr("CurrentComboId", 0));}
 
-        if (pCompound.contains("EntityScale")) {this.setScaleVal(pCompound.getFloat("EntityScale"));}
+        if (pCompound.contains("EntityScale")) {this.setScaleVal(pCompound.getFloatOr("EntityScale", 0F));}
 
         if (pCompound.contains("isKid")) {
-            this.setisKid(pCompound.getBoolean("isKid"));
+            this.setisKid(pCompound.getBooleanOr("isKid", false));
         }
     }
 
@@ -2048,7 +2050,7 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
     }
 
     public boolean isStunned() {
-        if (this.level().isClientSide) return this.entityData.get(IS_STUNNED);
+        if (this.level().isClientSide()) return this.entityData.get(IS_STUNNED);
         return this.hasEffect(MainEffects.STUN);
     }
 
@@ -2081,19 +2083,19 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
     }
 
     public String getQuestTeam() {
-        return this.getPersistentData().getString(QuestService.QUEST_TEAM_TAG);
+        return com.dragonminez.platform.entity.EntityData.get(this).getStringOr(QuestService.QUEST_TEAM_TAG, "");
     }
 
     public boolean hasQuestTeam() {
-        return !this.getPersistentData().getString(QuestService.QUEST_TEAM_TAG).isEmpty();
+        return !com.dragonminez.platform.entity.EntityData.get(this).getStringOr(QuestService.QUEST_TEAM_TAG, "").isEmpty();
     }
 
     public boolean isQuestTeammate(Entity other) {
         if (other == null || other == this || !this.hasQuestTeam()) return false;
         String team = this.getQuestTeam();
-        if (team.equals(other.getPersistentData().getString(QuestService.QUEST_TEAM_TAG))) return true;
+        if (team.equals(com.dragonminez.platform.entity.EntityData.get(other).getStringOr(QuestService.QUEST_TEAM_TAG, ""))) return true;
         if (other instanceof AbstractKiProjectile proj && proj.getOwner() != null) {
-            return team.equals(proj.getOwner().getPersistentData().getString(QuestService.QUEST_TEAM_TAG));
+            return team.equals(com.dragonminez.platform.entity.EntityData.get(proj.getOwner()).getStringOr(QuestService.QUEST_TEAM_TAG, ""));
         }
         return false;
     }
@@ -2109,7 +2111,7 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
         if (pTarget != null && this.isQuestTeammate(pTarget)) return;
         if (pTarget instanceof Player downedPlayer && StatsProvider.get(StatsCapability.INSTANCE, downedPlayer)
                 .map(data -> data.getStatus().isKnockedDown()).orElse(false)) return;
-        if (pTarget != null && this.getPersistentData().getLong("dmz_taiyoken_blind_until") > this.level().getGameTime()) return;
+        if (pTarget != null && com.dragonminez.platform.entity.EntityData.get(this).getLongOr("dmz_taiyoken_blind_until", 0L) > this.level().getGameTime()) return;
         // Raid mobs answer to the raid's participants and nobody else.
         if (pTarget != null && !this.isValidRaidTarget(pTarget)) return;
         // A raid boss stands its ground until its escort is dead. Being attacked wakes it (see hurt()),
@@ -2119,14 +2121,14 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
     }
 
     @Override
-    public boolean hurt(DamageSource pSource, float pAmount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel dmz$level, DamageSource pSource, float pAmount) {
         if (this.isQuestTeammate(pSource.getEntity())) return false;
         if (this.isTransforming() || this.isZanzoken()) return false;
         if (this.isComboing() && this.entityData.get(CURRENT_COMBO_ID) == 4) return false;
 
         boolean isAbsoluteDeath = pSource.is(DamageTypes.FELL_OUT_OF_WORLD) || pSource.is(DamageTypes.GENERIC_KILL);
 
-        if (!this.level().isClientSide && pAmount >= this.getHealth()) {
+        if (!this.level().isClientSide() && pAmount >= this.getHealth()) {
             if (this.canTransform() && !isAbsoluteDeath) {
                 this.setHealth(1.0F);
                 this.startTransformation();
@@ -2134,13 +2136,13 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
             }
         }
 
-        boolean actuallyHurt = super.hurt(pSource, pAmount);
+        boolean actuallyHurt = super.hurtServer(dmz$level, pSource, pAmount);
 
-        if (!this.level().isClientSide && this.isComboing() && this.getComboId() == 7) {
+        if (!this.level().isClientSide() && this.isComboing() && this.getComboId() == 7) {
             this.stopCombo();
         }
 
-        if (actuallyHurt && !this.level().isClientSide) {
+        if (actuallyHurt && !this.level().isClientSide()) {
 
             if (pSource.is(MainDamageTypes.KIBLAST)
                     && !(pSource.getDirectEntity() instanceof AbstractKiProjectile smallKi && smallKi.getKiType() == AbstractKiProjectile.KiType.SMALL_BALL)) {
@@ -2202,7 +2204,7 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
 
     protected boolean canTransform() {
         if (!this.hasTransformation() || this.transformationDisabled) return false;
-        return !this.getPersistentData().getBoolean("dmz_quest_no_transform");
+        return !com.dragonminez.platform.entity.EntityData.get(this).getBooleanOr("dmz_quest_no_transform", false);
     }
 
     private static final String[] TRANSFORM_OVERRIDE_TAGS = {
@@ -2212,8 +2214,8 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
     };
 
     private double resolveTransformTriggerFraction() {
-        if (this.getPersistentData().contains("dmz_quest_tf_trigger")) {
-            return Mth.clamp(this.getPersistentData().getDouble("dmz_quest_tf_trigger"), 0.0D, 1.0D);
+        if (com.dragonminez.platform.entity.EntityData.get(this).contains("dmz_quest_tf_trigger")) {
+            return Mth.clamp(com.dragonminez.platform.entity.EntityData.get(this).getDoubleOr("dmz_quest_tf_trigger", 0D), 0.0D, 1.0D);
         }
         return ConfigManager.getEntityTransformDefaults().triggerHealthFractionOr(0.5D);
     }
@@ -2239,12 +2241,12 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
         // Frozen for a countdown: no landing the first hit before the bell.
         if (this.combatFrozen) return false;
         boolean hit = super.doHurtTarget(pEntity);
-        if (!this.level().isClientSide) this.combatBrain.onMeleeResult(hit);
+        if (!this.level().isClientSide()) this.combatBrain.onMeleeResult(hit);
         return hit;
     }
 
     protected void handleCommonCombatMovement(LivingEntity target, boolean isActionActive) {
-        if (this.level().isClientSide) return;
+        if (this.level().isClientSide()) return;
 
         if (this.knockbackLockTicks > 0) {
             this.knockbackLockTicks--;
@@ -2353,7 +2355,7 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
         this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.0D);
         this.getNavigation().stop();
         this.setDeltaMovement(0, 0, 0);
-        if (!this.level().isClientSide) this.combatBrain.onCastStarted(type);
+        if (!this.level().isClientSide()) this.combatBrain.onCastStarted(type);
     }
 
     public void stopCasting() {
@@ -2381,27 +2383,27 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
     }
 
     protected void finishTransformationSpawn(DBSagasEntity newEntity, boolean fullHealth) {
-		if (this.level().isClientSide || newEntity == null) return;
+		if (this.level().isClientSide() || newEntity == null) return;
 		Level level = this.level();
 		if (level instanceof ServerLevel serverLevel) {
 			serverLevel.sendParticles(ParticleTypes.EXPLOSION_EMITTER, this.getX(), this.getY() + 1, this.getZ(), 1, 0, 0, 0, 0);
 			newEntity.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
 			newEntity.setTarget(this.getTarget());
 			newEntity.setTextureVariant(this.getTextureVariant());
-			if (this.getPersistentData().contains("dmz_quest_texture_variant")) {
-				newEntity.getPersistentData().putInt("dmz_quest_texture_variant", this.getPersistentData().getInt("dmz_quest_texture_variant"));
+			if (com.dragonminez.platform.entity.EntityData.get(this).contains("dmz_quest_texture_variant")) {
+				com.dragonminez.platform.entity.EntityData.get(newEntity).putInt("dmz_quest_texture_variant", com.dragonminez.platform.entity.EntityData.get(this).getIntOr("dmz_quest_texture_variant", 0));
 			}
 			EntitiesConfig.TransformSettings transformCfg = ConfigManager.getEntityTransformDefaults();
-			CompoundTag pd = this.getPersistentData();
-			com.dragonminez.common.quest.Difficulty difficulty = com.dragonminez.common.quest.Difficulty.fromName(pd.getString("dmz_difficulty"));
+			CompoundTag pd = com.dragonminez.platform.entity.EntityData.get(this);
+			com.dragonminez.common.quest.Difficulty difficulty = com.dragonminez.common.quest.Difficulty.fromName(pd.getStringOr("dmz_difficulty", ""));
 			// Health: an absolute quest override (party-scaled at spawn, difficulty-scaled here) wins;
 			// otherwise scale the previous form's max health by the quest/config multiplier
 			// (difficulty is already baked into that value from the initial spawn).
 			double scaledMaxHealth;
 			if (pd.contains("dmz_quest_tf_hp_abs")) {
-				scaledMaxHealth = pd.getDouble("dmz_quest_tf_hp_abs") * difficulty.hpMultiplier();
+				scaledMaxHealth = pd.getDoubleOr("dmz_quest_tf_hp_abs", 0D) * difficulty.hpMultiplier();
 			} else {
-				double hpMult = pd.contains("dmz_quest_tf_hp_mult") ? pd.getDouble("dmz_quest_tf_hp_mult") : transformCfg.healthMultiplierOr(1.5);
+				double hpMult = pd.contains("dmz_quest_tf_hp_mult") ? pd.getDoubleOr("dmz_quest_tf_hp_mult", 0D) : transformCfg.healthMultiplierOr(1.5);
 				scaledMaxHealth = this.getMaxHealth() * hpMult;
 			}
 			scaledMaxHealth = Math.max(1.0, scaledMaxHealth);
@@ -2410,18 +2412,18 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
 			}
 			double scaledKiDamage;
 			if (pd.contains("dmz_quest_tf_ki_abs")) {
-				scaledKiDamage = pd.getDouble("dmz_quest_tf_ki_abs") * difficulty.damageMultiplier();
+				scaledKiDamage = pd.getDoubleOr("dmz_quest_tf_ki_abs", 0D) * difficulty.damageMultiplier();
 			} else {
-				double kiMult = pd.contains("dmz_quest_tf_ki_mult") ? pd.getDouble("dmz_quest_tf_ki_mult") : transformCfg.kiMultiplierOr(1.5);
+				double kiMult = pd.contains("dmz_quest_tf_ki_mult") ? pd.getDoubleOr("dmz_quest_tf_ki_mult", 0D) : transformCfg.kiMultiplierOr(1.5);
 				scaledKiDamage = this.getKiBlastDamage() * kiMult;
 			}
 			newEntity.setKiBlastDamage((float) scaledKiDamage);
 			if (newEntity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE)) {
 				double scaledMelee;
 				if (pd.contains("dmz_quest_tf_melee_abs")) {
-					scaledMelee = pd.getDouble("dmz_quest_tf_melee_abs") * difficulty.damageMultiplier();
+					scaledMelee = pd.getDoubleOr("dmz_quest_tf_melee_abs", 0D) * difficulty.damageMultiplier();
 				} else {
-					double meleeMult = pd.contains("dmz_quest_tf_melee_mult") ? pd.getDouble("dmz_quest_tf_melee_mult") : transformCfg.meleeMultiplierOr(1.5);
+					double meleeMult = pd.contains("dmz_quest_tf_melee_mult") ? pd.getDoubleOr("dmz_quest_tf_melee_mult", 0D) : transformCfg.meleeMultiplierOr(1.5);
 					scaledMelee = this.getAttributeValue(Attributes.ATTACK_DAMAGE) * meleeMult;
 				}
 				newEntity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(scaledMelee);
@@ -2432,45 +2434,45 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
 				newEntity.setHealth(newEntity.getMaxHealth() / 2.0F);
 			}
 			newEntity.setAiTier(this.getAiTier());
-			newEntity.getPersistentData().putBoolean("dmz_stats_configured", true);
-			if (this.getPersistentData().contains("dmz_difficulty")) {
-				newEntity.getPersistentData().putString("dmz_difficulty", this.getPersistentData().getString("dmz_difficulty"));
+			com.dragonminez.platform.entity.EntityData.get(newEntity).putBoolean("dmz_stats_configured", true);
+			if (com.dragonminez.platform.entity.EntityData.get(this).contains("dmz_difficulty")) {
+				com.dragonminez.platform.entity.EntityData.get(newEntity).putString("dmz_difficulty", com.dragonminez.platform.entity.EntityData.get(this).getStringOr("dmz_difficulty", ""));
 			}
-			if (this.getPersistentData().contains("dmz_saga_id")) {
-				newEntity.getPersistentData().putString("dmz_saga_id", this.getPersistentData().getString("dmz_saga_id"));
+			if (com.dragonminez.platform.entity.EntityData.get(this).contains("dmz_saga_id")) {
+				com.dragonminez.platform.entity.EntityData.get(newEntity).putString("dmz_saga_id", com.dragonminez.platform.entity.EntityData.get(this).getStringOr("dmz_saga_id", ""));
 			}
-			if (this.getPersistentData().contains("dmz_quest_owner")) {
-				newEntity.getPersistentData().putString("dmz_quest_owner", this.getPersistentData().getString("dmz_quest_owner"));
+			if (com.dragonminez.platform.entity.EntityData.get(this).contains("dmz_quest_owner")) {
+				com.dragonminez.platform.entity.EntityData.get(newEntity).putString("dmz_quest_owner", com.dragonminez.platform.entity.EntityData.get(this).getStringOr("dmz_quest_owner", ""));
 			}
-			if (this.getPersistentData().contains(QuestService.QUEST_KEY_TAG)) {
-				newEntity.getPersistentData().putString(QuestService.QUEST_KEY_TAG, this.getPersistentData().getString(QuestService.QUEST_KEY_TAG));
+			if (com.dragonminez.platform.entity.EntityData.get(this).contains(QuestService.QUEST_KEY_TAG)) {
+				com.dragonminez.platform.entity.EntityData.get(newEntity).putString(QuestService.QUEST_KEY_TAG, com.dragonminez.platform.entity.EntityData.get(this).getStringOr(QuestService.QUEST_KEY_TAG, ""));
 			}
-			if (this.getPersistentData().contains(QuestService.QUEST_TEAM_TAG)) {
-				newEntity.getPersistentData().putString(QuestService.QUEST_TEAM_TAG, this.getPersistentData().getString(QuestService.QUEST_TEAM_TAG));
+			if (com.dragonminez.platform.entity.EntityData.get(this).contains(QuestService.QUEST_TEAM_TAG)) {
+				com.dragonminez.platform.entity.EntityData.get(newEntity).putString(QuestService.QUEST_TEAM_TAG, com.dragonminez.platform.entity.EntityData.get(this).getStringOr(QuestService.QUEST_TEAM_TAG, ""));
 			}
-			if (this.getPersistentData().contains(QuestService.QUEST_OBJECTIVE_INDEX_TAG)) {
-				newEntity.getPersistentData().putInt(QuestService.QUEST_OBJECTIVE_INDEX_TAG, this.getPersistentData().getInt(QuestService.QUEST_OBJECTIVE_INDEX_TAG));
+			if (com.dragonminez.platform.entity.EntityData.get(this).contains(QuestService.QUEST_OBJECTIVE_INDEX_TAG)) {
+				com.dragonminez.platform.entity.EntityData.get(newEntity).putInt(QuestService.QUEST_OBJECTIVE_INDEX_TAG, com.dragonminez.platform.entity.EntityData.get(this).getIntOr(QuestService.QUEST_OBJECTIVE_INDEX_TAG, 0));
 			}
 			// Carry the quest transform overrides forward so multi-stage transforms keep tuning.
 			for (String tag : TRANSFORM_OVERRIDE_TAGS) {
 				if (pd.contains(tag)) {
-					newEntity.getPersistentData().putDouble(tag, pd.getDouble(tag));
+					com.dragonminez.platform.entity.EntityData.get(newEntity).putDouble(tag, pd.getDoubleOr(tag, 0D));
 				}
 			}
-			if (this.transformationDisabled || pd.getBoolean("dmz_quest_no_transform")) {
+			if (this.transformationDisabled || pd.getBooleanOr("dmz_quest_no_transform", false)) {
 				newEntity.setTransformationDisabled(true);
-				newEntity.getPersistentData().putBoolean("dmz_quest_no_transform", true);
+				com.dragonminez.platform.entity.EntityData.get(newEntity).putBoolean("dmz_quest_no_transform", true);
 			}
 
 			if (pd.contains(RAID_ID_TAG)) {
-				newEntity.getPersistentData().putString(RAID_ID_TAG, pd.getString(RAID_ID_TAG));
-				newEntity.getPersistentData().putUUID(RAID_REPLACES_TAG, this.getUUID());
+				com.dragonminez.platform.entity.EntityData.get(newEntity).putString(RAID_ID_TAG, pd.getStringOr(RAID_ID_TAG, ""));
+				com.dragonminez.platform.nbt.NbtCompat.putUUID(com.dragonminez.platform.entity.EntityData.get(newEntity), RAID_REPLACES_TAG, this.getUUID());
 				newEntity.setRaidTargets(this.raidTargets);
 				newEntity.setRaidDormant(this.raidDormant);
 			}
 			if (pd.contains(RAID_SUPERVILLAIN_SOURCE_TAG)) {
-				newEntity.getPersistentData().putString(RAID_SUPERVILLAIN_SOURCE_TAG,
-						pd.getString(RAID_SUPERVILLAIN_SOURCE_TAG));
+				com.dragonminez.platform.entity.EntityData.get(newEntity).putString(RAID_SUPERVILLAIN_SOURCE_TAG,
+						pd.getStringOr(RAID_SUPERVILLAIN_SOURCE_TAG, ""));
 				newEntity.setSupervillain(this.isSupervillain());
 			}
 
@@ -2489,11 +2491,11 @@ public abstract class DBSagasEntity extends Monster implements GeoEntity, ITextu
 	}
 
 	@Override
-	public boolean checkSpawnRules(LevelAccessor pLevel, MobSpawnType reason) {
+	public boolean checkSpawnRules(LevelAccessor pLevel, EntitySpawnReason reason) {
 		return pLevel.getDifficulty() != Difficulty.PEACEFUL && this.checkSpawnObstruction(pLevel);
 	}
 
-	public static boolean canSpawnHere(EntityType<? extends DBSagasEntity> entity, ServerLevelAccessor world, MobSpawnType spawn, BlockPos pos, RandomSource random) {
+	public static boolean canSpawnHere(EntityType<? extends DBSagasEntity> entity, ServerLevelAccessor world, EntitySpawnReason spawn, BlockPos pos, RandomSource random) {
 		if (world.getDifficulty() == Difficulty.PEACEFUL) return false;
 		if (random.nextFloat() < 0.65F) return false;
 		if (world.getBrightness(LightLayer.BLOCK, pos) > 7) return false;

@@ -24,7 +24,7 @@ public class PothalaPairSavedData extends SavedData {
 
 	public static PothalaPairSavedData load(CompoundTag tag) {
 		PothalaPairSavedData data = new PothalaPairSavedData();
-		for (int id : tag.getIntArray("Issued")) data.issued.add(id);
+		for (int id : tag.getIntArray("Issued").orElseGet(() -> new int[0])) data.issued.add(id);
 		return data;
 	}
 

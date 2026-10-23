@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -43,7 +42,7 @@ public class EscortObjective extends QuestObjective {
 	@Nullable
 	public EntityType<?> resolveEntityType() {
 		try {
-			return BuiltInRegistries.ENTITY_TYPE.get(Identifier.parse(entityId));
+			return BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.parse(entityId));
 		} catch (Exception e) {
 			return null;
 		}

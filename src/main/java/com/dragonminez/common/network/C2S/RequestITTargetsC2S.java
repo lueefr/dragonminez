@@ -46,7 +46,7 @@ public class RequestITTargetsC2S {
 				int skillLevel = data.getSkills().getSkillLevel("instant_transmission");
 				if (skillLevel < MENU_SKILL_LEVEL) return;
 
-				String currentDim = player.level().dimension().location().toString();
+				String currentDim = player.level().dimension().identifier().toString();
 				List<ITTargetEntry> entries = new ArrayList<>();
 				Set<UUID> listedPlayers = new HashSet<>();
 
@@ -69,7 +69,7 @@ public class RequestITTargetsC2S {
 					if (TransformationsHelper.hasAntiKiCloak(member)) continue;
 					if (TransformationsHelper.isInstantTransmissionBlocked(data, memberData)) continue;
 
-					String memberDim = member.level().dimension().location().toString();
+					String memberDim = member.level().dimension().identifier().toString();
 					boolean reachable = skillLevel >= CROSS_DIMENSION_SKILL_LEVEL || memberDim.equals(currentDim);
 					double distance = memberDim.equals(currentDim) ? player.distanceTo(member) : 0;
 					entries.add(new ITTargetEntry(ITTargetEntry.Type.PARTY, member.getUUID().toString(), member.getGameProfile().name(), memberDim, reachable,

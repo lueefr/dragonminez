@@ -10,12 +10,11 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.gui.LayeredDraw;
 
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public final class TournamentOverlay {
 
 	private static final Identifier DMZ_FONT =
@@ -121,7 +120,7 @@ public final class TournamentOverlay {
 		mc.player.playSound(sound, 1.0F, pitch);
 	}
 
-	public static final LayeredDraw.Layer OVERLAY = TournamentOverlay::render;
+	public static final net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement OVERLAY = TournamentOverlay::render;
 
 	private static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
         float partialTick = deltaTracker.getGameTimeDeltaPartialTick(true);

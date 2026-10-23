@@ -64,19 +64,19 @@ public class StructurePlanSavedData extends SavedData {
 
 	public static StructurePlanSavedData load(CompoundTag tag) {
 		StructurePlanSavedData data = new StructurePlanSavedData();
-		data.resolved = tag.getBoolean("resolved");
-		ListTag list = tag.getList("positions", Tag.TAG_COMPOUND);
+		data.resolved = tag.getBooleanOr("resolved", false);
+		ListTag list = com.dragonminez.platform.nbt.NbtCompat.getList(tag, "positions", Tag.TAG_COMPOUND);
 		for (int i = 0; i < list.size(); i++) {
-			CompoundTag entry = list.getCompound(i);
-			data.positions.put(entry.getInt("salt"), new ChunkPos(entry.getInt("x"), entry.getInt("z")));
+			CompoundTag entry = list.getCompoundOrEmpty(i);
+			data.positions.put(entry.getIntOr("salt", 0), new ChunkPos(entry.getIntOr("x", 0), entry.getIntOr("z", 0)));
 		}
 
-		if (tag.contains("built", Tag.TAG_INT_ARRAY)) {
-			for (int salt : tag.getIntArray("built")) data.built.add(salt);
+		if (com.dragonminez.platform.nbt.NbtCompat.contains(tag, "built", Tag.TAG_INT_ARRAY)) {
+			for (int salt : tag.getIntArray("built").orElseGet(() -> new int[0])) data.built.add(salt);
 		} else {
 			data.built.addAll(data.positions.keySet());
 		}
-		for (int salt : tag.getIntArray("exhausted")) data.exhausted.add(salt);
+		for (int salt : tag.getIntArray("exhausted").orElseGet(() -> new int[0])) data.exhausted.add(salt);
 		return data;
 	}
 

@@ -8,15 +8,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
-import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.model.BakedGeoModel;
 import com.geckolib.renderer.GeoBlockRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 
-public class DragonBallBlockRenderer extends GeoBlockRenderer<DragonBallBlockEntity> {
+public class DragonBallBlockRenderer extends GeoBlockRenderer<DragonBallBlockEntity, net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState> {
 	private static final float BALL_CENTER_Y = 5.625F / 16.0F;
 	private static final float HALO_SCALE = 1.12F;
 

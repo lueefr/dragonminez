@@ -4,7 +4,7 @@ import java.time.Duration;
 
 import com.dragonminez.client.gui.buttons.DiscordTitleButton;
 import com.dragonminez.client.gui.buttons.PatreonTitleButton;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;

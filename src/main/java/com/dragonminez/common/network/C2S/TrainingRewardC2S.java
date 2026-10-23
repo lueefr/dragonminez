@@ -2,8 +2,6 @@ package com.dragonminez.common.network.C2S;
 
 import net.minecraft.network.FriendlyByteBuf;
 import com.dragonminez.compat.network.NetworkEvent;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 
 import java.util.function.Supplier;
 
