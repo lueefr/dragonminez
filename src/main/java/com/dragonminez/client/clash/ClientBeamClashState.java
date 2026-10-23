@@ -1,4 +1,5 @@
 package com.dragonminez.client.clash;
+import lombok.*;
 
 import com.dragonminez.common.combat.clash.ClashMeter;
 import com.dragonminez.common.network.C2S.BeamClashInputC2S;
@@ -6,8 +7,8 @@ import com.dragonminez.common.network.NetworkHandler;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public final class ClientBeamClashState {
@@ -15,8 +16,7 @@ public final class ClientBeamClashState {
 
 	private static final float RENDER_TIME_STALE_TICKS = 2.0f;
 
-	@Getter
-	private static volatile boolean active = false;
+	@Getter private static volatile boolean active = false;
 	private static volatile long startGameTime = 0L;
 	private static volatile long meterSeed = 0L;
 	private static volatile float advantage = 0.5f;

@@ -1,11 +1,12 @@
 package com.dragonminez.common.network.C2S;
 
+import lombok.*;
 import com.dragonminez.common.training.MinigameEvent;
 import com.dragonminez.common.training.MinigameSessionManager;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import com.dragonminez.compat.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -8,7 +8,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraft.client.gui.LayeredDraw;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -62,7 +62,10 @@ public final class NotificationHUD {
 					null), PRIORITY_NORMAL));
 	private static long sequence;
 
-	public static final IGuiOverlay HUD_NOTIFICATIONS = (forgeGui, guiGraphics, partialTicks, width, height) -> {
+	public static final LayeredDraw.Layer HUD_NOTIFICATIONS = (guiGraphics, deltaTracker) -> {
+        float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
+        int width = guiGraphics.guiWidth();
+        int height = guiGraphics.guiHeight();
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
@@ -111,7 +114,7 @@ public final class NotificationHUD {
 
 	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.renderDebug || mc.player == null) return;
+		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 
 		boolean preview = HudLayout.isPreview();
 		HudLayout.Box box = HudLayout.resolve(HudElement.NOTIFICATIONS, width, height);

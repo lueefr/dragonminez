@@ -42,8 +42,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 
 import java.util.ArrayList;
@@ -1479,12 +1479,13 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        double delta = scrollY;
 		double uiMouseX = toUiX(mouseX);
 		double uiMouseY = toUiY(mouseY);
 		int centerY = getUiHeight() / 2;
 		int leftPanelY = centerY - 105;
-		int scrollAmount = (int) Math.signum(delta);
+		int scrollAmount = (int) Math.signum(scrollY);
 
 		if (uiMouseX >= currentLeftX && uiMouseX <= currentLeftX + 141 && uiMouseY >= leftPanelY && uiMouseY <= leftPanelY + 213) {
 			skillsScroll.scrollWheel(delta);
@@ -1504,7 +1505,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 			return true;
 		}
 
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	@Override
@@ -1727,7 +1728,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 		graphics.pose().translate(0.0D, 0.0D, 150.0D);
 		DMZSkinLayer.PREVIEW_MODE = character != null;
 		try {
-			InventoryScreen.renderEntityInInventory(graphics, x, y, adjustedScale, pose, cameraOrientation, player);
+			InventoryScreen.renderEntityInInventory(graphics, x, y, adjustedScale, new org.joml.Vector3f(0.0F, 0.0F, 0.0F), pose, cameraOrientation, player);
 		} finally {
 			DMZSkinLayer.PREVIEW_MODE = false;
 			graphics.pose().popPose();

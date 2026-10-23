@@ -97,8 +97,7 @@ public final class TimeHaloRenderer {
 		Vector3f camera = new Matrix4f(pose).invert().transformPosition(new Vector3f());
 		camera.set(camera.x() / radius, (camera.y() - centerY) / radius, (camera.z() - z) / radius);
 
-		BufferBuilder builder = Tesselator.getInstance().getBuilder();
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+		BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 		if (bloom) {
 			quad(builder, radius, centerY, z, NEAR_FACE);
 		} else {
@@ -127,7 +126,7 @@ public final class TimeHaloRenderer {
 
 		if (buffer == null) buffer = new VertexBuffer(VertexBuffer.Usage.DYNAMIC);
 		buffer.bind();
-		buffer.upload(builder.end());
+		buffer.upload(builder.buildOrThrow());
 		buffer.drawWithShader(pose, projection, shader);
 		VertexBuffer.unbind();
 		if (bloom) shader.safeGetUniform("BloomMode").set(0.0f);
@@ -145,6 +144,6 @@ public final class TimeHaloRenderer {
 	}
 
 	private static void corner(BufferBuilder builder, float radius, float centerY, float z, float u, float v, float role) {
-		builder.vertex(u * radius, centerY + v * radius, z).color(role, 0.0f, 0.0f, 1.0f).uv(u, v).endVertex();
+		builder.addVertex(u * radius, centerY + v * radius, z).setColor(role, 0.0f, 0.0f, 1.0f).setUv(u, v);
 	}
 }

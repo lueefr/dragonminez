@@ -36,8 +36,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -201,7 +202,7 @@ public class ConfigMenuScreen extends BaseMenuScreen {
 	@Override
 	public void tick() {
 		super.tick();
-		if (searchBox != null) searchBox.tick();
+
 
 		if (heldKey != null) {
 			holdTicks++;
@@ -520,7 +521,8 @@ public class ConfigMenuScreen extends BaseMenuScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        double delta = scrollY;
 		double uiMouseX = toUiX(mouseX);
 		double uiMouseY = toUiY(mouseY);
 		int panelY = getPanelY();
@@ -530,7 +532,7 @@ public class ConfigMenuScreen extends BaseMenuScreen {
 			scrollBar.scrollWheel(delta);
 			return true;
 		}
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	@Override

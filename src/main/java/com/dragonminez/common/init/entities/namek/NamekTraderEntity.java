@@ -29,14 +29,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.animation.PlayState;
 
 public class NamekTraderEntity extends NamekVillagerEntity{
 
@@ -85,9 +85,9 @@ public class NamekTraderEntity extends NamekVillagerEntity{
 
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(VARIANT, 0);
+    protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(VARIANT, 0);
     }
 
     @Override
@@ -118,9 +118,9 @@ public class NamekTraderEntity extends NamekVillagerEntity{
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag) {
+    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
         this.setVariantNamek(this.random.nextInt(VARIANT_COUNT));
-        return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
+        return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
     }
 
     @Override
@@ -128,7 +128,7 @@ public class NamekTraderEntity extends NamekVillagerEntity{
         MerchantOffers offers = super.getOffers();
         if (this.level() instanceof ServerLevel && !(this instanceof CCNamekianEntity) && !hasGeteStarMap(offers)) {
             MerchantOffer map = new CapsuleCorpMapTrade(new ItemStack(Items.EMERALD, GETE_STAR_MAP_PRICE), new ItemStack(Items.MAP),
-                    DMZStructures.GETE_STAR, Reference.MOD_ID + ".gete_star", MapDecoration.Type.RED_X, GETE_STAR_MAP_USES, GETE_STAR_MAP_XP)
+                    DMZStructures.GETE_STAR, Reference.MOD_ID + ".gete_star", net.minecraft.world.level.saveddata.maps.MapDecorationTypes.RED_X, GETE_STAR_MAP_USES, GETE_STAR_MAP_XP)
                     .getOffer(this, this.random);
             if (map != null) offers.add(map);
         }
@@ -138,7 +138,7 @@ public class NamekTraderEntity extends NamekVillagerEntity{
     private static boolean hasGeteStarMap(MerchantOffers offers) {
         String id = DMZStructures.GETE_STAR.location().toString();
         for (MerchantOffer offer : offers) {
-            CompoundTag tag = offer.getResult().getTag();
+            CompoundTag tag = offer.getResult().getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
             if (tag != null && id.equals(tag.getString(CapsuleCorpMapTrade.STRUCTURE_TAG))) return true;
         }
         return false;
@@ -161,7 +161,7 @@ public class NamekTraderEntity extends NamekVillagerEntity{
         return isHurt;
     }
 
-    private <T extends GeoAnimatable> PlayState walkPredicate(software.bernie.geckolib.core.animation.AnimationState<T> event) {
+    private <T extends GeoAnimatable> PlayState walkPredicate(software.bernie.geckolib.animation.AnimationState<T> event) {
         NamekTraderEntity entity = (NamekTraderEntity) event.getAnimatable();
 
         if (event.isMoving()) {

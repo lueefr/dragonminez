@@ -15,6 +15,7 @@ import com.dragonminez.common.racial.impl.HumanAdaptation;
 import com.dragonminez.common.racial.impl.MajinAbsorption;
 import com.dragonminez.common.racial.impl.NamekAssimilation;
 import com.dragonminez.common.racial.impl.SaiyanZenkai;
+import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.wish.WishManager;
 import com.dragonminez.server.world.feature.DemonRealmFeatures;
 import com.dragonminez.server.world.feature.OtherworldFeatures;
@@ -23,25 +24,23 @@ import com.dragonminez.server.world.feature.SacredKaiFeatures;
 import com.dragonminez.server.world.structure.placement.MainStructurePlacements;
 import com.dragonminez.server.world.structure.processor.MainStructureProcessors;
 import com.dragonminez.server.world.structure.helper.MainStructureTypes;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import software.bernie.geckolib.GeckoLib;
+import net.neoforged.bus.api.IEventBus;
 
 public class DMZCommon {
 
-    public static void init() {
+    public static void init(IEventBus modEventBus) {
 		LogUtil.info(Env.COMMON, "Initializing DragonMineZ Common...");
 		registerRacialAbilities();
         ConfigManager.initialize();
         QuestRegistry.init();
 		WishManager.init();
         NetworkHandler.register();
-        GeckoLib.initialize();
-
-		IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        StatsCapability.register(modEventBus);
+        // GeckoLib auto-initializes on NeoForge; no GeckoLib.initialize() call.
 
 		MainAttributes.ATTRIBUTES.register(modEventBus);
 		EntityAttributes.ATTRIBUTES.register(modEventBus);
+		com.dragonminez.common.init.armor.ModArmorMaterials.ARMOR_MATERIALS.register(modEventBus);
 		MainBlocks.register(modEventBus);
 		MainBlockEntities.register(modEventBus);
 		MainItems.register(modEventBus);

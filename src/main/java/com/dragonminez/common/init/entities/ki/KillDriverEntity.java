@@ -66,10 +66,10 @@ public class KillDriverEntity extends AbstractKiProjectile {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(RING_YAW, 0.0F);
-        this.entityData.define(RING_PITCH, 0.0F);
+    protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(RING_YAW, 0.0F);
+        builder.define(RING_PITCH, 0.0F);
     }
 
     @Override

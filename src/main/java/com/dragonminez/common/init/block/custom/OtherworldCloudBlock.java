@@ -24,7 +24,7 @@ public class OtherworldCloudBlock extends Block {
 	public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
 		// entityInside se llama una vez por cada bloque que toca la hitbox: solo el bloque de los pies aplica el freno.
 		if (!(entity instanceof LivingEntity living) || !pos.equals(entity.blockPosition())) return;
-		if (living.isFallFlying() || living.hasEffect(MainEffects.FLY.get())) return;
+		if (living.isFallFlying() || living.hasEffect(MainEffects.FLY)) return;
 		if (living instanceof Player player && player.getAbilities().flying) return;
 
 		Vec3 motion = living.getDeltaMovement();

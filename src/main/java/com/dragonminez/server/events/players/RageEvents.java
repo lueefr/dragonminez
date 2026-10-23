@@ -1,5 +1,6 @@
 package com.dragonminez.server.events.players;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.FormConfig;
@@ -22,18 +23,22 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class RageEvents {
 	private enum AttackCategory { MELEE, STRIKE, KI, OTHER }
 
@@ -52,14 +57,14 @@ public class RageEvents {
 		return server != null && server.getMutant() != null ? server.getMutant().getRage() : null;
 	}
 
-	public static void onFinalDamage(LivingDamageEvent event) {
-		if (event.isCanceled() || event.getAmount() <= 0.0f) return;
+	public static void onFinalDamage(LivingDamageEvent.Pre event) {
+		if (event.getNewDamage() <= 0.0f) return;
 		LivingEntity victim = event.getEntity();
 		if (victim.level().isClientSide) return;
 		GeneralServerConfig.RageConfig cfg = config();
 		if (cfg == null) return;
 
-		float amount = Math.min(event.getAmount(), victim.getHealth());
+		float amount = Math.min(event.getNewDamage(), victim.getHealth());
 		DamageSource source = event.getSource();
 
 		if (victim instanceof ServerPlayer hurt) {
@@ -73,7 +78,7 @@ public class RageEvents {
 
 		if (source.getEntity() instanceof ServerPlayer attacker && attacker != victim) {
 			withMutant(attacker, data -> {
-				if (!isWorthyTarget(attacker, victim, event.getAmount(), cfg)) return;
+				if (!isWorthyTarget(attacker, victim, event.getNewDamage(), cfg)) return;
 				CombatState state = state(attacker);
 				long now = System.currentTimeMillis();
 				state.lastCombatMs = now;
@@ -114,8 +119,8 @@ public class RageEvents {
 	}
 
 	@SubscribeEvent
-	public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || !(event.player instanceof ServerPlayer player)) return;
+	public static void onPlayerTick(PlayerTickEvent.Post event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 		GeneralServerConfig.RageConfig cfg = config();
 		if (cfg == null) return;
 
@@ -201,7 +206,7 @@ public class RageEvents {
 				character.setActiveForm(character.getActiveFormGroup(), lower.getName());
 			} else {
 				TransformationsHelper.revertToBaseForm(player, data);
-				player.removeEffect(MainEffects.TRANSFORMED.get());
+				player.removeEffect(MainEffects.TRANSFORMED);
 			}
 		}
 		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MainSounds.INSTA_FORM_OFF.get(), SoundSource.PLAYERS, 1.0F, 1.0F);

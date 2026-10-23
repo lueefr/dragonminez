@@ -1,5 +1,6 @@
 package com.dragonminez.common.init.armor;
 
+import lombok.*;
 import com.dragonminez.Reference;
 import com.dragonminez.client.util.ArmorTextureResolver;
 import com.dragonminez.common.init.armor.client.model.ArmorPatrollerModel;
@@ -12,7 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -24,17 +25,16 @@ public class DbzArmorPatrollerItem extends ArmorItem implements DbzArmorTextured
     private final String modId;
     private final String itemId;
 
-    public DbzArmorPatrollerItem(ArmorMaterial pMaterial, Type pType, Properties pProperties, String itemId) {
+    public DbzArmorPatrollerItem(net.minecraft.core.Holder<ArmorMaterial> pMaterial, Type pType, Properties pProperties, String itemId) {
         this(pMaterial, pType, pProperties, Reference.MOD_ID, itemId);
     }
 
-    public DbzArmorPatrollerItem(ArmorMaterial pMaterial, Type pType, Properties pProperties, String modId, String itemId) {
+    public DbzArmorPatrollerItem(net.minecraft.core.Holder<ArmorMaterial> pMaterial, Type pType, Properties pProperties, String modId, String itemId) {
         super(pMaterial, pType, pProperties);
         this.modId = modId;
         this.itemId = itemId;
     }
 
-    @Override
     public @Nullable String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
         return ArmorTextureResolver.resolve(modId, itemId, slot, stack).toString();
     }

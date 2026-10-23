@@ -16,6 +16,7 @@ import com.dragonminez.client.gui.tutorial.TutorialManager;
 import com.dragonminez.client.gui.tutorial.TutorialRect;
 import com.dragonminez.client.gui.tutorial.TutorialStep;
 import com.dragonminez.client.render.effects.AuraModeState;
+import com.dragonminez.client.render.shader.UtilityMenuBlur;
 import com.dragonminez.client.render.effects.AuraRenderer;
 import com.dragonminez.client.render.hair.HairRenderContext;
 import com.dragonminez.client.render.layer.DMZSkinLayer;
@@ -55,8 +56,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.lwjgl.opengl.GL11;
@@ -169,6 +170,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 
 	@Override
 	protected void init() {
+		UtilityMenuBlur.stop();
 		super.init();
 		activeTabs.clear();
 		activeTabs.add(TabId.PRESET);
@@ -574,7 +576,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		lastFrameNanos = now;
 		frameEase = dt <= 0.0f ? 0.0f : 1.0f - (float) Math.exp(-dt / 0.10f);
 
-		renderPanorama(partialTick);
+		renderPanorama(graphics, partialTick);
 		renderCinematicBars(graphics);
 
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
@@ -951,7 +953,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 
 		DMZSkinLayer.PREVIEW_MODE = previewApplied;
 		try {
-			InventoryScreen.renderEntityInInventory(graphics, baseX, currentBaseY, adjustedScale, pose, cameraOrientation, player);
+			InventoryScreen.renderEntityInInventory(graphics, baseX, currentBaseY, adjustedScale, new org.joml.Vector3f(0.0F, 0.0F, 0.0F), pose, cameraOrientation, player);
 
 			if (tab == TabId.AURA_CLASS) {
 				RenderSystem.enableBlend();
@@ -1049,7 +1051,8 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        double delta = scrollY;
 		double uiMouseX = toUiX(mouseX);
 		double uiMouseY = toUiY(mouseY);
 
@@ -1059,7 +1062,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 			if (bar.scrollWheel(delta)) return true;
 		}
 
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	@Override
@@ -1556,10 +1559,11 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		poseStack.popPose();
 	}
 
-	private void renderPanorama(float partialTick) {
+	@Override
+	protected void renderPanorama(GuiGraphics graphics, float partialTick) {
 		String currentRace = character.getRace() != null ? character.getRace().toLowerCase(Locale.ROOT) : "human";
 		PanoramaRenderer panorama = getPanorama(currentRace);
-		panorama.render(partialTick, 1.0F);
+		panorama.render(graphics, this.width, this.height, 1.0F, partialTick);
 	}
 
 	private void renderCinematicBars(GuiGraphics guiGraphics) {
@@ -1966,7 +1970,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		graphics.pose().translate(0.0D, 0.0D, 320.0D);
 		DMZSkinLayer.PREVIEW_MODE = previewApplied;
 		try (HairRenderContext.Scope hairScope = HairRenderContext.menuPreview()) {
-			InventoryScreen.renderEntityInInventory(graphics, x, previewY, previewScale, pose, cameraOrientation, player);
+			InventoryScreen.renderEntityInInventory(graphics, x, previewY, previewScale, new org.joml.Vector3f(), pose, cameraOrientation, player);
 		} finally {
 			DMZSkinLayer.PREVIEW_MODE = false;
 			graphics.pose().popPose();

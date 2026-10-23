@@ -6,25 +6,27 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.core.component.DataComponents;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public final class MainPotions {
 
 	public static final DeferredRegister<Potion> POTION_REGISTER =
-			DeferredRegister.create(ForgeRegistries.POTIONS, Reference.MOD_ID);
+			DeferredRegister.create(BuiltInRegistries.POTION, Reference.MOD_ID);
 
 	public static final int CURATIVE_COLOR = 0x9DFF00;
 
-	public static final RegistryObject<Potion> CURATIVE = POTION_REGISTER.register("curative",
+	public static final DeferredHolder<Potion, Potion> CURATIVE = POTION_REGISTER.register("curative",
 			() -> new Potion("curative", new MobEffectInstance(MobEffects.REGENERATION, 100, 4)));
 
 	public static ItemStack createCurativeFlask() {
-		ItemStack stack = PotionUtils.setPotion(new ItemStack(Items.POTION), CURATIVE.get());
-		stack.getOrCreateTag().putInt("CustomPotionColor", CURATIVE_COLOR);
+		ItemStack stack = PotionContents.createItemStack(Items.POTION, CURATIVE);
+		stack.update(DataComponents.POTION_CONTENTS, PotionContents.EMPTY, contents -> new PotionContents(contents.potion(), java.util.Optional.of(CURATIVE_COLOR), contents.customEffects()));
 		return stack;
 	}
 

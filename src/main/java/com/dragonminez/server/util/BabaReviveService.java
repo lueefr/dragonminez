@@ -317,8 +317,8 @@ public class BabaReviveService {
 		BlockPos respawnPos = player.getRespawnPosition();
 		if (respawnLevel != null && respawnPos != null
 				&& !respawnLevel.dimension().equals(OtherworldDimension.OTHERWORLD_KEY)) {
-			Optional<Vec3> spot = ServerPlayer.findRespawnPositionAndUseSpawnBlock(
-					respawnLevel, respawnPos, player.getRespawnAngle(), player.isRespawnForced(), false);
+			var transition = player.findRespawnPositionAndUseSpawnBlock(false, net.minecraft.world.level.portal.DimensionTransition.DO_NOTHING);
+            Optional<Vec3> spot = transition.missingRespawnBlock() ? Optional.empty() : Optional.of(transition.pos());
 			if (spot.isPresent()) {
 				Vec3 pos = spot.get();
 				player.teleportTo(respawnLevel, pos.x, pos.y, pos.z, player.getRespawnAngle(), 0);

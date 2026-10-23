@@ -1,5 +1,6 @@
 package com.dragonminez.client.render.effects;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.shader.EffectBloomRenderer;
 import com.dragonminez.client.render.util.IrisCompat;
@@ -17,19 +18,23 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public final class SwordSlashEffect {
 
 	private static final int MAX_SLASHES = 40;
@@ -91,8 +96,8 @@ public final class SwordSlashEffect {
 	}
 
 	@SubscribeEvent
-	public static void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.START) return;
+	public static void onClientTick(ClientTickEvent.Pre event) {
+
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null) {
 			SLASHES.clear();
@@ -108,7 +113,7 @@ public final class SwordSlashEffect {
 		if (mc.level == null || mc.player == null || SLASHES.isEmpty()) return;
 
 		boolean iris = IrisCompat.isShaderPackInUse(mc.level.getGameTime());
-		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick();
+		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick().getGameTimeDeltaPartialTick(true);
 
 		if (!iris) {
 			if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
@@ -136,9 +141,9 @@ public final class SwordSlashEffect {
 		RenderSystem.depthMask(false);
 		RenderSystem.disableCull();
 
-		PoseStack modelView = RenderSystem.getModelViewStack();
-		modelView.pushPose();
-		modelView.setIdentity();
+		org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
+		modelView.pushMatrix();
+		modelView.identity();
 		RenderSystem.applyModelViewMatrix();
 
 		for (Slash slash : SLASHES) {
@@ -168,7 +173,7 @@ public final class SwordSlashEffect {
 			}
 		}
 
-		modelView.popPose();
+		modelView.popMatrix();
 		RenderSystem.applyModelViewMatrix();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -211,10 +216,10 @@ public final class SwordSlashEffect {
 	private static void strip(Matrix4f pose, float innerRadius, float outerRadius, float innerLift, float outerLift,
 							  float r1, float g1, float b1, float a1, float r2, float g2, float b2, float a2) {
 		Tesselator tesselator = Tesselator.getInstance();
-		BufferBuilder buffer = tesselator.getBuilder();
+		BufferBuilder buffer;
 		float arcRadius = Math.max(innerRadius, outerRadius);
 
-		buffer.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+		buffer = tesselator.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 		for (int i = 0; i <= SEGMENTS; i++) {
 			float t = (float) i / SEGMENTS;
 			float angle = Mth.lerp(t, -HALF_ARC, HALF_ARC);
@@ -226,12 +231,12 @@ public final class SwordSlashEffect {
 			float inner = Mth.lerp(taper, arcRadius, innerRadius);
 			float outer = Mth.lerp(taper, arcRadius, outerRadius);
 
-			buffer.vertex(pose, sin * inner, innerLift * taper, cos * inner - arcRadius)
-					.color(r1, g1, b1, a1 * taper).endVertex();
-			buffer.vertex(pose, sin * outer, outerLift * taper, cos * outer - arcRadius)
-					.color(r2, g2, b2, a2 * taper).endVertex();
+			buffer.addVertex(pose, sin * inner, innerLift * taper, cos * inner - arcRadius)
+					.setColor(r1, g1, b1, a1 * taper);
+			buffer.addVertex(pose, sin * outer, outerLift * taper, cos * outer - arcRadius)
+					.setColor(r2, g2, b2, a2 * taper);
 		}
-		tesselator.end();
+		com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(buffer.buildOrThrow());
 	}
 
 	private static PoseStack viewStack(Camera camera) {

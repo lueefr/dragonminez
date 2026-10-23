@@ -1,5 +1,6 @@
 package com.dragonminez.common.config;
 
+import lombok.*;
 import com.dragonminez.common.diagnostics.RemovedConfigKeys;
 import com.dragonminez.common.combat.logic.player.TargetHelper;
 import lombok.AllArgsConstructor;

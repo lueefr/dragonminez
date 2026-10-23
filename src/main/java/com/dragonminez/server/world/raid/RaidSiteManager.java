@@ -1,5 +1,6 @@
 package com.dragonminez.server.world.raid;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -49,10 +50,14 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,7 +68,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+@EventBusSubscriber(modid = Reference.MOD_ID)
 public final class RaidSiteManager {
 
 	public static final String SITE_TAG = "dmz_raid_site";
@@ -130,9 +135,9 @@ public final class RaidSiteManager {
 	private RaidSiteManager() {}
 
 	@SubscribeEvent
-	public static void onLevelTick(TickEvent.LevelTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || event.level.isClientSide) return;
-		if (!(event.level instanceof ServerLevel level)) return;
+	public static void onLevelTick(LevelTickEvent.Post event) {
+		if (event.getLevel().isClientSide) return;
+		if (!(event.getLevel() instanceof ServerLevel level)) return;
 		if (level.getGameTime() % SCAN_INTERVAL != 0L) return;
 
 		for (Kind kind : Kind.forDimension(level.dimension())) scan(level, kind);
@@ -310,7 +315,7 @@ public final class RaidSiteManager {
 		}
 
 		scout.moveTo(stand.getX() + 0.5D, stand.getY(), stand.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
-		scout.finalizeSpawn(level, level.getCurrentDifficultyAt(stand), MobSpawnType.STRUCTURE, null, null);
+		scout.finalizeSpawn(level, level.getCurrentDifficultyAt(stand), MobSpawnType.STRUCTURE, null);
 		scout.setPersistenceRequired();
 		if (scout instanceof PathfinderMob pathfinder) pathfinder.restrictTo(home, SCOUT_LEASH);
 
@@ -341,7 +346,7 @@ public final class RaidSiteManager {
 		AttributeInstance attack = scout.getAttribute(Attributes.ATTACK_DAMAGE);
 		if (attack != null) attack.setBaseValue(Math.max(0.0D, melee));
 
-		AttributeInstance kiDamage = scout.getAttribute(EntityAttributes.KI_BLAST_DAMAGE.get());
+		AttributeInstance kiDamage = scout.getAttribute(EntityAttributes.KI_BLAST_DAMAGE);
 		if (kiDamage != null) kiDamage.setBaseValue(Math.max(0.0D, ki));
 
 		scout.setHealth(scout.getMaxHealth());
@@ -415,7 +420,7 @@ public final class RaidSiteManager {
 			if (type == null) return;
 			if (!(type.create(level) instanceof PathfinderMob soldier)) return;
 			soldier.moveTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
-			soldier.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.STRUCTURE, null, null);
+			soldier.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.STRUCTURE, null);
 			soldier.setPersistenceRequired();
 			if (soldier instanceof RedRibbonEntity redRibbon) redRibbon.setSupervillain(true);
 			soldier.restrictTo(pos, GUARD_LEASH);
@@ -429,7 +434,7 @@ public final class RaidSiteManager {
 		private final Map<Long, Entry> entries = new HashMap<>();
 
 		static Data get(ServerLevel level) {
-			return level.getDataStorage().computeIfAbsent(Data::load, Data::new, FILE_NAME);
+			return level.getDataStorage().computeIfAbsent(new net.minecraft.world.level.saveddata.SavedData.Factory<>(Data::new, (tag, registries) -> Data.load(tag)), FILE_NAME);
 		}
 
 		Entry entry(long key) {
@@ -459,7 +464,7 @@ public final class RaidSiteManager {
 		}
 
 		@Override
-		public CompoundTag save(CompoundTag tag) {
+		public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
 			ListTag list = new ListTag();
 			for (Map.Entry<Long, Entry> mapEntry : this.entries.entrySet()) {
 				Entry entry = mapEntry.getValue();

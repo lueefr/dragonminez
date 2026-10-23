@@ -1,5 +1,6 @@
 package com.dragonminez.common.config;
 
+import lombok.*;
 import com.dragonminez.common.diagnostics.RemovedConfigKeys;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

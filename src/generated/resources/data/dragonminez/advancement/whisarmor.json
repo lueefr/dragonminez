@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternsuper",
+  "criteria": {
+    "whisarmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:whis_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:whis_armor_leggings"
+          },
+          {
+            "items": "dragonminez:whis_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.whisarmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:whis_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.whisarmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "whisarmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

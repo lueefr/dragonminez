@@ -4,12 +4,12 @@ import com.dragonminez.Reference;
 import com.dragonminez.common.datagen.builder.PatternRecipeBuilder;
 import com.dragonminez.common.init.MainItems;
 import com.dragonminez.server.recipes.PatternRecipe;
-import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -37,10 +37,10 @@ public class DMZPatternRecipeProvider {
 		PALETTE.put('Q', Items.GOLD_NUGGET);
 	}
 
-	private final Consumer<FinishedRecipe> consumer;
+	private final RecipeOutput consumer;
 	private final Map<String, String> usedGrids = new HashMap<>();
 
-	public DMZPatternRecipeProvider(Consumer<FinishedRecipe> consumer) {
+	public DMZPatternRecipeProvider(RecipeOutput consumer) {
 		this.consumer = consumer;
 	}
 
@@ -625,7 +625,7 @@ public class DMZPatternRecipeProvider {
 				"WS  SW");
 	}
 
-	protected void build(RegistryObject<Item> pattern, ItemLike blankPattern, String... rows) {
+	protected void build(DeferredHolder<net.minecraft.world.item.Item, ? extends Item> pattern, ItemLike blankPattern, String... rows) {
 		String name = pattern.getId().getPath();
 		if (rows.length != PatternRecipe.MAX_SIZE) {
 			throw new IllegalStateException("Pattern recipe " + name + " must have " + PatternRecipe.MAX_SIZE + " rows");

@@ -56,15 +56,19 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.RelativeMovement;
-import net.minecraftforge.entity.PartEntity;
+import net.neoforged.neoforge.entity.PartEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +77,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.ArrayList;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class StrikeAttackHandler {
 	private static final double CONNECT_RANGE = 4.0;
 	private static final int ORPHANED_LOCK_RELEASE_TICKS = 40;
@@ -286,19 +290,19 @@ public class StrikeAttackHandler {
 			NetworkHandler.sendToTrackingEntityAndSelf(new StatsSyncS2C(player), player);
 
 			if (OOZARU_SLAM_ID.equals(strike.getId())) {
-				MinecraftForge.EVENT_BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
+				NeoForge.EVENT_BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
 				startSlam(player, stats, strike);
 				return;
 			}
 
 			if (DIM_PUNCH_ID.equals(strike.getId())) {
-				MinecraftForge.EVENT_BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
+				NeoForge.EVENT_BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
 				startDimensionalPunch(player, stats, strike, preferredTargetId);
 				return;
 			}
 
 			if (DIM_SLASH_ID.equals(strike.getId())) {
-				MinecraftForge.EVENT_BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
+				NeoForge.EVENT_BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
 				startDimensionalSlash(player, stats, strike, preferredTargetId);
 				return;
 			}
@@ -321,7 +325,7 @@ public class StrikeAttackHandler {
 					RUSH_TICKS
 			);
 
-			MinecraftForge.EVENT_BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
+			NeoForge.EVENT_BUS.post(new DMZEvent.StrikeAttackCastEvent(player, stats, strike));
 
 			if (SPBlueHurricaneEntity.STRIKE_ID.equals(strike.getId())) {
 				startTargetlessStrike(player, stats, strike, pending, false);
@@ -393,9 +397,9 @@ public class StrikeAttackHandler {
 	}
 
 	@SubscribeEvent
-	public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || event.player.level().isClientSide) return;
-		if (!(event.player instanceof ServerPlayer player)) return;
+	public static void onPlayerTick(PlayerTickEvent.Post event) {
+		if (event.getEntity().level().isClientSide) return;
+		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
 		processPending(player);
 		processActive(player);
@@ -560,7 +564,7 @@ public class StrikeAttackHandler {
 			double damage = stats.getStrikeDamage() * strike.getDamageMultiplier() * Math.max(0.0,
 					ConfigManager.getTechniqueConfig().getStrikeConfig(strike.getId()).getDamageMultiplier());
 			DMZEvent.DamageModifyEvent modifyEvent = new DMZEvent.DamageModifyEvent(player, target, damage, 0.0, DMZEvent.DamageSourceType.STRIKE);
-			return MinecraftForge.EVENT_BUS.post(modifyEvent) ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
+			return NeoForge.EVENT_BUS.post(modifyEvent).isCanceled() ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
 		}).orElse(0.0);
 	}
 
@@ -711,7 +715,7 @@ public class StrikeAttackHandler {
 			return;
 		}
 
-		boolean stunned = player.hasEffect(MainEffects.STUN.get())
+		boolean stunned = player.hasEffect(MainEffects.STUN)
 				|| StatsProvider.get(StatsCapability.INSTANCE, player)
 				.map(stats -> stats.getStatus().isKnockedDown())
 				.orElse(false);
@@ -1469,7 +1473,7 @@ public class StrikeAttackHandler {
 			DMZEvent.DamageModifyEvent modifyEvent =
 					new DMZEvent.DamageModifyEvent(player, target, totalDamage, 0.0,
 							DMZEvent.DamageSourceType.STRIKE);
-			totalDamage = MinecraftForge.EVENT_BUS.post(modifyEvent) ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
+			totalDamage = NeoForge.EVENT_BUS.post(modifyEvent).isCanceled() ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
 
 			int durationTicks = Math.max(20, pending.durationTicks());
 			int hitCount = Math.max(1, (int) Math.ceil(durationTicks / (double) HIT_INTERVAL_TICKS));
@@ -1493,7 +1497,7 @@ public class StrikeAttackHandler {
 			// Grant invulnerability the instant the strike locks on, before the next tick's
 			// processActive runs, so the target can't land a free hit during the engage window.
 			player.invulnerableTime = 20;
-			MinecraftForge.EVENT_BUS.post(
+			NeoForge.EVENT_BUS.post(
 					new DMZEvent.StrikeAttackFireEvent(player, stats, strike, target));
 
 			if (!NO_ENGAGE_DAMAGE_STRIKES.contains(pending.techniqueId())) applyStrikeDamage(player, target, perHitDamage, pending.techniqueId(), false);
@@ -1539,7 +1543,7 @@ public class StrikeAttackHandler {
 			target.fallDistance = 0.0F;
 			if (nextTick == GRAB_HOLD_TICK) {
 				if (!(target instanceof ServerPlayer)) {
-					target.addEffect(new MobEffectInstance(MainEffects.STUN.get(), GRAB_RELEASE_TICK - GRAB_HOLD_TICK, 0, false, false, true));
+					target.addEffect(new MobEffectInstance(MainEffects.STUN, GRAB_RELEASE_TICK - GRAB_HOLD_TICK, 0, false, false, true));
 				}
 				player.level().playSound(null, target.getX(), target.getY(), target.getZ(),
 						MainSounds.GOLPE2.get(), SoundSource.PLAYERS, 1.0F, 0.8F);
@@ -1567,7 +1571,7 @@ public class StrikeAttackHandler {
 			faceStrikeTarget(player, target);
 			target.fallDistance = 0.0F;
 			if (nextTick == 1 && !(target instanceof ServerPlayer)) {
-				target.addEffect(new MobEffectInstance(MainEffects.STUN.get(), COMBO_METEOR_SMASH_TICK, 0, false, false, true));
+				target.addEffect(new MobEffectInstance(MainEffects.STUN, COMBO_METEOR_SMASH_TICK, 0, false, false, true));
 			}
 			holdComboMeteorVictim(player, target, nextTick);
 		}
@@ -1622,7 +1626,7 @@ public class StrikeAttackHandler {
 		Vec3 forward = Vec3.directionFromRotation(0.0F, player.getYRot()).normalize();
 
 		setStrikeLocked(target, false);
-		if (!(target instanceof ServerPlayer)) target.removeEffect(MainEffects.STUN.get());
+		if (!(target instanceof ServerPlayer)) target.removeEffect(MainEffects.STUN);
 		target.invulnerableTime = 0;
 		applyStrikeDamage(player, target, active.finalDamage(), COMBO_METEOR_ID, true);
 		grantKillXpIfNeeded(player, target, COMBO_METEOR_ID);
@@ -1640,7 +1644,7 @@ public class StrikeAttackHandler {
 		int nextTick = active.ticksElapsed() + 1;
 		LivingEntity target = active.targetId() == null ? null : resolveLiving(player, active.targetId());
 
-		boolean stunned = player.hasEffect(MainEffects.STUN.get())
+		boolean stunned = player.hasEffect(MainEffects.STUN)
 				|| StatsProvider.get(StatsCapability.INSTANCE, player).map(stats -> stats.getStatus().isKnockedDown()).orElse(false);
 		if (!player.isAlive() || stunned) {
 			endStrike(player, target, active, true);
@@ -1671,7 +1675,7 @@ public class StrikeAttackHandler {
 		int nextTick = active.ticksElapsed() + 1;
 		LivingEntity target = active.targetId() == null ? null : resolveLiving(player, active.targetId());
 
-		boolean stunned = player.hasEffect(MainEffects.STUN.get())
+		boolean stunned = player.hasEffect(MainEffects.STUN)
 				|| StatsProvider.get(StatsCapability.INSTANCE, player).map(stats -> stats.getStatus().isKnockedDown()).orElse(false);
 		if (!player.isAlive() || stunned) {
 			endStrike(player, target, active, true);
@@ -1702,7 +1706,7 @@ public class StrikeAttackHandler {
 		int nextTick = active.ticksElapsed() + 1;
 		LivingEntity target = active.targetId() == null ? null : resolveLiving(player, active.targetId());
 
-		boolean stunned = player.hasEffect(MainEffects.STUN.get())
+		boolean stunned = player.hasEffect(MainEffects.STUN)
 				|| StatsProvider.get(StatsCapability.INSTANCE, player).map(stats -> stats.getStatus().isKnockedDown()).orElse(false);
 		if (!player.isAlive() || stunned) {
 			endStrike(player, target, active, true);
@@ -1778,7 +1782,7 @@ public class StrikeAttackHandler {
 		int nextTick = active.ticksElapsed() + 1;
 		LivingEntity target = active.targetId() == null ? null : resolveLiving(player, active.targetId());
 
-		boolean stunned = player.hasEffect(MainEffects.STUN.get())
+		boolean stunned = player.hasEffect(MainEffects.STUN)
 				|| StatsProvider.get(StatsCapability.INSTANCE, player).map(stats -> stats.getStatus().isKnockedDown()).orElse(false);
 		if (!player.isAlive() || stunned) {
 			endStrike(player, target, active, true);
@@ -1804,7 +1808,7 @@ public class StrikeAttackHandler {
 		int nextTick = active.ticksElapsed() + 1;
 		LivingEntity target = active.targetId() == null ? null : resolveLiving(player, active.targetId());
 
-		boolean stunned = player.hasEffect(MainEffects.STUN.get())
+		boolean stunned = player.hasEffect(MainEffects.STUN)
 				|| StatsProvider.get(StatsCapability.INSTANCE, player).map(stats -> stats.getStatus().isKnockedDown()).orElse(false);
 		if (!player.isAlive() || stunned) {
 			endStrike(player, target, active, true);
@@ -1830,7 +1834,7 @@ public class StrikeAttackHandler {
 		int nextTick = active.ticksElapsed() + 1;
 		LivingEntity target = active.targetId() == null ? null : resolveLiving(player, active.targetId());
 
-		boolean stunned = player.hasEffect(MainEffects.STUN.get())
+		boolean stunned = player.hasEffect(MainEffects.STUN)
 				|| StatsProvider.get(StatsCapability.INSTANCE, player).map(stats -> stats.getStatus().isKnockedDown()).orElse(false);
 		if (!player.isAlive() || stunned) {
 			endStrike(player, target, active, true);
@@ -1955,7 +1959,7 @@ public class StrikeAttackHandler {
 		int nextTick = active.ticksElapsed() + 1;
 		LivingEntity target = active.targetId() == null ? null : resolveLiving(player, active.targetId());
 
-		boolean stunned = player.hasEffect(MainEffects.STUN.get())
+		boolean stunned = player.hasEffect(MainEffects.STUN)
 				|| StatsProvider.get(StatsCapability.INSTANCE, player).map(stats -> stats.getStatus().isKnockedDown()).orElse(false);
 		if (!player.isAlive() || stunned) {
 			endStrike(player, target, active, true);
@@ -2031,7 +2035,7 @@ public class StrikeAttackHandler {
 		int nextTick = active.ticksElapsed() + 1;
 		LivingEntity target = active.targetId() == null ? null : resolveLiving(player, active.targetId());
 
-		boolean stunned = player.hasEffect(MainEffects.STUN.get())
+		boolean stunned = player.hasEffect(MainEffects.STUN)
 				|| StatsProvider.get(StatsCapability.INSTANCE, player).map(stats -> stats.getStatus().isKnockedDown()).orElse(false);
 		if (!player.isAlive() || stunned) {
 			endStrike(player, target, active, true);
@@ -2203,7 +2207,7 @@ public class StrikeAttackHandler {
 			faceStrikeTarget(player, target);
 			freezeEntity(target);
 			if (nextTick == 1 && !(target instanceof ServerPlayer)) {
-				target.addEffect(new MobEffectInstance(MainEffects.STUN.get(), SHINING_SWORD_BLAST_TICK, 0, false, false, true));
+				target.addEffect(new MobEffectInstance(MainEffects.STUN, SHINING_SWORD_BLAST_TICK, 0, false, false, true));
 			}
 		}
 
@@ -2259,7 +2263,7 @@ public class StrikeAttackHandler {
 		serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(),
 				MainSounds.KI_EXPLOSION_IMPACT.get(), SoundSource.PLAYERS, 2.0F, 1.1F);
 
-		if (!(target instanceof ServerPlayer)) target.removeEffect(MainEffects.STUN.get());
+		if (!(target instanceof ServerPlayer)) target.removeEffect(MainEffects.STUN);
 		target.invulnerableTime = 0;
 		applyStrikeDamage(player, target, active.finalDamage(), SHINING_SWORD_ID, true);
 		grantKillXpIfNeeded(player, target, SHINING_SWORD_ID);
@@ -2312,7 +2316,7 @@ public class StrikeAttackHandler {
 		Vec3 dir = Vec3.directionFromRotation(0.0F, player.getYRot()).normalize();
 
 		setStrikeLocked(target, false);
-		if (!(target instanceof ServerPlayer)) target.removeEffect(MainEffects.STUN.get());
+		if (!(target instanceof ServerPlayer)) target.removeEffect(MainEffects.STUN);
 		target.invulnerableTime = 0;
 		applyStrikeDamage(player, target, active.totalDamage(), GRAB_ID, true);
 		grantKillXpIfNeeded(player, target, GRAB_ID);
@@ -2378,7 +2382,7 @@ public class StrikeAttackHandler {
 		if (target != null) return damage;
 		DMZEvent.DamageModifyEvent modifyEvent = new DMZEvent.DamageModifyEvent(
 				player, victim, damage, 0.0, DMZEvent.DamageSourceType.STRIKE);
-		return MinecraftForge.EVENT_BUS.post(modifyEvent) ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
+		return NeoForge.EVENT_BUS.post(modifyEvent).isCanceled() ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
 	}
 
 	private static Vec3 strikeImpactPoint(ServerPlayer player, LivingEntity victim, double heightRatio) {
@@ -2500,7 +2504,7 @@ public class StrikeAttackHandler {
 	}
 
 	private static void processDimensionalPunch(ServerPlayer player, ActiveStrike active) {
-		boolean stunned = player.hasEffect(MainEffects.STUN.get())
+		boolean stunned = player.hasEffect(MainEffects.STUN)
 				|| StatsProvider.get(StatsCapability.INSTANCE, player)
 				.map(stats -> stats.getStatus().isKnockedDown())
 				.orElse(false);
@@ -2557,7 +2561,7 @@ public class StrikeAttackHandler {
 	}
 
 	private static void processDimensionalSlash(ServerPlayer player, ActiveStrike active) {
-		boolean stunned = player.hasEffect(MainEffects.STUN.get())
+		boolean stunned = player.hasEffect(MainEffects.STUN)
 				|| StatsProvider.get(StatsCapability.INSTANCE, player)
 				.map(stats -> stats.getStatus().isKnockedDown())
 				.orElse(false);
@@ -2610,7 +2614,7 @@ public class StrikeAttackHandler {
 	}
 
 	private static void processSlam(ServerPlayer player, ActiveStrike active) {
-		boolean stunned = player.hasEffect(MainEffects.STUN.get())
+		boolean stunned = player.hasEffect(MainEffects.STUN)
 				|| StatsProvider.get(StatsCapability.INSTANCE, player)
 				.map(stats -> stats.getStatus().isKnockedDown())
 				.orElse(false);
@@ -2650,7 +2654,7 @@ public class StrikeAttackHandler {
 			hit.add(victim.getUUID());
 			DMZEvent.DamageModifyEvent modifyEvent = new DMZEvent.DamageModifyEvent(
 					player, victim, active.totalDamage(), 0.0, DMZEvent.DamageSourceType.STRIKE);
-			double damage = MinecraftForge.EVENT_BUS.post(modifyEvent) ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
+			double damage = NeoForge.EVENT_BUS.post(modifyEvent).isCanceled() ? 0.0 : Math.max(0.0, modifyEvent.getAmount());
 			applyStrikeDamage(player, victim, damage, active.techniqueId(), true);
 			grantKillXpIfNeeded(player, victim, active.techniqueId());
 		}
@@ -3194,7 +3198,7 @@ public class StrikeAttackHandler {
 					victimPlayer
 			);
 		} else if (victim instanceof DBSagasEntity saga) {
-			saga.stopTriggeredAnimation(DBSagasEntity.HURT_CONTROLLER, sagaAnim);
+			saga.stopTriggeredAnim(DBSagasEntity.HURT_CONTROLLER, sagaAnim);
 			saga.triggerAnim(DBSagasEntity.HURT_CONTROLLER, sagaAnim);
 		} else {
 			return;
@@ -3215,7 +3219,7 @@ public class StrikeAttackHandler {
 					victimPlayer
 			);
 		} else if (victim instanceof DBSagasEntity saga && pose.sagaAnim() != null) {
-			saga.stopTriggeredAnimation(DBSagasEntity.HURT_CONTROLLER, pose.sagaAnim());
+			saga.stopTriggeredAnim(DBSagasEntity.HURT_CONTROLLER, pose.sagaAnim());
 		}
 	}
 

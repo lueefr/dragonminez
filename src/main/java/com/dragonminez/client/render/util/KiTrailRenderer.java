@@ -35,7 +35,8 @@ public final class KiTrailRenderer {
 
 	private static final Map<Integer, Deque<Vec3>> TRAILS = new ConcurrentHashMap<>();
 	private static final Map<Integer, Integer> LAST_SAMPLE_TICK = new ConcurrentHashMap<>();
-	private static final BufferBuilder BUILDER = new BufferBuilder(4096);
+	private static final com.mojang.blaze3d.vertex.ByteBufferBuilder BYTE_BUFFER = new com.mojang.blaze3d.vertex.ByteBufferBuilder(4096);
+    private static BufferBuilder BUILDER;
 	private static VertexBuffer buffer;
 
 	private KiTrailRenderer() {}
@@ -106,7 +107,7 @@ public final class KiTrailRenderer {
 		}
 		if (points.size() < 2 || length < 0.05f) return;
 
-		BUILDER.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
+		BUILDER = new BufferBuilder(BYTE_BUFFER, VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
 		int count = points.size();
 		Vec3[] left = new Vec3[count];
 		Vec3[] right = new Vec3[count];
@@ -143,7 +144,7 @@ public final class KiTrailRenderer {
 			vertex(left[i + 1], 0, along1, alpha1);
 		}
 
-		BufferBuilder.RenderedBuffer rendered = BUILDER.endOrDiscardIfEmpty();
+		com.mojang.blaze3d.vertex.MeshData rendered = BUILDER.build();
 		if (rendered == null) return;
 		if (buffer == null) buffer = new VertexBuffer(VertexBuffer.Usage.DYNAMIC);
 
@@ -173,7 +174,7 @@ public final class KiTrailRenderer {
 
 	private static void vertex(Vec3 pos, int across, float along, int alpha) {
 		int alongByte = (int) (Mth.clamp(along, 0.0f, 1.0f) * 255.0f);
-		BUILDER.vertex(pos.x, pos.y, pos.z).color(across, 128, alongByte, alpha).uv(0.0f, 0.0f)
-				.overlayCoords(OverlayTexture.NO_OVERLAY).uv2(FULL_BRIGHT).normal(0.0f, 1.0f, 0.0f).endVertex();
+		BUILDER.addVertex((float)pos.x, (float)pos.y, (float)pos.z).setColor(across, 128, alongByte, alpha).setUv(0.0f, 0.0f)
+				.setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT).setNormal(0.0f, 1.0f, 0.0f);
 	}
 }

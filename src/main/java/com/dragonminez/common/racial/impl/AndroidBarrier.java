@@ -91,7 +91,7 @@ public final class AndroidBarrier {
 		ServerPlayer player = ctx.player();
 		StatsData data = ctx.data();
 		GeneralServerConfig.HumanRacialConfig config = ctx.config().getHuman();
-		net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+		net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(
 				new com.dragonminez.common.events.DMZEvent.BarrierAbsorbEvent(player, player, attacker, (float) rawDamage));
 
 		float maxEnergy = data.getMaxEnergy();

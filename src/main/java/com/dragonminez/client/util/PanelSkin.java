@@ -117,8 +117,7 @@ public final class PanelSkin {
 		RenderSystem.defaultBlendFunc();
 
 		Matrix4f matrix = graphics.pose().last().pose();
-		BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-		buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+		BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 		for (int column = 0; column < xs.length; column += 3) {
 			float x0 = x + xs[column];
 			float x1 = x0 + xs[column + 1];
@@ -129,13 +128,13 @@ public final class PanelSkin {
 				float y1 = y0 + ys[row + 1];
 				float v0 = (v + ys[row + 2]) / (float) atlasHeight;
 				float v1 = (v + ys[row + 2] + ys[row + 1]) / (float) atlasHeight;
-				buffer.vertex(matrix, x0, y0, 0.0f).uv(u0, v0).color(red, green, blue, alpha).endVertex();
-				buffer.vertex(matrix, x0, y1, 0.0f).uv(u0, v1).color(red, green, blue, alpha).endVertex();
-				buffer.vertex(matrix, x1, y1, 0.0f).uv(u1, v1).color(red, green, blue, alpha).endVertex();
-				buffer.vertex(matrix, x1, y0, 0.0f).uv(u1, v0).color(red, green, blue, alpha).endVertex();
+				buffer.addVertex(matrix, x0, y0, 0.0f).setUv(u0, v0).setColor(red, green, blue, alpha);
+				buffer.addVertex(matrix, x0, y1, 0.0f).setUv(u0, v1).setColor(red, green, blue, alpha);
+				buffer.addVertex(matrix, x1, y1, 0.0f).setUv(u1, v1).setColor(red, green, blue, alpha);
+				buffer.addVertex(matrix, x1, y0, 0.0f).setUv(u1, v0).setColor(red, green, blue, alpha);
 			}
 		}
-		BufferUploader.drawWithShader(buffer.end());
+		BufferUploader.drawWithShader(buffer.buildOrThrow());
 	}
 
 	private int[] columnLayout(int target) {

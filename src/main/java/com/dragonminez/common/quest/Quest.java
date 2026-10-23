@@ -1,11 +1,9 @@
 package com.dragonminez.common.quest;
 
+import lombok.*;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.quest.objectives.ItemObjective;
 import com.dragonminez.common.quest.objectives.KillObjective;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,15 +16,12 @@ import java.util.List;
 public class Quest {
 
 	public enum QuestType {
-		SAGA,
-		SIDEQUEST,
-		DAILY,
-		EVENT
+		SAGA, SIDEQUEST, DAILY, EVENT;
 	}
 
+
 	public enum ClaimMode {
-		TREE_OR_NPC,
-		NPC_ONLY
+		TREE_OR_NPC, NPC_ONLY;
 	}
 
 	private final int id;
@@ -36,13 +31,10 @@ public class Quest {
 	private final String description;
 	private final List<QuestObjective> objectives;
 	private final List<QuestReward> rewards;
-
-	@Setter
+@Setter
 	private boolean completed;
-
-	@Setter
+@Setter
 	private int currentObjectiveIndex;
-
 	private final String category;
 	private final boolean parallelObjectives;
 	private final boolean partyScaling;
@@ -60,21 +52,11 @@ public class Quest {
 	/**
 	 * Universal constructor for quests.
 	 */
-	public Quest(int id, String stringId, QuestType type, String title, String description,
-				 String category, boolean parallelObjectives, boolean partyScaling,
-				 List<QuestObjective> objectives, List<QuestReward> rewards,
-				 QuestPrerequisites prerequisites, QuestPrerequisites startRequirements,
-				 String questGiver, String turnIn) {
-		this(id, stringId, type, title, description, category, parallelObjectives, partyScaling,
-				objectives, rewards, prerequisites, startRequirements, questGiver, turnIn,
-				false, ClaimMode.TREE_OR_NPC);
+	public Quest(int id, String stringId, QuestType type, String title, String description, String category, boolean parallelObjectives, boolean partyScaling, List<QuestObjective> objectives, List<QuestReward> rewards, QuestPrerequisites prerequisites, QuestPrerequisites startRequirements, String questGiver, String turnIn) {
+		this(id, stringId, type, title, description, category, parallelObjectives, partyScaling, objectives, rewards, prerequisites, startRequirements, questGiver, turnIn, false, ClaimMode.TREE_OR_NPC);
 	}
 
-	public Quest(int id, String stringId, QuestType type, String title, String description,
-				 String category, boolean parallelObjectives, boolean partyScaling,
-				 List<QuestObjective> objectives, List<QuestReward> rewards,
-				 QuestPrerequisites prerequisites, QuestPrerequisites startRequirements,
-				 String questGiver, String turnIn, boolean secret, ClaimMode claimMode) {
+	public Quest(int id, String stringId, QuestType type, String title, String description, String category, boolean parallelObjectives, boolean partyScaling, List<QuestObjective> objectives, List<QuestReward> rewards, QuestPrerequisites prerequisites, QuestPrerequisites startRequirements, String questGiver, String turnIn, boolean secret, ClaimMode claimMode) {
 		this.id = id;
 		this.stringId = stringId;
 		this.type = type != null ? type : QuestType.SAGA;
@@ -154,7 +136,6 @@ public class Quest {
 		if (objectiveIndex < 0 || objectiveIndex >= objectives.size()) {
 			return 0;
 		}
-
 		QuestObjective objective = objectives.get(objectiveIndex);
 		if (objective.isPlaceholder()) {
 			return 0;
@@ -162,7 +143,6 @@ public class Quest {
 		if (pqd == null) {
 			return objective.getRequired();
 		}
-
 		return pqd.getObjectiveRequired(questId, objectiveIndex, objective.getRequired());
 	}
 
@@ -170,7 +150,6 @@ public class Quest {
 		if (pqd == null || questId == null || questId.isBlank()) {
 			return;
 		}
-
 		int safePartySize = Math.max(1, partySize);
 		for (int i = 0; i < objectives.size(); i++) {
 			pqd.setObjectiveRequired(questId, i, getScaledObjectiveRequired(objectives.get(i), safePartySize));
@@ -178,36 +157,30 @@ public class Quest {
 	}
 
 	public double getScaledKillHealth(KillObjective objective, int partySize) {
-		return objective.getHealth() * enemyPartyMultiplier(partySize,
-				ConfigManager.getServerConfig().getGameplay().getEnemyHealthPerPartyPlayer());
+		return objective.getHealth() * enemyPartyMultiplier(partySize, ConfigManager.getServerConfig().getGameplay().getEnemyHealthPerPartyPlayer());
 	}
 
 	public double getScaledKillMeleeDamage(KillObjective objective, int partySize) {
-		return objective.getMeleeDamage() * enemyPartyMultiplier(partySize,
-				ConfigManager.getServerConfig().getGameplay().getEnemyDamagePerPartyPlayer());
+		return objective.getMeleeDamage() * enemyPartyMultiplier(partySize, ConfigManager.getServerConfig().getGameplay().getEnemyDamagePerPartyPlayer());
 	}
 
 	public double getScaledKillKiDamage(KillObjective objective, int partySize) {
-		return objective.getKiDamage() * enemyPartyMultiplier(partySize,
-				ConfigManager.getServerConfig().getGameplay().getEnemyDamagePerPartyPlayer());
+		return objective.getKiDamage() * enemyPartyMultiplier(partySize, ConfigManager.getServerConfig().getGameplay().getEnemyDamagePerPartyPlayer());
 	}
 
 	public Double getScaledTransformHealth(KillObjective objective, int partySize) {
 		Double base = objective.getTransformHealth();
-		return base == null ? null : base * enemyPartyMultiplier(partySize,
-				ConfigManager.getServerConfig().getGameplay().getEnemyHealthPerPartyPlayer());
+		return base == null ? null : base * enemyPartyMultiplier(partySize, ConfigManager.getServerConfig().getGameplay().getEnemyHealthPerPartyPlayer());
 	}
 
 	public Double getScaledTransformMeleeDamage(KillObjective objective, int partySize) {
 		Double base = objective.getTransformMeleeDamage();
-		return base == null ? null : base * enemyPartyMultiplier(partySize,
-				ConfigManager.getServerConfig().getGameplay().getEnemyDamagePerPartyPlayer());
+		return base == null ? null : base * enemyPartyMultiplier(partySize, ConfigManager.getServerConfig().getGameplay().getEnemyDamagePerPartyPlayer());
 	}
 
 	public Double getScaledTransformKiDamage(KillObjective objective, int partySize) {
 		Double base = objective.getTransformKiDamage();
-		return base == null ? null : base * enemyPartyMultiplier(partySize,
-				ConfigManager.getServerConfig().getGameplay().getEnemyDamagePerPartyPlayer());
+		return base == null ? null : base * enemyPartyMultiplier(partySize, ConfigManager.getServerConfig().getGameplay().getEnemyDamagePerPartyPlayer());
 	}
 
 	private int getScaledObjectiveRequired(QuestObjective objective, int partySize) {
@@ -215,15 +188,12 @@ public class Quest {
 		if (!partyScaling || partySize <= 1 || baseRequired <= 0) {
 			return baseRequired;
 		}
-
 		int extraMembers = partySize - 1;
 		double configuredMultiplier = ConfigManager.getServerConfig().getGameplay().getDefaultQuestPartyMultiplier();
-
 		if (objective instanceof ItemObjective) {
 			double scaled = baseRequired * Math.pow(configuredMultiplier, extraMembers);
 			return roundUpCount(Math.max(baseRequired, scaled), resolveItemCountStep(baseRequired));
 		}
-
 		if (objective instanceof KillObjective) {
 			if (baseRequired <= 1) {
 				return baseRequired;
@@ -231,7 +201,6 @@ public class Quest {
 			double scaled = baseRequired * Math.pow(configuredMultiplier, extraMembers * 0.75);
 			return Math.max(baseRequired, (int) Math.ceil(scaled));
 		}
-
 		return baseRequired;
 	}
 

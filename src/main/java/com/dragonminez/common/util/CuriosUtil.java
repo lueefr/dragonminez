@@ -2,7 +2,7 @@ package com.dragonminez.common.util;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.LazyOptional;
+import com.dragonminez.compat.util.LazyOptional;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
@@ -15,10 +15,10 @@ public final class CuriosUtil {
 	private CuriosUtil() {}
 
 	public static ItemStack getFirstStackForItem(LivingEntity entity, String slotId, String item) {
-        LazyOptional<ICuriosItemHandler> curiosInventory = CuriosApi.getCuriosInventory(entity);
+        java.util.Optional<ICuriosItemHandler> curiosInventory = CuriosApi.getCuriosInventory(entity);
 		if (!curiosInventory.isPresent()) return ItemStack.EMPTY;
 
-		Optional<ICuriosItemHandler> optionalICuriosItemHandler = curiosInventory.resolve();
+		Optional<ICuriosItemHandler> optionalICuriosItemHandler = curiosInventory;
 		if (optionalICuriosItemHandler.isEmpty()) return ItemStack.EMPTY;
 
 		ICuriosItemHandler curiosItemHandler = optionalICuriosItemHandler.get();

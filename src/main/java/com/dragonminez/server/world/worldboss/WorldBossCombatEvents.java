@@ -1,5 +1,6 @@
 package com.dragonminez.server.world.worldboss;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.combat.HealContext;
 import com.dragonminez.common.events.DMZEvent;
@@ -15,26 +16,26 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingHealEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+@EventBusSubscriber(modid = Reference.MOD_ID)
 public final class WorldBossCombatEvents {
 
 	private WorldBossCombatEvents() {}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onDamageDealt(LivingDamageEvent event) {
+	public static void onDamageDealt(LivingDamageEvent.Pre event) {
 		String key = resolveBossKey(event.getEntity());
 		if (key == null) return;
 		if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
 
-		double applied = Math.min(event.getAmount(), event.getEntity().getHealth());
+		double applied = Math.min(event.getNewDamage(), event.getEntity().getHealth());
 		WorldBossContribution.addDamage(key, player, applied, classify(event.getSource(), player));
 	}
 
@@ -85,13 +86,13 @@ public final class WorldBossCombatEvents {
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onCasterDamaged(LivingDamageEvent event) {
-		if (event.isCanceled() || event.getAmount() <= 0.0F || !(event.getEntity() instanceof ServerPlayer player)) return;
-		WorldBossManager.noteReviveCasterDamage(player, event.getAmount());
+	public static void onCasterDamaged(LivingDamageEvent.Pre event) {
+		if (event.getNewDamage() <= 0.0F || !(event.getEntity() instanceof ServerPlayer player)) return;
+		WorldBossManager.noteReviveCasterDamage(player, event.getNewDamage());
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public static void onTruceAttack(LivingAttackEvent event) {
+	public static void onTruceAttack(LivingIncomingDamageEvent event) {
 		if (!(event.getEntity() instanceof ServerPlayer victim)) return;
 		if (!(event.getSource().getEntity() instanceof ServerPlayer attacker) || attacker == victim) return;
 		if (WorldBossManager.areTruceAllies(attacker.getUUID(), victim.getUUID(), victim.level().getGameTime())) event.setCanceled(true);

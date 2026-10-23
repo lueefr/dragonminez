@@ -4,14 +4,15 @@ import com.dragonminez.common.init.MainRecipes;
 import com.dragonminez.server.recipes.PatternRecipe;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -65,9 +66,11 @@ public class PatternRecipeBuilder {
 		return this;
 	}
 
-	public void save(Consumer<FinishedRecipe> consumer, ResourceLocation id) {
+	public void save(RecipeOutput consumer, ResourceLocation id) {
 		validate(id);
-		consumer.accept(new Result(id, this));
+		Map<String, Ingredient> ingredients = new LinkedHashMap<>();
+        key.forEach((symbol, ingredient) -> ingredients.put(symbol.toString(), ingredient));
+        consumer.accept(id, PatternRecipe.create(group, rows, ingredients, new net.minecraft.world.item.ItemStack(result, count), true), null);
 	}
 
 	private void validate(ResourceLocation id) {
@@ -86,42 +89,4 @@ public class PatternRecipeBuilder {
 		if (!unused.isEmpty()) throw new IllegalStateException("Ingredients are defined but not used in pattern for recipe " + id + ": " + unused);
 	}
 
-	public static class Result implements FinishedRecipe {
-		private final ResourceLocation id;
-		private final PatternRecipeBuilder builder;
-
-		public Result(ResourceLocation id, PatternRecipeBuilder builder) {
-			this.id = id;
-			this.builder = builder;
-		}
-
-		@Override
-		public void serializeRecipeData(JsonObject json) {
-			if (!builder.group.isEmpty()) json.addProperty("group", builder.group);
-
-			JsonArray pattern = new JsonArray();
-			for (String row : builder.rows) pattern.add(row);
-			json.add("pattern", pattern);
-
-			JsonObject keyObj = new JsonObject();
-			for (Map.Entry<Character, Ingredient> entry : builder.key.entrySet()) {
-				keyObj.add(String.valueOf(entry.getKey()), entry.getValue().toJson());
-			}
-			json.add("key", keyObj);
-
-			JsonObject out = new JsonObject();
-			out.addProperty("item", ForgeRegistries.ITEMS.getKey(builder.result).toString());
-			if (builder.count > 1) out.addProperty("count", builder.count);
-			json.add("result", out);
-		}
-
-		@Override
-		public ResourceLocation getId() { return id; }
-		@Override
-		public RecipeSerializer<?> getType() { return MainRecipes.PATTERN_SERIALIZER.get(); }
-		@Override
-		public @Nullable JsonObject serializeAdvancement() { return null; }
-		@Override
-		public @Nullable ResourceLocation getAdvancementId() { return null; }
-	}
 }

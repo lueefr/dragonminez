@@ -1,5 +1,6 @@
 package com.dragonminez.client.render.effects;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.gui.hud.HudRender;
 import com.dragonminez.client.gui.hud.HudSmoother;
@@ -8,15 +9,15 @@ import com.dragonminez.client.render.util.IrisCompat;
 import com.dragonminez.client.systems.worldboss.ClientWorldBossState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public final class KnockoutScreenRenderer {
 	private static final HudSmoother INTENSITY = new HudSmoother(0.35f, 0.004f);
 	private static final int FALLBACK_GRAY = 0x8A8A8A;
@@ -47,22 +48,22 @@ public final class KnockoutScreenRenderer {
 
 		if (iris) {
 			mc.getMainRenderTarget().bindWrite(false);
-			KnockoutShaderManager.process(event.getPartialTick(), intensity, false);
+			KnockoutShaderManager.process(event.getPartialTick().getGameTimeDeltaPartialTick(true), intensity, false);
 		} else {
-			KnockoutShaderManager.process(event.getPartialTick(), intensity, true);
+			KnockoutShaderManager.process(event.getPartialTick().getGameTimeDeltaPartialTick(true), intensity, true);
 		}
 	}
 
 	@SubscribeEvent
-	public static void onRenderOverlay(RenderGuiOverlayEvent.Pre event) {
-		if (event.getOverlay() != VanillaGuiOverlay.VIGNETTE.type()) return;
+	public static void onRenderOverlay(RenderGuiLayerEvent.Pre event) {
+		if (!net.neoforged.neoforge.client.gui.VanillaGuiLayers.CAMERA_OVERLAYS.equals(event.getName())) return;
 		if (!KnockoutShaderManager.isLoadFailed()) return;
 		float intensity = INTENSITY.value();
 		if (intensity <= 0.004f) return;
 
 		GuiGraphics graphics = event.getGuiGraphics();
-		int width = event.getWindow().getGuiScaledWidth();
-		int height = event.getWindow().getGuiScaledHeight();
+		int width = event.getGuiGraphics().guiWidth();
+		int height = event.getGuiGraphics().guiHeight();
 		HudRender.rect(graphics, 0.0f, 0.0f, width, height, HudRender.argb(0.35f * intensity, FALLBACK_GRAY));
 
 		float band = Math.min(width, height) * FALLBACK_BORDER_SHARE;

@@ -10,7 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraft.client.gui.LayeredDraw;
 
 public class MinecraftHUD {
 	private static final float BORDER = HudSprites.MINECRAFT_HP.border();
@@ -37,13 +37,16 @@ public class MinecraftHUD {
 
 	private record Frame(HudPlayerState state, float release, float formCharge, float chargeGlow, float surge, float lowHealth, float seconds, float tickTime) {}
 
-	public static final IGuiOverlay HUD_MINECRAFT = (forgeGui, guiGraphics, partialTicks, width, height) -> {
+	public static final LayeredDraw.Layer HUD_MINECRAFT = (guiGraphics, deltaTracker) -> {
+        float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
+        int width = guiGraphics.guiWidth();
+        int height = guiGraphics.guiHeight();
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
 	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.renderDebug || mc.player == null) return;
+		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 		if (HudStyle.current() != HudStyle.VANILLA) return;
 		if (mc.player.isSpectator()) return;
 

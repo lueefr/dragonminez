@@ -182,7 +182,7 @@ public class CombatFlightHandler {
 	}
 
 	private static float getFlySpeedScale(LocalPlayer player) {
-		double attrValue = player.getAttributes().hasAttribute(EntityAttributes.FLY_SPEED.get()) ? player.getAttributeValue(EntityAttributes.FLY_SPEED.get()) : 0.0;
+		double attrValue = player.getAttributes().hasAttribute(EntityAttributes.FLY_SPEED) ? player.getAttributeValue(EntityAttributes.FLY_SPEED) : 0.0;
 		double scale = attrValue <= 0.0 ? 1.0 : Mth.clamp(attrValue / BASE_ATTRIBUTE_FLY_SPEED, 0.25, 4.0);
 		return (float) (scale * FlySkillEvent.flightStateSpeedMultiplier(player));
 	}

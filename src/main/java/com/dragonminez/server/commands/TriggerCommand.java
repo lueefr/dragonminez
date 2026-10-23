@@ -50,7 +50,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -98,9 +99,9 @@ public class TriggerCommand {
 	};
 
 	private static final SuggestionProvider<CommandSourceStack> MOB_SUGGESTIONS = (ctx, builder) ->
-			SharedSuggestionProvider.suggestResource(ForgeRegistries.ENTITY_TYPES.getValues().stream()
+			SharedSuggestionProvider.suggestResource(BuiltInRegistries.ENTITY_TYPE.stream().toList().stream()
 					.filter(TriggerCommand::isLivingType)
-					.map(ForgeRegistries.ENTITY_TYPES::getKey), builder);
+					.map(BuiltInRegistries.ENTITY_TYPE::getKey), builder);
 
 	private static final SuggestionProvider<CommandSourceStack> MAJIN_POTENCY_SUGGESTIONS = (ctx, builder) ->
 			SharedSuggestionProvider.suggest(List.of(format(racialConfig().getMajin().getAbsorptionStatCopy() * 100.0)), builder);
@@ -231,8 +232,8 @@ public class TriggerCommand {
 		TriggerFormMarker.markForm(target, group, form.getName());
 		prepareRageState(data, group, form);
 
-		if (!target.hasEffect(MainEffects.TRANSFORMED.get())) {
-			target.addEffect(new MobEffectInstance(MainEffects.TRANSFORMED.get(), -1, 0, false, false, true));
+		if (!target.hasEffect(MainEffects.TRANSFORMED)) {
+			target.addEffect(new MobEffectInstance(MainEffects.TRANSFORMED, -1, 0, false, false, true));
 		}
 		playSound(target, MainSounds.TRANSFORM_ON.get());
 		target.sendSystemMessage(Component.translatable("message.dragonminez.transformation", activeFormName(data)), true);
@@ -272,7 +273,7 @@ public class TriggerCommand {
 		data.getCharacter().clearPreviousFormRecord();
 		TransformationsHelper.revertToBaseForm(target, data, false);
 		data.restoreMultiplierGains(target, resourceSnapshot);
-		target.removeEffect(MainEffects.TRANSFORMED.get());
+		target.removeEffect(MainEffects.TRANSFORMED);
 		TransformationItemCostHelper.clearFormDurationSecondsRemaining(target);
 	}
 
@@ -297,8 +298,8 @@ public class TriggerCommand {
 		TransformationItemCostHelper.clearStackFormDurationSecondsRemaining(target);
 		TriggerFormMarker.markStack(target, group, form.getName());
 
-		if (!target.hasEffect(MainEffects.STACK_TRANSFORMED.get())) {
-			target.addEffect(new MobEffectInstance(MainEffects.STACK_TRANSFORMED.get(), -1, 0, false, false, true));
+		if (!target.hasEffect(MainEffects.STACK_TRANSFORMED)) {
+			target.addEffect(new MobEffectInstance(MainEffects.STACK_TRANSFORMED, -1, 0, false, false, true));
 		}
 		playSound(target, MainSounds.TRANSFORM_ON.get());
 		if (StackForms.GROUP_KAIOKEN.equalsIgnoreCase(group)) playSound(target, MainSounds.STACK_FORM.get());
@@ -321,7 +322,7 @@ public class TriggerCommand {
 		data.getCharacter().clearPreviousStackFormRecord();
 		data.getCharacter().clearActiveStackForm(target);
 		data.restoreMultiplierGains(target, resourceSnapshot);
-		target.removeEffect(MainEffects.STACK_TRANSFORMED.get());
+		target.removeEffect(MainEffects.STACK_TRANSFORMED);
 		TransformationItemCostHelper.clearStackFormDurationSecondsRemaining(target);
 	}
 
@@ -360,7 +361,7 @@ public class TriggerCommand {
 			return 0;
 		}
 
-		EntityType<?> type = ForgeRegistries.ENTITY_TYPES.containsKey(mobId) ? ForgeRegistries.ENTITY_TYPES.getValue(mobId) : null;
+		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.containsKey(mobId) ? BuiltInRegistries.ENTITY_TYPE.get(mobId) : null;
 		double maxHealth = baseMaxHealth(type);
 		if (maxHealth <= 0.0) {
 			source.sendFailure(Component.translatable("command.dragonminez.trigger.racial.majin.invalid_mob", mobId.toString()));
@@ -435,9 +436,9 @@ public class TriggerCommand {
 			cooldowns.removeCooldown(key);
 			cleared++;
 		}
-		target.removeEffect(MainEffects.SAIYAN_PASSIVE.get());
-		target.removeEffect(MainEffects.BIOANDROID_PASSIVE.get());
-		target.removeEffect(MainEffects.BIOANDROID_EXPLODE_CD.get());
+		target.removeEffect(MainEffects.SAIYAN_PASSIVE);
+		target.removeEffect(MainEffects.BIOANDROID_PASSIVE);
+		target.removeEffect(MainEffects.BIOANDROID_EXPLODE_CD);
 		finish(target);
 
 		success(source, Component.translatable("command.dragonminez.trigger.cooldowns", cleared, target.getName().getString()));

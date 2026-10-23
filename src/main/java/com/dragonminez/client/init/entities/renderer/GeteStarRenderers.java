@@ -31,8 +31,8 @@ public final class GeteStarRenderers {
 
     private static void vertex(VertexConsumer consumer, Matrix4f pose, Matrix3f normal, Vec3 pos, float u, float v,
                                int light, Vec3 n) {
-        consumer.vertex(pose, (float) pos.x, (float) pos.y, (float) pos.z).color(1.0F, 1.0F, 1.0F, 1.0F).uv(u, v)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(normal, (float) n.x, (float) n.y, (float) n.z).endVertex();
+        com.dragonminez.client.render.util.RenderNormals.set(consumer.addVertex(pose, (float) pos.x, (float) pos.y, (float) pos.z).setColor(1.0F, 1.0F, 1.0F, 1.0F).setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(light), normal, (float) n.x, (float) n.y, (float) n.z);
     }
 
     public static class BindRenderer extends EntityRenderer<GeteStarEntities.Bind> {

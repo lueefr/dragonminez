@@ -96,7 +96,7 @@ public final class RaidFeedback {
 			player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0F, 1.0F);
 			NetworkHandler.sendToPlayer(new RaidMusicS2C(VICTORY_MUSIC), player);
 
-			player.addEffect(new MobEffectInstance(MainEffects.WORLD_HERO.get(),
+			player.addEffect(new MobEffectInstance(MainEffects.WORLD_HERO,
 					HERO_DURATION_TICKS, HERO_LEVEL, false, true, true));
 
 			totemBurst(level, player);
@@ -127,24 +127,15 @@ public final class RaidFeedback {
 	private static ItemStack rocket(int shapeIndex) {
 		ItemStack stack = new ItemStack(Items.FIREWORK_ROCKET);
 
-		CompoundTag explosion = new CompoundTag();
-		explosion.putByte("Type", (byte) switch (shapeIndex) {
-			case 1 -> FireworkRocketItem.Shape.LARGE_BALL.getId();
-			case 2 -> FireworkRocketItem.Shape.STAR.getId();
-			default -> FireworkRocketItem.Shape.SMALL_BALL.getId();
-		});
-		explosion.putIntArray("Colors", new int[]{
-				DyeColor.YELLOW.getFireworkColor(), DyeColor.RED.getFireworkColor(), DyeColor.PURPLE.getFireworkColor()});
-		explosion.putBoolean("Trail", true);
-
-		ListTag explosions = new ListTag();
-		explosions.add(explosion);
-
-		CompoundTag fireworks = new CompoundTag();
-		fireworks.putByte("Flight", (byte) 1);
-		fireworks.put("Explosions", explosions);
-
-		stack.getOrCreateTag().put("Fireworks", fireworks);
-		return stack;
-	}
+        var shape = switch (shapeIndex) {
+            case 1 -> net.minecraft.world.item.component.FireworkExplosion.Shape.LARGE_BALL;
+            case 2 -> net.minecraft.world.item.component.FireworkExplosion.Shape.STAR;
+            default -> net.minecraft.world.item.component.FireworkExplosion.Shape.SMALL_BALL;
+        };
+        var colors = new it.unimi.dsi.fastutil.ints.IntArrayList(new int[] {
+                DyeColor.YELLOW.getFireworkColor(), DyeColor.RED.getFireworkColor(), DyeColor.PURPLE.getFireworkColor()});
+        var explosion = new net.minecraft.world.item.component.FireworkExplosion(shape, colors, it.unimi.dsi.fastutil.ints.IntList.of(), true, false);
+        stack.set(net.minecraft.core.component.DataComponents.FIREWORKS, new net.minecraft.world.item.component.Fireworks(1, java.util.List.of(explosion)));
+        return stack;
+    }
 }

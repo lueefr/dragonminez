@@ -44,10 +44,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
-import software.bernie.geckolib.util.RenderUtils;
+
 import top.theillusivec4.curios.api.CuriosApi;
 
 import java.util.ArrayList;
@@ -465,7 +465,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 
 	private void renderTargetedBone(GeoBone targetBone, PoseStack poseStack, MultiBufferSource bufferSource, T animatable, RenderType renderType, float r, float g, float b, float alpha, float partialTick, int packedLight) {
 		VertexConsumer buffer = bufferSource.getBuffer(renderType);
-		getRenderer().renderRecursively(poseStack, animatable, targetBone, renderType, bufferSource, buffer, true, partialTick, packedLight, OverlayTexture.NO_OVERLAY, r, g, b, alpha);
+		getRenderer().renderRecursively(poseStack, animatable, targetBone, renderType, bufferSource, buffer, true, partialTick, packedLight, OverlayTexture.NO_OVERLAY, com.dragonminez.client.render.util.RenderColors.pack(r, g, b, alpha));
 	}
 
 	private float[] resolveBodyColor1(StatsData stats) {
@@ -572,7 +572,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 
 		partsModel.getBone("evil_eye").ifPresent(bone -> {
 			poseStack.pushPose();
-			RenderUtils.prepMatrixForBone(poseStack, bone);
+			software.bernie.geckolib.util.RenderUtil.prepMatrixForBone(poseStack, bone);
 			poseStack.translate(bone.getPivotX() / 16f, bone.getPivotY() / 16f, bone.getPivotZ() / 16f);
 			PoseStack.Pose pose = poseStack.last();
 			VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(DEMON_EYE_TEXTURE));
@@ -586,8 +586,8 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 	}
 
 	private static void demonEyeVertex(VertexConsumer consumer, PoseStack.Pose pose, float x, float y, float u, float v, int packedLight) {
-		consumer.vertex(pose.pose(), x, y, 0f).color(1f, 1f, 1f, 1f).uv(u, v)
-				.overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(pose.normal(), 0f, 0f, -1f).endVertex();
+		consumer.addVertex(pose.pose(), x, y, 0f).setColor(1f, 1f, 1f, 1f).setUv(u, v)
+				.setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(pose, 0f, 0f, -1f);
 	}
 
 	private void renderPothala(PoseStack poseStack, T animatable, BakedGeoModel playerModel, MultiBufferSource bufferSource, float partialTick, int packedLight, ItemStack stack) {
@@ -826,7 +826,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 		if (scale != 1.0f) poseStack.scale(scale, scale, scale);
 
 		VertexConsumer vertexConsumer = bufferSource.getBuffer(type);
-		getRenderer().renderRecursively(poseStack, animatable, weaponAnchor, type, bufferSource, vertexConsumer, true, partialTick, packedLight, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
+		getRenderer().renderRecursively(poseStack, animatable, weaponAnchor, type, bufferSource, vertexConsumer, true, partialTick, packedLight, OverlayTexture.NO_OVERLAY, -1);
 
 		poseStack.popPose();
 	}
@@ -848,7 +848,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 		VertexConsumer vertexConsumer = bufferSource.getBuffer(type);
 		for (GeoBone bone : model.topLevelBones()) {
 			if (!bone.isHidden()) {
-				getRenderer().renderRecursively(poseStack, animatable, bone, type, bufferSource, vertexConsumer, true, partialTick, packedLight, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
+				getRenderer().renderRecursively(poseStack, animatable, bone, type, bufferSource, vertexConsumer, true, partialTick, packedLight, OverlayTexture.NO_OVERLAY, -1);
 			}
 		}
 

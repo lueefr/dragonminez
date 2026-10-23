@@ -1,5 +1,6 @@
 package com.dragonminez.common.stats.character;
 
+import lombok.*;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.stats.extras.ActionMode;
 import lombok.Getter;

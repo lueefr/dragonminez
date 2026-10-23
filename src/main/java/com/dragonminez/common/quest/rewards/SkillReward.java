@@ -1,5 +1,6 @@
 package com.dragonminez.common.quest.rewards;
 
+import lombok.*;
 import com.dragonminez.common.quest.QuestReward;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
@@ -8,8 +9,8 @@ import lombok.Getter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
-
 @Getter
+
 public class SkillReward extends QuestReward {
 	private final String skill;
 	private final int level;

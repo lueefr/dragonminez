@@ -17,8 +17,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
 
 import java.text.NumberFormat;
@@ -276,7 +276,7 @@ public class TechniqueStyleScreen extends ScaledScreen {
 	@Override
 	public void tick() {
 		super.tick();
-		this.hexField.tick();
+
 		LocalPlayer player = this.minecraft != null ? this.minecraft.player : null;
 		if (player == null) return;
 		TechniquePreviewCamera.frame(TechniquePreview.frameDistance(player), TechniquePreview.frameHeight(player), TechniquePreview.frameLead(player));
@@ -402,12 +402,12 @@ public class TechniqueStyleScreen extends ScaledScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double delta) {
 		if (!isOverPanel(toUiX(mouseX), toUiY(mouseY))) {
 			TechniquePreviewCamera.zoom(delta);
 			return true;
 		}
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
 	}
 
 	@Override

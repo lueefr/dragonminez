@@ -1,5 +1,6 @@
 package com.dragonminez.server.events.players;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -26,15 +27,19 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStoppedEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -45,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public final class GodRitualService {
 	private static final int GATHER_TICKS = 20;
 	private static final int CHARGE_STEP_TICKS = 20;
@@ -259,8 +264,8 @@ public final class GodRitualService {
 	}
 
 	@SubscribeEvent
-	public static void onServerTick(TickEvent.ServerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || RITUALS.isEmpty()) return;
+	public static void onServerTick(ServerTickEvent.Post event) {
+		if (RITUALS.isEmpty()) return;
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		GeneralServerConfig.GodRitualConfig cfg = GodRitualHelper.config();
 		if (server == null || cfg == null) return;
@@ -400,8 +405,8 @@ public final class GodRitualService {
 		data.restoreMultiplierGains(recipient, resourceSnapshot);
 		data.getStatus().setGodRitualTicks(cfg.getDurationTicks());
 		data.getResources().setActionCharge(0);
-		if (!recipient.hasEffect(MainEffects.TRANSFORMED.get())) {
-			recipient.addEffect(new MobEffectInstance(MainEffects.TRANSFORMED.get(), -1, 0, false, false, true));
+		if (!recipient.hasEffect(MainEffects.TRANSFORMED)) {
+			recipient.addEffect(new MobEffectInstance(MainEffects.TRANSFORMED, -1, 0, false, false, true));
 		}
 		recipient.refreshDimensions();
 		recipient.resetFallDistance();
@@ -481,8 +486,8 @@ public final class GodRitualService {
 	}
 
 	@SubscribeEvent
-	public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || !(event.player instanceof ServerPlayer player)) return;
+	public static void onPlayerTick(PlayerTickEvent.Post event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 		GeneralServerConfig.GodRitualConfig cfg = GodRitualHelper.config();
 		if (cfg == null) return;
 		StatsData data = stats(player);
@@ -511,7 +516,7 @@ public final class GodRitualService {
 			data.getCharacter().clearPreviousFormRecord();
 			TransformationsHelper.revertToBaseForm(player, data, false);
 			data.restoreMultiplierGains(player, resourceSnapshot);
-			player.removeEffect(MainEffects.TRANSFORMED.get());
+			player.removeEffect(MainEffects.TRANSFORMED);
 			player.refreshDimensions();
 			player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MainSounds.INSTA_FORM_OFF.get(), SoundSource.PLAYERS, 1.0f, 1.0f);
 		}
@@ -522,13 +527,13 @@ public final class GodRitualService {
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onDamage(LivingDamageEvent event) {
-		if (event.isCanceled() || event.getAmount() <= 0.0f || !(event.getEntity() instanceof ServerPlayer victim)) return;
+	public static void onDamage(LivingDamageEvent.Pre event) {
+		if (event.getNewDamage() <= 0.0f || !(event.getEntity() instanceof ServerPlayer victim)) return;
 		UUID ritualId = PARTICIPANTS.get(victim.getUUID());
 		Ritual ritual = ritualId != null ? RITUALS.get(ritualId) : null;
 		GeneralServerConfig.GodRitualConfig cfg = GodRitualHelper.config();
 		if (ritual == null || cfg == null) return;
-		float total = ritual.damage.merge(victim.getUUID(), Math.min(event.getAmount(), victim.getHealth()), Float::sum);
+		float total = ritual.damage.merge(victim.getUUID(), Math.min(event.getNewDamage(), victim.getHealth()), Float::sum);
 		if (total > victim.getMaxHealth() * cfg.getInterruptDamageRatio()) {
 			cancel(victim.getServer(), ritual, cfg, "message.dragonminez.godritual.interrupted");
 		}

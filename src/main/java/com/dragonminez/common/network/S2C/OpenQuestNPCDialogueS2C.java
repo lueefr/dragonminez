@@ -1,13 +1,14 @@
 package com.dragonminez.common.network.S2C;
 
+import lombok.*;
 import com.dragonminez.common.network.ClientPacketHandler;
 import com.dragonminez.common.quest.QuestService;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.api.distmarker.Dist;
+import com.dragonminez.compat.DistExecutor;
+import com.dragonminez.compat.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,7 @@ public class OpenQuestNPCDialogueS2C {
 		this.lockedQuests = new ArrayList<>(lockedCount);
 		for (int i = 0; i < lockedCount; i++) {
 			String questId = buffer.readUtf();
-			Component reason = buffer.readComponent();
+			Component reason = buffer.readJsonWithCodec(net.minecraft.network.chat.ComponentSerialization.CODEC);
 			long cooldownSeconds = buffer.readVarLong();
 			lockedQuests.add(new QuestService.LockedNpcQuest(questId, reason, cooldownSeconds));
 		}
@@ -76,7 +77,7 @@ public class OpenQuestNPCDialogueS2C {
 		buffer.writeVarInt(lockedQuests.size());
 		for (QuestService.LockedNpcQuest locked : lockedQuests) {
 			buffer.writeUtf(locked.questId());
-			buffer.writeComponent(locked.reason());
+			buffer.writeJsonWithCodec(net.minecraft.network.chat.ComponentSerialization.CODEC, locked.reason());
 			buffer.writeVarLong(locked.cooldownSeconds());
 		}
 

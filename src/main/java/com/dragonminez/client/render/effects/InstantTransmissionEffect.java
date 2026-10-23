@@ -1,5 +1,6 @@
 package com.dragonminez.client.render.effects;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.DMZRendererCache;
 import com.dragonminez.client.render.layer.DMZSkinLayer;
@@ -17,11 +18,15 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -32,7 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
 public final class InstantTransmissionEffect {
 
 	private static final int VANISH_TICKS = 12;
@@ -113,8 +118,8 @@ public final class InstantTransmissionEffect {
 	}
 
 	@SubscribeEvent
-	public static void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.END) return;
+	public static void onClientTick(ClientTickEvent.Post event) {
+
 		Minecraft mc = Minecraft.getInstance();
 		ClientLevel level = mc.level;
 		if (level == null) {
@@ -145,8 +150,8 @@ public final class InstantTransmissionEffect {
 
 		Vec3 cam = event.getCamera().getPosition();
 		PoseStack poseStack = event.getPoseStack();
-		float partialTick = event.getPartialTick();
-		if (buffers == null) buffers = MultiBufferSource.immediate(new BufferBuilder(4096));
+		float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(true);
+		if (buffers == null) buffers = MultiBufferSource.immediate(new com.mojang.blaze3d.vertex.ByteBufferBuilder(4096));
 
 		for (Ghost ghost : GHOSTS) {
 			if (ghost.pos.distanceToSqr(cam) > MAX_RENDER_DISTANCE_SQR) continue;
@@ -163,13 +168,13 @@ public final class InstantTransmissionEffect {
 				if (sketch == null) continue;
 				VertexConsumer consumer = buffers.getBuffer(sketch);
 				for (Vertex v : mesh.getValue()) {
-					consumer.vertex(pose, v.x(), v.y(), v.z())
-							.color(v.r(), v.g(), v.b(), v.a())
-							.uv(v.u(), v.v())
-							.overlayCoords(encoded, TELEPORT_MODE)
-							.uv2(v.light() & 0xFFFF, v.light() >> 16 & 0xFFFF)
-							.normal(normal, v.nx(), v.ny(), v.nz())
-							.endVertex();
+					com.dragonminez.client.render.util.RenderNormals.set(consumer.addVertex(pose, v.x(), v.y(), v.z())
+							.setColor(v.r(), v.g(), v.b(), v.a())
+							.setUv(v.u(), v.v())
+							.setUv1(encoded, TELEPORT_MODE)
+							.setUv2(v.light() & 0xFFFF, v.light() >> 16 & 0xFFFF)
+							, normal, v.nx(), v.ny(), v.nz())
+							;
 				}
 			}
 			poseStack.popPose();
@@ -202,7 +207,7 @@ public final class InstantTransmissionEffect {
 		}
 
 		@Override
-		public VertexConsumer vertex(double x, double y, double z) {
+		public VertexConsumer addVertex(float x, float y, float z) {
 			this.x = (float) x;
 			this.y = (float) y;
 			this.z = (float) z;
@@ -210,7 +215,7 @@ public final class InstantTransmissionEffect {
 		}
 
 		@Override
-		public VertexConsumer color(int red, int green, int blue, int alpha) {
+		public VertexConsumer setColor(int red, int green, int blue, int alpha) {
 			r = red;
 			g = green;
 			b = blue;
@@ -220,53 +225,39 @@ public final class InstantTransmissionEffect {
 		}
 
 		@Override
-		public VertexConsumer uv(float u, float v) {
+		public VertexConsumer setUv(float u, float v) {
 			this.u = u;
 			this.v = v;
 			return this;
 		}
 
 		@Override
-		public VertexConsumer overlayCoords(int u, int v) {
+		public VertexConsumer setUv1(int u, int v) {
 			return this;
 		}
 
 		@Override
-		public VertexConsumer uv2(int u, int v) {
+		public VertexConsumer setUv2(int u, int v) {
 			light = (u & 0xFFFF) | (v & 0xFFFF) << 16;
 			return this;
 		}
 
 		@Override
-		public VertexConsumer normal(float x, float y, float z) {
+		public VertexConsumer setNormal(float x, float y, float z) {
 			nx = x;
 			ny = y;
 			nz = z;
+            captureVertex();
 			return this;
 		}
 
-		@Override
-		public void endVertex() {
+		public void captureVertex() {
 			if (out != null) {
 				boolean useDefault = !colorSet && defaultSet;
 				out.add(new Vertex(x, y, z, useDefault ? dr : r, useDefault ? dg : g, useDefault ? db : b, useDefault ? da : a,
 						u, v, light, nx, ny, nz));
 			}
 			colorSet = false;
-		}
-
-		@Override
-		public void defaultColor(int red, int green, int blue, int alpha) {
-			dr = red;
-			dg = green;
-			db = blue;
-			da = alpha;
-			defaultSet = true;
-		}
-
-		@Override
-		public void unsetDefaultColor() {
-			defaultSet = false;
 		}
 	}
 }

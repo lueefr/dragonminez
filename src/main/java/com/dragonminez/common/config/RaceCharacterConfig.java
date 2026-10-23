@@ -1,5 +1,6 @@
 package com.dragonminez.common.config;
 
+import lombok.*;
 import com.dragonminez.common.diagnostics.RemovedConfigKeys;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;

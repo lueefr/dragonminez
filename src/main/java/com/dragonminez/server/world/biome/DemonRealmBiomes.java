@@ -4,7 +4,7 @@ import com.dragonminez.Reference;
 import com.dragonminez.server.world.feature.DemonRealmFeatures;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstapContext;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.*;
@@ -19,13 +19,13 @@ public class DemonRealmBiomes {
 	public static final int SECOND_SKY = 0xDCF09C;
 	public static final int THIRD_SKY = 0xF2B9EE;
 
-	public static void bootstrap(BootstapContext<Biome> context) {
+	public static void bootstrap(BootstrapContext<Biome> context) {
 		context.register(FIRST_DEMON_WORLD, firstWorld(context));
 		context.register(SECOND_DEMON_WORLD, secondWorld(context));
 		context.register(THIRD_DEMON_WORLD, thirdWorld(context));
 	}
 
-	private static Biome firstWorld(BootstapContext<Biome> context) {
+	private static Biome firstWorld(BootstrapContext<Biome> context) {
 		BiomeGenerationSettings.Builder features = features(context);
 		features.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, DemonRealmFeatures.ROCK_SPIRE_PLACED);
 		features.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, DemonRealmFeatures.CRYSTAL_SPIRE_PLACED);
@@ -41,7 +41,7 @@ public class DemonRealmBiomes {
 				.ambientParticle(new AmbientParticleSettings(ParticleTypes.CRIMSON_SPORE, 0.01f)));
 	}
 
-	private static Biome secondWorld(BootstapContext<Biome> context) {
+	private static Biome secondWorld(BootstrapContext<Biome> context) {
 		BiomeGenerationSettings.Builder features = features(context);
 		features.addFeature(GenerationStep.Decoration.LAKES, DemonRealmFeatures.SEA_PLACED);
 		features.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, DemonRealmFeatures.LOWER_SHIELD_PLACED);
@@ -59,7 +59,7 @@ public class DemonRealmBiomes {
 				.foliageColorOverride(0x6DBF4B));
 	}
 
-	private static Biome thirdWorld(BootstapContext<Biome> context) {
+	private static Biome thirdWorld(BootstrapContext<Biome> context) {
 		BiomeGenerationSettings.Builder features = features(context);
 		features.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, DemonRealmFeatures.UPPER_SHIELD_PLACED);
 		features.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, DemonRealmFeatures.GAS_VENT_PLACED);
@@ -76,7 +76,7 @@ public class DemonRealmBiomes {
 				.ambientParticle(new AmbientParticleSettings(ParticleTypes.WHITE_ASH, 0.008f)));
 	}
 
-	private static BiomeGenerationSettings.Builder features(BootstapContext<Biome> context) {
+	private static BiomeGenerationSettings.Builder features(BootstrapContext<Biome> context) {
 		return new BiomeGenerationSettings.Builder(context.lookup(Registries.PLACED_FEATURE), context.lookup(Registries.CONFIGURED_CARVER));
 	}
 

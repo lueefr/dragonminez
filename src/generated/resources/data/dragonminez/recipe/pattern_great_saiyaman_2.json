@@ -1,0 +1,108 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:white_dye"
+    },
+    "1": {
+      "item": "minecraft:orange_dye"
+    },
+    "2": {
+      "item": "minecraft:white_dye"
+    },
+    "5": {
+      "item": "minecraft:red_dye"
+    },
+    "6": {
+      "item": "minecraft:red_dye"
+    },
+    "7": {
+      "item": "minecraft:red_dye"
+    },
+    "8": {
+      "item": "minecraft:red_dye"
+    },
+    "A": {
+      "item": "minecraft:green_dye"
+    },
+    "B": {
+      "item": "minecraft:cyan_dye"
+    },
+    "E": {
+      "item": "minecraft:cyan_dye"
+    },
+    "F": {
+      "item": "minecraft:green_dye"
+    },
+    "G": {
+      "item": "minecraft:cyan_dye"
+    },
+    "H": {
+      "item": "minecraft:cyan_dye"
+    },
+    "I": {
+      "item": "minecraft:purple_dye"
+    },
+    "J": {
+      "item": "minecraft:purple_dye"
+    },
+    "K": {
+      "item": "minecraft:cyan_dye"
+    },
+    "L": {
+      "item": "minecraft:cyan_dye"
+    },
+    "M": {
+      "item": "minecraft:purple_dye"
+    },
+    "N": {
+      "item": "minecraft:cyan_dye"
+    },
+    "O": {
+      "item": "minecraft:cyan_dye"
+    },
+    "P": {
+      "item": "minecraft:cyan_dye"
+    },
+    "Q": {
+      "item": "minecraft:cyan_dye"
+    },
+    "R": {
+      "item": "minecraft:purple_dye"
+    },
+    "S": {
+      "item": "minecraft:purple_dye"
+    },
+    "T": {
+      "item": "minecraft:cyan_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "V": {
+      "item": "minecraft:cyan_dye"
+    },
+    "W": {
+      "item": "minecraft:cyan_dye"
+    },
+    "X": {
+      "item": "minecraft:purple_dye"
+    },
+    "Z": {
+      "item": "minecraft:white_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    " Z012 ",
+    " 5678 "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_great_saiyaman_2"
+  }
+}

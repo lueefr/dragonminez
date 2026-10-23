@@ -1,5 +1,6 @@
 package com.dragonminez.common.config;
 
+import lombok.*;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.common.diagnostics.JsonLoadReport;
@@ -120,7 +121,7 @@ public class ConfigLoader {
 				Files.copy(inputStream, target);
 				LogUtil.info(Env.COMMON, "Created default config from template: {}", templateName);
 			} else {
-				LogUtil.error(Env.COMMON, "Template not found: {}", templateName);
+				LogUtil.debug(Env.COMMON, "No bundled template for {}; using the Java defaults.", templateName);
 			}
 		} catch (IOException e) {
 			LogUtil.error(Env.COMMON, "Could not copy default config: {}", e.getMessage());

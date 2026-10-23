@@ -1,0 +1,30 @@
+{
+  "parent": "dragonminez:root",
+  "criteria": {
+    "sacredkai": {
+      "conditions": {
+        "to": "dragonminez:sacredkaiplanet"
+      },
+      "trigger": "minecraft:changed_dimension"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.sacredkai.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:sacred_planet_grass_block"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.sacredkai.title"
+    }
+  },
+  "requirements": [
+    [
+      "sacredkai"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

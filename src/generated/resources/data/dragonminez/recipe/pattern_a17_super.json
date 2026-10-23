@@ -1,0 +1,108 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "1": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "2": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "4": {
+      "item": "minecraft:green_dye"
+    },
+    "5": {
+      "item": "minecraft:black_dye"
+    },
+    "8": {
+      "item": "minecraft:black_dye"
+    },
+    "9": {
+      "item": "minecraft:green_dye"
+    },
+    "A": {
+      "item": "minecraft:green_dye"
+    },
+    "B": {
+      "item": "minecraft:green_dye"
+    },
+    "E": {
+      "item": "minecraft:green_dye"
+    },
+    "F": {
+      "item": "minecraft:green_dye"
+    },
+    "G": {
+      "item": "minecraft:green_dye"
+    },
+    "H": {
+      "item": "minecraft:black_dye"
+    },
+    "I": {
+      "item": "minecraft:black_dye"
+    },
+    "J": {
+      "item": "minecraft:black_dye"
+    },
+    "K": {
+      "item": "minecraft:black_dye"
+    },
+    "L": {
+      "item": "minecraft:green_dye"
+    },
+    "M": {
+      "item": "minecraft:green_dye"
+    },
+    "N": {
+      "item": "minecraft:black_dye"
+    },
+    "O": {
+      "item": "minecraft:white_dye"
+    },
+    "P": {
+      "item": "minecraft:white_dye"
+    },
+    "Q": {
+      "item": "minecraft:black_dye"
+    },
+    "R": {
+      "item": "minecraft:green_dye"
+    },
+    "S": {
+      "item": "minecraft:green_dye"
+    },
+    "T": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_super"
+    },
+    "V": {
+      "item": "minecraft:white_dye"
+    },
+    "W": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "X": {
+      "item": "minecraft:green_dye"
+    },
+    "Z": {
+      "item": "minecraft:light_gray_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    " Z012 ",
+    "45  89"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_a17_super"
+  }
+}

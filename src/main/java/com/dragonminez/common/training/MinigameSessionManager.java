@@ -1,5 +1,6 @@
 package com.dragonminez.common.training;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -25,16 +26,21 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.RecordItem;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+@EventBusSubscriber(modid = Reference.MOD_ID)
 public final class MinigameSessionManager {
 	private static final long PACE_SLACK_MS = 3000L;
 	private static final long IDLE_TIMEOUT_MS = 15000L;
@@ -170,9 +176,10 @@ public final class MinigameSessionManager {
 			String problem = null;
 			BuiltinSongs.Song song = BuiltinSongs.find(track);
 			ResourceLocation itemId = song == null ? ResourceLocation.tryParse(track) : null;
-			Item item = itemId == null ? null : ForgeRegistries.ITEMS.getValue(itemId);
-			String soundId = song != null ? song.sound() : item instanceof RecordItem record ? record.getSound().getLocation().toString() : null;
-			int lengthMs = song != null ? song.durationMs() : item instanceof RecordItem record ? record.getLengthInTicks() * 50 : 0;
+			Item item = itemId == null ? null : BuiltInRegistries.ITEM.get(itemId);
+			var record = MusicDiscHelper.song(item);
+            String soundId = song != null ? song.sound() : record != null ? record.soundEvent().value().getLocation().toString() : null;
+			int lengthMs = song != null ? song.durationMs() : record != null ? record.lengthInTicks() * 50 : 0;
 			if (soundId == null) {
 				problem = "gui.dragonminez.minigame.reject.no_chart";
 			} else {
@@ -454,8 +461,8 @@ public final class MinigameSessionManager {
 	}
 
 	@SubscribeEvent
-	public static void onServerTick(TickEvent.ServerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || SESSIONS.isEmpty() && CHALLENGES.isEmpty()) return;
+	public static void onServerTick(ServerTickEvent.Post event) {
+		if (SESSIONS.isEmpty() && CHALLENGES.isEmpty()) return;
 		MinecraftServer server = event.getServer();
 		if (server == null || server.getTickCount() % 20 != 0) return;
 		long now = System.currentTimeMillis();

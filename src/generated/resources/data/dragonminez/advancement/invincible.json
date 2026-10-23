@@ -1,0 +1,63 @@
+{
+  "parent": "dragonminez:root",
+  "criteria": {
+    "invincible": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:invencible_armor_helmet"
+          },
+          {
+            "items": "dragonminez:invencible_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:invencible_armor_leggings"
+          },
+          {
+            "items": "dragonminez:invencible_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "invincible_blue": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:invencible_blue_armor_helmet"
+          },
+          {
+            "items": "dragonminez:invencible_blue_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:invencible_blue_armor_leggings"
+          },
+          {
+            "items": "dragonminez:invencible_blue_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.invincible.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:invencible_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.invincible.title"
+    }
+  },
+  "requirements": [
+    [
+      "invincible",
+      "invincible_blue"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

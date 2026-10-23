@@ -19,7 +19,7 @@ public class PothalaPairSavedData extends SavedData {
 
 	public static PothalaPairSavedData get(MinecraftServer server) {
 		DimensionDataStorage storage = server.getLevel(Level.OVERWORLD).getDataStorage();
-		return storage.computeIfAbsent(PothalaPairSavedData::load, PothalaPairSavedData::new, FILE_NAME);
+		return storage.computeIfAbsent(new net.minecraft.world.level.saveddata.SavedData.Factory<>(PothalaPairSavedData::new, (tag, registries) -> PothalaPairSavedData.load(tag)), FILE_NAME);
 	}
 
 	public static PothalaPairSavedData load(CompoundTag tag) {
@@ -29,7 +29,7 @@ public class PothalaPairSavedData extends SavedData {
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag tag) {
+	public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
 		int[] ids = new int[issued.size()];
 		int i = 0;
 		for (int id : issued) ids[i++] = id;

@@ -1,10 +1,12 @@
 package com.dragonminez.common.quest.objectives;
 
+import lombok.*;
 import com.dragonminez.common.quest.QuestObjective;
 import lombok.Getter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 
 import javax.annotation.Nullable;
 
@@ -48,7 +50,7 @@ public class SurviveWavesObjective extends QuestObjective {
 	@Nullable
 	public EntityType<?> resolveEntityType() {
 		try {
-			return ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.parse(entityId));
+			return BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entityId));
 		} catch (Exception e) {
 			return null;
 		}

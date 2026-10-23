@@ -296,7 +296,7 @@ public class SkinGathererProvider {
 		int bodyType = look.getBodyType();
 
 		if (isHumanoidKey(logicKey)) {
-			if (bodyType == 0) consumer.accept(player.getSkinTextureLocation(), WHITE_COLOR);
+			if (bodyType == 0) consumer.accept(player.getSkin().texture(), WHITE_COLOR);
 			else resolveBodyHumanSaiyan(look, logicKey, b1, b2, b3, consumer);
 			if (logicKey.equals("glinddark")) resolveBodyGlindDark(b2, b3, consumer);
 			return;
@@ -314,7 +314,7 @@ public class SkinGathererProvider {
 				String genSuffix = hasGender ? (look.getGender().equals(Character.GENDER_FEMALE) ? "_female" : "_male") : "";
 
 				if (Boolean.TRUE.equals(raceConfig.getUseVanillaSkin()) && bodyType == 0) {
-					consumer.accept(player.getSkinTextureLocation(), WHITE_COLOR);
+					consumer.accept(player.getSkin().texture(), WHITE_COLOR);
 				} else if (Boolean.TRUE.equals(raceConfig.getIsLayered())) {
 					String prefix = "textures/entity/races/" + raceName + "/" + logicKey + genSuffix + "_" + bodyType + "_";
 					String fallbackPrefix = "textures/entity/races/" + raceName + "/" + logicKey + genSuffix + "_0_";

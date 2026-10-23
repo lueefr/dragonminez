@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternsuper",
+  "criteria": {
+    "kalearmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:kale_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:kale_armor_leggings"
+          },
+          {
+            "items": "dragonminez:kale_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.kalearmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:kale_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.kalearmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "kalearmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

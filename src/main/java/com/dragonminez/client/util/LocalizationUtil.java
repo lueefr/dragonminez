@@ -2,8 +2,6 @@ package com.dragonminez.client.util;
 
 import com.dragonminez.common.util.DMZTextPlaceholders;
 import net.minecraft.client.Minecraft;
-import com.dragonminez.common.util.DMZTextPlaceholders;
-import net.minecraft.client.Minecraft;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 

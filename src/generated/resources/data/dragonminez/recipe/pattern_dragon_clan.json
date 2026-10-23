@@ -1,0 +1,108 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:purple_dye"
+    },
+    "1": {
+      "item": "minecraft:purple_dye"
+    },
+    "2": {
+      "item": "minecraft:purple_dye"
+    },
+    "5": {
+      "item": "minecraft:red_dye"
+    },
+    "6": {
+      "item": "minecraft:red_dye"
+    },
+    "7": {
+      "item": "minecraft:red_dye"
+    },
+    "8": {
+      "item": "minecraft:red_dye"
+    },
+    "A": {
+      "item": "minecraft:magenta_dye"
+    },
+    "B": {
+      "item": "minecraft:black_dye"
+    },
+    "E": {
+      "item": "minecraft:black_dye"
+    },
+    "F": {
+      "item": "minecraft:magenta_dye"
+    },
+    "G": {
+      "item": "minecraft:magenta_dye"
+    },
+    "H": {
+      "item": "minecraft:purple_dye"
+    },
+    "I": {
+      "item": "minecraft:purple_dye"
+    },
+    "J": {
+      "item": "minecraft:purple_dye"
+    },
+    "K": {
+      "item": "minecraft:purple_dye"
+    },
+    "L": {
+      "item": "minecraft:magenta_dye"
+    },
+    "M": {
+      "item": "minecraft:magenta_dye"
+    },
+    "N": {
+      "item": "minecraft:purple_dye"
+    },
+    "O": {
+      "item": "dragonminez:blank_pattern_super"
+    },
+    "P": {
+      "item": "minecraft:purple_dye"
+    },
+    "Q": {
+      "item": "minecraft:purple_dye"
+    },
+    "R": {
+      "item": "minecraft:magenta_dye"
+    },
+    "S": {
+      "item": "minecraft:magenta_dye"
+    },
+    "T": {
+      "item": "minecraft:purple_dye"
+    },
+    "U": {
+      "item": "minecraft:purple_dye"
+    },
+    "V": {
+      "item": "minecraft:purple_dye"
+    },
+    "W": {
+      "item": "minecraft:purple_dye"
+    },
+    "X": {
+      "item": "minecraft:magenta_dye"
+    },
+    "Z": {
+      "item": "minecraft:purple_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    " Z012 ",
+    " 5678 "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_dragon_clan"
+  }
+}

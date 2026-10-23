@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "dragonminez",
+  "ingredients": [
+    {
+      "item": "dragonminez:namek_moss"
+    },
+    {
+      "item": "dragonminez:namek_moss"
+    },
+    {
+      "item": "dragonminez:namek_moss"
+    },
+    {
+      "item": "dragonminez:namek_moss"
+    },
+    {
+      "item": "dragonminez:raw_dino_meat"
+    },
+    {
+      "item": "dragonminez:raw_dino_meat"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:oozaru_root"
+  }
+}

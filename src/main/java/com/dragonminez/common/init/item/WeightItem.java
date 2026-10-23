@@ -1,7 +1,10 @@
 package com.dragonminez.common.init.item;
 
+import lombok.*;
 import com.dragonminez.client.util.NumberFormattingUtil;
 import lombok.Getter;
+import net.minecraft.world.item.Item;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -10,10 +13,10 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.text.DecimalFormat;
@@ -27,14 +30,11 @@ public class WeightItem extends DMZCuriosItem implements GeoItem {
 	private final DecimalFormat compactBpFormatter = new DecimalFormat("0.##", DecimalFormatSymbols.getInstance(Locale.US));
 
 	public enum WeightType {
-		TURTLE_SHELL,
-		WORKOUT_WEIGHTS,
-		PICCOLO_CAPE
+		TURTLE_SHELL, WORKOUT_WEIGHTS, PICCOLO_CAPE;
 	}
 
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-
-	@Getter
+@Getter
 	private final WeightType weightType;
 
 	public WeightItem(Properties properties, WeightType weightType) {
@@ -44,17 +44,17 @@ public class WeightItem extends DMZCuriosItem implements GeoItem {
 
 	public static int getWeight(ItemStack stack) {
 		if (stack.isEmpty()) return 0;
-		CompoundTag tag = stack.getTag();
-		return tag != null ? tag.getInt("WeightValue") : 0;
+		var custom = stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY); return custom.copyTag().getInt("WeightValue");
 	}
 
 	public static void setWeight(ItemStack stack, int weight) {
-		stack.getOrCreateTag().putInt("WeightValue", weight);
+		net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA, stack, tag -> tag.putInt("WeightValue", weight));
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-		super.appendHoverText(stack, level, tooltip, flag);
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        net.minecraft.world.level.Level level = context.level();
+		super.appendHoverText(stack, context, tooltip, flag);
 		int weight = getWeight(stack);
 		if (weight > 0) {
 			tooltip.add(Component.translatable("item.dragonminez.weight.tooltip", NumberFormattingUtil.formatLargeNumber(weight)).withStyle(ChatFormatting.GOLD));

@@ -1,56 +1,34 @@
 package com.dragonminez.common.compat;
 
-import dev.shadowsoffire.apotheosis.adventure.affix.AffixHelper;
-import dev.shadowsoffire.apotheosis.adventure.socket.SocketHelper;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
+/** Copies the selected Apotheosis 1.21 item components without making it a required mod. */
 public final class ApotheosisCompat {
-	public static final String MOD_ID = "apotheosis";
-	private static Boolean loaded;
-	private ApotheosisCompat() {}
+    public static final String MOD_ID = "apotheosis";
+    private ApotheosisCompat() {}
 
-	public static boolean isLoaded() {
-		if (loaded == null) loaded = ModList.get().isLoaded(MOD_ID);
-		return loaded;
-	}
+    public static boolean isLoaded() { return ModList.get().isLoaded(MOD_ID); }
 
-	public static void copyRarity(ItemStack from, ItemStack to) {
-		if (!isLoaded()) return;
-		Impl.copyRarity(from, to);
-	}
+    public static void copyRarity(ItemStack from, ItemStack to) { copy(from, to, "rarity"); }
+    public static void copyAffixes(ItemStack from, ItemStack to) {
+        copy(from, to, "affixes");
+        copy(from, to, "affix_name");
+    }
+    public static void copySockets(ItemStack from, ItemStack to) { copy(from, to, "sockets"); }
+    public static void copyGems(ItemStack from, ItemStack to) { copy(from, to, "socketed_gems"); }
 
-	public static void copyAffixes(ItemStack from, ItemStack to) {
-		if (!isLoaded()) return;
-		Impl.copyAffixes(from, to);
-	}
+    private static void copy(ItemStack from, ItemStack to, String component) {
+        if (!isLoaded()) return;
+        BuiltInRegistries.DATA_COMPONENT_TYPE.getOptional(ResourceLocation.fromNamespaceAndPath(MOD_ID, component))
+                .ifPresent(type -> copyComponent(from, to, type));
+    }
 
-	public static void copySockets(ItemStack from, ItemStack to) {
-		if (!isLoaded()) return;
-		Impl.copySockets(from, to);
-	}
-
-	public static void copyGems(ItemStack from, ItemStack to) {
-		if (!isLoaded()) return;
-		Impl.copyGems(from, to);
-	}
-
-	private static final class Impl {
-		static void copyRarity(ItemStack from, ItemStack to) {
-			var rarity = AffixHelper.getRarity(from);
-			if (rarity.isBound()) AffixHelper.setRarity(to, rarity.get());
-		}
-
-		static void copyAffixes(ItemStack from, ItemStack to) {
-			AffixHelper.setAffixes(to, AffixHelper.getAffixes(from));
-		}
-
-		static void copySockets(ItemStack from, ItemStack to) {
-			SocketHelper.setSockets(to, SocketHelper.getSockets(from));
-		}
-
-		static void copyGems(ItemStack from, ItemStack to) {
-			SocketHelper.setGems(to, SocketHelper.getGems(from));
-		}
-	}
+    private static <T> void copyComponent(ItemStack from, ItemStack to, DataComponentType<T> type) {
+        T value = from.get(type);
+        if (value != null) to.set(type, value);
+    }
 }

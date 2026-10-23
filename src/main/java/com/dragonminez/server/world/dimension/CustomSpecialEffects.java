@@ -25,8 +25,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.RegisterDimensionSpecialEffectsEvent;
-import net.minecraftforge.client.event.ViewportEvent;
+import net.neoforged.neoforge.client.event.RegisterDimensionSpecialEffectsEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -58,12 +58,14 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 	}
 
 	@Override
-	public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f projectionMatrix) {
+	public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
 		return false;
 	}
 
 	@Override
-	public boolean renderSky(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
+	public boolean renderSky(ClientLevel level, int ticks, float partialTick, Matrix4f modelViewMatrix, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
+            PoseStack poseStack = new PoseStack();
+            poseStack.mulPose(modelViewMatrix);
 		return false;
 	}
 
@@ -95,8 +97,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 
 	protected static void drawDome(Matrix4f pose, float[] rings, int segments, SkyColor color) {
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
-		BufferBuilder builder = Tesselator.getInstance().getBuilder();
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+		BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 		for (int ring = 0; ring < rings.length - 1; ring++) {
 			float low = rings[ring];
 			float high = rings[ring + 1];
@@ -109,14 +110,14 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 				domeVertex(builder, pose, high, from, color.at(high, from));
 			}
 		}
-		BufferUploader.drawWithShader(builder.end());
+		BufferUploader.drawWithShader(builder.buildOrThrow());
 	}
 
 	private static void domeVertex(BufferBuilder builder, Matrix4f pose, float elevation, float angle, Vec3 color) {
 		float e = elevation * Mth.DEG_TO_RAD;
 		float a = angle * Mth.DEG_TO_RAD;
-		builder.vertex(pose, SKY_RADIUS * Mth.cos(e) * Mth.cos(a), SKY_RADIUS * Mth.sin(e), SKY_RADIUS * Mth.cos(e) * Mth.sin(a))
-				.color((float) color.x, (float) color.y, (float) color.z, 1.0F).endVertex();
+		builder.addVertex(pose, SKY_RADIUS * Mth.cos(e) * Mth.cos(a), SKY_RADIUS * Mth.sin(e), SKY_RADIUS * Mth.cos(e) * Mth.sin(a))
+				.setColor((float) color.x, (float) color.y, (float) color.z, 1.0F);
 	}
 
 	protected static Vec3 gradient(float elevation, float[] stops, Vec3[] colors) {
@@ -139,8 +140,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		}
 		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
 		RenderSystem.setShaderTexture(0, texture);
-		BufferBuilder builder = Tesselator.getInstance().getBuilder();
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+		BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 		for (SkySprite sprite : sprites) {
 			float red = tinted ? sprite.red() : 1.0F;
 			float green = tinted ? sprite.green() : 1.0F;
@@ -152,13 +152,13 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 			poseStack.mulPose(Axis.YP.rotationDegrees(sprite.yaw() + time * sprite.drift()));
 			poseStack.mulPose(Axis.XP.rotationDegrees(90.0F - sprite.elevation() - bob));
 			Matrix4f pose = poseStack.last().pose();
-			builder.vertex(pose, -size, SKY_RADIUS, -size).uv(0.0F, 0.0F).color(red, green, blue, alpha).endVertex();
-			builder.vertex(pose, size, SKY_RADIUS, -size).uv(1.0F, 0.0F).color(red, green, blue, alpha).endVertex();
-			builder.vertex(pose, size, SKY_RADIUS, size).uv(1.0F, 1.0F).color(red, green, blue, alpha).endVertex();
-			builder.vertex(pose, -size, SKY_RADIUS, size).uv(0.0F, 1.0F).color(red, green, blue, alpha).endVertex();
+			builder.addVertex(pose, -size, SKY_RADIUS, -size).setUv(0.0F, 0.0F).setColor(red, green, blue, alpha);
+			builder.addVertex(pose, size, SKY_RADIUS, -size).setUv(1.0F, 0.0F).setColor(red, green, blue, alpha);
+			builder.addVertex(pose, size, SKY_RADIUS, size).setUv(1.0F, 1.0F).setColor(red, green, blue, alpha);
+			builder.addVertex(pose, -size, SKY_RADIUS, size).setUv(0.0F, 1.0F).setColor(red, green, blue, alpha);
 			poseStack.popPose();
 		}
-		BufferUploader.drawWithShader(builder.end());
+		BufferUploader.drawWithShader(builder.buildOrThrow());
 	}
 
 	protected static double smoothStep(double t) {
@@ -240,10 +240,9 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 
-	private static BufferBuilder.RenderedBuffer buildDragonNightStars() {
+	private static com.mojang.blaze3d.vertex.MeshData buildDragonNightStars() {
 		RandomSource random = RandomSource.create(0xD2A60L);
-		BufferBuilder builder = Tesselator.getInstance().getBuilder();
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+		BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 		Vector3f up = new Vector3f(0.0F, 1.0F, 0.0F);
 		Vector3f side = new Vector3f(1.0F, 0.0F, 0.0F);
 		for (int i = 0; i < DRAGON_NIGHT_STAR_ATTEMPTS; i++) {
@@ -266,15 +265,17 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 			starVertex(builder, new Vector3f(center).add(a).add(b), shade);
 			starVertex(builder, new Vector3f(center).add(a).sub(b), shade);
 		}
-		return builder.end();
+		return builder.buildOrThrow();
 	}
 
 	private static void starVertex(BufferBuilder builder, Vector3f position, float shade) {
-		builder.vertex(position.x, position.y, position.z).color(shade, shade, shade, 1.0F).endVertex();
+		builder.addVertex(position.x, position.y, position.z).setColor(shade, shade, shade, 1.0F);
 	}
 
-	protected static boolean renderDragonNightVanillaSky(ClientLevel level, float partialTick, PoseStack poseStack, Camera camera, Matrix4f projectionMatrix,
+	protected static boolean renderDragonNightVanillaSky(ClientLevel level, float partialTick, Matrix4f modelViewMatrix, Camera camera, Matrix4f projectionMatrix,
 														 boolean isFoggy, Runnable setupFog, Vec3 nightSky, float nightStars, Vec3 starTint) {
+            PoseStack poseStack = new PoseStack();
+            poseStack.mulPose(modelViewMatrix);
 		float night = DragonSkyState.darkness(partialTick);
 		if (night <= 0.0F) return false;
 
@@ -320,13 +321,12 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 
 	private static void drawSkyDisc(Matrix4f pose, float y) {
 		float radius = Math.signum(y) * 512.0F;
-		BufferBuilder builder = Tesselator.getInstance().getBuilder();
-		builder.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION);
-		builder.vertex(pose, 0.0F, y, 0.0F).endVertex();
+		BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION);
+		builder.addVertex(pose, 0.0F, y, 0.0F);
 		for (int angle = -180; angle <= 180; angle += 45) {
-			builder.vertex(pose, radius * Mth.cos(angle * Mth.DEG_TO_RAD), y, 512.0F * Mth.sin(angle * Mth.DEG_TO_RAD)).endVertex();
+			builder.addVertex(pose, radius * Mth.cos(angle * Mth.DEG_TO_RAD), y, 512.0F * Mth.sin(angle * Mth.DEG_TO_RAD));
 		}
-		BufferUploader.drawWithShader(builder.end());
+		BufferUploader.drawWithShader(builder.buildOrThrow());
 	}
 
 	private static void drawSunrise(PoseStack poseStack, ClientLevel level, float partialTick, float[] sunrise, float fade) {
@@ -338,31 +338,30 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.sin(level.getSunAngle(partialTick)) < 0.0F ? 180.0F : 0.0F));
 		poseStack.mulPose(Axis.ZP.rotationDegrees(90.0F));
 		Matrix4f pose = poseStack.last().pose();
-		BufferBuilder builder = Tesselator.getInstance().getBuilder();
-		builder.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
-		builder.vertex(pose, 0.0F, 100.0F, 0.0F).color(sunrise[0], sunrise[1], sunrise[2], sunrise[3] * fade).endVertex();
+		BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+		builder.addVertex(pose, 0.0F, 100.0F, 0.0F).setColor(sunrise[0], sunrise[1], sunrise[2], sunrise[3] * fade);
 		for (int i = 0; i <= 16; i++) {
 			float angle = i * Mth.TWO_PI / 16.0F;
 			float sin = Mth.sin(angle);
 			float cos = Mth.cos(angle);
-			builder.vertex(pose, sin * 120.0F, cos * 120.0F, -cos * 40.0F * sunrise[3]).color(sunrise[0], sunrise[1], sunrise[2], 0.0F).endVertex();
+			builder.addVertex(pose, sin * 120.0F, cos * 120.0F, -cos * 40.0F * sunrise[3]).setColor(sunrise[0], sunrise[1], sunrise[2], 0.0F);
 		}
-		BufferUploader.drawWithShader(builder.end());
+		BufferUploader.drawWithShader(builder.buildOrThrow());
 		poseStack.popPose();
 	}
 
 	private static void drawSunAndMoon(Matrix4f pose, int moonPhase, float sunAlpha, float moonAlpha) {
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		BufferBuilder builder = Tesselator.getInstance().getBuilder();
+		BufferBuilder builder;
 		if (sunAlpha > 0.0F) {
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, sunAlpha);
 			RenderSystem.setShaderTexture(0, VANILLA_SUN);
-			builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-			builder.vertex(pose, -30.0F, 100.0F, -30.0F).uv(0.0F, 0.0F).endVertex();
-			builder.vertex(pose, 30.0F, 100.0F, -30.0F).uv(1.0F, 0.0F).endVertex();
-			builder.vertex(pose, 30.0F, 100.0F, 30.0F).uv(1.0F, 1.0F).endVertex();
-			builder.vertex(pose, -30.0F, 100.0F, 30.0F).uv(0.0F, 1.0F).endVertex();
-			BufferUploader.drawWithShader(builder.end());
+			builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+			builder.addVertex(pose, -30.0F, 100.0F, -30.0F).setUv(0.0F, 0.0F);
+			builder.addVertex(pose, 30.0F, 100.0F, -30.0F).setUv(1.0F, 0.0F);
+			builder.addVertex(pose, 30.0F, 100.0F, 30.0F).setUv(1.0F, 1.0F);
+			builder.addVertex(pose, -30.0F, 100.0F, 30.0F).setUv(0.0F, 1.0F);
+			BufferUploader.drawWithShader(builder.buildOrThrow());
 		}
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, moonAlpha);
@@ -371,12 +370,12 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		float v0 = (moonPhase / 4 % 2) / 2.0F;
 		float u1 = u0 + 0.25F;
 		float v1 = v0 + 0.5F;
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		builder.vertex(pose, -20.0F, -100.0F, 20.0F).uv(u1, v1).endVertex();
-		builder.vertex(pose, 20.0F, -100.0F, 20.0F).uv(u0, v1).endVertex();
-		builder.vertex(pose, 20.0F, -100.0F, -20.0F).uv(u0, v0).endVertex();
-		builder.vertex(pose, -20.0F, -100.0F, -20.0F).uv(u1, v0).endVertex();
-		BufferUploader.drawWithShader(builder.end());
+		builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		builder.addVertex(pose, -20.0F, -100.0F, 20.0F).setUv(u1, v1);
+		builder.addVertex(pose, 20.0F, -100.0F, 20.0F).setUv(u0, v1);
+		builder.addVertex(pose, 20.0F, -100.0F, -20.0F).setUv(u0, v0);
+		builder.addVertex(pose, -20.0F, -100.0F, -20.0F).setUv(u1, v0);
+		BufferUploader.drawWithShader(builder.buildOrThrow());
 	}
 
 	public static class EarthEffects extends CustomSpecialEffects {
@@ -400,12 +399,14 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		}
 
 		@Override
-		public boolean renderSky(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
-			return renderDragonNightVanillaSky(level, partialTick, poseStack, camera, projectionMatrix, isFoggy, setupFog, NIGHT_SKY, NIGHT_STARS, STAR_TINT);
+		public boolean renderSky(ClientLevel level, int ticks, float partialTick, Matrix4f modelViewMatrix, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
+            PoseStack poseStack = new PoseStack();
+            poseStack.mulPose(modelViewMatrix);
+			return renderDragonNightVanillaSky(level, partialTick, modelViewMatrix, camera, projectionMatrix, isFoggy, setupFog, NIGHT_SKY, NIGHT_STARS, STAR_TINT);
 		}
 
 		@Override
-		public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f projectionMatrix) {
+		public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
 			if (DragonSkyState.darkness(partialTick) <= 0.0F) return false;
 			renderCloudLayer(poseStack, projectionMatrix, partialTick, camX, camY, camZ, level.getCloudColor(partialTick), this.getCloudHeight(), ticks + partialTick);
 			return true;
@@ -434,12 +435,14 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		}
 
 		@Override
-		public boolean renderSky(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
-			return renderDragonNightVanillaSky(level, partialTick, poseStack, camera, projectionMatrix, isFoggy, setupFog, NIGHT_SKY, NIGHT_STARS, STAR_TINT);
+		public boolean renderSky(ClientLevel level, int ticks, float partialTick, Matrix4f modelViewMatrix, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
+            PoseStack poseStack = new PoseStack();
+            poseStack.mulPose(modelViewMatrix);
+			return renderDragonNightVanillaSky(level, partialTick, modelViewMatrix, camera, projectionMatrix, isFoggy, setupFog, NIGHT_SKY, NIGHT_STARS, STAR_TINT);
 		}
 
 		@Override
-		public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f projectionMatrix) {
+		public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
 			renderCloudLayer(poseStack, projectionMatrix, partialTick, camX, camY, camZ, CLOUD_COLOR, this.getCloudHeight(), level.getGameTime() + partialTick);
 			return true;
 		}
@@ -466,12 +469,14 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		}
 
 		@Override
-		public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f projectionMatrix) {
+		public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
 			return true;
 		}
 
 		@Override
-		public boolean renderSky(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
+		public boolean renderSky(ClientLevel level, int ticks, float partialTick, Matrix4f modelViewMatrix, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
+            PoseStack poseStack = new PoseStack();
+            poseStack.mulPose(modelViewMatrix);
 			return true;
 		}
 
@@ -578,12 +583,14 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		}
 
 		@Override
-		public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f projectionMatrix) {
+		public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
 			return true;
 		}
 
 		@Override
-		public boolean renderSky(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
+		public boolean renderSky(ClientLevel level, int ticks, float partialTick, Matrix4f modelViewMatrix, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
+            PoseStack poseStack = new PoseStack();
+            poseStack.mulPose(modelViewMatrix);
 			double[] weights = layerWeights(camera.getPosition().y);
 			float hell = (float) weights[0];
 			float cloud = (float) weights[1];
@@ -723,7 +730,9 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		}
 
 		@Override
-		public boolean renderSky(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
+		public boolean renderSky(ClientLevel level, int ticks, float partialTick, Matrix4f modelViewMatrix, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
+            PoseStack poseStack = new PoseStack();
+            poseStack.mulPose(modelViewMatrix);
 			double[] weights = layerWeights(camera.getPosition().y);
 			float night = DragonSkyState.darkness(partialTick);
 
@@ -756,7 +765,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		}
 
 		@Override
-		public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f projectionMatrix) {
+		public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
 			double[] weights = layerWeights(camY);
 			int layer = weights[0] >= weights[1] ? 0 : (weights[1] >= weights[2] ? 1 : 2);
 			renderCloudLayer(poseStack, projectionMatrix, partialTick, camX, camY, camZ, CLOUD_COLORS[layer], CLOUD_HEIGHTS[layer], level.getGameTime() + partialTick);
@@ -787,13 +796,12 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 			poseStack.mulPose(Axis.YP.rotationDegrees(yaw));
 			poseStack.mulPose(Axis.XP.rotationDegrees(90.0F - elevation));
 			Matrix4f pose = poseStack.last().pose();
-			BufferBuilder builder = Tesselator.getInstance().getBuilder();
-			builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-			builder.vertex(pose, -size, SKY_RADIUS, -size).uv(0.0F, 0.0F).endVertex();
-			builder.vertex(pose, size, SKY_RADIUS, -size).uv(1.0F, 0.0F).endVertex();
-			builder.vertex(pose, size, SKY_RADIUS, size).uv(1.0F, 1.0F).endVertex();
-			builder.vertex(pose, -size, SKY_RADIUS, size).uv(0.0F, 1.0F).endVertex();
-			BufferUploader.drawWithShader(builder.end());
+			BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+			builder.addVertex(pose, -size, SKY_RADIUS, -size).setUv(0.0F, 0.0F);
+			builder.addVertex(pose, size, SKY_RADIUS, -size).setUv(1.0F, 0.0F);
+			builder.addVertex(pose, size, SKY_RADIUS, size).setUv(1.0F, 1.0F);
+			builder.addVertex(pose, -size, SKY_RADIUS, size).setUv(0.0F, 1.0F);
+			BufferUploader.drawWithShader(builder.buildOrThrow());
 			poseStack.popPose();
 		}
 

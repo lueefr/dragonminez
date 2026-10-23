@@ -1,5 +1,6 @@
 package com.dragonminez.client.render.effects;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.shader.EffectBloomRenderer;
 import com.dragonminez.client.render.util.IrisCompat;
@@ -19,19 +20,23 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public final class TelegraphEffect {
 
 	private static final int MAX_MARKS = 24;
@@ -115,8 +120,8 @@ public final class TelegraphEffect {
 	}
 
 	@SubscribeEvent
-	public static void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.START) return;
+	public static void onClientTick(ClientTickEvent.Pre event) {
+
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null) {
 			clear();
@@ -135,7 +140,7 @@ public final class TelegraphEffect {
 		if (mc.level == null || mc.player == null || (MARKS.isEmpty() && LANES.isEmpty())) return;
 
 		boolean iris = IrisCompat.isShaderPackInUse(mc.level.getGameTime());
-		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick();
+		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick().getGameTimeDeltaPartialTick(true);
 
 		if (!iris) {
 			if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
@@ -182,9 +187,9 @@ public final class TelegraphEffect {
 		RenderSystem.depthMask(false);
 		RenderSystem.disableCull();
 
-		PoseStack modelView = RenderSystem.getModelViewStack();
-		modelView.pushPose();
-		modelView.setIdentity();
+		org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
+		modelView.pushMatrix();
+		modelView.identity();
 		RenderSystem.applyModelViewMatrix();
 
 		for (Mark mark : MARKS) {
@@ -206,7 +211,7 @@ public final class TelegraphEffect {
 			drawLane(poseStack.last().pose(), lane, camPos, partialTick, bloom);
 		}
 
-		modelView.popPose();
+		modelView.popMatrix();
 		RenderSystem.applyModelViewMatrix();
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
@@ -225,17 +230,15 @@ public final class TelegraphEffect {
 		float thickness = bloom ? RING_THICKNESS * 2.4F : RING_THICKNESS;
 
 		Tesselator tesselator = Tesselator.getInstance();
-		BufferBuilder buffer = tesselator.getBuilder();
-
-		buffer.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
-		buffer.vertex(pose, 0.0F, 0.0F, 0.0F).color(r, g, b, fillAlpha).endVertex();
+		BufferBuilder buffer = tesselator.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+		buffer.addVertex(pose, 0.0F, 0.0F, 0.0F).setColor(r, g, b, fillAlpha);
 		for (int i = 0; i <= SEGMENTS; i++) {
 			double angle = (Math.PI * 2.0D / SEGMENTS) * i;
 			float px = (float) (Math.cos(angle) * fillRadius);
 			float pz = (float) (Math.sin(angle) * fillRadius);
-			buffer.vertex(pose, px, 0.0F, pz).color(r, g, b, fillAlpha * 0.45F).endVertex();
+			buffer.addVertex(pose, px, 0.0F, pz).setColor(r, g, b, fillAlpha * 0.45F);
 		}
-		tesselator.end();
+		com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(buffer.buildOrThrow());
 
 		ring(pose, Math.max(0.0F, mark.radius - thickness), mark.radius, r, g, b, ringAlpha, ringAlpha);
 		ring(pose, mark.radius, mark.radius + thickness * 1.6F, r, g, b, ringAlpha * 0.55F, 0.0F);
@@ -246,17 +249,15 @@ public final class TelegraphEffect {
 
 	private static void ring(Matrix4f pose, float inner, float outer, float r, float g, float b, float innerAlpha, float outerAlpha) {
 		Tesselator tesselator = Tesselator.getInstance();
-		BufferBuilder buffer = tesselator.getBuilder();
-
-		buffer.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+		BufferBuilder buffer = tesselator.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 		for (int i = 0; i <= SEGMENTS; i++) {
 			double angle = (Math.PI * 2.0D / SEGMENTS) * i;
 			float cos = (float) Math.cos(angle);
 			float sin = (float) Math.sin(angle);
-			buffer.vertex(pose, cos * inner, 0.0F, sin * inner).color(r, g, b, innerAlpha).endVertex();
-			buffer.vertex(pose, cos * outer, 0.0F, sin * outer).color(r, g, b, outerAlpha).endVertex();
+			buffer.addVertex(pose, cos * inner, 0.0F, sin * inner).setColor(r, g, b, innerAlpha);
+			buffer.addVertex(pose, cos * outer, 0.0F, sin * outer).setColor(r, g, b, outerAlpha);
 		}
-		tesselator.end();
+		com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(buffer.buildOrThrow());
 	}
 
 	private static void drawLane(Matrix4f pose, Lane lane, Vec3 camPos, float partialTick, boolean bloom) {
@@ -322,15 +323,14 @@ public final class TelegraphEffect {
 	private static void strip(Matrix4f pose, Vec3[] points, Vec3[] sides, float from, float to, float r, float g, float b,
 							  float fromAlpha, float toAlpha) {
 		Tesselator tesselator = Tesselator.getInstance();
-		BufferBuilder buffer = tesselator.getBuilder();
-		buffer.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+		BufferBuilder buffer = tesselator.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 		for (int i = 0; i < points.length; i++) {
 			Vec3 a = points[i].add(sides[i].scale(from));
 			Vec3 c = points[i].add(sides[i].scale(to));
-			buffer.vertex(pose, (float) a.x, (float) a.y, (float) a.z).color(r, g, b, fromAlpha).endVertex();
-			buffer.vertex(pose, (float) c.x, (float) c.y, (float) c.z).color(r, g, b, toAlpha).endVertex();
+			buffer.addVertex(pose, (float) a.x, (float) a.y, (float) a.z).setColor(r, g, b, fromAlpha);
+			buffer.addVertex(pose, (float) c.x, (float) c.y, (float) c.z).setColor(r, g, b, toAlpha);
 		}
-		tesselator.end();
+		com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(buffer.buildOrThrow());
 	}
 
 	private static void chevronArm(Matrix4f pose, Vec3 tip, Vec3 dir, Vec3 sideOffset, float arm, float r, float g, float b, float alpha) {
@@ -339,12 +339,11 @@ public final class TelegraphEffect {
 		Vec3[] corners = {outer, tip, tip.subtract(back), outer.subtract(back)};
 
 		Tesselator tesselator = Tesselator.getInstance();
-		BufferBuilder buffer = tesselator.getBuilder();
-		buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+		BufferBuilder buffer = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 		for (Vec3 corner : corners) {
-			buffer.vertex(pose, (float) corner.x, (float) corner.y, (float) corner.z).color(r, g, b, alpha).endVertex();
+			buffer.addVertex(pose, (float) corner.x, (float) corner.y, (float) corner.z).setColor(r, g, b, alpha);
 		}
-		tesselator.end();
+		com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(buffer.buildOrThrow());
 	}
 
 	private static PoseStack viewStack(Camera camera) {

@@ -100,7 +100,7 @@ public class EffectsCommand {
 		for (ServerPlayer player : targets) {
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 				if (effectName.equalsIgnoreCase(KNOCKOUT_EFFECT)) {
-					player.removeEffect(MainEffects.KNOCKOUT.get());
+					player.removeEffect(MainEffects.KNOCKOUT);
 					CombatEvent.releaseKnockdown(player, data);
 					return;
 				}
@@ -140,7 +140,7 @@ public class EffectsCommand {
 				FusionLogic.breakPothala(player);
 				clearFusionCooldown(player, data);
 				clearRitualAndTransfer(player, data);
-				player.removeEffect(MainEffects.KNOCKOUT.get());
+				player.removeEffect(MainEffects.KNOCKOUT);
 				CombatEvent.releaseKnockdown(player, data);
 				if (partnerUUID != null) {
 					ServerPlayer partner = player.getServer().getPlayerList().getPlayer(partnerUUID);
@@ -167,12 +167,12 @@ public class EffectsCommand {
 
 	private static void clearFusionCooldown(ServerPlayer player, StatsData data) {
 		data.getCooldowns().removeCooldown(Cooldowns.FUSION_CD);
-		if (player.hasEffect(MainEffects.FUSION_CD.get())) player.removeEffect(MainEffects.FUSION_CD.get());
+		if (player.hasEffect(MainEffects.FUSION_CD)) player.removeEffect(MainEffects.FUSION_CD);
 	}
 
 	private static void clearRitualAndTransfer(ServerPlayer player, StatsData data) {
 		data.getCooldowns().removeCooldown(Cooldowns.GOD_RITUAL);
-		if (player.hasEffect(MainEffects.GOD_RITUAL_CD.get())) player.removeEffect(MainEffects.GOD_RITUAL_CD.get());
+		if (player.hasEffect(MainEffects.GOD_RITUAL_CD)) player.removeEffect(MainEffects.GOD_RITUAL_CD);
 		KiShareService.clearTransferEffects(player);
 	}
 

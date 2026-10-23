@@ -1,0 +1,33 @@
+{
+  "parent": "dragonminez:namekdim",
+  "criteria": {
+    "radarnamek": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:namekdball_radar"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.radarnamek.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:namekdball_radar"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.radarnamek.title"
+    }
+  },
+  "requirements": [
+    [
+      "radarnamek"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,90 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "2": {
+      "item": "minecraft:black_dye"
+    },
+    "3": {
+      "item": "minecraft:black_dye"
+    },
+    "4": {
+      "item": "minecraft:yellow_dye"
+    },
+    "9": {
+      "item": "minecraft:yellow_dye"
+    },
+    "C": {
+      "item": "minecraft:brown_dye"
+    },
+    "D": {
+      "item": "minecraft:brown_dye"
+    },
+    "H": {
+      "item": "minecraft:black_dye"
+    },
+    "I": {
+      "item": "minecraft:white_dye"
+    },
+    "J": {
+      "item": "minecraft:white_dye"
+    },
+    "K": {
+      "item": "minecraft:black_dye"
+    },
+    "M": {
+      "item": "minecraft:black_dye"
+    },
+    "N": {
+      "item": "minecraft:black_dye"
+    },
+    "O": {
+      "item": "minecraft:black_dye"
+    },
+    "P": {
+      "item": "minecraft:black_dye"
+    },
+    "Q": {
+      "item": "minecraft:black_dye"
+    },
+    "R": {
+      "item": "minecraft:black_dye"
+    },
+    "S": {
+      "item": "minecraft:black_dye"
+    },
+    "T": {
+      "item": "minecraft:black_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_super"
+    },
+    "V": {
+      "item": "minecraft:black_dye"
+    },
+    "W": {
+      "item": "minecraft:black_dye"
+    },
+    "X": {
+      "item": "minecraft:black_dye"
+    },
+    "Y": {
+      "item": "minecraft:black_dye"
+    },
+    "Z": {
+      "item": "minecraft:black_dye"
+    }
+  },
+  "pattern": [
+    "  CD  ",
+    " HIJK ",
+    "MNOPQR",
+    "STUVWX",
+    "YZ  23",
+    "4    9"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_majin21"
+  }
+}

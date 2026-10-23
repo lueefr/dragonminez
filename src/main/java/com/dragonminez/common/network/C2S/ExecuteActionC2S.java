@@ -18,7 +18,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
-import net.minecraftforge.network.NetworkEvent;
+import com.dragonminez.compat.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -61,7 +61,7 @@ public class ExecuteActionC2S {
 		context.enqueueWork(() -> {
 			ServerPlayer player = context.getSender();
 			if (player != null) {
-				if (player.hasEffect(MainEffects.STUN.get())) return;
+				if (player.hasEffect(MainEffects.STUN)) return;
 				if (!PacketRateLimiter.allow(player.getUUID(), "execute_action_" + action.name(), player.level().getGameTime(), 2)) return;
 				StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 					if (data.getStatus().isKnockedDown() || data.getStatus().isMatchFrozen() || data.getStatus().isInGodRitual()) return;
@@ -165,7 +165,7 @@ public class ExecuteActionC2S {
 
 				if (!isFormStackable || !isStackStackable || !meetsStackMastery || !compatible) {
 					data.getCharacter().clearActiveStackForm(player);
-					player.removeEffect(MainEffects.STACK_TRANSFORMED.get());
+					player.removeEffect(MainEffects.STACK_TRANSFORMED);
 					player.sendSystemMessage(Component.translatable("message.dragonminez.form.stack_removed"));
 				}
 			}
@@ -277,7 +277,7 @@ public class ExecuteActionC2S {
 			}
 			if (!ignoreEvolutionFloor && TransformationsHelper.clampToEvolutionFloor(data)) return;
 			TransformationsHelper.revertToBaseForm(player, data, false);
-			player.removeEffect(MainEffects.TRANSFORMED.get());
+			player.removeEffect(MainEffects.TRANSFORMED);
 			return;
 		}
 
@@ -291,7 +291,7 @@ public class ExecuteActionC2S {
 			playFormSound(player, MainSounds.INSTA_FORM_OFF.get());
 		} else {
 			TransformationsHelper.revertToBaseForm(player, data, false);
-			player.removeEffect(MainEffects.TRANSFORMED.get());
+			player.removeEffect(MainEffects.TRANSFORMED);
 		}
 	}
 
@@ -306,7 +306,7 @@ public class ExecuteActionC2S {
 				return;
 			}
 			data.getCharacter().clearActiveStackForm(player);
-			player.removeEffect(MainEffects.STACK_TRANSFORMED.get());
+			player.removeEffect(MainEffects.STACK_TRANSFORMED);
 			return;
 		}
 
@@ -316,7 +316,7 @@ public class ExecuteActionC2S {
 			playFormSound(player, MainSounds.INSTA_FORM_OFF.get());
 		} else {
 			data.getCharacter().clearActiveStackForm(player);
-			player.removeEffect(MainEffects.STACK_TRANSFORMED.get());
+			player.removeEffect(MainEffects.STACK_TRANSFORMED);
 		}
 	}
 

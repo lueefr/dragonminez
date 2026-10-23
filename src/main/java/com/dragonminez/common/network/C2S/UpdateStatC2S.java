@@ -9,7 +9,7 @@ import com.dragonminez.common.stats.StatsProvider;
 import com.dragonminez.server.events.players.KiSurgeService;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import com.dragonminez.compat.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -51,7 +51,7 @@ public class UpdateStatC2S {
             if (player == null) return;
 
             StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
-                    boolean locked = player.hasEffect(MainEffects.STUN.get()) || data.getStatus().isKiShareLocked();
+                    boolean locked = player.hasEffect(MainEffects.STUN) || data.getStatus().isKiShareLocked();
                     if (locked && (msg.statusKey != StatAction.BLOCK || data.getStatus().isKiShareLocked())) {
                       if (msg.statusKey == StatAction.BLOCK && data.getStatus().isBlocking()) data.getStatus().setBlocking(false);
                       if (msg.statusKey == StatAction.CHARGE_KI && data.getStatus().isChargingKi()) data.getStatus().setChargingKi(false);

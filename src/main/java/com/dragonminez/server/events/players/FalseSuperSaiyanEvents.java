@@ -1,5 +1,6 @@
 package com.dragonminez.server.events.players;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.config.FormConfig;
 import com.dragonminez.common.config.GeneralServerConfig;
@@ -20,18 +21,22 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class FalseSuperSaiyanEvents {
 	private static final Map<UUID, Long> LAST_HIT_MS = new HashMap<>();
 
@@ -39,14 +44,14 @@ public class FalseSuperSaiyanEvents {
 		return FalseSuperSaiyanHelper.config();
 	}
 
-	public static void onFinalDamage(LivingDamageEvent event) {
-		if (event.isCanceled() || event.getAmount() <= 0.0f) return;
+	public static void onFinalDamage(LivingDamageEvent.Pre event) {
+		if (event.getNewDamage() <= 0.0f) return;
 		LivingEntity victim = event.getEntity();
 		if (victim.level().isClientSide) return;
 		GeneralServerConfig.FalseSuperSaiyanConfig cfg = config();
 		if (cfg == null || !cfg.getEnabled()) return;
 
-		float amount = Math.min(event.getAmount(), victim.getHealth());
+		float amount = Math.min(event.getNewDamage(), victim.getHealth());
 		DamageSource source = event.getSource();
 
 		if (victim instanceof ServerPlayer hurt) {
@@ -61,7 +66,7 @@ public class FalseSuperSaiyanEvents {
 		if (source.getEntity() instanceof ServerPlayer attacker && attacker != victim) {
 			StatsProvider.get(StatsCapability.INSTANCE, attacker).ifPresent(data -> {
 				if (!canGain(attacker, data)) return;
-				if (!isWorthyTarget(attacker, victim, event.getAmount(), cfg)) return;
+				if (!isWorthyTarget(attacker, victim, event.getNewDamage(), cfg)) return;
 				double fraction = amount / Math.max(1.0f, victim.getMaxHealth());
 				addRage(attacker, data, cfg, fraction * cfg.getGainPerDealtHealthFraction());
 			});
@@ -78,8 +83,8 @@ public class FalseSuperSaiyanEvents {
 	}
 
 	@SubscribeEvent
-	public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || !(event.player instanceof ServerPlayer player)) return;
+	public static void onPlayerTick(PlayerTickEvent.Post event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 		GeneralServerConfig.FalseSuperSaiyanConfig cfg = config();
 		if (cfg == null) return;
 
@@ -184,8 +189,8 @@ public class FalseSuperSaiyanEvents {
 		data.getStatus().setRageActive(true);
 		data.getResources().setRage(100.0f);
 
-		if (!player.hasEffect(MainEffects.TRANSFORMED.get())) {
-			player.addEffect(new MobEffectInstance(MainEffects.TRANSFORMED.get(), -1, 0, false, false, true));
+		if (!player.hasEffect(MainEffects.TRANSFORMED)) {
+			player.addEffect(new MobEffectInstance(MainEffects.TRANSFORMED, -1, 0, false, false, true));
 		}
 		player.refreshDimensions();
 		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MainSounds.TRANSFORM_ON.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -206,7 +211,7 @@ public class FalseSuperSaiyanEvents {
 			data.getCharacter().clearPreviousFormRecord();
 			TransformationsHelper.revertToBaseForm(player, data, false);
 			data.restoreMultiplierGains(player, resourceSnapshot);
-			player.removeEffect(MainEffects.TRANSFORMED.get());
+			player.removeEffect(MainEffects.TRANSFORMED);
 			player.refreshDimensions();
 			player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MainSounds.INSTA_FORM_OFF.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
 			player.sendSystemMessage(Component.translatable("message.dragonminez.falsesupersaiyan.ended"), true);

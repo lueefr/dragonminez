@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:smelting",
+  "category": "food",
+  "cookingtime": 200,
+  "experience": 0.35,
+  "group": "dragonminez",
+  "ingredient": {
+    "item": "dragonminez:giant_fish_raw"
+  },
+  "result": {
+    "count": 1,
+    "id": "dragonminez:giant_fish_cooked"
+  }
+}

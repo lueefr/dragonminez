@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class KiWeaponRenderer {
+    private static final com.mojang.blaze3d.vertex.ByteBufferBuilder BLOOM_VERTICES = new com.mojang.blaze3d.vertex.ByteBufferBuilder(4096);
 	public static final float BLADE_WRIST_OFFSET = 3.0f / 16.0f;
 	public static final float BLADE_REACH = 24.0f / 16.0f;
 	public static final float BLADE_ARM_SHIFT = 2.0f / 16.0f;
@@ -192,7 +193,7 @@ public class KiWeaponRenderer {
 
 					rawRenderer.renderRecursively(poseStack, player, targetBone, renderType, buffers, vertexConsumer, true,
 							entry.partialTick(), 15728880, OverlayTexture.NO_OVERLAY,
-							entry.color()[0], entry.color()[1], entry.color()[2], 0.65f);
+							net.minecraft.util.FastColor.ARGB32.colorFromFloat(0.65f, entry.color()[0], entry.color()[1], entry.color()[2]));
 
 					poseStack.popPose();
 				});
@@ -358,10 +359,10 @@ public class KiWeaponRenderer {
 			return;
 		}
 
-		MultiBufferSource.BufferSource source = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-		PoseStack modelView = RenderSystem.getModelViewStack();
-		modelView.pushPose();
-		modelView.setIdentity();
+		MultiBufferSource.BufferSource source = MultiBufferSource.immediate(BLOOM_VERTICES);
+		org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
+		modelView.pushMatrix();
+		modelView.identity();
 		RenderSystem.applyModelViewMatrix();
 		shader.safeGetUniform("bloomMode").set(1.0f);
 		try {
@@ -370,7 +371,7 @@ public class KiWeaponRenderer {
 			source.endBatch();
 		} finally {
 			shader.safeGetUniform("bloomMode").set(0.0f);
-			modelView.popPose();
+			modelView.popMatrix();
 			RenderSystem.applyModelViewMatrix();
 			draws.clear();
 		}
@@ -528,7 +529,7 @@ public class KiWeaponRenderer {
 	}
 
 	private static void bladeVertex(VertexConsumer vc, Matrix4f pose, float x, float y, float z, float[] color, float seed, float u, float v) {
-		vc.vertex(pose, x, y, z).color(color[0], color[1], color[2], seed).uv(u, v).endVertex();
+		vc.addVertex(pose, x, y, z).setColor(color[0], color[1], color[2], seed).setUv(u, v);
 	}
 
 	private static void syncTargetBoneAndParents(GeoBone destBone, BakedGeoModel sourceModel) {

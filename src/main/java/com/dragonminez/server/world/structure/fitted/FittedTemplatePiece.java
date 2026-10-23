@@ -187,7 +187,7 @@ public class FittedTemplatePiece extends TemplateStructurePiece {
 				entity.moveTo(pos.x, pos.y, pos.z, yaw, entity.getXRot());
 				entity.getPersistentData().putString(ENTITY_KEY_TAG, key);
 				if (entity instanceof Mob mob) {
-					mob.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(pos)), MobSpawnType.STRUCTURE, null, tag);
+					mob.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(pos)), MobSpawnType.STRUCTURE, null);
 				}
 				level.addFreshEntityWithPassengers(entity);
 			});

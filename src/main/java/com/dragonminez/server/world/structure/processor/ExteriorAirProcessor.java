@@ -12,7 +12,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import javax.annotation.Nullable;
 
 public class ExteriorAirProcessor extends StructureProcessor {
-	public static final Codec<ExteriorAirProcessor> CODEC = Codec.unit(() -> new ExteriorAirProcessor(null));
+	public static final com.mojang.serialization.MapCodec<ExteriorAirProcessor> CODEC = com.mojang.serialization.MapCodec.unit(() -> new ExteriorAirProcessor(null));
 
 	@Nullable
 	private final TemplateShape shape;

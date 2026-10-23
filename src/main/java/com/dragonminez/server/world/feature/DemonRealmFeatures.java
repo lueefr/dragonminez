@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstapContext;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -36,9 +36,9 @@ import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConf
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.placement.*;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockMatchTest;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -46,29 +46,29 @@ import java.util.stream.Stream;
 public class DemonRealmFeatures {
 	public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, Reference.MOD_ID);
 	public static final DeferredRegister<PlacementModifierType<?>> PLACEMENT_MODIFIERS = DeferredRegister.create(Registries.PLACEMENT_MODIFIER_TYPE, Reference.MOD_ID);
-	public static final DeferredRegister<Codec<? extends DensityFunction>> DENSITY_FUNCTIONS = DeferredRegister.create(Registries.DENSITY_FUNCTION_TYPE, Reference.MOD_ID);
+	public static final DeferredRegister<com.mojang.serialization.MapCodec<? extends DensityFunction>> DENSITY_FUNCTIONS = DeferredRegister.create(Registries.DENSITY_FUNCTION_TYPE, Reference.MOD_ID);
 
-	public static final RegistryObject<Feature<NoneFeatureConfiguration>> SEA = FEATURES.register("demon_realm_sea",
+	public static final DeferredHolder<Feature<?>, Feature<NoneFeatureConfiguration>> SEA = FEATURES.register("demon_realm_sea",
 			() -> new SeaFeature(NoneFeatureConfiguration.CODEC));
-	public static final RegistryObject<Feature<NoneFeatureConfiguration>> TUNNEL_SHIELD = FEATURES.register("demon_realm_tunnel_shield",
+	public static final DeferredHolder<Feature<?>, Feature<NoneFeatureConfiguration>> TUNNEL_SHIELD = FEATURES.register("demon_realm_tunnel_shield",
 			() -> new TunnelShieldFeature(NoneFeatureConfiguration.CODEC));
-	public static final RegistryObject<Feature<NoneFeatureConfiguration>> GAS_VENT = FEATURES.register("demon_realm_gas_vent",
+	public static final DeferredHolder<Feature<?>, Feature<NoneFeatureConfiguration>> GAS_VENT = FEATURES.register("demon_realm_gas_vent",
 			() -> new GasVentFeature(NoneFeatureConfiguration.CODEC));
-	public static final RegistryObject<Feature<NoneFeatureConfiguration>> MAKAI_BUSH = FEATURES.register("demon_realm_makai_bush",
+	public static final DeferredHolder<Feature<?>, Feature<NoneFeatureConfiguration>> MAKAI_BUSH = FEATURES.register("demon_realm_makai_bush",
 			() -> new MakaiBushFeature(NoneFeatureConfiguration.CODEC));
-	public static final RegistryObject<Feature<NoneFeatureConfiguration>> ROCK_SPIRE = FEATURES.register("demon_realm_rock_spire",
+	public static final DeferredHolder<Feature<?>, Feature<NoneFeatureConfiguration>> ROCK_SPIRE = FEATURES.register("demon_realm_rock_spire",
 			() -> new RockSpireFeature(NoneFeatureConfiguration.CODEC));
-	public static final RegistryObject<Feature<NoneFeatureConfiguration>> AMBIENT_LIGHT = FEATURES.register("demon_realm_ambient_light",
+	public static final DeferredHolder<Feature<?>, Feature<NoneFeatureConfiguration>> AMBIENT_LIGHT = FEATURES.register("demon_realm_ambient_light",
 			() -> new AmbientLightFeature(NoneFeatureConfiguration.CODEC));
-	public static final RegistryObject<Feature<NoneFeatureConfiguration>> CRYSTAL_SPIRE = FEATURES.register("demon_realm_crystal_spire",
+	public static final DeferredHolder<Feature<?>, Feature<NoneFeatureConfiguration>> CRYSTAL_SPIRE = FEATURES.register("demon_realm_crystal_spire",
 			() -> new CrystalSpireFeature(NoneFeatureConfiguration.CODEC));
 
-	public static final RegistryObject<PlacementModifierType<SurfaceInBand>> SURFACE_IN_BAND = PLACEMENT_MODIFIERS.register("surface_in_band",
+	public static final DeferredHolder<PlacementModifierType<?>, PlacementModifierType<SurfaceInBand>> SURFACE_IN_BAND = PLACEMENT_MODIFIERS.register("surface_in_band",
 			() -> () -> SurfaceInBand.CODEC);
 
-	public static final RegistryObject<Codec<TunnelDistance>> TUNNEL_DISTANCE = DENSITY_FUNCTIONS.register("tunnel_distance",
+	public static final DeferredHolder<com.mojang.serialization.MapCodec<? extends DensityFunction>, com.mojang.serialization.MapCodec<TunnelDistance>> TUNNEL_DISTANCE = DENSITY_FUNCTIONS.register("tunnel_distance",
 			TunnelDistance.CODEC::codec);
-	public static final RegistryObject<Codec<ColumnCache>> COLUMN_CACHE = DENSITY_FUNCTIONS.register("column_cache",
+	public static final DeferredHolder<com.mojang.serialization.MapCodec<? extends DensityFunction>, com.mojang.serialization.MapCodec<ColumnCache>> COLUMN_CACHE = DENSITY_FUNCTIONS.register("column_cache",
 			ColumnCache.CODEC::codec);
 
 	public static final ResourceKey<ConfiguredFeature<?, ?>> SEA_CONFIGURED = configuredKey("demon_realm_sea");
@@ -106,7 +106,7 @@ public class DemonRealmFeatures {
 		DENSITY_FUNCTIONS.register(eventBus);
 	}
 
-	public static void bootstrapConfigured(BootstapContext<ConfiguredFeature<?, ?>> context) {
+	public static void bootstrapConfigured(BootstrapContext<ConfiguredFeature<?, ?>> context) {
 		context.register(SEA_CONFIGURED, new ConfiguredFeature<>(SEA.get(), NoneFeatureConfiguration.INSTANCE));
 		context.register(TUNNEL_SHIELD_CONFIGURED, new ConfiguredFeature<>(TUNNEL_SHIELD.get(), NoneFeatureConfiguration.INSTANCE));
 		context.register(GAS_VENT_CONFIGURED, new ConfiguredFeature<>(GAS_VENT.get(), NoneFeatureConfiguration.INSTANCE));
@@ -125,7 +125,7 @@ public class DemonRealmFeatures {
 		), 7)));
 	}
 
-	public static void bootstrapPlaced(BootstapContext<PlacedFeature> context) {
+	public static void bootstrapPlaced(BootstrapContext<PlacedFeature> context) {
 		HolderGetter<ConfiguredFeature<?, ?>> configured = context.lookup(Registries.CONFIGURED_FEATURE);
 
 		SurfaceInBand firstSurface = new SurfaceInBand(FIRST_SKY_LIMIT, DemonRealmGeneration.WORLD_BOTTOM + 4);
@@ -169,7 +169,7 @@ public class DemonRealmFeatures {
 		return HeightRangePlacement.uniform(VerticalAnchor.absolute(y), VerticalAnchor.absolute(y));
 	}
 
-	private static void register(BootstapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<ConfiguredFeature<?, ?>> feature, List<PlacementModifier> modifiers) {
+	private static void register(BootstrapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<ConfiguredFeature<?, ?>> feature, List<PlacementModifier> modifiers) {
 		context.register(key, new PlacedFeature(feature, List.copyOf(modifiers)));
 	}
 
@@ -273,7 +273,7 @@ public class DemonRealmFeatures {
 	}
 
 	public static class SurfaceInBand extends PlacementModifier {
-		public static final Codec<SurfaceInBand> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+		public static final com.mojang.serialization.MapCodec<SurfaceInBand> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				Codec.INT.fieldOf("top").forGetter(placement -> placement.top),
 				Codec.INT.fieldOf("bottom").forGetter(placement -> placement.bottom)
 		).apply(instance, SurfaceInBand::new));

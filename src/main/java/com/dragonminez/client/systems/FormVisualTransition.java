@@ -33,7 +33,7 @@ public final class FormVisualTransition {
 		if (stats == null || DMZSkinLayer.PREVIEW_MODE || stats.getPlayer() == null) return Double.NaN;
 		FormTransition transition = stats.getFormTransition();
 		if (!transition.isReady()) return Double.NaN;
-		return transition.observe(stats, transition.frameTime(Minecraft.getInstance().getFrameTime()));
+		return transition.observe(stats, transition.frameTime(Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true)));
 	}
 
 	public static FormTransition.Charge charge(StatsData stats) {

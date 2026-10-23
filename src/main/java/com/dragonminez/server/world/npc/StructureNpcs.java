@@ -31,7 +31,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.resources.ResourceKey;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -230,7 +230,7 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 		NPCPlacementSavedData tracking = NPCPlacementSavedData.get(level);
 		if (tracking.hasPlacement(key)) return;
 
-		EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(definition.entity());
+		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(definition.entity());
 		if (type == null) {
 			LogUtil.warn(Env.SERVER, "StructureNpcs: unknown entity '{}' for '{}' in {}", definition.entity(), definition.id(), definition.structure());
 			return;

@@ -84,7 +84,7 @@ public final class MeleeTargetValidator {
 	private static Vec3 lagSweep(ServerPlayer player, Entity target) {
 		Entity mover = TargetHelper.resolveHittable(target);
 		Vec3 step = mover.position().subtract(mover.xo, mover.yo, mover.zo);
-		double lagTicks = Math.min(MAX_LAG_TICKS, BASE_LAG_TICKS + Math.max(0, player.latency) / 50.0);
+		double lagTicks = Math.min(MAX_LAG_TICKS, BASE_LAG_TICKS + Math.max(0, player.connection.latency()) / 50.0);
 		Vec3 back = step.scale(-lagTicks);
 		double length = back.length();
 		if (!Double.isFinite(length)) return Vec3.ZERO;

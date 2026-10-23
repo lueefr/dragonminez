@@ -1,5 +1,6 @@
 package com.dragonminez.common.init.entities;
 
+import lombok.*;
 import com.dragonminez.common.init.entities.sagas.helper.DBSagasAnimationHandler;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.alignment.NpcDispositionService;
@@ -30,19 +31,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.RawAnimation;
 
 public class MastersEntity extends PathfinderMob implements GeoEntity {
-
 	private final AnimatableInstanceCache geoCache = new SingletonAnimatableInstanceCache(this);
-    private static final EntityDataAccessor<Float> SCALE_VAL = SynchedEntityData.defineId(MastersEntity.class, EntityDataSerializers.FLOAT);
-
-
-    @Getter
+	private static final EntityDataAccessor<Float> SCALE_VAL = SynchedEntityData.defineId(MastersEntity.class, EntityDataSerializers.FLOAT);
+@Getter
 	protected String masterName = null;
 
 	protected MastersEntity(EntityType<? extends PathfinderMob> pEntityType, Level pLevel) {
@@ -57,12 +55,8 @@ public class MastersEntity extends PathfinderMob implements GeoEntity {
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {
-		return PathfinderMob.createMobAttributes()
-				.add(Attributes.MAX_HEALTH, 100.0D)
-				.add(Attributes.MOVEMENT_SPEED, 2.0D)
-				.add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
+		return PathfinderMob.createMobAttributes().add(Attributes.MAX_HEALTH, 100.0).add(Attributes.MOVEMENT_SPEED, 2.0).add(Attributes.KNOCKBACK_RESISTANCE, 1.0);
 	}
-
 
 	@Override
 	public boolean canBeCollidedWith() {
@@ -78,7 +72,6 @@ public class MastersEntity extends PathfinderMob implements GeoEntity {
 	public boolean canBeHitByProjectile() {
 		return false;
 	}
-
 
 	@Override
 	public boolean isPushable() {
@@ -106,19 +99,13 @@ public class MastersEntity extends PathfinderMob implements GeoEntity {
 	}
 
 	@Override
-	public boolean ignoreExplosion() {
+	public boolean ignoreExplosion(net.minecraft.world.level.Explosion explosion) {
 		return true;
 	}
 
 	@Override
-	public boolean canBeLeashed(Player player) {
+	public boolean canBeLeashed() {
 		return false;
-	}
-
-	@Override
-	protected void tickLeash() {
-		super.tickLeash();
-		if (this.isLeashed()) this.dropLeash(true, true);
 	}
 
 	@Override
@@ -137,8 +124,8 @@ public class MastersEntity extends PathfinderMob implements GeoEntity {
 	}
 
 	@Override
-	public boolean canBreatheUnderwater() {
-		return true;
+	public boolean canDrownInFluidType(net.neoforged.neoforge.fluids.FluidType type) {
+		return false;
 	}
 
 	@Override
@@ -192,45 +179,42 @@ public class MastersEntity extends PathfinderMob implements GeoEntity {
 	public void checkDespawn() {
 	}
 
-    public void setScaleVal(float scale) {
-        this.entityData.set(SCALE_VAL, scale);
-    }
+	public void setScaleVal(float scale) {
+		this.entityData.set(SCALE_VAL, scale);
+	}
 
-    public float getScale() {
-        float customScale = this.entityData.get(SCALE_VAL);
-        return customScale > 0.0F ? customScale : 1.0F;
-    }
+	public float getScale() {
+		float customScale = this.entityData.get(SCALE_VAL);
+		return customScale > 0.0F ? customScale : 1.0F;
+	}
 
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(SCALE_VAL, 1.0F);
+	@Override
+	protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(SCALE_VAL, 1.0F);
+	}
 
-    }
+	@Override
+	public void addAdditionalSaveData(CompoundTag pCompound) {
+		super.addAdditionalSaveData(pCompound);
+		pCompound.putFloat("EntityScale", this.entityData.get(SCALE_VAL));
+	}
 
-    @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
-        pCompound.putFloat("EntityScale", this.entityData.get(SCALE_VAL));
+	@Override
+	public void readAdditionalSaveData(CompoundTag pCompound) {
+		super.readAdditionalSaveData(pCompound);
+		if (pCompound.contains("EntityScale")) {
+			this.setScaleVal(pCompound.getFloat("EntityScale"));
+		}
+	}
 
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        if (pCompound.contains("EntityScale")) {this.setScaleVal(pCompound.getFloat("EntityScale"));}
-
-    }
-
-    @Override
+	@Override
 	protected InteractionResult mobInteract(Player pPlayer, InteractionHand pHand) {
 		if (pHand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
-
 		if (!this.level().isClientSide && pPlayer instanceof ServerPlayer serverPlayer && masterName != null) {
 			StatsProvider.get(StatsCapability.INSTANCE, serverPlayer).ifPresent(data -> {
 				if (!data.getStatus().isHasCreatedCharacter()) {
-					serverPlayer.displayClientMessage(
-							Component.translatable("gui.dragonminez.lines.generic.createcharacter"), true);
+					serverPlayer.displayClientMessage(Component.translatable("gui.dragonminez.lines.generic.createcharacter"), true);
 					return;
 				}
 				Component blocker = NpcDispositionService.getDialogueBlocker(serverPlayer, this);
@@ -250,7 +234,6 @@ public class MastersEntity extends PathfinderMob implements GeoEntity {
 			});
 			return InteractionResult.SUCCESS;
 		}
-
 		return InteractionResult.SUCCESS;
 	}
 }

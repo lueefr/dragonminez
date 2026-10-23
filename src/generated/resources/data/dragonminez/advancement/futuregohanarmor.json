@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternz",
+  "criteria": {
+    "futuregohanarmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:future_gohan_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:future_gohan_armor_leggings"
+          },
+          {
+            "items": "dragonminez:future_gohan_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.futuregohanarmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:future_gohan_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.futuregohanarmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "futuregohanarmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

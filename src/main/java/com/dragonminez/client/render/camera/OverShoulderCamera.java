@@ -1,5 +1,7 @@
 package com.dragonminez.client.render.camera;
 
+import lombok.*;
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.clash.BeamClashCinematicCamera;
 import com.dragonminez.client.events.FlySkillEvent;
@@ -28,18 +30,21 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public final class OverShoulderCamera {
-
 	public static final int MODE_NONE = 0;
 	public static final int MODE_LOCK_ON = 1;
 	public static final int MODE_ALWAYS = 2;
@@ -66,8 +71,8 @@ public final class OverShoulderCamera {
 	private static double curUp;
 	private static double curRight;
 	private static boolean active;
-	@Getter
-	@Setter
+@Getter
+@Setter
 	private static boolean previewOverride;
 
 	@Getter
@@ -226,8 +231,8 @@ public final class OverShoulderCamera {
 	}
 
 	@SubscribeEvent
-	public static void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || !decoupled) return;
+	public static void onClientTick(ClientTickEvent.Post event) {
+		if (!decoupled) return;
 		Minecraft mc = Minecraft.getInstance();
 		LocalPlayer player = mc.player;
 		if (player == null || player.level() == null) {
@@ -294,7 +299,7 @@ public final class OverShoulderCamera {
 			return new float[]{0.0F, 0.0F};
 		}
 
-		float partialTick = mc.getFrameTime();
+		float partialTick = mc.getTimer().getGameTimeDeltaPartialTick(true);
 		Vec3 eye = player.getEyePosition(partialTick);
 		HitResult pick = mc.hitResult;
 		double distance = pick != null && pick.getType() != HitResult.Type.MISS ? pick.getLocation().distanceTo(eye)
@@ -354,20 +359,17 @@ public final class OverShoulderCamera {
 			active = false;
 			return new Vec3(vanillaForward, vanillaUp, vanillaLeft);
 		}
-
 		if (!active) {
 			curBack = -vanillaForward;
 			curUp = 0.0;
 			curRight = 0.0;
 			active = true;
 		}
-
 		GeneralUserConfig config = ConfigManager.getUserConfig();
 		double ease = config.getOverShoulderSmoothing();
 		double targetBack = config.getOverShoulderBack() + vehicleCameraExtra(entity);
 		double targetUp = config.getOverShoulderUp();
 		double targetRight = config.getOverShoulderSide() * (config.getOverShoulderLeft() ? -1.0 : 1.0);
-
 		curBack += (targetBack - curBack) * ease;
 		curUp += (targetUp - curUp) * ease;
 		curRight += (targetRight - curRight) * ease;
@@ -392,31 +394,19 @@ public final class OverShoulderCamera {
 		return appliedMove;
 	}
 
-	private static double clampToObstruction(Camera camera, BlockGetter level, Entity entity,
-	                                         double moveForward, double moveUp, double moveLeft, float partialTick) {
+	private static double clampToObstruction(Camera camera, BlockGetter level, Entity entity, double moveForward, double moveUp, double moveLeft, float partialTick) {
 		Vector3f look = camera.getLookVector();
 		Vector3f up = camera.getUpVector();
 		Vector3f left = camera.getLeftVector();
-
-		Vec3 worldOffset = new Vec3(
-				look.x() * moveForward + up.x() * moveUp + left.x() * moveLeft,
-				look.y() * moveForward + up.y() * moveUp + left.y() * moveLeft,
-				look.z() * moveForward + up.z() * moveUp + left.z() * moveLeft
-		);
-
+		Vec3 worldOffset = new Vec3(look.x() * moveForward + up.x() * moveUp + left.x() * moveLeft, look.y() * moveForward + up.y() * moveUp + left.y() * moveLeft, look.z() * moveForward + up.z() * moveUp + left.z() * moveLeft);
 		double distance = worldOffset.length();
 		if (distance < 1.0E-4) return distance;
-
 		Vec3 eyePosition = entity.getEyePosition(partialTick);
-
 		for (int i = 0; i < 8; i++) {
 			Vec3 corner = new Vec3(i & 1, i >> 1 & 1, i >> 2 & 1).scale(2).subtract(1, 1, 1);
-			Vec3 fromOffset = corner.scale(Mth.clamp(entity.getBbWidth() / 2.0F / Mth.sqrt(2), 0.0F, 0.15F))
-					.xRot(-camera.getXRot() * Mth.DEG_TO_RAD)
-					.yRot(-camera.getYRot() * Mth.DEG_TO_RAD);
+			Vec3 fromOffset = corner.scale(Mth.clamp(entity.getBbWidth() / 2.0F / Mth.sqrt(2), 0.0F, 0.15F)).xRot(-camera.getXRot() * Mth.DEG_TO_RAD).yRot(-camera.getYRot() * Mth.DEG_TO_RAD);
 			Vec3 from = eyePosition.add(fromOffset);
 			Vec3 to = from.add(worldOffset);
-
 			ClipContext context = new ClipContext(from, to, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, entity);
 			HitResult hit = level.clip(context);
 			if (hit.getType() != HitResult.Type.MISS) {
@@ -424,7 +414,6 @@ public final class OverShoulderCamera {
 				if (hitDistance < distance) distance = hitDistance;
 			}
 		}
-
 		return distance;
 	}
 

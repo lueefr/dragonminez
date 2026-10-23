@@ -3,6 +3,7 @@ package com.dragonminez.server.world.data;
 import com.dragonminez.common.dragonball.DragonBallDefinitions;
 import com.dragonminez.common.dragonball.DragonBallSetDefinition;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
@@ -42,7 +43,7 @@ public class DragonBallSavedData extends SavedData {
 	}
 
 	public static DragonBallSavedData get(ServerLevel level) {
-		return level.getDataStorage().computeIfAbsent(DragonBallSavedData::load, DragonBallSavedData::new, "dragon_balls_data");
+		return level.getDataStorage().computeIfAbsent(new net.minecraft.world.level.saveddata.SavedData.Factory<>(DragonBallSavedData::new, (tag, registries) -> DragonBallSavedData.load(tag)), "dragon_balls_data");
 	}
 
 	public Map<Integer, List<BlockPos>> getActiveBalls(String setId) {
@@ -153,7 +154,7 @@ public class DragonBallSavedData extends SavedData {
 	}
 
 	@Override
-	public @NotNull CompoundTag save(CompoundTag tag) {
+	public @NotNull CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
 		Set<String> setIds = new LinkedHashSet<>();
 		for (DragonBallSetDefinition definition : DragonBallDefinitions.getBallSets()) setIds.add(definition.getId());
 		setIds.addAll(getKnownSetIds());
@@ -187,7 +188,7 @@ public class DragonBallSavedData extends SavedData {
 		for (int i = 0; i < list.size(); i++) {
 			CompoundTag item = list.getCompound(i);
 			int star = item.getInt("Star");
-			BlockPos pos = NbtUtils.readBlockPos(item.getCompound("Pos"));
+			BlockPos pos = NbtUtils.readBlockPos(item, "Pos").orElse(BlockPos.ZERO);
 			List<BlockPos> positions = map.computeIfAbsent(star, ignored -> new ArrayList<>());
 			if (!positions.contains(pos)) positions.add(pos);
 		}

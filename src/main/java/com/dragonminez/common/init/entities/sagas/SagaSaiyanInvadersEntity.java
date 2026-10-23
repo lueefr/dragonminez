@@ -26,7 +26,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.List;
 import java.util.Map;
@@ -41,9 +41,9 @@ public final class SagaSaiyanInvadersEntity {
 	private static final int[] SKIN_TONES = {0xFFD3C9, 0xF4C7AE, 0xE8B593, 0xD9A07B, 0xC48A64};
 	private static final int[] HAIR_TONES = {0x222629, 0x1C1F24, 0x26222A, 0x201C1F, 0x2A2628, 0x191C21};
 
-	private static final List<Map<ArmorItem.Type, RegistryObject<Item>>> ARMOR_SETS = List.of(
+	private static final List<Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>>> ARMOR_SETS = List.of(
 			MainItems.VEGETA_SAIYAN_ARMOR, MainItems.RADITZ_ARMOR, MainItems.TURLES_ARMOR, MainItems.BARDOCK_DBZ_ARMOR);
-	private static final List<RegistryObject<Item>> SCOUTERS = List.of(
+	private static final List<DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> SCOUTERS = List.of(
 			MainItems.GREEN_SCOUTER, MainItems.RED_SCOUTER, MainItems.BLUE_SCOUTER, MainItems.PURPLE_SCOUTER);
 
 	private SagaSaiyanInvadersEntity() {}
@@ -83,7 +83,7 @@ public final class SagaSaiyanInvadersEntity {
 		}
 
 		public ItemStack armorPiece(ArmorItem.Type type) {
-			RegistryObject<Item> item = ARMOR_SETS.get(Math.floorMod(this.armor, ARMOR_SETS.size())).get(type);
+			DeferredHolder<net.minecraft.world.item.Item, ? extends Item> item = ARMOR_SETS.get(Math.floorMod(this.armor, ARMOR_SETS.size())).get(type);
 			return item != null ? new ItemStack(item.get()) : ItemStack.EMPTY;
 		}
 
@@ -180,10 +180,10 @@ public final class SagaSaiyanInvadersEntity {
 		}
 
 		@Override
-		protected void defineSynchedData() {
-			super.defineSynchedData();
-			this.entityData.define(LOOK, new CompoundTag());
-			this.entityData.define(ACTION, ACTION_NONE);
+		protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+			super.defineSynchedData(builder);
+			builder.define(LOOK, new CompoundTag());
+			builder.define(ACTION, ACTION_NONE);
 		}
 
 		@Override
@@ -392,9 +392,9 @@ public final class SagaSaiyanInvadersEntity {
 
 		public static AttributeSupplier.Builder createAttributes() {
 			return SagaOzaruEntity.createAttributes()
-					.add(EntityAttributes.KI_BLAST_DAMAGE.get(), 45.0D)
-					.add(EntityAttributes.KI_BLAST_SPEED.get(), 1.5D)
-					.add(EntityAttributes.FLY_SPEED.get(), 0.0D);
+					.add(EntityAttributes.KI_BLAST_DAMAGE, 45.0D)
+					.add(EntityAttributes.KI_BLAST_SPEED, 1.5D)
+					.add(EntityAttributes.FLY_SPEED, 0.0D);
 		}
 
 		@Override
@@ -408,9 +408,9 @@ public final class SagaSaiyanInvadersEntity {
 		}
 
 		@Override
-		protected void defineSynchedData() {
-			super.defineSynchedData();
-			this.entityData.define(LOOK, new CompoundTag());
+		protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+			super.defineSynchedData(builder);
+			builder.define(LOOK, new CompoundTag());
 		}
 
 		@Override

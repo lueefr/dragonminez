@@ -33,10 +33,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.molang.MolangParser;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.loading.math.MolangQueries;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.model.data.EntityModelData;
 
@@ -159,7 +159,7 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         Character character = data.getCharacter();
         String race = character.getRaceName().toLowerCase();
         String gender = character.getGender().toLowerCase();
-        String playerModelName = player.getModelName();
+        String playerModelName = player.getSkin().model().id();
 
         RaceCharacterConfig raceConfig = ConfigManager.getRaceCharacter(race);
         String raceCustomModel = (raceConfig != null && raceConfig.hasCustomModel()) ? raceConfig.getCustomModel().toLowerCase() : "";
@@ -351,11 +351,11 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         float lookYaw = -headYawDeg * Mth.DEG_TO_RAD;
         float lookPitch = -Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot()) * Mth.DEG_TO_RAD;
 
-        CoreGeoBone head = this.getAnimationProcessor().getBone("head");
-        CoreGeoBone waist = this.getAnimationProcessor().getBone("waist");
-        CoreGeoBone root = this.getAnimationProcessor().getBone("root");
-        CoreGeoBone rightArm = this.getAnimationProcessor().getBone("right_arm");
-        CoreGeoBone leftArm = this.getAnimationProcessor().getBone("left_arm");
+        GeoBone head = this.getAnimationProcessor().getBone("head");
+        GeoBone waist = this.getAnimationProcessor().getBone("waist");
+        GeoBone root = this.getAnimationProcessor().getBone("root");
+        GeoBone rightArm = this.getAnimationProcessor().getBone("right_arm");
+        GeoBone leftArm = this.getAnimationProcessor().getBone("left_arm");
 
         if (head != null && !skipHead) {
             EntityModelData entityModelData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
@@ -373,7 +373,7 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         }
 
         if (animatable instanceof IPlayerAnimatable playerAnim && playerAnim.dragonminez$isShootingKi()) {
-            CoreGeoBone shootingArm = playerAnim.dragonminez$isShootingKiLeftHand() ? leftArm : rightArm;
+            GeoBone shootingArm = playerAnim.dragonminez$isShootingKiLeftHand() ? leftArm : rightArm;
             if (shootingArm != null) {
                 shootingArm.setRotX(lookPitch + 1.5708F);
                 shootingArm.setRotY(lookYaw);
@@ -415,7 +415,7 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         if (animatable instanceof IPlayerAnimatable playerAnim
                 && EXPLODE_ANIMATION.equals(playerAnim.dragonminez$getCurrentPlayingAnimation())) return;
 
-        CoreGeoBone head = this.getAnimationProcessor().getBone("head");
+        GeoBone head = this.getAnimationProcessor().getBone("head");
         if (head == null) return;
 
         boolean settled = Math.abs(head.getPosX()) < EXPLODE_RESET_EPSILON
@@ -436,7 +436,7 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
 
 
     private void applyBoobScale(T animatable) {
-        CoreGeoBone boobas = this.getAnimationProcessor().getBone("boobas");
+        GeoBone boobas = this.getAnimationProcessor().getBone("boobas");
         if (boobas == null) return;
 
         float factor = StatsProvider.get(StatsCapability.INSTANCE, animatable).map(data -> {
@@ -468,8 +468,9 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
     }
 
     @Override
-    public void applyMolangQueries(T animatable, double animTime) {
-        super.applyMolangQueries(animatable, animTime);
+    public void applyMolangQueries(AnimationState<T> animationState, double animTime) {
+        super.applyMolangQueries(animationState, animTime);
+        T animatable = animationState.getAnimatable();
         boolean headAnimPlaying = animatable instanceof IPlayerAnimatable pa && (pa.dragonminez$getCurrentPlayingAnimation().startsWith("transf.")
                 || pa.dragonminez$getCurrentPlayingAnimation().startsWith("ki."));
         boolean actuallyBusy = StatsProvider.get(StatsCapability.INSTANCE, animatable)
@@ -477,12 +478,10 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
                 || (animatable instanceof IPlayerAnimatable pa2 && pa2.dragonminez$isShootingKi());
         boolean skipHead = headAnimPlaying && actuallyBusy;
 
-        MolangParser parser = MolangParser.INSTANCE;
-
         // In GUI screens the O-fields (yBodyRotO, xRotO) are stale world values — the screen
         // only sets the current-tick fields. Using pt=1.0 makes lerp return the current value
         // directly, so the O-fields are ignored and there is no jitter.
-        float pt = Minecraft.getInstance().screen != null ? 1.0f : Minecraft.getInstance().getFrameTime();
+        float pt = Minecraft.getInstance().screen != null ? 1.0f : Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
         float pitch   = Mth.lerp(pt, animatable.xRotO,     animatable.getXRot());
         float bodyYaw = Mth.lerp(pt, animatable.yBodyRotO, animatable.yBodyRot);
         float headYaw = Mth.lerp(pt, animatable.yHeadRotO, animatable.yHeadRot);
@@ -491,9 +490,12 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         float relativeYaw  = -Mth.wrapDegrees(headYaw - bodyYaw);
         float clampedYaw   = skipHead ? 0F : Mth.clamp(relativeYaw, -90F, 90F);
 
-        parser.setValue("query.head_x_rotation", () -> (double) clampedPitch);
-        parser.setValue("query.head_y_rotation", () -> (double) clampedYaw);
-        parser.setValue("query.head_pitch", () -> (double) clampedPitch);
-        parser.setValue("query.head_yaw", () -> (double) clampedYaw);
+        // GeckoLib 4.9: per-frame Molang values go through actor variables (structure preserved).
+        final double headX = clampedPitch;
+        final double headY = clampedYaw;
+        MolangQueries.setActorVariable("query.head_x_rotation", actor -> headX);
+        MolangQueries.setActorVariable("query.head_y_rotation", actor -> headY);
+        MolangQueries.setActorVariable("query.head_pitch", actor -> headX);
+        MolangQueries.setActorVariable("query.head_yaw", actor -> headY);
     }
 }

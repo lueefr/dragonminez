@@ -1,5 +1,6 @@
 package com.dragonminez.common.config;
 
+import lombok.*;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -33,7 +33,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.network.NetworkEvent;
+import com.dragonminez.compat.network.NetworkEvent;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -209,7 +209,7 @@ public class NPCActionC2S {
 			if (AlignmentBand.fromValue(data.getResources().getAlignment()) != AlignmentBand.GOOD) return false;
 			if (data.getCooldowns().hasCooldown(Cooldowns.KAMI_BLESS)) return false;
 			var gameplay = ConfigManager.getServerConfig().getGameplay();
-			player.addEffect(new MobEffectInstance(MainEffects.KAMI_BLESS.get(), gameplay.getKamiBlessDurationSeconds() * 20, 0, false, false, true));
+			player.addEffect(new MobEffectInstance(MainEffects.KAMI_BLESS, gameplay.getKamiBlessDurationSeconds() * 20, 0, false, false, true));
 			data.getCooldowns().setCooldown(Cooldowns.KAMI_BLESS, gameplay.getKamiBlessCooldownSeconds() * 20);
 			return true;
 		}

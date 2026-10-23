@@ -1,7 +1,7 @@
 package com.dragonminez.common.compat;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 import net.weaponleveling.api.LevelingAPI;
 
 public final class WeaponLevelingCompat {

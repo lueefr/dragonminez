@@ -6,7 +6,7 @@ import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import com.dragonminez.compat.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -31,7 +31,7 @@ public class SetReleaseLimitC2S {
 		context.enqueueWork(() -> {
 			ServerPlayer player = context.getSender();
 			if (player == null) return;
-			if (player.hasEffect(MainEffects.STUN.get())) return;
+			if (player.hasEffect(MainEffects.STUN)) return;
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 				int maxRelease = data.getMaxPowerRelease();
 

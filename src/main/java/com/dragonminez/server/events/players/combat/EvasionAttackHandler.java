@@ -1,5 +1,6 @@
 package com.dragonminez.server.events.players.combat;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.combat.logic.player.TargetHelper;
 import com.dragonminez.common.combat.util.MultipartTargeting;
@@ -39,16 +40,20 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,7 +62,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class EvasionAttackHandler {
 
 	public static final String BLIND_UNTIL_TAG = "dmz_taiyoken_blind_until";
@@ -423,7 +428,7 @@ public class EvasionAttackHandler {
 
 	@SubscribeEvent
 	public static void onChangeTarget(LivingChangeTargetEvent event) {
-		LivingEntity newTarget = event.getNewTarget();
+		LivingEntity newTarget = event.getNewAboutToBeSetTarget();
 		if (newTarget == null || event.getEntity().level().isClientSide()) return;
 		if (hasLostTrackOf(event.getEntity(), newTarget)) event.setCanceled(true);
 	}
@@ -471,7 +476,7 @@ public class EvasionAttackHandler {
 	}
 
 	public static void applyCandy(LivingEntity caster, LivingEntity target, int candyTicks, int boltTicks) {
-		target.addEffect(new MobEffectInstance(MainEffects.CANDY.get(), candyTicks, 0, false, true));
+		target.addEffect(new MobEffectInstance(MainEffects.CANDY, candyTicks, 0, false, true));
 		CandyVfxS2C packet = new CandyVfxS2C(caster != null ? caster.getId() : -1, target.getId(), candyTicks, boltTicks);
 		NetworkHandler.sendToTrackingEntityAndSelf(packet, caster != null ? caster : target);
 	}
@@ -510,10 +515,10 @@ public class EvasionAttackHandler {
 	}
 
 	@SubscribeEvent
-	public static void onCandyAttack(LivingAttackEvent event) {
+	public static void onCandyAttack(LivingIncomingDamageEvent event) {
 		if (event.getEntity().level().isClientSide()) return;
 		if (event.getSource().getEntity() instanceof LivingEntity attacker && attacker != event.getEntity()
-				&& (attacker.hasEffect(MainEffects.CANDY.get()) || GumBindEntity.isBound(attacker.getUUID()))) {
+				&& (attacker.hasEffect(MainEffects.CANDY) || GumBindEntity.isBound(attacker.getUUID()))) {
 			event.setCanceled(true);
 		}
 	}
@@ -625,8 +630,8 @@ public class EvasionAttackHandler {
 	}
 
 	@SubscribeEvent
-	public static void onLevelTick(TickEvent.LevelTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || event.level.isClientSide) return;
+	public static void onLevelTick(LevelTickEvent.Post event) {
+		if (event.getLevel().isClientSide) return;
 		if (BLINDED_MOBS.isEmpty()) return;
 
 		Iterator<LivingEntity> it = BLINDED_MOBS.iterator();
@@ -641,8 +646,8 @@ public class EvasionAttackHandler {
 	}
 
 	@SubscribeEvent
-	public static void onServerTick(TickEvent.ServerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || ACTIVE.isEmpty()) return;
+	public static void onServerTick(ServerTickEvent.Post event) {
+		if (ACTIVE.isEmpty()) return;
 
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if (server == null) return;
@@ -708,7 +713,7 @@ public class EvasionAttackHandler {
 	}
 
 	@SubscribeEvent
-	public static void onLivingAttack(LivingAttackEvent event) {
+	public static void onLivingAttack(LivingIncomingDamageEvent event) {
 		if (event.getEntity().level().isClientSide()) return;
 		if (event.getSource().getEntity() == null) return;
 		ActiveEvasion activeEvasion = ACTIVE.get(event.getEntity().getUUID());
@@ -720,7 +725,7 @@ public class EvasionAttackHandler {
 	}
 
 	@SubscribeEvent
-	public static void onLivingHurt(LivingHurtEvent event) {
+	public static void onLivingHurt(LivingIncomingDamageEvent event) {
 		if (event.getEntity().level().isClientSide() || event.getAmount() <= 0.0F) return;
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 		ActiveEvasion active = ACTIVE.get(player.getUUID());
@@ -737,8 +742,8 @@ public class EvasionAttackHandler {
 	}
 
 	@SubscribeEvent
-	public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || !(event.player instanceof ServerPlayer player)) return;
+	public static void onPlayerTick(PlayerTickEvent.Post event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 		if (ACTIVE.containsKey(player.getUUID())) return;
 		StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(stats -> {
 			if (!stats.getStatus().isSleepRecovering()) return;

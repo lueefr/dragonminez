@@ -10,7 +10,7 @@ import com.dragonminez.server.world.structure.fitted.HeightSampler;
 import com.dragonminez.server.world.structure.fitted.SitePlan;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;

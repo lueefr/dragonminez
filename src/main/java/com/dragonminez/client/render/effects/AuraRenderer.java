@@ -886,6 +886,8 @@ public class AuraRenderer {
 			poseStack = shaderpackViewStack(mc);
 		}
 
+		// Match DMZ 1.20.1: the deferred stage starts from the world-render base pose,
+		// so position the aura with the interpolated camera-relative entity position.
 		Vec3 cameraPos = mc.gameRenderer.getMainCamera().getPosition();
 		double offsetX = position.x - cameraPos.x;
 		double offsetY = position.y - cameraPos.y;
@@ -1269,7 +1271,7 @@ public class AuraRenderer {
 		}
 
 		poseStack.translate(up.x * pivot, up.y * pivot, up.z * pivot);
-		poseStack.mulPoseMatrix(new Matrix4f(
+		poseStack.mulPose(new Matrix4f(
 				(float) right.x, (float) right.y, (float) right.z, 0.0f,
 				(float) cardUp.x, (float) cardUp.y, (float) cardUp.z, 0.0f,
 				(float) forward.x, (float) forward.y, (float) forward.z, 0.0f,
@@ -1554,6 +1556,7 @@ public class AuraRenderer {
 
 		shader.safeGetUniform("alp1").set(alphaCurve * 0.6f * alphaMultiplier * topLayer.alpha);
 
+		boolean localThirdPerson = player == mc.player && !mc.options.getCameraType().isFirstPerson();
 		RenderType pulseRender = auraType(crossTex);
 		customSetup(pulseRender, crossTex, shader);
 
@@ -1571,8 +1574,7 @@ public class AuraRenderer {
 		if (cachedLightningMesh == null) {
 			cachedLightningMesh = new VertexBuffer(VertexBuffer.Usage.STATIC);
 			Tesselator tesselator = Tesselator.getInstance();
-			BufferBuilder builder = tesselator.getBuilder();
-			builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+			BufferBuilder builder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_NORMAL);
 
 			float w = 0.15f;
 			float h = 3.0f;
@@ -1583,19 +1585,19 @@ public class AuraRenderer {
 				float y1 = i * segHeight;
 				float y2 = (i + 1) * segHeight;
 
-				builder.vertex(-w, y1, 0).color(255, 255, 255, 255).normal(0, 0, 1).endVertex();
-				builder.vertex(w, y1, 0).color(255, 255, 255, 255).normal(0, 0, 1).endVertex();
-				builder.vertex(w, y2, 0).color(255, 255, 255, 255).normal(0, 0, 1).endVertex();
-				builder.vertex(-w, y2, 0).color(255, 255, 255, 255).normal(0, 0, 1).endVertex();
+				builder.addVertex(-w, y1, 0).setColor(255, 255, 255, 255).setNormal(0, 0, 1);
+				builder.addVertex(w, y1, 0).setColor(255, 255, 255, 255).setNormal(0, 0, 1);
+				builder.addVertex(w, y2, 0).setColor(255, 255, 255, 255).setNormal(0, 0, 1);
+				builder.addVertex(-w, y2, 0).setColor(255, 255, 255, 255).setNormal(0, 0, 1);
 
-				builder.vertex(0, y1, -w).color(255, 255, 255, 255).normal(1, 0, 0).endVertex();
-				builder.vertex(0, y1, w).color(255, 255, 255, 255).normal(1, 0, 0).endVertex();
-				builder.vertex(0, y2, w).color(255, 255, 255, 255).normal(1, 0, 0).endVertex();
-				builder.vertex(0, y2, -w).color(255, 255, 255, 255).normal(1, 0, 0).endVertex();
+				builder.addVertex(0, y1, -w).setColor(255, 255, 255, 255).setNormal(1, 0, 0);
+				builder.addVertex(0, y1, w).setColor(255, 255, 255, 255).setNormal(1, 0, 0);
+				builder.addVertex(0, y2, w).setColor(255, 255, 255, 255).setNormal(1, 0, 0);
+				builder.addVertex(0, y2, -w).setColor(255, 255, 255, 255).setNormal(1, 0, 0);
 			}
 
 			cachedLightningMesh.bind();
-			cachedLightningMesh.upload(builder.end());
+			cachedLightningMesh.upload(builder.buildOrThrow());
 			VertexBuffer.unbind();
 		}
 		return cachedLightningMesh;
@@ -1668,18 +1670,18 @@ public class AuraRenderer {
 	}
 
 	private static void vertex01(VertexConsumer pConsumer, Matrix4f pMatrix, int pAlpha, int r, int g, int b) {
-		pConsumer.vertex(pMatrix, 0.0F, 0.0F, 0.0F).color(r, g, b, pAlpha).endVertex();
+		pConsumer.addVertex(pMatrix, 0.0F, 0.0F, 0.0F).setColor(r, g, b, pAlpha);
 	}
 
 	private static void vertex2(VertexConsumer pConsumer, Matrix4f pMatrix, float pWidth, float pLength, int r, int g, int b, int alpha) {
-		pConsumer.vertex(pMatrix, -HALF_SQRT_3 * pLength, pWidth, -0.5F * pLength).color(r, g, b, alpha).endVertex();
+		pConsumer.addVertex(pMatrix, -HALF_SQRT_3 * pLength, pWidth, -0.5F * pLength).setColor(r, g, b, alpha);
 	}
 
 	private static void vertex3(VertexConsumer pConsumer, Matrix4f pMatrix, float pWidth, float pLength, int r, int g, int b, int alpha) {
-		pConsumer.vertex(pMatrix, HALF_SQRT_3 * pLength, pWidth, -0.5F * pLength).color(r, g, b, alpha).endVertex();
+		pConsumer.addVertex(pMatrix, HALF_SQRT_3 * pLength, pWidth, -0.5F * pLength).setColor(r, g, b, alpha);
 	}
 
 	private static void vertex4(VertexConsumer pConsumer, Matrix4f pMatrix, float pWidth, float pLength, int r, int g, int b, int alpha) {
-		pConsumer.vertex(pMatrix, 0.0F, pWidth, pLength).color(r, g, b, alpha).endVertex();
+		pConsumer.addVertex(pMatrix, 0.0F, pWidth, pLength).setColor(r, g, b, alpha);
 	}
 }

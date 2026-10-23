@@ -1,5 +1,6 @@
 package com.dragonminez.server.events.players;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -22,19 +23,23 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.server.ServerStoppedEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -46,7 +51,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public final class KiShareService {
 	private static final double START_RANGE_TOLERANCE = 2.0;
 	private static final float START_SOUND_VOLUME = 0.6f;
@@ -167,8 +172,8 @@ public final class KiShareService {
 	}
 
 	@SubscribeEvent
-	public static void onServerTick(TickEvent.ServerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END) return;
+	public static void onServerTick(ServerTickEvent.Post event) {
+
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if (server == null) return;
 		GeneralServerConfig.KiTransferConfig cfg = GodRitualHelper.transferConfig();
@@ -304,7 +309,7 @@ public final class KiShareService {
 
 	private static boolean canAct(ServerPlayer player, StatsData data) {
 		if (!player.isAlive() || player.isSpectator() || !data.getStatus().isHasCreatedCharacter()) return false;
-		if (player.hasEffect(MainEffects.STUN.get())) return false;
+		if (player.hasEffect(MainEffects.STUN)) return false;
 		var status = data.getStatus();
 		return !status.isKnockedDown() && !status.isStrikeLocked() && !status.isMatchFrozen() && !status.isInGodRitual();
 	}
@@ -399,7 +404,7 @@ public final class KiShareService {
 				it.remove();
 				continue;
 			}
-			showIndicator(player, MainEffects.KI_TRANSFER_DRAIN.get(), donating ? -1 : status.getKiDrainTicks(), status.getKiDrainStacks() - 1);
+			showIndicator(player, MainEffects.KI_TRANSFER_DRAIN, donating ? -1 : status.getKiDrainTicks(), status.getKiDrainStacks() - 1);
 		}
 	}
 
@@ -408,11 +413,11 @@ public final class KiShareService {
 		boolean had = status.getKiDrainStacks() != 0 || status.getKiDrainTicks() != 0;
 		status.setKiDrainStacks(0);
 		status.setKiDrainTicks(0);
-		if (player.hasEffect(MainEffects.KI_TRANSFER_DRAIN.get())) player.removeEffect(MainEffects.KI_TRANSFER_DRAIN.get());
+		if (player.hasEffect(MainEffects.KI_TRANSFER_DRAIN)) player.removeEffect(MainEffects.KI_TRANSFER_DRAIN);
 		if (had) sync(player);
 	}
 
-	private static void showIndicator(ServerPlayer player, MobEffect effect, int duration, int amplifier) {
+	private static void showIndicator(ServerPlayer player, net.minecraft.core.Holder<MobEffect> effect, int duration, int amplifier) {
 		int amp = Math.max(0, amplifier);
 		MobEffectInstance current = player.getEffect(effect);
 		if (current != null && current.getAmplifier() == amp) {
@@ -425,7 +430,7 @@ public final class KiShareService {
 
 	private static void refreshBoostIndicator(ServerPlayer receiver, int donors) {
 		if (donors <= 0) {
-			if (receiver.hasEffect(MainEffects.KI_TRANSFER_BOOST.get())) receiver.removeEffect(MainEffects.KI_TRANSFER_BOOST.get());
+			if (receiver.hasEffect(MainEffects.KI_TRANSFER_BOOST)) receiver.removeEffect(MainEffects.KI_TRANSFER_BOOST);
 			return;
 		}
 		UUID receiverId = receiver.getUUID();
@@ -435,7 +440,7 @@ public final class KiShareService {
 		if (retained != null) {
 			for (int ticks : retained.values()) longest = Math.max(longest, ticks);
 		}
-		showIndicator(receiver, MainEffects.KI_TRANSFER_BOOST.get(), live ? -1 : longest, donors - 1);
+		showIndicator(receiver, MainEffects.KI_TRANSFER_BOOST, live ? -1 : longest, donors - 1);
 	}
 
 	public static void clearTransferEffects(ServerPlayer player) {
@@ -450,7 +455,7 @@ public final class KiShareService {
 				sync(player);
 			}
 		}
-		if (player.hasEffect(MainEffects.KI_TRANSFER_BOOST.get())) player.removeEffect(MainEffects.KI_TRANSFER_BOOST.get());
+		if (player.hasEffect(MainEffects.KI_TRANSFER_BOOST)) player.removeEffect(MainEffects.KI_TRANSFER_BOOST);
 	}
 
 	private static void refreshBoosts(MinecraftServer server, Map<UUID, Integer> settledPerReceiver) {
@@ -492,13 +497,13 @@ public final class KiShareService {
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onDamage(LivingDamageEvent event) {
-		if (event.isCanceled() || event.getAmount() <= 0.0f || !(event.getEntity() instanceof ServerPlayer victim)) return;
+	public static void onDamage(LivingDamageEvent.Pre event) {
+		if (event.getNewDamage() <= 0.0f || !(event.getEntity() instanceof ServerPlayer victim)) return;
 		Link link = LINKS.get(victim.getUUID());
 		if (link == null) return;
 		GeneralServerConfig.KiTransferConfig cfg = GodRitualHelper.transferConfig();
 		if (cfg == null) return;
-		link.damageTaken += Math.min(event.getAmount(), victim.getHealth());
+		link.damageTaken += Math.min(event.getNewDamage(), victim.getHealth());
 		if (link.damageTaken >= victim.getMaxHealth() * cfg.getInterruptDamageRatio()) {
 			stop(victim.getServer(), victim.getUUID(), "message.dragonminez.kishare.interrupted");
 		}
@@ -510,7 +515,7 @@ public final class KiShareService {
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
-	public static void onLivingAttack(LivingAttackEvent event) {
+	public static void onLivingAttack(LivingIncomingDamageEvent event) {
 		if (event.getEntity().level().isClientSide) return;
 		if (event.getSource().getEntity() instanceof Player attacker && isLocked(attacker)) event.setCanceled(true);
 	}
@@ -567,7 +572,7 @@ public final class KiShareService {
 		if (data == null) return;
 		var status = data.getStatus();
 		if (status.getKiDrainTicks() > 0) DRAINED.add(player.getUUID());
-		if (player.hasEffect(MainEffects.KI_TRANSFER_BOOST.get())) player.removeEffect(MainEffects.KI_TRANSFER_BOOST.get());
+		if (player.hasEffect(MainEffects.KI_TRANSFER_BOOST)) player.removeEffect(MainEffects.KI_TRANSFER_BOOST);
 		if (status.getKiTransferTarget() == -1 && status.getKiTransferDonors() == 0) return;
 		status.setKiTransferTarget(-1);
 		status.setKiTransferDonors(0);

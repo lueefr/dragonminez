@@ -1,5 +1,6 @@
 package com.dragonminez.server.events.players;
 
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import com.dragonminez.Reference;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.events.DMZEvent;
@@ -29,14 +30,18 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +49,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+@EventBusSubscriber(modid = Reference.MOD_ID)
 public class TPGainEvents {
 
 	private static final Map<UUID, Vec3> lastPositions = new HashMap<>();
@@ -79,8 +84,8 @@ public class TPGainEvents {
 	}
 
 	@SubscribeEvent
-	public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-		if (event.phase == TickEvent.Phase.END && event.player instanceof ServerPlayer player) {
+	public static void onPlayerTick(PlayerTickEvent.Post event) {
+		if (event.getEntity() instanceof ServerPlayer player) {
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 				if (!data.getStatus().isHasCreatedCharacter()) return;
 
@@ -125,7 +130,7 @@ public class TPGainEvents {
 				if (data.getStatus().isHasCreatedCharacter()) {
 					int baseTp = ConfigManager.getServerConfig().getGameplay().getTpPerBlockMined();
 					if (baseTp > 0) {
-						int xp = event.getExpToDrop();
+						int xp = event.getState().getExpDrop(event.getLevel(), event.getPos(), event.getLevel().getBlockEntity(event.getPos()), player, player.getMainHandItem());
 						int bonus = (int) Math.round(baseTp * 0.25 * xp);
 						data.getResources().addBoostedTrainingPoints(data.applyTpBoosts(TpSource.MINED, baseTp + bonus));
 					}
@@ -199,7 +204,7 @@ public class TPGainEvents {
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOW)
-	public static void onEntityHit(LivingHurtEvent event) {
+	public static void onEntityHit(LivingIncomingDamageEvent event) {
 		if (event.getEntity().level().isClientSide) return;
 
 		if (event.getSource().getEntity() instanceof Player attacker) {
@@ -217,8 +222,8 @@ public class TPGainEvents {
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onLivingHurtDynamicGrowth(LivingHurtEvent event) {
-		if (event.isCanceled() || event.getEntity().level().isClientSide) return;
+	public static void onLivingHurtDynamicGrowth(LivingIncomingDamageEvent event) {
+		if (event.getEntity().level().isClientSide) return;
 		if (!ConfigManager.getServerConfig().getDynamicGrowth().isEnabled()) return;
 
 		LivingEntity target = event.getEntity();

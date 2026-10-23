@@ -17,7 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraft.client.gui.LayeredDraw;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +52,10 @@ public class KiSenseOverlay {
 
 	private static final Map<Integer, View> VIEWS = new HashMap<>();
 
-	public static final IGuiOverlay HUD_KI_SENSE = (forgeGui, guiGraphics, partialTicks, width, height) -> {
+	public static final LayeredDraw.Layer HUD_KI_SENSE = (guiGraphics, deltaTracker) -> {
+        float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
+        int width = guiGraphics.guiWidth();
+        int height = guiGraphics.guiHeight();
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
@@ -62,7 +65,7 @@ public class KiSenseOverlay {
 			VIEWS.clear();
 			return;
 		}
-		if (mc.options.renderDebug || mc.options.hideGui || !CameraProjectionCapture.isAvailable()) return;
+		if (mc.getDebugOverlay().showDebugScreen() || mc.options.hideGui || !CameraProjectionCapture.isAvailable()) return;
 
 		Set<Integer> combat = KiSenseState.isCombat() ? KiSenseScan.getCombatEntities() : Collections.emptySet();
 		for (View view : VIEWS.values()) view.present = false;
@@ -161,7 +164,7 @@ public class KiSenseOverlay {
 	}
 
 	private static void drawIndicators(GuiGraphics guiGraphics, Minecraft mc, int id, float maxHealth) {
-		float time = mc.level.getGameTime() + mc.getFrameTime();
+		float time = mc.level.getGameTime() + mc.getTimer().getGameTimeDeltaPartialTick(true);
 		float originX = WIDTH / 2.0f;
 		float originY = -BORDER;
 

@@ -1,0 +1,72 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "3": {
+      "item": "minecraft:black_dye"
+    },
+    "4": {
+      "item": "minecraft:black_dye"
+    },
+    "9": {
+      "item": "minecraft:black_dye"
+    },
+    "B": {
+      "item": "minecraft:pink_dye"
+    },
+    "C": {
+      "item": "minecraft:magenta_dye"
+    },
+    "D": {
+      "item": "minecraft:magenta_dye"
+    },
+    "E": {
+      "item": "minecraft:pink_dye"
+    },
+    "H": {
+      "item": "minecraft:magenta_dye"
+    },
+    "I": {
+      "item": "minecraft:pink_dye"
+    },
+    "J": {
+      "item": "minecraft:pink_dye"
+    },
+    "K": {
+      "item": "minecraft:magenta_dye"
+    },
+    "N": {
+      "item": "minecraft:black_dye"
+    },
+    "O": {
+      "item": "dragonminez:blank_pattern_super"
+    },
+    "P": {
+      "item": "minecraft:black_dye"
+    },
+    "Q": {
+      "item": "minecraft:black_dye"
+    },
+    "S": {
+      "item": "minecraft:black_dye"
+    },
+    "X": {
+      "item": "minecraft:black_dye"
+    },
+    "Y": {
+      "item": "minecraft:black_dye"
+    }
+  },
+  "pattern": [
+    " BCDE ",
+    " HIJK ",
+    " NOPQ ",
+    "S    X",
+    "Y    3",
+    "4    9"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_caulifla"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternz",
+  "criteria": {
+    "videlarmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:videl_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:videl_armor_leggings"
+          },
+          {
+            "items": "dragonminez:videl_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.videlarmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:videl_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.videlarmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "videlarmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

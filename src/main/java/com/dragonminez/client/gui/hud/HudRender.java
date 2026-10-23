@@ -115,7 +115,7 @@ public final class HudRender {
 
 		graphics.flush();
 		RenderSystem.setShaderTexture(0, sprite.sheet());
-		RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		RenderSystem.enableBlend();
 		if (additive) {
@@ -124,13 +124,12 @@ public final class HudRender {
 			RenderSystem.defaultBlendFunc();
 		}
 		Matrix4f matrix = graphics.pose().last().pose();
-		BufferBuilder builder = Tesselator.getInstance().getBuilder();
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
-		builder.vertex(matrix, x0, y0, 0.0f).color(r, g, b, topLeft).uv(u0, v0).endVertex();
-		builder.vertex(matrix, x0, y1, 0.0f).color(r, g, b, bottomLeft).uv(u0, v1).endVertex();
-		builder.vertex(matrix, x1, y1, 0.0f).color(r, g, b, bottomRight).uv(u1, v1).endVertex();
-		builder.vertex(matrix, x1, y0, 0.0f).color(r, g, b, topRight).uv(u1, v0).endVertex();
-		BufferUploader.drawWithShader(builder.end());
+		BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+		builder.addVertex(matrix, x0, y0, 0.0f).setColor(r, g, b, topLeft).setUv(u0, v0);
+		builder.addVertex(matrix, x0, y1, 0.0f).setColor(r, g, b, bottomLeft).setUv(u0, v1);
+		builder.addVertex(matrix, x1, y1, 0.0f).setColor(r, g, b, bottomRight).setUv(u1, v1);
+		builder.addVertex(matrix, x1, y0, 0.0f).setColor(r, g, b, topRight).setUv(u1, v0);
+		BufferUploader.drawWithShader(builder.buildOrThrow());
 		if (additive) RenderSystem.defaultBlendFunc();
 	}
 
@@ -153,13 +152,12 @@ public final class HudRender {
 		Matrix4f matrix = graphics.pose().last().pose();
 		float u0 = u / textureWidth, u1 = (u + regionWidth) / textureWidth;
 		float v0 = v / textureHeight, v1 = (v + regionHeight) / textureHeight;
-		BufferBuilder builder = Tesselator.getInstance().getBuilder();
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		builder.vertex(matrix, x, y, 0.0f).uv(u0, v0).endVertex();
-		builder.vertex(matrix, x, y + height, 0.0f).uv(u0, v1).endVertex();
-		builder.vertex(matrix, x + width, y + height, 0.0f).uv(u1, v1).endVertex();
-		builder.vertex(matrix, x + width, y, 0.0f).uv(u1, v0).endVertex();
-		BufferUploader.drawWithShader(builder.end());
+		BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		builder.addVertex(matrix, x, y, 0.0f).setUv(u0, v0);
+		builder.addVertex(matrix, x, y + height, 0.0f).setUv(u0, v1);
+		builder.addVertex(matrix, x + width, y + height, 0.0f).setUv(u1, v1);
+		builder.addVertex(matrix, x + width, y, 0.0f).setUv(u1, v0);
+		BufferUploader.drawWithShader(builder.buildOrThrow());
 		if (additive) RenderSystem.defaultBlendFunc();
 	}
 
@@ -301,7 +299,7 @@ public final class HudRender {
 
 	private static void vertex(VertexConsumer buffer, Matrix4f matrix, float x, float y, int argb) {
 		int alpha = Math.round(((argb >>> 24) & 0xFF) * alphaScale);
-		buffer.vertex(matrix, x, y, 0.0f).color((argb >> 16) & 0xFF, (argb >> 8) & 0xFF, argb & 0xFF, alpha).endVertex();
+		buffer.addVertex(matrix, x, y, 0.0f).setColor((argb >> 16) & 0xFF, (argb >> 8) & 0xFF, argb & 0xFF, alpha);
 	}
 
 	public static void text(GuiGraphics graphics, String text, float x, float y, float scale, float align, int rgb, float alpha) {

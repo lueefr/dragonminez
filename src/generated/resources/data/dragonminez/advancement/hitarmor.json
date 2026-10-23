@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternsuper",
+  "criteria": {
+    "hitarmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:hit_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:hit_armor_leggings"
+          },
+          {
+            "items": "dragonminez:hit_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.hitarmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:hit_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.hitarmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "hitarmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

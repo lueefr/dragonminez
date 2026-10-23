@@ -1,5 +1,6 @@
 package com.dragonminez.common.racial;
 
+import lombok.*;
 import com.dragonminez.common.racial.capture.PendingCapture;
 import com.dragonminez.common.stats.character.BonusStats;
 import lombok.Getter;

@@ -1,5 +1,6 @@
 package com.dragonminez.common.quest;
 
+import lombok.*;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.quest.rewards.AttributePointsReward;
 import com.dragonminez.common.quest.rewards.AttributesReward;
@@ -39,6 +40,7 @@ public class PlayerQuestData {
     @Getter
     private String trackedQuestId = null;
     @Getter
+@Setter
     private Difficulty difficulty = Difficulty.NORMAL;
     @Getter
     @Setter

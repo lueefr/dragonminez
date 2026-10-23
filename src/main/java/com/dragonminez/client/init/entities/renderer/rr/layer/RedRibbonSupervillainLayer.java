@@ -36,9 +36,7 @@ public class RedRibbonSupervillainLayer<T extends RedRibbonEntity> extends GeoRe
 
 		if (maskBuffer != null) maskBuffer.setMaskCaptureBlocked(true);
 		try {
-			getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, tinted,
-					bufferSource.getBuffer(tinted), partialTick, packedLight, packedOverlay,
-					tint[0], tint[1], tint[2], SagaSupervillainLayer.TINT_ALPHA);
+			getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, tinted, bufferSource.getBuffer(tinted), partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(tint[0], tint[1], tint[2], SagaSupervillainLayer.TINT_ALPHA));
 		} finally {
 			if (maskBuffer != null) maskBuffer.setMaskCaptureBlocked(false);
 		}

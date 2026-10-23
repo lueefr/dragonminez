@@ -2,13 +2,13 @@ package com.dragonminez.server.world.raid;
 
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
-import net.minecraftforge.registries.tags.ITagManager;
+
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +30,13 @@ public final class RaidEntityResolver {
 
 		if (!entityId.startsWith("#")) {
 			ResourceLocation location = ResourceLocation.tryParse(entityId);
-			return location != null && location.equals(ForgeRegistries.ENTITY_TYPES.getKey(type));
+			return location != null && location.equals(BuiltInRegistries.ENTITY_TYPE.getKey(type));
 		}
 
 		ResourceLocation tagLocation = ResourceLocation.tryParse(entityId.substring(1));
 		if (tagLocation == null) return false;
 
-		ITagManager<EntityType<?>> tags = ForgeRegistries.ENTITY_TYPES.tags();
-		return tags != null && tags.getTag(TagKey.create(Registries.ENTITY_TYPE, tagLocation)).contains(type);
+		return BuiltInRegistries.ENTITY_TYPE.getTag(TagKey.create(Registries.ENTITY_TYPE, tagLocation)).map(tag -> tag.contains(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type))).orElse(false);
 	}
 
 	private static EntityType<?> resolveDirect(String entityId) {
@@ -47,7 +46,7 @@ public final class RaidEntityResolver {
 			return null;
 		}
 
-		EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(location);
+		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(location);
 		if (type == null) {
 			LogUtil.warn(Env.SERVER, "Raid wave points at unknown entity '{}'; skipping it", entityId);
 		}
@@ -61,12 +60,12 @@ public final class RaidEntityResolver {
 			return null;
 		}
 
-		ITagManager<EntityType<?>> tags = ForgeRegistries.ENTITY_TYPES.tags();
-		if (tags == null) return null;
+		var tags = BuiltInRegistries.ENTITY_TYPE.getTag(TagKey.create(Registries.ENTITY_TYPE, location));
+        if (tags.isEmpty()) return null;
 
 		List<EntityType<?>> members = new ArrayList<>();
-		for (EntityType<?> type : tags.getTag(TagKey.create(Registries.ENTITY_TYPE, location))) {
-			members.add(type);
+		for (var type : tags.get()) {
+			members.add(type.value());
 		}
 
 		if (members.isEmpty()) {

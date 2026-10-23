@@ -1,5 +1,6 @@
 package com.dragonminez.common.stats.character;
 
+import lombok.*;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.events.DMZEvent;
 import com.dragonminez.common.stats.StatsData;
@@ -9,7 +10,7 @@ import lombok.Setter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Getter
 @Setter
@@ -174,7 +175,7 @@ public class Resources {
         }
         DMZEvent.TPGainEvent event = new DMZEvent.TPGainEvent(player, (int) Math.min(oldValue, Integer.MAX_VALUE), (int) amount, shareWithParty, preBoosted);
 
-        if (!MinecraftForge.EVENT_BUS.post(event)) {
+        if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
             setTrainingPointsExact(oldValue + event.getTpGain());
         }
     }

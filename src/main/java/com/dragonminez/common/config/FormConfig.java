@@ -1,5 +1,6 @@
 package com.dragonminez.common.config;
 
+import lombok.*;
 import com.dragonminez.common.racial.impl.GlindDivinity;
 import com.dragonminez.common.util.FusionForms;
 import lombok.Getter;

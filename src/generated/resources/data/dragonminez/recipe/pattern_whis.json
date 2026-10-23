@@ -1,0 +1,120 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:yellow_dye"
+    },
+    "1": {
+      "item": "minecraft:yellow_dye"
+    },
+    "2": {
+      "item": "minecraft:black_dye"
+    },
+    "3": {
+      "item": "minecraft:magenta_dye"
+    },
+    "5": {
+      "item": "minecraft:black_dye"
+    },
+    "6": {
+      "item": "minecraft:yellow_dye"
+    },
+    "7": {
+      "item": "minecraft:yellow_dye"
+    },
+    "8": {
+      "item": "minecraft:black_dye"
+    },
+    "A": {
+      "item": "minecraft:black_dye"
+    },
+    "B": {
+      "item": "minecraft:white_dye"
+    },
+    "C": {
+      "item": "minecraft:black_dye"
+    },
+    "D": {
+      "item": "minecraft:black_dye"
+    },
+    "E": {
+      "item": "minecraft:white_dye"
+    },
+    "F": {
+      "item": "minecraft:black_dye"
+    },
+    "G": {
+      "item": "minecraft:magenta_dye"
+    },
+    "H": {
+      "item": "minecraft:black_dye"
+    },
+    "I": {
+      "item": "minecraft:yellow_dye"
+    },
+    "J": {
+      "item": "minecraft:yellow_dye"
+    },
+    "K": {
+      "item": "minecraft:black_dye"
+    },
+    "L": {
+      "item": "minecraft:magenta_dye"
+    },
+    "M": {
+      "item": "minecraft:magenta_dye"
+    },
+    "N": {
+      "item": "minecraft:black_dye"
+    },
+    "O": {
+      "item": "minecraft:yellow_dye"
+    },
+    "P": {
+      "item": "dragonminez:blank_pattern_super"
+    },
+    "Q": {
+      "item": "minecraft:black_dye"
+    },
+    "R": {
+      "item": "minecraft:magenta_dye"
+    },
+    "S": {
+      "item": "minecraft:magenta_dye"
+    },
+    "T": {
+      "item": "minecraft:black_dye"
+    },
+    "U": {
+      "item": "minecraft:yellow_dye"
+    },
+    "V": {
+      "item": "minecraft:yellow_dye"
+    },
+    "W": {
+      "item": "minecraft:black_dye"
+    },
+    "X": {
+      "item": "minecraft:magenta_dye"
+    },
+    "Y": {
+      "item": "minecraft:magenta_dye"
+    },
+    "Z": {
+      "item": "minecraft:black_dye"
+    }
+  },
+  "pattern": [
+    "ABCDEF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    "YZ0123",
+    " 5678 "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_whis"
+  }
+}

@@ -81,7 +81,8 @@ public class MasteryCapsuleItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, List<Component> tooltip, @NotNull TooltipFlag flag) {
+	public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltip, @NotNull TooltipFlag flag) {
+        net.minecraft.world.level.Level level = context.level();
 		tooltip.add(Component.translatable("item.dragonminez.mastery_capsule.tooltip").withStyle(ChatFormatting.GRAY));
 	}
 }

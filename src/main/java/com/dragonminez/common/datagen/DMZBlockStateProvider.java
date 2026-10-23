@@ -9,13 +9,14 @@ import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.*;
-import net.minecraftforge.client.model.generators.BlockModelBuilder;
-import net.minecraftforge.client.model.generators.BlockStateProvider;
-import net.minecraftforge.client.model.generators.ConfiguredModel;
-import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
+import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class DMZBlockStateProvider extends BlockStateProvider {
 	public DMZBlockStateProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
@@ -67,7 +68,7 @@ public class DMZBlockStateProvider extends BlockStateProvider {
 		saplingBlock(MainBlocks.NAMEK_AJISSA_SAPLING);
 		saplingBlock(MainBlocks.NAMEK_SACRED_SAPLING);
 
-		for (RegistryObject<Block> crop : MainBlocks.STAT_CROPS) {
+		for (DeferredHolder<net.minecraft.world.level.block.Block, ? extends Block> crop : MainBlocks.STAT_CROPS) {
 			cropBlock(crop);
 		}
 
@@ -176,10 +177,10 @@ public class DMZBlockStateProvider extends BlockStateProvider {
 			DragonBallSetAssetDefinition assets = setDefinition.resolveAssetDefinition();
 			for (var entry : MainBlocks.getDragonBallBlocks(setDefinition.getId()).entrySet()) {
 				int star = entry.getKey();
-				RegistryObject<Block> block = entry.getValue();
+				DeferredHolder<Block, ? extends Block> block = entry.getValue();
 				if (assets != null && assets.getFlatTexturePathForStar(star).isPresent()) {
 					ResourceLocation texture = ResourceLocation.parse(assets.getFlatTexturePathForStar(star).get());
-					simpleBlockWithItem(block.get(), models().cubeAll(ForgeRegistries.BLOCKS.getKey(block.get()).getPath(), texture));
+					simpleBlockWithItem(block.get(), models().cubeAll(BuiltInRegistries.BLOCK.getKey(block.get()).getPath(), texture));
 				} else {
 					blockWithItem(block);
 				}
@@ -187,30 +188,30 @@ public class DMZBlockStateProvider extends BlockStateProvider {
 		}
 	}
 
-	private void blockWithItem(RegistryObject<Block> blockRegistryObject) {
-		simpleBlockWithItem(blockRegistryObject.get(), cubeAll(blockRegistryObject.get()));
+	private void blockWithItem(DeferredHolder<Block, ? extends Block> blockDeferredHolder) {
+		simpleBlockWithItem(blockDeferredHolder.get(), cubeAll(blockDeferredHolder.get()));
 	}
 	
-	private void grassBlock(RegistryObject<Block> blockRegistryObject) {
-		String path = ForgeRegistries.BLOCKS.getKey(blockRegistryObject.get()).getPath();
+	private void grassBlock(DeferredHolder<Block, ? extends Block> blockDeferredHolder) {
+		String path = BuiltInRegistries.BLOCK.getKey(blockDeferredHolder.get()).getPath();
 		ResourceLocation bottom = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_down");
 		ResourceLocation top = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_top");
 		ResourceLocation side = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_side");
 		
-		simpleBlockWithItem(blockRegistryObject.get(), 
+		simpleBlockWithItem(blockDeferredHolder.get(),
 			models().cubeBottomTop(path, side, bottom, top));
 	}
 	
-	private void blockItem(RegistryObject<Block> blockRegistryObject) {
-		simpleBlockItem(blockRegistryObject.get(), new ModelFile.UncheckedModelFile(Reference.MOD_ID +
-				":block/" + ForgeRegistries.BLOCKS.getKey(blockRegistryObject.get()).getPath()));
+	private void blockItem(DeferredHolder<Block, ? extends Block> blockDeferredHolder) {
+		simpleBlockItem(blockDeferredHolder.get(), new ModelFile.UncheckedModelFile(Reference.MOD_ID +
+				":block/" + BuiltInRegistries.BLOCK.getKey(blockDeferredHolder.get()).getPath()));
 	}
-	private void leavesBlock(RegistryObject<Block> blockRegistryObject) {
-		simpleBlockWithItem(blockRegistryObject.get(), models().singleTexture(ForgeRegistries.BLOCKS.getKey(blockRegistryObject.get()).getPath(),
-				ResourceLocation.parse("minecraft:block/leaves"), "all", blockTexture(blockRegistryObject.get())).renderType("cutout"));
+	private void leavesBlock(DeferredHolder<Block, ? extends Block> blockDeferredHolder) {
+		simpleBlockWithItem(blockDeferredHolder.get(), models().singleTexture(BuiltInRegistries.BLOCK.getKey(blockDeferredHolder.get()).getPath(),
+				ResourceLocation.parse("minecraft:block/leaves"), "all", blockTexture(blockDeferredHolder.get())).renderType("cutout"));
 	}
-	private void rootBlock(RegistryObject<Block> blockRegistryObject) {
-		String path = ForgeRegistries.BLOCKS.getKey(blockRegistryObject.get()).getPath();
+	private void rootBlock(DeferredHolder<net.minecraft.world.level.block.Block, ? extends Block> blockRegistryObject) {
+		String path = BuiltInRegistries.BLOCK.getKey(blockRegistryObject.get()).getPath();
 		ResourceLocation side = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path);
 		ResourceLocation end = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_top");
 		ModelFile model = models().withExistingParent(path, ResourceLocation.parse("minecraft:block/block"))
@@ -228,8 +229,8 @@ public class DMZBlockStateProvider extends BlockStateProvider {
 		simpleBlockWithItem(blockRegistryObject.get(), model);
 	}
 
-	private void fruitBlock(RegistryObject<Block> blockRegistryObject) {
-		String path = ForgeRegistries.BLOCKS.getKey(blockRegistryObject.get()).getPath();
+	private void fruitBlock(DeferredHolder<net.minecraft.world.level.block.Block, ? extends Block> blockRegistryObject) {
+		String path = BuiltInRegistries.BLOCK.getKey(blockRegistryObject.get()).getPath();
 		ResourceLocation skin = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path);
 		ResourceLocation top = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_top");
 		ResourceLocation stem = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/might_tree_root");
@@ -251,16 +252,16 @@ public class DMZBlockStateProvider extends BlockStateProvider {
 		simpleBlock(blockRegistryObject.get(), model);
 	}
 
-	private void saplingBlock(RegistryObject<Block> blockRegistryObject) {
+	private void saplingBlock(DeferredHolder<net.minecraft.world.level.block.Block, ? extends Block> blockRegistryObject) {
 		simpleBlock(blockRegistryObject.get(),
-				models().cross(ForgeRegistries.BLOCKS.getKey(blockRegistryObject.get()).getPath(), blockTexture(blockRegistryObject.get())).renderType("cutout"));
+				models().cross(BuiltInRegistries.BLOCK.getKey(blockRegistryObject.get()).getPath(), blockTexture(blockRegistryObject.get())).renderType("cutout"));
 	}
 
 	private static final int CROP_STAGES = 3;
 
-	private void cropBlock(RegistryObject<Block> cropRegistryObject) {
+	private void cropBlock(DeferredHolder<net.minecraft.world.level.block.Block, ? extends Block> cropRegistryObject) {
 		CropBlock crop = (CropBlock) cropRegistryObject.get();
-		String path = ForgeRegistries.BLOCKS.getKey(crop).getPath();
+		String path = BuiltInRegistries.BLOCK.getKey(crop).getPath();
 		getVariantBuilder(crop).forAllStates(state -> {
 			int age = state.getValue(CropBlock.AGE);
 			int stage = age * CROP_STAGES / (CropBlock.MAX_AGE + 1);

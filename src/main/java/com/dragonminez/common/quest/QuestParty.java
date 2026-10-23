@@ -9,7 +9,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,8 +79,8 @@ public final class QuestParty {
 	public static int countItemById(ServerPlayer player, String itemId) {
 		if (player == null || itemId == null) return 0;
 		ResourceLocation id = ResourceLocation.tryParse(itemId);
-		if (id == null || !ForgeRegistries.ITEMS.containsKey(id)) return 0;
-		Item item = ForgeRegistries.ITEMS.getValue(id);
+		if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) return 0;
+		Item item = BuiltInRegistries.ITEM.get(id);
 		Container inventory = player.getInventory();
 		int count = 0;
 		for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
@@ -105,6 +106,6 @@ public final class QuestParty {
 	}
 
 	private static boolean isDeliverable(ItemStack stack, Item item) {
-		return !stack.isEmpty() && stack.is(item) && !stack.isEnchanted() && !stack.hasCustomHoverName();
+		return !stack.isEmpty() && stack.is(item) && !stack.isEnchanted() && !stack.has(net.minecraft.core.component.DataComponents.CUSTOM_NAME);
 	}
 }

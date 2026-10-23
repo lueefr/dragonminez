@@ -214,11 +214,11 @@ public class SPMajinCandyEntity extends AbstractKiProjectile {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(CAST_TIME, 0);
-        this.entityData.define(IS_FIRING, false);
-        this.entityData.define(TARGET_ID, -1);
+    protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(CAST_TIME, 0);
+        builder.define(IS_FIRING, false);
+        builder.define(TARGET_ID, -1);
     }
 
     public int getCastTime() { return this.entityData.get(CAST_TIME); }

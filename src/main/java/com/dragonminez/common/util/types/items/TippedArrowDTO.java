@@ -1,5 +1,6 @@
 package com.dragonminez.common.util.types.items;
 
+import lombok.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import java.util.List;
 public class TippedArrowDTO extends PotionDTO {
 
 	public static final String ITEM_TYPE = "tipped_arrow";
-	private static final ResourceLocation TIPPED_ARROW_ID = new ResourceLocation("minecraft", "tipped_arrow");
+	private static final ResourceLocation TIPPED_ARROW_ID = ResourceLocation.fromNamespaceAndPath("minecraft", "tipped_arrow");
 
 	public TippedArrowDTO(ResourceLocation potion, int count, List<PotionEffectDTO> mobEffects) {
 		super(ITEM_TYPE, TIPPED_ARROW_ID, count, potion, mobEffects);

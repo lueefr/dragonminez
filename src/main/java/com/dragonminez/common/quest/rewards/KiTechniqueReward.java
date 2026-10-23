@@ -1,5 +1,6 @@
 package com.dragonminez.common.quest.rewards;
 
+import lombok.*;
 import com.dragonminez.common.quest.QuestReward;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
@@ -8,8 +9,8 @@ import com.dragonminez.common.stats.techniques.Techniques;
 import lombok.Getter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-
 @Getter
+
 public class KiTechniqueReward extends QuestReward {
 	private final KiAttackData template;
 
@@ -37,9 +38,6 @@ public class KiTechniqueReward extends QuestReward {
 
 	@Override
 	public Component getDescription() {
-		return Component.translatable(
-				"gui.dragonminez.quests.rewards.ki_technique",
-				Component.literal(template.getName())
-		);
+		return Component.translatable("gui.dragonminez.quests.rewards.ki_technique", Component.literal(template.getName()));
 	}
 }

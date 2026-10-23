@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class GravityLogic {
-	public static final UUID GRAVITY_SPEED_UUID = UUID.fromString("019c3047-cd2f-7af4-a3cd-5bca51dd3588");
-	private static final UUID GRAVITY_ATTACK_SPEED_UUID = UUID.fromString("019c3047-4e91-74e1-ac87-d4ea8e463688");
+	public static final net.minecraft.resources.ResourceLocation GRAVITY_SPEED_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/019c3047-cd2f-7af4-a3cd-5bca51dd3588");
+	private static final net.minecraft.resources.ResourceLocation GRAVITY_ATTACK_SPEED_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/019c3047-4e91-74e1-ac87-d4ea8e463688");
 
 	private static final Map<UUID, Double> NPC_GRAVITY_CACHE = new HashMap<>();
 	private static final Map<UUID, Long> NPC_GRAVITY_TICK = new HashMap<>();
@@ -176,7 +176,7 @@ public class GravityLogic {
 					if (stack.getItem() instanceof WeightItem) {
 						totalWeight[0] += WeightItem.getWeight(stack);
 					} else if (!stack.isEmpty()) {
-						totalWeight[0] += stack.getOrCreateTag().getInt("WeightValue");
+						totalWeight[0] += stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getInt("WeightValue");
 					}
 				}
 			}
@@ -362,8 +362,8 @@ public class GravityLogic {
 		AttributeInstance attackSpeed = player.getAttribute(Attributes.ATTACK_SPEED);
 
 		if (movementSpeed == null || attackSpeed == null) return;
-		movementSpeed.removeModifier(GRAVITY_SPEED_UUID);
-		attackSpeed.removeModifier(GRAVITY_ATTACK_SPEED_UUID);
+		movementSpeed.removeModifier(com.dragonminez.common.util.AttributeMods.id(GRAVITY_SPEED_UUID));
+		attackSpeed.removeModifier(com.dragonminez.common.util.AttributeMods.id(GRAVITY_ATTACK_SPEED_UUID));
 
 		double weightPenalty = getWeightPenaltyFactor(player);
 
@@ -383,20 +383,10 @@ public class GravityLogic {
 		attackPenalty = Math.min(config.getMaxAttackPenalty(), attackPenalty + weightPenalty);
 
 		if (movePenalty > 0) {
-			movementSpeed.addTransientModifier(new AttributeModifier(
-					GRAVITY_SPEED_UUID,
-					"Gravity movement penalty",
-					-movePenalty,
-					AttributeModifier.Operation.MULTIPLY_TOTAL
-			));
+			movementSpeed.addTransientModifier(com.dragonminez.common.util.AttributeMods.of(GRAVITY_SPEED_UUID, "Gravity movement penalty", -movePenalty, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 		}
 		if (attackPenalty > 0) {
-			attackSpeed.addTransientModifier(new AttributeModifier(
-					GRAVITY_ATTACK_SPEED_UUID,
-					"Gravity attack speed penalty",
-					-attackPenalty,
-					AttributeModifier.Operation.MULTIPLY_TOTAL
-			));
+			attackSpeed.addTransientModifier(com.dragonminez.common.util.AttributeMods.of(GRAVITY_ATTACK_SPEED_UUID, "Gravity attack speed penalty", -attackPenalty, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 		}
 
 		applyStatReduction(player, config);

@@ -36,15 +36,16 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
-import software.bernie.geckolib.util.RenderUtils;
+import software.bernie.geckolib.util.RenderUtil;
 
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class DMZHairLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 			headBonePose.set(poseStack.last().pose());
 			headBounds = HairColliders.boundsOf(bone);
 			poseStack.pushPose();
-			RenderUtils.translateToPivotPoint(poseStack, bone);
+			software.bernie.geckolib.util.RenderUtil.translateToPivotPoint(poseStack, bone);
 			headPose.set(poseStack.last().pose());
 			headNormal.set(poseStack.last().normal());
 			poseStack.popPose();
@@ -224,7 +225,7 @@ public class DMZHairLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 
 		ItemStack headItem = resolveHeadArmorStack(animatable);
 		if (!headItem.isEmpty()) {
-			ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(headItem.getItem());
+			ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(headItem.getItem());
 			if (itemId != null) {
 				List<String> allowedHelmets = ConfigManager.getServerConfig().getGameplay().getHelmetsThatKeepHair();
 				if (!allowedHelmets.contains(itemId.toString())) return false;

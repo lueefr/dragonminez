@@ -1,5 +1,6 @@
 package com.dragonminez.common.network;
 
+import lombok.*;
 import com.dragonminez.client.gui.tournament.TournamentBracketScreen;
 import com.dragonminez.client.gui.tournament.TournamentOverlay;
 import com.dragonminez.server.world.tournament.Tournament;
@@ -7,9 +8,9 @@ import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.api.distmarker.Dist;
+import com.dragonminez.compat.DistExecutor;
+import com.dragonminez.compat.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -263,13 +264,13 @@ public final class TournamentPackets {
 			buf.writeEnum(msg.phase);
 			buf.writeVarInt(msg.seconds);
 			buf.writeBoolean(msg.fighter);
-			buf.writeComponent(msg.left);
-			buf.writeComponent(msg.right);
+			buf.writeJsonWithCodec(net.minecraft.network.chat.ComponentSerialization.CODEC, msg.left);
+			buf.writeJsonWithCodec(net.minecraft.network.chat.ComponentSerialization.CODEC, msg.right);
 		}
 
 		public static PhaseS2C decode(FriendlyByteBuf buf) {
 			return new PhaseS2C(buf.readEnum(Phase.class), buf.readVarInt(), buf.readBoolean(),
-					buf.readComponent(), buf.readComponent());
+					buf.readJsonWithCodec(net.minecraft.network.chat.ComponentSerialization.CODEC), buf.readJsonWithCodec(net.minecraft.network.chat.ComponentSerialization.CODEC));
 		}
 
 		public static void handle(PhaseS2C msg, Supplier<NetworkEvent.Context> ctx) {

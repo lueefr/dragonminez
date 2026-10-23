@@ -180,7 +180,7 @@ public final class OtherworldTournamentGrounds {
 				return null;
 			}
 			try (InputStream in = resource.get().open()) {
-				return parse(level, NbtIo.readCompressed(in));
+				return parse(level, NbtIo.readCompressed(in, net.minecraft.nbt.NbtAccounter.create(64L * 1024 * 1024)));
 			} catch (Exception e) {
 				LogUtil.error(Env.SERVER, "Otherworld tournament: failed to read schematic {}", SCHEMATIC, e);
 				return null;
@@ -318,7 +318,7 @@ public final class OtherworldTournamentGrounds {
 		private BoundingBox bounds;
 
 		public static Data get(ServerLevel level) {
-			return level.getDataStorage().computeIfAbsent(Data::load, Data::new, FILE_NAME);
+			return level.getDataStorage().computeIfAbsent(new net.minecraft.world.level.saveddata.SavedData.Factory<>(Data::new, (tag, registries) -> Data.load(tag)), FILE_NAME);
 		}
 
 		public static Data load(CompoundTag tag) {
@@ -331,7 +331,7 @@ public final class OtherworldTournamentGrounds {
 		}
 
 		@Override
-		public CompoundTag save(CompoundTag tag) {
+		public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
 			tag.putInt("Revision", revision);
 			tag.putInt("NextChunk", nextChunk);
 			if (bounds != null) {

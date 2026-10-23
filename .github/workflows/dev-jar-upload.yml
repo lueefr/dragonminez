@@ -46,10 +46,10 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6
 
-      - name: Set up JDK 17 Temurin
+      - name: Set up JDK 21 Temurin
         uses: actions/setup-java@v6
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: temurin
 
       - name: Setup Gradle
@@ -128,7 +128,7 @@ jobs:
           set -euo pipefail
 
           version="$(grep '^mod_version=' gradle.properties | cut -d= -f2-)"
-          artifact="build/libs/dragonminez-${version}.jar"
+          artifact="build/libs/dragonminez-1.21.1-${version}.jar"
           if [[ ! -f "$artifact" ]]; then
             echo "::error::Expected dev jar does not exist: $artifact"
             exit 1
@@ -139,7 +139,7 @@ jobs:
           fi
 
           short_sha="$(git rev-parse HEAD | cut -c1-12)"
-          remote_name="dragonminez-${version}__${short_sha}.jar"
+          remote_name="dragonminez-1.21.1-${version}__${short_sha}.jar"
           sha256="$(sha256sum "$artifact" | cut -d ' ' -f1)"
 
           echo "path=${artifact}" >> "$GITHUB_OUTPUT"

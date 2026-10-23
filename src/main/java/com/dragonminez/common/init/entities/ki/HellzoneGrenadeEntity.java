@@ -530,9 +530,9 @@ public class HellzoneGrenadeEntity extends AbstractKiProjectile {
         }
 
         @Override
-        protected void defineSynchedData() {
-            super.defineSynchedData();
-            this.entityData.define(HELD_HAND, 0);
+        protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+            super.defineSynchedData(builder);
+            builder.define(HELD_HAND, 0);
         }
 
         @Override
@@ -589,9 +589,9 @@ public class HellzoneGrenadeEntity extends AbstractKiProjectile {
         }
 
         @Override
-        public void lerpTo(double pX, double pY, double pZ, float pYRot, float pXRot, int pLerpSteps, boolean pTeleport) {
+        public void lerpTo(double pX, double pY, double pZ, float pYRot, float pXRot, int pLerpSteps) {
             if (this.isHeld()) return;
-            super.lerpTo(pX, pY, pZ, pYRot, pXRot, pLerpSteps, pTeleport);
+            super.lerpTo(pX, pY, pZ, pYRot, pXRot, pLerpSteps);
         }
 
         private void assignSlot(Vec3 direction, Vec3 offset, double phase) {
@@ -704,7 +704,7 @@ public class HellzoneGrenadeEntity extends AbstractKiProjectile {
                 if (!this.applyDamageOrHeal(victim, this.hitDamage)) continue;
                 this.onSuccessfulHit(victim);
                 if (this.stagger && owner instanceof LivingEntity holder && HeldVictim.canHold(holder, victim)) {
-                    victim.addEffect(new MobEffectInstance(MainEffects.STUN.get(), STAGGER_TICKS, 0, false, false, true));
+                    victim.addEffect(new MobEffectInstance(MainEffects.STUN, STAGGER_TICKS, 0, false, false, true));
                 }
             }
 

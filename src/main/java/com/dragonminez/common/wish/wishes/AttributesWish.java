@@ -1,5 +1,6 @@
 package com.dragonminez.common.wish.wishes;
 
+import lombok.*;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.network.S2C.StatsSyncS2C;
 import com.dragonminez.common.quest.rewards.AttributesReward;

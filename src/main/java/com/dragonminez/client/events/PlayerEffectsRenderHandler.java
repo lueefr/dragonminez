@@ -1,5 +1,6 @@
 package com.dragonminez.client.events;
 
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.CameraProjectionCapture;
 import com.dragonminez.client.render.effects.AuraBorderRenderer;
@@ -24,23 +25,28 @@ import com.dragonminez.common.init.entities.ki.AbstractKiProjectile;
 import com.dragonminez.common.init.entities.ki.KiExplosionVisualEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
+import org.joml.Matrix3f;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public class PlayerEffectsRenderHandler {
 	private static final Set<Integer> CURRENT_FRAME_PLAYERS = new HashSet<>();
 
 	@SubscribeEvent
-	public static void onRenderTick(TickEvent.RenderTickEvent event) {
-		if (event.phase == TickEvent.Phase.START) {
+	public static void onRenderTick(RenderFrameEvent.Pre event) {
+		{
 			AuraRenderer.resetBloomCapture();
 			KiWeaponRenderer.clearBloomBlades();
 			EffectBloomRenderer.clearEntityDraws();
@@ -87,7 +93,7 @@ public class PlayerEffectsRenderHandler {
 				mc.getMainRenderTarget().bindWrite(false);
 				renderWeapons(mc, event);
 				renderEffects(mc, event);
-				TransformationPostShaderManager.processShaderpackOutline(event.getPartialTick());
+				TransformationPostShaderManager.processShaderpackOutline(event.getPartialTick().getGameTimeDeltaPartialTick(false));
 			}
 			return;
 		}
@@ -106,7 +112,7 @@ public class PlayerEffectsRenderHandler {
 
 	private static void renderWeapons(Minecraft mc, RenderLevelStageEvent event) {
 		MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
-		PoseStack poseStack = event.getPoseStack();
+		PoseStack poseStack = createDeferredEffectPose(event);
 		KiWeaponRenderer.processWeapons(buffers, poseStack);
 		buffers.endBatch();
 	}
@@ -118,7 +124,7 @@ public class PlayerEffectsRenderHandler {
 
 		EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
 		Vec3 camera = event.getCamera().getPosition();
-		float partialTick = event.getPartialTick();
+		float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(true);
 		PoseStack poseStack = event.getPoseStack();
 		MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
 
@@ -164,9 +170,9 @@ public class PlayerEffectsRenderHandler {
 
 	private static void renderEffects(Minecraft mc, RenderLevelStageEvent event) {
 		MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
-		PoseStack poseStack = event.getPoseStack();
+		PoseStack poseStack = createDeferredEffectPose(event);
 		Matrix4f projectionMatrix = event.getProjectionMatrix();
-		float partialTick = event.getPartialTick();
+		float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
 		long gameTime = mc.level.getGameTime();
 
 		CURRENT_FRAME_PLAYERS.clear();
@@ -181,14 +187,14 @@ public class PlayerEffectsRenderHandler {
 		}
 
 		AuraRenderer.processFusionFlashes(mc, gameTime, partialTick, CameraProjectionCapture.viewPoseStack(poseStack), buffers);
-		PoseStack modelView = RenderSystem.getModelViewStack();
-		modelView.pushPose();
-		modelView.setIdentity();
+		org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
+		modelView.pushMatrix();
+		modelView.identity();
 		RenderSystem.applyModelViewMatrix();
 		try {
 			buffers.endBatch();
 		} finally {
-			modelView.popPose();
+			modelView.popMatrix();
 			RenderSystem.applyModelViewMatrix();
 		}
 
@@ -233,5 +239,19 @@ public class PlayerEffectsRenderHandler {
 		if (DMZShaders.ki3dShader != null) DMZShaders.ki3dShader.safeGetUniform("globalAlpha").set(1.0f);
 
 		AuraRenderer.cleanCaches(CURRENT_FRAME_PLAYERS);
+	}
+
+	/**
+	 * Deferred effects need the same model-view transform as terrain and entities.
+	 * The stage PoseStack is not reliable at every 1.21 render stage, but NeoForge
+	 * exposes the actual model-view matrix explicitly. Rebuilding this from yaw and
+	 * pitch keeps X/Y alignment while producing a different view-space Z, causing
+	 * terrain behind an aura to incorrectly win the depth test.
+	 */
+	private static PoseStack createDeferredEffectPose(RenderLevelStageEvent event) {
+		PoseStack poseStack = new PoseStack();
+		poseStack.last().pose().set(event.getModelViewMatrix());
+		poseStack.last().normal().set(new Matrix3f(event.getModelViewMatrix()));
+		return poseStack;
 	}
 }

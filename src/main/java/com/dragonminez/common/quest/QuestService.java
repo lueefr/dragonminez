@@ -35,7 +35,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
+import net.minecraft.core.registries.BuiltInRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -147,7 +148,7 @@ public final class QuestService {
 				joiners,
 				data.getPlayerQuestData().getDifficulty()
 		);
-		if (MinecraftForge.EVENT_BUS.post(startEvent)) {
+		if (NeoForge.EVENT_BUS.post(startEvent).isCanceled()) {
 			return unavailable();
 		}
 
@@ -249,7 +250,7 @@ public final class QuestService {
 				participants,
 				npcId
 		);
-		if (MinecraftForge.EVENT_BUS.post(turnInEvent)) {
+		if (NeoForge.EVENT_BUS.post(turnInEvent).isCanceled()) {
 			return unavailable();
 		}
 
@@ -298,9 +299,7 @@ public final class QuestService {
 				quest,
 				participants
 		);
-		if (MinecraftForge.EVENT_BUS.post(completeEvent)) {
-			return false;
-		}
+		NeoForge.EVENT_BUS.post(completeEvent);
 
 		pqd.completeQuest(questKey);
 		if (questKey.equals(pqd.getTrackedQuestId())) {
@@ -641,7 +640,7 @@ public final class QuestService {
 				newProgress,
 				required
 		);
-		if (MinecraftForge.EVENT_BUS.post(progressEvent)) {
+		if (NeoForge.EVENT_BUS.post(progressEvent).isCanceled()) {
 			return false;
 		}
 
@@ -804,7 +803,7 @@ public final class QuestService {
 					partyMembers,
 					i
 			);
-			if (MinecraftForge.EVENT_BUS.post(rewardEvent)) {
+			if (NeoForge.EVENT_BUS.post(rewardEvent).isCanceled()) {
 				continue;
 			}
 			pqd.claimReward(questKey, i);

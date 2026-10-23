@@ -1,39 +1,36 @@
 package com.dragonminez.client.render.shader;
 
+import lombok.*;
 import com.dragonminez.common.config.ConfigManager;
-import lombok.Getter;
-
 
 public final class ClientGravityState {
-
-	private static volatile float machineGravity = 0.0f;
-	@Getter
-	private static volatile float environmentalGravity = 1.0f;
-	@Getter
-	private static volatile float netGravity = 0.0f;
-	@Getter
-	private static volatile float statMult = 1.0f;
-	@Getter
-	private static volatile float tpGravityMult = 1.0f;
-	@Getter
+	private static volatile float machineGravity = 0.0F;
+@Getter
+	private static volatile float environmentalGravity = 1.0F;
+@Getter
+	private static volatile float netGravity = 0.0F;
+@Getter
+	private static volatile float statMult = 1.0F;
+@Getter
+	private static volatile float tpGravityMult = 1.0F;
+@Getter
 	private static volatile int idealWeight = 0;
-	@Getter
+@Getter
 	private static volatile int totalWeight = 0;
-	@Getter
+@Getter
 	private static volatile int effectiveWeight = 0;
-	@Getter
-	private static volatile float loadRatio = 0.0f;
-	@Getter
-	private static volatile float weightTpMult = 1.0f;
-	@Getter
+@Getter
+	private static volatile float loadRatio = 0.0F;
+@Getter
+	private static volatile float weightTpMult = 1.0F;
+@Getter
 	private static volatile int zone = 0;
 
-	private ClientGravityState() {}
+	private ClientGravityState() {
+	}
 
-	public static void update(float machineGravity, float environmentalGravity, float netGravity,
-							  float statMult, float tpGravityMult, int idealWeight, int totalWeight,
-							  int effectiveWeight, float loadRatio, float weightTpMult, int zone) {
-		ClientGravityState.machineGravity = Math.max(0.0f, machineGravity);
+	public static void update(float machineGravity, float environmentalGravity, float netGravity, float statMult, float tpGravityMult, int idealWeight, int totalWeight, int effectiveWeight, float loadRatio, float weightTpMult, int zone) {
+		ClientGravityState.machineGravity = Math.max(0.0F, machineGravity);
 		ClientGravityState.environmentalGravity = environmentalGravity;
 		ClientGravityState.netGravity = netGravity;
 		ClientGravityState.statMult = statMult;
@@ -51,7 +48,7 @@ public final class ClientGravityState {
 	}
 
 	public static float getShaderIntensity() {
-		if (machineGravity <= 0.0f) return 0.0f;
+		if (machineGravity <= 0.0F) return 0.0F;
 		double forMax = ConfigManager.getServerConfig().getGravity().getDeviceShaderGravityForMax();
 		double curved = Math.sqrt(Math.min(1.0, machineGravity / forMax));
 		return (float) Math.min(1.0, Math.max(0.35, curved));

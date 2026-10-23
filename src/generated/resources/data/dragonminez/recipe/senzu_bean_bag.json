@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "dragonminez",
+  "key": {
+    "L": {
+      "item": "minecraft:leather"
+    },
+    "S": {
+      "tag": "c:seeds"
+    }
+  },
+  "pattern": [
+    "LSL",
+    " L "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:senzu_bean_bag"
+  }
+}

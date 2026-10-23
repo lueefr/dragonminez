@@ -1,12 +1,13 @@
 package com.dragonminez.common.network.S2C;
 
+import lombok.*;
 import com.dragonminez.common.network.ClientPacketHandler;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.api.distmarker.Dist;
+import com.dragonminez.compat.DistExecutor;
+import com.dragonminez.compat.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
@@ -34,7 +35,7 @@ public class DialogueResultS2C {
 		this.npcId = buf.readUtf(64);
 		this.action = buf.readUtf(320);
 		this.success = buf.readBoolean();
-		this.reason = buf.readBoolean() ? buf.readComponent() : null;
+		this.reason = buf.readBoolean() ? buf.readJsonWithCodec(net.minecraft.network.chat.ComponentSerialization.CODEC) : null;
 	}
 
 	public static String npcAction(int actionId) {
@@ -54,7 +55,7 @@ public class DialogueResultS2C {
 		buf.writeUtf(action, 320);
 		buf.writeBoolean(success);
 		buf.writeBoolean(reason != null);
-		if (reason != null) buf.writeComponent(reason);
+		if (reason != null) buf.writeJsonWithCodec(net.minecraft.network.chat.ComponentSerialization.CODEC, reason);
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> contextSupplier) {

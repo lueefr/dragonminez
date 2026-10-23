@@ -3,7 +3,7 @@ package com.dragonminez.server.world.dimension;
 import com.dragonminez.Reference;
 import com.dragonminez.server.world.gen.OtherworldGeneration;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstapContext;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -27,7 +27,7 @@ public class OtherworldDimension {
 		if (otherworld != null) player.teleportTo(otherworld, SPIRIT_ARRIVAL.x, SPIRIT_ARRIVAL.y, SPIRIT_ARRIVAL.z, 0, 0);
 	}
 
-	public static void bootstrap(BootstapContext<DimensionType> context) {
+	public static void bootstrap(BootstrapContext<DimensionType> context) {
 		context.register(OTHERWORLD_TYPE, new DimensionType(
 				OptionalLong.of(6000),
 				true,

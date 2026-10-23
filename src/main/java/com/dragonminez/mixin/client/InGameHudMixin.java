@@ -8,6 +8,7 @@ import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -28,7 +29,7 @@ public abstract class InGameHudMixin {
 	private boolean dragonminez$crosshairShifted;
 
 	@Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
-	private void dragonminez$pre_renderCrosshair(GuiGraphics guiGraphics, CallbackInfo ci) {
+	private void dragonminez$pre_renderCrosshair(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
 		float[] offset = OverShoulderCamera.crosshairOffset(guiGraphics.guiWidth(), guiGraphics.guiHeight());
 		this.dragonminez$crosshairShifted = offset[0] != 0.0F || offset[1] != 0.0F;
 		if (this.dragonminez$crosshairShifted) {
@@ -56,7 +57,7 @@ public abstract class InGameHudMixin {
 	}
 
 	@Inject(method = "renderCrosshair", at = @At("TAIL"))
-	private void dragonminez$post_renderCrosshair(GuiGraphics guiGraphics, CallbackInfo ci) {
+	private void dragonminez$post_renderCrosshair(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		dragonminez$restoreCrosshairPose(guiGraphics);
 	}

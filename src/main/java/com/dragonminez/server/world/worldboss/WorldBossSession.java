@@ -506,7 +506,7 @@ public final class WorldBossSession {
 				continue;
 			}
 			StatsData casterStats = StatsProvider.get(StatsCapability.INSTANCE, caster).orElse(null);
-			if (casterStats == null || casterStats.getStatus().isStunned() || caster.hasEffect(MainEffects.STUN.get()) || !caster.isAlive()) {
+			if (casterStats == null || casterStats.getStatus().isStunned() || caster.hasEffect(MainEffects.STUN) || !caster.isAlive()) {
 				cancelCast(cast, caster, target, true);
 				continue;
 			}

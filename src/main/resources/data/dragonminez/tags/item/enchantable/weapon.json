@@ -1,0 +1,14 @@
+{
+  "values": [
+    "#minecraft:enchantable/weapon",
+    "#minecraft:axes",
+    "dragonminez:yajirobe_katana",
+    "dragonminez:z_sword",
+    "dragonminez:brave_sword",
+    "dragonminez:dimensional_sword",
+    "dragonminez:power_pole",
+    "dragonminez:tamagami_sword",
+    "dragonminez:tamagami_trident",
+    "dragonminez:tamagami_hammer"
+  ]
+}

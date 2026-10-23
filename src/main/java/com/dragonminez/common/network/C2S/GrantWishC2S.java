@@ -13,7 +13,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.NetworkEvent;
+import com.dragonminez.compat.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -45,7 +45,7 @@ public class GrantWishC2S {
 		for (int i = 0; i < msg.selectedWishIndices.size(); i++) {
 			buf.writeInt(msg.selectedWishIndices.get(i));
 			List<UUID> targets = i < msg.selectedTargets.size() ? msg.selectedTargets.get(i) : List.of();
-			buf.writeCollection(targets, FriendlyByteBuf::writeUUID);
+			buf.writeCollection(targets, (buffer, value) -> buffer.writeUUID(value));
 		}
 	}
 
@@ -58,7 +58,7 @@ public class GrantWishC2S {
 		List<List<UUID>> targets = new ArrayList<>(count);
 		for (int i = 0; i < count; i++) {
 			indices.add(buf.readInt());
-			targets.add(buf.readCollection(FriendlyByteBuf.<List<UUID>>limitValue(ArrayList::new, MAX_TARGETS), FriendlyByteBuf::readUUID));
+			targets.add(buf.readCollection(FriendlyByteBuf.<List<UUID>>limitValue(ArrayList::new, MAX_TARGETS), buffer -> buffer.readUUID()));
 		}
 		return new GrantWishC2S(dragonEntityId, dragon, indices, targets);
 	}

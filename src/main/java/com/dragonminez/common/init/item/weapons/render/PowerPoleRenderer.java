@@ -29,7 +29,7 @@ public class PowerPoleRenderer extends GeoItemRenderer<PowerPoleItem> {
 	}
 
 	@Override
-	public void actuallyRender(PoseStack poseStack, PowerPoleItem animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	public void actuallyRender(PoseStack poseStack, PowerPoleItem animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
 
 		// Hide the holster while the pole is held, then put it back. BakedGeoModel
 		// instances are cached per model file in GeckoLibCache and shared by every
@@ -39,17 +39,21 @@ public class PowerPoleRenderer extends GeoItemRenderer<PowerPoleItem> {
 		boolean wasHidden = holster != null && holster.isHidden();
 		if (holster != null) holster.setHidden(true);
 
-		super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+		super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
 
 		if (holster != null) holster.setHidden(wasHidden);
 
 	}
 
 	@Override
-	public void renderRecursively(PoseStack poseStack, PowerPoleItem animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	public void renderRecursively(PoseStack poseStack, PowerPoleItem animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int renderColor) {
+        float red = net.minecraft.util.FastColor.ARGB32.red(renderColor) / 255.0F;
+        float green = net.minecraft.util.FastColor.ARGB32.green(renderColor) / 255.0F;
+        float blue = net.minecraft.util.FastColor.ARGB32.blue(renderColor) / 255.0F;
+        float alpha = net.minecraft.util.FastColor.ARGB32.alpha(renderColor) / 255.0F;
 		float extension = bone.getName().equals(POLE_BONE) ? extensionAt(DMZPlayerItemInHandLayer.renderingAttackProgress()) : 0.0F;
 		if (extension <= 0.0F) {
-			super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+			super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(red, green, blue, alpha));
 			return;
 		}
 
@@ -61,7 +65,7 @@ public class PowerPoleRenderer extends GeoItemRenderer<PowerPoleItem> {
 		poseStack.translate(0.0F, -POLE_ANCHOR, 0.0F);
 		poseStack.mulPose(Axis.ZP.rotationDegrees(-POLE_TILT));
 		poseStack.translate(0.0F, -POLE_PIVOT_Y, -POLE_PIVOT_Z);
-		super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+		super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(red, green, blue, alpha));
 		poseStack.popPose();
 	}
 

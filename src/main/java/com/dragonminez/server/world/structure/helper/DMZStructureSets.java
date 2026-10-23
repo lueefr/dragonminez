@@ -13,7 +13,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstapContext;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BiomeTags;
@@ -44,7 +44,7 @@ public class DMZStructureSets {
 			GOMAH_CRADLE = createKey("gomah_cradle"), RED_RIBBON_BASE = createKey("red_ribbon_base"),
 			BUDOKAI_TENKAICHI = createKey("budokai_tenkaichi");
 
-	public static void bootstrap(BootstapContext<StructureSet> context) {
+	public static void bootstrap(BootstrapContext<StructureSet> context) {
 		HolderGetter<Structure> structures = context.lookup(Registries.STRUCTURE);
 		HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
 
@@ -199,12 +199,12 @@ public class DMZStructureSets {
 	private static final int GOMAH_CAMP_SPACING = 40;
 	private static final int GOMAH_CAMP_SEPARATION = 20;
 
-	private static void unique(BootstapContext<StructureSet> context, ResourceKey<StructureSet> key,
+	private static void unique(BootstrapContext<StructureSet> context, ResourceKey<StructureSet> key,
 							   Holder<Structure> structure, int salt, HolderSet<Biome> validBiomes) {
 		unique(context, key, structure, salt, validBiomes, 0);
 	}
 
-	private static void unique(BootstapContext<StructureSet> context, ResourceKey<StructureSet> key,
+	private static void unique(BootstrapContext<StructureSet> context, ResourceKey<StructureSet> key,
 							   Holder<Structure> structure, int salt, HolderSet<Biome> validBiomes, int minDistanceFromSpawn) {
 		context.register(key, new StructureSet(
 				structure,

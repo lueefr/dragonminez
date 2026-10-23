@@ -29,10 +29,11 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.pipeline.VertexConsumerWrapper;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.model.pipeline.VertexConsumerWrapper;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
@@ -890,8 +891,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		if (greyed) {
 			renderGreyedEntity(graphics, Math.round(boxX + SLOT / 2.0f), feetY, scale, entity);
 		} else {
-			InventoryScreen.renderEntityInInventoryFollowsAngle(graphics, Math.round(boxX + SLOT / 2.0f), feetY,
-					scale, 0.0F, 0.0F, entity);
+			InventoryScreen.renderEntityInInventory(graphics, Math.round(boxX + SLOT / 2.0f), feetY, scale, new org.joml.Vector3f(), new org.joml.Quaternionf().rotateZ((float)Math.PI), new org.joml.Quaternionf(), entity);
 		}
 		graphics.disableScissor();
 	}
@@ -935,7 +935,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 
 		graphics.pose().pushPose();
 		graphics.pose().translate(x, y, 50.0D);
-		graphics.pose().mulPoseMatrix(new Matrix4f().scaling(scale, scale, -scale));
+		graphics.pose().mulPose(new Matrix4f().scaling(scale, scale, -scale));
 		graphics.pose().mulPose(pose);
 
 		Lighting.setupForEntityInInventory();
@@ -966,9 +966,9 @@ public class TournamentBracketScreen extends ScaledScreen {
 		}
 
 		@Override
-		public VertexConsumer color(int r, int g, int b, int a) {
+		public VertexConsumer setColor(int r, int g, int b, int a) {
 			int grey = (int) ((r + g + b) / 3.0F * TINT);
-			parent.color(grey, grey, Math.min(255, grey + 8), a);
+			parent.setColor(grey, grey, Math.min(255, grey + 8), a);
 			return this;
 		}
 	}
@@ -981,7 +981,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		ResourceLocation location = ResourceLocation.tryParse(id);
 		Minecraft mc = Minecraft.getInstance();
 		if (location != null && mc.level != null) {
-			EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(location);
+			EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(location);
 			if (type != null) {
 				Entity entity = type.create(mc.level);
 				if (entity instanceof LivingEntity living) created = living;
@@ -1122,7 +1122,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 
 		ResourceLocation location = ResourceLocation.tryParse(id);
 		if (location == null) return txt(id);
-		EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(location);
+		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(location);
 		return type != null ? tr(type.getDescriptionId()) : txt(id);
 	}
 
@@ -1145,9 +1145,9 @@ public class TournamentBracketScreen extends ScaledScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double delta) {
 		if (scroll.scrollWheel(delta)) return true;
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
 	}
 
 	@Override

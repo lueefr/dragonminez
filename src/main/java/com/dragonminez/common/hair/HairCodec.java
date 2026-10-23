@@ -135,7 +135,7 @@ public final class HairCodec {
 			}
 			byte[] raw = inflate(compressed);
 			try (DataInputStream input = new DataInputStream(new ByteArrayInputStream(raw))) {
-				return NbtIo.read(input, new NbtAccounter(MAX_NBT_BYTES));
+				return NbtIo.read(input, NbtAccounter.create(MAX_NBT_BYTES));
 			}
 		} catch (IOException | RuntimeException exception) {
 			LogUtil.warn(Env.COMMON, "Failed to decode hair code ({} chars): {}", code.length(), exception.getMessage());

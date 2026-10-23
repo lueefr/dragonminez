@@ -8,8 +8,11 @@ import com.dragonminez.common.init.MainBlockEntities;
 import com.dragonminez.common.init.menu.menutypes.KikonoStationMenu;
 import com.dragonminez.server.energy.StarEnergyStorage;
 import com.dragonminez.server.recipes.KikonoRecipe;
+import com.dragonminez.server.recipes.KikonoRecipeInput;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -22,25 +25,25 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
+import com.dragonminez.compat.capabilities.Capability;
+
+import com.dragonminez.compat.util.LazyOptional;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.*;
-import software.bernie.geckolib.core.object.PlayState;
-import software.bernie.geckolib.util.RenderUtils;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.animation.*;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.util.RenderUtil;
 
 import java.util.Optional;
 
@@ -58,9 +61,6 @@ public class KikonoStationBlockEntity extends BlockEntity implements MenuProvide
 		@Override
 		public boolean canExtract() { return false; }
 	};
-
-	private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
-	private LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.empty();
 
 	protected final ContainerData data;
 	private int progress = 0;
@@ -92,22 +92,16 @@ public class KikonoStationBlockEntity extends BlockEntity implements MenuProvide
 		};
 	}
 
-	@Override
-	public void onLoad() {
-		super.onLoad();
-		lazyItemHandler = LazyOptional.of(() -> itemHandler);
-		lazyEnergyHandler = LazyOptional.of(() -> energyStorage);
+	public IItemHandler getItemHandler() {
+		return itemHandler;
 	}
 
-	@Override
-	public void invalidateCaps() {
-		super.invalidateCaps();
-		lazyItemHandler.invalidate();
-		lazyEnergyHandler.invalidate();
+	public IEnergyStorage getEnergyStorage() {
+		return energyStorage;
 	}
 
 	public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
-		if(pLevel.isClientSide) return;
+		if (pLevel.isClientSide) return;
 
 		Optional<KikonoRecipe> recipe = getCurrentRecipe();
 
@@ -128,7 +122,8 @@ public class KikonoStationBlockEntity extends BlockEntity implements MenuProvide
 
 				progress++;
 				if (progress >= maxProgress) {
-					pLevel.playSound(null, pPos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, 1.0F);craftItem(recipe.get());
+					pLevel.playSound(null, pPos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
+					craftItem(recipe.get());
 					progress = 0;
 				}
 			} else {
@@ -141,13 +136,18 @@ public class KikonoStationBlockEntity extends BlockEntity implements MenuProvide
 	}
 
 	private Optional<KikonoRecipe> getCurrentRecipe() {
-		SimpleContainer inventory = new SimpleContainer(itemHandler.getSlots());
-		for (int i = 0; i < itemHandler.getSlots(); i++) inventory.setItem(i, itemHandler.getStackInSlot(i));
-		return level.getRecipeManager().getRecipeFor(MainRecipes.KIKONO_TYPE.get(), inventory, level);
+		if (level == null) return Optional.empty();
+		NonNullList<ItemStack> items = NonNullList.withSize(itemHandler.getSlots(), ItemStack.EMPTY);
+		for (int i = 0; i < itemHandler.getSlots(); i++) {
+			items.set(i, itemHandler.getStackInSlot(i));
+		}
+		KikonoRecipeInput input = new KikonoRecipeInput(items);
+		return level.getRecipeManager().getRecipeFor(MainRecipes.KIKONO_TYPE.get(), input, level)
+				.map(holder -> holder.value());
 	}
 
 	private boolean canOutput(KikonoRecipe recipe) {
-		ItemStack result = recipe.getResultItem(null);
+		ItemStack result = recipe.getResultItem(level != null ? level.registryAccess() : null);
 		ItemStack outputSlot = itemHandler.getStackInSlot(11);
 		if (outputSlot.isEmpty()) return true;
 		if (!outputSlot.is(result.getItem())) return false;
@@ -156,7 +156,7 @@ public class KikonoStationBlockEntity extends BlockEntity implements MenuProvide
 
 	private void craftItem(KikonoRecipe recipe) {
 		ItemStack result = getOutputWithEnchantments(
-				recipe.getResultItem(null),
+				recipe.getResultItem(level != null ? level.registryAccess() : null),
 				itemHandler.getStackInSlot(10)
 		);
 
@@ -165,17 +165,19 @@ public class KikonoStationBlockEntity extends BlockEntity implements MenuProvide
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag pTag) {
-		pTag.put("inventory", itemHandler.serializeNBT());
+	protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider registries) {
+		pTag.put("inventory", itemHandler.serializeNBT(registries));
 		pTag.putInt("progress", progress);
 		energyStorage.saveNBT(pTag);
-		super.saveAdditional(pTag);
+		super.saveAdditional(pTag, registries);
 	}
 
 	@Override
-	public void load(CompoundTag pTag) {
-		super.load(pTag);
-		itemHandler.deserializeNBT(pTag.getCompound("inventory"));
+	protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider registries) {
+		super.loadAdditional(pTag, registries);
+		if (pTag.contains("inventory")) {
+			itemHandler.deserializeNBT(registries, pTag.getCompound("inventory"));
+		}
 		progress = pTag.getInt("progress");
 		energyStorage.loadNBT(pTag);
 	}
@@ -189,13 +191,6 @@ public class KikonoStationBlockEntity extends BlockEntity implements MenuProvide
 		SimpleContainer inventory = new SimpleContainer(itemHandler.getSlots());
 		for (int i = 0; i < itemHandler.getSlots(); i++) inventory.setItem(i, itemHandler.getStackInSlot(i));
 		Containers.dropContents(this.level, this.worldPosition, inventory);
-	}
-
-	@Override
-	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-		if(cap == ForgeCapabilities.ENERGY) return lazyEnergyHandler.cast();
-		if(cap == ForgeCapabilities.ITEM_HANDLER) return lazyItemHandler.cast();
-		return super.getCapability(cap, side);
 	}
 
 	@Override
@@ -217,7 +212,7 @@ public class KikonoStationBlockEntity extends BlockEntity implements MenuProvide
 
 	@Override
 	public double getTick(Object blockEntity) {
-		return RenderUtils.getCurrentTick();
+		return RenderUtil.getCurrentTick();
 	}
 
 	@Nullable
@@ -231,8 +226,7 @@ public class KikonoStationBlockEntity extends BlockEntity implements MenuProvide
 		var crafting = ConfigManager.getServerConfig().getCrafting();
 
 		if (crafting.getCopyEnchantmentsFromTemplate()) {
-			var enchantments = EnchantmentHelper.getEnchantments(template);
-			EnchantmentHelper.setEnchantments(enchantments, output);
+			output.set(DataComponents.ENCHANTMENTS, template.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY));
 		}
 
 		if (crafting.getCopyWeaponLevelFromTemplate()) {
@@ -261,4 +255,5 @@ public class KikonoStationBlockEntity extends BlockEntity implements MenuProvide
 
 		return output;
 	}
+
 }

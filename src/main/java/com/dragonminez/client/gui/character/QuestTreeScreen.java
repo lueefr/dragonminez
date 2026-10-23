@@ -66,10 +66,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -1584,7 +1584,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 	}
 
 	@Override
-	public void render(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 		renderMenuBackground(graphics, partialTick);
 
 		navBar.clear();
@@ -2717,7 +2717,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 			}
 		}
 
-		BufferBuilder buf = Tesselator.getInstance().getBuilder();
+		BufferBuilder buf = null;
 		Matrix4f mat = graphics.pose().last().pose();
 		boolean began = false;
 		for (ConnRender conn : connRenders) {
@@ -2736,13 +2736,13 @@ public class QuestTreeScreen extends BaseMenuScreen {
 				RenderSystem.defaultBlendFunc();
 				RenderSystem.disableCull();
 				RenderSystem.setShader(GameRenderer::getPositionColorShader);
-				buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+				buf = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 				began = true;
 			}
 			appendLineQuad(buf, mat, x1, y1, x2, y2, 2.0f, conn.color());
 		}
-		if (began) {
-			Tesselator.getInstance().end();
+		if (began && buf != null) {
+			com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(buf.buildOrThrow());
 			RenderSystem.enableCull();
 			RenderSystem.disableBlend();
 		}
@@ -2760,10 +2760,10 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		float r = ((color >> 16) & 0xFF) / 255.0f;
 		float g = ((color >> 8) & 0xFF) / 255.0f;
 		float b = (color & 0xFF) / 255.0f;
-		buf.vertex(mat, x1 + nx, y1 + ny, 0.0f).color(r, g, b, a).endVertex();
-		buf.vertex(mat, x2 + nx, y2 + ny, 0.0f).color(r, g, b, a).endVertex();
-		buf.vertex(mat, x2 - nx, y2 - ny, 0.0f).color(r, g, b, a).endVertex();
-		buf.vertex(mat, x1 - nx, y1 - ny, 0.0f).color(r, g, b, a).endVertex();
+		buf.addVertex(mat, x1 + nx, y1 + ny, 0.0f).setColor(r, g, b, a);
+		buf.addVertex(mat, x2 + nx, y2 + ny, 0.0f).setColor(r, g, b, a);
+		buf.addVertex(mat, x2 - nx, y2 - ny, 0.0f).setColor(r, g, b, a);
+		buf.addVertex(mat, x1 - nx, y1 - ny, 0.0f).setColor(r, g, b, a);
 	}
 
 	private void renderNode(GuiGraphics graphics, NodeRender node, int x, int y, boolean isHovered) {
@@ -3433,7 +3433,8 @@ public class QuestTreeScreen extends BaseMenuScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        double delta = scrollY;
 		if (shouldShowDifficultySelect()) {
 			double dsX = toUiX(mouseX);
 			double dsY = toUiY(mouseY);
@@ -3458,7 +3459,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		}
 		double uiMouseX = toUiX(mouseX);
 		double uiMouseY = toUiY(mouseY);
-		int scrollAmount = (int) Math.signum(delta);
+		int scrollAmount = (int) Math.signum(scrollY);
 
 		PanelRect left = getLeftPanelRect();
 		if (left.contains(uiMouseX, uiMouseY)) {
@@ -3490,7 +3491,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 
 		PanelRect tree = getTreePanelRect();
 		if (!tree.contains(uiMouseX, uiMouseY)) {
-			return super.mouseScrolled(mouseX, mouseY, delta);
+			return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 		}
 
 		float oldZoom = zoom;

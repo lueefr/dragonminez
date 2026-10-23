@@ -1,0 +1,114 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:black_dye"
+    },
+    "1": {
+      "item": "minecraft:black_dye"
+    },
+    "2": {
+      "item": "minecraft:blue_dye"
+    },
+    "3": {
+      "item": "minecraft:blue_dye"
+    },
+    "4": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "5": {
+      "item": "minecraft:blue_dye"
+    },
+    "8": {
+      "item": "minecraft:blue_dye"
+    },
+    "9": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "A": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "B": {
+      "item": "minecraft:red_dye"
+    },
+    "E": {
+      "item": "minecraft:red_dye"
+    },
+    "F": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "G": {
+      "item": "minecraft:blue_dye"
+    },
+    "H": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "I": {
+      "item": "minecraft:red_dye"
+    },
+    "J": {
+      "item": "minecraft:red_dye"
+    },
+    "K": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "L": {
+      "item": "minecraft:blue_dye"
+    },
+    "M": {
+      "item": "minecraft:blue_dye"
+    },
+    "N": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "O": {
+      "item": "minecraft:yellow_dye"
+    },
+    "P": {
+      "item": "minecraft:yellow_dye"
+    },
+    "Q": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "R": {
+      "item": "minecraft:blue_dye"
+    },
+    "S": {
+      "item": "minecraft:blue_dye"
+    },
+    "T": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_super"
+    },
+    "V": {
+      "item": "minecraft:black_dye"
+    },
+    "W": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "X": {
+      "item": "minecraft:blue_dye"
+    },
+    "Y": {
+      "item": "minecraft:blue_dye"
+    },
+    "Z": {
+      "item": "minecraft:blue_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    "YZ0123",
+    "45  89"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_trunks_super"
+  }
+}

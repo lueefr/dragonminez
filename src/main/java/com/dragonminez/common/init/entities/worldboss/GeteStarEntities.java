@@ -142,9 +142,9 @@ public final class GeteStarEntities {
         }
 
         @Override
-        protected void defineSynchedData() {
-            this.entityData.define(VICTIM_ID, -1);
-            this.entityData.define(RETRACT_AT, -1);
+        protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+            builder.define(VICTIM_ID, -1);
+            builder.define(RETRACT_AT, -1);
         }
 
         public int victimId() {
@@ -347,8 +347,8 @@ public final class GeteStarEntities {
         }
 
         @Override
-        protected void defineSynchedData() {
-            this.entityData.define(TIMER, 0);
+        protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+            builder.define(TIMER, 0);
         }
 
         public int timer() {

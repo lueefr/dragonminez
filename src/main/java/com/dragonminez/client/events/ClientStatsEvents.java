@@ -48,19 +48,24 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import com.dragonminez.client.render.util.SkinPixelTextures;
-import net.minecraftforge.client.event.ComputeFovModifierEvent;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.MovementInputUpdateEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ComputeFovModifierEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 import java.util.Locale;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
 public class ClientStatsEvents {
 	private static final int TECHNIQUE_VISIBLE_SLOTS = Techniques.SLOT_COUNT;
 	private static final int BAR_SLOTS = 4;
@@ -76,6 +81,9 @@ public class ClientStatsEvents {
 	private static final int BLOCK_REACTIVATION_LOCK_TICKS = 5;
 	private static final int SLEEP_Z_INTERVAL_TICKS = 10;
 	private static boolean wasTransformKeyDown = false;
+	private static boolean wasActionCharging = false;
+	private static boolean actionChargeRequiresRelease = false;
+	private static String lastTransformationState = null;
 	private static boolean wasKiChargeKeyDown = false;
 	private static long lastDashTime = 0;
 	private static boolean wasDashKeyDown = false;
@@ -130,8 +138,7 @@ public class ClientStatsEvents {
 	}
 
 	@SubscribeEvent
-	public static void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.END) return;
+	public static void onClientTick(ClientTickEvent.Post event) {
 
 		Minecraft mc = Minecraft.getInstance();
 		LocalPlayer localPlayer = mc.player;
@@ -469,8 +476,8 @@ public class ClientStatsEvents {
 		var techniques = data.getTechniques();
 		boolean sessionActive = techniques.isTechniqueCharging() || techniques.isTechniqueChargeActive();
 
-		net.minecraftforge.client.settings.KeyModifier bar1Mod = KeyBinds.TECHNIQUE_SLOTS[0].getKeyModifier();
-		net.minecraftforge.client.settings.KeyModifier bar2Mod = KeyBinds.TECHNIQUE_SLOTS[BAR_SLOTS].getKeyModifier();
+		net.neoforged.neoforge.client.settings.KeyModifier bar1Mod = KeyBinds.TECHNIQUE_SLOTS[0].getKeyModifier();
+		net.neoforged.neoforge.client.settings.KeyModifier bar2Mod = KeyBinds.TECHNIQUE_SLOTS[BAR_SLOTS].getKeyModifier();
 		boolean bar2DistinctHeld = bar2Mod != bar1Mod && KeyBinds.isBarModifierActive(bar2Mod);
 
 		boolean[] downNow = new boolean[TECHNIQUE_VISIBLE_SLOTS];
@@ -500,7 +507,7 @@ public class ClientStatsEvents {
 					var lockedTarget = LockOnEvent.getLockedTarget();
 					int targetId = lockedTarget != null ? lockedTarget.getId() : -1;
 					NetworkHandler.sendToServer(new StrikeAttackC2S(targetId));
-					net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new DMZClientEvent.StrikeAttack(player, targetId));
+					net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new DMZClientEvent.StrikeAttack(player, targetId));
 				} else if (t instanceof EvasionAttackData) {
 						if (data.getCooldowns().hasCooldown("TechniqueCooldown_" + id)) continue;
 						techniques.selectSlot(i);
@@ -521,7 +528,7 @@ public class ClientStatsEvents {
 						chargePendingTicks = 0;
 						NetworkHandler.sendToServer(TechniqueChargeC2S.start(i, kiTargetId));
 					}
-					net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new DMZClientEvent.KiAttackCast(player, i));
+					net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new DMZClientEvent.KiAttackCast(player, i));
 				}
 			}
 			return;
@@ -545,7 +552,7 @@ public class ClientStatsEvents {
 		if (!slotDown && !chargeReleaseSent) {
 			NetworkHandler.sendToServer(TechniqueChargeC2S.setHolding(false));
 			chargeReleaseSent = true;
-			net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new DMZClientEvent.KiAttackRelease(player));
+			net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new DMZClientEvent.KiAttackRelease(player));
 		}
 	}
 
@@ -645,19 +652,19 @@ public class ClientStatsEvents {
 				double totalModFactor = 1.0;
 
 				AttributeModifier speedMod = speedAttr.getModifier(StatsEvents.SPEED_UUID);
-				if (speedMod != null) totalModFactor *= (1.0 + speedMod.getAmount());
+				if (speedMod != null) totalModFactor *= (1.0 + speedMod.amount());
 
 				AttributeModifier turboMod = speedAttr.getModifier(StatsEvents.TURBO_SPEED_UUID);
-				if (turboMod != null) totalModFactor *= (1.0 + turboMod.getAmount());
+				if (turboMod != null) totalModFactor *= (1.0 + turboMod.amount());
 
-				AttributeModifier gravityMod = speedAttr.getModifier(GravityLogic.GRAVITY_SPEED_UUID);
-				if (gravityMod != null) totalModFactor *= (1.0 + gravityMod.getAmount());
+				AttributeModifier gravityMod = speedAttr.getModifier(com.dragonminez.common.util.AttributeMods.id(GravityLogic.GRAVITY_SPEED_UUID));
+				if (gravityMod != null) totalModFactor *= (1.0 + gravityMod.amount());
 
-				AttributeModifier sprintMod = speedAttr.getModifier(MovementSkillsHandler.SPRINT_SPEED_UUID);
-				if (sprintMod != null) totalModFactor *= (1.0 + sprintMod.getAmount());
+				AttributeModifier sprintMod = speedAttr.getModifier(com.dragonminez.common.util.AttributeMods.id(MovementSkillsHandler.SPRINT_SPEED_UUID));
+				if (sprintMod != null) totalModFactor *= (1.0 + sprintMod.amount());
 
-				AttributeModifier weightMod = speedAttr.getModifier(StatsEvents.WEIGHT_MOVEMENT_SPEED_MOD_UUID);
-				if (weightMod != null) totalModFactor *= (1.0 + weightMod.getAmount());
+				AttributeModifier weightMod = speedAttr.getModifier(com.dragonminez.common.util.AttributeMods.id(StatsEvents.WEIGHT_MOVEMENT_SPEED_MOD_UUID));
+				if (weightMod != null) totalModFactor *= (1.0 + weightMod.amount());
 
 				if (totalModFactor != 1.0 && totalModFactor > 0.0) {
 					float walkSpeed = player.getAbilities().getWalkingSpeed();

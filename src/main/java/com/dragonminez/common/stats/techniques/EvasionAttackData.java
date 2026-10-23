@@ -1,5 +1,6 @@
 package com.dragonminez.common.stats.techniques;
 
+import lombok.*;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.TechniqueConfig;
 import com.dragonminez.common.stats.StatsData;

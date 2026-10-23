@@ -5,7 +5,7 @@ import com.dragonminez.server.world.gen.OtherworldGeneration;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstapContext;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -21,7 +21,7 @@ public class OtherworldPlacedFeatures {
 	public static final ResourceKey<PlacedFeature> BONE_SPINE_PLACED = registerKey("otherworld_bone_spine_placed");
 	public static final ResourceKey<PlacedFeature> THORN_BALL_PLACED = registerKey("otherworld_thorn_ball_placed");
 
-	public static void bootstrap(BootstapContext<PlacedFeature> context) {
+	public static void bootstrap(BootstrapContext<PlacedFeature> context) {
 		HolderGetter<ConfiguredFeature<?, ?>> configured = context.lookup(Registries.CONFIGURED_FEATURE);
 
 		register(context, CANDY_ORB_PLACED, configured.getOrThrow(OtherworldConfiguredFeatures.CANDY_ORB),
@@ -61,7 +61,7 @@ public class OtherworldPlacedFeatures {
 		return ResourceKey.create(Registries.PLACED_FEATURE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
 	}
 
-	private static void register(BootstapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<ConfiguredFeature<?, ?>> configuration, List<PlacementModifier> modifiers) {
+	private static void register(BootstrapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<ConfiguredFeature<?, ?>> configuration, List<PlacementModifier> modifiers) {
 		context.register(key, new PlacedFeature(configuration, List.copyOf(modifiers)));
 	}
 }

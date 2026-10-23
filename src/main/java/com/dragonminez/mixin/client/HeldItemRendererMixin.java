@@ -124,7 +124,7 @@ public class HeldItemRendererMixin {
 //        EntityRenderer<? super T> renderer = instance.getRenderer(entity);
 //
 //        if (renderer instanceof PlayerDMZRenderer && entity instanceof AbstractClientPlayer player) {
-//            String modelName = player.getModelName();
+//            String modelName = player.getSkin().model().id();
 //
 //            return (EntityRenderer<? super T>) instance.getSkinMap().get(modelName);
 //        }

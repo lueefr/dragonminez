@@ -204,10 +204,10 @@ public final class SolarisSmokeRenderer {
 	}
 
 	private static void vertex(VertexConsumer buffer, Matrix4f pose, Vector3f p, float u, float v, float radius, float seed, float along, float closed) {
-		buffer.vertex(pose, p.x(), p.y(), p.z())
-				.color(radius / RADIUS_SCALE, seed, along, closed)
-				.uv(u, v)
-				.endVertex();
+		buffer.addVertex(pose, p.x(), p.y(), p.z())
+				.setColor(radius / RADIUS_SCALE, seed, along, closed)
+				.setUv(u, v)
+				;
 	}
 
 	private static float[] boneBounds(GeoBone bone) {

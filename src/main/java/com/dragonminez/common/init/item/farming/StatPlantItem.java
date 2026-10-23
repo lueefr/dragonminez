@@ -54,8 +54,8 @@ public class StatPlantItem extends Item {
 	public StatPlantItem(StatType statType, Supplier<? extends Block> cropBlock) {
 		super(new Properties().food(new FoodProperties.Builder()
 				.nutrition(1)
-				.saturationMod(0.1f)
-				.alwaysEat()
+				.saturationModifier(0.1f)
+				.alwaysEdible()
 				.build()));
 		this.statType = statType;
 		this.cropBlock = cropBlock;
@@ -101,7 +101,7 @@ public class StatPlantItem extends Item {
 					return;
 				}
 
-				MobEffect effect = effectFor(statType);
+				net.minecraft.core.Holder<MobEffect> effect = effectFor(statType);
 				if (effect == null) return;
 
 				// Anti-spam: si ya tiene el efecto, no se aplica de nuevo ni se consume la planta.
@@ -137,14 +137,14 @@ public class StatPlantItem extends Item {
 		}
 	}
 
-	private MobEffect effectFor(StatType type) {
+	private net.minecraft.core.Holder<MobEffect> effectFor(StatType type) {
 		return switch (type) {
-			case STR -> MainEffects.OOZARU_ROOT.get();
-			case RES -> MainEffects.KATCHIN_SPROUT.get();
-			case SKP -> MainEffects.METEOR_FLOWER.get();
-			case PWR -> MainEffects.AURA_LILY.get();
-			case VIT -> MainEffects.HERMIT_FERN.get();
-			case ENE -> MainEffects.KAIOSHIN_FRUIT.get();
+			case STR -> MainEffects.OOZARU_ROOT;
+			case RES -> MainEffects.KATCHIN_SPROUT;
+			case SKP -> MainEffects.METEOR_FLOWER;
+			case PWR -> MainEffects.AURA_LILY;
+			case VIT -> MainEffects.HERMIT_FERN;
+			case ENE -> MainEffects.KAIOSHIN_FRUIT;
 			default -> null;
 		};
 	}
@@ -153,22 +153,23 @@ public class StatPlantItem extends Item {
 		data.getCooldowns().clearCooldownsExcept(CLEANSE_KEPT_COOLDOWNS, "Active");
 		// Efectos vanilla dañinos.
 		for (MobEffectInstance instance : new ArrayList<>(player.getActiveEffects())) {
-			if (instance.getEffect().getCategory() == MobEffectCategory.HARMFUL) {
+			if (instance.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) {
 				player.removeEffect(instance.getEffect());
 			}
 		}
-		player.removeEffect(MainEffects.STUN.get());
-		player.removeEffect(MainEffects.STAGGER.get());
-		player.removeEffect(MainEffects.FUSION_CD.get());
-		player.removeEffect(MainEffects.DASH_CD.get());
-		player.removeEffect(MainEffects.DOUBLEDASH_CD.get());
-		player.removeEffect(MainEffects.TELEPORT_CD.get());
-		player.removeEffect(MainEffects.KI_BLAST_CD.get());
-		player.removeEffect(MainEffects.POISE_CD.get());
+		player.removeEffect(MainEffects.STUN);
+		player.removeEffect(MainEffects.STAGGER);
+		player.removeEffect(MainEffects.FUSION_CD);
+		player.removeEffect(MainEffects.DASH_CD);
+		player.removeEffect(MainEffects.DOUBLEDASH_CD);
+		player.removeEffect(MainEffects.TELEPORT_CD);
+		player.removeEffect(MainEffects.KI_BLAST_CD);
+		player.removeEffect(MainEffects.POISE_CD);
 	}
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull java.util.List<Component> tooltip, @NotNull TooltipFlag flag) {
+	public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, @NotNull java.util.List<Component> tooltip, @NotNull TooltipFlag flag) {
+        net.minecraft.world.level.Level level = context.level();
 		String key = switch (statType) {
 			case MASTERY -> "item.dragonminez.zenkai_lotus.tooltip";
 			case ENE -> "item.dragonminez.kaioshin_fruit.tooltip";

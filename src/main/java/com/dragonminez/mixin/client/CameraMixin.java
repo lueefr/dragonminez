@@ -42,7 +42,7 @@ public abstract class CameraMixin implements RollCamera {
 
 	@Shadow protected abstract void setRotation(float yRot, float xRot);
 
-	@Shadow protected abstract void move(double x, double y, double z);
+	@Shadow protected abstract void move(float zoom, float dy, float dx);
 
 	@Shadow private Entity entity;
 
@@ -123,21 +123,21 @@ public abstract class CameraMixin implements RollCamera {
 		}
 	}
 
-	@ModifyArg(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getMaxZoom(D)D"))
-	private double dragonminez$vehicleZoom(double distance) {
-		return distance + OverShoulderCamera.vehicleCameraExtra(this.entity);
+	@ModifyArg(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getMaxZoom(F)F"))
+	private float dragonminez$vehicleZoom(float distance) {
+		return (float)(distance + OverShoulderCamera.vehicleCameraExtra(this.entity));
 	}
 
 	@Redirect(
 			method = "setup",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;move(DDD)V", ordinal = 0)
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;move(FFF)V", ordinal = 0)
 	)
-	private void dragonminez$shoulderSurf(Camera camera, double x, double y, double z, BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick) {
+	private void dragonminez$shoulderSurf(Camera camera, float x, float y, float z, BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick) {
 		if (!thirdPersonReverse && OverShoulderCamera.isDecoupled()) {
 			this.setRotation(OverShoulderCamera.getCameraYaw(), OverShoulderCamera.getCameraPitch());
 		}
 		Vec3 move = OverShoulderCamera.computeMove(camera, level, entity, thirdPersonReverse, x, y, z, partialTick, this.dragonminez$roll);
-		this.move(move.x, move.y, move.z);
+		this.move((float)move.x, (float)move.y, (float)move.z);
 	}
 
 	@Override

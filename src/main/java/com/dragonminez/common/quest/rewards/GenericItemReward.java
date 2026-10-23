@@ -1,16 +1,16 @@
 package com.dragonminez.common.quest.rewards;
 
+import lombok.*;
 import com.dragonminez.common.quest.QuestReward;
 import com.dragonminez.common.util.types.items.GenericItemDTO;
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-
+import net.minecraft.core.registries.BuiltInRegistries;
 @Getter
 @Setter
+
 public class GenericItemReward extends QuestReward {
 	protected GenericItemDTO itemReward;
 

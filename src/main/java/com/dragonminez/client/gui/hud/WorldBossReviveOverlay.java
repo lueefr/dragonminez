@@ -12,7 +12,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraft.client.gui.LayeredDraw;
 
 public class WorldBossReviveOverlay {
 	private static final ResourceLocation CHARGE_HUD_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/hud/kicharge_hud.png");
@@ -27,13 +27,16 @@ public class WorldBossReviveOverlay {
 	private static final HudSmoother PROGRESS = new HudSmoother(0.12f, 0.002f);
 	private static final HudSmoother ALPHA = new HudSmoother(0.1f, 0.01f);
 
-	public static final IGuiOverlay HUD_WORLDBOSS_REVIVE = (forgeGui, guiGraphics, partialTicks, width, height) -> {
+	public static final LayeredDraw.Layer HUD_WORLDBOSS_REVIVE = (guiGraphics, deltaTracker) -> {
+        float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
+        int width = guiGraphics.guiWidth();
+        int height = guiGraphics.guiHeight();
 		if (!HudLayout.isPreview()) render(guiGraphics, width, height);
 	};
 
 	private static void render(GuiGraphics guiGraphics, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.renderDebug || mc.player == null) return;
+		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 
 		boolean casting = ClientWorldBossState.Player.isCasting();
 		float alpha = ALPHA.update(casting ? 1.0f : 0.0f);

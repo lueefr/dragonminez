@@ -1,5 +1,6 @@
 package com.dragonminez.common.init.entities.ki;
 
+import lombok.*;
 import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.common.combat.HealContext;
 import com.dragonminez.common.combat.util.KiTerrainDestruction;
@@ -19,7 +20,6 @@ import com.dragonminez.common.stats.StatsProvider;
 import com.dragonminez.common.stats.character.EntityStatDebuffs;
 import com.dragonminez.common.stats.techniques.KiAttackData;
 import com.dragonminez.common.stats.techniques.TechniqueData;
-import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -162,7 +162,7 @@ public abstract class AbstractKiProjectile extends Projectile {
         if (!(target instanceof LivingEntity living)) return;
         if (living == this.getOwner()) return;
         if (living instanceof Player && this.strikeStunExcludeId != null && living.getUUID().equals(this.strikeStunExcludeId)) return;
-        living.addEffect(new MobEffectInstance(MainEffects.STUN.get(), this.strikeStunTicks, 0, false, false, true));
+        living.addEffect(new MobEffectInstance(MainEffects.STUN, this.strikeStunTicks, 0, false, false, true));
     }
 
     public AbstractKiProjectile(EntityType<? extends Projectile> pEntityType, Level pLevel) {
@@ -642,21 +642,21 @@ public abstract class AbstractKiProjectile extends Projectile {
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(COLOR_MAIN, 0xFFFFFF);
-        this.entityData.define(COLOR_BORDER, 0xFFFFFF);
-        this.entityData.define(COLOR_OUTLINE, 0xFFFFFF);
-        this.entityData.define(DAMAGE, 5.0f);
-        this.entityData.define(SIZE, 1.0f);
-        this.entityData.define(SPEED, 1.0f);
-        this.entityData.define(KI_BALL_RENDER_TYPE, 1);
-        this.entityData.define(TECHNIQUE_ID, "");
-        this.entityData.define(ARMOR_PENETRATION, 0);
-        this.entityData.define(MAX_LIFE, 100);
-        this.entityData.define(IS_HEAL, false);
-        this.entityData.define(KI_TYPE, KiType.SMALL_BALL.ordinal());
-        this.entityData.define(IS_FIRING, false);
-        this.entityData.define(FIRE_TICK, -1);
+    protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        builder.define(COLOR_MAIN, 0xFFFFFF);
+        builder.define(COLOR_BORDER, 0xFFFFFF);
+        builder.define(COLOR_OUTLINE, 0xFFFFFF);
+        builder.define(DAMAGE, 5.0f);
+        builder.define(SIZE, 1.0f);
+        builder.define(SPEED, 1.0f);
+        builder.define(KI_BALL_RENDER_TYPE, 1);
+        builder.define(TECHNIQUE_ID, "");
+        builder.define(ARMOR_PENETRATION, 0);
+        builder.define(MAX_LIFE, 100);
+        builder.define(IS_HEAL, false);
+        builder.define(KI_TYPE, KiType.SMALL_BALL.ordinal());
+        builder.define(IS_FIRING, false);
+        builder.define(FIRE_TICK, -1);
     }
 
     @Override

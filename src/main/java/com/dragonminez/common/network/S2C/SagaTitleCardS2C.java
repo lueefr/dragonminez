@@ -1,11 +1,12 @@
 package com.dragonminez.common.network.S2C;
 
+import lombok.*;
 import com.dragonminez.client.gui.hud.SagaTitleCardHUD;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.api.distmarker.Dist;
+import com.dragonminez.compat.DistExecutor;
+import com.dragonminez.compat.network.NetworkEvent;
 
 import java.util.function.Supplier;
 

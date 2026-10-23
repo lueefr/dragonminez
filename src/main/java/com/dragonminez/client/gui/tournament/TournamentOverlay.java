@@ -10,10 +10,10 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.gui.LayeredDraw;
 
 @OnlyIn(Dist.CLIENT)
 public final class TournamentOverlay {
@@ -121,9 +121,12 @@ public final class TournamentOverlay {
 		mc.player.playSound(sound, 1.0F, pitch);
 	}
 
-	public static final IGuiOverlay OVERLAY = TournamentOverlay::render;
+	public static final LayeredDraw.Layer OVERLAY = TournamentOverlay::render;
 
-	private static void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int width, int height) {
+	private static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
+        float partialTick = deltaTracker.getGameTimeDeltaPartialTick(true);
+        int width = graphics.guiWidth();
+        int height = graphics.guiHeight();
 		if (phase == null || !fighter || phase == TournamentPackets.PhaseS2C.Phase.NEXT_ROUND) return;
 
 		Minecraft mc = Minecraft.getInstance();

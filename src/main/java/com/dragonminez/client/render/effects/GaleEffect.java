@@ -1,5 +1,6 @@
 package com.dragonminez.client.render.effects;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.shader.EffectBloomRenderer;
 import com.dragonminez.client.render.util.IrisCompat;
@@ -19,19 +20,23 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public final class GaleEffect {
 
 	private static final int MAX_STREAKS = 360;
@@ -99,8 +104,8 @@ public final class GaleEffect {
 	}
 
 	@SubscribeEvent
-	public static void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.START) return;
+	public static void onClientTick(ClientTickEvent.Pre event) {
+
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null) {
 			GALES.clear();
@@ -152,7 +157,7 @@ public final class GaleEffect {
 		if (mc.level == null || mc.player == null || STREAKS.isEmpty()) return;
 
 		boolean iris = IrisCompat.isShaderPackInUse(mc.level.getGameTime());
-		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick();
+		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick().getGameTimeDeltaPartialTick(true);
 
 		if (!iris) {
 			if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
@@ -180,14 +185,13 @@ public final class GaleEffect {
 		RenderSystem.depthMask(false);
 		RenderSystem.disableCull();
 
-		PoseStack modelView = RenderSystem.getModelViewStack();
-		modelView.pushPose();
-		modelView.setIdentity();
+		org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
+		modelView.pushMatrix();
+		modelView.identity();
 		RenderSystem.applyModelViewMatrix();
 
 		Tesselator tesselator = Tesselator.getInstance();
-		BufferBuilder buffer = tesselator.getBuilder();
-		buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+		BufferBuilder buffer = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 		for (Streak streak : STREAKS) {
 			float age = streak.life + partialTick;
 			float fade = Math.min(1.0F, age / 3.0F) * Math.min(1.0F, (streak.maxLife - age) / 5.0F);
@@ -208,9 +212,9 @@ public final class GaleEffect {
 			vertex(buffer, pose, head.add(side), alpha);
 			vertex(buffer, pose, head.subtract(side), alpha);
 		}
-		tesselator.end();
+		com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(buffer.buildOrThrow());
 
-		modelView.popPose();
+		modelView.popMatrix();
 		RenderSystem.applyModelViewMatrix();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.depthMask(true);
@@ -218,7 +222,7 @@ public final class GaleEffect {
 	}
 
 	private static void vertex(BufferBuilder buffer, Matrix4f pose, Vec3 point, float alpha) {
-		buffer.vertex(pose, (float) point.x, (float) point.y, (float) point.z).color(COLOR[0], COLOR[1], COLOR[2], alpha).endVertex();
+		buffer.addVertex(pose, (float) point.x, (float) point.y, (float) point.z).setColor(COLOR[0], COLOR[1], COLOR[2], alpha);
 	}
 
 	private static PoseStack viewStack(Camera camera) {

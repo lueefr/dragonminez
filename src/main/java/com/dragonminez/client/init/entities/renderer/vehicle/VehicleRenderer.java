@@ -62,10 +62,14 @@ public class VehicleRenderer<T extends VehicleEntity> extends GeoEntityRenderer<
 	}
 
 	@Override
-	public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int renderColor) {
+        float red = net.minecraft.util.FastColor.ARGB32.red(renderColor) / 255.0F;
+        float green = net.minecraft.util.FastColor.ARGB32.green(renderColor) / 255.0F;
+        float blue = net.minecraft.util.FastColor.ARGB32.blue(renderColor) / 255.0F;
+        float alpha = net.minecraft.util.FastColor.ARGB32.alpha(renderColor) / 255.0F;
 		poseBones(animatable, model, partialTick);
 		try {
-			super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+			super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(red, green, blue, alpha));
 		} finally {
 			for (int i = this.posedBones.size() - 1; i >= 0; i--) this.posedBones.get(i).restore();
 			this.posedBones.clear();

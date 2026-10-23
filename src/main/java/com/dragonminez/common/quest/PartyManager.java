@@ -1,5 +1,6 @@
 package com.dragonminez.common.quest;
 
+import lombok.*;
 import com.dragonminez.Reference;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.network.NetworkHandler;
@@ -20,12 +21,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStoppedEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,13 +37,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+@EventBusSubscriber(modid = Reference.MOD_ID)
 public final class PartyManager {
-    private static final long INVITE_DURATION_MS = 60_000L;
+    private static final long INVITE_DURATION_MS = 60000L;
     private static final String TEAM_PREFIX = "dmzp_";
     private static final Set<UUID> BOUTING_PARTIES = ConcurrentHashMap.newKeySet();
 
-    private PartyManager() {}
+    private PartyManager() {
+    }
 
     private static String getTeamName(UUID partyId) {
         return TEAM_PREFIX + partyId.toString().replace("-", "").substring(0, 11);
@@ -157,10 +160,8 @@ public final class PartyManager {
         StatsData data1 = getStatsData(p1);
         StatsData data2 = getStatsData(p2);
         if (data1 == null || data2 == null) return false;
-
         UUID party1 = data1.getPlayerQuestData().getActivePartyId();
         UUID party2 = data2.getPlayerQuestData().getActivePartyId();
-
         return party1 != null && party1.equals(party2);
     }
 
@@ -182,10 +183,8 @@ public final class PartyManager {
 
             applyFriendlyFire(leader.getServer(), party);
             syncPartyToOnlineMembers(leader.getServer(), party);
-
             String state = party.isPvpEnabled() ? "✓" : "✕";
             ChatFormatting color = party.isPvpEnabled() ? ChatFormatting.RED : ChatFormatting.GREEN;
-
             for (ServerPlayer member : getAllPartyMembers(leader)) {
                 member.sendSystemMessage(Component.translatable("quest.dmz.party.pvp.toggled", state).withStyle(color));
             }
@@ -216,13 +215,11 @@ public final class PartyManager {
     public static List<ServerPlayer> getAllPartyMembers(ServerPlayer player) {
         PartySavedData.PartyInstance party = PartySavedData.get(player.getServer()).getPartyOf(player.getUUID());
         if (party == null) return Collections.singletonList(player);
-
         List<ServerPlayer> members = new ArrayList<>();
         for (UUID memberId : party.getMembers()) {
             ServerPlayer member = player.getServer().getPlayerList().getPlayer(memberId);
             if (member != null && !members.contains(member)) members.add(member);
         }
-
         if (members.isEmpty()) members.add(player);
         return members;
     }
@@ -253,10 +250,8 @@ public final class PartyManager {
     private static boolean validateLevelGap(ServerPlayer leader, ServerPlayer target) {
         int maxGap = maxLevelGap();
         if (maxGap == -1) return true;
-
         StatsData leaderData = getStatsData(leader);
         StatsData targetData = getStatsData(target);
-
         if (leaderData == null || targetData == null) return false;
 
         return Math.abs(leaderData.getLevel() - targetData.getLevel()) <= maxGap;
@@ -281,20 +276,12 @@ public final class PartyManager {
         if (isInParty(inviter) && !isPartyLeader(inviter)) {
             ServerPlayer leader = getPartyLeader(inviter);
             if (leader != null) {
-                Component acceptBtn = Component.translatable("quest.dmz.party.invite.button")
-                        .withStyle(style -> style
-                                .withColor(ChatFormatting.GREEN)
-                                .withBold(true)
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/dmzparty invite " + invitee.getGameProfile().getName())));
-
-                leader.sendSystemMessage(Component.translatable("quest.dmz.party.invite.suggest", inviter.getGameProfile().getName(), invitee.getGameProfile().getName())
-                        .append(Component.literal(" "))
-                        .append(acceptBtn));
+                Component acceptBtn = Component.translatable("quest.dmz.party.invite.button").withStyle(style -> style.withColor(ChatFormatting.GREEN).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/dmzparty invite " + invitee.getGameProfile().getName())));
+                leader.sendSystemMessage(Component.translatable("quest.dmz.party.invite.suggest", inviter.getGameProfile().getName(), invitee.getGameProfile().getName()).append(Component.literal(" ")).append(acceptBtn));
                 return InviteRequestResult.SUGGESTED;
             }
             return InviteRequestResult.NO_PERMISSION;
         }
-
         sendInvite(inviter, invitee);
         return InviteRequestResult.INVITED;
     }
@@ -366,7 +353,6 @@ public final class PartyManager {
             syncSelf(invitee);
             return InviteAcceptResult.PARTY_FULL;
         }
-
         Difficulty partyDifficulty = getQuestData(leader).getDifficulty();
         Difficulty ownDifficulty = inviteeQuestData.getDifficulty();
         if (partyDifficulty.ordinal() < ownDifficulty.ordinal()) {
@@ -375,7 +361,6 @@ public final class PartyManager {
         if (partyDifficulty.ordinal() > ownDifficulty.ordinal() && !confirmedDifficultyChange) {
             return InviteAcceptResult.DIFFICULTY_CONFIRM_REQUIRED;
         }
-
         inviteeQuestData.clearPendingPartyInvite();
         if (isPartyOwner(invitee) && getPartySize(invitee) > 1) PartyFeedback.leaveRequested(invitee);
         else leaveParty(invitee, false);
@@ -399,15 +384,7 @@ public final class PartyManager {
     public static PendingInvite getPendingInvite(ServerPlayer player, UUID partyId) {
         PlayerQuestData.PartyInviteData invite = getQuestData(player).getPendingPartyInvite(partyId);
         if (invite == null) return null;
-
-        return new PendingInvite(
-                invite.getInviterUUID(),
-                invite.getPartyId() == null ? "" : invite.getPartyId().toString(),
-                invite.getPartyLeaderId(),
-                invite.getInviterName(),
-                invite.getExpiresAtMs(),
-                invite.getPartyDifficulty()
-        );
+        return new PendingInvite(invite.getInviterUUID(), invite.getPartyId() == null ? "" : invite.getPartyId().toString(), invite.getPartyLeaderId(), invite.getInviterName(), invite.getExpiresAtMs(), invite.getPartyDifficulty());
     }
 
     public static void leaveParty(ServerPlayer player) {
@@ -526,17 +503,14 @@ public final class PartyManager {
         if (data == null) return;
         var status = data.getStatus();
         if (!status.isFusionPartyManaged()) return;
-
         UUID prevPartyId = status.getFusionPrevPartyId();
         boolean prevOwner = status.isFusionPrevPartyLeader();
 
         status.setFusionPartyManaged(false);
         status.setFusionPrevPartyId(null);
         status.setFusionPrevPartyLeader(false);
-
         UUID currentPartyId = getPartyId(player);
         if (Objects.equals(currentPartyId, prevPartyId)) return;
-
         if (prevPartyId == null) {
             leaveParty(player, false);
         } else {
@@ -609,7 +583,6 @@ public final class PartyManager {
     @SubscribeEvent
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-
         StatsData statsData = getStatsData(player);
         if (statsData != null) {
             PlayerQuestData questData = statsData.getPlayerQuestData();
@@ -737,13 +710,19 @@ public final class PartyManager {
         return StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
     }
 
+
     public static class PendingInvite {
-        @Getter private final UUID inviterUUID;
-        @Getter private final String teamName;
-        @Getter private final UUID partyLeaderId;
-        @Getter private final String inviterName;
+@Getter
+        private final UUID inviterUUID;
+@Getter
+        private final String teamName;
+@Getter
+        private final UUID partyLeaderId;
+@Getter
+        private final String inviterName;
         private final long expiresAtMs;
-        @Getter private final Difficulty partyDifficulty;
+@Getter
+        private final Difficulty partyDifficulty;
 
         public PendingInvite(UUID inviterUUID, String teamName, UUID partyLeaderId, String inviterName, long expiresAtMs, Difficulty partyDifficulty) {
             this.inviterUUID = inviterUUID;
@@ -767,10 +746,12 @@ public final class PartyManager {
         }
     }
 
+
     public enum InviteRequestResult {
         INVITED, SUGGESTED, PARTY_FULL, ALREADY_IN_PARTY, NO_PERMISSION, LEVEL_GAP, CANNOT_INVITE_SELF,
         TOURNAMENT_ACTIVE, DIFFICULTY_TOO_LOW
     }
+
 
     public enum InviteAcceptResult {
         SUCCESS, EXPIRED, PARTY_FULL, INVALID, LEVEL_GAP, DIFFICULTY_TOO_LOW, DIFFICULTY_CONFIRM_REQUIRED,

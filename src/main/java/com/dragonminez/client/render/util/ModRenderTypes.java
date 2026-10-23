@@ -137,8 +137,8 @@ public class ModRenderTypes extends RenderType {
             RenderSystem.enablePolygonOffset();
             return;
         }
-        PoseStack modelView = RenderSystem.getModelViewStack();
-        modelView.pushPose();
+        org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
+        modelView.pushMatrix();
         modelView.scale(SKIN_OVERLAY_VIEW_SCALE, SKIN_OVERLAY_VIEW_SCALE, SKIN_OVERLAY_VIEW_SCALE);
         RenderSystem.applyModelViewMatrix();
     }, () -> {
@@ -147,8 +147,8 @@ public class ModRenderTypes extends RenderType {
             RenderSystem.disablePolygonOffset();
             return;
         }
-        PoseStack modelView = RenderSystem.getModelViewStack();
-        modelView.popPose();
+        org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
+        modelView.popMatrix();
         RenderSystem.applyModelViewMatrix();
     });
 
@@ -300,14 +300,14 @@ public class ModRenderTypes extends RenderType {
                     .setOverlayState(OVERLAY)
                     .createCompositeState(false)));
 
-    private static final RenderType KI_BLADE = create("dmz_ki_blade", DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder()
+    private static final RenderType KI_BLADE = create("dmz_ki_blade", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder()
             .setShaderState(new RenderStateShard.ShaderStateShard(() -> DMZShaders.kiBladeShader))
             .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
             .setCullState(NO_CULL)
             .setWriteMaskState(COLOR_WRITE)
             .createCompositeState(false));
 
-    private static final RenderType SOLARIS_SMOKE = create("dmz_solaris_smoke", DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder()
+    private static final RenderType SOLARIS_SMOKE = create("dmz_solaris_smoke", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder()
             .setShaderState(new RenderStateShard.ShaderStateShard(() -> DMZShaders.solarisSmokeShader))
             .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
             .setCullState(NO_CULL)

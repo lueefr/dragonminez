@@ -15,8 +15,12 @@ public class PatternStationItemRenderer extends GeoItemRenderer<PatternStationIt
 
 	@Override
 	public void preRender(PoseStack poseStack, PatternStationItem animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer,
-						  boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+						  boolean isReRender, float partialTick, int packedLight, int packedOverlay, int renderColor) {
+        float red = net.minecraft.util.FastColor.ARGB32.red(renderColor) / 255.0F;
+        float green = net.minecraft.util.FastColor.ARGB32.green(renderColor) / 255.0F;
+        float blue = net.minecraft.util.FastColor.ARGB32.blue(renderColor) / 255.0F;
+        float alpha = net.minecraft.util.FastColor.ARGB32.alpha(renderColor) / 255.0F;
+		super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(red, green, blue, alpha));
 
 		if (!isReRender)
 			poseStack.translate(0, -0.51f, 0);

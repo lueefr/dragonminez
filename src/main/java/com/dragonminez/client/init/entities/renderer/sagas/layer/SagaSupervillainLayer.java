@@ -59,9 +59,7 @@ public class SagaSupervillainLayer<T extends DBSagasEntity> extends GeoRenderLay
 
 		if (maskBuffer != null) maskBuffer.setMaskCaptureBlocked(true);
 		try {
-			getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, tinted,
-					bufferSource.getBuffer(tinted), partialTick, packedLight, packedOverlay,
-					tint[0], tint[1], tint[2], tintAlpha);
+			getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, tinted, bufferSource.getBuffer(tinted), partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(tint[0], tint[1], tint[2], tintAlpha));
 		} finally {
 			if (maskBuffer != null) maskBuffer.setMaskCaptureBlocked(false);
 		}

@@ -1,0 +1,114 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:red_dye"
+    },
+    "1": {
+      "item": "minecraft:red_dye"
+    },
+    "2": {
+      "item": "minecraft:red_dye"
+    },
+    "3": {
+      "item": "minecraft:white_dye"
+    },
+    "5": {
+      "item": "minecraft:black_dye"
+    },
+    "6": {
+      "item": "minecraft:red_dye"
+    },
+    "7": {
+      "item": "minecraft:red_dye"
+    },
+    "8": {
+      "item": "minecraft:black_dye"
+    },
+    "A": {
+      "item": "minecraft:black_dye"
+    },
+    "B": {
+      "item": "minecraft:red_dye"
+    },
+    "E": {
+      "item": "minecraft:red_dye"
+    },
+    "F": {
+      "item": "minecraft:black_dye"
+    },
+    "G": {
+      "item": "minecraft:red_dye"
+    },
+    "H": {
+      "item": "minecraft:red_dye"
+    },
+    "I": {
+      "item": "minecraft:black_dye"
+    },
+    "J": {
+      "item": "minecraft:black_dye"
+    },
+    "K": {
+      "item": "minecraft:red_dye"
+    },
+    "L": {
+      "item": "minecraft:red_dye"
+    },
+    "M": {
+      "item": "minecraft:red_dye"
+    },
+    "N": {
+      "item": "minecraft:black_dye"
+    },
+    "O": {
+      "item": "minecraft:red_dye"
+    },
+    "P": {
+      "item": "minecraft:red_dye"
+    },
+    "Q": {
+      "item": "minecraft:black_dye"
+    },
+    "R": {
+      "item": "minecraft:red_dye"
+    },
+    "S": {
+      "item": "minecraft:red_dye"
+    },
+    "T": {
+      "item": "minecraft:red_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_super"
+    },
+    "V": {
+      "item": "minecraft:red_dye"
+    },
+    "W": {
+      "item": "minecraft:red_dye"
+    },
+    "X": {
+      "item": "minecraft:red_dye"
+    },
+    "Y": {
+      "item": "minecraft:white_dye"
+    },
+    "Z": {
+      "item": "minecraft:red_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    "YZ0123",
+    " 5678 "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_pride_troops"
+  }
+}

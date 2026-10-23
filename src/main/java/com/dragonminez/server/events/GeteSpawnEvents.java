@@ -1,5 +1,6 @@
 package com.dragonminez.server.events;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.MainEntities;
 import com.dragonminez.common.init.entities.sagas.SagaMoviesEntity;
@@ -33,16 +34,20 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class GeteSpawnEvents {
 
 	private static final List<ResourceKey<Structure>> VILLAGES = List.of(
@@ -75,8 +80,8 @@ public class GeteSpawnEvents {
 	private static final int MAX_PATROL_ROBOTS = 3;
 
 	@SubscribeEvent
-	public static void onLevelTick(TickEvent.LevelTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || !(event.level instanceof ServerLevel level)) return;
+	public static void onLevelTick(LevelTickEvent.Post event) {
+		if (!(event.getLevel() instanceof ServerLevel level)) return;
 		if (!level.dimension().equals(NamekDimension.NAMEK_KEY) || level.players().isEmpty()) return;
 		if (level.getDifficulty() == Difficulty.PEACEFUL || !level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) return;
 
@@ -199,7 +204,7 @@ public class GeteSpawnEvents {
 			if (ground.is(BlockTags.LOGS) || ground.is(BlockTags.LEAVES)) continue;
 			if (!ground.isFaceSturdy(level, pos.below(), Direction.UP)) continue;
 			if (!level.getFluidState(pos).isEmpty() || !level.getFluidState(pos.below()).isEmpty()) continue;
-			if (!level.noCollision(MainEntities.SAGA_GETE_ROBOT.get().getAABB(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D))) continue;
+			if (!level.noCollision(MainEntities.SAGA_GETE_ROBOT.get().getDimensions().makeBoundingBox(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D))) continue;
 			if (level.getNearestPlayer(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, playerGap, false) != null) continue;
 			return pos;
 		}
@@ -215,7 +220,7 @@ public class GeteSpawnEvents {
 
 	private static boolean place(ServerLevel level, Mob mob, BlockPos pos) {
 		mob.moveTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
-		mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.EVENT, null, null);
+		mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.EVENT, null);
 		return level.addFreshEntity(mob);
 	}
 

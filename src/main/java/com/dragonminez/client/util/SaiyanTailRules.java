@@ -6,7 +6,7 @@ import com.dragonminez.common.util.lists.SaiyanForms;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
+import software.bernie.geckolib.cache.object.GeoBone;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -54,7 +54,7 @@ public final class SaiyanTailRules {
 	public static float wrapAmount(Entity entity, boolean tailOut) {
 		float target = tailOut ? 0.0f : 1.0f;
 		if (wrapFrozen || entity == null || entity.level() == null) return target;
-		double now = entity.level().getGameTime() + Minecraft.getInstance().getFrameTime();
+		double now = entity.level().getGameTime() + Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
 		WrapState state = WRAPS.get(entity.getId());
 		if (state == null || now < state.seen - 1.0 || now - state.seen > STALE_TICKS) {
 			if (WRAPS.size() > PRUNE_SIZE) WRAPS.values().removeIf(s -> Math.abs(now - s.seen) > STALE_TICKS);
@@ -77,7 +77,7 @@ public final class SaiyanTailRules {
 		return Mth.clamp((wrapAmount(entity, tailOut) - ENROLLED_FADE_START) / (1.0f - ENROLLED_FADE_START), 0.0f, 1.0f);
 	}
 
-	public static void applyWrapCurl(Entity entity, boolean tailOut, Function<String, CoreGeoBone> bones) {
+	public static void applyWrapCurl(Entity entity, boolean tailOut, Function<String, GeoBone> bones) {
 		float amount = wrapAmount(entity, tailOut);
 		if (amount <= 0.0f || amount >= 1.0f) return;
 		int count = 0;
@@ -85,7 +85,7 @@ public final class SaiyanTailRules {
 		if (count == 0) return;
 		float laterTurn = count > 1 ? (TOTAL_TURN - FIRST_TURN) / (count - 1) : 0.0f;
 		for (int i = 0; i < count; i++) {
-			CoreGeoBone bone = bones.apply("tail" + (i + 1));
+			GeoBone bone = bones.apply("tail" + (i + 1));
 			float delay = count > 1 ? CURL_STAGGER * i / (count - 1) : 0.0f;
 			float local = Mth.clamp(amount * (1.0f + CURL_STAGGER) - delay, 0.0f, 1.0f);
 			local = local * local * (3.0f - 2.0f * local);

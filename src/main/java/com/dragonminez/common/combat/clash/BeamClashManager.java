@@ -14,12 +14,16 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.RegistryObject;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,7 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class BeamClashManager {
     private static final double OPPOSITION_DOT = -0.3;
 
@@ -57,9 +61,8 @@ public class BeamClashManager {
     }
 
     @SubscribeEvent
-    public static void onLevelTick(TickEvent.LevelTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
-        if (!(event.level instanceof ServerLevel level)) return;
+    public static void onLevelTick(LevelTickEvent.Post event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
 
         advanceActiveClashes(level);
 
@@ -286,7 +289,7 @@ public class BeamClashManager {
     }
 
     @SuppressWarnings("unchecked")
-    private static final RegistryObject<SoundEvent>[] PUNCH_SOUNDS = new RegistryObject[]{
+    private static final DeferredHolder<SoundEvent, ? extends SoundEvent>[] PUNCH_SOUNDS = new DeferredHolder[]{
             MainSounds.GOLPE1, MainSounds.GOLPE2, MainSounds.GOLPE3,
             MainSounds.GOLPE4, MainSounds.GOLPE5, MainSounds.GOLPE6
     };
@@ -296,7 +299,7 @@ public class BeamClashManager {
             ClashParticipant participant = clash.participantFor(player.getUUID());
             if (participant != null) {
                 float serverTime = (float) (player.level().getGameTime() - clash.startGameTime());
-                ClashMeter.Grade grade = participant.registerPlayerPress(pressTime, marker, serverTime, clash.realElapsedTicks(), player.latency);
+                ClashMeter.Grade grade = participant.registerPlayerPress(pressTime, marker, serverTime, clash.realElapsedTicks(), player.connection.latency());
                 playPressFeedback(player, grade);
                 return;
             }
@@ -319,7 +322,7 @@ public class BeamClashManager {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onClashingHurt(LivingAttackEvent event) {
+    public static void onClashingHurt(LivingIncomingDamageEvent event) {
         LivingEntity victim = event.getEntity();
         if (victim.level().isClientSide) return;
         if (isClashing(victim.getUUID())) {

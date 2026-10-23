@@ -1,5 +1,6 @@
 package com.dragonminez.common.config;
 
+import lombok.*;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -9,8 +9,8 @@ import com.dragonminez.common.quest.QuestUnlockOrder;
 import com.dragonminez.common.stats.StatsData;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

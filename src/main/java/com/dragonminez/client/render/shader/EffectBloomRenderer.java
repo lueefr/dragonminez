@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public final class EffectBloomRenderer {
+    private static final com.mojang.blaze3d.vertex.ByteBufferBuilder BLOOM_VERTICES = new com.mojang.blaze3d.vertex.ByteBufferBuilder(4096);
 
 	public static boolean bloomPass = false;
 
@@ -32,10 +33,10 @@ public final class EffectBloomRenderer {
 	}
 
 	private static void renderEntityDraws() {
-		MultiBufferSource.BufferSource source = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-		PoseStack modelView = RenderSystem.getModelViewStack();
-		modelView.pushPose();
-		modelView.setIdentity();
+		MultiBufferSource.BufferSource source = MultiBufferSource.immediate(BLOOM_VERTICES);
+		org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
+		modelView.pushMatrix();
+		modelView.identity();
 		RenderSystem.applyModelViewMatrix();
 		if (DMZShaders.solarisSmokeShader != null) DMZShaders.solarisSmokeShader.safeGetUniform("bloomMode").set(1.0f);
 		try {
@@ -43,7 +44,7 @@ public final class EffectBloomRenderer {
 			source.endBatch();
 		} finally {
 			if (DMZShaders.solarisSmokeShader != null) DMZShaders.solarisSmokeShader.safeGetUniform("bloomMode").set(0.0f);
-			modelView.popPose();
+			modelView.popMatrix();
 			RenderSystem.applyModelViewMatrix();
 			ENTITY_DRAWS.clear();
 			restoreKiState(true);

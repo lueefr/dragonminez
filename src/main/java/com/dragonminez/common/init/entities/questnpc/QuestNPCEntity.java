@@ -28,11 +28,11 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.object.PlayState;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
 
 /**
  * A single, generic, data-driven quest NPC entity.
@@ -86,11 +86,11 @@ public class QuestNPCEntity extends MastersEntity {
 
 	@Override
 	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
-										@Nullable SpawnGroupData spawnData, @Nullable CompoundTag dataTag) {
+										@Nullable SpawnGroupData spawnData) {
 		if (reason == MobSpawnType.STRUCTURE && this.hasHome) {
 			this.setHomePosition(this.getX(), this.getZ());
 		}
-		return super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
+		return super.finalizeSpawn(level, difficulty, reason, spawnData);
 	}
 
 	@Override
@@ -124,12 +124,12 @@ public class QuestNPCEntity extends MastersEntity {
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.entityData.define(NPC_ID, "generic_npc");
-		this.entityData.define(NPC_MODEL, "");
-		this.entityData.define(NPC_TEXTURE, "");
-		this.entityData.define(NPC_MASTER, false);
+	protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(NPC_ID, "generic_npc");
+		builder.define(NPC_MODEL, "");
+		builder.define(NPC_TEXTURE, "");
+		builder.define(NPC_MASTER, false);
 	}
 
 	// ---- NPC identity ----
@@ -204,19 +204,19 @@ public class QuestNPCEntity extends MastersEntity {
 	// ---- Display name ----
 
 	@Override
-	public @NonNull Component getName() {
+	public Component getName() {
 		return Component.translatable("entity.dragonminez.questnpc." + getNpcId());
 	}
 
 	@Override
-	public @NonNull Component getDisplayName() {
+	public Component getDisplayName() {
 		return getName();
 	}
 
 	// ---- NBT persistence ----
 
 	@Override
-	public void addAdditionalSaveData(@NonNull CompoundTag tag) {
+	public void addAdditionalSaveData(CompoundTag tag) {
 		super.addAdditionalSaveData(tag);
 		tag.putString("QuestNpcId", getNpcId());
 		String model = getNpcModel();
@@ -238,7 +238,7 @@ public class QuestNPCEntity extends MastersEntity {
 	}
 
 	@Override
-	public void readAdditionalSaveData(@NonNull CompoundTag tag) {
+	public void readAdditionalSaveData(CompoundTag tag) {
 		super.readAdditionalSaveData(tag);
 		if (tag.contains("QuestNpcId")) {
 			setNpcId(tag.getString("QuestNpcId"));
@@ -258,7 +258,7 @@ public class QuestNPCEntity extends MastersEntity {
 	// ---- Interaction: open quest dialogue ----
 
 	@Override
-	protected @NonNull InteractionResult mobInteract(@NonNull Player pPlayer, @NonNull InteractionHand pHand) {
+	protected InteractionResult mobInteract(Player pPlayer, InteractionHand pHand) {
 		if (!this.level().isClientSide && pPlayer instanceof ServerPlayer serverPlayer) {
 			String npcId = getNpcId();
 

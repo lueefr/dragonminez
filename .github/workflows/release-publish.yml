@@ -88,10 +88,10 @@ jobs:
             exit 1
           fi
 
-      - name: Set up JDK 17 Temurin
+      - name: Set up JDK 21 Temurin
         uses: actions/setup-java@v6
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: temurin
 
       - name: Setup Gradle
@@ -123,14 +123,14 @@ jobs:
             exit 1
           fi
 
-          artifact="build/libs/dragonminez-${version}.jar"
+          artifact="build/libs/dragonminez-1.21.1-${version}.jar"
           if [[ ! -f "$artifact" ]]; then
             echo "::error::Expected release artifact does not exist: $artifact"
             exit 1
           fi
 
           echo "path=${artifact}" >> "$GITHUB_OUTPUT"
-          echo "name=dragonminez-${version}.jar" >> "$GITHUB_OUTPUT"
+          echo "name=dragonminez-1.21.1-${version}.jar" >> "$GITHUB_OUTPUT"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "minecraft_version=${minecraft_version}" >> "$GITHUB_OUTPUT"
 
@@ -153,7 +153,7 @@ jobs:
           name: DragonMineZ ${{ steps.artifact.outputs.version }}
           version: ${{ steps.artifact.outputs.version }}
           channel: release
-          loaders: forge
+          loaders: neoforge
           game-versions: ${{ steps.artifact.outputs.minecraft_version }}
           files: ${{ steps.artifact.outputs.path }}
           changelog: ${{ steps.changelog.outputs.text }}

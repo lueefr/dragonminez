@@ -38,7 +38,8 @@ public class DMZCuriosItem extends Item implements ICurioItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        net.minecraft.world.level.Level level = context.level();
 		String id = stack.getItem().getDescriptionId();
 		if (id.contains("pothala_right")) {
 			tooltip.add(Component.translatable("item.dragonminez.pothala.right.tooltip").withStyle(ChatFormatting.GRAY));
@@ -60,6 +61,6 @@ public class DMZCuriosItem extends Item implements ICurioItem {
 			}
 		}
 		PothalaPairItem.appendPairIdTooltip(stack, tooltip);
-		super.appendHoverText(stack, level, tooltip, flag);
+		super.appendHoverText(stack, context, tooltip, flag);
 	}
 }

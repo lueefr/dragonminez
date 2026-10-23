@@ -35,7 +35,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.entity.PartEntity;
+import net.neoforged.neoforge.entity.PartEntity;
 
 import java.util.Map;
 import java.util.Set;
@@ -187,12 +187,12 @@ public class ComboManager {
                     TriggerAnimationS2C.AnimationType.KI_ANIMATION_STOP, 0, -1, ""), victim);
         } else if (target instanceof DBSagasEntity saga) {
             if (godFist) {
-                saga.stopTriggeredAnimation(DBSagasEntity.HURT_CONTROLLER, DBSagasEntity.HURT_ANIM_GODFIST);
+                saga.stopTriggeredAnim(DBSagasEntity.HURT_CONTROLLER, DBSagasEntity.HURT_ANIM_GODFIST);
                 return;
             }
-            saga.stopTriggeredAnimation(DBSagasEntity.HURT_CONTROLLER, DBSagasEntity.HURT_ANIM_TOP2);
-            saga.stopTriggeredAnimation(DBSagasEntity.HURT_CONTROLLER, DBSagasEntity.HURT_ANIM_TOP);
-            saga.stopTriggeredAnimation(DBSagasEntity.HURT_CONTROLLER, DBSagasEntity.HURT_ANIM_DOWN);
+            saga.stopTriggeredAnim(DBSagasEntity.HURT_CONTROLLER, DBSagasEntity.HURT_ANIM_TOP2);
+            saga.stopTriggeredAnim(DBSagasEntity.HURT_CONTROLLER, DBSagasEntity.HURT_ANIM_TOP);
+            saga.stopTriggeredAnim(DBSagasEntity.HURT_CONTROLLER, DBSagasEntity.HURT_ANIM_DOWN);
         }
     }
 
@@ -720,7 +720,7 @@ public class ComboManager {
             NetworkHandler.sendToTrackingEntityAndSelf(new TriggerAnimationS2C(victimPlayer.getUUID(),
                     TriggerAnimationS2C.AnimationType.KI_ANIMATION, 0, -1, playerAnim), victimPlayer);
         } else if (victim instanceof DBSagasEntity saga) {
-            saga.stopTriggeredAnimation(DBSagasEntity.HURT_CONTROLLER, sagaAnim);
+            saga.stopTriggeredAnim(DBSagasEntity.HURT_CONTROLLER, sagaAnim);
             saga.triggerAnim(DBSagasEntity.HURT_CONTROLLER, sagaAnim);
         }
     }

@@ -44,9 +44,10 @@ public class JEIDragonMineZPlugin implements IModPlugin {
 
 		List<KikonoRecipe> recipes = new ArrayList<>();
 
-		for (Recipe<?> recipe : recipeManager.getRecipes()) {
-			if (recipe instanceof KikonoRecipe) {
-				recipes.add((KikonoRecipe) recipe);
+		for (var holder : recipeManager.getRecipes()) {
+			Recipe<?> recipe = holder.value();
+			if (recipe instanceof KikonoRecipe kikonoRecipe) {
+				recipes.add(kikonoRecipe);
 			}
 		}
 
@@ -55,7 +56,8 @@ public class JEIDragonMineZPlugin implements IModPlugin {
 		}
 
 		List<PatternRecipe> patternRecipes = new ArrayList<>();
-		for (Recipe<?> recipe : recipeManager.getRecipes()) {
+		for (var holder : recipeManager.getRecipes()) {
+            Recipe<?> recipe = holder.value();
 			if (recipe instanceof PatternRecipe patternRecipe) {
 				patternRecipes.add(patternRecipe);
 			}

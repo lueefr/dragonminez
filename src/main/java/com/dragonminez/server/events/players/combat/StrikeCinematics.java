@@ -1,5 +1,6 @@
 package com.dragonminez.server.events.players.combat;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import com.dragonminez.common.init.entities.worldboss.WorldBossEntity;
@@ -8,17 +9,21 @@ import com.dragonminez.common.network.S2C.StrikeCinematicS2C;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public final class StrikeCinematics {
 
 	private enum Source { STRIKE, COMBO, BOSS_ABILITY }
@@ -67,8 +72,8 @@ public final class StrikeCinematics {
 	}
 
 	@SubscribeEvent
-	public static void onServerTick(TickEvent.ServerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || TAKES.isEmpty()) return;
+	public static void onServerTick(ServerTickEvent.Post event) {
+		if (TAKES.isEmpty()) return;
 		for (Take take : new ArrayList<>(TAKES.values())) {
 			if (take.source() == Source.STRIKE || stillPerforming(event.getServer(), take)) continue;
 			stop(take.attacker());

@@ -13,7 +13,7 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.object.GeoCube;
 import software.bernie.geckolib.cache.object.GeoQuad;
 import software.bernie.geckolib.cache.object.GeoVertex;
-import software.bernie.geckolib.util.RenderUtils;
+
 
 public final class SaiyanTailMeshBuilder {
 	public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/tail_fur.png");
@@ -124,9 +124,9 @@ public final class SaiyanTailMeshBuilder {
 				cubeStack.pushPose();
 				cubeStack.last().pose().set(poses[i]);
 				cubeStack.last().normal().set(normals[i]);
-				RenderUtils.translateToPivotPoint(cubeStack, cube);
-				RenderUtils.rotateMatrixAroundCube(cubeStack, cube);
-				RenderUtils.translateAwayFromPivotPoint(cubeStack, cube);
+				software.bernie.geckolib.util.RenderUtil.translateToPivotPoint(cubeStack, cube);
+				software.bernie.geckolib.util.RenderUtil.rotateMatrixAroundCube(cubeStack, cube);
+				software.bernie.geckolib.util.RenderUtil.translateAwayFromPivotPoint(cubeStack, cube);
 				pose = cubeStack.last().pose();
 				normalMatrix = cubeStack.last().normal();
 				GeoQuad[] quads = cube.quads();
@@ -260,13 +260,13 @@ public final class SaiyanTailMeshBuilder {
 	private void vertex(GeoVertex[] vertices, boolean swap, float across, float along, float u, float v, Vector3f normal) {
 		locate(vertices, swap, across, along);
 		cell.set(grow(cell.x, cubeCenter.x, cubeHalf.x), grow(cell.y, cubeCenter.y, cubeHalf.y), grow(cell.z, cubeCenter.z, cubeHalf.z));
-		buffer.vertex(pose, cell.x, cell.y, cell.z)
-				.color(rgb[0], rgb[1], rgb[2], alpha)
-				.uv(u, v)
-				.overlayCoords(overlay)
-				.uv2(light)
-				.normal(normalMatrix, normal.x, normal.y, normal.z)
-				.endVertex();
+		com.dragonminez.client.render.util.RenderNormals.set(buffer.addVertex(pose, cell.x, cell.y, cell.z)
+				.setColor(rgb[0], rgb[1], rgb[2], alpha)
+				.setUv(u, v)
+				.setOverlay(overlay)
+				.setLight(light)
+				, normalMatrix, normal.x, normal.y, normal.z)
+				;
 	}
 
 	private void locate(GeoVertex[] vertices, boolean swap, float across, float along) {

@@ -1,16 +1,15 @@
 package com.dragonminez.common.quest;
 
-import lombok.Getter;
+import lombok.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import com.dragonminez.common.stats.StatsData;
-
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-
 @Getter
+
 public abstract class QuestReward {
 	private final RewardType type;
 	private Set<Difficulty> difficulties = EnumSet.allOf(Difficulty.class);
@@ -37,9 +36,7 @@ public abstract class QuestReward {
 	}
 
 	public void setDifficulties(Set<Difficulty> difficulties) {
-		this.difficulties = (difficulties == null || difficulties.isEmpty())
-				? EnumSet.allOf(Difficulty.class)
-				: EnumSet.copyOf(difficulties);
+		this.difficulties = (difficulties == null || difficulties.isEmpty()) ? EnumSet.allOf(Difficulty.class) : EnumSet.copyOf(difficulties);
 	}
 
 	public abstract void giveReward(ServerPlayer player);
@@ -62,6 +59,7 @@ public abstract class QuestReward {
 		if (isPlaceholder()) return false;
 		return difficulties.contains(difficulty != null ? difficulty : Difficulty.NORMAL);
 	}
+
 
 	public enum RewardType {
 		ITEM,

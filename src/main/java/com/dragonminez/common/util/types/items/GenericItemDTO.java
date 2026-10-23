@@ -1,15 +1,17 @@
 package com.dragonminez.common.util.types.items;
 
+import lombok.*;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.google.gson.JsonSyntaxException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.google.gson.GsonBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 /**
  * A plain item stack described in JSON: an id and a count.
@@ -39,7 +41,7 @@ public class GenericItemDTO {
 	}
 
 	public GenericItemDTO(Item item, int count) {
-		this(ITEM_TYPE, ForgeRegistries.ITEMS.getKey(item), count);
+		this(ITEM_TYPE, BuiltInRegistries.ITEM.getKey(item), count);
 	}
 
 	public GenericItemDTO(String itemType, ResourceLocation itemId, int count) {
@@ -79,11 +81,11 @@ public class GenericItemDTO {
 			LogUtil.warn(Env.COMMON, "{} has no item id, skipping.", this.getClass().getSimpleName());
 			return null;
 		}
-		if (!ForgeRegistries.ITEMS.containsKey(this.itemId)) {
+		if (!BuiltInRegistries.ITEM.containsKey(this.itemId)) {
 			LogUtil.warn(Env.COMMON, "Unknown item '{}', skipping.", this.itemId);
 			return null;
 		}
-		return ForgeRegistries.ITEMS.getValue(this.itemId);
+		return BuiltInRegistries.ITEM.get(this.itemId);
 	}
 
 	protected final String errorPrefix() {

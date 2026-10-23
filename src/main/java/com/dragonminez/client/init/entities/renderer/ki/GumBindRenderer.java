@@ -1,5 +1,6 @@
 package com.dragonminez.client.init.entities.renderer.ki;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.ki.GumBindEntity;
 import com.dragonminez.common.network.C2S.GumStruggleC2S;
@@ -19,16 +20,20 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.core.object.Color;
+import software.bernie.geckolib.util.Color;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
@@ -88,24 +93,31 @@ public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 
 	@Override
 	public void preRender(PoseStack poseStack, GumBindEntity gum, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer,
-						  boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+						  boolean isReRender, float partialTick, int packedLight, int packedOverlay, int renderColor) {
+        float red = net.minecraft.util.FastColor.ARGB32.red(renderColor) / 255.0F;
+        float green = net.minecraft.util.FastColor.ARGB32.green(renderColor) / 255.0F;
+        float blue = net.minecraft.util.FastColor.ARGB32.blue(renderColor) / 255.0F;
+        float alpha = net.minecraft.util.FastColor.ARGB32.alpha(renderColor) / 255.0F;
 		Minecraft mc = Minecraft.getInstance();
 		boolean firstPersonVictim = mc.player != null && gum.victimId() == mc.player.getId() && mc.options.getCameraType().isFirstPerson();
 		model.getBone(TOP_COIL).ifPresent(bone -> bone.setHidden(firstPersonVictim));
-		super.preRender(poseStack, gum, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+		super.preRender(poseStack, gum, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(red, green, blue, alpha));
 	}
 
 	@Override
 	public void renderRecursively(PoseStack poseStack, GumBindEntity gum, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource,
 								  VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay,
-								  float red, float green, float blue, float alpha) {
+								  int renderColor) {
+        float red = net.minecraft.util.FastColor.ARGB32.red(renderColor) / 255.0F;
+        float green = net.minecraft.util.FastColor.ARGB32.green(renderColor) / 255.0F;
+        float blue = net.minecraft.util.FastColor.ARGB32.blue(renderColor) / 255.0F;
+        float alpha = net.minecraft.util.FastColor.ARGB32.alpha(renderColor) / 255.0F;
 		if (bone.getName().endsWith("_gloss")) {
 			red += (1.0F - red) * GLOSS_LIFT;
 			green += (1.0F - green) * GLOSS_LIFT;
 			blue += (1.0F - blue) * GLOSS_LIFT;
 		}
-		super.renderRecursively(poseStack, gum, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay,
-				red, green, blue, alpha);
+		super.renderRecursively(poseStack, gum, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(red, green, blue, alpha));
 	}
 
 	@Override
@@ -168,8 +180,8 @@ public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 
 	private static void vertex(VertexConsumer consumer, Matrix4f pose, Matrix3f normal, Vec3 pos, float u, float v,
 							   float r, float g, float b, int light, Vec3 n) {
-		consumer.vertex(pose, (float) pos.x, (float) pos.y, (float) pos.z).color(r, g, b, 1.0F).uv(u, v)
-				.overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(normal, (float) n.x, (float) n.y, (float) n.z).endVertex();
+		com.dragonminez.client.render.util.RenderNormals.set(consumer.addVertex(pose, (float) pos.x, (float) pos.y, (float) pos.z).setColor(r, g, b, 1.0F).setUv(u, v)
+				.setOverlay(OverlayTexture.NO_OVERLAY).setLight(light), normal, (float) n.x, (float) n.y, (float) n.z);
 	}
 
 	public static class BallRenderer extends EntityRenderer<GumBindEntity.Ball> {
@@ -249,8 +261,8 @@ public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 
 		private static void corner(VertexConsumer consumer, Matrix4f pose, Matrix3f normal, float x, float y, float z, float u, float v,
 								   float nx, float ny, float nz, float r, float g, float b, int light) {
-			consumer.vertex(pose, x, y, z).color(r, g, b, 1.0F).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light)
-					.normal(normal, nx, ny, nz).endVertex();
+			com.dragonminez.client.render.util.RenderNormals.set(consumer.addVertex(pose, x, y, z).setColor(r, g, b, 1.0F).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light)
+					, normal, nx, ny, nz);
 		}
 
 		@Override
@@ -277,14 +289,14 @@ public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 		}
 	}
 
-	@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+	@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
 	public static final class Input {
 
 		private Input() {}
 
 		@SubscribeEvent
-		public static void onClientTick(TickEvent.ClientTickEvent event) {
-			if (event.phase != TickEvent.Phase.END) return;
+		public static void onClientTick(ClientTickEvent.Post event) {
+
 			Minecraft mc = Minecraft.getInstance();
 			int presses = 0;
 			while (mc.options.keyShift.consumeClick()) presses++;

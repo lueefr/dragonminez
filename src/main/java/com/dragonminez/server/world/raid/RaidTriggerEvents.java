@@ -1,5 +1,6 @@
 package com.dragonminez.server.world.raid;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -20,16 +21,16 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.MobEffectEvent;
-import net.minecraftforge.event.entity.living.MobSpawnEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
+import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+@EventBusSubscriber(modid = Reference.MOD_ID)
 public class RaidTriggerEvents {
 
 	public static final String PENDING_RAID_TAG = DBSagasEntity.RAID_SUPERVILLAIN_SOURCE_TAG;
@@ -37,7 +38,7 @@ public class RaidTriggerEvents {
 	private static final double DEFAULT_SPAWN_CHANCE = 0.05D;
 
 	@SubscribeEvent
-	public static void onNaturalSpawn(MobSpawnEvent.FinalizeSpawn event) {
+	public static void onNaturalSpawn(net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent event) {
 		if (event.getSpawnType() != MobSpawnType.NATURAL) return;
 		if (!(event.getEntity() instanceof DBSagasEntity saga)) return;
 		ServerLevel level = event.getLevel().getLevel();
@@ -101,10 +102,10 @@ public class RaidTriggerEvents {
 		if (killer == null) return;
 
 		// Already counting down for something; don't stack omens.
-		if (killer.hasEffect(MainEffects.RAID_WRATH.get())) return;
+		if (killer.hasEffect(MainEffects.RAID_WRATH)) return;
 
 		killer.getPersistentData().putString(PENDING_RAID_TAG, raidId);
-		killer.addEffect(new MobEffectInstance(MainEffects.RAID_WRATH.get(),
+		killer.addEffect(new MobEffectInstance(MainEffects.RAID_WRATH,
 				type.preparationTicks(), 0, false, true, true));
 		NetworkHandler.sendToPlayer(new RaidMusicS2C(type.preparationMusic()), killer);
 
@@ -126,7 +127,7 @@ public class RaidTriggerEvents {
 	@SubscribeEvent
 	public static void onOmenExpired(MobEffectEvent.Expired event) {
 		if (event.getEffectInstance() == null) return;
-		if (event.getEffectInstance().getEffect() != MainEffects.RAID_WRATH.get()) return;
+		if (event.getEffectInstance().getEffect() != MainEffects.RAID_WRATH) return;
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
 		String raidId = player.getPersistentData().getString(PENDING_RAID_TAG);
@@ -152,7 +153,7 @@ public class RaidTriggerEvents {
 
 	@SubscribeEvent
 	public static void onOmenRemoved(MobEffectEvent.Remove event) {
-		if (event.getEffect() != MainEffects.RAID_WRATH.get()) return;
+		if (event.getEffect() != MainEffects.RAID_WRATH) return;
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 		player.getPersistentData().remove(PENDING_RAID_TAG);
 		NetworkHandler.sendToPlayer(new RaidMusicS2C(""), player);

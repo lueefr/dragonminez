@@ -11,7 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -46,7 +47,7 @@ public final class SquadCoordinator {
         if (mob instanceof DinoGlobalEntity || mob instanceof DinoFlyEntity) return "dino";
         if (mob instanceof RedRibbonEntity) return "red_ribbon";
         if (mob instanceof NamekWarriorEntity) return "namek";
-        ResourceLocation key = ForgeRegistries.ENTITY_TYPES.getKey(mob.getType());
+        ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
         String path = key != null ? key.getPath() : "unknown";
         int end = path.length();
         while (end > 0 && Character.isDigit(path.charAt(end - 1))) end--;

@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternsuper",
+  "criteria": {
+    "zamasuarmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:zamasu_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:zamasu_armor_leggings"
+          },
+          {
+            "items": "dragonminez:zamasu_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.zamasuarmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:zamasu_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.zamasuarmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "zamasuarmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

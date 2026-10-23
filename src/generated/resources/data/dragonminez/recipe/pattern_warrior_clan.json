@@ -1,0 +1,90 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:purple_dye"
+    },
+    "1": {
+      "item": "minecraft:purple_dye"
+    },
+    "2": {
+      "item": "minecraft:purple_dye"
+    },
+    "5": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "6": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "7": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "8": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "A": {
+      "item": "minecraft:purple_dye"
+    },
+    "B": {
+      "item": "minecraft:purple_dye"
+    },
+    "E": {
+      "item": "minecraft:purple_dye"
+    },
+    "F": {
+      "item": "minecraft:purple_dye"
+    },
+    "H": {
+      "item": "minecraft:purple_dye"
+    },
+    "I": {
+      "item": "minecraft:purple_dye"
+    },
+    "J": {
+      "item": "minecraft:purple_dye"
+    },
+    "K": {
+      "item": "minecraft:purple_dye"
+    },
+    "N": {
+      "item": "minecraft:purple_dye"
+    },
+    "O": {
+      "item": "minecraft:black_dye"
+    },
+    "P": {
+      "item": "minecraft:black_dye"
+    },
+    "Q": {
+      "item": "minecraft:purple_dye"
+    },
+    "T": {
+      "item": "minecraft:purple_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_super"
+    },
+    "V": {
+      "item": "minecraft:purple_dye"
+    },
+    "W": {
+      "item": "minecraft:purple_dye"
+    },
+    "Z": {
+      "item": "minecraft:purple_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    " HIJK ",
+    " NOPQ ",
+    " TUVW ",
+    " Z012 ",
+    " 5678 "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_warrior_clan"
+  }
+}

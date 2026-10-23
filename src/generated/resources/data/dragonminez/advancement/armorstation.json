@@ -1,0 +1,34 @@
+{
+  "parent": "dragonminez:kikono",
+  "criteria": {
+    "armorstation": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:kikono_station"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.armorstation.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:kikono_station"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.armorstation.title"
+    }
+  },
+  "requirements": [
+    [
+      "armorstation"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

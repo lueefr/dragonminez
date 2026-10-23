@@ -16,6 +16,13 @@ import java.util.Map;
 
 @Mixin(Enchantment.class)
 public class EnchantmentMixin {
+    @Inject(method = "getMaxLevel", at = @At("HEAD"), cancellable = true)
+    private void dragonminez$disableSweeping(CallbackInfoReturnable<Integer> cir) {
+        Enchantment enchantment = (Enchantment) (Object) this;
+        if (enchantment.description().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents text
+                && text.getKey().equals("enchantment.minecraft.sweeping_edge")) cir.setReturnValue(0);
+    }
+
 	@Inject(method = "getSlotItems", at = @At("RETURN"), cancellable = true)
 	private void dragonminez$getEquipmentFix(LivingEntity entity, CallbackInfoReturnable<Map<EquipmentSlot, ItemStack>> cir) {
 		if(entity instanceof Player player) {

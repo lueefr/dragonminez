@@ -1,0 +1,34 @@
+{
+  "parent": "dragonminez:kamilookout",
+  "criteria": {
+    "nimbus": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:flying_nimbus"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.nimbus.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:flying_nimbus"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.nimbus.title"
+    }
+  },
+  "requirements": [
+    [
+      "nimbus"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

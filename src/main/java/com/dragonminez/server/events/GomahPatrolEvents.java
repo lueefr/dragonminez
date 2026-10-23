@@ -1,5 +1,6 @@
 package com.dragonminez.server.events;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.EntityAttributes;
 import com.dragonminez.common.init.MainEntities;
@@ -28,14 +29,18 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class GomahPatrolEvents {
 
 	private static final int SCAN_INTERVAL_TICKS = 400;
@@ -62,8 +67,8 @@ public class GomahPatrolEvents {
 	private static final float MAX_SCALE = 1.35F;
 
 	@SubscribeEvent
-	public static void onLevelTick(TickEvent.LevelTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || !(event.level instanceof ServerLevel level)) return;
+	public static void onLevelTick(LevelTickEvent.Post event) {
+		if (!(event.getLevel() instanceof ServerLevel level)) return;
 		if (!level.dimension().equals(DemonRealmDimension.DEMON_REALM_KEY) || level.players().isEmpty()) return;
 		if (level.getDifficulty() == Difficulty.PEACEFUL || !level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) return;
 		if (level.getGameTime() % SCAN_INTERVAL_TICKS == 0L) scanVillages(level);
@@ -130,7 +135,7 @@ public class GomahPatrolEvents {
 			BlockState ground = level.getBlockState(pos.below());
 			if (!ground.isFaceSturdy(level, pos.below(), Direction.UP)) continue;
 			if (!level.getFluidState(pos).isEmpty() || !level.getFluidState(pos.below()).isEmpty()) continue;
-			if (!level.noCollision(MainEntities.SAGA_GOMAH_SOLDIER_1.get().getAABB(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D))) continue;
+			if (!level.noCollision(MainEntities.SAGA_GOMAH_SOLDIER_1.get().getDimensions().makeBoundingBox(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D))) continue;
 			if (level.getNearestPlayer(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, MIN_PLAYER_DISTANCE, false) != null) continue;
 			return pos;
 		}
@@ -160,13 +165,13 @@ public class GomahPatrolEvents {
 		float scale = random.nextFloat() < RESIZED_CHANCE ? MIN_SCALE + random.nextFloat() * (MAX_SCALE - MIN_SCALE) : 1.0F;
 		soldier.setSoldierScale(scale);
 		soldier.moveTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, random.nextFloat() * 360.0F, 0.0F);
-		soldier.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.EVENT, null, null);
+		soldier.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.EVENT, null);
 		soldier.getPersistentData().putBoolean("dmz_stats_configured", true);
 		if (!level.addFreshEntity(soldier)) return;
 
 		setBase(soldier.getAttribute(Attributes.MAX_HEALTH), BASE_HEALTH * scale);
 		setBase(soldier.getAttribute(Attributes.ATTACK_DAMAGE), BASE_MELEE * scale);
-		setBase(soldier.getAttribute(EntityAttributes.KI_BLAST_DAMAGE.get()), BASE_KI * scale);
+		setBase(soldier.getAttribute(EntityAttributes.KI_BLAST_DAMAGE), BASE_KI * scale);
 		soldier.setHealth(soldier.getMaxHealth());
 	}
 

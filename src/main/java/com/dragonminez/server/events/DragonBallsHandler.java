@@ -31,19 +31,25 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
-import net.minecraftforge.event.entity.item.ItemExpireEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.level.ChunkEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.item.ItemExpireEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+@EventBusSubscriber(modid = Reference.MOD_ID)
 public class DragonBallsHandler {
 	public static final long DRAGON_WAIT_TICKS = 20L * 60L * 10L;
 
@@ -235,8 +241,8 @@ public class DragonBallsHandler {
 	}
 
 	@SubscribeEvent
-	public static void onLevelTick(TickEvent.LevelTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || !(event.level instanceof ServerLevel level)) return;
+	public static void onLevelTick(LevelTickEvent.Post event) {
+		if (!(event.getLevel() instanceof ServerLevel level)) return;
 		if (level.getGameTime() % MAINTENANCE_INTERVAL == 0) maintainLevel(level);
 		while (!generationQueue.isEmpty()) {
 			Runnable task = generationQueue.poll();
@@ -245,8 +251,8 @@ public class DragonBallsHandler {
 	}
 
 	@SubscribeEvent
-	public static void onServerTick(TickEvent.ServerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || event.getServer() == null) return;
+	public static void onServerTick(ServerTickEvent.Post event) {
+		if (event.getServer() == null) return;
 		if (event.getServer().getTickCount() % RADAR_SYNC_INTERVAL == 0) radarDirty = true;
 		if (!radarDirty) return;
 		radarDirty = false;

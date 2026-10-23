@@ -1,5 +1,6 @@
 package com.dragonminez.common.stats.character;
 
+import lombok.*;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.nbt.CompoundTag;

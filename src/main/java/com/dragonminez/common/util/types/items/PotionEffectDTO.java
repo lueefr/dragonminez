@@ -1,5 +1,6 @@
 package com.dragonminez.common.util.types.items;
 
+import lombok.*;
 import com.google.gson.JsonSyntaxException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
