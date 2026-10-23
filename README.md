@@ -73,8 +73,10 @@ You can download DragonMine Z from our official mod pages:
 
 - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/dragonminez)
 - [Modrinth](https://modrinth.com/mod/dragonminez)
+- [GitHub Releases](https://github.com/lueefr/dragonminez/releases/latest)
 
 DragonMine Z is made for **Minecraft NeoForge 1.21.1**.
+Release notes are available in the [changelog](CHANGELOG.md) and are included with each GitHub release.
 
 ---
 

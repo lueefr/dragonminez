@@ -143,8 +143,8 @@ public class SkinGathererProvider {
 		else consumer.accept(texture, color);
 	}
 
-	private void emitTranslucentLayer(BiConsumer<ResourceLocation, float[]> consumer, ResourceLocation texture, float[] color) {
-		if (consumer instanceof BodyLayerSink sink) sink.translucent(texture, color);
+	private void emitOverlayTranslucentLayer(BiConsumer<ResourceLocation, float[]> consumer, ResourceLocation texture, float[] color) {
+		if (consumer instanceof BodyLayerSink sink) sink.overlayTranslucent(texture, color);
 		else consumer.accept(texture, color);
 	}
 
@@ -376,7 +376,7 @@ public class SkinGathererProvider {
 		boolean shaded = DMZSkinLayer.getSafeTexture(shadowLayer).equals(shadowLayer);
 
 		consumer.accept(DMZSkinLayer.getSafeTexture(getCachedTexture(basePath + "layer1.png"), getCachedTexture(fallbackPath + "layer1.png")), shaded ? ColorUtils.skinBaseTone(bodyColor) : bodyColor);
-		if (shaded) emitTranslucentLayer(consumer, shadowLayer, ColorUtils.skinShadowTone(bodyColor));
+		if (shaded) emitOverlayTranslucentLayer(consumer, shadowLayer, ColorUtils.skinShadowTone(bodyColor));
 	}
 
 	protected void resolveBodyGlindTrueForm(float[] bodyColor, float[] bodyColor2, BiConsumer<ResourceLocation, float[]> consumer) {
@@ -401,7 +401,7 @@ public class SkinGathererProvider {
 		if (!DMZSkinLayer.getSafeTexture(bodyLayer).equals(bodyLayer)) bodyPath = fallbackPath;
 		consumer.accept(DMZSkinLayer.getSafeTexture(getCachedTexture(bodyPath + "layer1.png")), ColorUtils.skinBaseTone(bodyColor));
 		ResourceLocation bodyShadow = getCachedTexture(bodyPath + "layer1_shadow.png");
-		if (DMZSkinLayer.getSafeTexture(bodyShadow).equals(bodyShadow)) emitTranslucentLayer(consumer, bodyShadow, ColorUtils.skinShadowTone(bodyColor));
+		if (DMZSkinLayer.getSafeTexture(bodyShadow).equals(bodyShadow)) emitOverlayTranslucentLayer(consumer, bodyShadow, ColorUtils.skinShadowTone(bodyColor));
 		ResourceLocation overlay = DMZSkinLayer.getSafeTexture(getCachedTexture("textures/entity/races/glind/trascended_layer2.png"));
 		emitOverlayLayer(consumer, overlay, ColorUtils.skinBaseTone(bodyColor2));
 		ResourceLocation overlayShadow = getCachedTexture("textures/entity/races/glind/trascended_layer2_shadow.png");
@@ -438,7 +438,7 @@ public class SkinGathererProvider {
             ResourceLocation[] shaded = shadedLayer(layer);
             if (shaded != null) {
                 consumer.accept(shaded[0], color);
-                emitTranslucentLayer(consumer, shaded[1], ColorUtils.skinShadowTone(color));
+                emitOverlayTranslucentLayer(consumer, shaded[1], ColorUtils.skinShadowTone(color));
                 return;
             }
         }
@@ -453,7 +453,7 @@ public class SkinGathererProvider {
 
     private void emitShadowLayer(BiConsumer<ResourceLocation, float[]> consumer, ResourceLocation layer, float[] color) {
         ResourceLocation shadow = shadowMask(layer);
-        if (shadow != null) emitTranslucentLayer(consumer, shadow, ColorUtils.skinShadowTone(color));
+        if (shadow != null) emitOverlayTranslucentLayer(consumer, shadow, ColorUtils.skinShadowTone(color));
     }
 
     private static ResourceLocation shadowMask(ResourceLocation layer) {
