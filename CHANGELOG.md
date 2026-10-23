@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2 Hotfix — Minecraft 1.21.1 (NeoForge)
+
+### Fixed
+
+- Fixed muscle shadow overlays appearing excessively contrasted on player models in-world.
+
 ## 2.2.0 — Minecraft 1.21.1 (NeoForge)
 
 This release ports DragonMineZ 2.2 to Minecraft 1.21.1 on NeoForge.
