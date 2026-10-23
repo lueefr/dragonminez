@@ -6,7 +6,7 @@ import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.character.Status;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class FlightModeNode extends AbstractRadialNode {
 	@Override
@@ -17,7 +17,7 @@ public class FlightModeNode extends AbstractRadialNode {
 	}
 
 	@Override
-	public ResourceLocation icon(StatsData stats) {
+	public Identifier icon(StatsData stats) {
 		return icon("fly");
 	}
 

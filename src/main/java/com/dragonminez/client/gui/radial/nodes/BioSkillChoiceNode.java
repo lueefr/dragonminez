@@ -8,7 +8,7 @@ import com.dragonminez.common.racial.RacialData;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.extras.ActionMode;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class BioSkillChoiceNode extends AbstractRadialNode {
 
@@ -24,7 +24,7 @@ public class BioSkillChoiceNode extends AbstractRadialNode {
 	}
 
 	@Override
-	public ResourceLocation icon(StatsData stats) {
+	public Identifier icon(StatsData stats) {
 		return icon(explode ? "selfdestruct" : "vitaldrain");
 	}
 

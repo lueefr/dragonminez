@@ -7,7 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
@@ -35,15 +35,15 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.animation.PlayState;
+import com.geckolib.animatable.GeoEntity;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.PlayState;
 
 public class GiantTurtleEntity extends Animal implements GeoEntity, ITextureVariant {
     @Override public boolean isFood(net.minecraft.world.item.ItemStack stack) { return stack.is(net.minecraft.world.item.Items.SEAGRASS); }
@@ -52,11 +52,11 @@ public class GiantTurtleEntity extends Animal implements GeoEntity, ITextureVari
 
     public static final int VARIANT_COUNT = 3;
 
-    public static final ResourceLocation[] TEXTURES = new ResourceLocation[VARIANT_COUNT];
+    public static final Identifier[] TEXTURES = new Identifier[VARIANT_COUNT];
 
     static {
         for (int i = 0; i < VARIANT_COUNT; i++) {
-            TEXTURES[i] = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/animal/giantturtle_" + i + ".png");
+            TEXTURES[i] = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/animal/giantturtle_" + i + ".png");
         }
     }
 
@@ -139,7 +139,7 @@ public class GiantTurtleEntity extends Animal implements GeoEntity, ITextureVari
         setVariant(variant);
     }
 
-    public ResourceLocation getCurrentTexture() {
+    public Identifier getCurrentTexture() {
         int variant = getVariant();
         if (variant < 0 || variant >= TEXTURES.length) {
             variant = 0;

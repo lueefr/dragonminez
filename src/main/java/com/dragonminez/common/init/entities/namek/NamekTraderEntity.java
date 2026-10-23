@@ -15,7 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -29,14 +29,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.animation.PlayState;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.PlayState;
 
 public class NamekTraderEntity extends NamekVillagerEntity{
 
@@ -50,11 +50,11 @@ public class NamekTraderEntity extends NamekVillagerEntity{
     private static final int GETE_STAR_MAP_USES = 4;
     private static final int GETE_STAR_MAP_XP = 10;
 
-    public static final ResourceLocation[] TEXTURES = new ResourceLocation[VARIANT_COUNT];
+    public static final Identifier[] TEXTURES = new Identifier[VARIANT_COUNT];
 
     static {
         for (int i = 0; i < VARIANT_COUNT; i++) {
-            TEXTURES[i] = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/enemies/namek_trader_" + i + ".png");
+            TEXTURES[i] = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/enemies/namek_trader_" + i + ".png");
         }
     }
     public NamekTraderEntity(EntityType<? extends Villager> pEntityType, Level pLevel) {
@@ -109,7 +109,7 @@ public class NamekTraderEntity extends NamekVillagerEntity{
         this.entityData.set(VARIANT, variant);
     }
 
-    public ResourceLocation getCurrentTexture() {
+    public Identifier getCurrentTexture() {
         int variant = getVariantNamek();
         if (variant < 0 || variant >= TEXTURES.length) {
             variant = 0;
@@ -161,7 +161,7 @@ public class NamekTraderEntity extends NamekVillagerEntity{
         return isHurt;
     }
 
-    private <T extends GeoAnimatable> PlayState walkPredicate(software.bernie.geckolib.animation.AnimationState<T> event) {
+    private <T extends GeoAnimatable> PlayState walkPredicate(com.geckolib.animation.AnimationState<T> event) {
         NamekTraderEntity entity = (NamekTraderEntity) event.getAnimatable();
 
         if (event.isMoving()) {

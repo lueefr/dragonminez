@@ -1,23 +1,23 @@
 package com.dragonminez.client.gui.buttons;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PatreonTitleButton extends Button {
-	private static final ResourceLocation PATREON_LOGO = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/title/patreon_logo.png");
+	private static final Identifier PATREON_LOGO = Identifier.fromNamespaceAndPath("minecraft", "textures/gui/title/patreon_logo.png");
 
 	public PatreonTitleButton(int x, int y, int width, int height, Component message, OnPress onPress) {
 		super(x, y, width, height, message, onPress, DEFAULT_NARRATION);
 	}
 
 	@Override
-	public void renderString(GuiGraphics graphics, Font font, int color) {
+	public void renderString(GuiGraphicsExtractor graphics, Font font, int color) {
 		int textWidth = font.width(this.getMessage());
 		int contentWidth = 12 + 4 + textWidth;
 		int startX = this.getX() + Math.max(4, (this.getWidth() - contentWidth) / 2);
@@ -28,7 +28,7 @@ public class PatreonTitleButton extends Button {
 				this.getY() + (this.getHeight() - 8) / 2 + 1, color);
 	}
 
-	private void renderPatreonLogo(GuiGraphics graphics, int x, int y) {
+	private void renderPatreonLogo(GuiGraphicsExtractor graphics, int x, int y) {
 		graphics.blit(PATREON_LOGO, x, y, 12, 12, 0.0F, 0.0F, 32, 32, 32, 32);
 	}
 }

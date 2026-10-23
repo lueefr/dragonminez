@@ -19,7 +19,7 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 
 import java.util.ArrayList;
@@ -163,7 +163,7 @@ public class DragonBallsCommand {
 
 	private static List<ServerLevel> getLevels(CommandSourceStack source, DragonBallSetDefinition definition) {
 		List<ServerLevel> levels = new ArrayList<>();
-		for (ResourceLocation dimension : definition.getValidDimensions()) {
+		for (Identifier dimension : definition.getValidDimensions()) {
 			ServerLevel level = source.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, dimension));
 			if (level != null) levels.add(level);
 		}

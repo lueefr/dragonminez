@@ -3,7 +3,7 @@ package com.dragonminez.common.network;
 import com.dragonminez.Reference;
 import com.dragonminez.common.network.C2S.*;
 import com.dragonminez.common.network.S2C.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import com.dragonminez.compat.network.NetworkDirection;
@@ -30,7 +30,7 @@ public class NetworkHandler {
 
 	public static void register() {
 		SimpleChannel net = NetworkRegistry.ChannelBuilder
-				.named(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "network"))
+				.named(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "network"))
 				.networkProtocolVersion(NetworkHandler::protocolVersion)
 				.clientAcceptedVersions(NetworkHandler::isSameProtocol)
 				.serverAcceptedVersions(NetworkHandler::isSameProtocol)

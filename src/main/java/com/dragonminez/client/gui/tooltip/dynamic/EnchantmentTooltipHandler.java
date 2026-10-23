@@ -5,7 +5,7 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.enchantment.Enchantment;
 
 import java.util.function.Consumer;
@@ -22,11 +22,11 @@ public class EnchantmentTooltipHandler {
 	}
 
 	public static void insertDescription(Holder<Enchantment> holder, int level, Consumer<Component> lines) {
-		ResourceLocation id = holder.unwrapKey().map(k -> k.location()).orElse(null);
+		Identifier id = holder.unwrapKey().map(k -> k.location()).orElse(null);
 		insertDescriptionById(id, level, lines);
 	}
 
-	public static void insertDescriptionById(ResourceLocation id, int level, Consumer<Component> lines) {
+	public static void insertDescriptionById(Identifier id, int level, Consumer<Component> lines) {
 		if (id == null) return;
 		Component description = getDescription(id, level);
 		if (description != null) {
@@ -36,7 +36,7 @@ public class EnchantmentTooltipHandler {
 		}
 	}
 
-	private static Component getDescription(ResourceLocation id, int level) {
+	private static Component getDescription(Identifier id, int level) {
 		String baseKey = "enchantment." + id.getNamespace() + "." + id.getPath() + ".";
 		Language lang = Language.getInstance();
 

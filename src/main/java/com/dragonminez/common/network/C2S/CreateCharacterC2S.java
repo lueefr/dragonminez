@@ -157,7 +157,7 @@ public class CreateCharacterC2S {
 			if (player == null) return;
 
 			if (!ConfigManager.isRaceLoaded(msg.raceName)) {
-				LogUtil.warn(Env.COMMON, "Rejected CreateCharacterC2S from '{}': unknown race '{}'", player.getGameProfile().getName(), msg.raceName);
+				LogUtil.warn(Env.COMMON, "Rejected CreateCharacterC2S from '{}': unknown race '{}'", player.getGameProfile().name(), msg.raceName);
 				StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data ->
 						NetworkHandler.sendToTrackingEntityAndSelf(new StatsSyncS2C(player), player));
 				return;
@@ -165,11 +165,11 @@ public class CreateCharacterC2S {
 
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 				if (!data.getStatus().isHasCreatedCharacter()) {
-					if (msg.customHair != null) HairSanitizer.sanitizeAndLog(msg.customHair, HairStyleSlot.BASE, player.getGameProfile().getName());
+					if (msg.customHair != null) HairSanitizer.sanitizeAndLog(msg.customHair, HairStyleSlot.BASE, player.getGameProfile().name());
 					Character previous = data.getCharacter();
 					String safeClass = AppearanceValidator.characterClass(msg.raceName, msg.className, previous.getCharacterClass());
 					if (!safeClass.equals(msg.className)) {
-						LogUtil.warn(Env.COMMON, "CreateCharacterC2S from '{}' sent unknown class '{}', using '{}'", player.getGameProfile().getName(), msg.className, safeClass);
+						LogUtil.warn(Env.COMMON, "CreateCharacterC2S from '{}' sent unknown class '{}', using '{}'", player.getGameProfile().name(), msg.className, safeClass);
 					}
 					data.initializeWithRaceAndClass(msg.raceName, safeClass, AppearanceValidator.gender(msg.gender),
 							AppearanceValidator.hairId(msg.hairId, previous.getHairId()), msg.customHair,

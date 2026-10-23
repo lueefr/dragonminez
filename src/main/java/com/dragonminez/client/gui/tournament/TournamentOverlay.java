@@ -4,10 +4,10 @@ import com.dragonminez.Reference;
 import com.dragonminez.client.gui.hud.NotificationHUD;
 import com.dragonminez.common.network.TournamentPackets;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.neoforged.api.distmarker.Dist;
@@ -18,8 +18,8 @@ import net.minecraft.client.gui.LayeredDraw;
 @OnlyIn(Dist.CLIENT)
 public final class TournamentOverlay {
 
-	private static final ResourceLocation DMZ_FONT =
-			ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	private static final Identifier DMZ_FONT =
+			Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
 
 	private static final int FIGHT_TICKS = 30;
 	private static final int GOLD = 0xFFFFD700;
@@ -123,7 +123,7 @@ public final class TournamentOverlay {
 
 	public static final LayeredDraw.Layer OVERLAY = TournamentOverlay::render;
 
-	private static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
+	private static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
         float partialTick = deltaTracker.getGameTimeDeltaPartialTick(true);
         int width = graphics.guiWidth();
         int height = graphics.guiHeight();
@@ -151,7 +151,7 @@ public final class TournamentOverlay {
 		}
 	}
 
-	private static void drawTitle(GuiGraphics graphics, Component text, float centreX, float y, float scale, int colour) {
+	private static void drawTitle(GuiGraphicsExtractor graphics, Component text, float centreX, float y, float scale, int colour) {
 		Minecraft mc = Minecraft.getInstance();
 		Component styled = text.copy().withStyle(Style.EMPTY.withFont(DMZ_FONT));
 		graphics.pose().pushPose();

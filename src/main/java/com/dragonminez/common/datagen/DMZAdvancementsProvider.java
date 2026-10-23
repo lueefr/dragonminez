@@ -21,7 +21,7 @@ import net.minecraft.data.advancements.AdvancementProvider;
 import net.minecraft.data.advancements.AdvancementSubProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ArmorItem;
@@ -53,7 +53,7 @@ public class DMZAdvancementsProvider extends AdvancementProvider {
 							MainItems.DBALL4_BLOCK_ITEM.get(), // Ítem de muestra
 							Component.translatable("advancements.dragonminez.root.title"), // Título
 							Component.translatable("advancements.dragonminez.root.description"), // Descripción
-							ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/block/rocky_stone.png"), // Textura de fondo
+							Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/block/rocky_stone.png"), // Textura de fondo
 							AdvancementType.TASK, true, true, false
 					) // Tipo de marco, si se muestra en la esquina superior derecha, si se muestra en el chat y si se oculta en los Logros ("Logro Oculto/Secreto")
 					.addCriterion("first_spawn_in_world", // Nombre del criterio
@@ -117,7 +117,7 @@ public class DMZAdvancementsProvider extends AdvancementProvider {
 					).addCriterion("kamilookout",
 							PlayerTrigger.TriggerInstance.located(
 									LocationPredicate.Builder.inStructure(registries.lookupOrThrow(Registries.STRUCTURE).getOrThrow(
-											ResourceKey.create(Registries.STRUCTURE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "kamilookout"))
+											ResourceKey.create(Registries.STRUCTURE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "kamilookout"))
 									))
 							)
 					).save(consumer, "dragonminez:kamilookout");
@@ -132,7 +132,7 @@ public class DMZAdvancementsProvider extends AdvancementProvider {
 					).addCriterion("gokuhouse",
 							PlayerTrigger.TriggerInstance.located(
 									LocationPredicate.Builder.inStructure(registries.lookupOrThrow(Registries.STRUCTURE).getOrThrow(
-											ResourceKey.create(Registries.STRUCTURE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "goku_house"))
+											ResourceKey.create(Registries.STRUCTURE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "goku_house"))
 									))
 							)
 					).save(consumer, "dragonminez:gokuhouse");
@@ -147,7 +147,7 @@ public class DMZAdvancementsProvider extends AdvancementProvider {
 					).addCriterion("roshihouse",
 							PlayerTrigger.TriggerInstance.located(
 									LocationPredicate.Builder.inStructure(registries.lookupOrThrow(Registries.STRUCTURE).getOrThrow(
-											ResourceKey.create(Registries.STRUCTURE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "roshi_house"))
+											ResourceKey.create(Registries.STRUCTURE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "roshi_house"))
 									))
 							)
 					).save(consumer, "dragonminez:roshihouse");
@@ -910,7 +910,7 @@ public class DMZAdvancementsProvider extends AdvancementProvider {
 			return PlayerTrigger.TriggerInstance.located(
 					LocationPredicate.Builder.inStructure(registries.lookupOrThrow(Registries.STRUCTURE).getOrThrow(
 							ResourceKey.create(Registries.STRUCTURE,
-									ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, id)))));
+									Identifier.fromNamespaceAndPath(Reference.MOD_ID, id)))));
 		}
 
 		private net.minecraft.advancements.Criterion<InventoryChangeTrigger.TriggerInstance> armorOf(Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> set) {

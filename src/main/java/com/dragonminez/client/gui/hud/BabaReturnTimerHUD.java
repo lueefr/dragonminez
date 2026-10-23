@@ -8,7 +8,7 @@ import com.dragonminez.common.stats.StatsProvider;
 import com.dragonminez.server.util.BabaReviveService;
 import com.dragonminez.server.world.dimension.OtherworldDimension;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.client.gui.LayeredDraw;
@@ -48,7 +48,7 @@ public class BabaReturnTimerHUD {
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
-	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	public static void render(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null || mc.level == null) return;
 
@@ -137,7 +137,7 @@ public class BabaReturnTimerHUD {
 		return LOW_MULTIPLIER_COLOR;
 	}
 
-	private static void dmzText(GuiGraphics graphics, String text, float centerX, float y, float scale, int rgb, float alpha) {
+	private static void dmzText(GuiGraphicsExtractor graphics, String text, float centerX, float y, float scale, int rgb, float alpha) {
 		HudRender.dmzText(graphics, text, centerX, y, scale, 0.5f, rgb, alpha);
 	}
 }

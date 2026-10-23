@@ -8,14 +8,14 @@ import com.dragonminez.client.gui.tutorial.TutorialManager;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.GeneralUserConfig;
 import com.mojang.blaze3d.platform.Window;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -27,7 +27,7 @@ public abstract class ScaledScreen extends Screen implements TutorialHost {
 	public static final float MAX_MENU_SCALE_MULTIPLIER = 2.5f;
 	private static final double HIDDEN_MOUSE = -10000.0;
 
-	protected static final ResourceLocation DMZ_FONT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	protected static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
 
 	private float uiScale = 1.0f;
 	private float fitScale = 1.0f;
@@ -51,7 +51,7 @@ public abstract class ScaledScreen extends Screen implements TutorialHost {
 	 * and panels that DMZ deliberately renders before calling super.render.
 	 */
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		for (Renderable renderable : this.renderables) {
 			renderable.render(graphics, mouseX, mouseY, partialTick);
 		}
@@ -149,7 +149,7 @@ public abstract class ScaledScreen extends Screen implements TutorialHost {
 		return (int) Math.round(uiCoord * uiScale);
 	}
 
-	protected void beginUiScale(GuiGraphics graphics) {
+	protected void beginUiScale(GuiGraphicsExtractor graphics) {
 		updateUiScale();
 		long now = System.nanoTime();
 		frameDelta = lastFrameNanos == 0L ? 0.0f : Math.min(0.1f, (now - lastFrameNanos) / 1_000_000_000.0f);
@@ -158,7 +158,7 @@ public abstract class ScaledScreen extends Screen implements TutorialHost {
 		graphics.pose().scale(uiScale, uiScale, 1.0f);
 	}
 
-	protected void endUiScale(GuiGraphics graphics) {
+	protected void endUiScale(GuiGraphicsExtractor graphics) {
 		graphics.pose().popPose();
 	}
 
@@ -174,11 +174,11 @@ public abstract class ScaledScreen extends Screen implements TutorialHost {
 		return frameDelta <= 0.0f ? 0.0f : 1.0f - (float) Math.exp(-frameDelta / tauSeconds);
 	}
 
-	protected static void blit(GuiGraphics graphics, ResourceLocation texture, float x, float y, float u, float v, float width, float height) {
+	protected static void blit(GuiGraphicsExtractor graphics, Identifier texture, float x, float y, float u, float v, float width, float height) {
 		HudRender.blit(graphics, texture, x, y, u, v, width, height, 256, 256);
 	}
 
-	protected static void blit(GuiGraphics graphics, ResourceLocation texture, float x, float y, float u, float v, float width, float height, int textureWidth, int textureHeight) {
+	protected static void blit(GuiGraphicsExtractor graphics, Identifier texture, float x, float y, float u, float v, float width, float height, int textureWidth, int textureHeight) {
 		HudRender.blit(graphics, texture, x, y, u, v, width, height, textureWidth, textureHeight);
 	}
 

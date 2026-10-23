@@ -132,7 +132,7 @@ public class PartyCommand {
         player.sendSystemMessage(Component.translatable("quest.dmz.party.list.header").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
 
         if (party == null) {
-            player.sendSystemMessage(Component.literal("  - " + player.getGameProfile().getName() + " ⭐").withStyle(ChatFormatting.GOLD));
+            player.sendSystemMessage(Component.literal("  - " + player.getGameProfile().name() + " ⭐").withStyle(ChatFormatting.GOLD));
             return 1;
         }
 
@@ -142,7 +142,7 @@ public class PartyCommand {
             boolean isLeader = party.getLeaderId().equals(memberId);
             boolean isOwner = party.getOwnerId().equals(memberId);
 
-            String name = isOnline ? member.getGameProfile().getName() : server.getProfileCache().get(memberId).map(p -> p.getName()).orElse(memberId.toString());
+            String name = isOnline ? member.getGameProfile().name() : server.getProfileCache().get(memberId).map(p -> p.getName()).orElse(memberId.toString());
 
             String suffix = isLeader ? " ⭐" : (isOwner ? " ☆" : "");
             ChatFormatting color = !isOnline ? ChatFormatting.GRAY : (isLeader ? ChatFormatting.GOLD : ChatFormatting.YELLOW);

@@ -11,7 +11,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import software.bernie.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.GeoBone;
 
 import java.util.ArrayList;
 import java.util.Comparator;

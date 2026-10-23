@@ -22,7 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -82,7 +82,7 @@ public final class KiSenseAuraRenderer {
 		double myBP = KiSenseScan.getMyBP();
 		if (myBP <= 0) myBP = Math.max(1, myData.getBattlePower());
 
-		ResourceLocation tex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/kakarot_cross.png");
+		Identifier tex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/kakarot_cross.png");
 
 		Camera camera = mc.gameRenderer.getMainCamera();
 		Vec3 camPos = camera.getPosition();
@@ -135,7 +135,7 @@ public final class KiSenseAuraRenderer {
 	}
 
 	private static void drawAuraLayer(PoseStack poseStack, Camera camera, Vec3 camPos, double lerpX, double lerpY, double lerpZ,
-									  float bbHeight, Matrix4f proj, VertexBuffer mesh, RenderType renderType, ResourceLocation tex,
+									  float bbHeight, Matrix4f proj, VertexBuffer mesh, RenderType renderType, Identifier tex,
 									  ShaderInstance shader, float[] color, float scale, float alpha, float speed) {
 		poseStack.pushPose();
 		poseStack.translate(lerpX - camPos.x, lerpY - camPos.y + bbHeight * 0.5, lerpZ - camPos.z);
@@ -179,11 +179,11 @@ public final class KiSenseAuraRenderer {
 		return stack;
 	}
 
-	private static RenderType auraType(ResourceLocation texture) {
+	private static RenderType auraType(Identifier texture) {
 		return IrisCompat.isShaderPackInUse() ? ModRenderTypes.getCustomAuraCompat(texture) : ModRenderTypes.getCustomAura(texture);
 	}
 
-	private static void customSetup(RenderType type, ResourceLocation texture, ShaderInstance shader) {
+	private static void customSetup(RenderType type, Identifier texture, ShaderInstance shader) {
 		if (IrisCompat.isShaderPackInUse()) {
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();

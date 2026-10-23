@@ -23,12 +23,12 @@ import com.dragonminez.common.util.FormRequisites;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
@@ -44,13 +44,13 @@ import java.util.Map;
 @OnlyIn(Dist.CLIENT)
 public class MastersSkillsScreen extends BaseMenuScreen {
 
-	private static final ResourceLocation MENU_BIG = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+	private static final Identifier MENU_BIG = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 			"textures/gui/menu/menubig.png");
-	private static final ResourceLocation MENU_SMALL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+	private static final Identifier MENU_SMALL = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 			"textures/gui/menu/menusmall.png");
-	private static final ResourceLocation BUTTONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+	private static final Identifier BUTTONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 			"textures/gui/buttons/characterbuttons.png");
-	private static final ResourceLocation DMZ_FONT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	private static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
 
 	private static final int SKILL_ITEM_HEIGHT = 20;
 	private static final int MAX_VISIBLE_SKILLS = 8;
@@ -82,7 +82,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 	private final LivingEntity masterEntity;
 
 	public MastersSkillsScreen(String masterName, LivingEntity masterEntity) {
-		super(Component.literal(masterName).withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
+		super(Component.literal(masterName).withStyle(Style.EMPTY.withFont(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
 		this.masterName = masterName;
 		this.masterEntity = masterEntity;
 	}
@@ -296,7 +296,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		renderMenuBackground(graphics, partialTick);
 
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
@@ -376,7 +376,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 		return t < 0.5f ? 4.0f * t * t * t : 1.0f - (float) Math.pow(-2.0f * t + 2.0f, 3.0f) / 2.0f;
 	}
 
-	private void renderLeftPanel(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderLeftPanel(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int leftPanelX = 12;
 		int centerY = getUiHeight() / 2;
 		int leftPanelY = centerY - 105;
@@ -388,7 +388,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 		renderSkillsList(graphics, leftPanelX, leftPanelY, mouseX, mouseY);
 	}
 
-	private void renderSkillsList(GuiGraphics graphics, int panelX, int panelY, int mouseX, int mouseY) {
+	private void renderSkillsList(GuiGraphicsExtractor graphics, int panelX, int panelY, int mouseX, int mouseY) {
 		List<String> skillNames = getVisibleSkillNames();
 
 		int startY = panelY + 30;
@@ -440,7 +440,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr(title).withStyle(style -> style.withBold(true)), 80, getUiHeight() / 2 - 88, 0xFBC51C);
 	}
 
-	private void renderRightPanel(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderRightPanel(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int rightPanelX = getUiWidth() - 158;
 		int centerY = getUiHeight() / 2;
 		int rightPanelY = centerY - 105;
@@ -469,7 +469,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void renderKiTechniqueDetails(GuiGraphics graphics, int panelX, int panelY) {
+	private void renderKiTechniqueDetails(GuiGraphicsExtractor graphics, int panelX, int panelY) {
 		KiAttackData tech = PredefinedTechniques.REGISTRY.get(selectedSkill);
 		if (tech == null) return;
 
@@ -494,7 +494,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 		renderLearnedFooter(graphics, panelX, yOffset);
 	}
 
-	private void renderStrikeTechniqueDetails(GuiGraphics graphics, int panelX, int panelY) {
+	private void renderStrikeTechniqueDetails(GuiGraphicsExtractor graphics, int panelX, int panelY) {
 		StrikeAttackData tech = PredefinedTechniques.STRIKE_REGISTRY.get(selectedSkill);
 		if (tech == null) return;
 
@@ -515,7 +515,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 		renderLearnedFooter(graphics, panelX, yOffset);
 	}
 
-	private void renderEvasionTechniqueDetails(GuiGraphics graphics, int panelX, int panelY) {
+	private void renderEvasionTechniqueDetails(GuiGraphicsExtractor graphics, int panelX, int panelY) {
 		EvasionAttackData tech = PredefinedTechniques.EVASION_REGISTRY.get(selectedSkill);
 		if (tech == null) return;
 
@@ -536,14 +536,14 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 		renderLearnedFooter(graphics, panelX, yOffset);
 	}
 
-	private int renderAllowedRaces(GuiGraphics graphics, int panelX, int yOffset) {
+	private int renderAllowedRaces(GuiGraphicsExtractor graphics, int panelX, int yOffset) {
 		SkillsConfig skillsConfig = ConfigManager.getSkillsConfig();
 		int labelColor = skillsConfig.isSkillAllowedForRace(selectedSkill, getPlayerRaceName(), statsData != null && statsData.getStatus().isAndroidUpgraded()) ? 0xDDDDDD : 0xFF5555;
 		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.races").append(": ").append(skillsConfig.describeAllowedRaces(selectedSkill)), panelX + 15, yOffset, labelColor);
 		return yOffset + 12;
 	}
 
-	private void renderLearnedFooter(GuiGraphics graphics, int panelX, int yOffset) {
+	private void renderLearnedFooter(GuiGraphicsExtractor graphics, int panelX, int yOffset) {
 		boolean learned = statsData.getTechniques().getUnlockedTechniques().containsKey(selectedSkill);
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, learned ? tr("gui.dragonminez.skills.already_learned") : tr("gui.dragonminez.skills.not_learned"), panelX + 70, yOffset, learned ? 0xFF55AA55 : 0xFFAAAAAA);
 
@@ -555,7 +555,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void renderSkillDetails(GuiGraphics graphics, int panelX, int panelY, int mouseX, int mouseY) {
+	private void renderSkillDetails(GuiGraphicsExtractor graphics, int panelX, int panelY, int mouseX, int mouseY) {
 		Skill skill = statsData.getSkills().getSkill(selectedSkill);
 		if (skill == null) skill = new Skill(selectedSkill, 0, false, 10);
 
@@ -659,7 +659,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 		return super.mouseReleased(mouseX, mouseY, button);
 	}
 
-	private void renderMasterEntity(GuiGraphics graphics, int x, int y, float mouseX, float mouseY) {
+	private void renderMasterEntity(GuiGraphicsExtractor graphics, int x, int y, float mouseX, float mouseY) {
 		if (masterEntity == null) return;
 
 		float xRotation = (float) Math.atan((double) ((float) y - mouseY) / 40.0F);

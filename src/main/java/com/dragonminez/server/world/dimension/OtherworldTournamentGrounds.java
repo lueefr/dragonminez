@@ -15,7 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
@@ -37,7 +37,7 @@ import java.util.Optional;
 
 public final class OtherworldTournamentGrounds {
 
-	public static final ResourceLocation SCHEMATIC = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "schematics/otherworld_tournament.schem");
+	public static final Identifier SCHEMATIC = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "schematics/otherworld_tournament.schem");
 	public static final int REVISION = 1;
 	public static final BlockPos RING_CENTER = new BlockPos(0, 355, -1200);
 	public static final Vec3 ARRIVAL = new Vec3(-25.5, 352, -1161.5);

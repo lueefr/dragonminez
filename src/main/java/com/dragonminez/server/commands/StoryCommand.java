@@ -227,7 +227,7 @@ public class StoryCommand {
 					return;
 				}
 
-				context.getSource().sendSystemMessage(Component.literal("Quest progress for " + player.getGameProfile().getName() + ":"));
+				context.getSource().sendSystemMessage(Component.literal("Quest progress for " + player.getGameProfile().name() + ":"));
 				for (Map.Entry<String, Quest> entry : quests) {
 					String questKey = entry.getKey();
 					Quest quest = entry.getValue();

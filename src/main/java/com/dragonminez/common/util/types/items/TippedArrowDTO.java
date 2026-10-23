@@ -4,7 +4,7 @@ import lombok.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -15,9 +15,9 @@ import java.util.List;
 public class TippedArrowDTO extends PotionDTO {
 
 	public static final String ITEM_TYPE = "tipped_arrow";
-	private static final ResourceLocation TIPPED_ARROW_ID = ResourceLocation.fromNamespaceAndPath("minecraft", "tipped_arrow");
+	private static final Identifier TIPPED_ARROW_ID = Identifier.fromNamespaceAndPath("minecraft", "tipped_arrow");
 
-	public TippedArrowDTO(ResourceLocation potion, int count, List<PotionEffectDTO> mobEffects) {
+	public TippedArrowDTO(Identifier potion, int count, List<PotionEffectDTO> mobEffects) {
 		super(ITEM_TYPE, TIPPED_ARROW_ID, count, potion, mobEffects);
 	}
 }

@@ -16,11 +16,11 @@ import com.dragonminez.common.wish.Wish;
 import com.dragonminez.common.wish.WishManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -33,8 +33,8 @@ import java.util.UUID;
 @OnlyIn(Dist.CLIENT)
 public class WishesScreen extends ScaledScreen {
 
-	private static final ResourceLocation MENU_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
-	private static final ResourceLocation BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier MENU_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
+	private static final Identifier BUTTON_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
 
 	private static final int PANEL_WIDTH = 141;
 	private static final int PANEL_HEIGHT = 213;
@@ -64,7 +64,7 @@ public class WishesScreen extends ScaledScreen {
 	private TexturedTextButton confirmButton;
 
 	public WishesScreen(int dragonEntityId, String dragonType, int wishCount) {
-		super(Component.literal("Wishes").withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
+		super(Component.literal("Wishes").withStyle(Style.EMPTY.withFont(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
 		this.dragonEntityId = dragonEntityId;
 		this.dragonType = dragonType;
 		this.maxWishesToSelect = wishCount;
@@ -165,7 +165,7 @@ public class WishesScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		this.renderBackground(graphics, mouseX, mouseY, partialTick);
 
 		int uiMouseX = (int) toUiX(mouseX);
@@ -205,7 +205,7 @@ public class WishesScreen extends ScaledScreen {
 		listBar.layout(listLeft(), listTop(), listWidth(), viewHeight(), rowCount * ITEM_HEIGHT).barAt(guiLeft + PANEL_WIDTH - 12);
 	}
 
-	private void renderWishesList(GuiGraphics graphics, int uiMouseX, int uiMouseY) {
+	private void renderWishesList(GuiGraphicsExtractor graphics, int uiMouseX, int uiMouseY) {
 		int listLeft = listLeft();
 		int listTop = listTop();
 		int listWidth = listWidth();
@@ -240,7 +240,7 @@ public class WishesScreen extends ScaledScreen {
 		listBar.renderBar(graphics, uiMouseX, uiMouseY);
 	}
 
-	private void renderTargetList(GuiGraphics graphics, int uiMouseX, int uiMouseY) {
+	private void renderTargetList(GuiGraphicsExtractor graphics, int uiMouseX, int uiMouseY) {
 		int listLeft = listLeft();
 		int listTop = listTop();
 		int listWidth = listWidth();
@@ -275,7 +275,7 @@ public class WishesScreen extends ScaledScreen {
 		listBar.renderBar(graphics, uiMouseX, uiMouseY);
 	}
 
-	private void drawBadge(GuiGraphics graphics, String badge, int right, int top) {
+	private void drawBadge(GuiGraphicsExtractor graphics, String badge, int right, int top) {
 		graphics.pose().pushPose();
 		graphics.pose().translate(right, top, 0);
 		graphics.pose().scale(0.75f, 0.75f, 1.0f);
@@ -294,7 +294,7 @@ public class WishesScreen extends ScaledScreen {
 		return badge.toString();
 	}
 
-	private void renderTooltip(GuiGraphics graphics, int uiMouseX, int uiMouseY) {
+	private void renderTooltip(GuiGraphicsExtractor graphics, int uiMouseX, int uiMouseY) {
 		int index = rowAt(uiMouseX, uiMouseY, availableWishes.size());
 		if (index < 0) return;
 		Wish wish = availableWishes.get(index);

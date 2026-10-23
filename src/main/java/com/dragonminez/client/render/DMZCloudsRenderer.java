@@ -6,13 +6,13 @@ import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 public class DMZCloudsRenderer {
-	private static final ResourceLocation CLOUDS_LOCATION = ResourceLocation.withDefaultNamespace("textures/environment/clouds.png");
+	private static final Identifier CLOUDS_LOCATION = Identifier.withDefaultNamespace("textures/environment/clouds.png");
 
 	private VertexBuffer cloudBuffer;
 	private int prevCloudX = Integer.MIN_VALUE;

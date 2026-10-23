@@ -24,7 +24,7 @@ import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
@@ -32,8 +32,8 @@ import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 public class KiProjectileRenderer extends EntityRenderer<AbstractKiProjectile> {
-    private static final ResourceLocation TEXTURE_KI = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kiblast.png");
-    private static final ResourceLocation TEXTURE_CORE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/ki_laser.png");
+    private static final Identifier TEXTURE_KI = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kiblast.png");
+    private static final Identifier TEXTURE_CORE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/ki_laser.png");
     private static final float HALF_SQRT_3 = (float)(Math.sqrt(3.0D) / 2.0D);
     private static final float GIANT_FLAME_GAIN = 1.65F;
     private static final float GIANT_EMBER_SCALE = 1.90F;
@@ -366,7 +366,7 @@ public class KiProjectileRenderer extends EntityRenderer<AbstractKiProjectile> {
         stack.translate(Math.sin(jitterSpeed) * intensity, Math.cos(jitterSpeed * 1.2) * intensity, Math.sin(jitterSpeed * 0.8) * intensity);
     }
 
-    private void drawMesh(VertexBuffer mesh, PoseStack poseStack, Matrix4f proj, float[] c1, float[] c2, float[] c3, float alpha, float age, boolean addBloom, ResourceLocation texture) {
+    private void drawMesh(VertexBuffer mesh, PoseStack poseStack, Matrix4f proj, float[] c1, float[] c2, float[] c3, float alpha, float age, boolean addBloom, Identifier texture) {
         ShaderInstance shader = DMZShaders.ki3dShader;
         if (shader == null) return;
 
@@ -491,5 +491,5 @@ public class KiProjectileRenderer extends EntityRenderer<AbstractKiProjectile> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(AbstractKiProjectile pEntity) { return TEXTURE_KI; }
+    public Identifier getTextureLocation(AbstractKiProjectile pEntity) { return TEXTURE_KI; }
 }

@@ -12,7 +12,7 @@ import com.dragonminez.common.network.S2C.RaidMusicS2C;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -83,7 +83,7 @@ public class RaidTriggerEvents {
 		String dimension = trigger.getDimension();
 		if (dimension == null || dimension.isBlank()) return true;
 
-		ResourceLocation location = ResourceLocation.tryParse(dimension);
+		Identifier location = Identifier.tryParse(dimension);
 		if (location == null) return false;
 		return level.dimension().equals(ResourceKey.create(Registries.DIMENSION, location));
 	}
@@ -112,7 +112,7 @@ public class RaidTriggerEvents {
 		RaidFeedback.announce(killer, type.getTrigger().getOmenMessage());
 
 		LogUtil.info(Env.SERVER, "{} killed a raid trigger for '{}'; omen running for {} ticks",
-				killer.getGameProfile().getName(), raidId, type.preparationTicks());
+				killer.getGameProfile().name(), raidId, type.preparationTicks());
 	}
 
 	private static ServerPlayer resolveCredit(LivingEntity dead, LivingDeathEvent event, RaidType type) {

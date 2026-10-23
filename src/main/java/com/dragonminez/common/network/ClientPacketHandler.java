@@ -33,7 +33,7 @@ import com.dragonminez.common.network.S2C.StatsDeltaS2C;
 import com.dragonminez.common.stats.character.SkinPixels;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -270,7 +270,7 @@ public class ClientPacketHandler {
 		RadarRenderEvent.updateRadarData(earthPositions, namekPositions, positionsBySet);
 	}
 
-	public static void handleDragonSky(ResourceLocation dimension, boolean active) {
+	public static void handleDragonSky(Identifier dimension, boolean active) {
 		DragonSkyState.update(dimension, active);
 	}
 

@@ -36,13 +36,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.layer.GeoRenderLayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,8 +53,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T> {
 	public static boolean PREVIEW_MODE = false;
 
-	private static final Map<ResourceLocation, ResourceLocation> VALIDATED_TEXTURES_CACHE = new ConcurrentHashMap<>();
-	private static final ResourceLocation BLANK_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/null.png");
+	private static final Map<Identifier, Identifier> VALIDATED_TEXTURES_CACHE = new ConcurrentHashMap<>();
+	private static final Identifier BLANK_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/null.png");
 
 	private static final float[] DARK_GRAY = ColorUtils.hexToRgb("#383838");
 	private static final float[] WHITE = ColorUtils.hexToRgb("#FFFFFF");
@@ -102,7 +102,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		if (player == null) return;
 
 		if (SkinPaintContext.picking()) {
-			ResourceLocation pick = SkinPaintContext.pickTexture();
+			Identifier pick = SkinPaintContext.pickTexture();
 			if (pick != null) renderLayerWholeModel(model, poseStack, bufferSource, animatable, ModRenderTypes.skinPaintPick(pick), 1.0f, 1.0f, 1.0f, 1.0f, partialTick, packedLight, packedOverlay, 1.0f, false);
 			bufferSource.getBuffer(renderType);
 			return;
@@ -137,29 +137,29 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		List<BodyLayerFadeTracker.FadingLayer> fadingLayers = new ArrayList<>();
 		SkinGathererProvider.BodyLayerSink geoConsumer = new SkinGathererProvider.BodyLayerSink() {
 			@Override
-			public void base(ResourceLocation texture, float[] color) {
+			public void base(Identifier texture, float[] color) {
 				RenderType baseType = alpha < 1.0f ? RenderType.entityTranslucent(texture) : RenderType.entityCutoutNoCull(texture);
 				renderLayerWholeModel(model, poseStack, bufferSource, animatable, baseType, color[0], color[1], color[2], 1.0f, partialTick, packedLight, packedOverlay, alpha, true);
 			}
 
 			@Override
-			public void overlay(ResourceLocation texture, float[] color) {
+			public void overlay(Identifier texture, float[] color) {
 				RenderType overlayType = alpha < 1.0f ? ModRenderTypes.skinOverlayTranslucent(texture) : ModRenderTypes.skinOverlayCutout(texture);
 				renderLayerWholeModel(model, poseStack, bufferSource, animatable, overlayType, color[0], color[1], color[2], 1.0f, partialTick, packedLight, packedOverlay, alpha, true);
 			}
 
 			@Override
-			public void translucent(ResourceLocation texture, float[] color) {
+			public void translucent(Identifier texture, float[] color) {
 				renderLayerWholeModel(model, poseStack, bufferSource, animatable, RenderType.entityTranslucent(texture), color[0], color[1], color[2], 1.0f, partialTick, packedLight, packedOverlay, alpha, true);
 			}
 
 			@Override
-			public void overlayTranslucent(ResourceLocation texture, float[] color) {
+			public void overlayTranslucent(Identifier texture, float[] color) {
 				renderLayerWholeModel(model, poseStack, bufferSource, animatable, ModRenderTypes.skinOverlayTranslucent(texture), color[0], color[1], color[2], 1.0f, partialTick, packedLight, packedOverlay, alpha, true);
 			}
 
 			@Override
-			public void fading(String layerId, ResourceLocation texture, float[] color, float targetAlpha) {
+			public void fading(String layerId, Identifier texture, float[] color, float targetAlpha) {
 				fadingLayers.add(new BodyLayerFadeTracker.FadingLayer(layerId, texture, color, targetAlpha));
 			}
 
@@ -178,20 +178,20 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 
 		SkinGathererProvider.BodyLayerSink overlayConsumer = new SkinGathererProvider.BodyLayerSink() {
 			@Override
-			public void base(ResourceLocation texture, float[] color) {
+			public void base(Identifier texture, float[] color) {
 				RenderType overlayType = alpha < 1.0f ? ModRenderTypes.skinOverlayTranslucent(texture) : ModRenderTypes.skinOverlayCutout(texture);
 				renderLayerWholeModel(model, poseStack, bufferSource, animatable, overlayType, color[0], color[1], color[2], 1.0f, partialTick, packedLight, packedOverlay, alpha, true);
 			}
 
 			@Override
-			public void fading(String layerId, ResourceLocation texture, float[] color, float targetAlpha) {
+			public void fading(String layerId, Identifier texture, float[] color, float targetAlpha) {
 				fadingLayers.add(new BodyLayerFadeTracker.FadingLayer(layerId, texture, color, targetAlpha));
 			}
 		};
 
 		SkinGathererProvider.INSTANCE.gatherBodyLayers(player, stats, partialTick, geoConsumer);
 		if (ssj4 != null) {
-			ResourceLocation furTex = getSafeTexture(SkinGathererProvider.getCachedTexture("textures/entity/races/humansaiyan/" + ssj4.key() + "_layer1.png"));
+			Identifier furTex = getSafeTexture(SkinGathererProvider.getCachedTexture("textures/entity/races/humansaiyan/" + ssj4.key() + "_layer1.png"));
 			fadingLayers.add(new BodyLayerFadeTracker.FadingLayer(SSJ4_FUR_LAYER, furTex, ssj4.color(), ssj4.target()));
 			BodyLayerFadeTracker.FadingLayer furShadow = ssj4FurShadowLayer(ssj4);
 			if (furShadow != null) fadingLayers.add(furShadow);
@@ -387,14 +387,14 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		float[] white = {1.0f, 1.0f, 1.0f};
 
 		if (!renderBorrowedHumanEyes(model, poseStack, animatable, bufferSource, character, eye1, eye2, hair, skin, pt, pl, po, alpha)) {
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_" + character.getEyesType() + "_0.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_0_0.png")).getPath(), white, pt, pl, po, alpha);
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_" + character.getEyesType() + "_1.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_0_1.png")).getPath(), eye1, pt, pl, po, alpha);
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_" + character.getEyesType() + "_2.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_0_2.png")).getPath(), eye2, pt, pl, po, alpha);
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_" + character.getEyesType() + "_3.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_0_3.png")).getPath(), hair, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_" + character.getEyesType() + "_0.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_0_0.png")).getPath(), white, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_" + character.getEyesType() + "_1.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_0_1.png")).getPath(), eye1, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_" + character.getEyesType() + "_2.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_0_2.png")).getPath(), eye2, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_" + character.getEyesType() + "_3.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "eye_0_3.png")).getPath(), hair, pt, pl, po, alpha);
 		}
 
-        renderFaceFeature(model, poseStack, animatable, bufferSource, character, "nose", character.getNoseType(), getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "nose_" + character.getNoseType() + ".png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "nose_0.png")).getPath(), skin, pt, pl, po, alpha);
-        renderFaceFeature(model, poseStack, animatable, bufferSource, character, "mouth", character.getMouthType(), getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "mouth_" + character.getMouthType() + ".png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "mouth_0.png")).getPath(), skin, pt, pl, po, alpha);
+        renderFaceFeature(model, poseStack, animatable, bufferSource, character, "nose", character.getNoseType(), getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "nose_" + character.getNoseType() + ".png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "nose_0.png")).getPath(), skin, pt, pl, po, alpha);
+        renderFaceFeature(model, poseStack, animatable, bufferSource, character, "mouth", character.getMouthType(), getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "mouth_" + character.getMouthType() + ".png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + prefix + "mouth_0.png")).getPath(), skin, pt, pl, po, alpha);
 	}
 
 	private void renderHumanFace(BakedGeoModel model, PoseStack poseStack, T animatable, MultiBufferSource bufferSource, Character character, float[] sclera, float[] eye1, float[] eye2, float[] skin, float[] hair, float pt, int pl, int po, float alpha) {
@@ -436,10 +436,10 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		String eyeBase = HUMAN_FACE_FOLDER + "humansaiyan_eye_" + eyeType;
 		String fallback = HUMAN_FACE_FOLDER + "humansaiyan_eye_0";
 
-		renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, eyeBase + "_0.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, fallback + "_0.png")).getPath(), sclera, pt, pl, po, alpha);
-		renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, eyeBase + "_1.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, fallback + "_1.png")).getPath(), eye1, pt, pl, po, alpha);
-		renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, eyeBase + "_2.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, fallback + "_2.png")).getPath(), eye2, pt, pl, po, alpha);
-		renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, eyeBase + "_3.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, fallback + "_3.png")).getPath(), brow, pt, pl, po, alpha);
+		renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, eyeBase + "_0.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, fallback + "_0.png")).getPath(), sclera, pt, pl, po, alpha);
+		renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, eyeBase + "_1.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, fallback + "_1.png")).getPath(), eye1, pt, pl, po, alpha);
+		renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, eyeBase + "_2.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, fallback + "_2.png")).getPath(), eye2, pt, pl, po, alpha);
+		renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, eyeBase + "_3.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, fallback + "_3.png")).getPath(), brow, pt, pl, po, alpha);
 
 		boolean isSsj3 = (character.hasActiveStackForm() && character.getActiveStackFormData() != null && character.getActiveStackFormData().getHairType().equalsIgnoreCase("ssj3")) ||
 				(character.hasActiveForm() && character.getActiveFormData() != null && character.getActiveFormData().getHairType().equalsIgnoreCase("ssj3"));
@@ -476,7 +476,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 
 	private void renderFeatureShadow(BakedGeoModel model, PoseStack poseStack, T animatable, MultiBufferSource bufferSource, String featurePath, float[] shadowSource, float pt, int pl, int po, float alpha) {
 		if (!featurePath.endsWith(".png")) return;
-		ResourceLocation shadow = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, featurePath.substring(0, featurePath.length() - ".png".length()) + "_shadow.png");
+		Identifier shadow = Identifier.fromNamespaceAndPath(Reference.MOD_ID, featurePath.substring(0, featurePath.length() - ".png".length()) + "_shadow.png");
 		if (!getSafeTexture(shadow).equals(shadow)) return;
 		float[] tone = ColorUtils.skinShadowTone(shadowSource);
 		renderLayerWholeModel(model, poseStack, bufferSource, animatable, ModRenderTypes.skinOverlayTranslucent(shadow), tone[0], tone[1], tone[2], 1.0f, pt, pl, po, alpha, false);
@@ -496,10 +496,10 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		float[] white = {1.0f, 1.0f, 1.0f};
 
 		if (!renderBorrowedHumanEyes(model, poseStack, animatable, bufferSource, character, eye1, eye2, hair, skin, pt, pl, po, alpha)) {
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + eyeBase + "_0.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "namekian_eye_0_0.png")).getPath(), white, pt, pl, po, alpha);
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + eyeBase + "_1.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "namekian_eye_0_1.png")).getPath(), eye1, pt, pl, po, alpha);
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + eyeBase + "_2.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "namekian_eye_0_2.png")).getPath(), eye2, pt, pl, po, alpha);
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + eyeBase + "_3.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "namekian_eye_0_3.png")).getPath(), skin, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + eyeBase + "_0.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "namekian_eye_0_0.png")).getPath(), white, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + eyeBase + "_1.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "namekian_eye_0_1.png")).getPath(), eye1, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + eyeBase + "_2.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "namekian_eye_0_2.png")).getPath(), eye2, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + eyeBase + "_3.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "namekian_eye_0_3.png")).getPath(), skin, pt, pl, po, alpha);
 		}
 
         if(bodytype == 1 || bodytype == 2) skin = hairColor;
@@ -519,9 +519,9 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
         float[] eyeBgColor = isFifth ? ColorUtils.hexToRgb("#D11A11") :
                 (isMetalCore ? ColorUtils.hexToRgb("#242424") : ColorUtils.hexToRgb("#F2F2F2"));
 		if (!renderBorrowedHumanEyes(model, poseStack, animatable, bufferSource, character, eye1, eye2, hair, finalDetailColor, pt, pl, po, alpha)) {
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "frostdemon_eye_" + character.getEyesType() + "_0.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "frostdemon_eye_0_0.png")).getPath(), eyeBgColor, pt, pl, po, alpha);
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "frostdemon_eye_" + character.getEyesType() + "_1.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "frostdemon_eye_0_1.png")).getPath(), eye1, pt, pl, po, alpha);
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "frostdemon_eye_" + character.getEyesType() + "_2.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "frostdemon_eye_0_2.png")).getPath(), eye2, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "frostdemon_eye_" + character.getEyesType() + "_0.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "frostdemon_eye_0_0.png")).getPath(), eyeBgColor, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "frostdemon_eye_" + character.getEyesType() + "_1.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "frostdemon_eye_0_1.png")).getPath(), eye1, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "frostdemon_eye_" + character.getEyesType() + "_2.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "frostdemon_eye_0_2.png")).getPath(), eye2, pt, pl, po, alpha);
 		}
 
 		if (isFifth) {
@@ -558,11 +558,11 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		renderFaceFeature(model, poseStack, animatable, bufferSource, character, "mouth", character.getMouthType(), null, b2, pt, pl, po, alpha);
 	}
 
-	private ResourceLocation getBioEyeTexture(String folder, String phase, int eyeType, int layer) {
-		ResourceLocation legacy = getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + phase + "_eye_layer" + layer + ".png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "base_eye_layer" + layer + ".png"));
+	private Identifier getBioEyeTexture(String folder, String phase, int eyeType, int layer) {
+		Identifier legacy = getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + phase + "_eye_layer" + layer + ".png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "base_eye_layer" + layer + ".png"));
 		if (eyeType <= 0) return legacy;
-		ResourceLocation baseType = getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "base_eye_" + eyeType + "_layer" + layer + ".png"), legacy);
-		return getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + phase + "_eye_" + eyeType + "_layer" + layer + ".png"), baseType);
+		Identifier baseType = getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "base_eye_" + eyeType + "_layer" + layer + ".png"), legacy);
+		return getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + phase + "_eye_" + eyeType + "_layer" + layer + ".png"), baseType);
 	}
 
 	private void renderMajinFace(BakedGeoModel model, PoseStack poseStack, T animatable, MultiBufferSource bufferSource, Character character, String faceKey, float[] eye1, float[] eye2, float[] skin, float[] b2, float[] hair, float pt, int pl, int po, float alpha) {
@@ -591,9 +591,9 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		String eyePath = folder + "majin_eye_" + eyeType + "_";
 
 		if (!renderBorrowedHumanEyes(model, poseStack, animatable, bufferSource, character, DARK_GRAY, eye1, eye2, hair, skin, pt, pl, po, alpha)) {
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, eyePath + "0.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "majin_eye_0_0.png")).getPath(), bgColor, pt, pl, po, alpha);
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, eyePath + "1.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "majin_eye_0_1.png")).getPath(), layer1Color, pt, pl, po, alpha);
-			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, eyePath + "2.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, folder + "majin_eye_0_2.png")).getPath(), skin, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, eyePath + "0.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "majin_eye_0_0.png")).getPath(), bgColor, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, eyePath + "1.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "majin_eye_0_1.png")).getPath(), layer1Color, pt, pl, po, alpha);
+			renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, eyePath + "2.png"), Identifier.fromNamespaceAndPath(Reference.MOD_ID, folder + "majin_eye_0_2.png")).getPath(), skin, pt, pl, po, alpha);
 		}
 
         if(bodytype == 1) skin = b2;
@@ -622,7 +622,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		var character = stats.getCharacter();
 		SkinPixels pixels = character.getSkinPixels();
 		if (!pixels.hasHairMarks() || !character.hasVisibleHair() || !SkinGathererProvider.rendersPlayerSkin(character)) return;
-		ResourceLocation mask = SkinPixelTextures.hairMask(player, pixels);
+		Identifier mask = SkinPixelTextures.hairMask(player, pixels);
 		if (mask == null) return;
 		renderMaskLayer(model, poseStack, animatable, bufferSource, mask, skinPixelHairTint(player, stats), pt, pl, po, alpha);
 	}
@@ -640,10 +640,10 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		var character = stats.getCharacter();
 		SkinPixels pixels = character.getSkinPixels();
 		if (!pixels.hasEyeMarks()) return;
-		ResourceLocation scleraMask = SkinPixelTextures.eyeMask(player, pixels, SkinPixels.MARK_SCLERA);
-		ResourceLocation irisMask = SkinPixelTextures.irisMask(player, pixels, false);
-		ResourceLocation iris2Mask = SkinPixelTextures.irisMask(player, pixels, true);
-		ResourceLocation browMask = SkinPixelTextures.eyeMask(player, pixels, SkinPixels.MARK_BROW);
+		Identifier scleraMask = SkinPixelTextures.eyeMask(player, pixels, SkinPixels.MARK_SCLERA);
+		Identifier irisMask = SkinPixelTextures.irisMask(player, pixels, false);
+		Identifier iris2Mask = SkinPixelTextures.irisMask(player, pixels, true);
+		Identifier browMask = SkinPixelTextures.eyeMask(player, pixels, SkinPixels.MARK_BROW);
 		if (scleraMask == null && irisMask == null && iris2Mask == null && browMask == null) return;
 		float[] iris = applyColorTint(FormVisualTransition.color(stats, character.getRgbEye1Color(), FormConfig.FormData::getRgbEye1Color), stats);
 		float[] iris2 = applyColorTint(FormVisualTransition.color(stats, character.getRgbEye2Color(), FormConfig.FormData::getRgbEye2Color), stats);
@@ -671,7 +671,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		});
 	}
 
-	private void renderMaskLayer(BakedGeoModel model, PoseStack poseStack, T animatable, MultiBufferSource bufferSource, ResourceLocation mask, float[] rgb, float pt, int pl, int po, float alpha) {
+	private void renderMaskLayer(BakedGeoModel model, PoseStack poseStack, T animatable, MultiBufferSource bufferSource, Identifier mask, float[] rgb, float pt, int pl, int po, float alpha) {
 		if (alpha <= 0.001f) return;
 		RenderType renderType = alpha < 1.0f ? ModRenderTypes.skinOverlayTranslucent(mask) : ModRenderTypes.skinOverlayCutout(mask);
 		renderLayerWholeModel(model, poseStack, bufferSource, animatable, renderType, rgb[0], rgb[1], rgb[2], 1.0f, pt, pl, po, alpha, false);
@@ -711,7 +711,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 	}
 
 	private void renderColoredLayer(BakedGeoModel model, PoseStack poseStack, T animatable, MultiBufferSource bufferSource, String path, float[] rgb, float partialTick, int packedLight, int packedOverlay, float alpha, boolean applyTransformationTint) {
-		ResourceLocation loc = getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, path));
+		Identifier loc = getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, path));
 		RenderType renderType = alpha < 1.0f ? ModRenderTypes.skinOverlayTranslucent(loc) : ModRenderTypes.skinOverlayCutout(loc);
 		renderLayerWholeModel(model, poseStack, bufferSource, animatable, renderType, rgb[0], rgb[1], rgb[2], 1.0f, partialTick, packedLight, packedOverlay, alpha, applyTransformationTint);
 	}
@@ -719,7 +719,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 	public record Ssj4Overlay(String key, float[] color, float target) {}
 
 	public static BodyLayerFadeTracker.FadingLayer ssj4FurShadowLayer(Ssj4Overlay ssj4) {
-		ResourceLocation shadow = SkinGathererProvider.getCachedTexture("textures/entity/races/humansaiyan/" + ssj4.key() + "_layer1_shadow.png");
+		Identifier shadow = SkinGathererProvider.getCachedTexture("textures/entity/races/humansaiyan/" + ssj4.key() + "_layer1_shadow.png");
 		if (!getSafeTexture(shadow).equals(shadow)) return null;
 		return new BodyLayerFadeTracker.FadingLayer(SSJ4_FUR_SHADOW_LAYER, shadow, ColorUtils.skinShadowTone(ssj4.color()), ssj4.target());
 	}
@@ -831,7 +831,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 	}
 
 	private void renderWoundLayer(BakedGeoModel model, PoseStack poseStack, T animatable, MultiBufferSource bufferSource, String path, float partialTick, int packedLight, int packedOverlay, float alpha) {
-		ResourceLocation loc = getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, path));
+		Identifier loc = getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, path));
 		RenderType renderType = ModRenderTypes.skinOverlayTranslucent(loc);
 		for (int pass = 0; pass < WOUND_OPACITY_PASSES; pass++) {
 			renderLayerWholeModel(model, poseStack, bufferSource, animatable, renderType, 1.0f, 1.0f, 1.0f, 1.0f, partialTick, packedLight, packedOverlay, alpha, false);
@@ -839,7 +839,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 	}
 
 	private void renderFadingColoredLayer(BakedGeoModel model, PoseStack poseStack, T animatable, MultiBufferSource bufferSource, String path, float[] rgb, float partialTick, int packedLight, int packedOverlay, float alpha) {
-		ResourceLocation loc = getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, path));
+		Identifier loc = getSafeTexture(Identifier.fromNamespaceAndPath(Reference.MOD_ID, path));
 		RenderType renderType = alpha < 1.0f ? ModRenderTypes.skinOverlayTranslucent(loc) : ModRenderTypes.skinOverlayCutout(loc);
 		renderLayerWholeModel(model, poseStack, bufferSource, animatable, renderType, rgb[0], rgb[1], rgb[2], 1.0f, partialTick, packedLight, packedOverlay, alpha, false);
 	}
@@ -921,7 +921,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		};
 	}
 
-	public static ResourceLocation getSafeTexture(ResourceLocation originalLoc) {
+	public static Identifier getSafeTexture(Identifier originalLoc) {
 		return VALIDATED_TEXTURES_CACHE.computeIfAbsent(originalLoc, loc -> {
 			System.out.println("Validating texture: " + loc);
 			if (Minecraft.getInstance().getResourceManager().getResource(loc).isPresent()) return loc;
@@ -929,7 +929,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		});
 	}
 
-	public static ResourceLocation getSafeTexture(ResourceLocation originalLoc, ResourceLocation fallbackLoc) {
+	public static Identifier getSafeTexture(Identifier originalLoc, Identifier fallbackLoc) {
 		return VALIDATED_TEXTURES_CACHE.computeIfAbsent(originalLoc, loc -> {
 			if (Minecraft.getInstance().getResourceManager().getResource(loc).isPresent()) return loc;
 			return fallbackLoc;

@@ -3,10 +3,10 @@ package com.dragonminez.common.init.item.weapons;
 import com.dragonminez.common.init.item.weapons.render.TamagamiHammerRenderer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import software.bernie.geckolib.animatable.GeoItem;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.util.GeckoLibUtil;
+import com.geckolib.animatable.GeoItem;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animation.AnimatableManager;
+import com.geckolib.util.GeckoLibUtil;
 
 import java.util.function.Consumer;
 

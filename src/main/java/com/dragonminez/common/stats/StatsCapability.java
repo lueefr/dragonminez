@@ -117,7 +117,7 @@ public class StatsCapability {
 
 				Map<String, String> repairedSkills = data.getSkills().repairSkillNames();
 				if (!repairedSkills.isEmpty()) {
-					repairedSkills.forEach((oldName, newName) -> LogUtil.info(Env.SERVER, "Repaired skill for {}: '{}' -> '{}'", serverPlayer.getGameProfile().getName(), oldName, newName));
+					repairedSkills.forEach((oldName, newName) -> LogUtil.info(Env.SERVER, "Repaired skill for {}: '{}' -> '{}'", serverPlayer.getGameProfile().name(), oldName, newName));
 				}
 				data.getSkills().setSkillActive("kisense", false);
 				RacialRegistry.forPlayer(data).ifPresent(ability -> ability.onLogin(new RacialContext(serverPlayer, data)));

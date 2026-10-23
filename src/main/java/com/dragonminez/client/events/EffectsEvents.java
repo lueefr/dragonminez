@@ -15,7 +15,7 @@ import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -244,7 +244,7 @@ public class EffectsEvents {
 				int amplifier = player.getEffect(MainEffects.STAGGER).getAmplifier();
 				float blurStrength = 0.3F + (amplifier * 0.15F);
 
-				GuiGraphics graphics = event.getGuiGraphics();
+				GuiGraphicsExtractor graphics = event.getGuiGraphics();
 				int width = graphics.guiWidth();
 				int height = graphics.guiHeight();
 
@@ -273,7 +273,7 @@ public class EffectsEvents {
 				int amplifier = player.getEffect(MainEffects.STUN).getAmplifier();
 				float blurStrength = 0.3F + (amplifier * 0.15F);
 
-				GuiGraphics graphics = event.getGuiGraphics();
+				GuiGraphicsExtractor graphics = event.getGuiGraphics();
 				int width = graphics.guiWidth();
 				int height = graphics.guiHeight();
 

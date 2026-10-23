@@ -13,7 +13,7 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -51,7 +51,7 @@ public final class Aura3DRenderer {
 	private static final float GOD_BACK_FACES = 1.0f;
 	private static final float GOD_FRONT_FACES = 2.0f;
 
-	private static final ResourceLocation DUMMY_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/null.png");
+	private static final Identifier DUMMY_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/null.png");
 	private static final Map<Integer, AuraStyle> ENTITY_STYLES = new HashMap<>();
 
 	private Aura3DRenderer() {}

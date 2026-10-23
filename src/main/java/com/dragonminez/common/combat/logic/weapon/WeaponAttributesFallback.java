@@ -3,7 +3,7 @@ package com.dragonminez.common.combat.logic.weapon;
 import com.dragonminez.common.combat.util.PatternMatching;
 import com.dragonminez.common.config.CombatConfig.CompatibilitySpecifier;
 import com.dragonminez.common.config.ConfigManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -26,7 +26,7 @@ public class WeaponAttributesFallback {
 
             for (var fallbackOption : specifiers) {
                 if (WeaponRegistry.getAttributes(itemId) == null && PatternMatching.matches(itemId.toString(), fallbackOption.getItem_id_regex())) {
-                    var container = WeaponRegistry.containers.get(ResourceLocation.parse(fallbackOption.getWeapon_attributes()));
+                    var container = WeaponRegistry.containers.get(Identifier.parse(fallbackOption.getWeapon_attributes()));
                     if (container != null) {
                         WeaponRegistry.resolveAndRegisterAttributes(itemId, container);
                         break;

@@ -11,12 +11,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.BiomeTagsProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biomes;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 public class DMZBiomeTagGenerator extends BiomeTagsProvider {
@@ -155,7 +155,7 @@ public class DMZBiomeTagGenerator extends BiomeTagsProvider {
 				.addOptionalTag(forge("is_desert"));
 	}
 
-	private static ResourceLocation forge(String path) {
-		return ResourceLocation.fromNamespaceAndPath("forge", path);
+	private static Identifier forge(String path) {
+		return Identifier.fromNamespaceAndPath("forge", path);
 	}
 }

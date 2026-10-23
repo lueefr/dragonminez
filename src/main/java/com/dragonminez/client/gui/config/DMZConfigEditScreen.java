@@ -7,7 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -160,7 +160,7 @@ public class DMZConfigEditScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		this.renderBackground(graphics, mouseX, mouseY, partialTick);
 		graphics.drawCenteredString(this.font, this.title, this.width / 2, 8, 0xFFFFD700);
 

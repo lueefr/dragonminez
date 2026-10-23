@@ -17,13 +17,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -49,8 +49,8 @@ import java.util.UUID;
 @OnlyIn(Dist.CLIENT)
 public class TournamentBracketScreen extends ScaledScreen {
 
-	private static final ResourceLocation BUTTONS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
-	private static final ResourceLocation SLOT_FRAMES = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/tournament/slots.png");
+	private static final Identifier BUTTONS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier SLOT_FRAMES = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/tournament/slots.png");
 
 	private static final float PANEL_FRACTION = 0.8f;
 	private static final int PADDING = 10;
@@ -193,7 +193,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 	private TournamentPackets.OpenBracketS2C.Member me() {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.player == null) return null;
-		String name = mc.player.getGameProfile().getName();
+		String name = mc.player.getGameProfile().name();
 		for (TournamentPackets.OpenBracketS2C.Member member : data.getMembers()) {
 			if (member.name().equals(name)) return member;
 		}
@@ -312,7 +312,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		graphics.fillGradient(0, 0, this.width, this.height, 0xC0101010, 0xD0101010);
 		int uiMouseX = (int) toUiX(mouseX);
 		int uiMouseY = (int) toUiY(mouseY);
@@ -339,7 +339,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderHeader(GuiGraphics graphics) {
+	private void renderHeader(GuiGraphicsExtractor graphics) {
 		int centreX = guiLeft + guiWidth / 2;
 		int y = guiTop + PADDING;
 
@@ -423,7 +423,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 	private Component opponentName() {
 		List<Component> fighters = fighterNames();
 		Minecraft mc = Minecraft.getInstance();
-		String myName = mc.player != null ? mc.player.getGameProfile().getName() : "";
+		String myName = mc.player != null ? mc.player.getGameProfile().name() : "";
 		for (Component fighter : fighters) {
 			if (!fighter.getString().equals(myName)) return fighter;
 		}
@@ -456,7 +456,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		return round >= 0 && round < card.size() ? slotName(card.get(round)) : null;
 	}
 
-	private void renderMembers(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderMembers(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int y = guiTop + PADDING + HEADER_HEIGHT;
 		List<MutableComponent> names = new ArrayList<>();
 		int total = 0;
@@ -502,7 +502,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		};
 	}
 
-	private void renderRules(GuiGraphics graphics) {
+	private void renderRules(GuiGraphicsExtractor graphics) {
 		List<RuleLine> rules = buildRules(contentWidth - 24 - SCROLLBAR);
 		int lineHeight = font.lineHeight + 1;
 		int total = 0;
@@ -566,7 +566,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		return out;
 	}
 
-	private void renderLadder(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderLadder(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		float[] size = data.isGauntlet() ? gauntletSize() : treeSize();
 		float fitBoth = Math.min(contentWidth / size[0], contentHeight / size[1]);
 		float scale = fitBoth >= 1.0f ? Math.min(MAX_UPSCALE, fitBoth)
@@ -656,7 +656,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		return index < winners.size() ? winners.get(index) : "";
 	}
 
-	private void renderTree(GuiGraphics graphics, float[] size) {
+	private void renderTree(GuiGraphicsExtractor graphics, float[] size) {
 		int q = qualifierRounds();
 		int seeds = Math.max(2, data.getSeeds().size());
 		int currentRound = data.isSignUp() || !data.isRevealed() ? -1 : data.getRound();
@@ -725,7 +725,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		return "tournament.dragonminez.round.final";
 	}
 
-	private void drawChallengerRow(GuiGraphics graphics, float y, float trunkCx, float challengerCx, String trunkId,
+	private void drawChallengerRow(GuiGraphicsExtractor graphics, float y, float trunkCx, float challengerCx, String trunkId,
 								   String challengerId, String winner, boolean now, float parentY) {
 		boolean decided = !winner.isEmpty();
 		int color = now ? LINE_NOW_COLOR : decided ? LINE_DONE_COLOR : LINE_COLOR;
@@ -739,7 +739,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		drawSlot(graphics, challengerCx - SLOT / 2.0f, y, challengerId, slotState(challengerId, decided && !winner.equals(challengerId), now, false));
 	}
 
-	private void drawRowLabel(GuiGraphics graphics, MutableComponent label, float y, boolean highlight) {
+	private void drawRowLabel(GuiGraphicsExtractor graphics, MutableComponent label, float y, boolean highlight) {
 		int width = font.width(label);
 		TextUtil.drawStringWithBorder(graphics, font, label, LABEL_MARGIN - 10 - width, Math.round(y + SLOT / 2.0f - 4),
 				highlight ? TITLE_COLOR : MUTED_COLOR);
@@ -786,7 +786,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		return data.isRevealed() && !data.isEliminated() && data.getPhase() != TournamentPackets.OpenBracketS2C.Phase.RULES;
 	}
 
-	private void renderGauntlet(GuiGraphics graphics) {
+	private void renderGauntlet(GuiGraphicsExtractor graphics) {
 		List<String> card = gauntletCard();
 		int currentRound = data.isRevealed() ? data.getRound() : -1;
 		boolean showPlayer = showGauntletPlayer();
@@ -848,7 +848,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		}
 	}
 
-	private void drawSlot(GuiGraphics graphics, float x, float y, String id, SlotState state) {
+	private void drawSlot(GuiGraphicsExtractor graphics, float x, float y, String id, SlotState state) {
 		slotHits.add(new SlotHit(x, y, id, state));
 		HudRender.rect(graphics, x, y, SLOT, SLOT, state == SlotState.DEFEATED ? 0xD0080810 : 0xD0101018);
 
@@ -873,7 +873,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		graphics.pose().popPose();
 	}
 
-	private void renderPortrait(GuiGraphics graphics, String id, float boxX, float boxY, boolean isPlayer, boolean greyed) {
+	private void renderPortrait(GuiGraphicsExtractor graphics, String id, float boxX, float boxY, boolean isPlayer, boolean greyed) {
 		LivingEntity entity = isPlayer ? playerPortrait(id) : portraitFor(id);
 		if (entity == null) {
 			if (isPlayer) {
@@ -918,7 +918,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		return entity instanceof DBSagasEntity saga ? Math.max(0.1F, saga.getScale()) : 1.0F;
 	}
 
-	private static void renderGreyedEntity(GuiGraphics graphics, int x, int y, int scale, LivingEntity entity) {
+	private static void renderGreyedEntity(GuiGraphicsExtractor graphics, int x, int y, int scale, LivingEntity entity) {
 		Quaternionf pose = new Quaternionf().rotateZ((float) Math.PI);
 
 		float bodyRot = entity.yBodyRot;
@@ -978,7 +978,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		if (PORTRAIT_CACHE.containsKey(id)) return PORTRAIT_CACHE.get(id);
 
 		LivingEntity created = null;
-		ResourceLocation location = ResourceLocation.tryParse(id);
+		Identifier location = Identifier.tryParse(id);
 		Minecraft mc = Minecraft.getInstance();
 		if (location != null && mc.level != null) {
 			EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(location);
@@ -992,7 +992,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		return created;
 	}
 
-	private void renderFooter(GuiGraphics graphics) {
+	private void renderFooter(GuiGraphicsExtractor graphics) {
 		int y = guiTop + guiHeight - PADDING - BUTTON_HEIGHT + 6;
 		MutableComponent hint = hintLine();
 		int buttons = 0;
@@ -1025,7 +1025,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		};
 	}
 
-	private void renderTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		if (hoveredSlot != null) {
 			List<Component> description = new ArrayList<>();
 			List<Component> extras = null;
@@ -1120,7 +1120,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		if (Tournament.Bracket.HIDDEN_SLOT.equals(id)) return tr("tournament.dragonminez.slot.hidden");
 		if (id == null || id.isEmpty()) return txt("-");
 
-		ResourceLocation location = ResourceLocation.tryParse(id);
+		Identifier location = Identifier.tryParse(id);
 		if (location == null) return txt(id);
 		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(location);
 		return type != null ? tr(type.getDescriptionId()) : txt(id);

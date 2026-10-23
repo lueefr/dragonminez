@@ -4,7 +4,7 @@ import com.dragonminez.Reference;
 import com.dragonminez.common.init.MainItems;
 import com.dragonminez.common.datagen.builder.KikonoRecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -158,7 +158,7 @@ public class DMZKikonoRecipeProvider {
 				.input(Items.AIR)
 				.time(200)
 				.energy(1000)
-				.save(this.consumer, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name + "_armor_helmet"));
+				.save(this.consumer, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name + "_armor_helmet"));
 	}
 
 	protected void buildChestplateRecipes(String name, Item output, Item pattern) {
@@ -176,7 +176,7 @@ public class DMZKikonoRecipeProvider {
 				.input(MainItems.KIKONO_CLOTH.get())
 				.time(200)
 				.energy(1000)
-				.save(this.consumer, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name + "_armor_chestplate"));
+				.save(this.consumer, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name + "_armor_chestplate"));
 	}
 
 	protected void buildLeggingsRecipes(String name, Item output, Item pattern) {
@@ -194,7 +194,7 @@ public class DMZKikonoRecipeProvider {
 				.input(MainItems.KIKONO_STRING.get())
 				.time(200)
 				.energy(1000)
-				.save(this.consumer, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name + "_armor_leggings"));
+				.save(this.consumer, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name + "_armor_leggings"));
 	}
 
 	protected void buildBootsRecipes(String name, Item output, Item pattern) {
@@ -212,7 +212,7 @@ public class DMZKikonoRecipeProvider {
 				.input(MainItems.KIKONO_STRING.get())
 				.time(200)
 				.energy(1000)
-				.save(this.consumer, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name + "_armor_boots"));
+				.save(this.consumer, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name + "_armor_boots"));
 	}
 
 	protected void buildPickaxeRecipes(String name, Item output, Item pattern, Item material, Item stick) {
@@ -230,7 +230,7 @@ public class DMZKikonoRecipeProvider {
 				.input(Items.AIR)
 				.time(100)
 				.energy(1000)
-				.save(this.consumer, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name + "_pickaxe"));
+				.save(this.consumer, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name + "_pickaxe"));
 	}
 
 	protected void buildAxeRecipes(String name, Item output, Item pattern, Item material, Item stick) {
@@ -248,7 +248,7 @@ public class DMZKikonoRecipeProvider {
 				.input(Items.AIR)
 				.time(100)
 				.energy(1000)
-				.save(this.consumer, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name + "_axe"));
+				.save(this.consumer, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name + "_axe"));
 	}
 
 	protected void buildSwordRecipes(String name, Item output, Item pattern, Item material, Item stick) {
@@ -266,7 +266,7 @@ public class DMZKikonoRecipeProvider {
 				.input(Items.AIR)
 				.time(100)
 				.energy(1000)
-				.save(this.consumer, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name + "_sword"));
+				.save(this.consumer, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name + "_sword"));
 	}
 
 	protected void buildShovelRecipes(String name, Item output, Item pattern, Item material, Item stick) {
@@ -284,7 +284,7 @@ public class DMZKikonoRecipeProvider {
 				.input(Items.AIR)
 				.time(100)
 				.energy(1000)
-				.save(this.consumer, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name + "_shovel"));
+				.save(this.consumer, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name + "_shovel"));
 	}
 
 	protected void buildHoeRecipes(String name, Item output, Item pattern, Item material, Item stick) {
@@ -302,7 +302,7 @@ public class DMZKikonoRecipeProvider {
 				.input(Items.AIR)
 				.time(100)
 				.energy(1000)
-				.save(this.consumer, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name + "_hoe"));
+				.save(this.consumer, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name + "_hoe"));
 	}
 
 	protected void buildScytheRecipes(String name, Item output, Item pattern, Item material, Item stick) {
@@ -320,6 +320,6 @@ public class DMZKikonoRecipeProvider {
 				.input(Items.AIR)
 				.time(100)
 				.energy(1000)
-				.save(this.consumer, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name + "_scythe"));
+				.save(this.consumer, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name + "_scythe"));
 	}
 }

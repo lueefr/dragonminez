@@ -2,7 +2,7 @@
 package com.dragonminez.client.util;
 
 import com.dragonminez.client.gui.hud.HudRender;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 
 public class ScrollbarState {
@@ -303,16 +303,16 @@ public class ScrollbarState {
         return false;
     }
 
-    public void beginClip(GuiGraphics graphics) {
+    public void beginClip(GuiGraphicsExtractor graphics) {
         beginClip(graphics, true);
     }
 
-    public void beginClip(GuiGraphics graphics, boolean applyScroll) {
+    public void beginClip(GuiGraphicsExtractor graphics, boolean applyScroll) {
         if (horizontal) beginClip(graphics, viewY, viewHeight, applyScroll);
         else beginClip(graphics, viewX, viewWidth, applyScroll);
     }
 
-    public void beginClip(GuiGraphics graphics, int crossStart, int crossLength, boolean applyScroll) {
+    public void beginClip(GuiGraphicsExtractor graphics, int crossStart, int crossLength, boolean applyScroll) {
         int x = horizontal ? viewX : crossStart;
         int y = horizontal ? crossStart : viewY;
         int width = horizontal ? viewWidth : crossLength;
@@ -326,14 +326,14 @@ public class ScrollbarState {
         clipDepth++;
     }
 
-    public void endClip(GuiGraphics graphics) {
+    public void endClip(GuiGraphicsExtractor graphics) {
         if (clipDepth <= 0) return;
         clipDepth--;
         graphics.pose().popPose();
         graphics.disableScissor();
     }
 
-    public void renderBar(GuiGraphics graphics, double mouseX, double mouseY) {
+    public void renderBar(GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
         if (!canScroll() || trackLength <= 0) return;
         float thumb = thumbSize();
         float start = thumbStart(thumb);

@@ -3,7 +3,7 @@ package com.dragonminez.server.world.gen;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.NoiseRouter;
@@ -13,7 +13,7 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 public class SacredKaiNoiseRouterData extends NoiseRouterData {
 
 	private static final ResourceKey<DensityFunction> SLOPED_CHEESE =
-			ResourceKey.create(Registries.DENSITY_FUNCTION, ResourceLocation.fromNamespaceAndPath("minecraft", "overworld/sloped_cheese"));
+			ResourceKey.create(Registries.DENSITY_FUNCTION, Identifier.fromNamespaceAndPath("minecraft", "overworld/sloped_cheese"));
 
 	public static NoiseRouter createSacredKaiRouter(HolderGetter<DensityFunction> density, HolderGetter<NormalNoise.NoiseParameters> noise) {
 		NoiseRouter base = overworld(density, noise, false, false);

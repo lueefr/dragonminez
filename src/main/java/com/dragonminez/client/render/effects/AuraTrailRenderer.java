@@ -15,7 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -45,7 +45,7 @@ public final class AuraTrailRenderer {
 	private static final float ENTITY_CORE_WHITE = 0.20f;
 	private static final float ENTITY_BLOOM = 0.35f;
 
-	private static final ResourceLocation DUMMY_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/null.png");
+	private static final Identifier DUMMY_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/null.png");
 
 	private static final Map<Integer, Trail> TRAILS = new ConcurrentHashMap<>();
 	private static VertexBuffer buffer;

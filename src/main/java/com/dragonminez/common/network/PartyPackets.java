@@ -89,11 +89,11 @@ public final class PartyPackets {
 
 				StatsData data = StatsProvider.get(StatsCapability.INSTANCE, member).orElse(null);
 				if (data == null) {
-					roster.add(MemberStats.offline(id, member.getGameProfile().getName(), leader));
+					roster.add(MemberStats.offline(id, member.getGameProfile().name(), leader));
 					continue;
 				}
 
-				roster.add(new MemberStats(id, member.getGameProfile().getName(), true, leader,
+				roster.add(new MemberStats(id, member.getGameProfile().name(), true, leader,
 						data.getCharacter().getRaceName(), data.getCharacter().getCharacterClass(), data.getLevel(),
 						data.getStats().getStrength(), data.getStats().getStrikePower(),
 						data.getStats().getResistance(), data.getStats().getVitality(),
@@ -178,7 +178,7 @@ public final class PartyPackets {
 			float maxEnergy = data != null ? data.getMaxEnergy() : 0.0f;
 			boolean marker = sameDimension && distance <= markerRange && isMarkerVisible(viewer, viewerData, member, data);
 			int auraRgb = data != null ? parseAuraRgb(data.getCharacter().getAuraColor()) : 0x4FC3FF;
-			members.add(new HudMember(member.getUUID(), member.getGameProfile().getName(), member.getHealth(), member.getMaxHealth(),
+			members.add(new HudMember(member.getUUID(), member.getGameProfile().name(), member.getHealth(), member.getMaxHealth(),
 					energy, maxEnergy, sameDimension, distance,
 					marker ? member.getX() : 0.0D, marker ? member.getY() : 0.0D, marker ? member.getZ() : 0.0D, marker, auraRgb));
 		}

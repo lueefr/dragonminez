@@ -1,9 +1,9 @@
 package com.dragonminez.client.gui.buttons;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -17,7 +17,7 @@ public class ColorSlider extends AbstractSliderButton {
     private final int minValue;
     private final int maxValue;
     private final Consumer<Integer> onValueChange;
-    private final ResourceLocation texture;
+    private final Identifier texture;
     private final int sliderU;
     private final int sliderV;
     private final int sliderWidth;
@@ -28,7 +28,7 @@ public class ColorSlider extends AbstractSliderButton {
 
     public ColorSlider(int x, int y, int width, int height,
                        int minValue, int maxValue, int currentValue,
-                       ResourceLocation texture, int sliderU, int sliderV,
+                       Identifier texture, int sliderU, int sliderV,
                        int sliderWidth, int sliderHeight,
                        Component message, Consumer<Integer> onValueChange) {
         super(x, y, width, height, message, (double)(currentValue - minValue) / (maxValue - minValue));
@@ -69,7 +69,7 @@ public class ColorSlider extends AbstractSliderButton {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         var poseStack = graphics.pose();
         poseStack.pushPose();
         poseStack.translate(0.0D, 0.0D, 200.0D);
@@ -85,7 +85,7 @@ public class ColorSlider extends AbstractSliderButton {
         poseStack.popPose();
     }
 
-    private void drawGradientBackground(GuiGraphics graphics) {
+    private void drawGradientBackground(GuiGraphicsExtractor graphics) {
         switch (gradient) {
             case HUE -> drawHueGradient(graphics);
             case SATURATION -> drawSaturationGradient(graphics);
@@ -94,7 +94,7 @@ public class ColorSlider extends AbstractSliderButton {
         }
     }
 
-    private void drawHueGradient(GuiGraphics graphics) {
+    private void drawHueGradient(GuiGraphicsExtractor graphics) {
         int segments = this.width;
         for (int i = 0; i < segments; i++) {
             float hue = (float)i / segments * 360.0F;
@@ -103,7 +103,7 @@ public class ColorSlider extends AbstractSliderButton {
         }
     }
 
-    private void drawSaturationGradient(GuiGraphics graphics) {
+    private void drawSaturationGradient(GuiGraphicsExtractor graphics) {
         int segments = this.width;
         for (int i = 0; i < segments; i++) {
             float saturation = 100.0F - ((float)i / segments * 100.0F);
@@ -112,7 +112,7 @@ public class ColorSlider extends AbstractSliderButton {
         }
     }
 
-    private void drawValueGradient(GuiGraphics graphics) {
+    private void drawValueGradient(GuiGraphicsExtractor graphics) {
         int segments = this.width;
         for (int i = 0; i < segments; i++) {
             float value = 100.0F - ((float)i / segments * 100.0F);
@@ -168,7 +168,7 @@ public class ColorSlider extends AbstractSliderButton {
         private int minValue = 0;
         private int maxValue = 255;
         private int currentValue = 0;
-        private ResourceLocation texture = null;
+        private Identifier texture = null;
         private int sliderU = 0;
         private int sliderV = 0;
         private int sliderWidth = 0;
@@ -200,7 +200,7 @@ public class ColorSlider extends AbstractSliderButton {
             return this;
         }
 
-        public Builder texture(ResourceLocation texture, int u, int v, int width, int height) {
+        public Builder texture(Identifier texture, int u, int v, int width, int height) {
             this.texture = texture;
             this.sliderU = u;
             this.sliderV = v;

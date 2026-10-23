@@ -4,15 +4,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import software.bernie.geckolib.cache.GeckoLibCache;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animation.state.BoneSnapshot;
-import software.bernie.geckolib.renderer.GeoRenderer;
+import com.geckolib.cache.GeckoLibCache;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.animation.state.BoneSnapshot;
+import com.geckolib.renderer.GeoRenderer;
 
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public final class DonorBoneRenderer {
 	private DonorBoneRenderer() {}
 
 	public static <T extends AbstractClientPlayer & GeoAnimatable> void render(GeoRenderer<T> renderer, T animatable, BakedGeoModel playerModel,
-			ResourceLocation donorModel, String boneName, boolean tail, List<Layer> layers, PoseStack poseStack,
+			Identifier donorModel, String boneName, boolean tail, List<Layer> layers, PoseStack poseStack,
 			MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
 		if (layers.isEmpty()) return;
 		withDonor(animatable, playerModel, donorModel, boneName, tail, partialTick, root -> {
@@ -63,14 +63,14 @@ public final class DonorBoneRenderer {
 		}
 	}
 
-	public static void visit(Entity animatable, BakedGeoModel playerModel, ResourceLocation donorModel, String boneName, boolean tail,
+	public static void visit(Entity animatable, BakedGeoModel playerModel, Identifier donorModel, String boneName, boolean tail,
 			PoseStack poseStack, float partialTick, BoneVisitor visitor) {
 		withDonor(animatable, playerModel, donorModel, boneName, tail, partialTick, root -> walk(root, poseStack, visitor));
 	}
 
 	private static void walk(GeoBone bone, PoseStack poseStack, BoneVisitor visitor) {
 		poseStack.pushPose();
-		software.bernie.geckolib.util.RenderUtil.prepMatrixForBone(poseStack, bone);
+		com.geckolib.util.RenderUtil.prepMatrixForBone(poseStack, bone);
 		if (!bone.isHidden()) visitor.visit(bone, poseStack);
 		if (!bone.isHidingChildren()) {
 			for (GeoBone child : bone.getChildBones()) walk(child, poseStack, visitor);
@@ -78,7 +78,7 @@ public final class DonorBoneRenderer {
 		poseStack.popPose();
 	}
 
-	private static void withDonor(Entity animatable, BakedGeoModel playerModel, ResourceLocation donorModel, String boneName, boolean tail,
+	private static void withDonor(Entity animatable, BakedGeoModel playerModel, Identifier donorModel, String boneName, boolean tail,
 			float partialTick, Consumer<GeoBone> action) {
 		BakedGeoModel donor = GeckoLibCache.getBakedModels().get(donorModel);
 		if (donor == null) return;

@@ -4,7 +4,7 @@ import com.dragonminez.client.util.TooltipUtil;
 import com.dragonminez.mixin.client.BundleTooltipComponentAccessor;
 import com.dragonminez.mixin.client.ClientTextTooltipAccessor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTextTooltip;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -37,7 +37,7 @@ public class ScrollTracker {
 		trackedComponents = components;
 	}
 
-	public static void applyScroll(GuiGraphics graphics, int x, int y, int width, int height, int screenWidth, int screenHeight) {
+	public static void applyScroll(GuiGraphicsExtractor graphics, int x, int y, int width, int height, int screenWidth, int screenHeight) {
 		renderedThisFrame = true;
 
 		if (height < screenHeight) targetVerticalScroll = 0;

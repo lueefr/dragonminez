@@ -3,7 +3,7 @@ package com.dragonminez.common.quest.objectives;
 import lombok.*;
 import com.dragonminez.common.quest.QuestObjective;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 @Getter
@@ -21,7 +21,7 @@ public class ItemObjective extends QuestObjective {
 	@Override
 	public boolean checkProgress(Object... params) {
 		if (params.length > 0 && params[0] instanceof ItemStack stack) {
-			Item requiredItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemId));
+			Item requiredItem = BuiltInRegistries.ITEM.get(Identifier.parse(itemId));
 			if (stack.is(requiredItem)) {
 				addProgress(stack.getCount());
 				return isCompleted();

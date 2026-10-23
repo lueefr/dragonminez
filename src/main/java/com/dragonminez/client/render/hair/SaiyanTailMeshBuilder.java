@@ -4,19 +4,19 @@ import com.dragonminez.Reference;
 import com.dragonminez.common.hair.HairMath;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.cache.object.GeoCube;
-import software.bernie.geckolib.cache.object.GeoQuad;
-import software.bernie.geckolib.cache.object.GeoVertex;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.GeoCube;
+import com.geckolib.cache.object.GeoQuad;
+import com.geckolib.cache.object.GeoVertex;
 
 
 public final class SaiyanTailMeshBuilder {
-	public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/tail_fur.png");
+	public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/tail_fur.png");
 
 	private static final int MAX_BONES = 16;
 	private static final float LENGTH_SHADE = 0.55f;
@@ -124,9 +124,9 @@ public final class SaiyanTailMeshBuilder {
 				cubeStack.pushPose();
 				cubeStack.last().pose().set(poses[i]);
 				cubeStack.last().normal().set(normals[i]);
-				software.bernie.geckolib.util.RenderUtil.translateToPivotPoint(cubeStack, cube);
-				software.bernie.geckolib.util.RenderUtil.rotateMatrixAroundCube(cubeStack, cube);
-				software.bernie.geckolib.util.RenderUtil.translateAwayFromPivotPoint(cubeStack, cube);
+				com.geckolib.util.RenderUtil.translateToPivotPoint(cubeStack, cube);
+				com.geckolib.util.RenderUtil.rotateMatrixAroundCube(cubeStack, cube);
+				com.geckolib.util.RenderUtil.translateAwayFromPivotPoint(cubeStack, cube);
 				pose = cubeStack.last().pose();
 				normalMatrix = cubeStack.last().normal();
 				GeoQuad[] quads = cube.quads();

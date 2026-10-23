@@ -42,7 +42,7 @@ public class UpdateSkinPixelsC2S {
 			ServerPlayer player = ctx.get().getSender();
 			if (player == null || msg.tag == null) return;
 
-			String playerName = player.getGameProfile().getName();
+			String playerName = player.getGameProfile().name();
 			if (!PacketRateLimiter.allow(player.getUUID(), "skin_pixels", player.level().getGameTime(), MIN_INTERVAL_TICKS)) {
 				LogUtil.debug(Env.SERVER, "Rate limited skin pixel update from {}", playerName);
 				return;

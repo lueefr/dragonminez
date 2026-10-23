@@ -12,10 +12,10 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.layer.GeoRenderLayer;
 
 public class HalloweenPumpkinLayer<T extends Entity & GeoAnimatable> extends GeoRenderLayer<T> {
 

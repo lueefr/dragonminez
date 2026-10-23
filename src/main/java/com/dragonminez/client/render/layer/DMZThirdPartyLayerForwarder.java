@@ -16,11 +16,11 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.layers.*;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.layer.GeoRenderLayer;
 
 import java.util.List;
 import java.util.Set;

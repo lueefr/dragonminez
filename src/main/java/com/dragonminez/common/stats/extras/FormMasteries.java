@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FormMasteries {
+    private long progressionRevision;
+    public long getProgressionRevision() { return progressionRevision; }
     private final Map<String, Double> masteries = new HashMap<>();
 
     public FormMasteries() {}
@@ -17,11 +19,13 @@ public class FormMasteries {
     }
 
     public void setMastery(String formGroup, String formName, double mastery, double maxMastery) {
+        progressionRevision++;
         String key = getKey(formGroup, formName);
         masteries.put(key, Math.max(0.0, Math.min(maxMastery, mastery)));
     }
 
     public void addMastery(String formGroup, String formName, double amount, double maxMastery) {
+        progressionRevision++;
         String key = getKey(formGroup, formName);
         double current = masteries.getOrDefault(key, 0.0);
         double newMastery = Math.min(maxMastery, current + amount);
@@ -45,14 +49,17 @@ public class FormMasteries {
     }
 
     public void putMax(String key, double value) {
+        progressionRevision++;
         masteries.merge(key, value, Math::max);
     }
 
     public void addRaw(String key, double amount) {
+        progressionRevision++;
         masteries.merge(key, amount, Double::sum);
     }
 
     public void clear() {
+        progressionRevision++;
         masteries.clear();
     }
 
@@ -65,9 +72,10 @@ public class FormMasteries {
     }
 
     public void load(CompoundTag nbt) {
+        progressionRevision++;
         masteries.clear();
-        for (String key : nbt.getAllKeys()) {
-            masteries.put(key, nbt.getDouble(key));
+        for (String key : nbt.keySet()) {
+            masteries.put(key, nbt.getDoubleOr(key, 0));
         }
     }
 
@@ -80,6 +88,7 @@ public class FormMasteries {
     }
 
     public void fromBytes(FriendlyByteBuf buf) {
+        progressionRevision++;
         masteries.clear();
         int size = buf.readInt();
         for (int i = 0; i < size; i++) {
@@ -90,6 +99,7 @@ public class FormMasteries {
     }
 
     public void copyFrom(FormMasteries other) {
+        progressionRevision++;
         this.masteries.clear();
         this.masteries.putAll(other.masteries);
     }

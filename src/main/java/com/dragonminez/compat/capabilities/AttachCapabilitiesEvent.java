@@ -1,6 +1,6 @@
 package com.dragonminez.compat.capabilities;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.Event;
 
 import java.util.Collections;
@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class AttachCapabilitiesEvent<T> extends Event {
 	private final T object;
-	private final Map<ResourceLocation, ICapabilityProvider> caps = new HashMap<>();
+	private final Map<Identifier, ICapabilityProvider> caps = new HashMap<>();
 
 	public AttachCapabilitiesEvent(T object) {
 		this.object = object;
@@ -23,11 +23,11 @@ public class AttachCapabilitiesEvent<T> extends Event {
 		return object;
 	}
 
-	public void addCapability(ResourceLocation key, ICapabilityProvider cap) {
+	public void addCapability(Identifier key, ICapabilityProvider cap) {
 		caps.put(key, cap);
 	}
 
-	public Map<ResourceLocation, ICapabilityProvider> getCapabilities() {
+	public Map<Identifier, ICapabilityProvider> getCapabilities() {
 		return Collections.unmodifiableMap(caps);
 	}
 }

@@ -6,7 +6,7 @@ import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -43,7 +43,7 @@ public class AlternativeHUD {
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
-	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	public static void render(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 		if (HudStyle.current() != HudStyle.COMPACT) return;
@@ -129,18 +129,18 @@ public class AlternativeHUD {
 		});
 	}
 
-	private static void begin(GuiGraphics guiGraphics, HudLayout.Box box, float offsetX, float offsetY) {
+	private static void begin(GuiGraphicsExtractor guiGraphics, HudLayout.Box box, float offsetX, float offsetY) {
 		HudRender.setAlphaScale(box.visible() ? 1.0f : 0.35f);
 		guiGraphics.pose().pushPose();
 		guiGraphics.pose().translate(box.x() + offsetX, box.y() + offsetY, 0.0f);
 		guiGraphics.pose().scale(box.scale(), box.scale(), 1.0f);
 	}
 
-	private static void drawBar(GuiGraphics guiGraphics, HudBar bar, HudSprites.Sprite fill, float x, float y, int rgb, float pulse) {
+	private static void drawBar(GuiGraphicsExtractor guiGraphics, HudBar bar, HudSprites.Sprite fill, float x, float y, int rgb, float pulse) {
 		bar.drawFill(guiGraphics, fill, null, x, y, fill.guiWidth(), fill.guiHeight(), rgb, pulse);
 	}
 
-	private static void sprite(GuiGraphics guiGraphics, HudSprites.Sprite sprite, float x, float y, int rgb, float alpha) {
+	private static void sprite(GuiGraphicsExtractor guiGraphics, HudSprites.Sprite sprite, float x, float y, int rgb, float alpha) {
 		HudRender.sprite(guiGraphics, sprite, x, y, sprite.guiWidth(), sprite.guiHeight(), rgb, alpha);
 	}
 }

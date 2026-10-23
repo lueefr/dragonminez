@@ -6,7 +6,7 @@ import com.dragonminez.common.config.RaidDefinition;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
@@ -83,7 +83,7 @@ public final class RaidReward {
 	private static <T> T resolve(net.minecraft.core.Registry<T> registry, String id, String what) {
 		if (id == null || id.isBlank()) return null;
 
-		ResourceLocation location = ResourceLocation.tryParse(id);
+		Identifier location = Identifier.tryParse(id);
 		if (location == null) {
 			LogUtil.warn(Env.SERVER, "Raid reward has a malformed {} id '{}'; skipping it", what, id);
 			return null;

@@ -10,7 +10,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.lwjgl.opengl.GL11;
 
@@ -44,10 +44,10 @@ public final class SkinPixelTextures {
 		private final UUID id;
 		private SkinPixels source;
 		private int revision = Integer.MIN_VALUE;
-		private ResourceLocation skin;
+		private Identifier skin;
 		private long lastUsed;
 		private final DynamicTexture[] textures = new DynamicTexture[LAYER_NAMES.length];
-		private final ResourceLocation[] locations = new ResourceLocation[LAYER_NAMES.length];
+		private final Identifier[] locations = new Identifier[LAYER_NAMES.length];
 
 		private Entry(UUID id) {
 			this.id = id;
@@ -56,7 +56,7 @@ public final class SkinPixelTextures {
 
 	private SkinPixelTextures() {}
 
-	public static ResourceLocation eyeMask(AbstractClientPlayer player, SkinPixels pixels, byte marker) {
+	public static Identifier eyeMask(AbstractClientPlayer player, SkinPixels pixels, byte marker) {
 		int layer = switch (marker) {
 			case SkinPixels.MARK_BROW -> LAYER_BROW;
 			case SkinPixels.MARK_SCLERA -> LAYER_SCLERA;
@@ -65,15 +65,15 @@ public final class SkinPixelTextures {
 		return layer < 0 ? null : layerLocation(player, pixels, layer);
 	}
 
-	public static ResourceLocation irisMask(AbstractClientPlayer player, SkinPixels pixels, boolean secondEye) {
+	public static Identifier irisMask(AbstractClientPlayer player, SkinPixels pixels, boolean secondEye) {
 		return layerLocation(player, pixels, secondEye ? LAYER_IRIS_2 : LAYER_IRIS);
 	}
 
-	public static ResourceLocation hairMask(AbstractClientPlayer player, SkinPixels pixels) {
+	public static Identifier hairMask(AbstractClientPlayer player, SkinPixels pixels) {
 		return layerLocation(player, pixels, LAYER_HAIR);
 	}
 
-	public static ResourceLocation tattoo(AbstractClientPlayer player, SkinPixels pixels) {
+	public static Identifier tattoo(AbstractClientPlayer player, SkinPixels pixels) {
 		return layerLocation(player, pixels, LAYER_TATTOO);
 	}
 
@@ -84,20 +84,20 @@ public final class SkinPixelTextures {
 		lastSweep = 0L;
 	}
 
-	private static ResourceLocation layerLocation(AbstractClientPlayer player, SkinPixels pixels, int layer) {
+	private static Identifier layerLocation(AbstractClientPlayer player, SkinPixels pixels, int layer) {
 		if (!RenderSystem.isOnRenderThread()) return null;
 		long now = player.level().getGameTime();
 		sweep(now);
 		Entry entry = ENTRIES.computeIfAbsent(player.getUUID(), Entry::new);
 		entry.lastUsed = now;
-		ResourceLocation skin = player.getSkin().texture();
+		Identifier skin = player.getSkin().texture();
 		if (entry.source != pixels || entry.revision != pixels.getRevision() || !Objects.equals(entry.skin, skin)) {
 			rebuild(entry, pixels, skin);
 		}
 		return entry.locations[layer];
 	}
 
-	private static void rebuild(Entry entry, SkinPixels pixels, ResourceLocation skin) {
+	private static void rebuild(Entry entry, SkinPixels pixels, Identifier skin) {
 		entry.source = pixels;
 		entry.revision = pixels.getRevision();
 		entry.skin = skin;
@@ -187,7 +187,7 @@ public final class SkinPixelTextures {
 		}
 		if (texture != null) release(entry, manager, layer);
 		DynamicTexture created = new DynamicTexture(image);
-		ResourceLocation location = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "pixels/" + entry.id + "/" + LAYER_NAMES[layer]);
+		Identifier location = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "pixels/" + entry.id + "/" + LAYER_NAMES[layer]);
 		manager.register(location, created);
 		entry.textures[layer] = created;
 		entry.locations[layer] = location;
@@ -217,11 +217,11 @@ public final class SkinPixelTextures {
 		}
 	}
 
-	public static NativeImage download(ResourceLocation location) {
+	public static NativeImage download(Identifier location) {
 		return download(location, 0);
 	}
 
-	public static NativeImage download(ResourceLocation location, int expectedSize) {
+	public static NativeImage download(Identifier location, int expectedSize) {
 		if (location == null || !RenderSystem.isOnRenderThread()) return null;
 		try {
 			AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(location);

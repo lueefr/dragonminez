@@ -148,7 +148,7 @@ public class UpdateCharacterC2S {
 				}
 				c.setHairId(AppearanceValidator.hairId(msg.hairId, c.getHairId()));
 				if (msg.customHair != null) {
-					HairSanitizer.sanitizeAndLog(msg.customHair, HairStyleSlot.BASE, player.getGameProfile().getName());
+					HairSanitizer.sanitizeAndLog(msg.customHair, HairStyleSlot.BASE, player.getGameProfile().name());
 					c.setHairStyle(HairStyleSlot.BASE, msg.customHair);
 				}
 				AppearanceValidator.applyBody(c, msg.bodyType, msg.eyesType, msg.noseType, msg.mouthType, msg.tattooType,

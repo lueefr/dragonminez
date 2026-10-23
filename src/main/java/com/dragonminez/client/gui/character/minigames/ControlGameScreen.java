@@ -5,11 +5,11 @@ import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.training.KiControlLogic;
 import com.dragonminez.common.training.MinigameEvent;
 import com.dragonminez.common.training.MinigameOrigin;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 
 public class ControlGameScreen extends BaseMinigameScreen {
-	private static final ResourceLocation SHEET = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/minigame/control.png");
+	private static final Identifier SHEET = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/minigame/control.png");
 	private static final float FIELD_WIDTH = 140f;
 	private static final float TRACK_X = 36f;
 	private static final int TRACK_W = 40;
@@ -62,7 +62,7 @@ public class ControlGameScreen extends BaseMinigameScreen {
 	}
 
 	@Override
-	protected void renderGame(GuiGraphics graphics, float partialTick) {
+	protected void renderGame(GuiGraphicsExtractor graphics, float partialTick) {
 		KiControlLogic c = control();
 		float h = (float) c.trackHeight();
 		float barH = (float) c.barHeight();

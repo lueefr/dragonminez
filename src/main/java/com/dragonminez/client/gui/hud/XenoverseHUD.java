@@ -6,7 +6,7 @@ import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -42,7 +42,7 @@ public class XenoverseHUD {
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
-	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	public static void render(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 		if (HudStyle.current() != HudStyle.XENOVERSE) return;
@@ -125,11 +125,11 @@ public class XenoverseHUD {
 		});
 	}
 
-	private static void drawBar(GuiGraphics guiGraphics, HudBar bar, HudSprites.Sprite fill, float x, float y, int rgb, float pulse) {
+	private static void drawBar(GuiGraphicsExtractor guiGraphics, HudBar bar, HudSprites.Sprite fill, float x, float y, int rgb, float pulse) {
 		bar.drawFill(guiGraphics, fill, null, mx(x, fill.guiWidth()), y, fill.guiWidth(), fill.guiHeight(), rgb, pulse);
 	}
 
-	private static void part(GuiGraphics guiGraphics, HudSprites.Sprite sprite, float x, float y, int rgb, float alpha) {
+	private static void part(GuiGraphicsExtractor guiGraphics, HudSprites.Sprite sprite, float x, float y, int rgb, float alpha) {
 		float width = sprite.guiWidth();
 		HudRender.sprite(guiGraphics, sprite, mx(x, width), y, width, sprite.guiHeight(), rgb, alpha, mirrorWidth >= 0.0f);
 	}

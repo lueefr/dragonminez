@@ -2,12 +2,12 @@ package com.dragonminez.client.gui.buttons;
 
 import com.dragonminez.client.gui.hud.HudRender;
 import com.dragonminez.common.init.MainSounds;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -15,7 +15,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ClippableTextureButton extends Button {
 
-    private final ResourceLocation texture;
+    private final Identifier texture;
     private final int normalU;
     private final int normalV;
     private final int hoverU;
@@ -29,7 +29,7 @@ public class ClippableTextureButton extends Button {
     private int scissorY2;
     private final SoundEvent sound;
 
-    public ClippableTextureButton(int x, int y, int width, int height, ResourceLocation texture,
+    public ClippableTextureButton(int x, int y, int width, int height, Identifier texture,
                                   int normalU, int normalV, int hoverU, int hoverV,
                                   int textureWidth, int textureHeight, boolean clipping,
                                   int scissorX1, int scissorY1, int scissorX2, int scissorY2,
@@ -65,7 +65,7 @@ public class ClippableTextureButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         if (this.clipping) {
             graphics.enableScissor(this.scissorX1, this.scissorY1, this.scissorX2, this.scissorY2);
         }
@@ -81,7 +81,7 @@ public class ClippableTextureButton extends Button {
 
     public static class Builder {
         private int x, y, width, height;
-        private ResourceLocation texture;
+        private Identifier texture;
         private int normalU, normalV, hoverU, hoverV;
         private int textureWidth, textureHeight;
         private Component message = Component.empty();
@@ -102,7 +102,7 @@ public class ClippableTextureButton extends Button {
             return this;
         }
 
-        public Builder texture(ResourceLocation texture) {
+        public Builder texture(Identifier texture) {
             this.texture = texture;
             return this;
         }

@@ -2,40 +2,40 @@ package com.dragonminez.client.init.entities.model.sagas;
 
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.core.registries.BuiltInRegistries;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.geckolib.constant.DataTickets;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.model.GeoModel;
+import com.geckolib.model.data.EntityModelData;
 
 public class DBSaibamanModel<T extends DBSagasEntity> extends GeoModel<T> {
 
-    private static final ResourceLocation[] ANIMATION_FALLBACKS = {
-            ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/movement.animation.json")
+    private static final Identifier[] ANIMATION_FALLBACKS = {
+            Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/movement.animation.json")
     };
 
     @Override
-    public ResourceLocation getModelResource(T animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/sagas/" + animatable.getGeckolibModelName() + ".geo.json");
+    public Identifier getModelResource(T animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/sagas/" + animatable.getGeckolibModelName() + ".geo.json");
     }
 
     @Override
-    public ResourceLocation getTextureResource(T animatable) {
+    public Identifier getTextureResource(T animatable) {
         String name = BuiltInRegistries.ENTITY_TYPE.getKey(animatable.getType()).getPath();
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/sagas/" + name + ".png");
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/sagas/" + name + ".png");
     }
 
     @Override
-    public ResourceLocation getAnimationResource(T animatable) {
+    public Identifier getAnimationResource(T animatable) {
         String name = BuiltInRegistries.ENTITY_TYPE.getKey(animatable.getType()).getPath();
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/sagas/saga_saibaman.animation.json");
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/sagas/saga_saibaman.animation.json");
     }
 
     @Override
-    public ResourceLocation[] getAnimationResourceFallbacks(T animatable) {
+    public Identifier[] getAnimationResourceFallbacks(T animatable) {
         return ANIMATION_FALLBACKS;
     }
 

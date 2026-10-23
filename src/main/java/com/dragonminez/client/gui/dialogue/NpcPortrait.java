@@ -10,25 +10,25 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.cache.object.GeoCube;
-import software.bernie.geckolib.cache.object.GeoQuad;
-import software.bernie.geckolib.cache.object.GeoVertex;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.GeoCube;
+import com.geckolib.cache.object.GeoQuad;
+import com.geckolib.cache.object.GeoVertex;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.model.GeoModel;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,12 +42,12 @@ final class NpcPortrait {
 	private static final float TURN_DEGREES = 24.0f;
 	private static final Set<String> PROP_BONES = Set.of("chair");
 	private static final float MIN_HEAD_SIZE = 0.15f;
-	private static final Map<ResourceLocation, Head> MODEL_HEADS = new HashMap<>();
+	private static final Map<Identifier, Head> MODEL_HEADS = new HashMap<>();
 
 	private NpcPortrait() {
 	}
 
-	static void render(GuiGraphics graphics, LivingEntity entity, float clipX0, float clipY0, float clipX1, float clipY1,
+	static void render(GuiGraphicsExtractor graphics, LivingEntity entity, float clipX0, float clipY0, float clipX1, float clipY1,
 					   float headX, float headY, float headSize) {
 		Minecraft minecraft = Minecraft.getInstance();
 		EntityRenderDispatcher dispatcher = minecraft.getEntityRenderDispatcher();
@@ -129,7 +129,7 @@ final class NpcPortrait {
 		float renderScale = renderer instanceof MasterEntityRenderer<?> && entity instanceof MastersEntity master ? master.getScale() : 1.0f;
 		if (renderer instanceof GeoEntityRenderer<?> geoRenderer && entity instanceof GeoAnimatable animatable) {
 			GeoModel model = geoRenderer.getGeoModel();
-			ResourceLocation modelId = model.getModelResource(animatable);
+			Identifier modelId = model.getModelResource(animatable);
 			if (modelId != null) {
 				Head measured = MODEL_HEADS.computeIfAbsent(modelId, id -> measure(model, id));
 				if (measured != null) return measured.scaled(renderScale);
@@ -140,7 +140,7 @@ final class NpcPortrait {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private static Head measure(GeoModel model, ResourceLocation modelId) {
+	private static Head measure(GeoModel model, Identifier modelId) {
 		BakedGeoModel baked;
 		try {
 			baked = model.getBakedModel(modelId);

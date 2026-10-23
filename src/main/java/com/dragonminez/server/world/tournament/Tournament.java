@@ -29,7 +29,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -133,7 +133,7 @@ public final class Tournament {
 				used.add(FighterIdentity.of(entityId));
 				return entityId;
 			}
-			ResourceLocation tagId = ResourceLocation.tryParse(entityId.substring(1));
+			Identifier tagId = Identifier.tryParse(entityId.substring(1));
 			if (tagId == null) return "";
 			List<String> members = new ArrayList<>();
 			var tags = BuiltInRegistries.ENTITY_TYPE.getTag(TagKey.create(Registries.ENTITY_TYPE, tagId));
@@ -141,7 +141,7 @@ public final class Tournament {
             tags.get().forEach(holder -> {
                 var type = holder.value();
 				if (type.is(MainTags.EntityTypes.NON_FIGHTERS)) return;
-				ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(type);
+				Identifier key = BuiltInRegistries.ENTITY_TYPE.getKey(type);
 				if (key != null) members.add(key.toString());
 			});
 			if (members.isEmpty()) {
@@ -606,7 +606,7 @@ public final class Tournament {
 			run.finished = tag.getBoolean("finished");
 			run.ringCentre = new BlockPos(tag.getInt("ringX"), tag.getInt("ringY"), tag.getInt("ringZ"));
 
-			ResourceLocation dim = ResourceLocation.tryParse(tag.getString("dimension"));
+			Identifier dim = Identifier.tryParse(tag.getString("dimension"));
 			if (dim != null) run.dimension = ResourceKey.create(Registries.DIMENSION, dim);
 			return run;
 		}
@@ -1415,8 +1415,8 @@ public final class Tournament {
 				return null;
 			}
 
-			ResourceLocation wanted = ResourceLocation.tryParse(entityId);
-			ResourceLocation actual = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
+			Identifier wanted = Identifier.tryParse(entityId);
+			Identifier actual = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
 			if (wanted == null || !wanted.equals(actual)) {
 				mob.discard();
 				run.setStandingOpponent(null);
@@ -2137,7 +2137,7 @@ public final class Tournament {
 		@Nullable
 		private static Mob spawnOpponent(ServerLevel level, TournamentDefinition.Fighter fighter, String entityId,
 										 BlockPos ringCentre, int radius, int round, ServerPlayer target) {
-			ResourceLocation id = ResourceLocation.tryParse(entityId);
+			Identifier id = Identifier.tryParse(entityId);
 			if (id == null) return null;
 
 			EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(id);
@@ -2297,7 +2297,7 @@ public final class Tournament {
 			}
 			if (slot == null || slot.isEmpty() || Bracket.isPlayerSlot(slot)) return Component.empty();
 
-			ResourceLocation location = ResourceLocation.tryParse(slot);
+			Identifier location = Identifier.tryParse(slot);
 			EntityType<?> type = location != null ? BuiltInRegistries.ENTITY_TYPE.get(location) : null;
 			return type != null ? type.getDescription().copy() : Component.literal(slot);
 		}
@@ -2363,7 +2363,7 @@ public final class Tournament {
 				UUID leaderId = run.getParticipants().isEmpty() ? null : run.getParticipants().get(0);
 				for (UUID id : run.getParticipants()) {
 					ServerPlayer member = level.getServer().getPlayerList().getPlayer(id);
-					String name = member != null ? member.getGameProfile().getName() : "???";
+					String name = member != null ? member.getGameProfile().name() : "???";
 					TournamentPackets.OpenBracketS2C.MemberState state = memberState(run, id);
 					members.add(new TournamentPackets.OpenBracketS2C.Member(name, state, id.equals(leaderId),
 							id.equals(run.getActiveFighter()) || id.equals(run.getActiveRival()), run.isReady(id)));
@@ -2374,13 +2374,13 @@ public final class Tournament {
 				ServerPlayer leader = PartyManager.getPartyLeader(player);
 				for (ServerPlayer member : PartyManager.getAllPartyMembers(player)) {
 					boolean cooling = data.remainingCooldownSeconds(member.getUUID(), tournamentId) > 0L;
-					members.add(new TournamentPackets.OpenBracketS2C.Member(member.getGameProfile().getName(),
+					members.add(new TournamentPackets.OpenBracketS2C.Member(member.getGameProfile().name(),
 							cooling ? TournamentPackets.OpenBracketS2C.MemberState.OUT
 									: TournamentPackets.OpenBracketS2C.MemberState.PENDING,
 							leader != null && member.getUUID().equals(leader.getUUID()), false, false));
 				}
 			} else {
-				members.add(new TournamentPackets.OpenBracketS2C.Member(player.getGameProfile().getName(),
+				members.add(new TournamentPackets.OpenBracketS2C.Member(player.getGameProfile().name(),
 						TournamentPackets.OpenBracketS2C.MemberState.PENDING, true, false, false));
 			}
 

@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import com.google.gson.GsonBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Holder;
@@ -33,23 +33,23 @@ public class EnchantedItemDTO extends GenericItemDTO {
 
 	public static final String ITEM_TYPE = "enchanted_item";
 
-	protected Map<ResourceLocation, Integer> enchantments = new HashMap<>();
+	protected Map<Identifier, Integer> enchantments = new HashMap<>();
 
-	public EnchantedItemDTO(ResourceLocation itemId, int count) {
+	public EnchantedItemDTO(Identifier itemId, int count) {
 		super(ITEM_TYPE, itemId, count);
 	}
 
-	public EnchantedItemDTO(ResourceLocation itemId, int count, Map<ResourceLocation, Integer> enchantments) {
+	public EnchantedItemDTO(Identifier itemId, int count, Map<Identifier, Integer> enchantments) {
 		super(ITEM_TYPE, itemId, count);
 		this.enchantments = enchantments;
 	}
 
-	protected EnchantedItemDTO(String itemType, ResourceLocation itemId, int count) {
+	protected EnchantedItemDTO(String itemType, Identifier itemId, int count) {
 		super(itemType, itemId, count);
 	}
 
-	protected EnchantedItemDTO(String itemType, ResourceLocation itemId, int count,
-			Map<ResourceLocation, Integer> enchantments) {
+	protected EnchantedItemDTO(String itemType, Identifier itemId, int count,
+			Map<Identifier, Integer> enchantments) {
 		super(itemType, itemId, count);
 		this.enchantments = enchantments;
 	}
@@ -103,7 +103,7 @@ public class EnchantedItemDTO extends GenericItemDTO {
 		return resolved;
 	}
 
-	protected final Holder<Enchantment> resolveEnchantment(ResourceLocation id) {
+	protected final Holder<Enchantment> resolveEnchantment(Identifier id) {
 		if (id == null) {
 			return null;
 		}

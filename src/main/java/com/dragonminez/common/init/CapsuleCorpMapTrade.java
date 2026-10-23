@@ -9,7 +9,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -137,15 +137,15 @@ public class CapsuleCorpMapTrade implements VillagerTrades.ItemListing {
 
 	@Nullable
 	private static ResourceKey<Structure> structureKeyFrom(ServerLevel level, ItemStack map) {
-		ResourceLocation id = null;
+		Identifier id = null;
 		CustomData custom = map.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
 		if (custom.contains(STRUCTURE_TAG)) {
-			id = ResourceLocation.tryParse(custom.copyTag().getString(STRUCTURE_TAG));
+			id = Identifier.tryParse(custom.copyTag().getString(STRUCTURE_TAG));
 		} else if (map.getHoverName().getContents() instanceof TranslatableContents translatable) {
 			String prefix = "filled_map." + Reference.MOD_ID + ".";
 			String translationKey = translatable.getKey();
 			if (translationKey.startsWith(prefix)) {
-				id = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+				id = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 						translationKey.substring(prefix.length()));
 			}
 		}

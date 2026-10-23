@@ -10,7 +10,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
@@ -24,8 +24,8 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import java.util.List;
 
 public class SacredKaiGeneration {
-	public static final ResourceKey<LevelStem> SACREDKAI_STEM = ResourceKey.create(Registries.LEVEL_STEM, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "sacredkaiplanet"));
-	public static final ResourceKey<NoiseGeneratorSettings> SACREDKAI_NOISE_SETTINGS = ResourceKey.create(Registries.NOISE_SETTINGS, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "sacredkaiplanet"));
+	public static final ResourceKey<LevelStem> SACREDKAI_STEM = ResourceKey.create(Registries.LEVEL_STEM, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "sacredkaiplanet"));
+	public static final ResourceKey<NoiseGeneratorSettings> SACREDKAI_NOISE_SETTINGS = ResourceKey.create(Registries.NOISE_SETTINGS, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "sacredkaiplanet"));
 
 	public static void bootstrap(BootstrapContext<LevelStem> context) {
 		HolderGetter<Biome> biomeRegistry = context.lookup(Registries.BIOME);

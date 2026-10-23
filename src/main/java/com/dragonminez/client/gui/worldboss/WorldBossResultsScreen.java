@@ -21,12 +21,12 @@ import com.dragonminez.common.worldboss.WorldBossRewardText;
 import com.google.gson.JsonParser;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -40,8 +40,8 @@ import java.util.UUID;
 
 @OnlyIn(Dist.CLIENT)
 public class WorldBossResultsScreen extends ScaledScreen {
-	private static final ResourceLocation BUTTONS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
-	private static final ResourceLocation REWARD_GENERIC_ICON = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/quest/reward_generic.png");
+	private static final Identifier BUTTONS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier REWARD_GENERIC_ICON = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/quest/reward_generic.png");
 
 	private static final int PANEL_WIDTH = 340;
 	private static final int PANEL_HEIGHT = 216;
@@ -165,7 +165,7 @@ public class WorldBossResultsScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		renderBackground(graphics, mouseX, mouseY, partialTick);
 		int uiMouseX = (int) toUiX(mouseX);
 		int uiMouseY = (int) toUiY(mouseY);
@@ -186,14 +186,14 @@ public class WorldBossResultsScreen extends ScaledScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderTitle(GuiGraphics graphics) {
+	private void renderTitle(GuiGraphicsExtractor graphics) {
 		MutableComponent title = tr("gui.dragonminez.worldboss.results.title", Component.translatable(results.bossNameKey()));
 		TextUtil.drawCenteredStringWithBorder(graphics, font, title, guiLeft + PANEL_WIDTH / 2, guiTop + 10, TITLE_COLOR);
 		MutableComponent duration = txt(QuestTextFormatter.formatGameTimeDuration(results.durationTicks()));
 		TextUtil.drawStringWithBorder(graphics, font, duration, guiLeft + PANEL_WIDTH - PADDING - font.width(duration), guiTop + 10, DURATION_COLOR);
 	}
 
-	private void renderContribution(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderContribution(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int left = guiLeft + PADDING;
 		int width = DIVIDER_X - PADDING * 2;
 		TextUtil.drawStringWithBorder(graphics, font, tr("gui.dragonminez.worldboss.results.contribution"), left, guiTop + 30, TITLE_COLOR);
@@ -220,7 +220,7 @@ public class WorldBossResultsScreen extends ScaledScreen {
 		listBar.renderBar(graphics, mouseX, mouseY);
 	}
 
-	private void renderRow(GuiGraphics graphics, WorldBossResults.PlayerEntry entry, int left, int rowY, int visibleY, float best, int width) {
+	private void renderRow(GuiGraphicsExtractor graphics, WorldBossResults.PlayerEntry entry, int left, int rowY, int visibleY, float best, int width) {
 		int badgeY = rowY + 2;
 		HudRender.rect(graphics, left, badgeY, BADGE_WIDTH, BADGE_HEIGHT, 0xAA101018);
 		graphics.renderOutline(left, badgeY, BADGE_WIDTH, BADGE_HEIGHT, 0xFFD9DEE6);
@@ -259,7 +259,7 @@ public class WorldBossResultsScreen extends ScaledScreen {
 		TextUtil.drawStringWithBorder(graphics, font, percent, left + width - font.width(percent), barY - 1, TEXT_COLOR);
 	}
 
-	private void renderRewards(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderRewards(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int left = guiLeft + DIVIDER_X + PADDING;
 		int width = PANEL_WIDTH - DIVIDER_X - PADDING * 2;
 		TextUtil.drawStringWithBorder(graphics, font, tr("gui.dragonminez.worldboss.results.rewards"), left, guiTop + 30, TITLE_COLOR);
@@ -362,7 +362,7 @@ public class WorldBossResultsScreen extends ScaledScreen {
 		return NumberFormattingUtil.formatUpToOneDecimal(chance * 100.0f) + "%";
 	}
 
-	private void renderTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		for (SegmentHit hit : segmentHits) {
 			if (!hit.contains(mouseX, mouseY)) continue;
 			TextUtil.renderAdvancedTooltip(graphics, font, mouseX, mouseY, getUiWidth(), getUiHeight(),
@@ -438,7 +438,7 @@ public class WorldBossResultsScreen extends ScaledScreen {
 	private static ItemStack rewardIcon(QuestReward reward) {
 		return switch (reward.getType()) {
 			case ITEM -> reward instanceof ItemReward item
-					? new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(item.getItemId())), Math.max(1, item.getCount()))
+					? new ItemStack(BuiltInRegistries.ITEM.get(Identifier.parse(item.getItemId())), Math.max(1, item.getCount()))
 					: null;
 			case GENERIC_ITEM -> reward instanceof GenericItemReward generic && !generic.getItemReward().getItemStack().isEmpty()
 					? generic.getItemReward().getItemStack()

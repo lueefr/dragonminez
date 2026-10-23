@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ArmorItem;
 import com.google.gson.GsonBuilder;
 import net.minecraft.world.item.ItemStack;
@@ -24,17 +24,17 @@ public class TrimmedArmorDTO extends EnchantedItemDTO {
 
 	public static final String ITEM_TYPE = "trimmed_armor";
 
-	protected ResourceLocation material;
-	protected ResourceLocation pattern;
+	protected Identifier material;
+	protected Identifier pattern;
 
-	public TrimmedArmorDTO(ResourceLocation itemId, ResourceLocation material, ResourceLocation pattern) {
+	public TrimmedArmorDTO(Identifier itemId, Identifier material, Identifier pattern) {
 		super(ITEM_TYPE, itemId, 1);
 		this.material = material;
 		this.pattern = pattern;
 	}
 
-	public TrimmedArmorDTO(ResourceLocation itemId, Map<ResourceLocation, Integer> enchantments,
-			ResourceLocation material, ResourceLocation pattern) {
+	public TrimmedArmorDTO(Identifier itemId, Map<Identifier, Integer> enchantments,
+			Identifier material, Identifier pattern) {
 		super(ITEM_TYPE, itemId, 1, enchantments);
 		this.material = material;
 		this.pattern = pattern;

@@ -8,7 +8,7 @@ import com.dragonminez.common.init.MainSounds;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -20,7 +20,7 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.FormattedCharSequence;
@@ -42,7 +42,7 @@ public abstract class TitleScreenMixin extends Screen {
 	@Unique
 	private static final String dragonminez$PATREON_URL = "https://www.patreon.com/cw/DragonMineZ";
 	@Unique
-	private static final ResourceLocation dragonminez$PATREON_LOGO = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/title/patreon_logo.png");
+	private static final Identifier dragonminez$PATREON_LOGO = Identifier.fromNamespaceAndPath("minecraft", "textures/gui/title/patreon_logo.png");
 	@Unique
 	private static final List<DeferredHolder<SoundEvent, ? extends SoundEvent>> dragonminez$MENU_PLAYLIST = List.of(
 			MainSounds.MENU_MUSIC_1,
@@ -182,7 +182,7 @@ public abstract class TitleScreenMixin extends Screen {
 	}
 
 	@Inject(method = "render", at = @At("TAIL"))
-	private void dragonminez$renderNowPlaying(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+	private void dragonminez$renderNowPlaying(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
 		if (dragonminez$menuMusicIndex < 0 || this.minecraft == null) return;
 
 		Font font = this.minecraft.font;

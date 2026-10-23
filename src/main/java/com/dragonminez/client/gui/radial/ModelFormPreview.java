@@ -7,7 +7,7 @@ import com.dragonminez.common.stats.StatsProvider;
 import com.dragonminez.common.stats.character.Character;
 import com.dragonminez.common.stats.character.Status;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Quaternionf;
@@ -15,7 +15,7 @@ import org.joml.Quaternionf;
 public final class ModelFormPreview {
 	private ModelFormPreview() {}
 
-	public static void render(GuiGraphics graphics, int x, int y, int scale, float mouseX, float mouseY, FormPreview preview) {
+	public static void render(GuiGraphicsExtractor graphics, int x, int y, int scale, float mouseX, float mouseY, FormPreview preview) {
 		LivingEntity player = Minecraft.getInstance().player;
 		if (player == null) return;
 

@@ -4,14 +4,14 @@ import com.dragonminez.client.gui.radial.AbstractRadialNode;
 import com.dragonminez.client.gui.radial.RadialNode;
 import com.dragonminez.common.stats.StatsData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public abstract class CategoryNode extends AbstractRadialNode {
 
 	protected final Component label;
-	protected final ResourceLocation icon;
+	protected final Identifier icon;
 
-	protected CategoryNode(Component label, ResourceLocation icon) {
+	protected CategoryNode(Component label, Identifier icon) {
 		this.label = label;
 		this.icon = icon;
 	}
@@ -22,7 +22,7 @@ public abstract class CategoryNode extends AbstractRadialNode {
 	}
 
 	@Override
-	public ResourceLocation icon(StatsData stats) {
+	public Identifier icon(StatsData stats) {
 		return icon;
 	}
 

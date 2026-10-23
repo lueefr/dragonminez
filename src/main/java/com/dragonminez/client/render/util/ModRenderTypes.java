@@ -14,10 +14,10 @@ import net.minecraft.Util;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.opengl.GL11;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -36,7 +36,7 @@ public class ModRenderTypes extends RenderType {
         GL11.glDisable(GL11.GL_STENCIL_TEST);
     });
 
-    public static RenderType getCustomAura(ResourceLocation texture) {
+    public static RenderType getCustomAura(Identifier texture) {
         return RenderType.create("dragonminez_custom_aura",
                 DefaultVertexFormat.POSITION_COLOR_NORMAL,
                 VertexFormat.Mode.QUADS,
@@ -53,7 +53,7 @@ public class ModRenderTypes extends RenderType {
                         .createCompositeState(false));
     }
 
-    public static RenderType getCustomLightning(ResourceLocation texture) {
+    public static RenderType getCustomLightning(Identifier texture) {
         return RenderType.create("dragonminez_custom_lightning",
                 DefaultVertexFormat.POSITION_COLOR_NORMAL,
                 VertexFormat.Mode.QUADS,
@@ -70,7 +70,7 @@ public class ModRenderTypes extends RenderType {
                         .createCompositeState(false));
     }
 
-    public static RenderType getCustomAuraCompat(ResourceLocation texture) {
+    public static RenderType getCustomAuraCompat(Identifier texture) {
         return RenderType.create("dragonminez_custom_aura_compat",
                 DefaultVertexFormat.POSITION_COLOR_NORMAL,
                 VertexFormat.Mode.QUADS,
@@ -87,7 +87,7 @@ public class ModRenderTypes extends RenderType {
                         .createCompositeState(false));
     }
 
-    public static RenderType getCustomLightningCompat(ResourceLocation texture) {
+    public static RenderType getCustomLightningCompat(Identifier texture) {
         return RenderType.create("dragonminez_custom_lightning_compat",
                 DefaultVertexFormat.POSITION_COLOR_NORMAL,
                 VertexFormat.Mode.QUADS,
@@ -107,12 +107,12 @@ public class ModRenderTypes extends RenderType {
     private static final RenderStateShard.ShaderStateShard TRANSFORMATION_MASK_SHADER = new RenderStateShard.ShaderStateShard(() -> DMZShaders.outlineShader);
     private static final RenderStateShard.ShaderStateShard TRANSFORMATION_MASK_TEX_SHADER = new RenderStateShard.ShaderStateShard(() -> DMZShaders.outlineMaskTexShader);
 
-    private static final Map<ResourceLocation, RenderType> TEXTURED_MASK_CACHE = new HashMap<>();
-    private static final Map<ResourceLocation, RenderType> RITUAL_SHELL_CACHE = new HashMap<>();
-    private static final Map<ResourceLocation, RenderType> RITUAL_SHELL_VIEW_OFFSET_CACHE = new HashMap<>();
-    private static final Map<ResourceLocation, RenderType> RITUAL_SHELL_SKIN_OVERLAY_CACHE = new HashMap<>();
-    private static final Map<ResourceLocation, RenderType> TEXTURED_MASK_VIEW_OFFSET_CACHE = new HashMap<>();
-    private static final Map<ResourceLocation, RenderType> TEXTURED_MASK_SKIN_OVERLAY_CACHE = new HashMap<>();
+    private static final Map<Identifier, RenderType> TEXTURED_MASK_CACHE = new HashMap<>();
+    private static final Map<Identifier, RenderType> RITUAL_SHELL_CACHE = new HashMap<>();
+    private static final Map<Identifier, RenderType> RITUAL_SHELL_VIEW_OFFSET_CACHE = new HashMap<>();
+    private static final Map<Identifier, RenderType> RITUAL_SHELL_SKIN_OVERLAY_CACHE = new HashMap<>();
+    private static final Map<Identifier, RenderType> TEXTURED_MASK_VIEW_OFFSET_CACHE = new HashMap<>();
+    private static final Map<Identifier, RenderType> TEXTURED_MASK_SKIN_OVERLAY_CACHE = new HashMap<>();
 
     private static final RenderStateShard.OutputStateShard TRANSFORMATION_MASK_TARGET = new RenderStateShard.OutputStateShard(
             "transformation_mask_target",
@@ -230,7 +230,7 @@ public class ModRenderTypes extends RenderType {
                     .createCompositeState(false)
     );
 
-    private static final Function<ResourceLocation, RenderType> GLOW = Util.memoize((pLocation) ->
+    private static final Function<Identifier, RenderType> GLOW = Util.memoize((pLocation) ->
             create("glow", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, false, CompositeState.builder()
                     .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeItemEntityTranslucentCullShader))
                     .setTextureState(new TextureStateShard(pLocation, false, false))
@@ -241,7 +241,7 @@ public class ModRenderTypes extends RenderType {
                     .setWriteMaskState(COLOR_WRITE)
                     .createCompositeState(true)));
 
-    private static final Function<ResourceLocation, RenderType> GLOW_KI = Util.memoize((pLocation) ->
+    private static final Function<Identifier, RenderType> GLOW_KI = Util.memoize((pLocation) ->
             create("glow_ki", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, false, CompositeState.builder()
                     .setShaderState(RENDERTYPE_ENERGY_SWIRL_SHADER)
                     .setTextureState(new TextureStateShard(pLocation, false, false))
@@ -251,7 +251,7 @@ public class ModRenderTypes extends RenderType {
                     .setOverlayState(OVERLAY)
                     .createCompositeState(false)));
 
-    private static final Function<ResourceLocation, RenderType> ENERGY = Util.memoize((pLocation) ->
+    private static final Function<Identifier, RenderType> ENERGY = Util.memoize((pLocation) ->
             create("energy", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder()
                     .setShaderState(RENDERTYPE_EYES_SHADER)
                     .setTextureState(new TextureStateShard(pLocation, true, true))
@@ -261,7 +261,7 @@ public class ModRenderTypes extends RenderType {
                     .setOverlayState(OVERLAY)
                     .createCompositeState(false)));
 
-    private static final Function<ResourceLocation, RenderType> LIGHTNING = Util.memoize((pLocation) ->
+    private static final Function<Identifier, RenderType> LIGHTNING = Util.memoize((pLocation) ->
             create("lightning", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder()
                     .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
                     .setTextureState(new TextureStateShard(pLocation, true, true))
@@ -271,7 +271,7 @@ public class ModRenderTypes extends RenderType {
                     .setOverlayState(OVERLAY)
                     .createCompositeState(false)));
 
-    private static final Function<ResourceLocation, RenderType> WHITE_FLASH = Util.memoize((pLocation) ->
+    private static final Function<Identifier, RenderType> WHITE_FLASH = Util.memoize((pLocation) ->
             create("dmz_white_flash", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder()
                     .setShaderState(RENDERTYPE_OUTLINE_SHADER)
                     .setTextureState(new TextureStateShard(pLocation, false, false))
@@ -280,7 +280,7 @@ public class ModRenderTypes extends RenderType {
                     .setWriteMaskState(COLOR_WRITE)
                     .createCompositeState(false)));
 
-    private static final Function<ResourceLocation, RenderType> KI_BLAST = Util.memoize((pLocation) ->
+    private static final Function<Identifier, RenderType> KI_BLAST = Util.memoize((pLocation) ->
             create("ki_blastw", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder()
                     .setShaderState(RENDERTYPE_BEACON_BEAM_SHADER)
                     .setTextureState(new TextureStateShard(pLocation, true, true))
@@ -290,7 +290,7 @@ public class ModRenderTypes extends RenderType {
                     .setOverlayState(OVERLAY)
                     .createCompositeState(false)));
 
-    private static final Function<ResourceLocation, RenderType> KI_RENDERTYPE = Util.memoize((pLocation) ->
+    private static final Function<Identifier, RenderType> KI_RENDERTYPE = Util.memoize((pLocation) ->
             create("ki_rendertype", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder()
                     .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
                     .setTextureState(new TextureStateShard(pLocation, true, true))
@@ -314,7 +314,7 @@ public class ModRenderTypes extends RenderType {
             .setWriteMaskState(COLOR_DEPTH_WRITE)
             .createCompositeState(false));
 
-    private static final Function<ResourceLocation, RenderType> ENERGY2 = Util.memoize((pLocation) ->
+    private static final Function<Identifier, RenderType> ENERGY2 = Util.memoize((pLocation) ->
             create("energy2", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder()
                     .setShaderState(RENDERTYPE_EYES_SHADER)
                     .setTextureState(new TextureStateShard(pLocation, true, true))
@@ -324,7 +324,7 @@ public class ModRenderTypes extends RenderType {
                     .setOverlayState(OVERLAY)
                     .createCompositeState(false)));
 
-    private static final Function<ResourceLocation, RenderType> SKIN_OVERLAY_CUTOUT = Util.memoize((pLocation) ->
+    private static final Function<Identifier, RenderType> SKIN_OVERLAY_CUTOUT = Util.memoize((pLocation) ->
             create("dmz_skin_overlay_cutout", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, false, CompositeState.builder()
                     .setShaderState(RENDERTYPE_ENTITY_CUTOUT_NO_CULL_SHADER)
                     .setTextureState(new TextureStateShard(pLocation, false, false))
@@ -335,7 +335,7 @@ public class ModRenderTypes extends RenderType {
                     .setLayeringState(SKIN_OVERLAY_LAYERING)
                     .createCompositeState(true)));
 
-    private static final Function<ResourceLocation, RenderType> SKIN_OVERLAY_TRANSLUCENT = Util.memoize((pLocation) ->
+    private static final Function<Identifier, RenderType> SKIN_OVERLAY_TRANSLUCENT = Util.memoize((pLocation) ->
             create("dmz_skin_overlay_translucent", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, CompositeState.builder()
                     .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
                     .setTextureState(new TextureStateShard(pLocation, false, false))
@@ -346,7 +346,7 @@ public class ModRenderTypes extends RenderType {
                     .setLayeringState(SKIN_OVERLAY_LAYERING)
                     .createCompositeState(true)));
 
-    private static final Function<ResourceLocation, RenderType> SKIN_PAINT_PICK = Util.memoize((pLocation) ->
+    private static final Function<Identifier, RenderType> SKIN_PAINT_PICK = Util.memoize((pLocation) ->
             create("dmz_skin_paint_pick", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, false, CompositeState.builder()
                     .setShaderState(RENDERTYPE_ENERGY_SWIRL_SHADER)
                     .setTexturingState(DEFAULT_TEXTURING)
@@ -359,7 +359,7 @@ public class ModRenderTypes extends RenderType {
                     .setDepthTestState(LEQUAL_DEPTH_TEST)
                     .createCompositeState(false)));
 
-    private static final Function<ResourceLocation, RenderType> SCOUTER_LENS = Util.memoize((pLocation) ->
+    private static final Function<Identifier, RenderType> SCOUTER_LENS = Util.memoize((pLocation) ->
             create("dmz_scouter_lens", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, CompositeState.builder()
                     .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_CULL_SHADER)
                     .setTextureState(new TextureStateShard(pLocation, false, false))
@@ -370,7 +370,7 @@ public class ModRenderTypes extends RenderType {
                     .setWriteMaskState(COLOR_WRITE)
                     .createCompositeState(true)));
 
-    private static final Function<ResourceLocation, RenderType> AURA_BILLBOARD = Util.memoize((pLocation) ->
+    private static final Function<Identifier, RenderType> AURA_BILLBOARD = Util.memoize((pLocation) ->
             create("aura_billboard", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder()
                     .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
                     .setTextureState(new TextureStateShard(pLocation, false, false))
@@ -380,7 +380,7 @@ public class ModRenderTypes extends RenderType {
                     .setOverlayState(OVERLAY)
                     .createCompositeState(false)));
 
-    public static RenderType getKiLightning(ResourceLocation location) {
+    public static RenderType getKiLightning(Identifier location) {
         return RenderType.create("ki_lightning",
                 DefaultVertexFormat.NEW_ENTITY,
                 VertexFormat.Mode.QUADS,
@@ -415,21 +415,21 @@ public class ModRenderTypes extends RenderType {
     /** Opaque, vertex-coloured, double-sided geometry used for the Majin absorption gum blob. */
     public static RenderType gooBlob() { return GOO_BLOB; }
 
-    public static RenderType glow(ResourceLocation pLocation) { return GLOW.apply(pLocation); }
-    public static RenderType glow_ki(ResourceLocation pLocation) { return GLOW_KI.apply(pLocation); }
-    public static RenderType energy(ResourceLocation pLocation) { return ENERGY.apply(pLocation); }
-    public static RenderType energy2(ResourceLocation pLocation) { return ENERGY2.apply(pLocation); }
+    public static RenderType glow(Identifier pLocation) { return GLOW.apply(pLocation); }
+    public static RenderType glow_ki(Identifier pLocation) { return GLOW_KI.apply(pLocation); }
+    public static RenderType energy(Identifier pLocation) { return ENERGY.apply(pLocation); }
+    public static RenderType energy2(Identifier pLocation) { return ENERGY2.apply(pLocation); }
     public static RenderType kiBlade() { return KI_BLADE; }
     public static RenderType solarisSmoke() { return SOLARIS_SMOKE; }
-    public static RenderType auraBillboard(ResourceLocation pLocation) { return AURA_BILLBOARD.apply(pLocation); }
-    public static RenderType scouterLens(ResourceLocation pLocation) { return SCOUTER_LENS.apply(pLocation); }
-    public static RenderType skinOverlayCutout(ResourceLocation pLocation) { return SKIN_OVERLAY_CUTOUT.apply(pLocation); }
-    public static RenderType skinOverlayTranslucent(ResourceLocation pLocation) { return SKIN_OVERLAY_TRANSLUCENT.apply(pLocation); }
-    public static RenderType skinPaintPick(ResourceLocation pLocation) { return SKIN_PAINT_PICK.apply(pLocation); }
-    public static RenderType lightning(ResourceLocation pLocation) { return LIGHTNING.apply(pLocation); }
-    public static RenderType kiblast(ResourceLocation pLocation) { return KI_BLAST.apply(pLocation); }
-    public static RenderType whiteFlash(ResourceLocation pLocation) { return WHITE_FLASH.apply(pLocation); }
-    public static RenderType ki_rendertype(ResourceLocation pLocation) { return KI_RENDERTYPE.apply(pLocation); }
+    public static RenderType auraBillboard(Identifier pLocation) { return AURA_BILLBOARD.apply(pLocation); }
+    public static RenderType scouterLens(Identifier pLocation) { return SCOUTER_LENS.apply(pLocation); }
+    public static RenderType skinOverlayCutout(Identifier pLocation) { return SKIN_OVERLAY_CUTOUT.apply(pLocation); }
+    public static RenderType skinOverlayTranslucent(Identifier pLocation) { return SKIN_OVERLAY_TRANSLUCENT.apply(pLocation); }
+    public static RenderType skinPaintPick(Identifier pLocation) { return SKIN_PAINT_PICK.apply(pLocation); }
+    public static RenderType lightning(Identifier pLocation) { return LIGHTNING.apply(pLocation); }
+    public static RenderType kiblast(Identifier pLocation) { return KI_BLAST.apply(pLocation); }
+    public static RenderType whiteFlash(Identifier pLocation) { return WHITE_FLASH.apply(pLocation); }
+    public static RenderType ki_rendertype(Identifier pLocation) { return KI_RENDERTYPE.apply(pLocation); }
 
     public static boolean hasTransformationMaskShader() {
         return DMZShaders.outlineShader != null;
@@ -438,10 +438,10 @@ public class ModRenderTypes extends RenderType {
     @Nullable
     public static RenderType transformationMask(RenderType sourceRenderType) {
         if (isGlint(sourceRenderType)) return null;
-        ResourceLocation texture = resolveSourceTexture(sourceRenderType);
+        Identifier texture = resolveSourceTexture(sourceRenderType);
         RenderStateShard.LayeringStateShard layering = layeringOf(sourceRenderType);
         if (texture != null) {
-            Map<ResourceLocation, RenderType> cache = layering == VIEW_OFFSET_Z_LAYERING ? TEXTURED_MASK_VIEW_OFFSET_CACHE
+            Map<Identifier, RenderType> cache = layering == VIEW_OFFSET_Z_LAYERING ? TEXTURED_MASK_VIEW_OFFSET_CACHE
                     : layering == SKIN_OVERLAY_LAYERING ? TEXTURED_MASK_SKIN_OVERLAY_CACHE
                     : TEXTURED_MASK_CACHE;
             return cache.computeIfAbsent(texture, t -> buildTexturedMask(t, layering));
@@ -458,7 +458,7 @@ public class ModRenderTypes extends RenderType {
     }
 
     @Nullable
-    private static ResourceLocation resolveSourceTexture(@Nullable RenderType sourceRenderType) {
+    private static Identifier resolveSourceTexture(@Nullable RenderType sourceRenderType) {
         if (!(sourceRenderType instanceof CompositeRenderTypeAccessor accessor)) return null;
         RenderType.CompositeState state = accessor.dmz$state();
         if (state == null) return null;
@@ -467,7 +467,7 @@ public class ModRenderTypes extends RenderType {
         return ((TextureStateShardInvoker) (Object) textureState).dmz$cutoutTexture().orElse(null);
     }
 
-    private static RenderType buildTexturedMask(ResourceLocation texture, RenderStateShard.LayeringStateShard layering) {
+    private static RenderType buildTexturedMask(Identifier texture, RenderStateShard.LayeringStateShard layering) {
         CompositeState.CompositeStateBuilder builder = CompositeState.builder()
                 .setShaderState(TRANSFORMATION_MASK_TEX_SHADER)
                 .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
@@ -495,11 +495,11 @@ public class ModRenderTypes extends RenderType {
 
     private static final RenderStateShard.ShaderStateShard AFTERIMAGE_SHADER = new RenderStateShard.ShaderStateShard(() -> DMZShaders.afterimageShader);
 
-    private static final Function<ResourceLocation, RenderType> AFTERIMAGE = Util.memoize((pLocation) -> buildAfterimage(pLocation, null, "dmz_afterimage"));
-    private static final Function<ResourceLocation, RenderType> AFTERIMAGE_OFFSET = Util.memoize((pLocation) -> buildAfterimage(pLocation, POLYGON_OFFSET_LAYERING, "dmz_afterimage_offset"));
-    private static final Function<ResourceLocation, RenderType> AFTERIMAGE_SKIN_OVERLAY = Util.memoize((pLocation) -> buildAfterimage(pLocation, SKIN_OVERLAY_LAYERING, "dmz_afterimage_skin_overlay"));
+    private static final Function<Identifier, RenderType> AFTERIMAGE = Util.memoize((pLocation) -> buildAfterimage(pLocation, null, "dmz_afterimage"));
+    private static final Function<Identifier, RenderType> AFTERIMAGE_OFFSET = Util.memoize((pLocation) -> buildAfterimage(pLocation, POLYGON_OFFSET_LAYERING, "dmz_afterimage_offset"));
+    private static final Function<Identifier, RenderType> AFTERIMAGE_SKIN_OVERLAY = Util.memoize((pLocation) -> buildAfterimage(pLocation, SKIN_OVERLAY_LAYERING, "dmz_afterimage_skin_overlay"));
 
-    private static RenderType buildAfterimage(ResourceLocation texture, @Nullable RenderStateShard.LayeringStateShard layering, String name) {
+    private static RenderType buildAfterimage(Identifier texture, @Nullable RenderStateShard.LayeringStateShard layering, String name) {
         CompositeState.CompositeStateBuilder builder = CompositeState.builder()
                 .setShaderState(AFTERIMAGE_SHADER)
                 .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
@@ -525,7 +525,7 @@ public class ModRenderTypes extends RenderType {
     public static RenderType afterimage(@Nullable RenderType sourceRenderType, boolean customShader) {
         if (sourceRenderType == null || sourceRenderType.format() != DefaultVertexFormat.NEW_ENTITY) return null;
         if (sourceRenderType.mode() != VertexFormat.Mode.QUADS) return null;
-        ResourceLocation texture = resolveSourceTexture(sourceRenderType);
+        Identifier texture = resolveSourceTexture(sourceRenderType);
         if (texture == null) return null;
         if (!customShader) return RenderType.entityTranslucent(texture);
         String sourceName = sourceRenderType.toString();
@@ -538,16 +538,16 @@ public class ModRenderTypes extends RenderType {
     public static RenderType ritualShell(@Nullable RenderType sourceRenderType) {
         if (sourceRenderType == null || sourceRenderType.format() != DefaultVertexFormat.NEW_ENTITY) return null;
         if (sourceRenderType.mode() != VertexFormat.Mode.QUADS || isGlint(sourceRenderType)) return null;
-        ResourceLocation texture = resolveSourceTexture(sourceRenderType);
+        Identifier texture = resolveSourceTexture(sourceRenderType);
         if (texture == null) return null;
         RenderStateShard.LayeringStateShard layering = layeringOf(sourceRenderType);
-        Map<ResourceLocation, RenderType> cache = layering == VIEW_OFFSET_Z_LAYERING ? RITUAL_SHELL_VIEW_OFFSET_CACHE
+        Map<Identifier, RenderType> cache = layering == VIEW_OFFSET_Z_LAYERING ? RITUAL_SHELL_VIEW_OFFSET_CACHE
                 : layering == SKIN_OVERLAY_LAYERING ? RITUAL_SHELL_SKIN_OVERLAY_CACHE
                 : RITUAL_SHELL_CACHE;
         return cache.computeIfAbsent(texture, t -> buildRitualShell(t, layering));
     }
 
-    private static RenderType buildRitualShell(ResourceLocation texture, RenderStateShard.LayeringStateShard layering) {
+    private static RenderType buildRitualShell(Identifier texture, RenderStateShard.LayeringStateShard layering) {
         return create(
                 "dmz_ritual_shell",
                 DefaultVertexFormat.NEW_ENTITY,
@@ -568,9 +568,9 @@ public class ModRenderTypes extends RenderType {
     }
 
     private static final RenderStateShard.ShaderStateShard ASSIMILATION_SKETCH_SHADER = new RenderStateShard.ShaderStateShard(() -> DMZShaders.assimilationSketchShader);
-    private static final Map<ResourceLocation, RenderType> ASSIMILATION_SKETCH_CACHE = new HashMap<>();
-    private static final Map<ResourceLocation, RenderType> ASSIMILATION_SKETCH_VIEW_OFFSET_CACHE = new HashMap<>();
-    private static final Map<ResourceLocation, RenderType> ASSIMILATION_SKETCH_SKIN_OVERLAY_CACHE = new HashMap<>();
+    private static final Map<Identifier, RenderType> ASSIMILATION_SKETCH_CACHE = new HashMap<>();
+    private static final Map<Identifier, RenderType> ASSIMILATION_SKETCH_VIEW_OFFSET_CACHE = new HashMap<>();
+    private static final Map<Identifier, RenderType> ASSIMILATION_SKETCH_SKIN_OVERLAY_CACHE = new HashMap<>();
 
     public static boolean hasAssimilationSketchShader() {
         return DMZShaders.assimilationSketchShader != null;
@@ -582,18 +582,18 @@ public class ModRenderTypes extends RenderType {
         if (sourceRenderType.mode() != VertexFormat.Mode.QUADS || isGlint(sourceRenderType)) return null;
         String sourceName = sourceRenderType.toString();
         if (sourceName.contains("shadow")) return null;
-        ResourceLocation texture = resolveSourceTexture(sourceRenderType);
+        Identifier texture = resolveSourceTexture(sourceRenderType);
         if (texture == null) return null;
         RenderStateShard.LayeringStateShard layering = sourceName.contains(VIEW_OFFSET_LAYERING_TOKEN) ? VIEW_OFFSET_Z_LAYERING
                 : sourceName.contains(SKIN_OVERLAY_LAYERING_TOKEN) ? SKIN_OVERLAY_LAYERING
                 : null;
-        Map<ResourceLocation, RenderType> cache = layering == VIEW_OFFSET_Z_LAYERING ? ASSIMILATION_SKETCH_VIEW_OFFSET_CACHE
+        Map<Identifier, RenderType> cache = layering == VIEW_OFFSET_Z_LAYERING ? ASSIMILATION_SKETCH_VIEW_OFFSET_CACHE
                 : layering == SKIN_OVERLAY_LAYERING ? ASSIMILATION_SKETCH_SKIN_OVERLAY_CACHE
                 : ASSIMILATION_SKETCH_CACHE;
         return cache.computeIfAbsent(texture, t -> buildAssimilationSketch(t, layering));
     }
 
-    private static RenderType buildAssimilationSketch(ResourceLocation texture, @Nullable RenderStateShard.LayeringStateShard layering) {
+    private static RenderType buildAssimilationSketch(Identifier texture, @Nullable RenderStateShard.LayeringStateShard layering) {
         CompositeState.CompositeStateBuilder builder = CompositeState.builder()
                 .setShaderState(ASSIMILATION_SKETCH_SHADER)
                 .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))

@@ -2,7 +2,7 @@ package com.dragonminez.common.network.S2C;
 
 import com.dragonminez.common.network.ClientPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import com.dragonminez.compat.DistExecutor;
 import com.dragonminez.compat.network.NetworkEvent;
@@ -10,10 +10,10 @@ import com.dragonminez.compat.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class DragonSkyS2C {
-	private final ResourceLocation dimension;
+	private final Identifier dimension;
 	private final boolean active;
 
-	public DragonSkyS2C(ResourceLocation dimension, boolean active) {
+	public DragonSkyS2C(Identifier dimension, boolean active) {
 		this.dimension = dimension;
 		this.active = active;
 	}

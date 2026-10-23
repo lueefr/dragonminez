@@ -6,12 +6,12 @@ import com.dragonminez.common.training.GravityLogic;
 import com.dragonminez.common.training.MinigameEvent;
 import com.dragonminez.common.training.MinigameOrigin;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 
 public class GravityGameScreen extends BaseMinigameScreen {
-	private static final ResourceLocation SHEET = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/minigame/gravity.png");
+	private static final Identifier SHEET = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/minigame/gravity.png");
 
 	private static final int BODY_V = 0;
 	private static final int CAP_BOTTOM_V = 16;
@@ -116,7 +116,7 @@ public class GravityGameScreen extends BaseMinigameScreen {
 	}
 
 	@Override
-	protected void renderGame(GuiGraphics graphics, float partialTick) {
+	protected void renderGame(GuiGraphicsExtractor graphics, float partialTick) {
 		GravityLogic g = gravity();
 		TrainingConfig.GravityConfig cfg = g.cfg();
 		int w = GravityLogic.VIEW_WIDTH;
@@ -180,12 +180,12 @@ public class GravityGameScreen extends BaseMinigameScreen {
 		drawHearts(graphics, SHEET, this.width / 2f, fieldTop - 17, g.lives(), Math.max(1, cfg.getLives()), 1.3f, lifeLostNanos);
 	}
 
-	private static void tileRocks(GuiGraphics graphics, int v, int height, float y, float offset, int width) {
+	private static void tileRocks(GuiGraphicsExtractor graphics, int v, int height, float y, float offset, int width) {
 		int start = -Math.floorMod(Math.round(offset), ROCKS_W);
 		for (int x = start; x < width; x += ROCKS_W) blitRegion(graphics, SHEET, x, y, ROCKS_W, height, 0, v, ROCKS_W, height);
 	}
 
-	private void drawPillar(GuiGraphics graphics, GravityLogic.Pillar pillar, float cx, int groundTop) {
+	private void drawPillar(GuiGraphicsExtractor graphics, GravityLogic.Pillar pillar, float cx, int groundTop) {
 		int bodyVariant = pillar.variant & 1;
 		int capVariant = (pillar.variant >> 1) & 1;
 		int bodyW = GravityLogic.BODY_WIDTH;

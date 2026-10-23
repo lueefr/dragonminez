@@ -17,13 +17,13 @@ public class MainEffects {
 	// Real Effects | Harmful
 	public static final DeferredHolder<MobEffect, MobEffect> MAJIN = EFFECTS.register("majin", () -> new DMZEffect(false));
     public static final DeferredHolder<MobEffect, MobEffect> STAGGER = EFFECTS.register("stagger", () -> new DMZEffect(false)
-			.addAttributeModifier(Attributes.MOVEMENT_SPEED, net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "effect/19421075-15d9-4372-a2c7-57bc617e0906"), -0.25F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
-			.addAttributeModifier(Attributes.ATTACK_SPEED, net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "effect/55fced67-e92a-486e-9800-b47f202c4386"), -0.25F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+			.addAttributeModifier(Attributes.MOVEMENT_SPEED, net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "effect/19421075-15d9-4372-a2c7-57bc617e0906"), -0.25F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+			.addAttributeModifier(Attributes.ATTACK_SPEED, net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "effect/55fced67-e92a-486e-9800-b47f202c4386"), -0.25F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 	public static final DeferredHolder<MobEffect, MobEffect> STUN = EFFECTS.register("stun", () ->
-			new DMZEffect(false).addAttributeModifier(Attributes.MOVEMENT_SPEED, net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "effect/7107de5e-7ce8-4030-940e-514c1f160890"),
+			new DMZEffect(false).addAttributeModifier(Attributes.MOVEMENT_SPEED, net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "effect/7107de5e-7ce8-4030-940e-514c1f160890"),
 					-1.0D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 	public static final DeferredHolder<MobEffect, MobEffect> KI_SLOW = EFFECTS.register("ki_slow", () ->
-			new DMZEffect(false).addAttributeModifier(Attributes.MOVEMENT_SPEED, net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "effect/e21bb9d6-bf78-4d05-83de-497da4664a43"),
+			new DMZEffect(false).addAttributeModifier(Attributes.MOVEMENT_SPEED, net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "effect/e21bb9d6-bf78-4d05-83de-497da4664a43"),
 					-0.9D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 	public static final DeferredHolder<MobEffect, MobEffect> KNOCKOUT = EFFECTS.register("knockout", () -> new DMZEffect(MobEffectCategory.HARMFUL, 0xD62020).uncurable());
 

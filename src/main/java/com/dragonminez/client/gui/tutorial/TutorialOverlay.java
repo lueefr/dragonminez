@@ -13,12 +13,12 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
@@ -29,8 +29,8 @@ import java.util.Arrays;
 import java.util.List;
 
 final class TutorialOverlay {
-	private static final ResourceLocation BUTTONS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
-	private static final Style DMZ_STYLE = Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth"));
+	private static final Identifier BUTTONS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Style DMZ_STYLE = Style.EMPTY.withFont(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth"));
 
 	private static final float POPUP_WIDTH = 184.0f, POPUP_PADDING = 10.0f, POPUP_GAP = 8.0f, SCREEN_MARGIN = 4.0f;
 	private static final float LINE_HEIGHT = 10.0f, TITLE_HEIGHT = 13.0f, BUTTON_HEIGHT = 20.0f, BUTTON_GAP = 4.0f;
@@ -108,7 +108,7 @@ final class TutorialOverlay {
 		return false;
 	}
 
-	static void render(GuiGraphics graphics, TutorialStep step, float scale, int width, int height, double mouseX, double mouseY) {
+	static void render(GuiGraphicsExtractor graphics, TutorialStep step, float scale, int width, int height, double mouseX, double mouseY) {
 		long now = System.nanoTime();
 		float dt = lastFrameNanos == 0L ? 0.0f : Math.min(0.1f, (now - lastFrameNanos) / 1_000_000_000.0f);
 		lastFrameNanos = now;
@@ -177,7 +177,7 @@ final class TutorialOverlay {
 		}
 	}
 
-	private static void renderDim(GuiGraphics graphics, int width, int height) {
+	private static void renderDim(GuiGraphicsExtractor graphics, int width, int height) {
 		int alpha = Math.round(DIM_ALPHA * dim * 255.0f);
 		if (alpha <= 0) return;
 
@@ -224,7 +224,7 @@ final class TutorialOverlay {
 		return false;
 	}
 
-	private static void renderBorders(GuiGraphics graphics) {
+	private static void renderBorders(GuiGraphicsExtractor graphics) {
 		if (dim <= 0.01f || animatedRects.isEmpty()) return;
 		float pulse = 0.72f + 0.28f * Mth.sin(elapsed * 3.6f);
 		Quads quads = Quads.begin(graphics);
@@ -245,7 +245,7 @@ final class TutorialOverlay {
 		quads.rect(x + width - thickness, y + thickness, x + width, y + height - thickness, rgb, alpha);
 	}
 
-	private static void renderPopup(GuiGraphics graphics, TutorialStep step, List<TutorialRect> targets, int width, int height, float dt, double mouseX, double mouseY) {
+	private static void renderPopup(GuiGraphicsExtractor graphics, TutorialStep step, List<TutorialRect> targets, int width, int height, float dt, double mouseX, double mouseY) {
 		Font font = Minecraft.getInstance().font;
 		float popupWidth = Math.min(step.width() > 0.0f ? step.width() : POPUP_WIDTH, width - SCREEN_MARGIN * 2.0f);
 		float textWidth = popupWidth - POPUP_PADDING * 2.0f;
@@ -366,7 +366,7 @@ final class TutorialOverlay {
 		}
 	}
 
-	private static void renderButton(GuiGraphics graphics, Font font, ButtonBox box, TutorialStep step, float alpha, int textAlpha, double mouseX, double mouseY) {
+	private static void renderButton(GuiGraphicsExtractor graphics, Font font, ButtonBox box, TutorialStep step, float alpha, int textAlpha, double mouseX, double mouseY) {
 		boolean hovered = box.contains(mouseX, mouseY);
 		RenderSystem.enableBlend();
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
@@ -395,7 +395,7 @@ final class TutorialOverlay {
 		graphics.pose().popPose();
 	}
 
-	private static void text(GuiGraphics graphics, Font font, FormattedCharSequence sequence, float x, float y, int rgb, int alpha) {
+	private static void text(GuiGraphicsExtractor graphics, Font font, FormattedCharSequence sequence, float x, float y, int rgb, int alpha) {
 		int border = alpha << 24;
 		FormattedCharSequence outline = sink -> sequence.accept((position, style, codePoint) ->
 				sink.accept(position, style.withColor(net.minecraft.network.chat.TextColor.fromRgb(0x000000)), codePoint));
@@ -410,7 +410,7 @@ final class TutorialOverlay {
 		graphics.pose().popPose();
 	}
 
-	private static void nineSlice(GuiGraphics graphics, float x, float y, float width, float height) {
+	private static void nineSlice(GuiGraphicsExtractor graphics, float x, float y, float width, float height) {
 		PanelSkin.SMALL_PANEL.draw(graphics, x, y, width, height);
 	}
 
@@ -424,7 +424,7 @@ final class TutorialOverlay {
 			this.matrix = matrix;
 		}
 
-		static Quads begin(GuiGraphics graphics) {
+		static Quads begin(GuiGraphicsExtractor graphics) {
 			graphics.flush();
 			BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 			return new Quads(builder, graphics.pose().last().pose());

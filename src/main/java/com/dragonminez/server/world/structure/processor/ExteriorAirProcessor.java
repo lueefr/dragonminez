@@ -9,7 +9,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class ExteriorAirProcessor extends StructureProcessor {
 	public static final com.mojang.serialization.MapCodec<ExteriorAirProcessor> CODEC = com.mojang.serialization.MapCodec.unit(() -> new ExteriorAirProcessor(null));

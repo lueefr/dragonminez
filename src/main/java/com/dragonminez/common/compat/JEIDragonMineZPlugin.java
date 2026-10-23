@@ -16,7 +16,7 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -28,8 +28,8 @@ import java.util.List;
 public class JEIDragonMineZPlugin implements IModPlugin {
 
 	@Override
-	public ResourceLocation getPluginUid() {
-		return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "jei_plugin");
+	public Identifier getPluginUid() {
+		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "jei_plugin");
 	}
 
 	@Override

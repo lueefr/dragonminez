@@ -15,7 +15,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class RedRibbonSoldierEntity extends RedRibbonEntity {
     private static final EntityDataAccessor<String> SKIN_OWNER = SynchedEntityData.defineId(RedRibbonSoldierEntity.class, EntityDataSerializers.STRING);

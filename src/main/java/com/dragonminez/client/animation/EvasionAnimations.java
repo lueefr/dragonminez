@@ -4,7 +4,7 @@ import com.dragonminez.Reference;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.io.InputStreamReader;
@@ -13,8 +13,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class EvasionAnimations {
-	private static final ResourceLocation ANIMATION_FILE =
-			ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/evs.animation.json");
+	private static final Identifier ANIMATION_FILE =
+			Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/evs.animation.json");
 	private static final String DEFAULT_CLIP = "evs.default";
 
 	private static final Set<String> AVAILABLE = new HashSet<>();

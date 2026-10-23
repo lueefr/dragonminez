@@ -10,7 +10,7 @@ import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -49,7 +49,7 @@ public class PartyHUD {
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
-	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	public static void render(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null || mc.level == null) return;
 
@@ -116,7 +116,7 @@ public class PartyHUD {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
-	private static void drawMember(GuiGraphics guiGraphics, Minecraft mc, MemberView view, float appear, float partialTicks, float tickTime, boolean mirrored) {
+	private static void drawMember(GuiGraphicsExtractor guiGraphics, Minecraft mc, MemberView view, float appear, float partialTicks, float tickTime, boolean mirrored) {
 		PartyPackets.HudMember member = view.member;
 		Player entity = mc.level.getPlayerByUUID(member.id());
 		StatsData data = entity != null ? StatsProvider.get(StatsCapability.INSTANCE, entity).orElse(null) : null;

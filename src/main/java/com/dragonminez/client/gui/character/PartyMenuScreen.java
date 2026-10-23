@@ -16,13 +16,13 @@ import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -37,8 +37,8 @@ import java.util.UUID;
 @OnlyIn(Dist.CLIENT)
 public class PartyMenuScreen extends BaseMenuScreen {
 
-	private static final ResourceLocation MENU_BIG = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
-	private static final ResourceLocation BUTTONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier MENU_BIG = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
+	private static final Identifier BUTTONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
 	private static final int ITEM_HEIGHT = 16;
 	private static final int MAX_VISIBLE_ITEMS = 10;
 
@@ -424,7 +424,7 @@ public class PartyMenuScreen extends BaseMenuScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		renderMenuBackground(graphics, partialTick);
 
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
@@ -472,7 +472,7 @@ public class PartyMenuScreen extends BaseMenuScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderWelcome(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderWelcome(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int centreX = getUiWidth() / 2;
 		int x = centreX - WELCOME_WIDTH / 2;
 		int y = welcomeTop();
@@ -506,7 +506,7 @@ public class PartyMenuScreen extends BaseMenuScreen {
 				0xFFE8F0FF, true, mouseX, mouseY);
 	}
 
-	private int drawWrappedCentered(GuiGraphics graphics, Component text, int centreX, int y, int color) {
+	private int drawWrappedCentered(GuiGraphicsExtractor graphics, Component text, int centreX, int y, int color) {
 		for (FormattedCharSequence line : this.font.split(text, PANEL_TEXT_WIDTH)) {
 			TextUtil.drawCenteredStringWithBorder(graphics, this.font, line, centreX, y, color, 0x000000);
 			y += this.font.lineHeight + 1;
@@ -514,7 +514,7 @@ public class PartyMenuScreen extends BaseMenuScreen {
 		return y;
 	}
 
-	private void drawFitted(GuiGraphics graphics, Component text, int x, int y, int maxWidth, int color) {
+	private void drawFitted(GuiGraphicsExtractor graphics, Component text, int x, int y, int maxWidth, int color) {
 		int width = this.font.width(text);
 		if (width <= maxWidth) {
 			TextUtil.drawStringWithBorder(graphics, this.font, text, x, y, color, 0x000000);
@@ -532,20 +532,20 @@ public class PartyMenuScreen extends BaseMenuScreen {
 		return getUiHeight() / 2 - WELCOME_HEIGHT / 2 - 14;
 	}
 
-	private void renderLeftPanelFrame(GuiGraphics graphics, int leftX, int panelY) {
+	private void renderLeftPanelFrame(GuiGraphicsExtractor graphics, int leftX, int panelY) {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		blit(graphics, MENU_BIG, leftX, panelY, 0, 0, 141, 213);
 		blit(graphics, MENU_BIG, leftX + 17, panelY + 10, 142, 22, 107, 21);
 	}
 
-	private void renderRightPanelFrame(GuiGraphics graphics, int rightX, int panelY) {
+	private void renderRightPanelFrame(GuiGraphicsExtractor graphics, int rightX, int panelY) {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		blit(graphics, MENU_BIG, rightX, panelY, 0, 0, 141, 213);
 		blit(graphics, MENU_BIG, rightX + 17, panelY + 10, 142, 22, 107, 21);
 		if (currentView != View.JOIN) blit(graphics, MENU_BIG, rightX + 31, panelY + 77, 142, 0, 79, 21);
 	}
 
-	private void renderPlayerList(GuiGraphics graphics, int panelX, int panelY, int mouseX, int mouseY) {
+	private void renderPlayerList(GuiGraphicsExtractor graphics, int panelX, int panelY, int mouseX, int mouseY) {
 		Component tabText = tr(switch (currentView) {
 			case CREATE -> "gui.dragonminez.party.server";
 			case JOIN -> "gui.dragonminez.party.invites";
@@ -592,7 +592,7 @@ public class PartyMenuScreen extends BaseMenuScreen {
 		listScroll.renderBar(graphics, mouseX, mouseY);
 	}
 
-	private void renderRightPanelDetails(GuiGraphics graphics, int panelX, int panelY) {
+	private void renderRightPanelDetails(GuiGraphicsExtractor graphics, int panelX, int panelY) {
 		if (selectedIndex < 0 || selectedIndex >= displayList.size()) {
 			TextUtil.drawCenteredStringWithBorder(graphics, this.font, txt("???").withStyle(ChatFormatting.BOLD), panelX + 70, panelY + 16, 0xFFFFD700, 0x000000);
 			if (currentView != View.JOIN) {
@@ -640,7 +640,7 @@ public class PartyMenuScreen extends BaseMenuScreen {
 	}
 
 	/** Who is asking, on what difficulty, and how long the offer stands — label over value. */
-	private void renderInviteDetails(GuiGraphics graphics, int panelX, int startY, UUID partyId) {
+	private void renderInviteDetails(GuiGraphicsExtractor graphics, int panelX, int startY, UUID partyId) {
 		PlayerQuestData.PartyInviteData invite = null;
 		for (PlayerQuestData.PartyInviteData pending : pendingInvites()) {
 			if (partyId != null && partyId.equals(pending.getPartyId())) invite = pending;
@@ -670,14 +670,14 @@ public class PartyMenuScreen extends BaseMenuScreen {
 		return tr("gui.dragonminez.quest_tree.difficulty." + difficulty.name().toLowerCase(java.util.Locale.ROOT));
 	}
 
-	private int inviteRow(GuiGraphics graphics, int centreX, int y, Component label, Component value, int valueColour) {
+	private int inviteRow(GuiGraphicsExtractor graphics, int centreX, int y, Component label, Component value, int valueColour) {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, label.copy().withStyle(ChatFormatting.BOLD),
 				centreX, y, 0xD7FEF5, 0x000000);
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, value, centreX, y + 11, valueColour, 0x000000);
 		return y + 26;
 	}
 
-	private void renderStatBlock(GuiGraphics graphics, int panelX, int startY,
+	private void renderStatBlock(GuiGraphicsExtractor graphics, int panelX, int startY,
 								 String race, String characterClass, int level,
 								 int strength, int strikePower, int resistance, int vitality,
 								 int kiPower, int energyStat) {
@@ -710,7 +710,7 @@ public class PartyMenuScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void renderCentralModel(GuiGraphics graphics, int x, int y, int scale, float mouseX, float mouseY) {
+	private void renderCentralModel(GuiGraphicsExtractor graphics, int x, int y, int scale, float mouseX, float mouseY) {
 		LivingEntity renderEntity = Minecraft.getInstance().player;
 
 		if (selectedIndex >= 0 && selectedIndex < displayList.size()) {

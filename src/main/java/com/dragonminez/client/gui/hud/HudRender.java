@@ -10,10 +10,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -36,20 +36,20 @@ public final class HudRender {
 		return alphaScale;
 	}
 
-	public static void sprite(GuiGraphics graphics, HudSprites.Sprite sprite, float x, float y, float width, float height, int rgb, float alpha) {
+	public static void sprite(GuiGraphicsExtractor graphics, HudSprites.Sprite sprite, float x, float y, float width, float height, int rgb, float alpha) {
 		spritePart(graphics, sprite, x, y, width, height, 0.0f, 0.0f, 1.0f, 1.0f, rgb, alpha);
 	}
 
-	public static void spritePart(GuiGraphics graphics, HudSprites.Sprite sprite, float x, float y, float width, float height,
+	public static void spritePart(GuiGraphicsExtractor graphics, HudSprites.Sprite sprite, float x, float y, float width, float height,
 								  float fromX, float fromY, float toX, float toY, int rgb, float alpha) {
 		spritePart(graphics, sprite, x, y, width, height, fromX, fromY, toX, toY, rgb, alpha, false);
 	}
 
-	public static void sprite(GuiGraphics graphics, HudSprites.Sprite sprite, float x, float y, float width, float height, int rgb, float alpha, boolean flipX) {
+	public static void sprite(GuiGraphicsExtractor graphics, HudSprites.Sprite sprite, float x, float y, float width, float height, int rgb, float alpha, boolean flipX) {
 		spritePart(graphics, sprite, x, y, width, height, 0.0f, 0.0f, 1.0f, 1.0f, rgb, alpha, flipX);
 	}
 
-	public static void spritePart(GuiGraphics graphics, HudSprites.Sprite sprite, float x, float y, float width, float height,
+	public static void spritePart(GuiGraphicsExtractor graphics, HudSprites.Sprite sprite, float x, float y, float width, float height,
 								  float fromX, float fromY, float toX, float toY, int rgb, float alpha, boolean flipX) {
 		float a = Mth.clamp(alpha, 0.0f, 1.0f) * alphaScale;
 		if (a <= 0.004f || width <= 0.0f || height <= 0.0f || toX <= fromX || toY <= fromY) return;
@@ -66,12 +66,12 @@ public final class HudRender {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
-	public static void spriteGradient(GuiGraphics graphics, HudSprites.Sprite sprite, float x, float y, float width, float height,
+	public static void spriteGradient(GuiGraphicsExtractor graphics, HudSprites.Sprite sprite, float x, float y, float width, float height,
 									  float from, float to, float alphaFrom, float alphaTo, int rgb, boolean flipX, boolean vertical) {
 		spriteGradient(graphics, sprite, x, y, width, height, from, to, alphaFrom, alphaTo, alphaFrom, alphaTo, rgb, flipX, vertical);
 	}
 
-	public static void spriteGradient(GuiGraphics graphics, HudSprites.Sprite sprite, float x, float y, float width, float height,
+	public static void spriteGradient(GuiGraphicsExtractor graphics, HudSprites.Sprite sprite, float x, float y, float width, float height,
 									  float from, float to, float alphaFrom, float alphaTo, float alphaFromBottom, float alphaToBottom,
 									  int rgb, boolean flipX, boolean vertical) {
 		float startAlpha = Mth.clamp(alphaFrom, 0.0f, 1.0f) * alphaScale;
@@ -133,11 +133,11 @@ public final class HudRender {
 		if (additive) RenderSystem.defaultBlendFunc();
 	}
 
-	public static void blit(GuiGraphics graphics, ResourceLocation texture, float x, float y, float u, float v, float width, float height, int textureWidth, int textureHeight) {
+	public static void blit(GuiGraphicsExtractor graphics, Identifier texture, float x, float y, float u, float v, float width, float height, int textureWidth, int textureHeight) {
 		blit(graphics, texture, x, y, u, v, width, height, width, height, textureWidth, textureHeight);
 	}
 
-	public static void blit(GuiGraphics graphics, ResourceLocation texture, float x, float y, float u, float v, float width, float height,
+	public static void blit(GuiGraphicsExtractor graphics, Identifier texture, float x, float y, float u, float v, float width, float height,
 							float regionWidth, float regionHeight, int textureWidth, int textureHeight) {
 		if (width <= 0.0f || height <= 0.0f) return;
 		graphics.flush();
@@ -161,7 +161,7 @@ public final class HudRender {
 		if (additive) RenderSystem.defaultBlendFunc();
 	}
 
-	public static void nineSlice(GuiGraphics graphics, ResourceLocation texture, float x, float y, float width, float height,
+	public static void nineSlice(GuiGraphicsExtractor graphics, Identifier texture, float x, float y, float width, float height,
 								 float u, float v, float regionWidth, float regionHeight, float border, int textureWidth, int textureHeight) {
 		if (width <= 0.0f || height <= 0.0f) return;
 		float destBorder = Math.min(border, Math.min(width, height) / 2.0f);
@@ -185,13 +185,13 @@ public final class HudRender {
 	public static final int PANEL_FRAME_RGB = 0x070A0F;
 	public static final float PANEL_FRAME_ALPHA = 0.92f;
 	public static final float PANEL_FRAME_WIDTH = 1.0f;
-	private static final ResourceLocation DMZ_FONT = ResourceLocation.fromNamespaceAndPath(com.dragonminez.Reference.MOD_ID, "smooth");
+	private static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(com.dragonminez.Reference.MOD_ID, "smooth");
 
-	public static void panel(GuiGraphics graphics, float x, float y, float width, float height, float alpha) {
+	public static void panel(GuiGraphicsExtractor graphics, float x, float y, float width, float height, float alpha) {
 		panel(graphics, x, y, width, height, PANEL_FILL_RGB, alpha);
 	}
 
-	public static void panel(GuiGraphics graphics, float x, float y, float width, float height, int fillRgb, float alpha) {
+	public static void panel(GuiGraphicsExtractor graphics, float x, float y, float width, float height, int fillRgb, float alpha) {
 		float frame = PANEL_FRAME_WIDTH;
 		rect(graphics, x + frame, y + frame, width - frame * 2.0f, height - frame * 2.0f, argb(PANEL_FILL_ALPHA * alpha, fillRgb));
 		int frameColor = argb(PANEL_FRAME_ALPHA * alpha, PANEL_FRAME_RGB);
@@ -213,7 +213,7 @@ public final class HudRender {
 		return Minecraft.getInstance().font.width(dmz(text)) * scale;
 	}
 
-	public static void dmzText(GuiGraphics graphics, String text, float x, float y, float scale, float align, int rgb, float alpha) {
+	public static void dmzText(GuiGraphicsExtractor graphics, String text, float x, float y, float scale, float align, int rgb, float alpha) {
 		if (text == null || text.isEmpty()) return;
 		dmzText(graphics, dmz(text), x, y, scale, align, rgb, alpha);
 	}
@@ -223,7 +223,7 @@ public final class HudRender {
 				sink.accept(index, style.withColor((net.minecraft.network.chat.TextColor) null), codePoint));
 	}
 
-	public static void dmzText(GuiGraphics graphics, net.minecraft.network.chat.Component component, float x, float y, float scale, float align, int rgb, float alpha) {
+	public static void dmzText(GuiGraphicsExtractor graphics, net.minecraft.network.chat.Component component, float x, float y, float scale, float align, int rgb, float alpha) {
 		int alphaChannel = Math.round(Mth.clamp(alpha, 0.0f, 1.0f) * alphaScale * 255.0f);
 		if (alphaChannel <= 3 || component == null) return;
 
@@ -245,7 +245,7 @@ public final class HudRender {
 		graphics.pose().popPose();
 	}
 
-	public static void dmzText(GuiGraphics graphics, net.minecraft.util.FormattedCharSequence sequence, float x, float y, float scale, float align, int rgb, float alpha) {
+	public static void dmzText(GuiGraphicsExtractor graphics, net.minecraft.util.FormattedCharSequence sequence, float x, float y, float scale, float align, int rgb, float alpha) {
 		int alphaChannel = Math.round(Mth.clamp(alpha, 0.0f, 1.0f) * alphaScale * 255.0f);
 		if (alphaChannel <= 3 || sequence == null) return;
 
@@ -266,7 +266,7 @@ public final class HudRender {
 		graphics.pose().popPose();
 	}
 
-	public static void scissor(GuiGraphics graphics, float minX, float minY, float maxX, float maxY) {
+	public static void scissor(GuiGraphicsExtractor graphics, float minX, float minY, float maxX, float maxY) {
 		Matrix4f pose = graphics.pose().last().pose();
 		Vector3f min = pose.transformPosition(new Vector3f(minX, minY, 0.0f));
 		Vector3f max = pose.transformPosition(new Vector3f(maxX, maxY, 0.0f));
@@ -274,19 +274,19 @@ public final class HudRender {
 				Math.round(Math.max(min.x, max.x)), Math.round(Math.max(min.y, max.y)));
 	}
 
-	public static void rect(GuiGraphics graphics, float x, float y, float width, float height, int color) {
+	public static void rect(GuiGraphicsExtractor graphics, float x, float y, float width, float height, int color) {
 		gradient(graphics, x, y, width, height, color, color, color, color);
 	}
 
-	public static void rectHorizontal(GuiGraphics graphics, float x, float y, float width, float height, int colorLeft, int colorRight) {
+	public static void rectHorizontal(GuiGraphicsExtractor graphics, float x, float y, float width, float height, int colorLeft, int colorRight) {
 		gradient(graphics, x, y, width, height, colorLeft, colorLeft, colorRight, colorRight);
 	}
 
-	public static void rectVertical(GuiGraphics graphics, float x, float y, float width, float height, int colorTop, int colorBottom) {
+	public static void rectVertical(GuiGraphicsExtractor graphics, float x, float y, float width, float height, int colorTop, int colorBottom) {
 		gradient(graphics, x, y, width, height, colorTop, colorBottom, colorBottom, colorTop);
 	}
 
-	private static void gradient(GuiGraphics graphics, float x, float y, float width, float height, int topLeft, int bottomLeft, int bottomRight, int topRight) {
+	private static void gradient(GuiGraphicsExtractor graphics, float x, float y, float width, float height, int topLeft, int bottomLeft, int bottomRight, int topRight) {
 		if (width <= 0.0f || height <= 0.0f) return;
 		Matrix4f matrix = graphics.pose().last().pose();
 		VertexConsumer buffer = graphics.bufferSource().getBuffer(RenderType.gui());
@@ -302,7 +302,7 @@ public final class HudRender {
 		buffer.addVertex(matrix, x, y, 0.0f).setColor((argb >> 16) & 0xFF, (argb >> 8) & 0xFF, argb & 0xFF, alpha);
 	}
 
-	public static void text(GuiGraphics graphics, String text, float x, float y, float scale, float align, int rgb, float alpha) {
+	public static void text(GuiGraphicsExtractor graphics, String text, float x, float y, float scale, float align, int rgb, float alpha) {
 		dmzText(graphics, text, x, y, scale, align, rgb, alpha);
 	}
 

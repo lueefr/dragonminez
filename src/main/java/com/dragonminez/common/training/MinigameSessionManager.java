@@ -21,7 +21,7 @@ import com.dragonminez.common.network.S2C.TriggerAnimationS2C;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -175,7 +175,7 @@ public final class MinigameSessionManager {
 		if (RhythmLogic.ID.equals(id) && !track.isEmpty() && origin != MinigameOrigin.CHALLENGE) {
 			String problem = null;
 			BuiltinSongs.Song song = BuiltinSongs.find(track);
-			ResourceLocation itemId = song == null ? ResourceLocation.tryParse(track) : null;
+			Identifier itemId = song == null ? Identifier.tryParse(track) : null;
 			Item item = itemId == null ? null : BuiltInRegistries.ITEM.get(itemId);
 			var record = MusicDiscHelper.song(item);
             String soundId = song != null ? song.sound() : record != null ? record.soundEvent().value().getLocation().toString() : null;
@@ -192,7 +192,7 @@ public final class MinigameSessionManager {
 					if (invalid == null) {
 						chart = new RhythmChart("auto:" + track, track, soundId, generated.bpm, generated.durationMs, generated.notes, generated.vocalNotes, generated.audioHash);
 					} else {
-						LogUtil.warn(Env.SERVER, "Rejected generated rhythm chart for {} from {}: {}", track, player.getGameProfile().getName(), invalid);
+						LogUtil.warn(Env.SERVER, "Rejected generated rhythm chart for {} from {}: {}", track, player.getGameProfile().name(), invalid);
 					}
 				}
 				if (chart != null && chart.hasVocals() && RhythmAutoCharter.validateNotes(chart.vocalNotes, chart.durationMs) != null) chart = chart.withoutVocals();
@@ -263,7 +263,7 @@ public final class MinigameSessionManager {
 		if (malformed) {
 			session.invalid = true;
 			LogUtil.warn(Env.SERVER, "Rejected minigame input from {} ({}): chunk {}-{} failed validation",
-					player.getGameProfile().getName(), session.minigameId, msg.getFromTick(), msg.getToTick());
+					player.getGameProfile().name(), session.minigameId, msg.getFromTick(), msg.getToTick());
 			finish(player, session, true);
 			return;
 		}
@@ -293,7 +293,7 @@ public final class MinigameSessionManager {
 
 		if (!session.desyncLogged && !logic.isFinished() && msg.getChecksum() != 0L && msg.getChecksum() != logic.checksum()) {
 			session.desyncLogged = true;
-			LogUtil.debug(Env.SERVER, "Minigame {} desync for {} at tick {}", session.minigameId, player.getGameProfile().getName(), logic.tickCount());
+			LogUtil.debug(Env.SERVER, "Minigame {} desync for {} at tick {}", session.minigameId, player.getGameProfile().name(), logic.tickCount());
 		}
 
 		if (msg.isFinished() || logic.isFinished() || logic.tickCount() >= MAX_SESSION_TICKS) {
@@ -389,7 +389,7 @@ public final class MinigameSessionManager {
 					: progress.nextStage != session.challengeStage ? "expected stage " + progress.nextStage
 					: "target not reached in the server replay";
 			LogUtil.info(Env.SERVER, "Old Kai challenge failed for {} at stage {} ({}): {} ({}/{} levels, tick {})",
-					player.getGameProfile().getName(), session.challengeStage + 1, session.minigameId, reason,
+					player.getGameProfile().name(), session.challengeStage + 1, session.minigameId, reason,
 					session.logic.levelsCleared(), ConfigManager.getTrainingConfig().getChallengeTargetLevels(session.minigameId),
 					session.logic.tickCount());
 			CHALLENGES.remove(uuid);
@@ -422,7 +422,7 @@ public final class MinigameSessionManager {
 		if (session == null) return;
 		session.invalid = true;
 		LogUtil.warn(Env.SERVER, "Invalidated minigame {} for {}: {} while the session was open",
-				session.minigameId, player.getGameProfile().getName(), action);
+				session.minigameId, player.getGameProfile().name(), action);
 		finish(player, session, true);
 	}
 

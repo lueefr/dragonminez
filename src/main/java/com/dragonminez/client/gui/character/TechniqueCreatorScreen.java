@@ -8,12 +8,12 @@ import com.dragonminez.client.gui.hud.HudRender;
 import com.dragonminez.client.util.TextUtil;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.stats.techniques.KiAttackData;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class TechniqueCreatorScreen extends ScaledScreen {
-	private static final ResourceLocation MENU_NPC = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menunpc.png");
-	private static final ResourceLocation BUTTONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier MENU_NPC = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menunpc.png");
+	private static final Identifier BUTTONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
 	private static final NumberFormat COST_NUMBER_FORMAT = NumberFormat.getIntegerInstance(new Locale("es", "ES"));
 
 	private static final int PANEL_W = 345;
@@ -221,7 +221,7 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		renderBackground(graphics, mouseX, mouseY, partialTick);
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
 		int uiMouseY = (int) Math.round(toUiY(mouseY));
@@ -245,7 +245,7 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderHeader(GuiGraphics graphics) {
+	private void renderHeader(GuiGraphicsExtractor graphics) {
 		int r1 = panelY + 32;
 		int r2 = panelY + 46;
 		int r3 = panelY + 58;
@@ -288,7 +288,7 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 		}
 	}
 
-	private void renderBaseEffects(GuiGraphics graphics) {
+	private void renderBaseEffects(GuiGraphicsExtractor graphics) {
 		int cx = panelX + 84;
 		KiAttackData.KiType type = draft.getType();
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.base_effects"), cx, panelY + 108, GOLD);
@@ -318,7 +318,7 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 				cx, panelY + 208, 0xFFAACCFF);
 	}
 
-	private void renderSecondaryEffects(GuiGraphics graphics) {
+	private void renderSecondaryEffects(GuiGraphicsExtractor graphics) {
 		int cx = panelX + 259;
 		boolean hasSecondary = draft.hasSecondaryEffect();
 		int active = 0xFFFFFFFF;
@@ -343,7 +343,7 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 				cx, panelY + 188, hasSecondary ? active : inactive);
 	}
 
-	private void renderLockedTooltip(GuiGraphics graphics, int uiMouseX, int uiMouseY) {
+	private void renderLockedTooltip(GuiGraphicsExtractor graphics, int uiMouseX, int uiMouseY) {
 		List<Component> lines = new ArrayList<>();
 		lines.add(tr("gui.dragonminez.skills.creator.not_enough_tp",
 				COST_NUMBER_FORMAT.format(Math.floor(draft.availableTrainingPoints())),
@@ -352,7 +352,7 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 				tr("gui.dragonminez.skills.create_skill"), lines, null, DENIED);
 	}
 
-	private void renderEffectTooltip(GuiGraphics graphics, int uiMouseX, int uiMouseY) {
+	private void renderEffectTooltip(GuiGraphicsExtractor graphics, int uiMouseX, int uiMouseY) {
 		int rowY = panelY + 128;
 		boolean hovering = uiMouseX >= panelX + 30 && uiMouseX <= panelX + 150
 				&& uiMouseY >= rowY - 2 && uiMouseY <= rowY + 9;

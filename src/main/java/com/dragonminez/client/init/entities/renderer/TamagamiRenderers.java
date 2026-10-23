@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -71,7 +71,7 @@ public final class TamagamiRenderers {
         }
 
         @Override
-        public ResourceLocation getTextureLocation(AllWorldBossesEntity.TamagamiHammer hammer) {
+        public Identifier getTextureLocation(AllWorldBossesEntity.TamagamiHammer hammer) {
             return InventoryMenu.BLOCK_ATLAS;
         }
     }
@@ -185,7 +185,7 @@ public final class TamagamiRenderers {
         }
 
         @Override
-        public ResourceLocation getTextureLocation(AllWorldBossesEntity.TamagamiPillar pillar) {
+        public Identifier getTextureLocation(AllWorldBossesEntity.TamagamiPillar pillar) {
             return InventoryMenu.BLOCK_ATLAS;
         }
     }

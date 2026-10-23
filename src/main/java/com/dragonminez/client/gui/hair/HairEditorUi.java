@@ -4,14 +4,14 @@ import com.dragonminez.Reference;
 import com.dragonminez.client.util.PanelSkin;
 import com.dragonminez.client.util.TextUtil;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public final class HairEditorUi {
-	public static final ResourceLocation DMZ_FONT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	public static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
 
 	public static final int TITLE = 0xFFFFD700;
 	public static final int TEXT = 0xFFFFFFFF;
@@ -41,21 +41,21 @@ public final class HairEditorUi {
 		return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
 	}
 
-	public static void panel(GuiGraphics graphics, int x, int y, int width, int height) {
+	public static void panel(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {
 		HairEditorTextures.draw(graphics, HairEditorTextures.PANEL, x, y, width, height);
 	}
 
-	public static void smallPanel(GuiGraphics graphics, int x, int y, int width, int height) {
+	public static void smallPanel(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {
 		HairEditorTextures.draw(graphics, HairEditorTextures.SMALL_PANEL, x, y, width, height);
 	}
 
-	public static void header(GuiGraphics graphics, Font font, Component title, int x, int y, int width) {
+	public static void header(GuiGraphicsExtractor graphics, Font font, Component title, int x, int y, int width) {
 		HairEditorTextures.Sprite plate = width - 14 >= HairEditorTextures.TITLE_PLATE.width() ? HairEditorTextures.TITLE_PLATE : HairEditorTextures.TITLE_PLATE_SHORT;
 		HairEditorTextures.draw(graphics, plate, x + (width - plate.width()) / 2, y + 6);
 		TextUtil.drawCenteredStringWithBorder(graphics, font, title, x + width / 2, y + 13, TITLE);
 	}
 
-	public static void button(GuiGraphics graphics, Font font, Component label, int x, int y, int width, int height, boolean hovered, boolean active, boolean enabled) {
+	public static void button(GuiGraphicsExtractor graphics, Font font, Component label, int x, int y, int width, int height, boolean hovered, boolean active, boolean enabled) {
 		PanelSkin sprite = active ? HairEditorTextures.BUTTON_ACTIVE : (hovered && enabled ? HairEditorTextures.BUTTON_HOVER : HairEditorTextures.BUTTON);
 		float tint = enabled ? 1.0f : 0.6f;
 		HairEditorTextures.draw(graphics, sprite, x, y, width, height, tint, tint, tint, 1.0f);
@@ -63,24 +63,24 @@ public final class HairEditorUi {
 		TextUtil.drawStringWithBorder(graphics, font, label, x + (width - font.width(label)) / 2, y + (height - 8) / 2 + 1, color);
 	}
 
-	public static void field(GuiGraphics graphics, int x, int y, int width, int height, boolean editing) {
+	public static void field(GuiGraphicsExtractor graphics, int x, int y, int width, int height, boolean editing) {
 		HairEditorTextures.draw(graphics, editing ? HairEditorTextures.FIELD_EDITING : HairEditorTextures.FIELD, x, y, width, height);
 	}
 
-	public static void track(GuiGraphics graphics, int x, int y, int width, int height) {
+	public static void track(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {
 		HairEditorTextures.draw(graphics, HairEditorTextures.BUTTON, x, y, width, height);
 	}
 
-	public static void trackFill(GuiGraphics graphics, int x, int y, int width, int height) {
+	public static void trackFill(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {
 		if (width <= 0) return;
 		HairEditorTextures.draw(graphics, HairEditorTextures.BUTTON_ACTIVE, x, y, width, height);
 	}
 
-	public static void divider(GuiGraphics graphics, int x0, int x1, int y) {
+	public static void divider(GuiGraphicsExtractor graphics, int x0, int x1, int y) {
 		if (x1 > x0) graphics.fill(x0, y, x1, y + 1, DIVIDER);
 	}
 
-	public static void outline(GuiGraphics graphics, int x, int y, int width, int height, int color) {
+	public static void outline(GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
 		graphics.fill(x, y, x + width, y + 1, color);
 		graphics.fill(x, y + height - 1, x + width, y + height, color);
 		graphics.fill(x, y, x + 1, y + height, color);

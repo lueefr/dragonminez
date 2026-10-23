@@ -2,7 +2,7 @@ package com.dragonminez.common.init;
 
 import com.dragonminez.Reference;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -17,7 +17,7 @@ public class MainTags {
         public static final TagKey<Structure> BUILD_PROTECTED = create("build_protected");
 
 		private static TagKey<Structure> create(String name) {
-			return TagKey.create(Registries.STRUCTURE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
+			return TagKey.create(Registries.STRUCTURE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name));
 		}
 	}
 
@@ -58,7 +58,7 @@ public class MainTags {
 		public static final TagKey<EntityType<?>> NON_FIGHTERS = create("non_fighters");
 
 		private static TagKey<EntityType<?>> create(String name) {
-			return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
+			return TagKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name));
 		}
 	}
 
@@ -71,7 +71,7 @@ public class MainTags {
 		IS_GEROLAB = create("is_gerolab"), IS_PLAINS = create("is_plains"), IS_SWAMPLIKE = create("is_swamplike");
 
 		private static TagKey<Biome> create(String name) {
-			return TagKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
+			return TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name));
 		}
 	}
 
@@ -80,7 +80,7 @@ public class MainTags {
 		NAMEKSTONE_REPLACEABLES = create("namek_stone_ore_replaceables"), NEEDS_GETE_TOOL = create("needs_gete_tool");
 
 		private static TagKey<Block> create(String name) {
-		    return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
+		    return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name));
 		}
 	}
 
@@ -90,7 +90,7 @@ public class MainTags {
 		SENZU_BEANS = create("senzu_beans");
 
 		private static TagKey<Item> create(String name) {
-		    return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
+		    return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name));
 		}
 	}
 }

@@ -14,7 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
@@ -28,7 +28,7 @@ import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -183,7 +183,7 @@ public class StructureLocator {
 			Set<Holder<Biome>> possible = level.getChunkSource().getGenerator().getBiomeSource().possibleBiomes();
 			List<Holder<Biome>> matching = candidates.stream().filter(possible::contains).toList();
 			if (matching.isEmpty()) continue;
-			ResourceLocation dim = level.dimension().location();
+			Identifier dim = level.dimension().location();
 			dimensions.add(Component.translatableWithFallback("dimension." + dim.getNamespace() + "." + dim.getPath(), dim.toString()));
 			biomes.addAll(matching);
 		}

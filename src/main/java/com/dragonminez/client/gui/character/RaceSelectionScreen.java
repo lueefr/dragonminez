@@ -24,7 +24,7 @@ import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -32,7 +32,7 @@ import net.minecraft.client.renderer.CubeMap;
 import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -48,9 +48,9 @@ import java.util.Map;
 @OnlyIn(Dist.CLIENT)
 public class RaceSelectionScreen extends ScaledScreen {
 
-	private static final ResourceLocation BUTTONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+	private static final Identifier BUTTONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 			"textures/gui/buttons/characterbuttons.png");
-	private static final ResourceLocation MENU_BIG = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+	private static final Identifier MENU_BIG = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 			"textures/gui/menu/menubig.png");
 
 	private static final int RACIAL_PANEL_WIDTH = 130;
@@ -109,13 +109,13 @@ public class RaceSelectionScreen extends ScaledScreen {
 
 	private PanoramaRenderer getPanorama(String raceName) {
 		return panoramaCache.computeIfAbsent(raceName, k -> {
-			ResourceLocation testLoc = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/" + k + "_panorama_0.png");
+			Identifier testLoc = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/" + k + "_panorama_0.png");
 			boolean exists = false;
 			if (Minecraft.getInstance().getResourceManager() != null) exists = Minecraft.getInstance().getResourceManager().getResource(testLoc).isPresent();
 
-			ResourceLocation baseLoc = exists
-					? ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/" + k + "_panorama")
-					: ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/roshi");
+			Identifier baseLoc = exists
+					? Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/" + k + "_panorama")
+					: Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/roshi");
 
 			return new PanoramaRenderer(new CubeMap(baseLoc));
 		});
@@ -214,7 +214,7 @@ public class RaceSelectionScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		long now = System.nanoTime();
 		float dt = lastFrameNanos == 0L ? 0.0f : Math.min(0.1f, (now - lastFrameNanos) / 1_000_000_000.0f);
 		lastFrameNanos = now;
@@ -242,7 +242,7 @@ public class RaceSelectionScreen extends ScaledScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderCarouselElements(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderCarouselElements(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		List<String> races = getAvailableRaces();
 		if (races.isEmpty()) return;
 
@@ -306,7 +306,7 @@ public class RaceSelectionScreen extends ScaledScreen {
 		applyRaceDefaults(originalRace);
 	}
 
-	private void renderCinematicBars(GuiGraphics guiGraphics) {
+	private void renderCinematicBars(GuiGraphicsExtractor guiGraphics) {
 		int totalBarHeight = (int) (this.height * 0.12);
 		int fadeSize = Math.max(1, Math.round(60 * getUiScale()));
 		if (totalBarHeight <= fadeSize) totalBarHeight = fadeSize + 1;
@@ -323,14 +323,14 @@ public class RaceSelectionScreen extends ScaledScreen {
 	}
 
 	@Override
-	protected void renderPanorama(GuiGraphics graphics, float partialTick) {
+	protected void renderPanorama(GuiGraphicsExtractor graphics, float partialTick) {
 		if (previousPanorama != null && panoramaFade < 1.0f) {
 			previousPanorama.render(graphics, this.width, this.height, 1.0f, partialTick);
 			if (currentPanorama != null) currentPanorama.render(graphics, this.width, this.height, panoramaFade, partialTick);
 		} else if (currentPanorama != null) currentPanorama.render(graphics, this.width, this.height, 1.0f, partialTick);
 	}
 
-	private void renderRaceInfo(GuiGraphics graphics) {
+	private void renderRaceInfo(GuiGraphicsExtractor graphics) {
 		List<String> races = getAvailableRaces();
 		if (races.isEmpty()) return;
 		if (selectedRaceIndex >= races.size()) selectedRaceIndex = 0;
@@ -365,7 +365,7 @@ public class RaceSelectionScreen extends ScaledScreen {
 		graphics.pose().popPose();
 	}
 
-	private void renderRacialInfo(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderRacialInfo(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		racialBar.clear();
 		List<String> races = getAvailableRaces();
 		if (races.isEmpty()) return;
@@ -413,7 +413,7 @@ public class RaceSelectionScreen extends ScaledScreen {
 		racialBar.reset();
 	}
 
-	private void renderPlayerModel(GuiGraphics graphics, int x, int y, int scale, float mouseX, float mouseY) {
+	private void renderPlayerModel(GuiGraphicsExtractor graphics, int x, int y, int scale, float mouseX, float mouseY) {
 		LivingEntity player = Minecraft.getInstance().player;
 		if (player == null) return;
 		int adjustedScale = getAdjustedModelScale(scale);

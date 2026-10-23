@@ -21,8 +21,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import java.util.UUID;
 
 public class HumanAdaptation implements RacialAbility {
-	private static final net.minecraft.resources.ResourceLocation ADRENALINE_ATTACK_SPEED_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/a1e1a4a0-3b3e-4a1e-9b1d-adde5a1177ac");
-	private static final net.minecraft.resources.ResourceLocation ADRENALINE_MOVE_SPEED_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/a1e1a4a0-3b3e-4a1e-9b1d-adde5a1177ad");
+	private static final net.minecraft.resources.Identifier ADRENALINE_ATTACK_SPEED_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/a1e1a4a0-3b3e-4a1e-9b1d-adde5a1177ac");
+	private static final net.minecraft.resources.Identifier ADRENALINE_MOVE_SPEED_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/a1e1a4a0-3b3e-4a1e-9b1d-adde5a1177ad");
 
 	@Override
 	public String id() {
@@ -132,7 +132,7 @@ public class HumanAdaptation implements RacialAbility {
 		NetworkHandler.sendToTrackingEntityAndSelf(new StatsSyncS2C(player), player);
 	}
 
-	private static void applyModifier(ServerPlayer player, net.minecraft.core.Holder<Attribute> attribute, net.minecraft.resources.ResourceLocation uuid, String name, double amount) {
+	private static void applyModifier(ServerPlayer player, net.minecraft.core.Holder<Attribute> attribute, net.minecraft.resources.Identifier uuid, String name, double amount) {
 		AttributeInstance instance = player.getAttribute(attribute);
 		if (instance == null) return;
 		if (instance.getModifier(uuid) != null) instance.removeModifier(uuid);

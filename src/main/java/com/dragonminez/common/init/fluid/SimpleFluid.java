@@ -6,7 +6,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -25,9 +25,9 @@ import org.joml.Vector3f;
 import java.util.function.Consumer;
 
 public class SimpleFluid extends FluidType {
-    private final ResourceLocation stillTexture;
-    private final ResourceLocation flowTexture;
-    private final ResourceLocation overlayTexture;
+    private final Identifier stillTexture;
+    private final Identifier flowTexture;
+    private final Identifier overlayTexture;
     private final int tintColor;
     private final Vector3f fogColor;
     private final int fogStart;
@@ -35,9 +35,9 @@ public class SimpleFluid extends FluidType {
 
     public SimpleFluid(int color, FluidType.Properties properties) {
         super(properties);
-        this.stillTexture = ResourceLocation.withDefaultNamespace("block/water_still");
-        this.flowTexture = ResourceLocation.withDefaultNamespace("block/water_flow");
-        this.overlayTexture = ResourceLocation.withDefaultNamespace("block/water_overlay");
+        this.stillTexture = Identifier.withDefaultNamespace("block/water_still");
+        this.flowTexture = Identifier.withDefaultNamespace("block/water_flow");
+        this.overlayTexture = Identifier.withDefaultNamespace("block/water_overlay");
 
         this.tintColor = toAlpha(color);
         this.fogColor = new Vector3f((color >> 16 & 0xFF) / 255F, (color >> 8 & 0xFF) / 255F, (color & 0xFF) / 255F);
@@ -55,13 +55,13 @@ public class SimpleFluid extends FluidType {
     public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
         consumer.accept(new IClientFluidTypeExtensions() {
             @Override
-            public ResourceLocation getStillTexture() { return stillTexture; }
+            public Identifier getStillTexture() { return stillTexture; }
 
             @Override
-            public ResourceLocation getFlowingTexture() { return flowTexture; }
+            public Identifier getFlowingTexture() { return flowTexture; }
 
             @Override
-            public ResourceLocation getOverlayTexture() { return overlayTexture; }
+            public Identifier getOverlayTexture() { return overlayTexture; }
 
             @Override
             public int getTintColor() { return tintColor; }

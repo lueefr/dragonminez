@@ -9,7 +9,7 @@ import com.dragonminez.client.gui.tooltip.CustomTooltipRenderers;
 import com.dragonminez.client.util.TooltipUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import org.joml.Vector2ic;
@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 import java.util.Optional;
 
-@Mixin(GuiGraphics.class)
+@Mixin(GuiGraphicsExtractor.class)
 public abstract class GuiGraphicsMixin {
     @Shadow public abstract PoseStack pose();
     @Shadow public abstract int guiWidth();
@@ -52,7 +52,7 @@ public abstract class GuiGraphicsMixin {
             if (position.isPresent()) currentPosition = position.get();
         }
 
-        ScrollTracker.applyScroll((GuiGraphics) (Object) this, currentPosition.x(), currentPosition.y(), width, height, screenWidth, screenHeight);
+        ScrollTracker.applyScroll((GuiGraphicsExtractor) (Object) this, currentPosition.x(), currentPosition.y(), width, height, screenWidth, screenHeight);
 
         TooltipDecor.lastTooltipX = currentPosition.x();
         TooltipDecor.lastTooltipY = currentPosition.y();

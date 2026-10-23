@@ -3,16 +3,16 @@ package com.dragonminez.client.init.menu.screens;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.menu.menutypes.FuelGeneratorMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 public class FuelGeneratorScreen extends AbstractContainerScreen<FuelGeneratorMenu> {
-	private static final ResourceLocation TEXTURE =
-			ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/screen/fuel_generator_gui.png");
+	private static final Identifier TEXTURE =
+			Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/screen/fuel_generator_gui.png");
 
 	public FuelGeneratorScreen(FuelGeneratorMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
 		super(pMenu, pPlayerInventory, pTitle);
@@ -24,7 +24,7 @@ public class FuelGeneratorScreen extends AbstractContainerScreen<FuelGeneratorMe
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+	protected void renderBg(GuiGraphicsExtractor guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		RenderSystem.setShaderTexture(0, TEXTURE);
@@ -48,14 +48,14 @@ public class FuelGeneratorScreen extends AbstractContainerScreen<FuelGeneratorMe
 	}
 
 	@Override
-	public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float delta) {
+	public void render(GuiGraphicsExtractor guiGraphics, int pMouseX, int pMouseY, float delta) {
 		renderBackground(guiGraphics, pMouseX, pMouseY, delta);
 		super.render(guiGraphics, pMouseX, pMouseY, delta);
 		renderTooltip(guiGraphics, pMouseX, pMouseY);
 	}
 
 	@Override
-	protected void renderTooltip(GuiGraphics guiGraphics, int pMouseX, int pMouseY) {
+	protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int pMouseX, int pMouseY) {
 		super.renderTooltip(guiGraphics, pMouseX, pMouseY);
 
 		int x = (width - imageWidth) / 2;

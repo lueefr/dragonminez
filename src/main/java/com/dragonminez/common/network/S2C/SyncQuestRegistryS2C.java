@@ -116,7 +116,7 @@ public class SyncQuestRegistryS2C {
 			return true;
 		} catch (Exception e) {
 			LogUtil.error(Env.SERVER, "SyncQuestRegistryS2C: failed to send the quest registry to {}: {}",
-					player.getGameProfile().getName(), e.toString());
+					player.getGameProfile().name(), e.toString());
 			return false;
 		}
 	}

@@ -4,7 +4,7 @@ import com.dragonminez.Reference;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.io.InputStreamReader;
@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.Set;
 
 public final class KiAnimations {
-	private static final ResourceLocation ANIMATION_FILE =
-			ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/ki.animation.json");
+	private static final Identifier ANIMATION_FILE =
+			Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/ki.animation.json");
 
 	private static final Map<String, String> FALLBACKS = Map.of(
 			"ki.laser_fire", "ki.makkako_fire",

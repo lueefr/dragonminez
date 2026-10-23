@@ -7,7 +7,7 @@ import com.dragonminez.common.dragonball.DragonBallSetDefinition;
 import com.dragonminez.common.init.MainBlocks;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.*;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
@@ -179,7 +179,7 @@ public class DMZBlockStateProvider extends BlockStateProvider {
 				int star = entry.getKey();
 				DeferredHolder<Block, ? extends Block> block = entry.getValue();
 				if (assets != null && assets.getFlatTexturePathForStar(star).isPresent()) {
-					ResourceLocation texture = ResourceLocation.parse(assets.getFlatTexturePathForStar(star).get());
+					Identifier texture = Identifier.parse(assets.getFlatTexturePathForStar(star).get());
 					simpleBlockWithItem(block.get(), models().cubeAll(BuiltInRegistries.BLOCK.getKey(block.get()).getPath(), texture));
 				} else {
 					blockWithItem(block);
@@ -194,9 +194,9 @@ public class DMZBlockStateProvider extends BlockStateProvider {
 	
 	private void grassBlock(DeferredHolder<Block, ? extends Block> blockDeferredHolder) {
 		String path = BuiltInRegistries.BLOCK.getKey(blockDeferredHolder.get()).getPath();
-		ResourceLocation bottom = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_down");
-		ResourceLocation top = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_top");
-		ResourceLocation side = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_side");
+		Identifier bottom = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_down");
+		Identifier top = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_top");
+		Identifier side = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_side");
 		
 		simpleBlockWithItem(blockDeferredHolder.get(),
 			models().cubeBottomTop(path, side, bottom, top));
@@ -208,13 +208,13 @@ public class DMZBlockStateProvider extends BlockStateProvider {
 	}
 	private void leavesBlock(DeferredHolder<Block, ? extends Block> blockDeferredHolder) {
 		simpleBlockWithItem(blockDeferredHolder.get(), models().singleTexture(BuiltInRegistries.BLOCK.getKey(blockDeferredHolder.get()).getPath(),
-				ResourceLocation.parse("minecraft:block/leaves"), "all", blockTexture(blockDeferredHolder.get())).renderType("cutout"));
+				Identifier.parse("minecraft:block/leaves"), "all", blockTexture(blockDeferredHolder.get())).renderType("cutout"));
 	}
 	private void rootBlock(DeferredHolder<net.minecraft.world.level.block.Block, ? extends Block> blockRegistryObject) {
 		String path = BuiltInRegistries.BLOCK.getKey(blockRegistryObject.get()).getPath();
-		ResourceLocation side = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path);
-		ResourceLocation end = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_top");
-		ModelFile model = models().withExistingParent(path, ResourceLocation.parse("minecraft:block/block"))
+		Identifier side = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path);
+		Identifier end = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_top");
+		ModelFile model = models().withExistingParent(path, Identifier.parse("minecraft:block/block"))
 				.texture("particle", side)
 				.texture("side", side)
 				.texture("end", end)
@@ -231,10 +231,10 @@ public class DMZBlockStateProvider extends BlockStateProvider {
 
 	private void fruitBlock(DeferredHolder<net.minecraft.world.level.block.Block, ? extends Block> blockRegistryObject) {
 		String path = BuiltInRegistries.BLOCK.getKey(blockRegistryObject.get()).getPath();
-		ResourceLocation skin = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path);
-		ResourceLocation top = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_top");
-		ResourceLocation stem = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/might_tree_root");
-		BlockModelBuilder model = models().withExistingParent(path, ResourceLocation.parse("minecraft:block/block"))
+		Identifier skin = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path);
+		Identifier top = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_top");
+		Identifier stem = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/might_tree_root");
+		BlockModelBuilder model = models().withExistingParent(path, Identifier.parse("minecraft:block/block"))
 				.texture("particle", skin)
 				.texture("skin", skin)
 				.texture("top", top)
@@ -265,9 +265,9 @@ public class DMZBlockStateProvider extends BlockStateProvider {
 		getVariantBuilder(crop).forAllStates(state -> {
 			int age = state.getValue(CropBlock.AGE);
 			int stage = age * CROP_STAGES / (CropBlock.MAX_AGE + 1);
-			ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_stage" + stage);
+			Identifier texture = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + path + "_stage" + stage);
 			ModelFile model = models().singleTexture(path + "_stage" + stage,
-					ResourceLocation.parse("minecraft:block/crop"), "crop", texture).renderType("cutout");
+					Identifier.parse("minecraft:block/crop"), "crop", texture).renderType("cutout");
 			return ConfiguredModel.builder().modelFile(model).build();
 		});
 	}

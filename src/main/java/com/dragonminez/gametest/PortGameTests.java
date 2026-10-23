@@ -15,7 +15,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -54,14 +54,14 @@ public final class PortGameTests {
         for (String name : List.of("cooked_dino", "cooked_dino_tail", "cooked_baby_dino",
                 "cooked_dino_from_smoking", "cooked_dino_tail_from_smoking", "cooked_baby_dino_from_smoking",
                 "cooked_dino_from_campfire_cooking", "cooked_dino_tail_from_campfire_cooking", "cooked_baby_dino_from_campfire_cooking")) {
-            helper.assertTrue(server.getRecipeManager().byKey(ResourceLocation.fromNamespaceAndPath("dragonminez", name)).isPresent(),
+            helper.assertTrue(server.getRecipeManager().byKey(Identifier.fromNamespaceAndPath("dragonminez", name)).isPresent(),
                     "Missing cooking recipe: " + name);
         }
         for (String name : List.of("bandit", "saga_friezasoldier01", "saga_friezasoldier02", "saga_friezasoldier03",
                 "giant_fish", "sabertooth", "dino1", "dino2", "dino3", "giant_turtle", "robot1", "robot2", "robot3",
                 "namek_frog", "namek_frog_ginyu", "dinokid", "giran")) {
             var key = net.minecraft.resources.ResourceKey.create(Registries.LOOT_TABLE,
-                    ResourceLocation.fromNamespaceAndPath("dragonminez", "entities/" + name));
+                    Identifier.fromNamespaceAndPath("dragonminez", "entities/" + name));
             helper.assertTrue(server.reloadableRegistries().getLootTable(key) != net.minecraft.world.level.storage.loot.LootTable.EMPTY,
                     "Missing or invalid entity loot table: " + name);
         }

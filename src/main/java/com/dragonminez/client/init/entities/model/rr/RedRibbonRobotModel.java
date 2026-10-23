@@ -2,31 +2,31 @@ package com.dragonminez.client.init.entities.model.rr;
 
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.redribbon.RedRibbonEntity;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.core.registries.BuiltInRegistries;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.geckolib.constant.DataTickets;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.model.GeoModel;
+import com.geckolib.model.data.EntityModelData;
 
 public class RedRibbonRobotModel<T extends RedRibbonEntity> extends GeoModel<T> {
 
     @Override
-    public ResourceLocation getModelResource(T animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/enemies/robot1.geo.json");
+    public Identifier getModelResource(T animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/enemies/robot1.geo.json");
     }
 
     @Override
-    public ResourceLocation getTextureResource(T animatable) {
+    public Identifier getTextureResource(T animatable) {
         String name = BuiltInRegistries.ENTITY_TYPE.getKey(animatable.getType()).getPath();
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/enemies/" + name + ".png");
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/enemies/" + name + ".png");
     }
 
     @Override
-    public ResourceLocation getAnimationResource(T animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/enemies/robot1.animation.json");
+    public Identifier getAnimationResource(T animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/enemies/robot1.animation.json");
     }
 
     @Override

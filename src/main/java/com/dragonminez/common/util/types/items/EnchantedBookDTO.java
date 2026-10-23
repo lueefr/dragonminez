@@ -4,7 +4,7 @@ import lombok.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -23,9 +23,9 @@ import java.util.Map;
 public class EnchantedBookDTO extends EnchantedItemDTO {
 
 	public static final String ITEM_TYPE = "enchanted_book";
-	private static final ResourceLocation ENCHANTED_BOOK_ID = ResourceLocation.fromNamespaceAndPath("minecraft", "enchanted_book");
+	private static final Identifier ENCHANTED_BOOK_ID = Identifier.fromNamespaceAndPath("minecraft", "enchanted_book");
 
-	public EnchantedBookDTO(Map<ResourceLocation, Integer> enchantments) {
+	public EnchantedBookDTO(Map<Identifier, Integer> enchantments) {
 		super(ITEM_TYPE, ENCHANTED_BOOK_ID, 1, enchantments);
 	}
 

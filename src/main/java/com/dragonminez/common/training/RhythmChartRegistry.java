@@ -5,7 +5,7 @@ import com.dragonminez.LogUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -27,10 +27,10 @@ public class RhythmChartRegistry extends SimpleJsonResourceReloadListener {
 	}
 
 	@Override
-	protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
+	protected void apply(Map<Identifier, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
 		Map<String, RhythmChart> items = new HashMap<>();
 		Map<String, RhythmChart> sounds = new HashMap<>();
-		for (Map.Entry<ResourceLocation, JsonElement> entry : map.entrySet()) {
+		for (Map.Entry<Identifier, JsonElement> entry : map.entrySet()) {
 			try {
 				RhythmChart chart = RhythmChart.fromJson(entry.getKey().toString(), entry.getValue().getAsJsonObject());
 				if (!chart.item.isEmpty()) items.put(chart.item, chart);

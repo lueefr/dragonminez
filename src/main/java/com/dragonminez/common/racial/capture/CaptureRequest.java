@@ -21,12 +21,12 @@ public final class CaptureRequest {
 		StatsProvider.get(StatsCapability.INSTANCE, target).ifPresent(targetData -> {
 			long expiresAt = System.currentTimeMillis() + (long) timeoutSeconds * 1000L;
 			targetData.getRacialData().setPendingCaptureRequest(
-					new PendingCapture(requester.getUUID(), requester.getGameProfile().getName(), expiresAt));
+					new PendingCapture(requester.getUUID(), requester.getGameProfile().name(), expiresAt));
 		});
 
-		NetworkHandler.sendToPlayer(new RacialRequestS2C(requester.getGameProfile().getName(), timeoutSeconds), target);
+		NetworkHandler.sendToPlayer(new RacialRequestS2C(requester.getGameProfile().name(), timeoutSeconds), target);
 		requester.displayClientMessage(Component.translatable("message.dragonminez.racial.namek.request_sent",
-				target.getGameProfile().getName()), true);
+				target.getGameProfile().name()), true);
 	}
 
 	public static void reply(ServerPlayer target, boolean accepted) {
@@ -45,7 +45,7 @@ public final class CaptureRequest {
 
 			if (!accepted) {
 				requester.displayClientMessage(Component.translatable("message.dragonminez.racial.namek.request_rejected",
-						target.getGameProfile().getName()), true);
+						target.getGameProfile().name()), true);
 				return;
 			}
 

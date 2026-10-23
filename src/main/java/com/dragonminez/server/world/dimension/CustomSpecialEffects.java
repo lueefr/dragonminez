@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffects;
@@ -35,11 +35,11 @@ import java.util.Comparator;
 import java.util.List;
 
 public class CustomSpecialEffects extends DimensionSpecialEffects {
-	public static final ResourceLocation NAMEK_EFFECTS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "namek_effects");
-	public static final ResourceLocation OTHERWORLD_EFFECTS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "otherworld_effects");
-	public static final ResourceLocation HTC_EFFECT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "htc_effects");
-	public static final ResourceLocation SACREDKAI_EFFECTS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "sacredkai_effects");
-	public static final ResourceLocation DEMON_REALM_EFFECTS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "demon_realm_effects");
+	public static final Identifier NAMEK_EFFECTS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "namek_effects");
+	public static final Identifier OTHERWORLD_EFFECTS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "otherworld_effects");
+	public static final Identifier HTC_EFFECT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "htc_effects");
+	public static final Identifier SACREDKAI_EFFECTS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "sacredkai_effects");
+	public static final Identifier DEMON_REALM_EFFECTS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "demon_realm_effects");
 	final DMZCloudsRenderer cloudRenderer;
 
 	public CustomSpecialEffects(float cloudLevel, boolean hasGround, SkyType skyType, boolean forceBrightLightMap, boolean constantAmbientLight) {
@@ -130,7 +130,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		return colors[colors.length - 1];
 	}
 
-	protected static void drawSprites(PoseStack poseStack, ResourceLocation texture, List<SkySprite> sprites,
+	protected static void drawSprites(PoseStack poseStack, Identifier texture, List<SkySprite> sprites,
 									  float time, float alphaScale, boolean tinted, boolean additive) {
 		if (alphaScale <= 0.01F || sprites.isEmpty()) return;
 		if (additive) {
@@ -169,8 +169,8 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 	protected static final float DRAGON_NIGHT_SKY_DARKEN = 0.2F;
 	protected static final float DRAGON_NIGHT_CLOUD_SHADE = 0.28F;
 	private static final int DRAGON_NIGHT_STAR_ATTEMPTS = 1500;
-	private static final ResourceLocation VANILLA_SUN = ResourceLocation.withDefaultNamespace("textures/environment/sun.png");
-	private static final ResourceLocation VANILLA_MOON = ResourceLocation.withDefaultNamespace("textures/environment/moon_phases.png");
+	private static final Identifier VANILLA_SUN = Identifier.withDefaultNamespace("textures/environment/sun.png");
+	private static final Identifier VANILLA_MOON = Identifier.withDefaultNamespace("textures/environment/moon_phases.png");
 	private static VertexBuffer dragonNightStars;
 
 	protected Vec3 dragonNightFogColor(double cameraY) {
@@ -492,9 +492,9 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		private static final int TOURNAMENT_FADE_START = OtherworldGeneration.TOURNAMENT_LEVEL + 2;
 		private static final int TOURNAMENT_FADE_END = OtherworldGeneration.TOURNAMENT_LEVEL + 46;
 
-		private static final ResourceLocation BUBBLE = skyTexture("bubble");
-		private static final ResourceLocation SHINE = skyTexture("shine");
-		private static final ResourceLocation GLOW = skyTexture("glow");
+		private static final Identifier BUBBLE = skyTexture("bubble");
+		private static final Identifier SHINE = skyTexture("shine");
+		private static final Identifier GLOW = skyTexture("glow");
 
 		private static final float[] RINGS = {-90.0F, -30.0F, -15.0F, -5.0F, 0.0F, 2.0F, 4.0F, 6.0F, 8.0F, 10.0F, 12.0F, 14.0F,
 				16.0F, 19.0F, 23.0F, 28.0F, 35.0F, 45.0F, 60.0F, 75.0F, 90.0F};
@@ -643,8 +643,8 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 			return colors;
 		}
 
-		private static ResourceLocation skyTexture(String name) {
-			return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/environment/otherworld/" + name + ".png");
+		private static Identifier skyTexture(String name) {
+			return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/environment/otherworld/" + name + ".png");
 		}
 
 		@Override
@@ -660,11 +660,11 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 	}
 
 	public static class DemonRealmEffects extends CustomSpecialEffects {
-		private static final ResourceLocation NAMEK_PLANET = skyTexture("namek_planet");
-		private static final ResourceLocation PALE_MOON = skyTexture("pale_moon");
-		private static final ResourceLocation GLIND_PLANET = skyTexture("glind_planet");
-		private static final ResourceLocation MEGA_PLANET = skyTexture("mega_planet");
-		private static final ResourceLocation RED_SUN = skyTexture("red_sun");
+		private static final Identifier NAMEK_PLANET = skyTexture("namek_planet");
+		private static final Identifier PALE_MOON = skyTexture("pale_moon");
+		private static final Identifier GLIND_PLANET = skyTexture("glind_planet");
+		private static final Identifier MEGA_PLANET = skyTexture("mega_planet");
+		private static final Identifier RED_SUN = skyTexture("red_sun");
 
 		private static final Vec3[] HORIZON = {Vec3.fromRGB24(DemonRealmBiomes.FIRST_SKY), Vec3.fromRGB24(DemonRealmBiomes.SECOND_SKY), Vec3.fromRGB24(DemonRealmBiomes.THIRD_SKY)};
 		private static final Vec3[] ZENITH = {Vec3.fromRGB24(0x6E0D0D), Vec3.fromRGB24(0x93C93A), Vec3.fromRGB24(0xC24FC6)};
@@ -782,7 +782,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 			return horizon.lerp(zenith, Math.pow(Mth.sin(elevation * Mth.DEG_TO_RAD), 0.6D));
 		}
 
-		private static void drawBody(PoseStack poseStack, ResourceLocation texture, float yaw, float elevation, float size, float alpha, boolean additive) {
+		private static void drawBody(PoseStack poseStack, Identifier texture, float yaw, float elevation, float size, float alpha, boolean additive) {
 			if (additive) {
 				RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 			} else {
@@ -809,8 +809,8 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 			return colors[0].scale(weights[0]).add(colors[1].scale(weights[1])).add(colors[2].scale(weights[2]));
 		}
 
-		private static ResourceLocation skyTexture(String name) {
-			return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/environment/demon_realm/" + name + ".png");
+		private static Identifier skyTexture(String name) {
+			return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/environment/demon_realm/" + name + ".png");
 		}
 	}
 

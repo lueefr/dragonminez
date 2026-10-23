@@ -19,7 +19,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -43,7 +43,7 @@ import java.util.Optional;
 
 @EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public class LockOnEvent {
-	private static final ResourceLocation LOCK_ICON = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/lock_on.png");
+	private static final Identifier LOCK_ICON = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/lock_on.png");
 	private static final double NEAR_FOLLOW_BLEND = 1.0;
 	@Getter
 	private static LivingEntity lockedTarget = null;

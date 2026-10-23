@@ -5,12 +5,12 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.cache.object.GeoCube;
-import software.bernie.geckolib.cache.object.GeoQuad;
-import software.bernie.geckolib.cache.object.GeoVertex;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.GeoCube;
+import com.geckolib.cache.object.GeoQuad;
+import com.geckolib.cache.object.GeoVertex;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public final class ArmorPieceInflation {
 	public static final float ARMOR_GAP_PX = 0.1f;

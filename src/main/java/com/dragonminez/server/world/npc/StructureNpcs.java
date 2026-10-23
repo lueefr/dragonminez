@@ -15,7 +15,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -33,7 +33,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.BuiltInRegistries;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,7 +58,7 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 	private static final int MAX_RETRIES = 100;
 	private static final int RESCAN_RADIUS = 8;
 
-	private static volatile Map<ResourceLocation, List<Definition>> definitions = Map.of();
+	private static volatile Map<Identifier, List<Definition>> definitions = Map.of();
 	private static volatile int generation;
 	private static final Map<ResourceKey<Level>, ConcurrentLinkedQueue<Long>> PENDING = new ConcurrentHashMap<>();
 	private static final Map<ResourceKey<Level>, Integer> SCANNED_GENERATION = new ConcurrentHashMap<>();
@@ -68,8 +68,8 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 		super(GSON, DIRECTORY);
 	}
 
-	public record Definition(ResourceLocation structure, String id, ResourceLocation entity, @Nullable String npcId,
-							 String model, String texture, @Nullable ResourceLocation template, Vec3 pos, float yaw,
+	public record Definition(Identifier structure, String id, Identifier entity, @Nullable String npcId,
+							 String model, String texture, @Nullable Identifier template, Vec3 pos, float yaw,
 							 @Nullable Integer alignment, @Nullable String relation) {
 		public String trackingKey(StructureStart start) {
 			return "structure/" + this.structure + "/" + start.getChunkPos().toLong() + "/" + this.id;
@@ -77,11 +77,11 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 	}
 
 	@Override
-	protected void apply(Map<ResourceLocation, JsonElement> files, ResourceManager resourceManager, ProfilerFiller profiler) {
+	protected void apply(Map<Identifier, JsonElement> files, ResourceManager resourceManager, ProfilerFiller profiler) {
 		JsonLoadReport.clear(REPORT);
-		Map<ResourceLocation, List<Definition>> loaded = new HashMap<>();
+		Map<Identifier, List<Definition>> loaded = new HashMap<>();
 		int count = 0;
-		for (Map.Entry<ResourceLocation, JsonElement> entry : files.entrySet()) {
+		for (Map.Entry<Identifier, JsonElement> entry : files.entrySet()) {
 			String label = DIRECTORY + "/" + entry.getKey();
 			if (!entry.getValue().isJsonObject()) {
 				JsonLoadReport.error(REPORT, label, "root must be an object");
@@ -89,8 +89,8 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 			}
 			JsonObject root = entry.getValue().getAsJsonObject();
 			JsonKeys.checkObject(REPORT, label, "", root, ROOT_KEYS);
-			ResourceLocation structure = root.has("structure")
-					? ResourceLocation.tryParse(root.get("structure").getAsString())
+			Identifier structure = root.has("structure")
+					? Identifier.tryParse(root.get("structure").getAsString())
 					: entry.getKey();
 			if (structure == null || !root.has("npcs") || !root.get("npcs").isJsonArray()) {
 				JsonLoadReport.error(REPORT, label, "needs a valid 'structure' and an 'npcs' array");
@@ -110,7 +110,7 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 				count++;
 			}
 		}
-		Map<ResourceLocation, List<Definition>> frozen = new HashMap<>();
+		Map<Identifier, List<Definition>> frozen = new HashMap<>();
 		loaded.forEach((key, value) -> frozen.put(key, List.copyOf(value)));
 		definitions = Collections.unmodifiableMap(frozen);
 		generation++;
@@ -118,13 +118,13 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 	}
 
 	@Nullable
-	private static Definition parse(ResourceLocation structure, JsonObject json) {
+	private static Definition parse(Identifier structure, JsonObject json) {
 		if (!json.has("id") || !json.has("entity") || !json.has("pos") || !json.get("pos").isJsonArray()) return null;
 		JsonArray pos = json.getAsJsonArray("pos");
 		if (pos.size() != 3) return null;
-		ResourceLocation entity = ResourceLocation.tryParse(json.get("entity").getAsString());
+		Identifier entity = Identifier.tryParse(json.get("entity").getAsString());
 		if (entity == null) return null;
-		ResourceLocation template = json.has("template") ? ResourceLocation.tryParse(json.get("template").getAsString()) : null;
+		Identifier template = json.has("template") ? Identifier.tryParse(json.get("template").getAsString()) : null;
 		return new Definition(structure, json.get("id").getAsString(), entity,
 				json.has("npc_id") ? json.get("npc_id").getAsString() : null,
 				json.has("model") ? json.get("model").getAsString() : "",
@@ -136,16 +136,16 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 				json.has("relation") ? json.get("relation").getAsString() : null);
 	}
 
-	public static List<Definition> definitionsFor(ResourceLocation structure) {
+	public static List<Definition> definitionsFor(Identifier structure) {
 		return definitions.getOrDefault(structure, List.of());
 	}
 
 	public static void onChunkLoad(ServerLevel level, LevelChunk chunk) {
-		Map<ResourceLocation, List<Definition>> current = definitions;
+		Map<Identifier, List<Definition>> current = definitions;
 		if (current.isEmpty()) return;
 		var registry = level.registryAccess().registryOrThrow(Registries.STRUCTURE);
 		for (Structure structure : chunk.getAllReferences().keySet()) {
-			ResourceLocation id = registry.getKey(structure);
+			Identifier id = registry.getKey(structure);
 			if (id != null && current.containsKey(id)) {
 				PENDING.computeIfAbsent(level.dimension(), key -> new ConcurrentLinkedQueue<>()).add(chunk.getPos().toLong());
 				return;
@@ -204,7 +204,7 @@ public final class StructureNpcs extends SimpleJsonResourceReloadListener {
 	private static void processChunk(ServerLevel level, LevelChunk chunk) {
 		var registry = level.registryAccess().registryOrThrow(Registries.STRUCTURE);
 		for (Structure structure : chunk.getAllReferences().keySet()) {
-			ResourceLocation id = registry.getKey(structure);
+			Identifier id = registry.getKey(structure);
 			if (id == null) continue;
 			List<Definition> list = definitionsFor(id);
 			if (list.isEmpty()) continue;

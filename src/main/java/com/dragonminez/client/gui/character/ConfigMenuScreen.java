@@ -26,13 +26,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Axis;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -55,9 +55,9 @@ public class ConfigMenuScreen extends BaseMenuScreen {
 	private static final String MENU_SCALE_KEY = "config.menuScaleMultiplier";
 	private static final String UTILITY_SCALE_KEY = "config.utilityMenuScaleMultiplier";
 
-	private static final ResourceLocation MENU_BIG = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+	private static final Identifier MENU_BIG = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 			"textures/gui/menu/menubig.png");
-	private static final ResourceLocation STAT_BUTTONS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+	private static final Identifier STAT_BUTTONS = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 			"textures/gui/buttons/characterbuttons.png");
 
 	private static final int ROW_HEIGHT = 20;
@@ -278,7 +278,7 @@ public class ConfigMenuScreen extends BaseMenuScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		renderMenuBackground(graphics, partialTick);
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
 		int uiMouseY = (int) Math.round(toUiY(mouseY));
@@ -305,7 +305,7 @@ public class ConfigMenuScreen extends BaseMenuScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderLeftPanel(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderLeftPanel(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int panelX = getLeftPanelX();
 		int panelY = getPanelY();
 
@@ -345,7 +345,7 @@ public class ConfigMenuScreen extends BaseMenuScreen {
 		scrollBar.renderBar(graphics, mouseX, mouseY);
 	}
 
-	private void renderHeader(GuiGraphics graphics, Category category, int panelX, float y, boolean hovered) {
+	private void renderHeader(GuiGraphicsExtractor graphics, Category category, int panelX, float y, boolean hovered) {
 		float progress = easeInOut(Mth.clamp(openProgress.get(category).value(), 0.0f, 1.0f));
 		HudRender.rect(graphics, panelX + 9, y + 1, 117, ROW_HEIGHT - 3, hovered ? 0x30FFFFFF : 0x1CFFFFFF);
 
@@ -364,7 +364,7 @@ public class ConfigMenuScreen extends BaseMenuScreen {
 		drawScaledText(graphics, counter, panelX + 122 - this.font.width(counter) * TEXT_SCALE, y + 6, 0xFF9FB8AE, false);
 	}
 
-	private void renderRightPanel(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderRightPanel(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int panelX = getRightPanelX();
 		int panelY = getPanelY();
 
@@ -396,7 +396,7 @@ public class ConfigMenuScreen extends BaseMenuScreen {
 		scrollBar.endClip(graphics);
 	}
 
-	private void renderValue(GuiGraphics graphics, ConfigOption option, int panelX, float y, int mouseX, int mouseY, boolean interactable) {
+	private void renderValue(GuiGraphicsExtractor graphics, ConfigOption option, int panelX, float y, int mouseX, int mouseY, boolean interactable) {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		switch (option.type) {
 			case BOOLEAN -> blit(graphics, STAT_BUTTONS, panelX + 60, y + 3, 122, option.value > 0 ? 0 : 10, 20, 10);
@@ -452,7 +452,7 @@ public class ConfigMenuScreen extends BaseMenuScreen {
 		return String.valueOf((int) option.value);
 	}
 
-	private void drawScaledText(GuiGraphics graphics, Component text, float x, float y, int color, boolean centered) {
+	private void drawScaledText(GuiGraphicsExtractor graphics, Component text, float x, float y, int color, boolean centered) {
 		graphics.pose().pushPose();
 		graphics.pose().translate(x, y, 0.0f);
 		graphics.pose().scale(TEXT_SCALE, TEXT_SCALE, 1.0f);
@@ -461,7 +461,7 @@ public class ConfigMenuScreen extends BaseMenuScreen {
 		graphics.pose().popPose();
 	}
 
-	private void enableBlockScissor(GuiGraphics graphics, LayoutRow row, int left, int right) {
+	private void enableBlockScissor(GuiGraphicsExtractor graphics, LayoutRow row, int left, int right) {
 		int top = listTop();
 		HudRender.scissor(graphics, left, top + row.blockTop() - scrollBar.scroll(), right, top + row.blockBottom() - scrollBar.scroll());
 	}

@@ -4,36 +4,36 @@ import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.ki.GumBindEntity;
 import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.core.registries.BuiltInRegistries;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.geckolib.constant.DataTickets;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.model.GeoModel;
+import com.geckolib.model.data.EntityModelData;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class DBSagaModel<T extends DBSagasEntity> extends GeoModel<T> {
 
-    private static final Map<ResourceLocation, Boolean> RESOURCE_CACHE = new HashMap<>();
+    private static final Map<Identifier, Boolean> RESOURCE_CACHE = new HashMap<>();
     private static final Map<String, Integer> VARIANT_COUNT_CACHE = new HashMap<>();
 
     private static final int MAX_VARIANT_PROBE = 16;
 
-    private static final ResourceLocation[] PLAYER_ANIMATION_FALLBACKS = {
-            ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/ki.animation.json"),
-            ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/skp.animation.json"),
-            ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/evs.animation.json"),
-            ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/movement.animation.json")
+    private static final Identifier[] PLAYER_ANIMATION_FALLBACKS = {
+            Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/ki.animation.json"),
+            Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/skp.animation.json"),
+            Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/evs.animation.json"),
+            Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/movement.animation.json")
     };
 
     // Robot XV stands in for any saga enemy whose art is missing. No model: its model and texture.
     // Model but no texture: the entity's own model wearing the Robot XV texture.
-    private static final ResourceLocation FALLBACK_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/enemies/robotxv.geo.json");
-    private static final ResourceLocation FALLBACK_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/enemies/robotxv.png");
+    private static final Identifier FALLBACK_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/enemies/robotxv.geo.json");
+    private static final Identifier FALLBACK_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/enemies/robotxv.png");
 
     public static void clearCache() {
         RESOURCE_CACHE.clear();
@@ -41,13 +41,13 @@ public class DBSagaModel<T extends DBSagasEntity> extends GeoModel<T> {
     }
 
     @Override
-    public ResourceLocation getModelResource(T animatable) {
-        ResourceLocation model = modelLocation(animatable);
+    public Identifier getModelResource(T animatable) {
+        Identifier model = modelLocation(animatable);
         return RESOURCE_CACHE.computeIfAbsent(model, this::resourceExists) ? model : FALLBACK_MODEL;
     }
 
     @Override
-    public ResourceLocation getTextureResource(T animatable) {
+    public Identifier getTextureResource(T animatable) {
         if (!RESOURCE_CACHE.computeIfAbsent(modelLocation(animatable), this::resourceExists)) {
             return FALLBACK_TEXTURE;
         }
@@ -62,7 +62,7 @@ public class DBSagaModel<T extends DBSagasEntity> extends GeoModel<T> {
         }
 
         String variantSuffix = (variant == 0) ? "" : "_" + variant;
-        ResourceLocation variantTexture = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/sagas/" + name + variantSuffix + ".png");
+        Identifier variantTexture = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/sagas/" + name + variantSuffix + ".png");
 
         boolean variantExists = RESOURCE_CACHE.computeIfAbsent(variantTexture, this::resourceExists);
         if (variantExists) {
@@ -70,7 +70,7 @@ public class DBSagaModel<T extends DBSagasEntity> extends GeoModel<T> {
         }
 
         if (variant > 0) {
-            ResourceLocation baseTexture = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/sagas/" + name + ".png");
+            Identifier baseTexture = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/sagas/" + name + ".png");
             boolean baseExists = RESOURCE_CACHE.computeIfAbsent(baseTexture, this::resourceExists);
             if (baseExists) {
                 return baseTexture;
@@ -81,12 +81,12 @@ public class DBSagaModel<T extends DBSagasEntity> extends GeoModel<T> {
     }
 
     @Override
-    public ResourceLocation getAnimationResource(T animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/sagas/saga_base.animation.json");
+    public Identifier getAnimationResource(T animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/sagas/saga_base.animation.json");
     }
 
     @Override
-    public ResourceLocation[] getAnimationResourceFallbacks(T animatable) {
+    public Identifier[] getAnimationResourceFallbacks(T animatable) {
         return PLAYER_ANIMATION_FALLBACKS;
     }
 
@@ -115,18 +115,18 @@ public class DBSagaModel<T extends DBSagasEntity> extends GeoModel<T> {
     /** The base texture plus every consecutive {@code _1}, {@code _2}… variant that exists. */
     private int countTextureVariants(String name) {
         int count = 1;
-        while (count <= MAX_VARIANT_PROBE && resourceExists(ResourceLocation.fromNamespaceAndPath(
+        while (count <= MAX_VARIANT_PROBE && resourceExists(Identifier.fromNamespaceAndPath(
                 Reference.MOD_ID, "textures/entity/sagas/" + name + "_" + count + ".png"))) {
             count++;
         }
         return count;
     }
 
-    private static ResourceLocation modelLocation(DBSagasEntity animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/sagas/" + animatable.getGeckolibModelName() + ".geo.json");
+    private static Identifier modelLocation(DBSagasEntity animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/sagas/" + animatable.getGeckolibModelName() + ".geo.json");
     }
 
-    private boolean resourceExists(ResourceLocation location) {
+    private boolean resourceExists(Identifier location) {
         return Minecraft.getInstance().getResourceManager().getResource(location).isPresent();
     }
 }

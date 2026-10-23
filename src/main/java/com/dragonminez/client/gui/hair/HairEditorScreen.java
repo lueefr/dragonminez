@@ -20,7 +20,7 @@ import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.stats.character.Character;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -28,7 +28,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.CubeMap;
 import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
@@ -36,8 +36,8 @@ import org.lwjgl.glfw.GLFW;
 import java.util.EnumMap;
 
 public class HairEditorScreen extends ScaledScreen {
-	private static final ResourceLocation STAT_BUTTONS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
-	private static final ResourceLocation PANORAMA = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/roshi");
+	private static final Identifier STAT_BUTTONS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier PANORAMA = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/roshi");
 	private static final String HAIR_SALON_URL = "https://dragonminez.com/hairsalon";
 
 	private static final int MARGIN = 8;
@@ -158,7 +158,7 @@ public class HairEditorScreen extends ScaledScreen {
 		if (statusTimer > 0) statusTimer--;
 	}
 
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		panorama.render(graphics, Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight(), partialTick, 1.0f);
 		renderCinematicBars(graphics);
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
@@ -365,7 +365,7 @@ public class HairEditorScreen extends ScaledScreen {
 		viewportY1 = uiHeight - MARGIN;
 	}
 
-	private void renderViewport(GuiGraphics graphics, int rawMouseX, int rawMouseY) {
+	private void renderViewport(GuiGraphicsExtractor graphics, int rawMouseX, int rawMouseY) {
 		LocalPlayer player = minecraft != null ? minecraft.player : null;
 		if (player == null) return;
 
@@ -471,7 +471,7 @@ public class HairEditorScreen extends ScaledScreen {
 		inspector.requestRebuild();
 	}
 
-	private void renderTopBar(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderTopBar(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int top = 6;
 		HairEditorUi.button(graphics, font, HairEditorUi.tr("gui.dragonminez.hair_editor.cancel"), MARGIN, top, 60, TOP_BAR_HEIGHT, HairEditorUi.inside(mouseX, mouseY, MARGIN, top, 60, TOP_BAR_HEIGHT), false, true);
 		Component title = state.isDirty() ? HairEditorUi.txt(getTitle().getString() + " *") : getTitle();
@@ -542,7 +542,7 @@ public class HairEditorScreen extends ScaledScreen {
 		return false;
 	}
 
-	private void renderViewportOverlay(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderViewportOverlay(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int x = viewportX0 + 2;
 		int y = viewportY0 + 2;
 		for (ViewPreset preset : ViewPreset.values()) {
@@ -583,7 +583,7 @@ public class HairEditorScreen extends ScaledScreen {
 		colorPicker.open(anchorX, anchorY, getUiWidth(), getUiHeight(), row.currentHex(), row.fallbackHex(), row::set);
 	}
 
-	private void renderOutlinerTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderOutlinerTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		Component tooltip = outliner.tooltip(mouseX, mouseY);
 		if (tooltip != null) graphics.renderTooltip(font, tooltip, mouseX, mouseY);
 	}
@@ -687,7 +687,7 @@ public class HairEditorScreen extends ScaledScreen {
 		}, HAIR_SALON_URL, true));
 	}
 
-	private void renderConfirmClose(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderConfirmClose(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		graphics.pose().pushPose();
 		graphics.pose().translate(0.0f, 0.0f, 500.0f);
 		graphics.fill(0, 0, getUiWidth(), getUiHeight(), 0x90000000);
@@ -735,17 +735,17 @@ public class HairEditorScreen extends ScaledScreen {
 
 	private HairInspectorPanel.ScissorBox scissorBox() {
 		return new HairInspectorPanel.ScissorBox() {
-			public void enable(GuiGraphics graphics, int x0, int y0, int x1, int y1) {
+			public void enable(GuiGraphicsExtractor graphics, int x0, int y0, int x1, int y1) {
 				graphics.enableScissor(toScreenCoord(x0), toScreenCoord(y0), toScreenCoord(x1), toScreenCoord(y1));
 			}
 
-			public void disable(GuiGraphics graphics) {
+			public void disable(GuiGraphicsExtractor graphics) {
 				graphics.disableScissor();
 			}
 		};
 	}
 
-	private void renderCinematicBars(GuiGraphics graphics) {
+	private void renderCinematicBars(GuiGraphicsExtractor graphics) {
 		int barHeight = (int) (height * 0.12);
 		graphics.fill(0, 0, width, barHeight - 60, 0xFF000000);
 		graphics.fillGradient(0, barHeight - 60, width, barHeight, 0xFF000000, 0x00000000);

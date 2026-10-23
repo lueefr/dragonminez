@@ -5,13 +5,13 @@ import com.dragonminez.common.training.MemoryLogic;
 import com.dragonminez.common.training.MinigameEvent;
 import com.dragonminez.common.training.MinigameOrigin;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public class MemoryGameScreen extends BaseMinigameScreen {
-	private static final ResourceLocation SHEET = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/minigame/memory.png");
+	private static final Identifier SHEET = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/minigame/memory.png");
 	private static final int CAP_W = 22, CAP_H = 24;
 	private static final int PRESSED_U = 24;
 	private static final int LETTER_IDLE = 0x2A2A34;
@@ -114,7 +114,7 @@ public class MemoryGameScreen extends BaseMinigameScreen {
 	}
 
 	@Override
-	protected void renderGame(GuiGraphics graphics, float partialTick) {
+	protected void renderGame(GuiGraphicsExtractor graphics, float partialTick) {
 		MemoryLogic m = memory();
 		int[] sequence = m.sequence();
 		int len = sequence.length;
@@ -210,7 +210,7 @@ public class MemoryGameScreen extends BaseMinigameScreen {
 		drawHearts(graphics, SHEET, cx, cy - capH / 2f - 34, m.lives(), Math.max(1, m.cfg().getLives()), 1.5f, lifeLostNanos);
 	}
 
-	private void drawKeyLetter(GuiGraphics graphics, int character, float centerX, float centerY, float keyScale, int rgb, float alpha) {
+	private void drawKeyLetter(GuiGraphicsExtractor graphics, int character, float centerX, float centerY, float keyScale, int rgb, float alpha) {
 		MutableComponent letter = dmz(String.valueOf(MemoryLogic.CHARACTERS.charAt(character)));
 		float textScale = keyScale * 1.15f;
 		int alphaBits = Math.max(8, Math.round(alpha * 255));

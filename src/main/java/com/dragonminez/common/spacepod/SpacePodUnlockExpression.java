@@ -8,7 +8,7 @@ import com.dragonminez.common.stats.StatsProvider;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public interface SpacePodUnlockExpression {
 		}
 		if (object.has("visited_dimension")) {
 			String dimension = getRequiredString(object, "visited_dimension");
-			if (ResourceLocation.tryParse(dimension) == null) {
+			if (Identifier.tryParse(dimension) == null) {
 				throw new IllegalArgumentException("unlock_rules.visited_dimension must be a valid resource location");
 			}
 			return new VisitedDimension(dimension);

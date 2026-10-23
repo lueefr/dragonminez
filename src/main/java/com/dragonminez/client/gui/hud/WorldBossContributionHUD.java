@@ -7,7 +7,7 @@ import com.dragonminez.client.util.NumberFormattingUtil;
 import com.dragonminez.common.network.S2C.WorldBossContributionS2C;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.client.gui.LayeredDraw;
@@ -57,7 +57,7 @@ public class WorldBossContributionHUD {
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
-	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	public static void render(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null || mc.level == null) return;
 
@@ -144,12 +144,12 @@ public class WorldBossContributionHUD {
 		return -1;
 	}
 
-	private static void drawPanel(GuiGraphics guiGraphics, float panelHeight) {
+	private static void drawPanel(GuiGraphicsExtractor guiGraphics, float panelHeight) {
 		HudRender.panel(guiGraphics, 0.0f, 0.0f, WIDTH, panelHeight, 1.0f);
 		HudRender.rect(guiGraphics, PADDING, HEADER_HEIGHT - 2.0f, WIDTH - PADDING * 2.0f, 1.0f, HudRender.argb(0.35f, TRACK_COLOR));
 	}
 
-	private static void drawHeader(GuiGraphics guiGraphics, boolean preview) {
+	private static void drawHeader(GuiGraphicsExtractor guiGraphics, boolean preview) {
 		String bossKey = ClientWorldBossState.Contribution.bossNameKey();
 		Component bossName = preview && bossKey.isEmpty()
 				? Component.translatable("gui.dragonminez.hud_editor.sample.boss_name")
@@ -159,7 +159,7 @@ public class WorldBossContributionHUD {
 		HudRender.dmzText(guiGraphics, formatTicks(elapsedTicks), WIDTH - PADDING, 3.0f, TEXT_SCALE, 1.0f, TIMER_COLOR, 1.0f);
 	}
 
-	private static void drawRow(GuiGraphics guiGraphics, Minecraft mc, RowView view, float row, float fill, float appear, boolean showPercent) {
+	private static void drawRow(GuiGraphicsExtractor guiGraphics, Minecraft mc, RowView view, float row, float fill, float appear, boolean showPercent) {
 		WorldBossContributionS2C.Entry entry = view.entry;
 		float y = HEADER_HEIGHT + row * ROW_HEIGHT;
 		float slide = (1.0f - appear) * 24.0f;

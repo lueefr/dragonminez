@@ -6,7 +6,7 @@ import com.dragonminez.common.init.MainItems;
 import com.dragonminez.server.world.structure.helper.DMZStructures;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.npc.Villager;
@@ -23,15 +23,15 @@ public class CCNamekianEntity extends NamekTraderEntity {
 	private static final int MAP_XP = 40;
 	private static final int MAP_MAX_USES = 8;
 
-	private static final ResourceLocation TEXTURE =
-			ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/enemies/cc_namekian.png");
+	private static final Identifier TEXTURE =
+			Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/enemies/cc_namekian.png");
 
 	public CCNamekianEntity(EntityType<? extends Villager> pEntityType, Level pLevel) {
 		super(pEntityType, pLevel);
 	}
 
 	@Override
-	public ResourceLocation getCurrentTexture() {
+	public Identifier getCurrentTexture() {
 		return TEXTURE;
 	}
 

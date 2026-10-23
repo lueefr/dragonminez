@@ -184,7 +184,7 @@ public class FusionLogic {
 		pData.getStatus().setFusionPartnerUUID(leader.getUUID());
 		pData.getStatus().setFusionType(type);
 
-		String fusionName = buildFusionName(leader.getGameProfile().getName(), partner.getGameProfile().getName(), type);
+		String fusionName = buildFusionName(leader.getGameProfile().name(), partner.getGameProfile().name(), type);
 		lData.getStatus().setFusionName(fusionName);
 		pData.getStatus().setFusionName(fusionName);
 

@@ -8,9 +8,9 @@ import com.dragonminez.common.init.entities.sagas.SagaSaibamanEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 public class SagaSaibamanRenderer<T extends SagaSaibamanEntity> extends GeoEntityRenderer<T> {
 
@@ -24,7 +24,7 @@ public class SagaSaibamanRenderer<T extends SagaSaibamanEntity> extends GeoEntit
     }
 
     @Override
-    public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(T animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityCutout(texture);
     }
 }

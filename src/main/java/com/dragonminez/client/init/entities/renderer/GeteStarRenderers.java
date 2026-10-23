@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -37,7 +37,7 @@ public final class GeteStarRenderers {
 
     public static class BindRenderer extends EntityRenderer<GeteStarEntities.Bind> {
 
-        private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/gete_cable.png");
+        private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/gete_cable.png");
         private static final int SEGMENTS = 10;
         private static final double HALF_WIDTH = 0.16D;
         private static final double ANCHOR_SIDE = 2.4D;
@@ -135,14 +135,14 @@ public final class GeteStarRenderers {
         }
 
         @Override
-        public ResourceLocation getTextureLocation(GeteStarEntities.Bind bind) {
+        public Identifier getTextureLocation(GeteStarEntities.Bind bind) {
             return TEXTURE;
         }
     }
 
     public static class ScrapRenderer extends EntityRenderer<GeteStarEntities.Scrap> {
 
-        private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/item/gete_scrap.png");
+        private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/item/gete_scrap.png");
         private static final int PIECES = 9;
 
         private final ItemRenderer itemRenderer;
@@ -182,7 +182,7 @@ public final class GeteStarRenderers {
         }
 
         @Override
-        public ResourceLocation getTextureLocation(GeteStarEntities.Scrap scrap) {
+        public Identifier getTextureLocation(GeteStarEntities.Scrap scrap) {
             return TEXTURE;
         }
     }

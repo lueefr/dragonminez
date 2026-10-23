@@ -19,7 +19,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -86,7 +86,7 @@ public class DMZStructures {
 
 		context.register(BUDOKAI_TENKAICHI, new IncrementalFittedTemplateStructure(
 				new Structure.StructureSettings(budokaiOceans(biomes), Map.of(), GenerationStep.Decoration.TOP_LAYER_MODIFICATION, TerrainAdjustment.NONE),
-				ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "budokai_tenkaichi"), BUDOKAI_TENKAICHI_FIT,
+				Identifier.fromNamespaceAndPath(Reference.MOD_ID, "budokai_tenkaichi"), BUDOKAI_TENKAICHI_FIT,
 				Optional.of(Rotation.NONE), BUDOKAI_TENKAICHI_MIN_WATER, BUDOKAI_TENKAICHI_SAMPLE_STEP));
 
 		context.register(GERO_LAB, new JigsawStructure(
@@ -202,7 +202,7 @@ public class DMZStructures {
 							   String template, TerrainFit fit, Optional<Rotation> rotation, float maxDeviation) {
 		context.register(key, new FittedTemplateStructure(
 				new Structure.StructureSettings(biomes, Map.of(), GenerationStep.Decoration.TOP_LAYER_MODIFICATION, TerrainAdjustment.NONE),
-				ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, template), fit, rotation, maxDeviation));
+				Identifier.fromNamespaceAndPath(Reference.MOD_ID, template), fit, rotation, maxDeviation));
 	}
 
 	public static HolderSet<Biome> budokaiOceans(HolderGetter<Biome> biomes) {
@@ -212,6 +212,6 @@ public class DMZStructures {
 	}
 
 	private static ResourceKey<Structure> createKey(String name) {
-		return ResourceKey.create(Registries.STRUCTURE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
+		return ResourceKey.create(Registries.STRUCTURE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name));
 	}
 }

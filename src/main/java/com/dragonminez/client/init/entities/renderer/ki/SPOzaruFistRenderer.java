@@ -10,11 +10,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.util.Color;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.util.Color;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 public class SPOzaruFistRenderer<T extends OzaruFistEntity> extends GeoEntityRenderer<T> {
     private static final float[] TRAIL_COLOR = ColorUtils.rgbIntToFloat(0xE0A35C);
@@ -64,7 +64,7 @@ public class SPOzaruFistRenderer<T extends OzaruFistEntity> extends GeoEntityRen
     }
 
     @Override
-    public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(T animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucentEmissive(texture);
     }
 

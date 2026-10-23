@@ -4,7 +4,7 @@ import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
@@ -29,18 +29,18 @@ public final class RaidEntityResolver {
 		if (type == null || entityId == null || entityId.isBlank()) return false;
 
 		if (!entityId.startsWith("#")) {
-			ResourceLocation location = ResourceLocation.tryParse(entityId);
+			Identifier location = Identifier.tryParse(entityId);
 			return location != null && location.equals(BuiltInRegistries.ENTITY_TYPE.getKey(type));
 		}
 
-		ResourceLocation tagLocation = ResourceLocation.tryParse(entityId.substring(1));
+		Identifier tagLocation = Identifier.tryParse(entityId.substring(1));
 		if (tagLocation == null) return false;
 
 		return BuiltInRegistries.ENTITY_TYPE.getTag(TagKey.create(Registries.ENTITY_TYPE, tagLocation)).map(tag -> tag.contains(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type))).orElse(false);
 	}
 
 	private static EntityType<?> resolveDirect(String entityId) {
-		ResourceLocation location = ResourceLocation.tryParse(entityId);
+		Identifier location = Identifier.tryParse(entityId);
 		if (location == null) {
 			LogUtil.warn(Env.SERVER, "Raid wave has a malformed entity id '{}'; skipping it", entityId);
 			return null;
@@ -54,7 +54,7 @@ public final class RaidEntityResolver {
 	}
 
 	private static EntityType<?> resolveFromTag(String tagId, RandomSource random) {
-		ResourceLocation location = ResourceLocation.tryParse(tagId);
+		Identifier location = Identifier.tryParse(tagId);
 		if (location == null) {
 			LogUtil.warn(Env.SERVER, "Raid wave has a malformed entity tag '#{}'; skipping it", tagId);
 			return null;

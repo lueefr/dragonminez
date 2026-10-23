@@ -10,15 +10,15 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.util.Color;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.util.Color;
+import com.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.renderer.layer.GeoRenderLayer;
 
 public class DragonDBRenderer extends GeoEntityRenderer<DragonWishEntity> {
 
@@ -53,7 +53,7 @@ public class DragonDBRenderer extends GeoEntityRenderer<DragonWishEntity> {
 	}
 
 	@Override
-	public RenderType getRenderType(DragonWishEntity animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+	public RenderType getRenderType(DragonWishEntity animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
 		return animatable.isFading() ? RenderType.entityTranslucent(texture) : RenderType.entityCutoutNoCull(texture);
 	}
 

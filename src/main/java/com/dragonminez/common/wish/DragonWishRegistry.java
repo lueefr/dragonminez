@@ -10,7 +10,7 @@ import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.network.S2C.SyncWishesS2C;
 import com.dragonminez.common.util.gson.GsonUtils;
 import com.google.gson.JsonElement;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.server.level.ServerPlayer;
@@ -39,7 +39,7 @@ public class DragonWishRegistry extends SimpleJsonResourceReloadListener {
 	}
 
 	@Override
-	protected void apply(Map<ResourceLocation, JsonElement> ignored, ResourceManager resourceManager, ProfilerFiller profiler) {
+	protected void apply(Map<Identifier, JsonElement> ignored, ResourceManager resourceManager, ProfilerFiller profiler) {
 		DragonBallPackManager.LoadedDefinitions external = DragonBallPackManager.loadAll();
 		Map<String, List<Wish>> loaded = new LinkedHashMap<>(external.wishes);
 		for (var dragon : DragonBallDefinitions.getDragons()) loaded.putIfAbsent(dragon.getId(), List.of());

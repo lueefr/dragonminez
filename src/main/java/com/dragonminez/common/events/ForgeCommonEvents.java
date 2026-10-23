@@ -64,7 +64,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -215,7 +215,7 @@ public class ForgeCommonEvents {
 		String version = Reference.VERSION;
 		if (version.contains("-beta") || version.contains("-alpha")) {
 			Player player = event.getEntity();
-			String username = player.getGameProfile().getName();
+			String username = player.getGameProfile().name();
 
 			if (!BetaWhitelist.isAllowed(username)) {
 				LogUtil.error(Env.SERVER, "User {} tried to join but is not in the beta whitelist.", username);
@@ -458,8 +458,8 @@ public class ForgeCommonEvents {
 		if (event.getSound() == SoundEvents.PLAYER_ATTACK_CRIT) event.setCanceled(true);
 	}
 
-	private static final net.minecraft.resources.ResourceLocation WEAPON_CRIT_CHANCE_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/c37e2055-7783-4559-b18a-1b3e6f5a0410");
-	private static final net.minecraft.resources.ResourceLocation WEAPON_CRIT_DAMAGE_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/496f2714-a61f-41e2-aed5-265e7fa0e0fa");
+	private static final net.minecraft.resources.Identifier WEAPON_CRIT_CHANCE_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/c37e2055-7783-4559-b18a-1b3e6f5a0410");
+	private static final net.minecraft.resources.Identifier WEAPON_CRIT_DAMAGE_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/496f2714-a61f-41e2-aed5-265e7fa0e0fa");
 
 	@SubscribeEvent
 	public static void attachDynamicWeaponAttributes(ItemAttributeModifierEvent event) {
@@ -655,7 +655,7 @@ public class ForgeCommonEvents {
 			String argument = nodes.get(2).getRange().get(parse.getReader().getString());
 			if (argument.isEmpty() || argument.charAt(0) == '#') return;
 
-			ResourceLocation id = ResourceLocation.tryParse(argument);
+			Identifier id = Identifier.tryParse(argument);
 			if (id == null || !id.getNamespace().equals(Reference.MOD_ID)) return;
 
 			CommandSourceStack source = parse.getContext().getSource();

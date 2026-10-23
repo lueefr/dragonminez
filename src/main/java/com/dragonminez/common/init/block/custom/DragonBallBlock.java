@@ -12,7 +12,7 @@ import com.dragonminez.common.init.entities.dragon.DragonWishEntity;
 import com.dragonminez.server.events.DragonBallsHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -165,7 +165,7 @@ public class DragonBallBlock extends BaseEntityBlock implements EntityBlock {
 	}
 
 	private DragonWishEntity summonDragon(ServerLevel serverLevel, BlockPos pos, Player player, DragonDefinition dragonDefinition) {
-		EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("dragonminez", dragonDefinition.getId()));
+		EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(Identifier.fromNamespaceAndPath("dragonminez", dragonDefinition.getId()));
 		if (entityType == null) {
 			return null;
 		}

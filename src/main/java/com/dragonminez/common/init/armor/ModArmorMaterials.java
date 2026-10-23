@@ -6,7 +6,7 @@ import com.dragonminez.common.init.MainItems;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -38,7 +38,7 @@ public final class ModArmorMaterials {
 				10,
 				SoundEvents.ARMOR_EQUIP_IRON,
 				() -> Ingredient.of(Items.IRON_INGOT),
-				List.of(new ArmorMaterial.Layer(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "basic"))),
+				List.of(new ArmorMaterial.Layer(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "basic"))),
 				0.0F,
 				0.0F
 		);
@@ -57,7 +57,7 @@ public final class ModArmorMaterials {
 				25,
 				SoundEvents.ARMOR_EQUIP_NETHERITE,
 				() -> Ingredient.of(MainItems.KIKONO_SHARD.get()),
-				List.of(new ArmorMaterial.Layer(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "kikono"))),
+				List.of(new ArmorMaterial.Layer(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "kikono"))),
 				5.0F,
 				0.1F
 		);

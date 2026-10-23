@@ -3,29 +3,29 @@ package com.dragonminez.client.init.entities.model;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.MajinSkillEntity;
 import com.dragonminez.common.init.entities.animal.NamekFrogEntity;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.geckolib.constant.DataTickets;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.model.GeoModel;
+import com.geckolib.model.data.EntityModelData;
 
 public class MajinSkillModel<T extends MajinSkillEntity> extends GeoModel<T> {
 
     @Override
-    public ResourceLocation getModelResource(T animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/skills/majinskill.geo.json");
+    public Identifier getModelResource(T animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/skills/majinskill.geo.json");
     }
 
     @Override
-    public ResourceLocation getTextureResource(T animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/ki_laser.png");
+    public Identifier getTextureResource(T animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/ki_laser.png");
     }
 
     @Override
-    public ResourceLocation getAnimationResource(T animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/skills/majinskill.animation.json");
+    public Identifier getAnimationResource(T animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/skills/majinskill.animation.json");
     }
 
 }

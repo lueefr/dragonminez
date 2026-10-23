@@ -17,11 +17,11 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
 
 import java.util.Objects;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import com.geckolib.renderer.layer.GeoRenderLayer;
 
 public class BoneVisibilityHandler {
 	private static final String[] FUSION_MODEL_BONES = {"cola", "xenotail", "orejas", "alas", "cabeza2"};

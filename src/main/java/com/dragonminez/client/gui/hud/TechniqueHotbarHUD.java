@@ -11,11 +11,11 @@ import com.dragonminez.common.stats.techniques.TechniqueData;
 import com.dragonminez.common.stats.techniques.Techniques;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.client.gui.LayeredDraw;
 import net.neoforged.neoforge.client.settings.KeyModifier;
@@ -24,7 +24,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class TechniqueHotbarHUD {
-	private static final ResourceLocation DMZ_FONT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	private static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
 
 	private static final int SLOTS = Techniques.SLOT_COUNT;
 	private static final int BAR_SLOTS = 4;
@@ -58,7 +58,7 @@ public class TechniqueHotbarHUD {
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
-	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	public static void render(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 
@@ -140,7 +140,7 @@ public class TechniqueHotbarHUD {
 		return best;
 	}
 
-	private static void drawRow(GuiGraphics guiGraphics, Font font, HudLayout.Box box, int slot, SlotView view, float alpha, boolean preview) {
+	private static void drawRow(GuiGraphicsExtractor guiGraphics, Font font, HudLayout.Box box, int slot, SlotView view, float alpha, boolean preview) {
 		float baseWidth = box.width() / box.scale();
 		float baseHeight = box.height() / box.scale();
 		int textY = Math.round((baseHeight - font.lineHeight) / 2.0f);
@@ -171,7 +171,7 @@ public class TechniqueHotbarHUD {
 		guiGraphics.pose().popPose();
 	}
 
-	private static void drawBadge(GuiGraphics guiGraphics, Font font, int x, int y, String label, float alpha) {
+	private static void drawBadge(GuiGraphicsExtractor guiGraphics, Font font, int x, int y, String label, float alpha) {
 		guiGraphics.fill(x, y, x + BADGE_SIZE, y + BADGE_SIZE, fade(COLOR_BADGE_BG, alpha));
 		guiGraphics.renderOutline(x, y, BADGE_SIZE, BADGE_SIZE, fade(COLOR_BADGE_BORDER, alpha));
 		MutableComponent text = styled(label);
@@ -180,7 +180,7 @@ public class TechniqueHotbarHUD {
 		drawText(guiGraphics, font, text, textX, textY, COLOR_BADGE_TEXT, alpha);
 	}
 
-	private static void drawText(GuiGraphics guiGraphics, Font font, Component text, int x, int y, int rgb, float alpha) {
+	private static void drawText(GuiGraphicsExtractor guiGraphics, Font font, Component text, int x, int y, int rgb, float alpha) {
 		int alphaChannel = Math.round(Mth.clamp(alpha, 0.0f, 1.0f) * 255.0f);
 		if (alphaChannel <= 3) return;
 		guiGraphics.drawString(font, text, x, y, (alphaChannel << 24) | (rgb & 0xFFFFFF), false);

@@ -3,7 +3,7 @@ package com.dragonminez.common.quest.objectives;
 import lombok.*;
 import com.dragonminez.common.quest.QuestObjective;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 @Getter
@@ -21,7 +21,7 @@ public class InteractObjective extends QuestObjective {
 	@Override
 	public boolean checkProgress(Object... params) {
 		if (params.length > 0 && params[0] instanceof Entity entity) {
-			EntityType<?> requiredType = entityTypeId != null ? BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entityTypeId)) : null;
+			EntityType<?> requiredType = entityTypeId != null ? BuiltInRegistries.ENTITY_TYPE.get(Identifier.parse(entityTypeId)) : null;
 			if (requiredType == null || entity.getType().equals(requiredType)) {
 				if (entityName == null || entity.getName().getString().equals(entityName)) {
 					setProgress(1);

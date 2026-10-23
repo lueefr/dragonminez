@@ -10,17 +10,17 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.cache.GeckoLibCache;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import net.minecraft.resources.Identifier;
+import com.geckolib.cache.GeckoLibCache;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.layer.GeoRenderLayer;
 
 public class SagaHaloLayer<T extends DBSagasEntity> extends GeoRenderLayer<T> {
 
-	private static final ResourceLocation RACES_PARTS_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/raceparts.geo.json");
-	private static final ResourceLocation RACES_PARTS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/raceparts.png");
+	private static final Identifier RACES_PARTS_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/raceparts.geo.json");
+	private static final Identifier RACES_PARTS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/raceparts.png");
 	private static final float[] HALO_COLOR = ColorUtils.hexToRgb("#FFF461");
 	private static final float HALO_ALPHA = 0.75f;
 	private static final float PLAYER_HEAD_TOP = 2.0f;

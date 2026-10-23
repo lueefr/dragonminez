@@ -3,7 +3,7 @@ package com.dragonminez.client.gui.radial.nodes;
 import com.dragonminez.client.gui.radial.AbstractRadialNode;
 import com.dragonminez.common.stats.StatsData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class EmptyNode extends AbstractRadialNode {
 
@@ -13,7 +13,7 @@ public class EmptyNode extends AbstractRadialNode {
 	}
 
 	@Override
-	public ResourceLocation icon(StatsData stats) {
+	public Identifier icon(StatsData stats) {
 		return null;
 	}
 

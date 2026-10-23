@@ -9,12 +9,12 @@ import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.util.Color;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.util.Color;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 public class SPDragonFistRenderer<T extends SPDragonFistEntity> extends GeoEntityRenderer<T> {
     private static final float[] TRAIL_COLOR = ColorUtils.rgbIntToFloat(0xFFC21A);
@@ -78,7 +78,7 @@ public class SPDragonFistRenderer<T extends SPDragonFistEntity> extends GeoEntit
     }
 
     @Override
-    public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(T animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucentEmissive(texture);
     }
 

@@ -13,12 +13,12 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 
 public class KiDiskRenderer extends EntityRenderer<KiDiskEntity> {
 
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kidisc.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kidisc.png");
 
     public KiDiskRenderer(EntityRendererProvider.Context pContext) {
         super(pContext);
@@ -89,7 +89,7 @@ public class KiDiskRenderer extends EntityRenderer<KiDiskEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(KiDiskEntity entity) {
+    public Identifier getTextureLocation(KiDiskEntity entity) {
         return TEXTURE;
     }
 }

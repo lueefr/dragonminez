@@ -5,7 +5,7 @@ import com.dragonminez.server.world.gen.OtherworldGeneration;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
@@ -17,8 +17,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.OptionalLong;
 
 public class OtherworldDimension {
-	public static final ResourceKey<Level> OTHERWORLD_KEY = ResourceKey.create(Registries.DIMENSION, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "otherworld"));
-	public static final ResourceKey<DimensionType> OTHERWORLD_TYPE = ResourceKey.create(Registries.DIMENSION_TYPE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "otherworld"));
+	public static final ResourceKey<Level> OTHERWORLD_KEY = ResourceKey.create(Registries.DIMENSION, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "otherworld"));
+	public static final ResourceKey<DimensionType> OTHERWORLD_TYPE = ResourceKey.create(Registries.DIMENSION_TYPE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "otherworld"));
 
 	public static final Vec3 SPIRIT_ARRIVAL = new Vec3(0.5, 150, -44.5);
 

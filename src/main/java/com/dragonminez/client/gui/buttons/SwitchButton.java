@@ -2,10 +2,10 @@ package com.dragonminez.client.gui.buttons;
 
 import com.dragonminez.Reference;
 import com.dragonminez.client.gui.hud.HudRender;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -15,7 +15,7 @@ public class SwitchButton extends Button implements SubpixelWidget {
     private boolean isActive;
     private float subpixelX;
     private float subpixelY;
-    private static final ResourceLocation BUTTONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+    private static final Identifier BUTTONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
             "textures/gui/buttons/characterbuttons.png");
 
     public SwitchButton(int x, int y, boolean active, Component message, OnPress onPress) {
@@ -36,7 +36,7 @@ public class SwitchButton extends Button implements SubpixelWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderWidget(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         int buttonX = 122;
         int buttonY = isActive ? 0 : 10;
 

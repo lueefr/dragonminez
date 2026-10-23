@@ -4,7 +4,7 @@ import com.dragonminez.client.gui.radial.AbstractRadialNode;
 import com.dragonminez.client.gui.radial.RadialNode;
 import com.dragonminez.common.stats.StatsData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class MoreNode extends AbstractRadialNode {
 	}
 
 	@Override
-	public ResourceLocation icon(StatsData stats) {
+	public Identifier icon(StatsData stats) {
 		return icon("more");
 	}
 

@@ -20,7 +20,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -266,7 +266,7 @@ public final class QuestTextFormatter {
 					: translated;
 		}
 
-		ResourceLocation id = safeParse(entityId);
+		Identifier id = safeParse(entityId);
 		if (id == null || !BuiltInRegistries.ENTITY_TYPE.containsKey(id)) {
 			return Component.literal(humanizeResourceIdentifier(entityId));
 		}
@@ -276,7 +276,7 @@ public final class QuestTextFormatter {
 	}
 
 	private static Component resolveItemName(String itemId) {
-		ResourceLocation id = safeParse(itemId);
+		Identifier id = safeParse(itemId);
 		if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) {
 			return Component.literal(humanizeResourceIdentifier(itemId));
 		}
@@ -342,7 +342,7 @@ public final class QuestTextFormatter {
 	}
 
 	public static Component resolveBiomeName(String biomeId) {
-		ResourceLocation id = safeParse(biomeId != null && biomeId.startsWith("#") ? biomeId.substring(1) : biomeId);
+		Identifier id = safeParse(biomeId != null && biomeId.startsWith("#") ? biomeId.substring(1) : biomeId);
 		if ("#dragonminez:is_plains".equals(biomeId)) {
 			return Component.translatable("gui.dragonminez.quests.biome.any_plains");
 		}
@@ -488,13 +488,13 @@ public final class QuestTextFormatter {
 		return seconds + "s";
 	}
 
-	private static ResourceLocation safeParse(String id) {
+	private static Identifier safeParse(String id) {
 		if (id == null || id.isBlank() || !id.contains(":")) {
 			return null;
 		}
 
 		try {
-			return ResourceLocation.parse(id);
+			return Identifier.parse(id);
 		} catch (Exception ignored) {
 			return null;
 		}

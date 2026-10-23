@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EffectInstance;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.PostPass;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -78,7 +78,7 @@ public class ImpactFramesHandler {
 		Minecraft mc = Minecraft.getInstance();
 		if (impactFrameShader == null) {
 			try {
-				impactFrameShader = new PostChain(mc.getTextureManager(), mc.getResourceManager(), mc.getMainRenderTarget(), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/impact_frame.json"));
+				impactFrameShader = new PostChain(mc.getTextureManager(), mc.getResourceManager(), mc.getMainRenderTarget(), Identifier.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/impact_frame.json"));
 				impactFrameShader.resize(mc.getWindow().getWidth(), mc.getWindow().getHeight());
 				lastWidth = mc.getWindow().getWidth();
 				lastHeight = mc.getWindow().getHeight();

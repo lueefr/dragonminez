@@ -21,7 +21,7 @@ public class CommandWish extends Wish {
 
 
 	private static String commandSafeName(ServerPlayer player) {
-		String name = player.getGameProfile().getName();
+		String name = player.getGameProfile().name();
 		return name != null && name.matches("[A-Za-z0-9_]{1,16}") ? name : player.getStringUUID();
 	}
 }

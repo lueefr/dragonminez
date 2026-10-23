@@ -5,7 +5,7 @@ import com.dragonminez.LogUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -23,7 +23,7 @@ public class DragonDefinitionReloadListener extends SimpleJsonResourceReloadList
 	private DragonDefinitionReloadListener() { super(GSON, ROOT_DIRECTORY); }
 
 	@Override
-	protected void apply(Map<ResourceLocation, JsonElement> ignored, ResourceManager resourceManager, ProfilerFiller profiler) {
+	protected void apply(Map<Identifier, JsonElement> ignored, ResourceManager resourceManager, ProfilerFiller profiler) {
 		DragonBallPackManager.LoadedDefinitions external = DragonBallPackManager.loadAll();
 
 		Map<String, DragonBallSetDefinition> ballSets = new LinkedHashMap<>();

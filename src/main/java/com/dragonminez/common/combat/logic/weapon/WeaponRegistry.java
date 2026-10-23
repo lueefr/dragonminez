@@ -16,7 +16,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,18 +34,18 @@ import java.util.Map;
 import java.util.Set;
 
 public class WeaponRegistry {
-    public static Map<ResourceLocation, WeaponAttributes> registrations = new HashMap<>();
-    public static Map<ResourceLocation, AttributesContainer> containers = new HashMap<>();
+    public static Map<Identifier, WeaponAttributes> registrations = new HashMap<>();
+    public static Map<Identifier, AttributesContainer> containers = new HashMap<>();
     public static final Set<String> VALID_ANIMATIONS = new HashSet<>();
     static FriendlyByteBuf encodedRegistrations = new FriendlyByteBuf(Unpooled.buffer());
 
-    public static void register(ResourceLocation itemId, WeaponAttributes attributes) {
+    public static void register(Identifier itemId, WeaponAttributes attributes) {
         registrations.put(itemId, attributes);
     }
 
     public static WeaponAttributes getAttributes(ItemStack itemStack) {
         if (itemStack == null) return null;
-        if (itemStack.isEmpty()) return getAttributes(ResourceLocation.parse("minecraft:air"));
+        if (itemStack.isEmpty()) return getAttributes(Identifier.parse("minecraft:air"));
 
         var inStackAttributes = WeaponAttributesHelper.getContainerFromNBT(itemStack);
         if (inStackAttributes != null) {
@@ -68,24 +68,24 @@ public class WeaponRegistry {
         return null;
     }
 
-    public static WeaponAttributes getAttributes(ResourceLocation itemId) {
+    public static WeaponAttributes getAttributes(Identifier itemId) {
         if (itemId == null) return null;
         return registrations.get(itemId);
     }
 
-    private static ResourceLocation parseId(String id) {
+    private static Identifier parseId(String id) {
         if (id == null) return null;
-        var parsed = ResourceLocation.tryParse(id.trim().toLowerCase(Locale.ROOT));
-        if (parsed == null) LogUtil.warn(Env.COMMON, "Skipping invalid weapon attribute ResourceLocation: " + id);
+        var parsed = Identifier.tryParse(id.trim().toLowerCase(Locale.ROOT));
+        if (parsed == null) LogUtil.warn(Env.COMMON, "Skipping invalid weapon attribute Identifier: " + id);
         return parsed;
     }
 
-    public static void resolveAndRegisterAttributes(ResourceLocation itemId, AttributesContainer container) {
+    public static void resolveAndRegisterAttributes(Identifier itemId, AttributesContainer container) {
         var resolved = resolveAttributes(itemId, container, new HashSet<>());
         if (resolved != null) register(itemId, resolved);
     }
 
-    private static WeaponAttributes resolveAttributes(ResourceLocation itemId, AttributesContainer container, Set<ResourceLocation> visiting) {
+    private static WeaponAttributes resolveAttributes(Identifier itemId, AttributesContainer container, Set<Identifier> visiting) {
         if (container == null) return null;
         if (container.parent() == null) return container.attributes();
 
@@ -245,9 +245,9 @@ public class WeaponRegistry {
         var gson = new Gson();
         Type mapType = new TypeToken<Map<String, WeaponAttributes>>() {}.getType();
         Map<String, WeaponAttributes> readRegistrations = gson.fromJson(json, mapType);
-        Map<ResourceLocation, WeaponAttributes> newRegistrations = new HashMap<>();
+        Map<Identifier, WeaponAttributes> newRegistrations = new HashMap<>();
 
-        readRegistrations.forEach((key, value) -> newRegistrations.put(ResourceLocation.parse(key), value));
+        readRegistrations.forEach((key, value) -> newRegistrations.put(Identifier.parse(key), value));
         registrations = newRegistrations;
     }
 

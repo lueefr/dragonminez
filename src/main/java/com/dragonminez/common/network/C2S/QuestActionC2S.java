@@ -82,7 +82,7 @@ public class QuestActionC2S {
 				replyToDialogue(player, failure == null, failure);
 			} catch (Exception exception) {
 				LogUtil.error(Env.SERVER, "Failed to handle quest action " + actionType + " for quest '"
-						+ questId + "' requested by " + player.getGameProfile().getName(), exception);
+						+ questId + "' requested by " + player.getGameProfile().name(), exception);
 				NetworkHandler.sendToPlayer(new QuestActionFeedbackS2C(
 						Component.translatable("message.dragonminez.quest.start.unavailable")
 								.withStyle(ChatFormatting.RED)), player);

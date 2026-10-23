@@ -41,7 +41,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -217,7 +217,7 @@ public final class GodRitualService {
 
 		recipient.level().playSound(null, center.x, center.y, center.z, MainSounds.AURA_START.get(), SoundSource.PLAYERS, 1.5f, 0.8f);
 		broadcast(server, ritual, Component.translatable("message.dragonminez.godritual.begin"));
-		LogUtil.info(Env.SERVER, "God ritual started for {} with {} donors ({} fused partners) at {}", recipient.getGameProfile().getName(),
+		LogUtil.info(Env.SERVER, "God ritual started for {} with {} donors ({} fused partners) at {}", recipient.getGameProfile().name(),
 				donors.size(), partners.size(), center);
 	}
 
@@ -421,10 +421,11 @@ public final class GodRitualService {
 		recipient.level().playSound(null, recipient.getX(), recipient.getY(), recipient.getZ(), MainSounds.TRANSFORM_ON.get(), SoundSource.PLAYERS, 1.0f, 0.9f);
 		recipient.sendSystemMessage(Component.translatable("message.dragonminez.godritual.transformed"), true);
 		broadcastDonors(server, ritual, Component.translatable("message.dragonminez.godritual.completed", recipient.getDisplayName()));
+		com.dragonminez.api.content.ContentCompletionApi.complete(recipient, cfg.getCompletionId(), "ritual");
 		sync(recipient);
 
 		FormConfig.FormData reference = data.getGodRitualReferenceForm();
-		LogUtil.info(Env.SERVER, "God ritual completed for {}: reference form {}, STR x{}", recipient.getGameProfile().getName(),
+		LogUtil.info(Env.SERVER, "God ritual completed for {}: reference form {}, STR x{}", recipient.getGameProfile().name(),
 				reference != null ? reference.getName() : "none", data.getFormMultiplier("STR"));
 	}
 
@@ -506,7 +507,7 @@ public final class GodRitualService {
 		} else if (ticks > 0) {
 			status.setGodRitualTicks(0);
 			applyCooldown(player, cfg.getCooldownTicks());
-			LogUtil.debug(Env.SERVER, "God ritual form of {} ended outside the timer, cooldown applied", player.getGameProfile().getName());
+			LogUtil.debug(Env.SERVER, "God ritual form of {} ended outside the timer, cooldown applied", player.getGameProfile().name());
 		}
 	}
 

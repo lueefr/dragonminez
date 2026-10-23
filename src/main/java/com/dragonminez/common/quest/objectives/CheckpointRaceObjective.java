@@ -5,7 +5,7 @@ import com.dragonminez.common.quest.QuestObjective;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 @Getter

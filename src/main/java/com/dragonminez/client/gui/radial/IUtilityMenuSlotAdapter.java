@@ -4,7 +4,7 @@ import com.dragonminez.client.gui.utilitymenu.ButtonInfo;
 import com.dragonminez.client.gui.utilitymenu.IUtilityMenuSlot;
 import com.dragonminez.common.stats.StatsData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class IUtilityMenuSlotAdapter extends AbstractRadialNode {
 
@@ -21,7 +21,7 @@ public class IUtilityMenuSlotAdapter extends AbstractRadialNode {
 	}
 
 	@Override
-	public ResourceLocation icon(StatsData stats) {
+	public Identifier icon(StatsData stats) {
 		return PLACEHOLDER;
 	}
 

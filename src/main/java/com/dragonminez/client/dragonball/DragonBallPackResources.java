@@ -5,7 +5,7 @@ import com.dragonminez.common.dragonball.*;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.server.packs.PackLocationInfo;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
@@ -44,7 +44,7 @@ public class DragonBallPackResources implements PackResources {
 
 	@Nullable
 	@Override
-	public IoSupplier<InputStream> getResource(PackType type, ResourceLocation location) {
+	public IoSupplier<InputStream> getResource(PackType type, Identifier location) {
 		if (type != PackType.CLIENT_RESOURCES || !location.getNamespace().equals(Reference.MOD_ID)) return null;
 		String json = getGeneratedJson(location.getPath());
 		if (json == null) return null;
@@ -180,14 +180,14 @@ public class DragonBallPackResources implements PackResources {
 
 	private String getChipTexture(DragonRadarDefinition radarDefinition) {
 		String source = radarDefinition.getChipModelItemId().orElse("dragonminez:t1_radar_chip");
-		ResourceLocation rl = ResourceLocation.tryParse(source);
+		Identifier rl = Identifier.tryParse(source);
 		if (rl == null) return Reference.MOD_ID + ":item/t1_radar_chip";
 		return rl.getNamespace() + ":item/" + rl.getPath();
 	}
 
 	private String getCpuTexture(DragonRadarDefinition radarDefinition) {
 		String source = radarDefinition.getCpuModelItemId().orElse("dragonminez:t1_radar_cpu");
-		ResourceLocation rl = ResourceLocation.tryParse(source);
+		Identifier rl = Identifier.tryParse(source);
 		if (rl == null) return Reference.MOD_ID + ":item/t1_radar_cpu";
 		return rl.getNamespace() + ":item/" + rl.getPath();
 	}
@@ -297,7 +297,7 @@ public class DragonBallPackResources implements PackResources {
 
 	private void publishIfMatches(String requestedPath, String fullPath, ResourceOutput resourceOutput) {
 		if (!fullPath.startsWith(requestedPath)) return;
-		resourceOutput.accept(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, fullPath), () -> {
+		resourceOutput.accept(Identifier.fromNamespaceAndPath(Reference.MOD_ID, fullPath), () -> {
 			String json = getGeneratedJson(fullPath);
 			byte[] bytes = json == null ? new byte[0] : json.getBytes(StandardCharsets.UTF_8);
 			return new ByteArrayInputStream(bytes);

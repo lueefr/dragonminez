@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.ItemAbility;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class FlammableRotatedPillarBlock extends RotatedPillarBlock {
 	public FlammableRotatedPillarBlock(Properties properties) {

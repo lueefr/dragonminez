@@ -8,7 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -53,7 +53,7 @@ public class FittedTemplatePiece extends TemplateStructurePiece {
 
 	private final Rotation rotation;
 
-	public FittedTemplatePiece(StructureTemplateManager templates, ResourceLocation location, BlockPos origin, Rotation rotation) {
+	public FittedTemplatePiece(StructureTemplateManager templates, Identifier location, BlockPos origin, Rotation rotation) {
 		super(MainStructureTypes.FITTED_TEMPLATE_PIECE.get(), 0, templates, location, location.toString(),
 				settings(templates.getOrCreate(location), rotation), origin);
 		this.rotation = rotation;
@@ -75,7 +75,7 @@ public class FittedTemplatePiece extends TemplateStructurePiece {
 				.addProcessor(JigsawReplacementProcessor.INSTANCE);
 	}
 
-	public ResourceLocation templateId() {
+	public Identifier templateId() {
 		return this.makeTemplateLocation();
 	}
 

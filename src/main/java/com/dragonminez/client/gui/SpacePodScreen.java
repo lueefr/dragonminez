@@ -14,11 +14,11 @@ import com.dragonminez.common.spacepod.SpacePodDestinationRegistry;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -30,9 +30,9 @@ import java.util.List;
 @OnlyIn(Dist.CLIENT)
 public class SpacePodScreen extends ScaledScreen {
 
-	private static final ResourceLocation MENU_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
-	private static final ResourceLocation BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
-	private static final ResourceLocation ICONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/spaceshipicons.png");
+	private static final Identifier MENU_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
+	private static final Identifier BUTTON_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier ICONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/spaceshipicons.png");
 
 	private static final int PANEL_WIDTH = 141;
 	private static final int PANEL_HEIGHT = 213;
@@ -54,7 +54,7 @@ public class SpacePodScreen extends ScaledScreen {
 	private TexturedTextButton travelButton;
 
 	public SpacePodScreen() {
-		super(Component.literal("Space Pod").withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
+		super(Component.literal("Space Pod").withStyle(Style.EMPTY.withFont(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public class SpacePodScreen extends ScaledScreen {
 				continue;
 			}
 
-			ResourceLocation iconTexture = definition.iconTexture() != null ? ResourceLocation.tryParse(definition.iconTexture()) : null;
+			Identifier iconTexture = definition.iconTexture() != null ? Identifier.tryParse(definition.iconTexture()) : null;
 			destinations.add(new PlanetDestination(
 					definition.id(),
 					definition.name(),
@@ -118,7 +118,7 @@ public class SpacePodScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		this.renderBackground(graphics, mouseX, mouseY, partialTick);
 
 		int uiMouseX = (int) toUiX(mouseX);
@@ -140,7 +140,7 @@ public class SpacePodScreen extends ScaledScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderPlanetList(GuiGraphics graphics, int uiMouseX, int uiMouseY) {
+	private void renderPlanetList(GuiGraphicsExtractor graphics, int uiMouseX, int uiMouseY) {
 		int listLeft = guiLeft + 10;
 		int listTop = guiTop + 35;
 		int listWidth = PANEL_WIDTH - 25;
@@ -193,7 +193,7 @@ public class SpacePodScreen extends ScaledScreen {
 		listScroll.renderBar(graphics, uiMouseX, uiMouseY);
 	}
 
-	private void renderDestinationIcon(GuiGraphics graphics, PlanetDestination dest, int x, int y) {
+	private void renderDestinationIcon(GuiGraphicsExtractor graphics, PlanetDestination dest, int x, int y) {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		if (dest.iconTexture != null) {
 			HudRender.blit(graphics, dest.iconTexture, x, y, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
@@ -279,10 +279,10 @@ public class SpacePodScreen extends ScaledScreen {
 		boolean translate;
 		String dimensionId;
 		Integer iconIndex;
-		ResourceLocation iconTexture;
+		Identifier iconTexture;
 		boolean unlocked;
 
-		public PlanetDestination(String id, String name, boolean translate, String dimensionId, Integer iconIndex, ResourceLocation iconTexture, boolean unlocked) {
+		public PlanetDestination(String id, String name, boolean translate, String dimensionId, Integer iconIndex, Identifier iconTexture, boolean unlocked) {
 			this.id = id;
 			this.name = name;
 			this.translate = translate;

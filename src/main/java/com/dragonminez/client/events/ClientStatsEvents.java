@@ -199,7 +199,7 @@ public class ClientStatsEvents {
 					spawnFloatingRubble(player, totalScale);
 				}
 
-				if (!BetaWhitelist.isAllowed(player.getGameProfile().getName())) continue;
+				if (!BetaWhitelist.isAllowed(player.getGameProfile().name())) continue;
 
 				if (characterHasAuraColor(stats.getCharacter())) {
 					int particleColor = getAuraColor(player, stats.getCharacter());

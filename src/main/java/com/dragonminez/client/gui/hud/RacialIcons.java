@@ -2,7 +2,7 @@ package com.dragonminez.client.gui.hud;
 
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.layer.DMZSkinLayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Locale;
 import java.util.Map;
@@ -15,15 +15,15 @@ public final class RacialIcons {
 	public static final int FILL_V = 16;
 
 	private static final String FOLDER = "textures/gui/hud/racial_icons/";
-	private static final ResourceLocation CUSTOM = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, FOLDER + "custom.png");
-	private static final Map<String, ResourceLocation> CANDIDATES = new ConcurrentHashMap<>();
+	private static final Identifier CUSTOM = Identifier.fromNamespaceAndPath(Reference.MOD_ID, FOLDER + "custom.png");
+	private static final Map<String, Identifier> CANDIDATES = new ConcurrentHashMap<>();
 
 	private RacialIcons() {}
 
-	public static ResourceLocation forRace(String raceName) {
+	public static Identifier forRace(String raceName) {
 		String race = raceName == null ? "" : raceName.toLowerCase(Locale.ROOT);
-		ResourceLocation candidate = CANDIDATES.computeIfAbsent(race, key -> {
-			ResourceLocation location = ResourceLocation.tryBuild(Reference.MOD_ID, FOLDER + key + ".png");
+		Identifier candidate = CANDIDATES.computeIfAbsent(race, key -> {
+			Identifier location = Identifier.tryBuild(Reference.MOD_ID, FOLDER + key + ".png");
 			return location != null ? location : CUSTOM;
 		});
 		return DMZSkinLayer.getSafeTexture(candidate, CUSTOM);

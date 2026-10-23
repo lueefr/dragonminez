@@ -34,7 +34,7 @@ import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
 import com.dragonminez.server.storage.StorageManager;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -394,7 +394,7 @@ public class QuestEvents {
 		if (dimension == null || dimension.isBlank()) {
 			return true;
 		}
-		ResourceLocation id = ResourceLocation.tryParse(dimension);
+		Identifier id = Identifier.tryParse(dimension);
 		return id != null && player.level().dimension().location().equals(id);
 	}
 
@@ -488,7 +488,7 @@ public class QuestEvents {
 	private static boolean matchesInteractTarget(InteractObjective objective, PlayerInteractEvent.EntityInteract event) {
 		String targetStr = objective.getEntityTypeId();
 		if (targetStr != null) {
-			ResourceLocation id = ResourceLocation.tryParse(targetStr);
+			Identifier id = Identifier.tryParse(targetStr);
 			if (id == null || !BuiltInRegistries.ENTITY_TYPE.containsKey(id)) return false;
 			EntityType<?> requiredType = BuiltInRegistries.ENTITY_TYPE.get(id);
 			if (!event.getTarget().getType().equals(requiredType)) return false;

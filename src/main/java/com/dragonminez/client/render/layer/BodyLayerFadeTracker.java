@@ -1,6 +1,6 @@
 package com.dragonminez.client.render.layer;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,18 +12,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BodyLayerFadeTracker {
 	public static final float FADE_SPEED = 0.1f;
 
-	public record FadingLayer(String id, ResourceLocation texture, float[] color, float target) {
-		public FadingLayer(String id, ResourceLocation texture, float[] color) {
+	public record FadingLayer(String id, Identifier texture, float[] color, float target) {
+		public FadingLayer(String id, Identifier texture, float[] color) {
 			this(id, texture, color, 1.0f);
 		}
 	}
 
-	public record RenderEntry(ResourceLocation texture, float[] color, float alpha) {}
+	public record RenderEntry(Identifier texture, float[] color, float alpha) {}
 
 	private static final class Entry {
 		float progress;
 		float target;
-		ResourceLocation texture;
+		Identifier texture;
 		float[] color;
 		boolean active;
 	}

@@ -3,7 +3,7 @@ package com.dragonminez.common.dragonball;
 import com.dragonminez.Reference;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackType;
@@ -43,7 +43,7 @@ public class DragonBallDataPackResources implements PackResources {
 
     @Nullable
     @Override
-    public IoSupplier<InputStream> getResource(PackType type, ResourceLocation location) {
+    public IoSupplier<InputStream> getResource(PackType type, Identifier location) {
         if (type != PackType.SERVER_DATA || !location.getNamespace().equals(Reference.MOD_ID)) return null;
         String json = getGeneratedJson(location.getPath());
         if (json == null) return null;
@@ -114,7 +114,7 @@ public class DragonBallDataPackResources implements PackResources {
 
     private void publishIfMatches(String requestedPath, String fullPath, ResourceOutput resourceOutput) {
         if (!fullPath.startsWith(requestedPath)) return;
-        resourceOutput.accept(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, fullPath), () -> {
+        resourceOutput.accept(Identifier.fromNamespaceAndPath(Reference.MOD_ID, fullPath), () -> {
             String json = getGeneratedJson(fullPath);
             byte[] bytes = json == null ? new byte[0] : json.getBytes(StandardCharsets.UTF_8);
             return new ByteArrayInputStream(bytes);

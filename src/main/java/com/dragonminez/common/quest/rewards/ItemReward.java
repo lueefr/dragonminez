@@ -4,7 +4,7 @@ import lombok.*;
 import com.dragonminez.common.quest.QuestReward;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
@@ -31,7 +31,7 @@ public class ItemReward extends QuestReward {
 
 	@Override
 	public void giveReward(ServerPlayer player, double rewardMultiplier) {
-		Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemId));
+		Item item = BuiltInRegistries.ITEM.get(Identifier.parse(itemId));
 		if (item == null) return;
 		int scaledCount = scaledCount(rewardMultiplier);
 		if (scaledCount <= 0) return;
@@ -67,7 +67,7 @@ public class ItemReward extends QuestReward {
 	}
 
 	public MutableComponent itemName() {
-		ResourceLocation id = ResourceLocation.tryParse(itemId);
+		Identifier id = Identifier.tryParse(itemId);
 		if (id == null) return Component.literal(itemId);
 		Item item = BuiltInRegistries.ITEM.get(id);
 		if (item == null || item == Items.AIR) return Component.translatable("item." + id.toLanguageKey());

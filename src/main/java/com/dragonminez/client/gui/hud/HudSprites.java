@@ -1,15 +1,15 @@
 package com.dragonminez.client.gui.hud;
 
 import com.dragonminez.Reference;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public final class HudSprites {
 	public static final float TEXELS_PER_PIXEL = 2.0f;
 
-	private static final ResourceLocation DEFAULT_SHEET = sheet("hud_default");
-	private static final ResourceLocation MINECRAFT_SHEET = sheet("hud_minecraft");
-	private static final ResourceLocation PARTY_SHEET = sheet("hud_party");
-	private static final ResourceLocation RESERVE_SHEET = sheet("hud_reserve");
+	private static final Identifier DEFAULT_SHEET = sheet("hud_default");
+	private static final Identifier MINECRAFT_SHEET = sheet("hud_minecraft");
+	private static final Identifier PARTY_SHEET = sheet("hud_party");
+	private static final Identifier RESERVE_SHEET = sheet("hud_reserve");
 
 	public static final BarSkin DEFAULT_HP = new BarSkin(def(0, 0, 256, 32), def(0, 33, 256, 32), def(0, 66, 250, 26), def(0, 93, 250, 26));
 	public static final BarSkin DEFAULT_KI = new BarSkin(def(0, 120, 256, 26), null, def(0, 147, 250, 20), def(0, 168, 250, 20));
@@ -40,8 +40,8 @@ public final class HudSprites {
 	public static final Sprite RESERVE_ICON = reserve(88, 0, 17, 17);
 	public static final Sprite RAGE_ICON = reserve(88, 18, 17, 17);
 
-	private static final ResourceLocation XENOVERSE_SHEET = sheet("xenoversehud");
-	private static final ResourceLocation COMPACT_SHEET = sheet("alternativehud");
+	private static final Identifier XENOVERSE_SHEET = sheet("xenoversehud");
+	private static final Identifier COMPACT_SHEET = sheet("alternativehud");
 	public static final RadarSprites RADAR = new RadarSprites(xeno(218, 100, 26, 27), xeno(220, 130, 26, 13));
 	public static final XenoverseSkin XENOVERSE = new XenoverseSkin(xeno(184, 10, 56, 25), xeno(14, 2, 141, 9), xeno(15, 21, 137, 5),
 			xeno(8, 65, 118, 8), xeno(9, 81, 114, 4), xeno(9, 105, 14, 7), xeno(23, 105, 86, 7), xeno(24, 121, 85, 5));
@@ -50,7 +50,7 @@ public final class HudSprites {
 
 	private HudSprites() {}
 
-	public record Sprite(ResourceLocation sheet, int sheetWidth, int sheetHeight, int u, int v, int width, int height) {
+	public record Sprite(Identifier sheet, int sheetWidth, int sheetHeight, int u, int v, int width, int height) {
 		public float guiWidth() {
 			return width / TEXELS_PER_PIXEL;
 		}
@@ -90,13 +90,13 @@ public final class HudSprites {
 		return layout(COMPACT_SHEET, 128, 128, x, y, width, height);
 	}
 
-	private static Sprite layout(ResourceLocation sheet, int sheetWidth, int sheetHeight, int x, int y, int width, int height) {
+	private static Sprite layout(Identifier sheet, int sheetWidth, int sheetHeight, int x, int y, int width, int height) {
 		int texels = (int) TEXELS_PER_PIXEL;
 		return new Sprite(sheet, sheetWidth * texels, sheetHeight * texels, x * texels, y * texels, width * texels, height * texels);
 	}
 
-	private static ResourceLocation sheet(String name) {
-		return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/hud/" + name + ".png");
+	private static Identifier sheet(String name) {
+		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/hud/" + name + ".png");
 	}
 
 	private static Sprite def(int u, int v, int width, int height) {

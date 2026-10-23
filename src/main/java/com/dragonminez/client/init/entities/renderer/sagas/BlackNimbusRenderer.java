@@ -10,9 +10,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 public class BlackNimbusRenderer extends GeoEntityRenderer<BlackNimbusEntity> {
     private static final float[] TRAIL_COLOR = ColorUtils.rgbIntToFloat(0x272D67);
@@ -34,7 +34,7 @@ public class BlackNimbusRenderer extends GeoEntityRenderer<BlackNimbusEntity> {
     }
 
     @Override
-    public RenderType getRenderType(BlackNimbusEntity animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(BlackNimbusEntity animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucent(texture);
     }
 }

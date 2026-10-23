@@ -25,7 +25,7 @@ public class RequestReviveTargetsC2S {
 			List<ReviveTargetsS2C.Entry> entries = new ArrayList<>();
 			for (ServerPlayer other : player.server.getPlayerList().getPlayers()) {
 				if (!GrantWishC2S.isRevivable(other)) continue;
-				entries.add(new ReviveTargetsS2C.Entry(other.getUUID(), other.getGameProfile().getName()));
+				entries.add(new ReviveTargetsS2C.Entry(other.getUUID(), other.getGameProfile().name()));
 			}
 			entries.sort((a, b) -> a.name().compareToIgnoreCase(b.name()));
 			NetworkHandler.sendToPlayer(new ReviveTargetsS2C(entries), player);

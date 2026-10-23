@@ -8,7 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LightTexture;
@@ -16,7 +16,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import software.bernie.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.GeoBone;
 
 public final class HeadPortraitRenderer {
 	private static final float YAW_DEGREES = 24.0f;
@@ -34,12 +34,12 @@ public final class HeadPortraitRenderer {
 		return active;
 	}
 
-	public static void render(GuiGraphics graphics, AbstractClientPlayer player, float x, float y, float size, float partialTick) {
+	public static void render(GuiGraphicsExtractor graphics, AbstractClientPlayer player, float x, float y, float size, float partialTick) {
 		render(graphics, player, x, y, size, partialTick, false);
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	public static void render(GuiGraphics graphics, AbstractClientPlayer player, float x, float y, float size, float partialTick, boolean mirrored) {
+	public static void render(GuiGraphicsExtractor graphics, AbstractClientPlayer player, float x, float y, float size, float partialTick, boolean mirrored) {
 		if (player == null || size <= 0.0f || active) return;
 
 		Matrix4f matrix = graphics.pose().last().pose();

@@ -9,12 +9,12 @@ import com.dragonminez.client.util.TextUtil;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.GeneralUserConfig;
 import net.minecraft.client.CameraType;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -23,8 +23,8 @@ import java.util.function.Consumer;
 @OnlyIn(Dist.CLIENT)
 public class OverShoulderCameraScreen extends ScaledScreen {
 
-	private static final ResourceLocation MENU_BIG = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
-	private static final ResourceLocation BUTTONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier MENU_BIG = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
+	private static final Identifier BUTTONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
 
 	private static final int PANEL_W = 141;
 	private static final int PANEL_H = 213;
@@ -141,7 +141,7 @@ public class OverShoulderCameraScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		beginUiScale(graphics);
 		this.panelX += (this.targetPanelX - this.panelX) * frameEase(0.06f);
 		if (Math.abs(this.targetPanelX - this.panelX) < 0.05f) this.panelX = this.targetPanelX;
@@ -165,7 +165,7 @@ public class OverShoulderCameraScreen extends ScaledScreen {
 		endUiScale(graphics);
 	}
 
-	private void drawSliderLabel(GuiGraphics graphics, String key, float value, int px, int sliderY) {
+	private void drawSliderLabel(GuiGraphicsExtractor graphics, String key, float value, int px, int sliderY) {
 		int sliderX = px + (PANEL_W - SLIDER_W) / 2;
 		TextUtil.drawStringWithBorder(graphics, this.font, tr(key), sliderX, sliderY - 11, 0xFFFFFFFF);
 		MutableComponent valueText = txt(String.format("%.2f", value));

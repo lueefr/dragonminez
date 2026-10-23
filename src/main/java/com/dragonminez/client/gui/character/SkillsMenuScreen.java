@@ -33,13 +33,13 @@ import com.dragonminez.common.util.TransformationsHelper;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
@@ -55,11 +55,11 @@ import java.util.Map;
 @OnlyIn(Dist.CLIENT)
 public class SkillsMenuScreen extends BaseMenuScreen {
 
-	private static final ResourceLocation STAT_BUTTONS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
-	private static final ResourceLocation MENU_BIG = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
-	private static final ResourceLocation MENU_SMALL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menusmall.png");
-	private static final ResourceLocation BUTTONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
-	private static final ResourceLocation EXCLAMATION_MARK = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/quest/exclamation_mark_quest.png");
+	private static final Identifier STAT_BUTTONS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier MENU_BIG = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
+	private static final Identifier MENU_SMALL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menusmall.png");
+	private static final Identifier BUTTONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier EXCLAMATION_MARK = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/quest/exclamation_mark_quest.png");
 
 	private static final int SKILL_ITEM_HEIGHT = 20;
 	private static final int MAX_VISIBLE_SKILLS = 8;
@@ -907,7 +907,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		renderMenuBackground(graphics, partialTick);
 
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
@@ -971,7 +971,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderFormsTree(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderFormsTree(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int alpha = (int) (formsTransitionProgress * 255);
 		int gridColor = (alpha << 24) | 0x222244;
 
@@ -1027,7 +1027,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 			HudRender.rect(graphics, nx - 2, ny - 2, size + 4, size + 4, borderColor);
 			HudRender.rect(graphics, nx, ny, size, size, bgColor);
 
-			ResourceLocation icon = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/icons/" + node.formType.toLowerCase(Locale.ROOT) + ".png");
+			Identifier icon = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/icons/" + node.formType.toLowerCase(Locale.ROOT) + ".png");
 
 			if (unlocked) {
 				float[] rgb = node.data.getRgbAuraColor();
@@ -1106,7 +1106,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void drawThickLine(GuiGraphics graphics, float x1, float y1, float x2, float y2, float thickness, int color) {
+	private void drawThickLine(GuiGraphicsExtractor graphics, float x1, float y1, float x2, float y2, float thickness, int color) {
 		float half = thickness / 2.0f;
 
 		if (Math.abs(y1 - y2) < 0.001f) {
@@ -1191,7 +1191,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 		return t < 0.5f ? 4.0f * t * t * t : 1.0f - (float) Math.pow(-2.0f * t + 2.0f, 3.0f) / 2.0f;
 	}
 
-	private void renderLeftPanel(GuiGraphics graphics, int panelX, int panelY, int mouseX, int mouseY) {
+	private void renderLeftPanel(GuiGraphicsExtractor graphics, int panelX, int panelY, int mouseX, int mouseY) {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		blit(graphics, MENU_BIG, panelX, panelY, 0, 0, 141, 213);
 		blit(graphics, MENU_BIG, panelX + 17, panelY + 10, 142, 22, 107, 21);
@@ -1199,7 +1199,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 		renderSkillsList(graphics, panelX, panelY, mouseX, mouseY);
 	}
 
-	private void renderSkillsList(GuiGraphics graphics, int panelX, int panelY, int mouseX, int mouseY) {
+	private void renderSkillsList(GuiGraphicsExtractor graphics, int panelX, int panelY, int mouseX, int mouseY) {
 		List<String> skillNames = getVisibleSkillNames();
 
 		int startY = panelY + 30;
@@ -1262,7 +1262,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 				.withStyle(style -> style.withBold(true)), panelX + 68, getUiHeight() / 2 - 88, 0xFBC51C);
 	}
 
-	private void renderRightPanel(GuiGraphics graphics, int panelX, int panelY, int mouseX, int mouseY) {
+	private void renderRightPanel(GuiGraphicsExtractor graphics, int panelX, int panelY, int mouseX, int mouseY) {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 		if (currentCategory == SkillCategory.KI || currentCategory == SkillCategory.STRIKE || currentCategory == SkillCategory.EVASION) {
@@ -1290,7 +1290,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void renderSampleDetails(GuiGraphics graphics, int panelX, int panelY, int mouseX, int mouseY) {
+	private void renderSampleDetails(GuiGraphicsExtractor graphics, int panelX, int panelY, int mouseX, int mouseY) {
 		int startY = panelY + 40;
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.tutorial.skills.sample.name").withStyle(ChatFormatting.BOLD), panelX + 72, startY, 0xFFFFFFFF);
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.tutorial.skills.sample.level"), panelX + 72, startY + 12, 0xFFFFAA00);
@@ -1301,11 +1301,11 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 				panelX + DESC_BOX_X, startY + 70, DESC_BOX_WIDTH, 6 * lineHeight, lineHeight, 0xFFCCCCCC, false, mouseX, mouseY);
 	}
 
-	private void renderNewSkillPlaceholder(GuiGraphics graphics, int panelX, int panelY) {
+	private void renderNewSkillPlaceholder(GuiGraphicsExtractor graphics, int panelX, int panelY) {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.skills.new_skill").withStyle(ChatFormatting.BOLD), panelX + 70, panelY + 48, 0xFFFFFFFF);
 	}
 
-	private void renderTechniqueDetails(GuiGraphics graphics, int panelX, int panelY, int mouseX, int mouseY) {
+	private void renderTechniqueDetails(GuiGraphicsExtractor graphics, int panelX, int panelY, int mouseX, int mouseY) {
 		TechniqueData tech = statsData.getTechniques().getUnlockedTechniques().get(selectedSkill);
 		if (tech == null) return;
 
@@ -1372,7 +1372,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 		return ConfigManager.getSkillsConfig().isSkillAllowedForRace(techniqueId, statsData.getCharacter().getRaceName(), statsData.getStatus().isAndroidUpgraded());
 	}
 
-	private int renderAllowedRaces(GuiGraphics graphics, int panelX, int yOffset) {
+	private int renderAllowedRaces(GuiGraphicsExtractor graphics, int panelX, int yOffset) {
 		int labelColor = isTechniqueRaceAllowed(selectedSkill) ? 0xDDDDDD : 0xFF5555;
 		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.races").append(": ").append(ConfigManager.getSkillsConfig().describeAllowedRaces(selectedSkill)), panelX + 15, yOffset, labelColor);
 		return yOffset + 12;
@@ -1394,7 +1394,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 		actionStatusTimer = 60;
 	}
 
-	private void renderActionStatus(GuiGraphics graphics, int panelX, int panelY) {
+	private void renderActionStatus(GuiGraphicsExtractor graphics, int panelX, int panelY) {
 		if (actionStatusTimer <= 0) return;
 		int alpha = (int) Math.max(0, Math.min(255, (actionStatusTimer / 60.0f) * 255.0f));
 		if (alpha <= 0) return;
@@ -1436,7 +1436,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void renderSkillDetails(GuiGraphics graphics, int panelX, int panelY, int mouseX, int mouseY) {
+	private void renderSkillDetails(GuiGraphicsExtractor graphics, int panelX, int panelY, int mouseX, int mouseY) {
 		Skill skill = statsData.getSkills().getSkill(selectedSkill);
 		boolean isClassPassive = selectedSkill.equals(CLASS_PASSIVE_ENTRY);
 		if (skill == null && !selectedSkill.startsWith("racial_") && !isClassPassive) return;
@@ -1666,7 +1666,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 		if (this.minecraft != null) this.minecraft.setScreen(new TechniqueStyleScreen(this));
 	}
 
-	private void renderPlayerModel(GuiGraphics graphics, int x, int y, int scale, float mouseX, float mouseY, boolean isFormPreview) {
+	private void renderPlayerModel(GuiGraphicsExtractor graphics, int x, int y, int scale, float mouseX, float mouseY, boolean isFormPreview) {
 		LivingEntity player = Minecraft.getInstance().player;
 		if (player == null) return;
 

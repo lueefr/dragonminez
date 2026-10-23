@@ -1,24 +1,24 @@
 package com.dragonminez.common.util;
 
 import com.dragonminez.Reference;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 import java.util.UUID;
 
-/** 1.21 AttributeModifier helpers (UUID name pair replaced by ResourceLocation id). */
+/** 1.21 AttributeModifier helpers (UUID name pair replaced by Identifier id). */
 public final class AttributeMods {
 	private AttributeMods() {}
 
-    public static ResourceLocation id(ResourceLocation id) { return id; }
-    public static AttributeModifier of(ResourceLocation id, String name, double amount, AttributeModifier.Operation op) { return new AttributeModifier(id, amount, op); }
-	public static ResourceLocation id(String path) {
-		return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, path);
+    public static Identifier id(Identifier id) { return id; }
+    public static AttributeModifier of(Identifier id, String name, double amount, AttributeModifier.Operation op) { return new AttributeModifier(id, amount, op); }
+	public static Identifier id(String path) {
+		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, path);
 	}
 
 	/** Stable id derived from legacy UUID constants so existing logic maps cleanly. */
-	public static ResourceLocation id(UUID uuid) {
-		return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "uuid_" + uuid.toString().replace("-", ""));
+	public static Identifier id(UUID uuid) {
+		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "uuid_" + uuid.toString().replace("-", ""));
 	}
 
 	public static AttributeModifier of(String path, double amount, AttributeModifier.Operation op) {

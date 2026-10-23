@@ -10,7 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +35,7 @@ public class KiWeaponModelLoader {
     }
 
     private static ModelPart build(String type) {
-        ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/kiweapon_" + type + ".geo.json");
+        Identifier loc = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/kiweapon_" + type + ".geo.json");
         var resource = Minecraft.getInstance().getResourceManager().getResource(loc);
         if (resource.isEmpty()) return null;
 

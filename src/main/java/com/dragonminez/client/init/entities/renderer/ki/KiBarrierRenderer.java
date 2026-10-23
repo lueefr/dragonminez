@@ -15,12 +15,12 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Matrix4f;
 
 public class KiBarrierRenderer extends EntityRenderer<KiBarrierEntity> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/ki_laser.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/ki_laser.png");
     private static final float SHIELD_SURROUND_FACTOR = 1.45f;
 
     public KiBarrierRenderer(EntityRendererProvider.Context pContext) {
@@ -99,7 +99,7 @@ public class KiBarrierRenderer extends EntityRenderer<KiBarrierEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(KiBarrierEntity pEntity) {
+    public Identifier getTextureLocation(KiBarrierEntity pEntity) {
         return TEXTURE;
     }
 }

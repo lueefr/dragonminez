@@ -15,7 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -28,7 +28,7 @@ import java.util.Locale;
 
 public class StructureCommand {
 
-	private record Found(ResourceLocation id, StructureStart start, StructureFrame frame) {
+	private record Found(Identifier id, StructureStart start, StructureFrame frame) {
 	}
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -44,7 +44,7 @@ public class StructureCommand {
 		for (Structure structure : level.structureManager().getAllStructuresAt(pos).keySet()) {
 			StructureStart start = level.structureManager().getStructureAt(pos, structure);
 			if (!start.isValid()) continue;
-			ResourceLocation id = registry.getKey(structure);
+			Identifier id = registry.getKey(structure);
 			if (id == null) continue;
 			List<StructureFrame> frames = StructureFrame.all(start);
 			if (frames.isEmpty()) continue;

@@ -10,7 +10,7 @@ import com.google.gson.JsonSyntaxException;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +24,7 @@ import java.util.Set;
 public class PatternRecipe implements Recipe<net.minecraft.world.item.crafting.CraftingInput> {
 	public static final int MAX_SIZE = 6;
 
-	private final ResourceLocation id;
+	private final Identifier id;
 	private final String group;
 	private final int width;
 	private final int height;
@@ -32,7 +32,7 @@ public class PatternRecipe implements Recipe<net.minecraft.world.item.crafting.C
 	private final ItemStack result;
 	private final boolean showNotification;
 
-	public PatternRecipe(ResourceLocation id, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, boolean showNotification) {
+	public PatternRecipe(Identifier id, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, boolean showNotification) {
 		this.id = id;
 		this.group = group;
 		this.width = width;
@@ -114,7 +114,7 @@ public class PatternRecipe implements Recipe<net.minecraft.world.item.crafting.C
 		return this.height;
 	}
 
-	public ResourceLocation getId() {
+	public Identifier getId() {
 		return this.id;
 	}
 
@@ -133,7 +133,7 @@ public class PatternRecipe implements Recipe<net.minecraft.world.item.crafting.C
         if (pattern.length == 0 || pattern.length > MAX_SIZE || pattern[0].length() > MAX_SIZE) throw new IllegalArgumentException("Invalid pattern dimensions");
         Map<String, Ingredient> ingredients = new java.util.HashMap<>(key);
         ingredients.put(" ", Ingredient.EMPTY);
-        return new PatternRecipe(ResourceLocation.fromNamespaceAndPath("dragonminez", "pattern"), group, pattern[0].length(), pattern.length,
+        return new PatternRecipe(Identifier.fromNamespaceAndPath("dragonminez", "pattern"), group, pattern[0].length(), pattern.length,
                 Serializer.dissolvePattern(pattern, ingredients, pattern[0].length(), pattern.length), result, notification);
     }
 

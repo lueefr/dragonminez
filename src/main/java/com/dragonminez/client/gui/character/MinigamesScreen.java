@@ -17,11 +17,11 @@ import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,9 +34,9 @@ import java.util.List;
 @OnlyIn(Dist.CLIENT)
 public class MinigamesScreen extends BaseMenuScreen {
 
-	private static final ResourceLocation MENU_BIG = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
-	private static final ResourceLocation BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/menubuttons.png");
-	private static final ResourceLocation CHAR_BUTTONS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier MENU_BIG = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
+	private static final Identifier BUTTON_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/menubuttons.png");
+	private static final Identifier CHAR_BUTTONS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
 
 	private static final boolean DEBUG_UNLOCK_ALL = false;
 	private static final String[] MINIGAMES = {"rhythm", "control", "memory", "precision", "gravity", "shadowdummy"};
@@ -163,7 +163,7 @@ public class MinigamesScreen extends BaseMenuScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		renderMenuBackground(graphics, partialTick);
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
 		int uiMouseY = (int) Math.round(toUiY(mouseY));
@@ -196,7 +196,7 @@ public class MinigamesScreen extends BaseMenuScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderLeftPanel(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderLeftPanel(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int leftPanelX = 12;
 		int centerY = getUiHeight() / 2;
 		int leftPanelY = centerY - 105;
@@ -234,7 +234,7 @@ public class MinigamesScreen extends BaseMenuScreen {
 				&& uiMouseY >= itemY - 2 && uiMouseY <= itemY + 10;
 	}
 
-	private void renderRightPanel(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderRightPanel(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int rightPanelX = getUiWidth() - 158;
 		int centerY = getUiHeight() / 2;
 		int rightPanelY = centerY - 105;
@@ -267,7 +267,7 @@ public class MinigamesScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void renderShadowDummyPanel(GuiGraphics graphics, int panelX, int panelY, int centerY) {
+	private void renderShadowDummyPanel(GuiGraphicsExtractor graphics, int panelX, int panelY, int centerY) {
 		boolean access = hasShadowDummyAccess();
 		int hitColor = 0xFF55FF55, missColor = 0xFFFF5555;
 
@@ -284,7 +284,7 @@ public class MinigamesScreen extends BaseMenuScreen {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.shadow_dummy.percent", shadowDummyPercent), panelX + 70, centerY - 4, 0xFFFFD700);
 	}
 
-	private int drawWrappedCentered(GuiGraphics graphics, FormattedText text, int panelX, int startY, int color) {
+	private int drawWrappedCentered(GuiGraphicsExtractor graphics, FormattedText text, int panelX, int startY, int color) {
 		int wrapWidth = (int) (118 / 0.75f);
 		List<FormattedCharSequence> lines = this.font.split(text, wrapWidth);
 		int cxScaled = (int) ((panelX + 70) / 0.75f);
@@ -324,7 +324,7 @@ public class MinigamesScreen extends BaseMenuScreen {
 		return StatsProvider.get(StatsCapability.INSTANCE, mc.player).map(d -> d.getSkills().getSkillLevel(skill)).orElse(0);
 	}
 
-	private void renderDescription(GuiGraphics graphics, int panelX, int panelY, int viewportHeight, int mouseX, int mouseY) {
+	private void renderDescription(GuiGraphicsExtractor graphics, int panelX, int panelY, int viewportHeight, int mouseX, int mouseY) {
 		int textX = panelX + 12;
 		int top = panelY + 40;
 		int wrapWidth = (int) (118 / 0.75f);
@@ -386,7 +386,7 @@ public class MinigamesScreen extends BaseMenuScreen {
 		return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
 	}
 
-	private void renderPlayerModel(GuiGraphics graphics, int x, int y, int scale, float mouseX, float mouseY) {
+	private void renderPlayerModel(GuiGraphicsExtractor graphics, int x, int y, int scale, float mouseX, float mouseY) {
 		LivingEntity player = this.minecraft.player;
 		if (player == null) return;
 

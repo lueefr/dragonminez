@@ -5,14 +5,14 @@ import com.dragonminez.client.gui.tooltip.CustomTooltipRenderers;
 import com.dragonminez.client.gui.tooltip.TooltipDecor;
 import com.dragonminez.mixin.client.GuiGraphicsInvoker;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.joml.Vector2i;
@@ -20,11 +20,11 @@ import org.joml.Vector2i;
 import java.util.*;
 
 public class TextUtil {
-    public static int width(Font font, String text, ResourceLocation fontId) {
+    public static int width(Font font, String text, Identifier fontId) {
         return width(font, text, Style.EMPTY.withFont(fontId));
     }
 
-    public static List<String> wrap(Font font, String text, int maxWidth, ResourceLocation fontId) {
+    public static List<String> wrap(Font font, String text, int maxWidth, Identifier fontId) {
         return wrap(font, text, maxWidth, Style.EMPTY.withFont(fontId));
     }
 
@@ -83,11 +83,11 @@ public class TextUtil {
         return lines;
     }
 
-    public static void renderScrollableText(GuiGraphics graphics, Font font, ScrollbarState scroll, FormattedText text, int x, int y, int width, int height, int lineHeight, int color, boolean centered, double mouseX, double mouseY) {
+    public static void renderScrollableText(GuiGraphicsExtractor graphics, Font font, ScrollbarState scroll, FormattedText text, int x, int y, int width, int height, int lineHeight, int color, boolean centered, double mouseX, double mouseY) {
         renderScrollableText(graphics, font, scroll, wrapScrollable(font, text, width, height, lineHeight, scroll), x, y, width, height, lineHeight, color, centered, mouseX, mouseY);
     }
 
-    public static void renderScrollableText(GuiGraphics graphics, Font font, ScrollbarState scroll, List<FormattedCharSequence> lines, int x, int y, int width, int height, int lineHeight, int color, boolean centered, double mouseX, double mouseY) {
+    public static void renderScrollableText(GuiGraphicsExtractor graphics, Font font, ScrollbarState scroll, List<FormattedCharSequence> lines, int x, int y, int width, int height, int lineHeight, int color, boolean centered, double mouseX, double mouseY) {
         scroll.layout(x, y, width, height, lines.size() * lineHeight);
         int textWidth = scroll.canScroll() ? width - scroll.reserve() : width;
         scroll.beginClip(graphics);
@@ -107,7 +107,7 @@ public class TextUtil {
         );
     }
 
-    public static void drawStringWithBorder(GuiGraphics graphics, Font font, String text, int x, int y, int textColor, int borderColor) {
+    public static void drawStringWithBorder(GuiGraphicsExtractor graphics, Font font, String text, int x, int y, int textColor, int borderColor) {
         graphics.drawString(font, text, x + 1, y, borderColor, false);
         graphics.drawString(font, text, x - 1, y, borderColor, false);
         graphics.drawString(font, text, x, y + 1, borderColor, false);
@@ -115,12 +115,12 @@ public class TextUtil {
         graphics.drawString(font, text, x, y, textColor, false);
     }
 
-    public static void drawStringWithBorder(GuiGraphics graphics, Font font, Component text, int x, int y, int textColor, int borderColor) {
+    public static void drawStringWithBorder(GuiGraphicsExtractor graphics, Font font, Component text, int x, int y, int textColor, int borderColor) {
         FormattedCharSequence sequence = text.getVisualOrderText();
         drawStringWithBorder(graphics, font, sequence, x, y, textColor, borderColor);
     }
 
-    public static void drawStringWithBorder(GuiGraphics graphics, Font font, FormattedCharSequence text, int x, int y, int textColor, int borderColor) {
+    public static void drawStringWithBorder(GuiGraphicsExtractor graphics, Font font, FormattedCharSequence text, int x, int y, int textColor, int borderColor) {
         FormattedCharSequence borderSeq = overrideColor(text, borderColor);
         graphics.drawString(font, borderSeq, x + 1, y, borderColor, false);
         graphics.drawString(font, borderSeq, x - 1, y, borderColor, false);
@@ -129,46 +129,46 @@ public class TextUtil {
         graphics.drawString(font, text, x, y, textColor, false);
     }
 
-    public static void drawStringWithBorder(GuiGraphics graphics, Font font, String text, int x, int y, int textColor) {
+    public static void drawStringWithBorder(GuiGraphicsExtractor graphics, Font font, String text, int x, int y, int textColor) {
         drawStringWithBorder(graphics, font, text, x, y, textColor, 0xFF000000);
     }
 
-    public static void drawStringWithBorder(GuiGraphics graphics, Font font, Component text, int x, int y, int textColor) {
+    public static void drawStringWithBorder(GuiGraphicsExtractor graphics, Font font, Component text, int x, int y, int textColor) {
         drawStringWithBorder(graphics, font, text, x, y, textColor, 0xFF000000);
     }
 
-    public static void drawStringWithBorder(GuiGraphics graphics, Font font, FormattedCharSequence text, int x, int y, int textColor) {
+    public static void drawStringWithBorder(GuiGraphicsExtractor graphics, Font font, FormattedCharSequence text, int x, int y, int textColor) {
         drawStringWithBorder(graphics, font, text, x, y, textColor, 0xFF000000);
     }
 
-    public static void drawCenteredStringWithBorder(GuiGraphics graphics, Font font, String text, int centerX, int y, int textColor, int borderColor) {
+    public static void drawCenteredStringWithBorder(GuiGraphicsExtractor graphics, Font font, String text, int centerX, int y, int textColor, int borderColor) {
         int x = centerX - (font.width(text) / 2);
         drawStringWithBorder(graphics, font, text, x, y, textColor, borderColor);
     }
 
-    public static void drawCenteredStringWithBorder(GuiGraphics graphics, Font font, Component text, int centerX, int y, int textColor, int borderColor) {
+    public static void drawCenteredStringWithBorder(GuiGraphicsExtractor graphics, Font font, Component text, int centerX, int y, int textColor, int borderColor) {
         int x = centerX - (font.width(text) / 2);
         drawStringWithBorder(graphics, font, text, x, y, textColor, borderColor);
     }
 
-    public static void drawCenteredStringWithBorder(GuiGraphics graphics, Font font, FormattedCharSequence text, int centerX, int y, int textColor, int borderColor) {
+    public static void drawCenteredStringWithBorder(GuiGraphicsExtractor graphics, Font font, FormattedCharSequence text, int centerX, int y, int textColor, int borderColor) {
         int x = centerX - (font.width(text) / 2);
         drawStringWithBorder(graphics, font, text, x, y, textColor, borderColor);
     }
 
-    public static void drawCenteredStringWithBorder(GuiGraphics graphics, Font font, String text, int centerX, int y, int textColor) {
+    public static void drawCenteredStringWithBorder(GuiGraphicsExtractor graphics, Font font, String text, int centerX, int y, int textColor) {
         drawCenteredStringWithBorder(graphics, font, text, centerX, y, textColor, 0xFF000000);
     }
 
-    public static void drawCenteredStringWithBorder(GuiGraphics graphics, Font font, Component text, int centerX, int y, int textColor) {
+    public static void drawCenteredStringWithBorder(GuiGraphicsExtractor graphics, Font font, Component text, int centerX, int y, int textColor) {
         drawCenteredStringWithBorder(graphics, font, text, centerX, y, textColor, 0xFF000000);
     }
 
-    public static void drawCenteredStringWithBorder(GuiGraphics graphics, Font font, FormattedCharSequence text, int centerX, int y, int textColor) {
+    public static void drawCenteredStringWithBorder(GuiGraphicsExtractor graphics, Font font, FormattedCharSequence text, int centerX, int y, int textColor) {
         drawCenteredStringWithBorder(graphics, font, text, centerX, y, textColor, 0xFF000000);
     }
 
-    public static void renderAdvancedTooltip(GuiGraphics graphics, Font font, int mouseX, int mouseY, int screenWidth, int screenHeight, Component title, List<Component> description, List<Component> extras, int color) {
+    public static void renderAdvancedTooltip(GuiGraphicsExtractor graphics, Font font, int mouseX, int mouseY, int screenWidth, int screenHeight, Component title, List<Component> description, List<Component> extras, int color) {
         if (title == null && (description == null || description.isEmpty()) && (extras == null || extras.isEmpty())) return;
 
         List<ClientTooltipComponent> components = new ArrayList<>();

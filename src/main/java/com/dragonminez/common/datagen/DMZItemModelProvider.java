@@ -9,7 +9,7 @@ import com.dragonminez.common.dragonball.DragonBallSetAssetDefinition;
 import com.dragonminez.common.init.MainBlocks;
 import com.dragonminez.common.init.MainItems;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -39,11 +39,11 @@ public class DMZItemModelProvider extends ItemModelProvider {
 			DeferredHolder<net.minecraft.world.item.Item, ? extends Item> item = MainItems.getDragonRadarItemOrThrow(radarDefinition.getId());
 			// Varios radares comparten la misma asset definition (y por tanto la misma textura).
 			// Si existe un icono propio con el nombre de registro del item, ese manda.
-			ResourceLocation ownTexture = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "item/" + item.getId().getPath());
+			Identifier ownTexture = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "item/" + item.getId().getPath());
 			if (files.exists(ownTexture, ITEM_TEXTURE)) {
 				withExistingParent(item.getId().getPath(), mcLoc("item/generated")).texture("layer0", ownTexture);
 			} else if (assets != null && assets.getItemTexturePath().isPresent()) {
-				withExistingParent(item.getId().getPath(), mcLoc("item/generated")).texture("layer0", ResourceLocation.parse(assets.getItemTexturePath().get()));
+				withExistingParent(item.getId().getPath(), mcLoc("item/generated")).texture("layer0", Identifier.parse(assets.getItemTexturePath().get()));
 			} else {
 				simpleItem(item);
 			}
@@ -108,7 +108,7 @@ public class DMZItemModelProvider extends ItemModelProvider {
 				int star = entry.getKey();
 				DeferredHolder<Item, ? extends Item> item = entry.getValue();
 				if (assets != null && assets.getInventoryTexturePathForStar(star).isPresent()) {
-					withExistingParent(item.getId().getPath(), mcLoc("item/generated")).texture("layer0", ResourceLocation.parse(assets.getInventoryTexturePathForStar(star).get()));
+					withExistingParent(item.getId().getPath(), mcLoc("item/generated")).texture("layer0", Identifier.parse(assets.getInventoryTexturePathForStar(star).get()));
 				} else {
 					simpleItem(item);
 				}
@@ -489,28 +489,28 @@ public class DMZItemModelProvider extends ItemModelProvider {
 
 	private void simpleItem(DeferredHolder<Item, ? extends Item> item) {
 		withExistingParent(item.getId().getPath(),
-				ResourceLocation.parse("item/generated")).texture("layer0",
-				ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "item/" + item.getId().getPath()));
+				Identifier.parse("item/generated")).texture("layer0",
+				Identifier.fromNamespaceAndPath(Reference.MOD_ID, "item/" + item.getId().getPath()));
 	}
 	private void armorItem(DeferredHolder<Item, ? extends Item> item) {
 		withExistingParent(item.getId().getPath(),
-				ResourceLocation.parse("item/generated")).texture("layer0",
-				ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "item/armors/" + item.getId().getPath()));
+				Identifier.parse("item/generated")).texture("layer0",
+				Identifier.fromNamespaceAndPath(Reference.MOD_ID, "item/armors/" + item.getId().getPath()));
 	}
 	private void patternItem(DeferredHolder<Item, ? extends Item> item) {
 		withExistingParent(item.getId().getPath(),
-				ResourceLocation.parse("item/generated")).texture("layer0",
-				ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "item/patterns/" + item.getId().getPath()));
+				Identifier.parse("item/generated")).texture("layer0",
+				Identifier.fromNamespaceAndPath(Reference.MOD_ID, "item/patterns/" + item.getId().getPath()));
 	}
 	private void blockItem(DeferredHolder<Block, ? extends Block> item) {
 		withExistingParent(item.getId().getPath(),
-				ResourceLocation.parse("item/generated")).texture("layer0",
-				ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + item.getId().getPath()));
+				Identifier.parse("item/generated")).texture("layer0",
+				Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + item.getId().getPath()));
 	}
 	private void blockAsItem(DeferredHolder<Block, ? extends Block> item) {
 		withExistingParent(item.getId().getPath(),
-				ResourceLocation.parse("item/generated")).texture("layer0",
-				ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "item/" + item.getId().getPath()));
+				Identifier.parse("item/generated")).texture("layer0",
+				Identifier.fromNamespaceAndPath(Reference.MOD_ID, "item/" + item.getId().getPath()));
 	}
 	public void simpleBlockItem(DeferredHolder<Block, ? extends Block> block) {
 		this.withExistingParent(Reference.MOD_ID + ":" + BuiltInRegistries.BLOCK.getKey(block.get()).getPath(),
@@ -523,21 +523,21 @@ public class DMZItemModelProvider extends ItemModelProvider {
 
 	public void fenceItem(DeferredHolder<Block, ? extends Block> block, DeferredHolder<Block, ? extends Block> baseBlock) {
 		this.withExistingParent(BuiltInRegistries.BLOCK.getKey(block.get()).getPath(), mcLoc("block/fence_inventory"))
-				.texture("texture",  ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + BuiltInRegistries.BLOCK.getKey(baseBlock.get()).getPath()));
+				.texture("texture",  Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + BuiltInRegistries.BLOCK.getKey(baseBlock.get()).getPath()));
 	}
 
 	public void buttonItem(DeferredHolder<Block, ? extends Block> block, DeferredHolder<Block, ? extends Block> baseBlock) {
 		this.withExistingParent(BuiltInRegistries.BLOCK.getKey(block.get()).getPath(), mcLoc("block/button_inventory"))
-				.texture("texture",  ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + BuiltInRegistries.BLOCK.getKey(baseBlock.get()).getPath()));
+				.texture("texture",  Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + BuiltInRegistries.BLOCK.getKey(baseBlock.get()).getPath()));
 	}
 	public void wallItem(DeferredHolder<Block, ? extends Block> block, DeferredHolder<Block, ? extends Block> baseBlock) {
 		this.withExistingParent(BuiltInRegistries.BLOCK.getKey(block.get()).getPath(), mcLoc("block/wall_inventory"))
-				.texture("wall",  ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + BuiltInRegistries.BLOCK.getKey(baseBlock.get()).getPath()));
+				.texture("wall",  Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + BuiltInRegistries.BLOCK.getKey(baseBlock.get()).getPath()));
 	}
 	private void saplingItem(DeferredHolder<Block, ? extends Block> item) {
 		withExistingParent(item.getId().getPath(),
-				ResourceLocation.parse("item/generated")).texture("layer0",
-				ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "block/" + item.getId().getPath()));
+				Identifier.parse("item/generated")).texture("layer0",
+				Identifier.fromNamespaceAndPath(Reference.MOD_ID, "block/" + item.getId().getPath()));
 	}
 	private void generateArmorSetModels(Map<ArmorItem.Type, DeferredHolder<Item, ? extends Item>> armorSet) {
 		for (DeferredHolder<Item, ? extends Item> piece : armorSet.values()) {
@@ -546,7 +546,7 @@ public class DMZItemModelProvider extends ItemModelProvider {
 	}
 	private void handheldItem(DeferredHolder<Item, ? extends Item> item) {
 		withExistingParent(item.getId().getPath(),
-				ResourceLocation.parse("item/handheld")).texture("layer0",
-				ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "item/" + item.getId().getPath()));
+				Identifier.parse("item/handheld")).texture("layer0",
+				Identifier.fromNamespaceAndPath(Reference.MOD_ID, "item/" + item.getId().getPath()));
 	}
 }

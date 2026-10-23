@@ -4,7 +4,7 @@ import com.dragonminez.client.gui.hud.layout.HudElement;
 import com.dragonminez.client.gui.hud.layout.HudLayout;
 import com.dragonminez.common.config.ConfigManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public final class HudSideMeters {
 	private static final HudSprites.BarSkin SKIN = HudSprites.RESERVE_BAR;
@@ -28,7 +28,7 @@ public final class HudSideMeters {
 		return value;
 	}
 
-	public static void draw(GuiGraphics guiGraphics, HudElement element, int screenWidth, int screenHeight, HudBar bar, HudSprites.Sprite icon,
+	public static void draw(GuiGraphicsExtractor guiGraphics, HudElement element, int screenWidth, int screenHeight, HudBar bar, HudSprites.Sprite icon,
 							float visibility, int color, float pulse) {
 		HudLayout.Box box = HudLayout.resolve(element, screenWidth, screenHeight);
 		boolean preview = HudLayout.isPreview();

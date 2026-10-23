@@ -3,7 +3,7 @@ package com.dragonminez.common.wish.wishes;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.common.wish.Wish;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -24,7 +24,7 @@ public class MultiItemWish extends Wish {
 	@Override
 	public void grant(ServerPlayer player) {
 		for (Tuple<String, Integer> itemInfo : items) {
-			Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemInfo.getA()));
+			Item item = BuiltInRegistries.ITEM.get(Identifier.parse(itemInfo.getA()));
 			if (item != null) {
 				giveOrDrop(player, new ItemStack(item, itemInfo.getB()));
 			} else {

@@ -20,20 +20,20 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.cache.object.GeoCube;
-import software.bernie.geckolib.cache.object.GeoQuad;
-import software.bernie.geckolib.cache.object.GeoVertex;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.GeoCube;
+import com.geckolib.cache.object.GeoQuad;
+import com.geckolib.cache.object.GeoVertex;
+import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.layer.GeoRenderLayer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,14 +73,14 @@ public class KiWeaponRenderer {
 	private static final float BURST_CENTER_OFFSET = 3.0f / 16.0f;
 	private static final float BURST_HALF_SIZE = 10.0f / 16.0f;
 
-	private static ResourceLocation weaponModel(String type) {
-		ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/kiweapon_" + type.toLowerCase() + ".geo.json");
+	private static Identifier weaponModel(String type) {
+		Identifier loc = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/kiweapon_" + type.toLowerCase() + ".geo.json");
 		if (Minecraft.getInstance().getResourceManager().getResource(loc).isPresent()) return loc;
 		return null;
 	}
 
-	private static ResourceLocation weaponTexture(String type) {
-		ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/weapons/kiweapon_" + type.toLowerCase() + ".png");
+	private static Identifier weaponTexture(String type) {
+		Identifier loc = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/weapons/kiweapon_" + type.toLowerCase() + ".png");
 		if (Minecraft.getInstance().getResourceManager().getResource(loc).isPresent()) return loc;
 		return null;
 	}
@@ -165,13 +165,13 @@ public class KiWeaponRenderer {
 			DMZPlayerRenderer<?> renderer = DMZRendererCache.getTPRenderer(player);
 
 			if (renderer != null) {
-				ResourceLocation modelLoc = weaponModel(type);
+				Identifier modelLoc = weaponModel(type);
 				if (modelLoc == null) continue;
 				BakedGeoModel weaponModel = renderer.getGeoModel().getBakedModel(modelLoc);
 				if (weaponModel == null) continue;
 
 				String boneName = weaponBone(type);
-				ResourceLocation texture = weaponTexture(type);
+				Identifier texture = weaponTexture(type);
 
 				weaponModel.getBone(boneName).ifPresent(targetBone -> {
 

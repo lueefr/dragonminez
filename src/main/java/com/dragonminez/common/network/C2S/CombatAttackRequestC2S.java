@@ -97,7 +97,7 @@ public class CombatAttackRequestC2S {
 		ctx.get().setPacketHandled(true);
 	}
 
-    private static final net.minecraft.resources.ResourceLocation SWEEPING_MODIFIER_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/99435a26-9fa8-48b4-a8eb-8438bf228eb3");
+    private static final net.minecraft.resources.Identifier SWEEPING_MODIFIER_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/99435a26-9fa8-48b4-a8eb-8438bf228eb3");
 
 	private static final Map<UUID, int[]> LAST_COMBO = new ConcurrentHashMap<>();
 

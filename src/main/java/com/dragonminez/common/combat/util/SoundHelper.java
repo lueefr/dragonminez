@@ -4,7 +4,7 @@ import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
 import com.dragonminez.common.combat.weapon.WeaponAttributes;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -38,9 +38,9 @@ public class SoundHelper {
     public static SoundEvent resolveSoundEvent(WeaponAttributes.Sound sound) {
         if (sound == null || sound.id() == null || sound.id().isBlank()) return null;
 
-        ResourceLocation soundLoc = ResourceLocation.tryParse(sound.id());
+        Identifier soundLoc = Identifier.tryParse(sound.id());
         if (soundLoc == null) {
-            soundLoc = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, sound.id());
+            soundLoc = Identifier.fromNamespaceAndPath(Reference.MOD_ID, sound.id());
         }
         return BuiltInRegistries.SOUND_EVENT.get(soundLoc);
     }

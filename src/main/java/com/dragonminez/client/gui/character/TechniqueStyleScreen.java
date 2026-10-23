@@ -10,13 +10,13 @@ import com.dragonminez.client.render.camera.TechniquePreviewCamera;
 import com.dragonminez.client.render.effects.TechniquePreview;
 import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.client.util.TextUtil;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
@@ -26,8 +26,8 @@ import java.util.Locale;
 
 @OnlyIn(Dist.CLIENT)
 public class TechniqueStyleScreen extends ScaledScreen {
-	private static final ResourceLocation MENU_BIG = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
-	private static final ResourceLocation BUTTONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier MENU_BIG = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
+	private static final Identifier BUTTONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
 	private static final NumberFormat COST_FORMAT = NumberFormat.getIntegerInstance(new Locale("es", "ES"));
 
 	private static final int PANEL_W = 141;
@@ -284,7 +284,7 @@ public class TechniqueStyleScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
 		int uiMouseY = (int) Math.round(toUiY(mouseY));
 		beginUiScale(graphics);
@@ -306,7 +306,7 @@ public class TechniqueStyleScreen extends ScaledScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderPanel(GuiGraphics graphics, float localMouseX, int uiMouseY) {
+	private void renderPanel(GuiGraphicsExtractor graphics, float localMouseX, int uiMouseY) {
 		int cx = PANEL_W / 2;
 		blit(graphics, MENU_BIG, 0, this.panelY, 0, 0, PANEL_W, PANEL_H);
 		blit(graphics, MENU_BIG, 17, this.panelY + PLATE_Y, 142, 22, 107, 21);

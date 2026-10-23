@@ -4,7 +4,7 @@ import com.dragonminez.Reference;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -34,7 +34,7 @@ public final class MainEnchants {
 	public static final ResourceKey<Enchantment> GRAVITY_FORGED = key("gravity_forged");
 
 	private static ResourceKey<Enchantment> key(String path) {
-		return ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, path));
+		return ResourceKey.create(Registries.ENCHANTMENT, Identifier.fromNamespaceAndPath(Reference.MOD_ID, path));
 	}
 
 	public static Optional<Holder.Reference<Enchantment>> holder(Level level, ResourceKey<Enchantment> key) {

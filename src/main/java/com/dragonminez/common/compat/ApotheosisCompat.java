@@ -2,7 +2,7 @@ package com.dragonminez.common.compat;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
 
@@ -23,7 +23,7 @@ public final class ApotheosisCompat {
 
     private static void copy(ItemStack from, ItemStack to, String component) {
         if (!isLoaded()) return;
-        BuiltInRegistries.DATA_COMPONENT_TYPE.getOptional(ResourceLocation.fromNamespaceAndPath(MOD_ID, component))
+        BuiltInRegistries.DATA_COMPONENT_TYPE.getOptional(Identifier.fromNamespaceAndPath(MOD_ID, component))
                 .ifPresent(type -> copyComponent(from, to, type));
     }
 

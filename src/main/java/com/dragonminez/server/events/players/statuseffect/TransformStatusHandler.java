@@ -18,7 +18,7 @@ import com.dragonminez.server.events.players.IStatusEffectHandler;
 import com.dragonminez.server.util.TriggerFormMarker;
 import net.neoforged.neoforge.common.NeoForge;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -362,7 +362,7 @@ public class TransformStatusHandler implements IStatusEffectHandler {
         }
 
         String normalized = normalizeEffectId(rawEffectId.trim().toLowerCase());
-        ResourceLocation location = ResourceLocation.tryParse(normalized);
+        Identifier location = Identifier.tryParse(normalized);
         if (location == null) {
             return null;
         }
@@ -383,7 +383,7 @@ public class TransformStatusHandler implements IStatusEffectHandler {
     }
 
     private static String getEffectId(Holder<MobEffect> effect) {
-        ResourceLocation key = effect.unwrapKey().map(k -> k.location()).orElse(null);
+        Identifier key = effect.unwrapKey().map(k -> k.location()).orElse(null);
         return key != null ? key.toString() : "unknown";
     }
 

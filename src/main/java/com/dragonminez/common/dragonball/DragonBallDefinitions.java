@@ -4,7 +4,7 @@ import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.server.world.dimension.DemonRealmDimension;
 import com.dragonminez.server.world.dimension.NamekDimension;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 

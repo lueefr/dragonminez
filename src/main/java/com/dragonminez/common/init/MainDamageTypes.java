@@ -13,7 +13,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
@@ -24,8 +24,8 @@ import java.util.Locale;
 
 public class MainDamageTypes {
 
-    public static final ResourceKey<DamageType> KIBLAST = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "kiblast"));
-    public static final ResourceKey<DamageType> STRIKE_ATTACK = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "strike_attack"));
+    public static final ResourceKey<DamageType> KIBLAST = ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "kiblast"));
+    public static final ResourceKey<DamageType> STRIKE_ATTACK = ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "strike_attack"));
 
 	public static DamageSource kiblast(Level level, Entity projectile, Entity owner) {
 		Holder<DamageType> holder = level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(KIBLAST);

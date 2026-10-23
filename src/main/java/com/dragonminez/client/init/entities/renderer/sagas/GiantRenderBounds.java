@@ -5,18 +5,18 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
-import software.bernie.geckolib.cache.GeckoLibCache;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.cache.object.GeoCube;
-import software.bernie.geckolib.cache.object.GeoQuad;
-import software.bernie.geckolib.cache.object.GeoVertex;
-import software.bernie.geckolib.animation.state.BoneSnapshot;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.cache.GeckoLibCache;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.GeoCube;
+import com.geckolib.cache.object.GeoQuad;
+import com.geckolib.cache.object.GeoVertex;
+import com.geckolib.animation.state.BoneSnapshot;
+import com.geckolib.model.GeoModel;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 
 import java.util.HashMap;
@@ -28,7 +28,7 @@ public final class GiantRenderBounds {
     private static final float RADIUS_PER_HEIGHT = 0.5F;
     private static final float HEIGHT_MARGIN = 1.3F;
 
-    private static final Map<ResourceLocation, Measured> CACHE = new HashMap<>();
+    private static final Map<Identifier, Measured> CACHE = new HashMap<>();
 
     private record Measured(BakedGeoModel model, float[] extents) {}
 
@@ -39,7 +39,7 @@ public final class GiantRenderBounds {
         EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity);
         if (!(renderer instanceof GeoEntityRenderer geoRenderer)) return null;
 
-        ResourceLocation location;
+        Identifier location;
         try {
             GeoModel model = geoRenderer.getGeoModel();
             location = model.getModelResource(entity, geoRenderer);
@@ -77,17 +77,17 @@ public final class GiantRenderBounds {
         float rotY = rest != null ? rest.getRotY() : bone.getRotY();
         float rotZ = rest != null ? rest.getRotZ() : bone.getRotZ();
 
-        software.bernie.geckolib.util.RenderUtil.translateToPivotPoint(poseStack, bone);
+        com.geckolib.util.RenderUtil.translateToPivotPoint(poseStack, bone);
         if (rotZ != 0.0F) poseStack.mulPose(Axis.ZP.rotation(rotZ));
         if (rotY != 0.0F) poseStack.mulPose(Axis.YP.rotation(rotY));
         if (rotX != 0.0F) poseStack.mulPose(Axis.XP.rotation(rotX));
-        software.bernie.geckolib.util.RenderUtil.translateAwayFromPivotPoint(poseStack, bone);
+        com.geckolib.util.RenderUtil.translateAwayFromPivotPoint(poseStack, bone);
 
         for (GeoCube cube : bone.getCubes()) {
             poseStack.pushPose();
-            software.bernie.geckolib.util.RenderUtil.translateToPivotPoint(poseStack, cube);
-            software.bernie.geckolib.util.RenderUtil.rotateMatrixAroundCube(poseStack, cube);
-            software.bernie.geckolib.util.RenderUtil.translateAwayFromPivotPoint(poseStack, cube);
+            com.geckolib.util.RenderUtil.translateToPivotPoint(poseStack, cube);
+            com.geckolib.util.RenderUtil.rotateMatrixAroundCube(poseStack, cube);
+            com.geckolib.util.RenderUtil.translateAwayFromPivotPoint(poseStack, cube);
 
             Matrix4f pose = poseStack.last().pose();
             for (GeoQuad quad : cube.quads()) {

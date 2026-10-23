@@ -17,7 +17,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -177,7 +177,7 @@ public final class NPCPlacementManager {
 
 		ResourceKey<Level> dimensionKey;
 		try {
-			dimensionKey = ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, ResourceLocation.parse(dimension));
+			dimensionKey = ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, Identifier.parse(dimension));
 		} catch (Exception ignored) {
 			return null;
 		}
@@ -207,9 +207,9 @@ public final class NPCPlacementManager {
 	private static void spawnOrUpdate(ServerLevel level, NPCPlacement placement) {
 		NPCPlacementSavedData placementData = NPCPlacementSavedData.get(level);
 		boolean overridePlacement = placement.override() || shouldForceManualSpawn(placement);
-		ResourceLocation entityId;
+		Identifier entityId;
 		try {
-			entityId = ResourceLocation.parse(placement.entity());
+			entityId = Identifier.parse(placement.entity());
 		} catch (Exception ignored) {
 			LogUtil.warn(Env.SERVER, "NPCPlacementManager: invalid entity id '{}' for placement '{}'", placement.entity(), placement.id());
 			return;

@@ -2,14 +2,14 @@ package com.dragonminez.client.gui.radial;
 
 import com.dragonminez.common.stats.StatsData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
 public interface RadialNode {
 	Component label(StatsData stats);
 
-	ResourceLocation icon(StatsData stats);
+	Identifier icon(StatsData stats);
 
 	default String faceText(StatsData stats) {
 		return null;

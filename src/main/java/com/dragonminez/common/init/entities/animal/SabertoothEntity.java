@@ -5,7 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -16,12 +16,12 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.animation.PlayState;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.PlayState;
 
 public class SabertoothEntity extends DinoGlobalEntity{
 
@@ -30,11 +30,11 @@ public class SabertoothEntity extends DinoGlobalEntity{
 
     public static final int VARIANT_COUNT = 3;
 
-    public static final ResourceLocation[] TEXTURES = new ResourceLocation[VARIANT_COUNT];
+    public static final Identifier[] TEXTURES = new Identifier[VARIANT_COUNT];
 
     static {
         for (int i = 0; i < VARIANT_COUNT; i++) {
-            TEXTURES[i] = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/animal/sabertooth_" + i + ".png");
+            TEXTURES[i] = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/animal/sabertooth_" + i + ".png");
         }
     }
 
@@ -71,7 +71,7 @@ public class SabertoothEntity extends DinoGlobalEntity{
     public int getVariantTiger() {return this.entityData.get(VARIANT);}
     public void setVariantTiger(int variant) {this.entityData.set(VARIANT, variant);}
 
-    public ResourceLocation getCurrentTexture() {
+    public Identifier getCurrentTexture() {
         int variant = getVariantTiger();
         if (variant < 0 || variant >= TEXTURES.length) {
             variant = 0;

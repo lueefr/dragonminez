@@ -16,7 +16,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -31,17 +31,17 @@ import net.neoforged.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.util.Color;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.util.Color;
+import com.geckolib.model.GeoModel;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 
-	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/gum_bind.png");
-	private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/skills/gum_bind.geo.json");
-	private static final ResourceLocation ANIMATION = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/skills/gum_bind.animation.json");
+	private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/gum_bind.png");
+	private static final Identifier MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/skills/gum_bind.geo.json");
+	private static final Identifier ANIMATION = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/skills/gum_bind.animation.json");
 	private static final String TOP_COIL = "coil_1";
 	private static final float GLOSS_LIFT = 0.55F;
 	private static final float REACH_TICKS = 3.0F;
@@ -127,7 +127,7 @@ public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 	}
 
 	@Override
-	public RenderType getRenderType(GumBindEntity gum, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+	public RenderType getRenderType(GumBindEntity gum, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
 		return RenderType.entityCutout(texture);
 	}
 
@@ -266,7 +266,7 @@ public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 		}
 
 		@Override
-		public ResourceLocation getTextureLocation(GumBindEntity.Ball ball) {
+		public Identifier getTextureLocation(GumBindEntity.Ball ball) {
 			return TEXTURE;
 		}
 	}
@@ -274,17 +274,17 @@ public class GumBindRenderer extends GeoEntityRenderer<GumBindEntity> {
 	public static class Model extends GeoModel<GumBindEntity> {
 
 		@Override
-		public ResourceLocation getModelResource(GumBindEntity gum) {
+		public Identifier getModelResource(GumBindEntity gum) {
 			return MODEL;
 		}
 
 		@Override
-		public ResourceLocation getTextureResource(GumBindEntity gum) {
+		public Identifier getTextureResource(GumBindEntity gum) {
 			return TEXTURE;
 		}
 
 		@Override
-		public ResourceLocation getAnimationResource(GumBindEntity gum) {
+		public Identifier getAnimationResource(GumBindEntity gum) {
 			return ANIMATION;
 		}
 	}

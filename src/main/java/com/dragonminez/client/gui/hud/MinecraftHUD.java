@@ -7,7 +7,7 @@ import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.AttackIndicatorStatus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.client.gui.LayeredDraw;
@@ -44,7 +44,7 @@ public class MinecraftHUD {
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
-	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	public static void render(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 		if (HudStyle.current() != HudStyle.VANILLA) return;
@@ -86,7 +86,7 @@ public class MinecraftHUD {
 		});
 	}
 
-	private static void drawSide(GuiGraphics guiGraphics, HudElement element, int width, int height, Frame frame, float hotbarX, float hotbarTop, float hotbarWidth) {
+	private static void drawSide(GuiGraphicsExtractor guiGraphics, HudElement element, int width, int height, Frame frame, float hotbarX, float hotbarTop, float hotbarWidth) {
 		HudLayout.Box box = HudLayout.resolve(element, width, height);
 		if (!box.visible() && !HudLayout.isPreview()) return;
 		boolean left = element == HudElement.MC_LEFT;
@@ -112,7 +112,7 @@ public class MinecraftHUD {
 		}
 	}
 
-	private static void drawLeft(GuiGraphics guiGraphics, Frame frame, float barX, float topY, float barWidth) {
+	private static void drawLeft(GuiGraphicsExtractor guiGraphics, Frame frame, float barX, float topY, float barWidth) {
 		float bottomY = topY + ROW_STEP;
 		float textY = (BAR_HEIGHT - 6.0f) / 2.0f;
 		float capsuleX = barX - CAPSULE;
@@ -126,7 +126,7 @@ public class MinecraftHUD {
 		STM_BAR.drawValue(guiGraphics, barX + barWidth / 2.0f, bottomY + textY, 0.75f, 0.5f, frame.tickTime());
 	}
 
-	private static void drawRight(GuiGraphics guiGraphics, Frame frame, float barX, float topY, float barWidth) {
+	private static void drawRight(GuiGraphicsExtractor guiGraphics, Frame frame, float barX, float topY, float barWidth) {
 		float bottomY = topY + ROW_STEP;
 		float textY = (BAR_HEIGHT - 6.0f) / 2.0f;
 		float capsuleX = barX + barWidth;
@@ -149,7 +149,7 @@ public class MinecraftHUD {
 		HudRender.text(guiGraphics, Math.round(frame.release()) + "%", barX + barWidth / 2.0f, bottomY + textY, 0.75f, 0.5f, RELEASE_TEXT_COLOR, 1.0f);
 	}
 
-	private static void drawCapsule(GuiGraphics guiGraphics, HudSprites.Sprite icon, float x, float y, int iconRgb) {
+	private static void drawCapsule(GuiGraphicsExtractor guiGraphics, HudSprites.Sprite icon, float x, float y, int iconRgb) {
 		HudRender.sprite(guiGraphics, HudSprites.MINECRAFT_CAPSULE, x, y, CAPSULE, CAPSULE, 0xFFFFFF, 1.0f);
 		HudRender.sprite(guiGraphics, icon, x + BORDER, y + BORDER, icon.guiWidth(), icon.guiHeight(), iconRgb, 1.0f);
 	}

@@ -2,33 +2,33 @@ package com.dragonminez.client.init.entities.model;
 
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.animal.DinoGlobalEntity;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.core.registries.BuiltInRegistries;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.geckolib.constant.DataTickets;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.model.GeoModel;
+import com.geckolib.model.data.EntityModelData;
 
 public class DinoGlobalModel<T extends DinoGlobalEntity> extends GeoModel<T> {
 
     @Override
-    public ResourceLocation getModelResource(T animatable) {
+    public Identifier getModelResource(T animatable) {
         String name = BuiltInRegistries.ENTITY_TYPE.getKey(animatable.getType()).getPath();
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/animal/" + name + ".geo.json");
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/animal/" + name + ".geo.json");
     }
 
     @Override
-    public ResourceLocation getTextureResource(T animatable) {
+    public Identifier getTextureResource(T animatable) {
         String name = BuiltInRegistries.ENTITY_TYPE.getKey(animatable.getType()).getPath();
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/animal/" + name + ".png");
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/animal/" + name + ".png");
     }
 
     @Override
-    public ResourceLocation getAnimationResource(T animatable) {
+    public Identifier getAnimationResource(T animatable) {
         String name = BuiltInRegistries.ENTITY_TYPE.getKey(animatable.getType()).getPath();
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/animal/" + name + ".animation.json");
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/animal/" + name + ".animation.json");
     }
 
     @Override

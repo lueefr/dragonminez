@@ -18,14 +18,14 @@ import net.minecraft.world.item.*;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import software.bernie.geckolib.animatable.GeoItem;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
-import software.bernie.geckolib.util.RenderUtil;
+import com.geckolib.animatable.GeoItem;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.layer.BlockAndItemGeoLayer;
+import com.geckolib.util.RenderUtil;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class DMZPlayerItemInHandLayer<T extends AbstractClientPlayer & GeoAnimatable> extends BlockAndItemGeoLayer<T> {
 

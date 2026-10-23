@@ -7,7 +7,7 @@ import com.dragonminez.common.init.entities.bioandroid.CellJrEntity;
 import com.dragonminez.common.init.entities.namek.NamekWarriorEntity;
 import com.dragonminez.common.init.entities.redribbon.RedRibbonEntity;
 import com.dragonminez.common.init.entities.sagas.DBSagasEntity;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
@@ -47,7 +47,7 @@ public final class SquadCoordinator {
         if (mob instanceof DinoGlobalEntity || mob instanceof DinoFlyEntity) return "dino";
         if (mob instanceof RedRibbonEntity) return "red_ribbon";
         if (mob instanceof NamekWarriorEntity) return "namek";
-        ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
+        Identifier key = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
         String path = key != null ? key.getPath() : "unknown";
         int end = path.length();
         while (end > 0 && Character.isDigit(path.charAt(end - 1))) end--;

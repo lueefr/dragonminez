@@ -29,7 +29,7 @@ import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
-import software.bernie.geckolib.event.GeoRenderEvent;
+import com.geckolib.event.GeoRenderEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;

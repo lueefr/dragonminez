@@ -3,12 +3,12 @@ package com.dragonminez.common.quest.objectives;
 import lombok.*;
 import com.dragonminez.common.quest.QuestObjective;
 import lombok.Getter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Defeat successive waves of enemies (progress = waves cleared). Waves spawn around the quest
@@ -50,7 +50,7 @@ public class SurviveWavesObjective extends QuestObjective {
 	@Nullable
 	public EntityType<?> resolveEntityType() {
 		try {
-			return BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entityId));
+			return BuiltInRegistries.ENTITY_TYPE.get(Identifier.parse(entityId));
 		} catch (Exception e) {
 			return null;
 		}

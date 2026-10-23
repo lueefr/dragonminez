@@ -9,7 +9,7 @@ import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
 import com.dragonminez.common.stats.skills.Skills;
 import net.minecraft.util.Mth;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
@@ -300,17 +300,17 @@ public class PlayerAttackHelper {
         if (formCombo == null || formCombo.isBlank()) return null;
 
         String comboRaw = formCombo.trim().toLowerCase();
-        Set<ResourceLocation> candidates = new LinkedHashSet<>();
+        Set<Identifier> candidates = new LinkedHashSet<>();
 
-        ResourceLocation parsed = ResourceLocation.tryParse(comboRaw);
+        Identifier parsed = Identifier.tryParse(comboRaw);
         if (parsed != null) candidates.add(parsed);
 
         if (!comboRaw.contains(":")) {
-            candidates.add(ResourceLocation.fromNamespaceAndPath("dragonminez", comboRaw));
-            candidates.add(ResourceLocation.fromNamespaceAndPath("minecraft", comboRaw));
+            candidates.add(Identifier.fromNamespaceAndPath("dragonminez", comboRaw));
+            candidates.add(Identifier.fromNamespaceAndPath("minecraft", comboRaw));
         }
 
-        for (ResourceLocation candidate : candidates) {
+        for (Identifier candidate : candidates) {
             WeaponAttributes attributes = WeaponRegistry.getAttributes(candidate);
             if (attributes != null && attributes.attacks() != null) return attributes;
         }
@@ -351,13 +351,13 @@ public class PlayerAttackHelper {
         var cfg = ConfigManager.getCombatConfig().getKiWeaponConfig(type);
         String combo = cfg != null ? cfg.getWeaponCombo() : null;
         if (combo != null && !combo.isBlank()) {
-            ResourceLocation comboId = ResourceLocation.tryParse(combo.trim().toLowerCase());
+            Identifier comboId = Identifier.tryParse(combo.trim().toLowerCase());
             if (comboId != null) {
                 var attributes = WeaponRegistry.getAttributes(comboId);
                 if (attributes != null && attributes.attacks() != null) return attributes;
             }
         }
-        return WeaponRegistry.getAttributes(ResourceLocation.fromNamespaceAndPath("dragonminez", "fist"));
+        return WeaponRegistry.getAttributes(Identifier.fromNamespaceAndPath("dragonminez", "fist"));
     }
 
     @Nullable
@@ -368,7 +368,7 @@ public class PlayerAttackHelper {
         }
         var attributes = getActiveFormComboAttributes(player);
         if (attributes == null || attributes.attacks() == null) {
-            attributes = WeaponRegistry.getAttributes(ResourceLocation.fromNamespaceAndPath("dragonminez", "fist"));
+            attributes = WeaponRegistry.getAttributes(Identifier.fromNamespaceAndPath("dragonminez", "fist"));
         }
         return attributes;
     }

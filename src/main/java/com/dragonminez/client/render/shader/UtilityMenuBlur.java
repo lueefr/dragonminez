@@ -3,11 +3,11 @@ package com.dragonminez.client.render.shader;
 import com.dragonminez.Reference;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public final class UtilityMenuBlur {
 	public static boolean ENABLED = true;
-	private static final ResourceLocation EFFECT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/utility_blur.json");
+	private static final Identifier EFFECT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/utility_blur.json");
 	private static boolean loadedByUs = false;
 
 	private UtilityMenuBlur() {}

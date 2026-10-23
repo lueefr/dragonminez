@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
-import software.bernie.geckolib.renderer.GeoBlockRenderer;
+import com.geckolib.renderer.GeoBlockRenderer;
 
 public class PatternStationBlockRenderer extends GeoBlockRenderer<PatternStationBlockEntity> {
 	public PatternStationBlockRenderer(BlockEntityRendererProvider.Context context) {

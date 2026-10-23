@@ -15,7 +15,7 @@ import com.dragonminez.server.world.data.DragonBallSavedData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -130,7 +130,7 @@ public class DragonBallsHandler {
 	}
 
 	public static ServerLevel getHomeLevel(MinecraftServer server, DragonBallSetDefinition definition) {
-		for (ResourceLocation dimension : definition.getValidDimensions()) {
+		for (Identifier dimension : definition.getValidDimensions()) {
 			ServerLevel level = server.getLevel(ResourceKey.create(Registries.DIMENSION, dimension));
 			if (level != null) return level;
 		}
@@ -434,7 +434,7 @@ public class DragonBallsHandler {
 		Map<String, List<BlockPos>> positionsBySet = new HashMap<>();
 		for (DragonBallSetDefinition definition : DragonBallDefinitions.getBallSets()) {
 			List<BlockPos> positions = positionsBySet.computeIfAbsent(definition.getId(), ignored -> new ArrayList<>());
-			for (ResourceLocation dimension : definition.getValidDimensions()) {
+			for (Identifier dimension : definition.getValidDimensions()) {
 				ServerLevel setLevel = server.getLevel(ResourceKey.create(Registries.DIMENSION, dimension));
 				if (setLevel == null) continue;
 				positions.addAll(DragonBallSavedData.get(setLevel).getAllKnownPositionsForRadar(definition.getId()));

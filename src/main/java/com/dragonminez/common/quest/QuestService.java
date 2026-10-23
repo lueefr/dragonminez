@@ -136,7 +136,7 @@ public final class QuestService {
 				joiners.add(member);
 			} else if (!isFinishedFor(memberData.getPlayerQuestData(), resolved)) {
 				requester.sendSystemMessage(Component.translatable("message.dragonminez.quest.start.party_member_skipped",
-						member.getGameProfile().getName(), memberBlocker).withStyle(ChatFormatting.YELLOW));
+						member.getGameProfile().name(), memberBlocker).withStyle(ChatFormatting.YELLOW));
 			}
 		}
 
@@ -168,7 +168,7 @@ public final class QuestService {
 			spawnKillObjectives(requester, resolved, partySize, difficulty);
 		} catch (Exception exception) {
 			LogUtil.error(Env.SERVER, "Failed to spawn kill objectives for quest '" + questKey
-					+ "' started by " + requester.getGameProfile().getName(), exception);
+					+ "' started by " + requester.getGameProfile().name(), exception);
 		}
 
 		for (ServerPlayer joiner : joiners) {
@@ -202,7 +202,7 @@ public final class QuestService {
 			spawnKillObjectives(requester, resolved, partySize, pqd.getQuestDifficulty(questKey));
 		} catch (Exception exception) {
 			LogUtil.error(Env.SERVER, "Failed to re-summon kill objectives for quest '" + questKey
-					+ "' requested by " + requester.getGameProfile().getName(), exception);
+					+ "' requested by " + requester.getGameProfile().name(), exception);
 		}
 		return null;
 	}
@@ -811,7 +811,7 @@ public final class QuestService {
 				reward.giveReward(rewardTarget, pqd.rewardMultiplierFor(reward, questDifficulty));
 			} catch (Exception exception) {
 				LogUtil.error(Env.SERVER, "Quest reward " + i + " of '" + questKey + "' failed for "
-						+ rewardTarget.getGameProfile().getName(), exception);
+						+ rewardTarget.getGameProfile().name(), exception);
 			}
 			anyClaimed = true;
 		}

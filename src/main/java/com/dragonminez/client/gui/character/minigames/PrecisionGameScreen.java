@@ -7,10 +7,10 @@ import com.dragonminez.common.training.MinigameEvent;
 import com.dragonminez.common.training.MinigameOrigin;
 import com.dragonminez.common.training.PrecisionLogic;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PrecisionGameScreen extends BaseMinigameScreen {
-	private static final ResourceLocation SHEET = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/minigame/precision.png");
+	private static final Identifier SHEET = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/minigame/precision.png");
 	private static final int TARGET_SIZE = 32;
 	private static final int PANEL_COLOR = 0xB80A1428;
 	private static final int PANEL_BORDER = 0xFF6F9AD8;
@@ -124,7 +124,7 @@ public class PrecisionGameScreen extends BaseMinigameScreen {
 		tracked.putAll(current);
 	}
 
-	private void drawApproachRing(GuiGraphics graphics, float x, float y, float radius, float closeness) {
+	private void drawApproachRing(GuiGraphicsExtractor graphics, float x, float y, float radius, float closeness) {
 		int[] best = RING_FRAMES[0];
 		for (int[] frame : RING_FRAMES) if (Math.abs(frame[2] - radius) < Math.abs(best[2] - radius)) best = frame;
 		int size = 2 * best[2] + 3;
@@ -137,7 +137,7 @@ public class PrecisionGameScreen extends BaseMinigameScreen {
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 	}
 
-	private void drawOrderNumber(GuiGraphics graphics, float x, float y, int order, boolean next) {
+	private void drawOrderNumber(GuiGraphicsExtractor graphics, float x, float y, int order, boolean next) {
 		MutableComponent number = dmz(String.valueOf(order));
 		float scale = next ? 1.25f : 1f;
 		graphics.pose().pushPose();
@@ -148,7 +148,7 @@ public class PrecisionGameScreen extends BaseMinigameScreen {
 	}
 
 	@Override
-	protected void renderGame(GuiGraphics graphics, float partialTick) {
+	protected void renderGame(GuiGraphicsExtractor graphics, float partialTick) {
 		PrecisionLogic p = precision();
 		TrainingConfig.PrecisionConfig cfg = p.cfg();
 		int cx = this.width / 2;

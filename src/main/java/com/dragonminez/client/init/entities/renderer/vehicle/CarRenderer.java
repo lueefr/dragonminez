@@ -3,14 +3,14 @@ package com.dragonminez.client.init.entities.renderer.vehicle;
 import com.dragonminez.client.init.entities.model.VehicleModel;
 import com.dragonminez.common.init.entities.CarEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
 
 public class CarRenderer extends VehicleRenderer<CarEntity> {
 
-	private static final ResourceLocation[] TEXTURES = new ResourceLocation[CarEntity.Color.values().length];
+	private static final Identifier[] TEXTURES = new Identifier[CarEntity.Color.values().length];
 	private static final String[] FRONT_WHEELS = {"wheel_fl", "wheel_fr"};
 	private static final String[] REAR_WHEELS = {"wheel_bl", "wheel_br"};
 	private static final float STEERING_WHEEL_RATIO = 2.5F;

@@ -19,7 +19,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
@@ -31,18 +31,18 @@ import net.minecraft.core.registries.Registries;
 import org.joml.Vector3f;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.neoforged.neoforge.common.CommonHooks;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.layer.GeoRenderLayer;
 
 import java.util.Set;
 
 public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T> {
 
-    private static final ResourceLocation MAJIN_ARMOR_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/armor/armormajinfat.geo.json");
-    private static final ResourceLocation MAJIN_SLIM_ARMOR_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/armor/armormajinslim.geo.json");
+    private static final Identifier MAJIN_ARMOR_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/armor/armormajinfat.geo.json");
+    private static final Identifier MAJIN_SLIM_ARMOR_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/armor/armormajinslim.geo.json");
 
     private static final Set<String> SLIM_SUPPORTED_MODELS = Set.of(
             "majin_evil", "majin_kid", "majin_super", "majin_ultra", "majin", "saiyan", "human", "ssj4gt", "ssj4d"
@@ -66,7 +66,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
         if (!ctx.shouldRender()) return;
 
         if (ctx.isDbzArmor()) {
-            ResourceLocation texture = getDbzArmorTexture((DbzArmorTextured) stack.getItem(), stack);
+            Identifier texture = getDbzArmorTexture((DbzArmorTextured) stack.getItem(), stack);
             float translateY = resolveCustomArmorTranslateY(ctx);
             float inflation = 1.045f;
 
@@ -106,7 +106,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
             return;
         }
 
-        ResourceLocation targetModelLoc = ctx.isSlimTarget() ? MAJIN_SLIM_ARMOR_MODEL : MAJIN_ARMOR_MODEL;
+        Identifier targetModelLoc = ctx.isSlimTarget() ? MAJIN_SLIM_ARMOR_MODEL : MAJIN_ARMOR_MODEL;
         BakedGeoModel vanillaArmorModel = getGeoModel().getBakedModel(targetModelLoc);
         if (vanillaArmorModel == null) return;
 
@@ -116,7 +116,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
         }
         if (armorBodyBone == null) return;
 
-        ResourceLocation texture = getVanillaArmorTexture(animatable, stack, EquipmentSlot.CHEST, null);
+        Identifier texture = getVanillaArmorTexture(animatable, stack, EquipmentSlot.CHEST, null);
 
         GeoBone armorBoobas = findBoneDeep(armorBodyBone, "boobas");
         float boobFactor = resolveBoobScale(stats);
@@ -137,7 +137,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
         poseStack.popPose();
 
         if (stack.has(DataComponents.DYED_COLOR) || DyedItemColor.getOrDefault(stack, -1) != -1) {
-            ResourceLocation overlayTex = getVanillaArmorTexture(animatable, stack, EquipmentSlot.CHEST, "overlay");
+            Identifier overlayTex = getVanillaArmorTexture(animatable, stack, EquipmentSlot.CHEST, "overlay");
 
             poseStack.pushPose();
             poseStack.translate(0, translateY, 0);
@@ -177,7 +177,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
 
         String logicKey = character.getRenderLogicKey();
 
-        ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        Identifier itemKey = BuiltInRegistries.ITEM.getKey(stack.getItem());
         boolean isVanilla = itemKey != null && "minecraft".equals(itemKey.getNamespace());
         boolean isDbzArmor = stack.getItem() instanceof DbzArmorTextured;
         boolean isPothala = stack.getDescriptionId().contains("pothala");
@@ -227,13 +227,13 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
         return 0.001f;
     }
 
-    private void renderBaseArmorBodyFromPlayerBone(GeoBone playerBodyBone, PoseStack poseStack, MultiBufferSource bufferSource, T animatable, ResourceLocation texture, float partialTick, int packedLight) {
+    private void renderBaseArmorBodyFromPlayerBone(GeoBone playerBodyBone, PoseStack poseStack, MultiBufferSource bufferSource, T animatable, Identifier texture, float partialTick, int packedLight) {
         renderBaseArmorPiece(playerBodyBone, "armorBody", poseStack, bufferSource, animatable, texture, partialTick, packedLight);
         renderBaseArmorPiece(playerBodyBone, "armorBody2", poseStack, bufferSource, animatable, texture, partialTick, packedLight);
         renderBaseArmorPiece(playerBodyBone, "armorLeggingsBody", poseStack, bufferSource, animatable, texture, partialTick, packedLight);
     }
 
-    private void renderBaseArmorPiece(GeoBone playerBodyBone, String boneName, PoseStack poseStack, MultiBufferSource bufferSource, T animatable, ResourceLocation texture, float partialTick, int packedLight) {
+    private void renderBaseArmorPiece(GeoBone playerBodyBone, String boneName, PoseStack poseStack, MultiBufferSource bufferSource, T animatable, Identifier texture, float partialTick, int packedLight) {
         GeoBone armorPiece = getChild(playerBodyBone, boneName);
         if (armorPiece == null) return;
 
@@ -275,7 +275,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
 
     private static final Set<String> EXCLUDED_BONES = Set.of("tail1", "tail1m", "arm", "arm2", "arm3");
 
-    private void renderRootBoneInflated(GeoBone targetBone, PoseStack poseStack, MultiBufferSource bufferSource, T animatable, ResourceLocation texture, float partialTick, int packedLight, float inflation) {
+    private void renderRootBoneInflated(GeoBone targetBone, PoseStack poseStack, MultiBufferSource bufferSource, T animatable, Identifier texture, float partialTick, int packedLight, float inflation) {
         BoneRenderState saved = BoneRenderState.capture(targetBone);
 
         targetBone.setRotX(0);
@@ -326,7 +326,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
         return null;
     }
 
-    private void renderChildBoneInflated(GeoBone targetBone, PoseStack poseStack, MultiBufferSource bufferSource, T animatable, ResourceLocation texture, float partialTick, int packedLight, float inflation) {
+    private void renderChildBoneInflated(GeoBone targetBone, PoseStack poseStack, MultiBufferSource bufferSource, T animatable, Identifier texture, float partialTick, int packedLight, float inflation) {
         BoneRenderState saved = BoneRenderState.capture(targetBone);
 
         targetBone.setScaleX(targetBone.getScaleX() * inflation);
@@ -339,7 +339,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
         saved.restore();
     }
 
-    private ResourceLocation getDbzArmorTexture(DbzArmorTextured item, ItemStack stack) {
+    private Identifier getDbzArmorTexture(DbzArmorTextured item, ItemStack stack) {
         String modId = Reference.MOD_ID;
         if (stack.getItem() instanceof com.dragonminez.common.init.armor.DbzArmorItem dbzItem) {
             modId = dbzItem.getModId();
@@ -347,7 +347,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
         return ArmorTextureResolver.resolve(modId, item.getItemId(), EquipmentSlot.CHEST, stack);
     }
 
-    private ResourceLocation getVanillaArmorTexture(LivingEntity entity, ItemStack stack, EquipmentSlot slot, String type) {
+    private Identifier getVanillaArmorTexture(LivingEntity entity, ItemStack stack, EquipmentSlot slot, String type) {
         ArmorItem item = (ArmorItem) stack.getItem();
         String materialName = item.getMaterial().unwrapKey().map(k -> k.location().getPath()).orElse("unknown");
         String domain = "minecraft";
@@ -356,12 +356,12 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
             domain = split[0];
             materialName = split[1];
         } else {
-            ResourceLocation itemRegistryName = BuiltInRegistries.ITEM.getKey(item);
+            Identifier itemRegistryName = BuiltInRegistries.ITEM.getKey(item);
             if (itemRegistryName != null) domain = itemRegistryName.getNamespace();
         }
         String typeSuffix = (type == null || type.isEmpty()) ? "" : "_" + type;
         String textureLocation = String.format("%s:textures/models/armor/%s_layer_1%s.png", domain, materialName, typeSuffix);
-        return ResourceLocation.parse(textureLocation);
+        return Identifier.parse(textureLocation);
     }
 
     private record ArmorRenderContext(boolean shouldRender, boolean isSlimTarget,

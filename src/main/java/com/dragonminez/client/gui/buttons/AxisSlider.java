@@ -1,6 +1,6 @@
 package com.dragonminez.client.gui.buttons;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -67,7 +67,7 @@ public class AxisSlider extends AbstractSliderButton {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         graphics.fill(this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, 0xFF000000);
         graphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, axis.getColor());
 

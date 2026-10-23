@@ -13,13 +13,13 @@ import com.dragonminez.common.network.S2C.OpenDialogueNodeS2C;
 import com.dragonminez.common.network.S2C.OpenQuestNPCDialogueS2C;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -41,7 +41,7 @@ import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public class NpcDialogueScreen extends ScaledScreen {
-	static final ResourceLocation FONT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	static final Identifier FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
 
 	private static final int MARGIN = 16;
 	private static final int GAP = 14;
@@ -153,7 +153,7 @@ public class NpcDialogueScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		long now = Util.getMillis();
 		if (openedAt == 0L) openedAt = now;
 		float open = ease((now - openedAt) / (float) OPEN_MS);
@@ -480,14 +480,14 @@ public class NpcDialogueScreen extends ScaledScreen {
 		column.place(optionsX, bandTop + OPTIONS_TOP, height - FOOTER_BOTTOM - bandTop - OPTIONS_TOP);
 	}
 
-	private void renderBand(GuiGraphics graphics, float open) {
+	private void renderBand(GuiGraphicsExtractor graphics, float open) {
 		int width = getUiWidth();
 		DialogueSkin.shadow(graphics, 0, bandTop - SHADOW_H, width, SHADOW_H, open);
 		DialogueSkin.band(graphics, 0, bandTop, width, bandH + SHADOW_H, 1.0f);
 		DialogueSkin.line(graphics, 0, bandTop - 2, width, 1.0f);
 	}
 
-	private void renderPortrait(GuiGraphics graphics, float slide) {
+	private void renderPortrait(GuiGraphicsExtractor graphics, float slide) {
 		LivingEntity entity = npcEntity();
 		if (entity == null) return;
 		float headSize = getUiHeight() * HEAD_SHARE;
@@ -503,7 +503,7 @@ public class NpcDialogueScreen extends ScaledScreen {
 		graphics.pose().popPose();
 	}
 
-	private ItemStack renderSpeech(GuiGraphics graphics, double mx, double my, float open, long now) {
+	private ItemStack renderSpeech(GuiGraphicsExtractor graphics, double mx, double my, float open, long now) {
 		Component name = npcName();
 		float tabWidth = this.font.width(name) * NAME_SCALE + 34.0f;
 		float tabX = textX - 4;
@@ -524,7 +524,7 @@ public class NpcDialogueScreen extends ScaledScreen {
 		return hovered;
 	}
 
-	private void renderLine(GuiGraphics graphics, int x, int y, int width, int height, int barX, double mx, double my, float open, long now) {
+	private void renderLine(GuiGraphicsExtractor graphics, int x, int y, int width, int height, int barX, double mx, double my, float open, long now) {
 		if (lineDirty || wrappedWidth != width) {
 			List<FormattedCharSequence> lines = TextUtil.wrapScrollable(this.font, shownLine, width, height, LINE_H, textBar);
 			if (lineDirty) typewriter.start(lines, now);
@@ -556,7 +556,7 @@ public class NpcDialogueScreen extends ScaledScreen {
 		}
 	}
 
-	private void renderInput(GuiGraphics graphics, int x, int y, int width, float open, long now) {
+	private void renderInput(GuiGraphicsExtractor graphics, int x, int y, int width, float open, long now) {
 		DialogueSkin.input(graphics, x - 2, y, width, INPUT_H, open);
 		if (input.isEmpty()) {
 			if (page.inputHint != null) HudRender.dmzText(graphics, page.inputHint, x + 4, y + 5, 1.0f, 0.0f, DialogueSkin.MUTED, open);
@@ -569,7 +569,7 @@ public class NpcDialogueScreen extends ScaledScreen {
 		}
 	}
 
-	private void renderFooter(GuiGraphics graphics, double mx, double my, float open, long now) {
+	private void renderFooter(GuiGraphicsExtractor graphics, double mx, double my, float open, long now) {
 		for (FooterButton button : footer()) {
 			boolean hovered = inside(mx, my, button.x(), footerY, FOOTER_W, FOOTER_H);
 			float x = button.x();

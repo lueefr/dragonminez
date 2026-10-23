@@ -3,7 +3,7 @@ package com.dragonminez.client.init.entities.renderer.bioandroid;
 import com.dragonminez.client.init.entities.model.bioandroid.CellJrModel;
 import com.dragonminez.common.init.entities.bioandroid.CellJrEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 public class CellJrRenderer extends GeoEntityRenderer<CellJrEntity> {
 

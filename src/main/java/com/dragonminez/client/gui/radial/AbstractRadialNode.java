@@ -6,7 +6,7 @@ import com.dragonminez.common.init.MainSounds;
 import com.dragonminez.common.stats.StatsData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.Locale;
 
 public abstract class AbstractRadialNode implements RadialNode {
 
-	public static final ResourceLocation PLACEHOLDER = icon("placeholder");
+	public static final Identifier PLACEHOLDER = icon("placeholder");
 	public static final int GREEN = 0x2BFF00;
 	public static final int RED = 0xFF1B00;
 
@@ -38,11 +38,11 @@ public abstract class AbstractRadialNode implements RadialNode {
 		cachedChildren = null;
 	}
 
-	protected static ResourceLocation icon(String name) {
-		return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/radial/" + name + ".png");
+	protected static Identifier icon(String name) {
+		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/radial/" + name + ".png");
 	}
 
-	protected static ResourceLocation iconForFormType(String type) {
+	protected static Identifier iconForFormType(String type) {
 		if (type == null) return icon("superforms");
 		String t = type.toLowerCase(Locale.ROOT);
 		if (t.contains("legendary")) return icon("legendaryforms");

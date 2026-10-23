@@ -4,12 +4,12 @@ import com.dragonminez.Reference;
 import com.dragonminez.client.beta.BetaAccessVerification;
 import com.dragonminez.client.util.TextUtil;
 import net.minecraft.Util;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -18,7 +18,7 @@ import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public class BetaAccessVerificationScreen extends Screen {
-	private static final ResourceLocation DMZ_FONT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	private static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
 	private static final int CONTENT_WIDTH = 320;
 
 	private final Screen parent;
@@ -61,7 +61,7 @@ public class BetaAccessVerificationScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		this.renderBackground(graphics, mouseX, mouseY, partialTick);
 
 		int centerX = this.width / 2;

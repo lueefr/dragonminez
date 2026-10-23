@@ -2,15 +2,15 @@ package com.dragonminez.client.init.menu.screens;
 
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.menu.menutypes.PatternStationMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 public class PatternStationScreen extends AbstractContainerScreen<PatternStationMenu> {
-	private static final ResourceLocation TEXTURE =
-			ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/screen/pattern_station_gui.png");
+	private static final Identifier TEXTURE =
+			Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/screen/pattern_station_gui.png");
 	private static final int TEXTURE_SIZE = 512;
 
 	public static final int ARROW_X = 182;
@@ -34,12 +34,12 @@ public class PatternStationScreen extends AbstractContainerScreen<PatternStation
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+	protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
 		guiGraphics.blit(TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, TEXTURE_SIZE, TEXTURE_SIZE);
 	}
 
 	@Override
-	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
 		this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
 		this.renderTooltip(guiGraphics, mouseX, mouseY);

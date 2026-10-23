@@ -13,7 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EffectInstance;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.PostPass;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -30,7 +30,7 @@ import java.util.List;
 @EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
 public class TaiyokenFlashHandler {
 
-	private static final ResourceLocation EFFECT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/taiyoken_flash.json");
+	private static final Identifier EFFECT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/taiyoken_flash.json");
 
 	private static PostChain shader = null;
 	private static int lastWidth = 0;

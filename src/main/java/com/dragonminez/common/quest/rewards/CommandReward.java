@@ -41,7 +41,7 @@ public class CommandReward extends QuestReward {
 	}
 
 	private static String commandTarget(ServerPlayer player) {
-		String name = player.getGameProfile().getName();
+		String name = player.getGameProfile().name();
 		return name != null && SAFE_NAME.matcher(name).matches() ? name : player.getStringUUID();
 	}
 

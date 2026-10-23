@@ -17,11 +17,11 @@ import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -35,9 +35,9 @@ import java.util.UUID;
 @OnlyIn(Dist.CLIENT)
 public class InstantTransmissionScreen extends ScaledScreen {
 
-	private static final ResourceLocation MENU_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
-	private static final ResourceLocation BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
-	private static final ResourceLocation ICONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/spaceshipicons.png");
+	private static final Identifier MENU_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
+	private static final Identifier BUTTON_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier ICONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/spaceshipicons.png");
 	private static final int PANEL_WIDTH = 141;
 	private static final int PANEL_HEIGHT = 213;
 	private static final int ITEM_HEIGHT = 24;
@@ -56,7 +56,7 @@ public class InstantTransmissionScreen extends ScaledScreen {
 	private CustomTextureButton deleteButton;
 
 	public InstantTransmissionScreen(List<ITTargetEntry> entries, int skillLevel) {
-		super(Component.literal("Instant Transmission").withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
+		super(Component.literal("Instant Transmission").withStyle(Style.EMPTY.withFont(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
 		this.skillLevel = skillLevel;
 		loadDestinations(entries);
 	}
@@ -124,7 +124,7 @@ public class InstantTransmissionScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		this.renderBackground(graphics, mouseX, mouseY, partialTick);
 		int uiMouseX = (int) toUiX(mouseX);
 		int uiMouseY = (int) toUiY(mouseY);
@@ -143,20 +143,20 @@ public class InstantTransmissionScreen extends ScaledScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderTabs(GuiGraphics graphics) {
+	private void renderTabs(GuiGraphicsExtractor graphics) {
 		int left = guiLeft + 10;
 		int top = guiTop + 29;
 		renderTab(graphics, left, top, 59, tr("gui.dragonminez.transmission.npcs"), !playersTab);
 		if (skillLevel >= 5) renderTab(graphics, left + 61, top, 59, tr("gui.dragonminez.transmission.players"), playersTab);
 	}
 
-	private void renderTab(GuiGraphics graphics, int x, int y, int width, Component label, boolean selected) {
+	private void renderTab(GuiGraphicsExtractor graphics, int x, int y, int width, Component label, boolean selected) {
 		graphics.fill(x, y, x + width, y + 15, selected ? 0x80555555 : 0x40000000);
 		if (selected) graphics.renderOutline(x, y, width, 15, 0xFFFFD700);
 		graphics.drawCenteredString(font, label, x + width / 2, y + 4, selected ? 0xFFFFD700 : 0xFFB0B0B0);
 	}
 
-	private void renderDestinationList(GuiGraphics graphics, int uiMouseX, int uiMouseY) {
+	private void renderDestinationList(GuiGraphicsExtractor graphics, int uiMouseX, int uiMouseY) {
 		List<MasterEntry> visible = visibleDestinations();
 		int listLeft = guiLeft + 10;
 		int listTop = guiTop + 49;
@@ -193,7 +193,7 @@ public class InstantTransmissionScreen extends ScaledScreen {
 		return txt(font.plainSubstrByWidth(name, Math.max(0, maxWidth - font.width("…"))) + "…");
 	}
 
-	private void renderKiRequired(GuiGraphics graphics) {
+	private void renderKiRequired(GuiGraphicsExtractor graphics) {
 		MasterEntry selected = selectedDestination();
 		if (selected == null) return;
 		int color = hasEnoughKi(selected) ? 0xFFFFFFFF : 0xFFFF5555;

@@ -10,13 +10,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EffectInstance;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.PostPass;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.io.IOException;
 import java.util.function.Consumer;
 
 public final class FullscreenPostEffect {
-	private final ResourceLocation effect;
+	private final Identifier effect;
 	private final String label;
 
 	private PostChain chain;
@@ -25,7 +25,7 @@ public final class FullscreenPostEffect {
 	private int lastHeight;
 	private boolean loadFailed;
 
-	public FullscreenPostEffect(ResourceLocation effect, String label) {
+	public FullscreenPostEffect(Identifier effect, String label) {
 		this.effect = effect;
 		this.label = label;
 	}

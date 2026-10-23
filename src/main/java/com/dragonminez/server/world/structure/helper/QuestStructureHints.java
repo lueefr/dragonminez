@@ -10,7 +10,7 @@ import com.dragonminez.server.world.dimension.NamekDimension;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -152,7 +152,7 @@ public final class QuestStructureHints {
 	private static String normalize(String structureId) {
 		if (structureId == null || structureId.isBlank() || !structureId.contains(":")) return null;
 		try {
-			return ResourceLocation.parse(structureId).toString();
+			return Identifier.parse(structureId).toString();
 		} catch (Exception e) {
 			return null;
 		}

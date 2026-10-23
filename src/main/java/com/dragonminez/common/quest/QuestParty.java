@@ -4,7 +4,7 @@ import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
 import com.dragonminez.server.storage.StorageManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
@@ -78,7 +78,7 @@ public final class QuestParty {
 
 	public static int countItemById(ServerPlayer player, String itemId) {
 		if (player == null || itemId == null) return 0;
-		ResourceLocation id = ResourceLocation.tryParse(itemId);
+		Identifier id = Identifier.tryParse(itemId);
 		if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) return 0;
 		Item item = BuiltInRegistries.ITEM.get(id);
 		Container inventory = player.getInventory();

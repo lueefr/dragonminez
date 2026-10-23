@@ -2,12 +2,12 @@ package com.dragonminez.client.gui.buttons;
 
 import com.dragonminez.client.gui.hud.HudRender;
 import com.dragonminez.common.init.MainSounds;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.neoforged.api.distmarker.Dist;
@@ -16,7 +16,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class CustomTextureButton extends Button implements SubpixelWidget {
 
-    private final ResourceLocation texture;
+    private final Identifier texture;
     private final int textureWidth;
     private final int textureHeight;
     private final int normalU;
@@ -27,7 +27,7 @@ public class CustomTextureButton extends Button implements SubpixelWidget {
 	private float subpixelX;
 	private float subpixelY;
 
-    public CustomTextureButton(int x, int y, int width, int height, ResourceLocation texture,
+    public CustomTextureButton(int x, int y, int width, int height, Identifier texture,
                                int normalU, int normalV, int hoverU, int hoverV,
                                int textureWidth, int textureHeight,
                                Component message, OnPress onPress, SoundEvent sound) {
@@ -50,7 +50,7 @@ public class CustomTextureButton extends Button implements SubpixelWidget {
 	}
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderWidget(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         int u = this.isHoveredOrFocused() ? hoverU : normalU;
         int v = this.isHoveredOrFocused() ? hoverV : normalV;
 
@@ -69,7 +69,7 @@ public class CustomTextureButton extends Button implements SubpixelWidget {
 
     public static class Builder {
         private int x, y, width, height;
-        private ResourceLocation texture;
+        private Identifier texture;
         private int normalU, normalV;
         private int hoverU, hoverV;
         private int textureWidth, textureHeight;
@@ -89,7 +89,7 @@ public class CustomTextureButton extends Button implements SubpixelWidget {
             return this;
         }
 
-        public Builder texture(ResourceLocation texture) {
+        public Builder texture(Identifier texture) {
             this.texture = texture;
             return this;
         }

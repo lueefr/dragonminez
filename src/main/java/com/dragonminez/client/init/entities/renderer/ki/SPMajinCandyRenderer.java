@@ -10,7 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -19,7 +19,7 @@ import org.joml.Vector3f;
 
 public class SPMajinCandyRenderer extends EntityRenderer<SPMajinCandyEntity> {
 
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/null.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/null.png");
     private static final float[] COLOR = new float[]{1.0f, 0.4f, 0.8f};
     private static final float CAST_HEIGHT = 0.9f;
     private static final float CAST_RADIUS = 0.35f;
@@ -69,7 +69,7 @@ public class SPMajinCandyRenderer extends EntityRenderer<SPMajinCandyEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(SPMajinCandyEntity entity) {
+    public Identifier getTextureLocation(SPMajinCandyEntity entity) {
         return TEXTURE;
     }
 }

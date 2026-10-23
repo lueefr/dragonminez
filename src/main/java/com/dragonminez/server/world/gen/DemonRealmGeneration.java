@@ -12,7 +12,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.CubicSpline;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Climate;
@@ -30,8 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DemonRealmGeneration {
-	public static final ResourceKey<LevelStem> DEMON_REALM_STEM = ResourceKey.create(Registries.LEVEL_STEM, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "demon_realm"));
-	public static final ResourceKey<NoiseGeneratorSettings> DEMON_REALM_NOISE_SETTINGS = ResourceKey.create(Registries.NOISE_SETTINGS, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "demon_realm"));
+	public static final ResourceKey<LevelStem> DEMON_REALM_STEM = ResourceKey.create(Registries.LEVEL_STEM, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "demon_realm"));
+	public static final ResourceKey<NoiseGeneratorSettings> DEMON_REALM_NOISE_SETTINGS = ResourceKey.create(Registries.NOISE_SETTINGS, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "demon_realm"));
 
 	public static final int WORLD_BOTTOM = -64;
 	public static final int WORLD_TOP = 768;
@@ -374,7 +374,7 @@ public class DemonRealmGeneration {
 	}
 
 	private static ResourceKey<NormalNoise.NoiseParameters> noiseKey(String name) {
-		return ResourceKey.create(Registries.NOISE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
+		return ResourceKey.create(Registries.NOISE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name));
 	}
 
 	private static DensityFunction scaled(double factor, DensityFunction function) {

@@ -11,7 +11,7 @@ import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -59,7 +59,7 @@ public class KiSenseOverlay {
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
-	private static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	private static void render(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.player == null || mc.level == null) {
 			VIEWS.clear();
@@ -113,7 +113,7 @@ public class KiSenseOverlay {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
-	private static void drawView(GuiGraphics guiGraphics, Minecraft mc, View view, float tickTime, float seconds) {
+	private static void drawView(GuiGraphicsExtractor guiGraphics, Minecraft mc, View view, float tickTime, float seconds) {
 		LivingEntity entity = view.entity;
 		StatsData data = entity instanceof Player target ? StatsProvider.get(StatsCapability.INSTANCE, target).orElse(null) : null;
 		boolean full = data != null && data.getStatus().isHasCreatedCharacter();
@@ -155,7 +155,7 @@ public class KiSenseOverlay {
 		}
 	}
 
-	private static void drawBattlePower(GuiGraphics guiGraphics, Minecraft mc, int id, boolean player) {
+	private static void drawBattlePower(GuiGraphicsExtractor guiGraphics, Minecraft mc, int id, boolean player) {
 		float bp = KiSenseScan.getCachedBP(id);
 		boolean maxed = player ? bp >= Float.MAX_VALUE : bp >= Integer.MAX_VALUE;
 		String text = maxed ? "BP: ???" : "BP: " + String.format("%,.0f", bp).replace(",", ".");
@@ -163,7 +163,7 @@ public class KiSenseOverlay {
 		HudRender.dmzText(guiGraphics, text, WIDTH / 2.0f, y, BP_SCALE, 0.5f, BP_COLOR, 1.0f);
 	}
 
-	private static void drawIndicators(GuiGraphics guiGraphics, Minecraft mc, int id, float maxHealth) {
+	private static void drawIndicators(GuiGraphicsExtractor guiGraphics, Minecraft mc, int id, float maxHealth) {
 		float time = mc.level.getGameTime() + mc.getTimer().getGameTimeDeltaPartialTick(true);
 		float originX = WIDTH / 2.0f;
 		float originY = -BORDER;
@@ -189,7 +189,7 @@ public class KiSenseOverlay {
 		}
 	}
 
-	private static void drawIndicator(GuiGraphics guiGraphics, String text, float centerX, float y, int rgb, float alpha) {
+	private static void drawIndicator(GuiGraphicsExtractor guiGraphics, String text, float centerX, float y, int rgb, float alpha) {
 		if (alpha <= 0.01f) return;
 		HudRender.dmzText(guiGraphics, text, centerX, y, INDICATOR_SCALE, 0.5f, rgb, alpha);
 	}

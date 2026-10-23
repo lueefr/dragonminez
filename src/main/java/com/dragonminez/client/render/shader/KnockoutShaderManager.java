@@ -1,11 +1,11 @@
 package com.dragonminez.client.render.shader;
 
 import com.dragonminez.Reference;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public final class KnockoutShaderManager {
 	private static final FullscreenPostEffect EFFECT = new FullscreenPostEffect(
-			ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/knockout.json"), "knockout screen");
+			Identifier.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/knockout.json"), "knockout screen");
 
 	private KnockoutShaderManager() {}
 

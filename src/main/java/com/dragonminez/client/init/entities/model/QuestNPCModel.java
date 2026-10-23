@@ -3,14 +3,14 @@ package com.dragonminez.client.init.entities.model;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.questnpc.QuestNPCEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.geckolib.constant.DataTickets;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.model.GeoModel;
+import com.geckolib.model.data.EntityModelData;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -56,17 +56,17 @@ public class QuestNPCModel extends GeoModel<QuestNPCEntity> {
 	private static final Set<String> MISSING_ANIMATION_KEYS = new HashSet<>();
 
 	@Override
-	public ResourceLocation getModelResource(QuestNPCEntity animatable) {
+	public Identifier getModelResource(QuestNPCEntity animatable) {
 		String modelKey = animatable.getModelKey();
 		AssetPaths asset = resolveAsset(animatable);
 		return existingOrFallback(asset.model(), fallbackModel(), VALID_GEO_KEYS, MISSING_GEO_KEYS);
 	}
 
 	@Override
-	public ResourceLocation getTextureResource(QuestNPCEntity animatable) {
+	public Identifier getTextureResource(QuestNPCEntity animatable) {
 		String textureKey = animatable.getTextureKey();
 		AssetPaths asset = resolveAsset(animatable);
-		ResourceLocation texture = assetFromKey(textureKey, "textures/entity/sagas/", ".png");
+		Identifier texture = assetFromKey(textureKey, "textures/entity/sagas/", ".png");
 		if (resourceExistsCached(texture, VALID_TEXTURE_KEYS, MISSING_TEXTURE_KEYS)) {
 			return texture;
 		}
@@ -74,9 +74,9 @@ public class QuestNPCModel extends GeoModel<QuestNPCEntity> {
 	}
 
 	@Override
-	public ResourceLocation getAnimationResource(QuestNPCEntity animatable) {
+	public Identifier getAnimationResource(QuestNPCEntity animatable) {
 		AssetPaths asset = resolveAsset(animatable);
-		ResourceLocation animation = existingOrFallback(asset.animation(), fallbackAnimation(), VALID_ANIMATION_KEYS, MISSING_ANIMATION_KEYS);
+		Identifier animation = existingOrFallback(asset.animation(), fallbackAnimation(), VALID_ANIMATION_KEYS, MISSING_ANIMATION_KEYS);
 		animatable.setSagaRig(animation.getPath().equals(SAGA_BASE_ANIMATION));
 		return animation;
 	}
@@ -95,7 +95,7 @@ public class QuestNPCModel extends GeoModel<QuestNPCEntity> {
 	/**
 	 * Checks whether a resource exists in the current resource manager.
 	 */
-	private static boolean resourceExists(ResourceLocation location) {
+	private static boolean resourceExists(Identifier location) {
 		try {
 			ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
 			return resourceManager.getResource(location).isPresent();
@@ -104,7 +104,7 @@ public class QuestNPCModel extends GeoModel<QuestNPCEntity> {
 		}
 	}
 
-	private static boolean resourceExistsCached(ResourceLocation location, Set<String> valid, Set<String> missing) {
+	private static boolean resourceExistsCached(Identifier location, Set<String> valid, Set<String> missing) {
 		String key = location.toString();
 		if (valid.contains(key)) {
 			return true;
@@ -120,7 +120,7 @@ public class QuestNPCModel extends GeoModel<QuestNPCEntity> {
 		return false;
 	}
 
-	private static ResourceLocation existingOrFallback(ResourceLocation candidate, ResourceLocation fallback,
+	private static Identifier existingOrFallback(Identifier candidate, Identifier fallback,
 													  Set<String> valid, Set<String> missing) {
 		return resourceExistsCached(candidate, valid, missing) ? candidate : fallback;
 	}
@@ -135,11 +135,11 @@ public class QuestNPCModel extends GeoModel<QuestNPCEntity> {
 		if (byNpc != null && (modelKey == null || modelKey.isBlank() || modelKey.equals(animatable.getNpcId()))) {
 			return byNpc;
 		}
-		ResourceLocation sagaModel = assetFromKey(modelKey, "geo/entity/sagas/", ".geo.json");
+		Identifier sagaModel = assetFromKey(modelKey, "geo/entity/sagas/", ".geo.json");
 		if (resourceExistsCached(sagaModel, VALID_GEO_KEYS, MISSING_GEO_KEYS)) {
 			return saga(modelKey, animatable.getTextureKey());
 		}
-		ResourceLocation masterModel = assetFromKey(modelKey, "geo/entity/master/", ".geo.json");
+		Identifier masterModel = assetFromKey(modelKey, "geo/entity/master/", ".geo.json");
 		if (resourceExistsCached(masterModel, VALID_GEO_KEYS, MISSING_GEO_KEYS)) {
 			return master(modelKey);
 		}
@@ -151,7 +151,7 @@ public class QuestNPCModel extends GeoModel<QuestNPCEntity> {
 		return new AssetPaths(
 				assetFromKey(modelKey, "geo/entity/sagas/", ".geo.json"),
 				assetFromKey(safeTexture, "textures/entity/sagas/", ".png"),
-				ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, SAGA_BASE_ANIMATION)
+				Identifier.fromNamespaceAndPath(Reference.MOD_ID, SAGA_BASE_ANIMATION)
 		);
 	}
 
@@ -163,26 +163,26 @@ public class QuestNPCModel extends GeoModel<QuestNPCEntity> {
 		);
 	}
 
-	private static ResourceLocation assetFromKey(String key, String prefix, String suffix) {
+	private static Identifier assetFromKey(String key, String prefix, String suffix) {
 		String safeKey = key == null || key.isBlank() ? FALLBACK_MODEL : key;
 		if (safeKey.contains(":")) {
-			return ResourceLocation.parse(safeKey);
+			return Identifier.parse(safeKey);
 		}
 		if (safeKey.contains("/")) {
-			return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, safeKey);
+			return Identifier.fromNamespaceAndPath(Reference.MOD_ID, safeKey);
 		}
-		return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, prefix + safeKey + suffix);
+		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, prefix + safeKey + suffix);
 	}
 
-	private static ResourceLocation fallbackModel() {
+	private static Identifier fallbackModel() {
 		return FALLBACK.model();
 	}
 
-	private static ResourceLocation fallbackTexture() {
+	private static Identifier fallbackTexture() {
 		return FALLBACK.texture();
 	}
 
-	private static ResourceLocation fallbackAnimation() {
+	private static Identifier fallbackAnimation() {
 		return FALLBACK.animation();
 	}
 
@@ -198,7 +198,7 @@ public class QuestNPCModel extends GeoModel<QuestNPCEntity> {
 		MISSING_ANIMATION_KEYS.clear();
 	}
 
-	private record AssetPaths(ResourceLocation model, ResourceLocation texture, ResourceLocation animation) {
+	private record AssetPaths(Identifier model, Identifier texture, Identifier animation) {
 	}
 }
 

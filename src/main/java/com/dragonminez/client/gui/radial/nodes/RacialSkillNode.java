@@ -12,7 +12,7 @@ import com.dragonminez.common.racial.impl.BioAndroidEvolution;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.extras.ActionMode;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,7 @@ public class RacialSkillNode extends AbstractRadialNode {
 	}
 
 	@Override
-	public ResourceLocation icon(StatsData stats) {
+	public Identifier icon(StatsData stats) {
 		if (isActionRacial(stats)) {
 			return switch (racialSkill(stats)) {
 				case "namekian" -> icon("assimilation");
@@ -68,7 +68,7 @@ public class RacialSkillNode extends AbstractRadialNode {
 		return icon("racial");
 	}
 
-	private ResourceLocation bioAndroidIcon(StatsData stats) {
+	private Identifier bioAndroidIcon(StatsData stats) {
 		String tier = BioAndroidEvolution.resolveTier(stats);
 		if (tier.equals("perfect")) return icon("celljr");
 		if (tier.equals("semi") && RacialData.BIO_SKILL_EXPLODE.equals(stats.getRacialData().getBioSelectedSkill())) return icon("selfdestruct");

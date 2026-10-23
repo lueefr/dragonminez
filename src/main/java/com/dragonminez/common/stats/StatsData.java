@@ -69,7 +69,9 @@ public class StatsData {
 	private final Techniques techniques;
 	private final DynamicGrowthData dynamicGrowth;
 	private final RacialData racialData;
+	private final com.dragonminez.api.content.ContentProgress contentProgress = new com.dragonminez.api.content.ContentProgress();
 	private final transient FormTransition formTransition = new FormTransition();
+	private final transient com.dragonminez.api.forms.FormCompositionRuntime formComposition = new com.dragonminez.api.forms.FormCompositionRuntime();
 	private FusedData fusedData;
 
 	private boolean hasInitializedHealth = false;
@@ -90,6 +92,12 @@ public class StatsData {
 		this.effects = new Effects();
 		this.secondaryStatEffects = new SecondaryStatEffects();
 		this.playerQuestData = new PlayerQuestData();
+		this.playerQuestData.setCompletionListener(questKey -> {
+			if (player instanceof ServerPlayer serverPlayer) {
+				com.dragonminez.api.content.ContentCompletionApi.complete(serverPlayer,
+						"dragonminez:quest/" + questKey.toLowerCase(java.util.Locale.ROOT).replace(':', '/'), "quest");
+			}
+		});
 		this.bonusStats = new BonusStats();
 		this.techniques = new Techniques();
 		this.dynamicGrowth = new DynamicGrowthData();
@@ -840,6 +848,9 @@ public class StatsData {
 		if (formConfig == null) return 1.0;
 		var formData = formConfig.getForm(currentForm);
 		if (formData == null) return 1.0;
+		if (com.dragonminez.api.forms.FormCompositionRuntime.isComposed(formData)) {
+			return applyRacialFormPowerModifier(currentFormGroup, formComposition.multiplier(this, currentFormGroup, formData, statName));
+		}
 		double baseMult = switch (statName.toUpperCase()) {
 			case "STR" -> formData.getStrMultiplier();
 			case "SKP" -> formData.getSkpMultiplier();
@@ -1053,6 +1064,9 @@ public class StatsData {
 		if (formConfig == null) return 1.0;
 		var formData = formConfig.getForm(currentForm);
 		if (formData == null) return 1.0;
+		if (com.dragonminez.api.forms.FormCompositionRuntime.isComposed(formData)) {
+			return formComposition.multiplier(this, currentFormGroup, formData, statName);
+		}
 		if (StackForms.GROUP_ULTIMATE.equalsIgnoreCase(currentFormGroup) && !ConfigManager.getServerConfig().getGameplay().getUltimateFormFixedValue()) {
 			Object[] bestResult = getBestUltimateBaseFormWithGroup();
 			String bestGroup = (String) bestResult[0];
@@ -1788,12 +1802,14 @@ public class StatsData {
 		nbt.put("Techniques", techniques.save());
 		nbt.put("DynamicGrowth", dynamicGrowth.save());
 		nbt.put("RacialData", racialData.save());
+		nbt.put("CompletedContent", contentProgress.save());
 		if (fusedData != null) nbt.put(FusedData.NBT_KEY, fusedData.save());
 		nbt.putBoolean("HasInitializedHealth", hasInitializedHealth);
 		return nbt;
 	}
 
 	public void load(CompoundTag nbt) throws ClassNotFoundException {
+		if (nbt.contains("CompletedContent")) contentProgress.load(nbt.getCompoundOrEmpty("CompletedContent"));
 		boolean fullPayload = nbt.contains("Character") && nbt.contains("Stats");
 		if (nbt.contains("Stats")) stats.load(nbt.getCompound("Stats"));
 		if (nbt.contains("Status")) status.load(nbt.getCompound("Status"));
@@ -1820,6 +1836,7 @@ public class StatsData {
 	}
 
 	public void copyFrom(StatsData other) {
+		this.contentProgress.copyFrom(other.contentProgress);
 		this.stats.copyFrom(other.stats);
 		this.status.copyFrom(other.status);
 		this.cooldowns.copyFrom(other.cooldowns);

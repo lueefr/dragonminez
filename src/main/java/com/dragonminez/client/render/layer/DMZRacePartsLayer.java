@@ -38,15 +38,15 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.layer.GeoRenderLayer;
 
 import top.theillusivec4.curios.api.CuriosApi;
 
@@ -54,22 +54,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T> {
-	private static final ResourceLocation RACES_PARTS_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/raceparts.geo.json");
-	private static final ResourceLocation RACES_PARTS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/raceparts.png");
-	private static final ResourceLocation RACES_PARTS_SHADOW_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/raceparts_shadow.png");
+	private static final Identifier RACES_PARTS_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/raceparts.geo.json");
+	private static final Identifier RACES_PARTS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/raceparts.png");
+	private static final Identifier RACES_PARTS_SHADOW_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/raceparts_shadow.png");
 
-	private static final ResourceLocation ACCESORIES_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/accesories.geo.json");
-	private static final ResourceLocation SCOUTER_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/scouter.geo.json");
-	private static final ResourceLocation DEMON_EYE_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/item/demon_eye.png");
+	private static final Identifier ACCESORIES_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/accesories.geo.json");
+	private static final Identifier SCOUTER_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/scouter.geo.json");
+	private static final Identifier DEMON_EYE_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/item/demon_eye.png");
 	private static final float DEMON_EYE_HALF_SIZE = 3.0f / 16.0f;
 
-	private static final ResourceLocation YAJIROBE_SWORD_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/yajirobe_katana.geo.json");
-	private static final ResourceLocation YAJIROBE_SWORD_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/item/weapons/yajirobe_katana.png");
-	private static final ResourceLocation Z_SWORD_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/z_sword.geo.json");
-	private static final ResourceLocation Z_SWORD_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/item/weapons/z_sword.png");
-	private static final ResourceLocation BRAVE_SWORD_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/brave_sword.geo.json");
-	private static final ResourceLocation BRAVE_SWORD_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/item/weapons/brave_sword.png");
-	private static final ResourceLocation POWER_POLE_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/power_pole.geo.json");
+	private static final Identifier YAJIROBE_SWORD_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/yajirobe_katana.geo.json");
+	private static final Identifier YAJIROBE_SWORD_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/item/weapons/yajirobe_katana.png");
+	private static final Identifier Z_SWORD_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/z_sword.geo.json");
+	private static final Identifier Z_SWORD_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/item/weapons/z_sword.png");
+	private static final Identifier BRAVE_SWORD_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/brave_sword.geo.json");
+	private static final Identifier BRAVE_SWORD_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/item/weapons/brave_sword.png");
+	private static final Identifier POWER_POLE_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/weapons/power_pole.geo.json");
 
 	private static  float BRAVE_BACK_X = 0.7F;
 	private static  float BRAVE_BACK_Y = 2.0F;
@@ -78,15 +78,15 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 	private static  float BRAVE_BACK_ROT_Y = 0.0F;
 	private static  float BRAVE_BACK_ROT_Z = 135.0f;
 	private static  float BRAVE_BACK_SCALE = 0.9F;
-	private static final ResourceLocation POWER_POLE_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/item/weapons/power_pole.png");
+	private static final Identifier POWER_POLE_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/item/weapons/power_pole.png");
 
-	private static final ResourceLocation WEIGHTED_ITEMS_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/weighted_items.geo.json");
-	private static final ResourceLocation WEIGHTED_ITEMS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/weighted_items.png");
+	private static final Identifier WEIGHTED_ITEMS_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/weighted_items.geo.json");
+	private static final Identifier WEIGHTED_ITEMS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/weighted_items.png");
 
-	private static final ResourceLocation SAIYAN_TAIL_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/human.geo.json");
-	private static final ResourceLocation FROST_DEMON_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon.geo.json");
-	private static final ResourceLocation BIO_ANDROID_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid.geo.json");
-	private static final ResourceLocation BIO_ANDROID_PERFECT_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid_perfect.geo.json");
+	private static final Identifier SAIYAN_TAIL_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/human.geo.json");
+	private static final Identifier FROST_DEMON_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon.geo.json");
+	private static final Identifier BIO_ANDROID_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid.geo.json");
+	private static final Identifier BIO_ANDROID_PERFECT_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid_perfect.geo.json");
 	private static final float[] HORN_COLOR = ColorUtils.hexToRgb("#1A1A1A");
 	private static final float PARTS_AURA_TINT = 0.4f;
 	private static final float BODY_AURA_TINT = 0.2f;
@@ -406,22 +406,22 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 	private SkinGathererProvider.BodyLayerSink layerSink(List<DonorBoneRenderer.Layer> layers, float alpha, float[] formTint, float formTintIntensity, float[] auraColor, float tintProgress) {
 		return new SkinGathererProvider.BodyLayerSink() {
 			@Override
-			public void base(ResourceLocation texture, float[] color) {
+			public void base(Identifier texture, float[] color) {
 				add(alpha < 1.0f ? RenderType.entityTranslucent(texture) : RenderType.entityCutoutNoCull(texture), color, 1.0f);
 			}
 
 			@Override
-			public void overlay(ResourceLocation texture, float[] color) {
+			public void overlay(Identifier texture, float[] color) {
 				add(alpha < 1.0f ? ModRenderTypes.skinOverlayTranslucent(texture) : ModRenderTypes.skinOverlayCutout(texture), color, 1.0f);
 			}
 
 			@Override
-			public void translucent(ResourceLocation texture, float[] color) {
+			public void translucent(Identifier texture, float[] color) {
 				add(RenderType.entityTranslucent(texture), color, 1.0f);
 			}
 
 			@Override
-			public void fading(String layerId, ResourceLocation texture, float[] color, float targetAlpha) {
+			public void fading(String layerId, Identifier texture, float[] color, float targetAlpha) {
 				add(alpha < 1.0f || targetAlpha < 1.0f ? ModRenderTypes.skinOverlayTranslucent(texture) : ModRenderTypes.skinOverlayCutout(texture), color, targetAlpha);
 			}
 
@@ -439,7 +439,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 		String race = frost ? "frostdemon" : "bioandroid";
 		Character character = stats.getCharacter();
 		boolean originForm = character.hasActiveForm() && race.equalsIgnoreCase(FusionForms.raceOf(stats, character.getActiveFormGroup()));
-		ResourceLocation donorModel = frost ? FROST_DEMON_MODEL : originForm ? BIO_ANDROID_PERFECT_MODEL : BIO_ANDROID_MODEL;
+		Identifier donorModel = frost ? FROST_DEMON_MODEL : originForm ? BIO_ANDROID_PERFECT_MODEL : BIO_ANDROID_MODEL;
 		String boneName = !frost && originForm && part.category() == FusionTraits.Category.TAIL ? "cola" : part.bone();
 		List<DonorBoneRenderer.Layer> layers = new ArrayList<>();
 		int bodyType = part.leader() ? character.getBodyType() : fused.getPartnerBodyType();
@@ -572,7 +572,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 
 		partsModel.getBone("evil_eye").ifPresent(bone -> {
 			poseStack.pushPose();
-			software.bernie.geckolib.util.RenderUtil.prepMatrixForBone(poseStack, bone);
+			com.geckolib.util.RenderUtil.prepMatrixForBone(poseStack, bone);
 			poseStack.translate(bone.getPivotX() / 16f, bone.getPivotY() / 16f, bone.getPivotZ() / 16f);
 			PoseStack.Pose pose = poseStack.last();
 			VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(DEMON_EYE_TEXTURE));
@@ -607,7 +607,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 		if (accModel == null) return;
 
 		String pothalaColor = stack.getDescriptionId().contains("green") ? "green" : "yellow";
-		RenderType accRenderType = RenderType.entityCutoutNoCull(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/" + pothalaColor + "pothala.png"));
+		RenderType accRenderType = RenderType.entityCutoutNoCull(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/" + pothalaColor + "pothala.png"));
 
 		if (hasPothalaRight || isFused) {
 			accModel.getBone("pothala_right").ifPresent(bone -> {
@@ -640,7 +640,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 		BakedGeoModel accModel = getGeoModel().getBakedModel(SCOUTER_MODEL);
 		if (accModel == null) return;
 
-		RenderType accRenderType = ModRenderTypes.scouterLens(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/" + color + "_scouter.png"));
+		RenderType accRenderType = ModRenderTypes.scouterLens(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/" + color + "_scouter.png"));
 
 		accModel.getBone("radar").ifPresent(bone -> {
 			syncTargetBoneAndParents(bone, playerModel);

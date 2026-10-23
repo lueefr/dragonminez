@@ -9,20 +9,20 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class PanelSkin {
-	private static final ResourceLocation MENU_BIG = texture("textures/gui/menu/menubig.png");
-	private static final ResourceLocation MENU_SMALL = texture("textures/gui/menu/menusmall.png");
-	private static final ResourceLocation MENU_NPC = texture("textures/gui/menu/menunpc.png");
-	private static final ResourceLocation QUEST_MENU = texture("textures/gui/menu/questmenu.png");
-	private static final ResourceLocation BUTTONS = texture("textures/gui/buttons/characterbuttons.png");
+	private static final Identifier MENU_BIG = texture("textures/gui/menu/menubig.png");
+	private static final Identifier MENU_SMALL = texture("textures/gui/menu/menusmall.png");
+	private static final Identifier MENU_NPC = texture("textures/gui/menu/menunpc.png");
+	private static final Identifier QUEST_MENU = texture("textures/gui/menu/questmenu.png");
+	private static final Identifier BUTTONS = texture("textures/gui/buttons/characterbuttons.png");
 	private static final int GRID = 7;
 	private static final int CACHE_LIMIT = 64;
 	private static final int[] NO_LAYOUT = new int[0];
@@ -51,7 +51,7 @@ public final class PanelSkin {
 	public static final PanelSkin FIELD = field(108);
 	public static final PanelSkin FIELD_EDITING = field(126);
 
-	private final ResourceLocation texture;
+	private final Identifier texture;
 	private final int atlasWidth;
 	private final int atlasHeight;
 	private final int u;
@@ -68,7 +68,7 @@ public final class PanelSkin {
 
 	private record Segment(Kind kind, int length, int period, int priority) {}
 
-	private PanelSkin(ResourceLocation texture, int atlasWidth, int atlasHeight, int u, int v, PanelSkin fallback, Segment[] columns, Segment[] rows) {
+	private PanelSkin(Identifier texture, int atlasWidth, int atlasHeight, int u, int v, PanelSkin fallback, Segment[] columns, Segment[] rows) {
 		this.texture = texture;
 		this.atlasWidth = atlasWidth;
 		this.atlasHeight = atlasHeight;
@@ -89,11 +89,11 @@ public final class PanelSkin {
 		return height;
 	}
 
-	public void draw(GuiGraphics graphics, float x, float y, float width, float height) {
+	public void draw(GuiGraphicsExtractor graphics, float x, float y, float width, float height) {
 		draw(graphics, x, y, width, height, 1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
-	public void draw(GuiGraphics graphics, float x, float y, float width, float height, float red, float green, float blue, float alpha) {
+	public void draw(GuiGraphicsExtractor graphics, float x, float y, float width, float height, float red, float green, float blue, float alpha) {
 		int targetWidth = Math.round(width);
 		int targetHeight = Math.round(height);
 		if (targetWidth <= 0 || targetHeight <= 0) return;
@@ -109,7 +109,7 @@ public final class PanelSkin {
 		skin.emit(graphics, x, y, xs, ys, red, green, blue, alpha);
 	}
 
-	private void emit(GuiGraphics graphics, float x, float y, int[] xs, int[] ys, float red, float green, float blue, float alpha) {
+	private void emit(GuiGraphicsExtractor graphics, float x, float y, int[] xs, int[] ys, float red, float green, float blue, float alpha) {
 		graphics.flush();
 		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
 		RenderSystem.setShaderTexture(0, texture);
@@ -336,7 +336,7 @@ public final class PanelSkin {
 				new Segment[]{fixed(3), stretch(11), fixed(4)});
 	}
 
-	private static ResourceLocation texture(String path) {
-		return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, path);
+	private static Identifier texture(String path) {
+		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, path);
 	}
 }

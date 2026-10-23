@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 
 import java.util.LinkedHashSet;
@@ -17,17 +17,17 @@ public class DragonDefinition {
 	private final String entityRegistryName;
 	private final float entityWidth;
 	private final float entityHeight;
-	private final Set<ResourceLocation> validDimensions;
+	private final Set<Identifier> validDimensions;
 	private final String ballSetId;
 	private final String wishScreenId;
 	private final int wishCount;
 	private final String assetDefinitionId;
 
-	public DragonDefinition(String id, String entityRegistryName, float entityWidth, float entityHeight, Set<ResourceLocation> validDimensions, String ballSetId, String wishScreenId, int wishCount) {
+	public DragonDefinition(String id, String entityRegistryName, float entityWidth, float entityHeight, Set<Identifier> validDimensions, String ballSetId, String wishScreenId, int wishCount) {
 		this(id, entityRegistryName, entityWidth, entityHeight, validDimensions, ballSetId, wishScreenId, wishCount, null);
 	}
 
-	public DragonDefinition(String id, String entityRegistryName, float entityWidth, float entityHeight, Set<ResourceLocation> validDimensions, String ballSetId, String wishScreenId, int wishCount, String assetDefinitionId) {
+	public DragonDefinition(String id, String entityRegistryName, float entityWidth, float entityHeight, Set<Identifier> validDimensions, String ballSetId, String wishScreenId, int wishCount, String assetDefinitionId) {
 		this.id = id;
 		this.entityRegistryName = entityRegistryName;
 		this.entityWidth = entityWidth;
@@ -59,7 +59,7 @@ public class DragonDefinition {
 		root.addProperty("entity_width", entityWidth);
 		root.addProperty("entity_height", entityHeight);
 		JsonArray dimensions = new JsonArray();
-		for (ResourceLocation dimension : validDimensions) dimensions.add(dimension.toString());
+		for (Identifier dimension : validDimensions) dimensions.add(dimension.toString());
 		root.add("dimensions", dimensions);
 		root.addProperty("ball_set", ballSetId);
 		root.addProperty("wish_screen_id", wishScreenId);
@@ -73,8 +73,8 @@ public class DragonDefinition {
 		String entityRegistryName = root.get("entity_registry_name").getAsString();
 		float entityWidth = root.get("entity_width").getAsFloat();
 		float entityHeight = root.get("entity_height").getAsFloat();
-		Set<ResourceLocation> dimensions = new LinkedHashSet<>();
-		for (JsonElement element : root.getAsJsonArray("dimensions")) dimensions.add(ResourceLocation.parse(element.getAsString()));
+		Set<Identifier> dimensions = new LinkedHashSet<>();
+		for (JsonElement element : root.getAsJsonArray("dimensions")) dimensions.add(Identifier.parse(element.getAsString()));
 		String ballSetId = root.get("ball_set").getAsString();
 		String wishScreenId = root.get("wish_screen_id").getAsString();
 		int wishCount = root.get("wish_count").getAsInt();

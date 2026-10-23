@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import com.google.gson.GsonBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -33,10 +33,10 @@ public class GenericItemDTO {
 	public static final String ITEM_TYPE = "generic_item";
 
 	protected String itemType;
-	protected ResourceLocation itemId;
+	protected Identifier itemId;
 	protected int count = 1;
 
-	public GenericItemDTO(ResourceLocation itemId, int count) {
+	public GenericItemDTO(Identifier itemId, int count) {
 		this(ITEM_TYPE, itemId, count);
 	}
 
@@ -44,7 +44,7 @@ public class GenericItemDTO {
 		this(ITEM_TYPE, BuiltInRegistries.ITEM.getKey(item), count);
 	}
 
-	public GenericItemDTO(String itemType, ResourceLocation itemId, int count) {
+	public GenericItemDTO(String itemType, Identifier itemId, int count) {
 		this.itemType = itemType;
 		this.itemId = itemId;
 		this.count = count;

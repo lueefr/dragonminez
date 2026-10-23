@@ -2,7 +2,7 @@ package com.dragonminez.common.init.entities;
 
 import com.dragonminez.common.init.EntityAttributes;
 import com.dragonminez.common.init.MainAttributes;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -19,14 +19,14 @@ public final class MobBattlePowerHelper {
 	private static final double RANGED_WEIGHT = 5.0;
 	private static final double MOVEMENT_WEIGHT = 15.0;
 
-	private static final ResourceLocation AUTOLEVELING_PROJECTILE_DAMAGE = ResourceLocation.fromNamespaceAndPath("autoleveling", "monster.projectile_damage_bonus");
-	private static final ResourceLocation AUTOLEVELING_EXPLOSION_DAMAGE = ResourceLocation.fromNamespaceAndPath("autoleveling", "monster.explosion_damage_bonus");
+	private static final Identifier AUTOLEVELING_PROJECTILE_DAMAGE = Identifier.fromNamespaceAndPath("autoleveling", "monster.projectile_damage_bonus");
+	private static final Identifier AUTOLEVELING_EXPLOSION_DAMAGE = Identifier.fromNamespaceAndPath("autoleveling", "monster.explosion_damage_bonus");
 
 	private MobBattlePowerHelper() {}
 
 	public static boolean isDmzManaged(LivingEntity entity) {
 		if (entity instanceof Player) return true;
-		ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+		Identifier key = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
 		return key != null && "dragonminez".equals(key.getNamespace());
 	}
 
@@ -62,7 +62,7 @@ public final class MobBattlePowerHelper {
 		return attributeValue(entity, EntityAttributes.FLY_SPEED);
 	}
 
-	private static double autoLevelingBonus(LivingEntity entity, ResourceLocation id) {
+	private static double autoLevelingBonus(LivingEntity entity, Identifier id) {
 		if (!ModList.get().isLoaded("autoleveling")) return 0.0;
 		var holder = BuiltInRegistries.ATTRIBUTE.getHolder(id);
 		if (holder.isEmpty()) return 0.0;

@@ -5,7 +5,7 @@ import com.dragonminez.common.init.MainBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -90,7 +90,7 @@ final class FeatureUtil {
                     StructureStart start = entry.getValue();
                     if (start == null || !start.isValid()) continue;
 
-                    ResourceLocation id = structures.getKey(entry.getKey());
+                    Identifier id = structures.getKey(entry.getKey());
                     if (id == null || !Reference.MOD_ID.equals(id.getNamespace())) continue;
 
                     BoundingBox box = start.getBoundingBox();

@@ -4,11 +4,11 @@ import com.dragonminez.Reference;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.biome.*;
 
 public class HTCBiomes {
-	public static final ResourceKey<Biome> TIME_CHAMBER = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "hyperbolic_time_chamber"));
+	public static final ResourceKey<Biome> TIME_CHAMBER = ResourceKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "hyperbolic_time_chamber"));
 
 	public static void bootstrap(BootstrapContext<Biome> context) {
 		context.register(TIME_CHAMBER, timeChamber(context));

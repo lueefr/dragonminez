@@ -162,7 +162,7 @@ public class StatsSyncC2S {
 			if (!PacketRateLimiter.allow(player.getUUID(), "stats_sync", player.level().getGameTime(), 2)) return;
 
 			if (!ConfigManager.isRaceLoaded(msg.raceName)) {
-				LogUtil.warn(com.dragonminez.Env.COMMON, "Rejected StatsSyncC2S from '{}': unknown race '{}'", player.getGameProfile().getName(), msg.raceName);
+				LogUtil.warn(com.dragonminez.Env.COMMON, "Rejected StatsSyncC2S from '{}': unknown race '{}'", player.getGameProfile().name(), msg.raceName);
 				StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data ->
 						NetworkHandler.sendToPlayer(new StatsSyncS2C(player), player));
 				return;
@@ -186,7 +186,7 @@ public class StatsSyncC2S {
 					if (ConfigManager.getRaceCharacter(msg.raceName) != null) character.setHasSaiyanTail(ConfigManager.getRaceCharacter(msg.raceName).getHasSaiyanTail());
 				}
 				character.setHairId(AppearanceValidator.hairId(msg.hairId, character.getHairId()));
-				if (msg.customHair != null) HairSanitizer.sanitizeAndLog(msg.customHair, HairStyleSlot.BASE, player.getGameProfile().getName());
+				if (msg.customHair != null) HairSanitizer.sanitizeAndLog(msg.customHair, HairStyleSlot.BASE, player.getGameProfile().name());
 				character.setHairStyle(HairStyleSlot.BASE, msg.customHair);
 				character.setHairColor(AppearanceValidator.color(msg.hairColor, character.getHairColor()));
 				character.setRenderHairBase(msg.renderHairBase);

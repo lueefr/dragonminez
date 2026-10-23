@@ -4,7 +4,7 @@ import lombok.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import com.google.gson.GsonBuilder;
@@ -16,9 +16,9 @@ import java.util.Map;
 public class LingeringPotionDTO extends PotionDTO {
 
 	public static final String ITEM_TYPE = "lingering_potion";
-	private static final ResourceLocation LINGERING_POTION_ID = ResourceLocation.fromNamespaceAndPath("minecraft", "lingering_potion");
+	private static final Identifier LINGERING_POTION_ID = Identifier.fromNamespaceAndPath("minecraft", "lingering_potion");
 
-	public LingeringPotionDTO(ResourceLocation potion, int count, List<PotionEffectDTO> mobEffects) {
+	public LingeringPotionDTO(Identifier potion, int count, List<PotionEffectDTO> mobEffects) {
 		super(ITEM_TYPE, LINGERING_POTION_ID, count, potion, mobEffects);
 	}
 }

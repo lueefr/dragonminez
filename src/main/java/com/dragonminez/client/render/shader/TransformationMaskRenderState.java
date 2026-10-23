@@ -3,7 +3,7 @@ package com.dragonminez.client.render.shader;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.minecraft.client.Minecraft;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public final class TransformationMaskRenderState {
 	@Nullable

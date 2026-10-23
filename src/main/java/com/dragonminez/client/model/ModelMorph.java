@@ -6,17 +6,17 @@ import com.dragonminez.common.stats.FormTransition;
 import com.dragonminez.common.stats.StatsData;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
-import software.bernie.geckolib.cache.GeckoLibCache;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.cache.object.GeoCube;
-import software.bernie.geckolib.cache.object.GeoQuad;
-import software.bernie.geckolib.cache.object.GeoVertex;
-import software.bernie.geckolib.animation.state.BoneSnapshot;
+import com.geckolib.cache.GeckoLibCache;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.GeoCube;
+import com.geckolib.cache.object.GeoQuad;
+import com.geckolib.cache.object.GeoVertex;
+import com.geckolib.animation.state.BoneSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,15 +36,15 @@ public final class ModelMorph {
 
 	private ModelMorph() {}
 
-	public static ResourceLocation select(AbstractClientPlayer player, StatsData stats, ResourceLocation current, Function<FormTransition.Look, ResourceLocation> resolver) {
+	public static Identifier select(AbstractClientPlayer player, StatsData stats, Identifier current, Function<FormTransition.Look, Identifier> resolver) {
 		long now = System.nanoTime();
 		prune(now);
 
-		ResourceLocation target = null;
+		Identifier target = null;
 		float factor = 0.0f;
 		FormTransition.Charge charge = FormVisualTransition.charge(stats);
 		if (charge != null) {
-			ResourceLocation model = resolver.apply(charge.look());
+			Identifier model = resolver.apply(charge.look());
 			if (!model.equals(current)) {
 				target = model;
 				factor = charge.factor();
@@ -52,7 +52,7 @@ public final class ModelMorph {
 		}
 		FormTransition.Revert revert = FormVisualTransition.revert(stats);
 		if (revert != null && revert.factor() > factor) {
-			ResourceLocation model = resolver.apply(revert.look());
+			Identifier model = resolver.apply(revert.look());
 			if (!model.equals(current)) {
 				target = model;
 				factor = revert.factor();
@@ -72,13 +72,13 @@ public final class ModelMorph {
 		return entry.key;
 	}
 
-	public static ResourceLocation source(ResourceLocation location, ResourceLocation fallback) {
+	public static Identifier source(Identifier location, Identifier fallback) {
 		if (!isMorphKey(location)) return location;
 		Entry entry = entry(location);
 		return entry != null ? entry.from : fallback;
 	}
 
-	public static BakedGeoModel baked(ResourceLocation location) {
+	public static BakedGeoModel baked(Identifier location) {
 		if (!isMorphKey(location)) return null;
 		Entry entry = entry(location);
 		if (entry == null) return null;
@@ -90,11 +90,11 @@ public final class ModelMorph {
 		return entry.blend.model;
 	}
 
-	private static boolean isMorphKey(ResourceLocation location) {
+	private static boolean isMorphKey(Identifier location) {
 		return Reference.MOD_ID.equals(location.getNamespace()) && location.getPath().startsWith(KEY_PREFIX);
 	}
 
-	private static Entry entry(ResourceLocation location) {
+	private static Entry entry(Identifier location) {
 		try {
 			return ENTRIES.get(Integer.parseInt(location.getPath().substring(KEY_PREFIX.length())));
 		} catch (NumberFormatException e) {
@@ -109,15 +109,15 @@ public final class ModelMorph {
 	}
 
 	private static final class Entry {
-		private final ResourceLocation key;
-		private ResourceLocation from;
-		private ResourceLocation to;
+		private final Identifier key;
+		private Identifier from;
+		private Identifier to;
 		private float factor;
 		private long lastUsed;
 		private Blend blend;
 
 		private Entry(int id) {
-			this.key = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, KEY_PREFIX + id);
+			this.key = Identifier.fromNamespaceAndPath(Reference.MOD_ID, KEY_PREFIX + id);
 		}
 	}
 

@@ -8,7 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
@@ -23,15 +23,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.animation.PlayState;
+import com.geckolib.animatable.GeoEntity;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.PlayState;
 
 public class NamekFrogEntity extends Animal implements GeoEntity {
 
@@ -39,11 +39,11 @@ public class NamekFrogEntity extends Animal implements GeoEntity {
 
     public static final int VARIANT_COUNT = 3;
 
-    public static final ResourceLocation[] TEXTURES = new ResourceLocation[VARIANT_COUNT];
+    public static final Identifier[] TEXTURES = new Identifier[VARIANT_COUNT];
 
     static {
         for (int i = 0; i < VARIANT_COUNT; i++) {
-            TEXTURES[i] = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/animal/namekfrog_" + i + ".png");
+            TEXTURES[i] = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/animal/namekfrog_" + i + ".png");
         }
     }
 
@@ -77,7 +77,7 @@ public class NamekFrogEntity extends Animal implements GeoEntity {
         this.entityData.set(VARIANT, variant);
     }
 
-    public ResourceLocation getCurrentTexture() {
+    public Identifier getCurrentTexture() {
         int variant = getVariant();
         if (variant < 0 || variant >= TEXTURES.length) {
             variant = 0;
@@ -130,7 +130,7 @@ public class NamekFrogEntity extends Animal implements GeoEntity {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @javax.annotation.Nullable SpawnGroupData pSpawnData) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @org.jetbrains.annotations.Nullable SpawnGroupData pSpawnData) {
         this.setVariant(this.random.nextInt(VARIANT_COUNT));
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
     }

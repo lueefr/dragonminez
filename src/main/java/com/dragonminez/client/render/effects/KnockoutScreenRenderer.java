@@ -8,7 +8,7 @@ import com.dragonminez.client.render.shader.KnockoutShaderManager;
 import com.dragonminez.client.render.util.IrisCompat;
 import com.dragonminez.client.systems.worldboss.ClientWorldBossState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
@@ -61,7 +61,7 @@ public final class KnockoutScreenRenderer {
 		float intensity = INTENSITY.value();
 		if (intensity <= 0.004f) return;
 
-		GuiGraphics graphics = event.getGuiGraphics();
+		GuiGraphicsExtractor graphics = event.getGuiGraphics();
 		int width = event.getGuiGraphics().guiWidth();
 		int height = event.getGuiGraphics().guiHeight();
 		HudRender.rect(graphics, 0.0f, 0.0f, width, height, HudRender.argb(0.35f * intensity, FALLBACK_GRAY));

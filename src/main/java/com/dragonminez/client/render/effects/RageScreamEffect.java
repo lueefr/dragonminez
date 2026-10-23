@@ -14,7 +14,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -48,8 +48,8 @@ public final class RageScreamEffect {
 	private static final float LENGTH_VARIANCE_MIN = 0.7f;
 	private static final float LENGTH_VARIANCE_MAX = 1.3f;
 
-	private static final ResourceLocation TEXTURE =
-			ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/skills/rage_scream.png");
+	private static final Identifier TEXTURE =
+			Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/skills/rage_scream.png");
 
 	private static final class Entry {
 		int ticksRemaining;
@@ -202,11 +202,11 @@ public final class RageScreamEffect {
 		return stack;
 	}
 
-	private static RenderType auraType(ResourceLocation texture) {
+	private static RenderType auraType(Identifier texture) {
 		return IrisCompat.isShaderPackInUse() ? ModRenderTypes.getCustomAuraCompat(texture) : ModRenderTypes.getCustomAura(texture);
 	}
 
-	private static void customSetup(RenderType type, ResourceLocation texture, ShaderInstance shader) {
+	private static void customSetup(RenderType type, Identifier texture, ShaderInstance shader) {
 		if (IrisCompat.isShaderPackInUse()) {
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();

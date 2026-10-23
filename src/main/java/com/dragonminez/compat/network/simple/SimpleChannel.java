@@ -4,7 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -32,13 +32,13 @@ import java.util.function.Supplier;
 public final class SimpleChannel {
 	private static final List<SimpleChannel> CHANNELS = new ArrayList<>();
 
-	private final ResourceLocation name;
+	private final Identifier name;
     private final Supplier<String> protocolVersion;
 	private final List<PendingRegistration<?>> pending = new ArrayList<>();
 	private final Map<Class<?>, PayloadBinding<?>> bindings = new ConcurrentHashMap<>();
 	private boolean registered;
 
-	public SimpleChannel(ResourceLocation name, Supplier<String> protocolVersion) {
+	public SimpleChannel(Identifier name, Supplier<String> protocolVersion) {
 		this.name = name;
         this.protocolVersion = protocolVersion;
 		CHANNELS.add(this);
@@ -158,8 +158,8 @@ public final class SimpleChannel {
 			BiConsumer<MSG, Supplier<NetworkEvent.Context>> consumer,
             boolean networkThread
 	) {
-		void register(PayloadRegistrar registrar, ResourceLocation channelName, Map<Class<?>, PayloadBinding<?>> bindings) {
-			ResourceLocation payloadId = ResourceLocation.fromNamespaceAndPath(
+		void register(PayloadRegistrar registrar, Identifier channelName, Map<Class<?>, PayloadBinding<?>> bindings) {
+			Identifier payloadId = Identifier.fromNamespaceAndPath(
 					channelName.getNamespace(),
 					channelName.getPath() + "/" + id + "_" + type.getSimpleName().toLowerCase()
 			);

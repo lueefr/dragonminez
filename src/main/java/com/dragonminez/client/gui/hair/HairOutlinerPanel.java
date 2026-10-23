@@ -7,7 +7,7 @@ import com.dragonminez.client.util.PanelSkin;
 import com.dragonminez.client.util.ScrollbarState;
 import com.dragonminez.client.util.TextUtil;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 final class HairOutlinerPanel {
@@ -75,7 +75,7 @@ final class HairOutlinerPanel {
 		return HairEditorUi.inside(mouseX, mouseY, x, y, width, height);
 	}
 
-	void render(GuiGraphics graphics, int mouseX, int mouseY) {
+	void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		HairEditorUi.panel(graphics, x, y, width, height);
 		HairEditorUi.header(graphics, font, HairEditorUi.tr("gui.dragonminez.hair_editor.outliner"), x, y, width);
 
@@ -192,7 +192,7 @@ final class HairOutlinerPanel {
 		return segmentScroll.mouseReleased();
 	}
 
-	private void renderStyleTabs(GuiGraphics graphics, int mouseX, int mouseY, int top) {
+	private void renderStyleTabs(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int top) {
 		int count = HairStyleSlot.count();
 		int tabWidth = tabWidth(count);
 		for (int i = 0; i < count; i++) {
@@ -205,7 +205,7 @@ final class HairOutlinerPanel {
 		}
 	}
 
-	private void renderFaceTabs(GuiGraphics graphics, int mouseX, int mouseY, int top) {
+	private void renderFaceTabs(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int top) {
 		CustomHair.HairFace[] faces = CustomHair.HairFace.values();
 		int tabWidth = tabWidth(faces.length);
 		for (int i = 0; i < faces.length; i++) {
@@ -215,7 +215,7 @@ final class HairOutlinerPanel {
 		}
 	}
 
-	private int renderGrid(GuiGraphics graphics, int mouseX, int mouseY, int top) {
+	private int renderGrid(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int top) {
 		CustomHair.HairFace face = state.face();
 		CustomHair style = state.style();
 		int gridX = gridX(face);
@@ -242,7 +242,7 @@ final class HairOutlinerPanel {
 		return top + gridHeight(face);
 	}
 
-	private int renderStrandToolbar(GuiGraphics graphics, int mouseX, int mouseY, int top) {
+	private int renderStrandToolbar(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int top) {
 		if (!state.hasSelection()) {
 			TextUtil.drawStringWithBorder(graphics, font, HairEditorUi.tr("gui.dragonminez.hair_editor.no_selection"), x + INSET, top + 3, HairEditorUi.MUTED);
 			return top + BUTTON_HEIGHT;
@@ -258,7 +258,7 @@ final class HairOutlinerPanel {
 		return top + BUTTON_HEIGHT;
 	}
 
-	private void renderSegmentList(GuiGraphics graphics, int mouseX, int mouseY, int top, int bottom) {
+	private void renderSegmentList(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int top, int bottom) {
 		HairStrand strand = state.selectedStrand();
 		if (strand == null || !strand.isVisible() || bottom - top < ROW_HEIGHT) {
 			segmentScroll.clear();
@@ -290,7 +290,7 @@ final class HairOutlinerPanel {
 		segmentScroll.renderBar(graphics, mouseX, mouseY);
 	}
 
-	private void renderCodeButtons(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderCodeButtons(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int top = codeAreaTop();
 		HairEditorUi.divider(graphics, x + INSET, x + width - INSET, top - 3);
 		int columnWidth = codeColumnWidth();

@@ -7,7 +7,7 @@ import com.dragonminez.common.spacepod.SpacePodDestinationDefinition;
 import com.dragonminez.common.spacepod.SpacePodDestinationRegistry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -45,7 +45,7 @@ public class TravelToPlanetC2S {
 				return;
 			}
 
-			ResourceLocation targetId = ResourceLocation.tryParse(destination.dimension());
+			Identifier targetId = Identifier.tryParse(destination.dimension());
 			if (targetId == null) {
 				return;
 			}

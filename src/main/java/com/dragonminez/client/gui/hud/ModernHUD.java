@@ -7,7 +7,7 @@ import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 import net.minecraft.client.gui.LayeredDraw;
 
@@ -39,7 +39,7 @@ public class ModernHUD {
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
-	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	public static void render(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 		if (HudStyle.current() != HudStyle.MODERN) return;
@@ -116,7 +116,7 @@ public class ModernHUD {
 		});
 	}
 
-	private static void drawPortrait(GuiGraphics guiGraphics, Minecraft mc, HudPlayerState state, float partialTicks, float release, float formCharge, float lowHealth, boolean mirrored) {
+	private static void drawPortrait(GuiGraphicsExtractor guiGraphics, Minecraft mc, HudPlayerState state, float partialTicks, float release, float formCharge, float lowHealth, boolean mirrored) {
 		int frame = HudRender.mix(HudRender.mix(state.auraColor(), 0x000000, 0.35f), 0xFF3030, lowHealth * 0.8f);
 		frame = HudRender.mix(frame, FORM_CHARGE_COLOR, formCharge);
 		float outer = PORTRAIT + BORDER * 2.0f;

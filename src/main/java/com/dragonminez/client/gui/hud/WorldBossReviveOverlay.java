@@ -6,17 +6,17 @@ import com.dragonminez.client.systems.worldboss.ClientWorldBossState;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.client.gui.LayeredDraw;
 
 public class WorldBossReviveOverlay {
-	private static final ResourceLocation CHARGE_HUD_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/hud/kicharge_hud.png");
-	private static final ResourceLocation DMZ_FONT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	private static final Identifier CHARGE_HUD_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/hud/kicharge_hud.png");
+	private static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
 	private static final float SCALE = 1.125f;
 	private static final float BAR_WIDTH = 145.0f;
 	private static final float FILL_WIDTH = 148.0f;
@@ -34,7 +34,7 @@ public class WorldBossReviveOverlay {
 		if (!HudLayout.isPreview()) render(guiGraphics, width, height);
 	};
 
-	private static void render(GuiGraphics guiGraphics, int width, int height) {
+	private static void render(GuiGraphicsExtractor guiGraphics, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 

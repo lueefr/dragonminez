@@ -12,7 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
@@ -38,15 +38,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.animation.PlayState;
+import com.geckolib.animatable.GeoEntity;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.PlayState;
 
 public class NamekWarriorEntity extends PathfinderMob implements GeoEntity {
 
@@ -58,11 +58,11 @@ public class NamekWarriorEntity extends PathfinderMob implements GeoEntity {
 
     public static final int VARIANT_COUNT = 4;
 
-    public static final ResourceLocation[] TEXTURES = new ResourceLocation[VARIANT_COUNT];
+    public static final Identifier[] TEXTURES = new Identifier[VARIANT_COUNT];
 
     static {
         for (int i = 0; i < VARIANT_COUNT; i++) {
-            TEXTURES[i] = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/enemies/namek_warrior_" + i + ".png");
+            TEXTURES[i] = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/enemies/namek_warrior_" + i + ".png");
         }
     }
 
@@ -132,7 +132,7 @@ public class NamekWarriorEntity extends PathfinderMob implements GeoEntity {
     public boolean isFlying() { return this.entityData.get(IS_FLYING); }
 
 
-    public ResourceLocation getCurrentTexture() {
+    public Identifier getCurrentTexture() {
         int variant = getVariantNamek();
         if (variant < 0 || variant >= TEXTURES.length) {
             variant = 0;
@@ -228,7 +228,7 @@ public class NamekWarriorEntity extends PathfinderMob implements GeoEntity {
         this.setDeltaMovement(movement.add(0, gravityDrag, 0));
     }
 
-    private <T extends GeoAnimatable> PlayState walkPredicate(software.bernie.geckolib.animation.AnimationState<T> event) {
+    private <T extends GeoAnimatable> PlayState walkPredicate(com.geckolib.animation.AnimationState<T> event) {
         NamekWarriorEntity entity = (NamekWarriorEntity) event.getAnimatable();
 
         if (entity.isFlying()) {

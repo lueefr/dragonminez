@@ -255,7 +255,7 @@ public final class WorldBossSession {
 		StatsData data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
 		if (data == null || !data.getStatus().isHasCreatedCharacter()) return;
 
-		Participant participant = new Participant(player.getUUID(), player.getGameProfile().getName(), config.getLives());
+		Participant participant = new Participant(player.getUUID(), player.getGameProfile().name(), config.getLives());
 		participants.put(player.getUUID(), participant);
 		installRevive(player, data, config);
 		sendPlayerState(player, participant);

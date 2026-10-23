@@ -3,7 +3,7 @@ package com.dragonminez.common.wish.wishes;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.common.wish.Wish;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
@@ -22,7 +22,7 @@ public class ItemWish extends Wish {
 
 	@Override
 	public void grant(ServerPlayer player) {
-		Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemId));
+		Item item = BuiltInRegistries.ITEM.get(Identifier.parse(itemId));
 		if (item != null) {
 			giveOrDrop(player, new ItemStack(item, count));
 		} else {

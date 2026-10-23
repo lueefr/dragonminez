@@ -9,7 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -257,7 +257,7 @@ public class Status {
 	}
 
 	public void markVisitedDimension(String dimensionId) {
-		if (dimensionId == null || dimensionId.isBlank() || ResourceLocation.tryParse(dimensionId) == null) return;
+		if (dimensionId == null || dimensionId.isBlank() || Identifier.tryParse(dimensionId) == null) return;
 		this.visitedDimensions.add(dimensionId);
 	}
 

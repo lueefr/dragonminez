@@ -5,7 +5,7 @@ import com.dragonminez.LogUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.neoforged.api.distmarker.Dist;
@@ -28,7 +28,7 @@ public final class RaidMusicManager {
 		stop(mc);
 		if (soundId == null || soundId.isBlank()) return;
 
-		ResourceLocation location = ResourceLocation.tryParse(soundId);
+		Identifier location = Identifier.tryParse(soundId);
 		if (location == null) {
 			LogUtil.warn(Env.CLIENT, "Raid asked for a malformed sound id '{}'", soundId);
 			return;

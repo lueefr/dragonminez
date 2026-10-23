@@ -4,7 +4,7 @@ import com.dragonminez.client.util.TextUtil;
 import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.common.hair.HairColors;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Consumer;
@@ -55,7 +55,7 @@ final class HairColorPicker {
 		editingHex = false;
 	}
 
-	void render(GuiGraphics graphics, Font font, int mouseX, int mouseY) {
+	void render(GuiGraphicsExtractor graphics, Font font, int mouseX, int mouseY) {
 		if (!open) return;
 		graphics.pose().pushPose();
 		graphics.pose().translate(0.0f, 0.0f, 450.0f);

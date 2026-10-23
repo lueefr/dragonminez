@@ -8,7 +8,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.storage.ChunkSerializer;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -36,7 +36,7 @@ public abstract class ChunkSerializerMixin {
 
 		Map<Structure, LongSet> result = new HashMap<>();
 		for (String key : references.getAllKeys()) {
-			ResourceLocation id = ResourceLocation.tryParse(key);
+			Identifier id = Identifier.tryParse(key);
 			Structure structure = registry.get(id);
 			if (structure == null) {
 				LOGGER.warn("Found reference to unknown structure '{}' in chunk {}, discarding", id, pos);
@@ -61,7 +61,7 @@ public abstract class ChunkSerializerMixin {
 
 	private static boolean dragonminez$hasDistantIncremental(Registry<Structure> registry, ChunkPos pos, CompoundTag references) {
 		for (String key : references.getAllKeys()) {
-			if (!(registry.get(ResourceLocation.tryParse(key)) instanceof IncrementalStructure)) continue;
+			if (!(registry.get(Identifier.tryParse(key)) instanceof IncrementalStructure)) continue;
 			for (long origin : references.getLongArray(key)) {
 				int distance = new ChunkPos(origin).getChessboardDistance(pos);
 				if (distance > 8 && distance <= StructureRepairManager.COMPLETION_RANGE) return true;

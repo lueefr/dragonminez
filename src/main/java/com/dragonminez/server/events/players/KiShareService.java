@@ -41,7 +41,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -131,8 +131,8 @@ public final class KiShareService {
 		donor.level().playSound(null, donor.getX(), donor.getY(), donor.getZ(), MainSounds.AURA_START.get(), SoundSource.PLAYERS, START_SOUND_VOLUME, 1.2f);
 		donor.displayClientMessage(Component.translatable(genki ? "message.dragonminez.kishare.genki_giving" : "message.dragonminez.kishare.giving", receiver.getDisplayName()), true);
 		receiver.displayClientMessage(Component.translatable(genki ? "message.dragonminez.kishare.genki_receiving" : "message.dragonminez.kishare.receiving", donor.getDisplayName()), true);
-		LogUtil.debug(Env.SERVER, "Ki share started: {} -> {} (donor ki {}/{})", donor.getGameProfile().getName(),
-				receiver.getGameProfile().getName(), donorData.getResources().getCurrentEnergy(), donorData.getMaxEnergy());
+		LogUtil.debug(Env.SERVER, "Ki share started: {} -> {} (donor ki {}/{})", donor.getGameProfile().name(),
+				receiver.getGameProfile().name(), donorData.getResources().getCurrentEnergy(), donorData.getMaxEnergy());
 	}
 
 	public static void requestStop(ServerPlayer donor) {

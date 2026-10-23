@@ -13,7 +13,7 @@ import com.google.gson.GsonBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
@@ -39,18 +39,18 @@ import java.util.List;
 public class PotionDTO extends GenericItemDTO {
 
 	public static final String ITEM_TYPE = "potion";
-	private static final ResourceLocation POTION_ITEM_ID = ResourceLocation.fromNamespaceAndPath("minecraft", "potion");
+	private static final Identifier POTION_ITEM_ID = Identifier.fromNamespaceAndPath("minecraft", "potion");
 
-	protected ResourceLocation potion;
+	protected Identifier potion;
 
 	@JsonAdapter(PotionEffectListTypeAdapter.class)
 	protected List<PotionEffectDTO> mobEffects = new ArrayList<>();
 
-	public PotionDTO(ResourceLocation potion, List<PotionEffectDTO> mobEffects) {
+	public PotionDTO(Identifier potion, List<PotionEffectDTO> mobEffects) {
 		this(ITEM_TYPE, POTION_ITEM_ID, 1, potion, mobEffects);
 	}
 
-	protected PotionDTO(String itemType, ResourceLocation itemId, int count, ResourceLocation potion,
+	protected PotionDTO(String itemType, Identifier itemId, int count, Identifier potion,
 			List<PotionEffectDTO> mobEffects) {
 		super(itemType, itemId, count);
 		this.potion = potion;

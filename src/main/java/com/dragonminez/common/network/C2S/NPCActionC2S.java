@@ -84,7 +84,7 @@ public class NPCActionC2S {
 					Component blocker = NpcDispositionService.getServiceBlocker(player, master);
 					if (blocker != null) {
 						LogUtil.warn(Env.SERVER, "Shadow clone FAILED to spawn (training blocked by alignment) for player {} at master {}",
-								player.getGameProfile().getName(), master);
+								player.getGameProfile().name(), master);
 						player.displayClientMessage(blocker, true);
 						reply(player, packet, false);
 						return;
@@ -93,7 +93,7 @@ public class NPCActionC2S {
 				if (shadowDummySpar ? !isAnyMasterInRange(player) : !isNpcInRange(player, packet.npcName)) {
 					if (shadowDummySpar) {
 						LogUtil.warn(Env.SERVER, "Shadow clone FAILED to spawn (no master/quest-NPC in range) for player {}",
-								player.getGameProfile().getName());
+								player.getGameProfile().name());
 					}
 					reply(player, packet, false);
 					return;
@@ -103,7 +103,7 @@ public class NPCActionC2S {
 					success = perform(player, data, packet);
 				} catch (RuntimeException exception) {
 					LogUtil.error(Env.SERVER, "Failed to handle NPC action " + packet.actionId + " of '" + packet.npcName
-							+ "' requested by " + player.getGameProfile().getName(), exception);
+							+ "' requested by " + player.getGameProfile().name(), exception);
 					success = false;
 				}
 				StatsSyncS2C.sendRequested(player);
@@ -243,7 +243,7 @@ public class NPCActionC2S {
 			if (!PacketRateLimiter.allow(player.getUUID(), "popo_spar", player.level().getGameTime(), 40L)) return false;
 			discardPopoDummies(player);
 			String master = resolveNearestMasterName(player);
-			String playerName = player.getGameProfile().getName();
+			String playerName = player.getGameProfile().name();
 			ServerLevel level = player.serverLevel();
 			EntityType<?> entityType = MainEntities.SHADOW_DUMMY.get();
 			if (!(entityType.create(level) instanceof ShadowDummyEntity shadowDummy)) {

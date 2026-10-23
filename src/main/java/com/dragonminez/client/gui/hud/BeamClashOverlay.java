@@ -5,16 +5,16 @@ import com.dragonminez.client.clash.ClientBeamClashState;
 import com.dragonminez.common.combat.clash.ClashMeter;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.client.gui.LayeredDraw;
 
 public class BeamClashOverlay {
-	private static final ResourceLocation BAR_TEXTURE =
-			ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/hud/kicharge_hud.png");
+	private static final Identifier BAR_TEXTURE =
+			Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/hud/kicharge_hud.png");
 
 	private static final int SRC_W = 148;
 	private static final int SRC_H = 14;
@@ -134,7 +134,7 @@ public class BeamClashOverlay {
 		HudRender.text(guiGraphics, I18n.get("hud." + Reference.MOD_ID + ".beam_clash_hint"), width / 2.0f, sweepY + BAR_H + 7, 1.0f, 0.5f, HINT_COLOR, 1.0f);
 	};
 
-	private static void drawExhausted(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	private static void drawExhausted(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		float remaining = ClientBeamClashState.exhaustRemaining01(partialTicks);
 		if (remaining <= 0.0f) return;
 		float pulse = 0.75f + 0.25f * (float) Math.sin((System.nanoTime() / 1.0e9) * 9.0);
@@ -166,13 +166,13 @@ public class BeamClashOverlay {
 		return distance < 120 ? HudRender.mix(foe, FOE_FALLBACK, 0.75f) : foe;
 	}
 
-	private static void drawBarFrame(GuiGraphics g, int x, int y) {
+	private static void drawBarFrame(GuiGraphicsExtractor g, int x, int y) {
 		setColor(WHITE, 1.0f);
 		g.blit(BAR_TEXTURE, x, y, BAR_W, BAR_H, 0.0f, 0.0f, SRC_W, SRC_H, ATLAS, ATLAS);
 		resetColor();
 	}
 
-	private static void drawBarFill(GuiGraphics g, int barX, int y, int pxOffset, int pxWidth) {
+	private static void drawBarFill(GuiGraphicsExtractor g, int barX, int y, int pxOffset, int pxWidth) {
 		if (pxWidth <= 0) return;
 		float frac0 = pxOffset / (float) BAR_W;
 		float fracW = pxWidth / (float) BAR_W;

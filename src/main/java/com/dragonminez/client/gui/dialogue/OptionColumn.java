@@ -4,7 +4,7 @@ import com.dragonminez.client.gui.hud.HudRender;
 import com.dragonminez.client.util.ScrollbarState;
 import com.dragonminez.client.util.TextUtil;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -119,7 +119,7 @@ final class OptionColumn {
 		return bar.mouseScrolled(mouseX, mouseY, delta);
 	}
 
-	void render(GuiGraphics graphics, Font font, double mouseX, double mouseY, float open, float ease, long now,
+	void render(GuiGraphicsExtractor graphics, Font font, double mouseX, double mouseY, float open, float ease, long now,
 				String selectedId, boolean blocked, Runnable onReady) {
 		int contentHeight = Math.max(0, options.size() * ROW_STEP - (ROW_STEP - ROW_H));
 		bar.layout(x, y, WIDTH, height, contentHeight).barAt(x + WIDTH + 3);
@@ -151,7 +151,7 @@ final class OptionColumn {
 		bar.renderBar(graphics, mouseX, mouseY);
 	}
 
-	void renderTooltip(GuiGraphics graphics, Font font, double mouseX, double mouseY, int screenWidth, int screenHeight, long now) {
+	void renderTooltip(GuiGraphicsExtractor graphics, Font font, double mouseX, double mouseY, int screenWidth, int screenHeight, long now) {
 		int index = rowAt(mouseX, mouseY);
 		if (index < 0) return;
 		DialogueOption option = options.get(index);
@@ -167,7 +167,7 @@ final class OptionColumn {
 		graphics.pose().popPose();
 	}
 
-	private void renderRow(GuiGraphics graphics, Font font, DialogueOption option, RowState state, float rowX, int rowY,
+	private void renderRow(GuiGraphicsExtractor graphics, Font font, DialogueOption option, RowState state, float rowX, int rowY,
 						   float appear, boolean available, boolean selected, long now) {
 		DialogueSkin.Row base = !available ? DialogueSkin.Row.DISABLED
 				: selected ? DialogueSkin.Row.SELECTED
@@ -203,7 +203,7 @@ final class OptionColumn {
 		}
 	}
 
-	private void renderChip(GuiGraphics graphics, RowState state, String time, float chipX, float chipY, int width, float alpha, long now) {
+	private void renderChip(GuiGraphicsExtractor graphics, RowState state, String time, float chipX, float chipY, int width, float alpha, long now) {
 		if (!time.equals(state.time)) {
 			state.previousTime = state.time;
 			state.time = time;

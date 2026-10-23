@@ -8,7 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -79,7 +79,7 @@ public final class QuestLocationHelper {
 				if (!tagId.contains(":")) {
 					return false;
 				}
-				ResourceLocation tagRL = ResourceLocation.parse(tagId);
+				Identifier tagRL = Identifier.parse(tagId);
 				TagKey<Biome> tagKey = TagKey.create(Registries.BIOME, tagRL);
 				return biomeHolder.is(tagKey);
 			}
@@ -88,7 +88,7 @@ public final class QuestLocationHelper {
 				return false;
 			}
 
-			return biomeHolder.is(ResourceLocation.parse(targetBiome));
+			return biomeHolder.is(Identifier.parse(targetBiome));
 		} catch (Exception e) {
 			return false;
 		}
@@ -100,7 +100,7 @@ public final class QuestLocationHelper {
 		}
 
 		try {
-			ResourceLocation structRL = ResourceLocation.parse(targetStructure);
+			Identifier structRL = Identifier.parse(targetStructure);
 			Structure structure = level.registryAccess().registryOrThrow(Registries.STRUCTURE).get(structRL);
 			return structure != null && level.structureManager().getStructureWithPieceAt(pos, structure).isValid();
 		} catch (Exception e) {
@@ -114,7 +114,7 @@ public final class QuestLocationHelper {
 		}
 
 		try {
-			ResourceLocation dimensionRL = ResourceLocation.parse(targetDimension);
+			Identifier dimensionRL = Identifier.parse(targetDimension);
 			return level.dimension().location().equals(dimensionRL);
 		} catch (Exception e) {
 			return false;

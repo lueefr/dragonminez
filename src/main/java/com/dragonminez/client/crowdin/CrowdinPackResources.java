@@ -4,7 +4,7 @@ import com.dragonminez.Reference;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
@@ -50,7 +50,7 @@ public class CrowdinPackResources implements PackResources {
 
 	@Nullable
 	@Override
-	public IoSupplier<InputStream> getResource(PackType type, ResourceLocation location) {
+	public IoSupplier<InputStream> getResource(PackType type, Identifier location) {
 		if (!CrowdinManager.isLiveTranslationsEnabled()) return null;
 
 		if (type == PackType.CLIENT_RESOURCES &&

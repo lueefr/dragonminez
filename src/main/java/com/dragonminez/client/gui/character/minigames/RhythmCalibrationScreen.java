@@ -8,13 +8,13 @@ import com.dragonminez.client.util.TextUtil;
 import com.dragonminez.common.config.ConfigManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import org.lwjgl.glfw.GLFW;
@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class RhythmCalibrationScreen extends Screen {
-	private static final ResourceLocation DMZ_FONT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
-	private static final ResourceLocation BUTTONS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	private static final Identifier BUTTONS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
 	private static final int BUTTON_W = 74, BUTTON_H = 20;
 	private static final int WARMUP_TICKS = 4;
 	private static final int SAMPLES_NEEDED = 12;
@@ -73,7 +73,7 @@ public class RhythmCalibrationScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		this.renderBackground(graphics, mouseX, mouseY, partialTick);
 		long now = System.nanoTime();
 		if (!finished) {
@@ -221,7 +221,7 @@ public class RhythmCalibrationScreen extends Screen {
 		return rect != null && x >= rect[0] && x <= rect[0] + rect[2] && y >= rect[1] && y <= rect[1] + rect[3];
 	}
 
-	private void drawPanel(GuiGraphics graphics, int cx, int cy, int contentW, int contentH) {
+	private void drawPanel(GuiGraphicsExtractor graphics, int cx, int cy, int contentW, int contentH) {
 		int padding = 16;
 		int panelW = contentW + padding * 2;
 		int panelH = contentH + padding * 2;
@@ -229,7 +229,7 @@ public class RhythmCalibrationScreen extends Screen {
 		PanelSkin.NPC_PANEL.draw(graphics, cx - panelW / 2f, cy - panelH / 2f, panelW, panelH);
 	}
 
-	private void drawButton(GuiGraphics graphics, float[] rect, Component label, int mouseX, int mouseY) {
+	private void drawButton(GuiGraphicsExtractor graphics, float[] rect, Component label, int mouseX, int mouseY) {
 		boolean hover = inside(rect, mouseX, mouseY);
 		RenderSystem.enableBlend();
 		HudRender.blit(graphics, BUTTONS, rect[0], rect[1], 0, hover ? 48 : 28, BUTTON_W, BUTTON_H, 256, 256);

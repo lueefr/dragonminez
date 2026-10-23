@@ -5,7 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * One custom effect on a potion, splash potion, lingering potion or tipped arrow.
@@ -18,14 +18,14 @@ import net.minecraft.resources.ResourceLocation;
 @NoArgsConstructor
 public class PotionEffectDTO {
 
-	private ResourceLocation effect;
+	private Identifier effect;
 	private Integer duration = 1;
 	private Integer amplifier = 0;
 	private Boolean ambient = false;
 	private Boolean visible = true;
 	private Boolean showIcon = true;
 
-	public PotionEffectDTO(ResourceLocation effect, int duration, int amplifier) {
+	public PotionEffectDTO(Identifier effect, int duration, int amplifier) {
 		this.effect = effect;
 		this.duration = duration;
 		this.amplifier = amplifier;
@@ -33,7 +33,7 @@ public class PotionEffectDTO {
 
 	/** Reads a legacy {@code {"<effect id>": <duration>}} entry. */
 	public static PotionEffectDTO fromLegacyEntry(String effectId, int duration) {
-		ResourceLocation parsed = ResourceLocation.tryParse(effectId);
+		Identifier parsed = Identifier.tryParse(effectId);
 		if (parsed == null) {
 			throw new JsonSyntaxException("Invalid mob effect id: '" + effectId + "'");
 		}

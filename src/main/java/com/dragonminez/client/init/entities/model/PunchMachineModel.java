@@ -3,24 +3,24 @@ package com.dragonminez.client.init.entities.model;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.FlyingNimbusEntity;
 import com.dragonminez.common.init.entities.PunchMachineEntity;
-import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.GeoModel;
+import net.minecraft.resources.Identifier;
+import com.geckolib.model.GeoModel;
 
 public class PunchMachineModel<T extends PunchMachineEntity> extends GeoModel<T> {
 
     @Override
-    public ResourceLocation getModelResource(T animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/punchstation.geo.json");
+    public Identifier getModelResource(T animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/punchstation.geo.json");
     }
 
     @Override
-    public ResourceLocation getTextureResource(T animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/punchmachine.png");
+    public Identifier getTextureResource(T animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/punchmachine.png");
     }
 
     @Override
-    public ResourceLocation getAnimationResource(T animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/punchmachine.animation.json");
+    public Identifier getAnimationResource(T animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/punchmachine.animation.json");
     }
 
 }

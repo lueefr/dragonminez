@@ -55,7 +55,7 @@ public class SaiyanZenkai implements RacialAbility {
 
 			player.displayClientMessage(Component.translatable("message.dragonminez.racial.zenkai.blocked." + blocked), true);
 			LogUtil.debug(Env.SERVER, "Zenkai skipped for {}: {} (level {}/{}, finalDamage {}, maxHealth {})",
-					player.getGameProfile().getName(), blocked, data.getLevel(), config.getMinLevel(), lc.finalDamage(), maxHealth);
+					player.getGameProfile().name(), blocked, data.getLevel(), config.getMinLevel(), lc.finalDamage(), maxHealth);
 			return false;
 		}
 

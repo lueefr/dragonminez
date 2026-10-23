@@ -39,9 +39,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.animation.PlayState;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.PlayState;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -428,13 +428,13 @@ public class SagaZFightersEntity {
         }
 
         @Override
-        public void registerControllers(software.bernie.geckolib.animation.AnimatableManager.ControllerRegistrar controllers) {
+        public void registerControllers(com.geckolib.animation.AnimatableManager.ControllerRegistrar controllers) {
             super.registerControllers(controllers);
 
-            controllers.add(new software.bernie.geckolib.animation.AnimationController<>(this, "explode_controller", 0, this::explodePredicate));
+            controllers.add(new com.geckolib.animation.AnimationController<>(this, "explode_controller", 0, this::explodePredicate));
         }
 
-        private <T extends software.bernie.geckolib.animatable.GeoAnimatable> PlayState explodePredicate(AnimationState<T> event) {
+        private <T extends com.geckolib.animatable.GeoAnimatable> PlayState explodePredicate(AnimationState<T> event) {
             if (this.isExploding()) {
                 event.getController().setAnimation(RawAnimation.begin().thenPlay("cell_absorb"));
                 return PlayState.CONTINUE;
@@ -741,7 +741,7 @@ public class SagaZFightersEntity {
     public static class AkkumanEntity extends DBSagasEntity {
 
         private static final double MOVE_SPEED = 0.38D;
-        private static final net.minecraft.resources.ResourceLocation EVIL_BONUS_ID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/0f2f4a1c-6b3d-4c0e-9a71-5c8d2e7b4a10");
+        private static final net.minecraft.resources.Identifier EVIL_BONUS_ID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/0f2f4a1c-6b3d-4c0e-9a71-5c8d2e7b4a10");
         private static final AttributeModifier EVIL_BONUS =
                 new AttributeModifier(EVIL_BONUS_ID, 1.0D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 

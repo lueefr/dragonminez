@@ -112,7 +112,7 @@ public class DebugCommand {
 				.map(data -> {
 					String json = GSON.toJson(buildDebugJson(target, data, scope));
 					if (requester != null) {
-						DebugFileS2C packet = new DebugFileS2C(target.getGameProfile().getName(), json);
+						DebugFileS2C packet = new DebugFileS2C(target.getGameProfile().name(), json);
 						if (!packet.fitsInPacket()) {
 							source.sendFailure(Component.translatable("command.dragonminez.debug.error", "dump too large to send"));
 							return 0;
@@ -145,7 +145,7 @@ public class DebugCommand {
 	}
 
 	private static Path getOutputPath(ServerPlayer target) {
-		return FMLPaths.GAMEDIR.get().resolve("dmzdebug").resolve(target.getGameProfile().getName() + ".json");
+		return FMLPaths.GAMEDIR.get().resolve("dmzdebug").resolve(target.getGameProfile().name() + ".json");
 	}
 
 	private static JsonObject buildDebugJson(ServerPlayer target, StatsData data, DebugScope scope) {
@@ -169,7 +169,7 @@ public class DebugCommand {
 		json.add("server", serverInfo);
 
 		JsonObject player = new JsonObject();
-		player.addProperty("name", target.getGameProfile().getName());
+		player.addProperty("name", target.getGameProfile().name());
 		player.addProperty("uuid", target.getStringUUID());
 		player.addProperty("online", !target.hasDisconnected());
 		player.addProperty("dimension", target.level().dimension().location().toString());
@@ -323,7 +323,7 @@ public class DebugCommand {
 	private static String resolveName(MinecraftServer server, UUID id) {
 		if (server == null) return "unknown";
 		ServerPlayer online = server.getPlayerList().getPlayer(id);
-		if (online != null) return online.getGameProfile().getName();
+		if (online != null) return online.getGameProfile().name();
 		return server.getProfileCache() == null
 				? "offline"
 				: server.getProfileCache().get(id).map(profile -> profile.getName()).orElse("offline");

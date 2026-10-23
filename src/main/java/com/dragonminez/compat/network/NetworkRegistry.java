@@ -1,6 +1,6 @@
 package com.dragonminez.compat.network;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import com.dragonminez.compat.network.simple.SimpleChannel;
 
 import java.util.function.Predicate;
@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 public final class NetworkRegistry {
 	private NetworkRegistry() {}
 
-	public static ChannelBuilder newSimpleChannel(ResourceLocation name, Supplier<String> networkProtocolVersion,
+	public static ChannelBuilder newSimpleChannel(Identifier name, Supplier<String> networkProtocolVersion,
 												  Predicate<String> clientAcceptedVersions, Predicate<String> serverAcceptedVersions) {
 		return ChannelBuilder.named(name)
 				.networkProtocolVersion(networkProtocolVersion)
@@ -21,14 +21,14 @@ public final class NetworkRegistry {
 	}
 
 	public static final class ChannelBuilder {
-		private final ResourceLocation name;
+		private final Identifier name;
         private Supplier<String> version = () -> "1";
 
-		private ChannelBuilder(ResourceLocation name) {
+		private ChannelBuilder(Identifier name) {
 			this.name = name;
 		}
 
-		public static ChannelBuilder named(ResourceLocation name) {
+		public static ChannelBuilder named(Identifier name) {
 			return new ChannelBuilder(name);
 		}
 

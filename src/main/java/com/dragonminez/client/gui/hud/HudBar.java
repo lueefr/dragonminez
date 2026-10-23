@@ -2,7 +2,7 @@ package com.dragonminez.client.gui.hud;
 
 import com.dragonminez.common.config.ConfigManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.util.Mth;
 
@@ -143,7 +143,7 @@ public final class HudBar {
 		return current / max;
 	}
 
-	public void draw(GuiGraphics graphics, HudSprites.BarSkin skin, float x, float y, float width, float height, int fillRgb, float pulse) {
+	public void draw(GuiGraphicsExtractor graphics, HudSprites.BarSkin skin, float x, float y, float width, float height, int fillRgb, float pulse) {
 		float front = animator.frontFraction();
 		float ghost = animator.ghostFraction();
 		drawFrame(graphics, skin, x, y, width, height, pulse, mirrored);
@@ -163,7 +163,7 @@ public final class HudBar {
 		}
 	}
 
-	private void drawGlint(GuiGraphics graphics, HudSprites.Sprite fill, float x, float y, float width, float height, float front) {
+	private void drawGlint(GuiGraphicsExtractor graphics, HudSprites.Sprite fill, float x, float y, float width, float height, float front) {
 		float glint = motion.value();
 		float frontWidth = front * width;
 		if (glint <= 0.02f || frontWidth >= width - 0.5f) return;
@@ -176,7 +176,7 @@ public final class HudBar {
 		}
 	}
 
-	public void drawFill(GuiGraphics graphics, HudSprites.Sprite fill, HudSprites.Sprite shine, float x, float y, float width, float height, int fillRgb, float pulse) {
+	public void drawFill(GuiGraphicsExtractor graphics, HudSprites.Sprite fill, HudSprites.Sprite shine, float x, float y, float width, float height, int fillRgb, float pulse) {
 		float front = animator.frontFraction();
 		float ghost = animator.ghostFraction();
 		float hit = impact.value();
@@ -210,7 +210,7 @@ public final class HudBar {
 		drawGlint(graphics, fill, x, y, width, height, front);
 	}
 
-	public void drawFillSweep(GuiGraphics graphics, HudSprites.Sprite fill, float x, float y, float width, float height, float phase, float strength) {
+	public void drawFillSweep(GuiGraphicsExtractor graphics, HudSprites.Sprite fill, float x, float y, float width, float height, float phase, float strength) {
 		float frontWidth = animator.frontFraction() * width;
 		if (frontWidth <= 2.0f || strength <= 0.01f) return;
 		float center = (phase % 1.0f) * (frontWidth + SWEEP_HALF_WIDTH * 2.0f) - SWEEP_HALF_WIDTH;
@@ -222,13 +222,13 @@ public final class HudBar {
 		}
 	}
 
-	private void drawLayer(GuiGraphics graphics, HudSprites.Sprite fill, HudSprites.Sprite shine, float x, float y, float width, float height,
+	private void drawLayer(GuiGraphicsExtractor graphics, HudSprites.Sprite fill, HudSprites.Sprite shine, float x, float y, float width, float height,
 						   float from, float to, int rgb, float alpha) {
 		HudRender.spritePart(graphics, fill, x, y, width, height, from, 0.0f, to, 1.0f, rgb, alpha, mirrored);
 		if (shine != null) HudRender.spritePart(graphics, shine, x, y, width, height, from, 0.0f, to, 1.0f, 0xFFFFFF, alpha, mirrored);
 	}
 
-	public void drawSweep(GuiGraphics graphics, float x, float y, float width, float height, float phase, float strength) {
+	public void drawSweep(GuiGraphicsExtractor graphics, float x, float y, float width, float height, float phase, float strength) {
 		float front = animator.frontFraction() * width;
 		if (front <= 2.0f || strength <= 0.01f) return;
 		float band = Math.min(14.0f, front);
@@ -246,7 +246,7 @@ public final class HudBar {
 		HudRender.rectHorizontal(graphics, x + mid, y, to - mid, height, HudRender.argb(0.45f * strength, 0xFFFFFF), HudRender.argb(0.0f, 0xFFFFFF));
 	}
 
-	public void drawVertical(GuiGraphics graphics, HudSprites.BarSkin skin, float x, float y, float width, float height, int fillRgb, float pulse) {
+	public void drawVertical(GuiGraphicsExtractor graphics, HudSprites.BarSkin skin, float x, float y, float width, float height, int fillRgb, float pulse) {
 		float front = animator.frontFraction();
 		float ghost = animator.ghostFraction();
 		drawFrame(graphics, skin, x, y, width, height, 0.0f, false);
@@ -264,7 +264,7 @@ public final class HudBar {
 		}
 	}
 
-	public static void drawStatic(GuiGraphics graphics, HudSprites.BarSkin skin, float x, float y, float width, float height, float fraction, int fillRgb, boolean mirrored) {
+	public static void drawStatic(GuiGraphicsExtractor graphics, HudSprites.BarSkin skin, float x, float y, float width, float height, float fraction, int fillRgb, boolean mirrored) {
 		float front = Mth.clamp(fraction, 0.0f, 1.0f);
 		drawFrame(graphics, skin, x, y, width, height, 0.0f, mirrored);
 		drawFill(graphics, skin, x, y, width, height, 0.0f, 0.0f, front, 1.0f, fillRgb, 1.0f, mirrored);
@@ -279,14 +279,14 @@ public final class HudBar {
 		}
 	}
 
-	private static void drawShine(GuiGraphics graphics, HudSprites.Sprite fill, float x, float y, float width, float height,
+	private static void drawShine(GuiGraphicsExtractor graphics, HudSprites.Sprite fill, float x, float y, float width, float height,
 								  float progress, float frontLength, boolean flip, boolean vertical) {
 		float center = -SHINE_HALO + progress * (frontLength + SHINE_HALO * 2.0f);
 		band(graphics, fill, x, y, width, height, center, SHINE_HALO, frontLength, SHINE_HALO_ALPHA, flip, vertical);
 		band(graphics, fill, x, y, width, height, center, SHINE_CORE, frontLength, SHINE_CORE_ALPHA, flip, vertical);
 	}
 
-	private void drawLife(GuiGraphics graphics, HudSprites.Sprite fill, float x, float y, float width, float height, float frontLength, boolean vertical) {
+	private void drawLife(GuiGraphicsExtractor graphics, HudSprites.Sprite fill, float x, float y, float width, float height, float frontLength, boolean vertical) {
 		if (frontLength <= 1.0f) return;
 		float now = clock();
 		HudRender.setAdditive(true);
@@ -310,7 +310,7 @@ public final class HudBar {
 		}
 	}
 
-	private void drawFlow(GuiGraphics graphics, HudSprites.Sprite fill, float x, float y, float width, float height,
+	private void drawFlow(GuiGraphicsExtractor graphics, HudSprites.Sprite fill, float x, float y, float width, float height,
 						  float frontLength, boolean vertical, float now) {
 		float dt = lastFlowTime < 0.0f ? 0.0f : now - lastFlowTime;
 		lastFlowTime = now;
@@ -336,7 +336,7 @@ public final class HudBar {
 		return (0.62f * a * a * a + 0.38f * b * b * b) * edge;
 	}
 
-	private static void band(GuiGraphics graphics, HudSprites.Sprite fill, float x, float y, float width, float height,
+	private static void band(GuiGraphicsExtractor graphics, HudSprites.Sprite fill, float x, float y, float width, float height,
 							 float center, float halfWidth, float limit, float alpha, boolean flip, boolean vertical) {
 		if (alpha <= 0.004f || halfWidth <= 0.0f) return;
 		float length = vertical ? height : width;
@@ -391,7 +391,7 @@ public final class HudBar {
 		return mc.isPaused() || mc.screen instanceof PauseScreen;
 	}
 
-	private static void drawFrame(GuiGraphics graphics, HudSprites.BarSkin skin, float x, float y, float width, float height, float alert, boolean flip) {
+	private static void drawFrame(GuiGraphicsExtractor graphics, HudSprites.BarSkin skin, float x, float y, float width, float height, float alert, boolean flip) {
 		float border = skin.border();
 		HudRender.sprite(graphics, skin.frame(), x - border, y - border, width + border * 2.0f, height + border * 2.0f, 0xFFFFFF, 1.0f, flip);
 		if (skin.alert() != null && alert > 0.0f) {
@@ -399,17 +399,17 @@ public final class HudBar {
 		}
 	}
 
-	private static void drawFill(GuiGraphics graphics, HudSprites.BarSkin skin, float x, float y, float width, float height,
+	private static void drawFill(GuiGraphicsExtractor graphics, HudSprites.BarSkin skin, float x, float y, float width, float height,
 								 float fromX, float fromY, float toX, float toY, int rgb, float alpha, boolean flip) {
 		HudRender.spritePart(graphics, skin.fill(), x, y, width, height, fromX, fromY, toX, toY, rgb, alpha, flip);
 		HudRender.spritePart(graphics, skin.shine(), x, y, width, height, fromX, fromY, toX, toY, 0xFFFFFF, alpha, flip);
 	}
 
-	public void drawValue(GuiGraphics graphics, float x, float y, float scale, float align, float tickTime) {
+	public void drawValue(GuiGraphicsExtractor graphics, float x, float y, float scale, float align, float tickTime) {
 		drawValue(graphics, x, y, scale, align, tickTime, false);
 	}
 
-	public void drawValue(GuiGraphics graphics, float x, float y, float scale, float align, float tickTime, boolean always) {
+	public void drawValue(GuiGraphicsExtractor graphics, float x, float y, float scale, float align, float tickTime, boolean always) {
 		if (!always && !ConfigManager.getUserConfig().getAdvancedDescription()) return;
 		boolean percent = ConfigManager.getUserConfig().getAdvancedDescriptionPercentage();
 		float shown = number.value();

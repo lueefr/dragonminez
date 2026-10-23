@@ -4,15 +4,15 @@ package com.dragonminez.client.init.entities.model;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.MastersEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import net.minecraft.util.Mth;
 import net.minecraft.core.registries.BuiltInRegistries;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.geckolib.constant.DataTickets;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.model.GeoModel;
+import com.geckolib.model.data.EntityModelData;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,30 +34,30 @@ public class MasterGlobalModel<T extends MastersEntity> extends GeoModel<T> {
     }
 
     @Override
-    public ResourceLocation getModelResource(T animatable) {
+    public Identifier getModelResource(T animatable) {
         String name = assetName(animatable);
-        ResourceLocation original = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/master/" + name + ".geo.json");
+        Identifier original = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/master/" + name + ".geo.json");
 
         boolean exists = MODEL_CACHE.computeIfAbsent(name, k -> resourceExists(original));
-        return exists ? original : ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/enemies/robotxv.geo.json");
+        return exists ? original : Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/enemies/robotxv.geo.json");
     }
 
     @Override
-    public ResourceLocation getTextureResource(T animatable) {
+    public Identifier getTextureResource(T animatable) {
         String name = assetName(animatable);
-        ResourceLocation original = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/master/" + name + ".png");
+        Identifier original = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/master/" + name + ".png");
 
         boolean exists = TEXTURE_CACHE.computeIfAbsent(name, k -> resourceExists(original));
-        return exists ? original : ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/enemies/robotxv.png");
+        return exists ? original : Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/enemies/robotxv.png");
     }
 
     @Override
-    public ResourceLocation getAnimationResource(T animatable) {
+    public Identifier getAnimationResource(T animatable) {
         String name = assetName(animatable);
-        ResourceLocation original = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/master/masters.animation.json");
+        Identifier original = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/master/masters.animation.json");
 
         boolean exists = ANIM_CACHE.computeIfAbsent(name, k -> resourceExists(original));
-        return exists ? original : ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/master/master_goku.animation.json");
+        return exists ? original : Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/master/master_goku.animation.json");
     }
 
     @Override
@@ -72,7 +72,7 @@ public class MasterGlobalModel<T extends MastersEntity> extends GeoModel<T> {
         }
     }
 
-    private boolean resourceExists(ResourceLocation location) {
+    private boolean resourceExists(Identifier location) {
         return Minecraft.getInstance().getResourceManager().getResource(location).isPresent();
     }
 }

@@ -59,7 +59,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -92,26 +92,26 @@ public class ModClientEvents {
 
 	@SubscribeEvent
 	public static void registerGuiOverlays(RegisterGuiLayersEvent e) {
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "ki_sense_hud"), com.dragonminez.client.gui.hud.KiSenseOverlay.HUD_KI_SENSE);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "party_marker_hud"), com.dragonminez.client.gui.hud.PartyMarkerOverlay.HUD_PARTY_MARKER);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "xenoversehud"), XenoverseHUD.HUD_XENOVERSE);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "alternativehud"), AlternativeHUD.HUD_ALTERNATIVE);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "technique_charge_hud"), TechniqueChargeOverlay.HUD_TECHNIQUE_CHARGE);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "scouterhud"), ScouterHUD.HUD_SCOUTER);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "tournament_countdown"), com.dragonminez.client.gui.tournament.TournamentOverlay.OVERLAY);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "techniquehud"), TechniqueHotbarHUD.HUD_TECHNIQUES);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "beam_clash_hud"), BeamClashOverlay.HUD_BEAM_CLASH);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "baba_return_timer_hud"), BabaReturnTimerHUD.HUD_BABA_RETURN);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "saga_title_card_hud"), SagaTitleCardHUD.HUD_SAGA_TITLE_CARD);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "modernhud"), ModernHUD.HUD_MODERN);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "minecrafthud"), MinecraftHUD.HUD_MINECRAFT);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "ki_reserve_hud"), KiReserveHUD.HUD_KI_RESERVE);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "rage_meter_hud"), RageMeterHUD.HUD_RAGE_METER);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "party_hud"), PartyHUD.HUD_PARTY);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "notifications_hud"), com.dragonminez.client.gui.hud.NotificationHUD.HUD_NOTIFICATIONS);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "ki_sense_hud"), com.dragonminez.client.gui.hud.KiSenseOverlay.HUD_KI_SENSE);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "party_marker_hud"), com.dragonminez.client.gui.hud.PartyMarkerOverlay.HUD_PARTY_MARKER);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "xenoversehud"), XenoverseHUD.HUD_XENOVERSE);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "alternativehud"), AlternativeHUD.HUD_ALTERNATIVE);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "technique_charge_hud"), TechniqueChargeOverlay.HUD_TECHNIQUE_CHARGE);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "scouterhud"), ScouterHUD.HUD_SCOUTER);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "tournament_countdown"), com.dragonminez.client.gui.tournament.TournamentOverlay.OVERLAY);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "techniquehud"), TechniqueHotbarHUD.HUD_TECHNIQUES);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "beam_clash_hud"), BeamClashOverlay.HUD_BEAM_CLASH);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "baba_return_timer_hud"), BabaReturnTimerHUD.HUD_BABA_RETURN);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "saga_title_card_hud"), SagaTitleCardHUD.HUD_SAGA_TITLE_CARD);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "modernhud"), ModernHUD.HUD_MODERN);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "minecrafthud"), MinecraftHUD.HUD_MINECRAFT);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "ki_reserve_hud"), KiReserveHUD.HUD_KI_RESERVE);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "rage_meter_hud"), RageMeterHUD.HUD_RAGE_METER);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "party_hud"), PartyHUD.HUD_PARTY);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "notifications_hud"), com.dragonminez.client.gui.hud.NotificationHUD.HUD_NOTIFICATIONS);
 		com.dragonminez.client.gui.hud.NotificationFeeds.registerDefaults();
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "boss_contribution_hud"), com.dragonminez.client.gui.hud.WorldBossContributionHUD.HUD_BOSS_CONTRIBUTION);
-		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "worldboss_revive_hud"), com.dragonminez.client.gui.hud.WorldBossReviveOverlay.HUD_WORLDBOSS_REVIVE);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "boss_contribution_hud"), com.dragonminez.client.gui.hud.WorldBossContributionHUD.HUD_BOSS_CONTRIBUTION);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "worldboss_revive_hud"), com.dragonminez.client.gui.hud.WorldBossReviveOverlay.HUD_WORLDBOSS_REVIVE);
 	}
 	@SubscribeEvent
 	public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
@@ -241,7 +241,7 @@ public class ModClientEvents {
 			ItemBlockRenderTypes.setRenderLayer(MainBlocks.POTTED_SACRED_SAPLING.get(), RenderType.cutout());
 
 
-			ItemProperties.registerGeneric(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "loaded"),
+			ItemProperties.registerGeneric(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "loaded"),
 					(stack, level, entity, seed) -> {
 						return 1.0F; // Loaded items :D
 					});
@@ -402,7 +402,7 @@ public class ModClientEvents {
 
 		if (Minecraft.ON_OSX) {
 			try {
-				ResourceLocation macLoc = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "icons/minecraft.icns");
+				Identifier macLoc = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "icons/minecraft.icns");
 				var res = mc.getResourceManager().getResource(macLoc);
 				if (res.isPresent()) MacosUtil.loadIcon(res.get()::open);
 			} catch (Exception ignored) {}
@@ -415,7 +415,7 @@ public class ModClientEvents {
 
 		for (String name : iconNames) {
 			try {
-				ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "icons/" + name);
+				Identifier loc = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "icons/" + name);
 				var resource = mc.getResourceManager().getResource(loc);
 				if (resource.isPresent()) {
 					try (InputStream is = resource.get().open()) {

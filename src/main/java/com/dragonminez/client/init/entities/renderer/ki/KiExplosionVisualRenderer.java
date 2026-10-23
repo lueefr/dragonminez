@@ -12,11 +12,11 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 
 public class KiExplosionVisualRenderer extends EntityRenderer<KiExplosionVisualEntity> {
-    private static final ResourceLocation TEXTURE_EXPLOSION = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/ki_laser.png");
+    private static final Identifier TEXTURE_EXPLOSION = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/ki_laser.png");
 
     public KiExplosionVisualRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -79,7 +79,7 @@ public class KiExplosionVisualRenderer extends EntityRenderer<KiExplosionVisualE
     }
 
     @Override
-    public ResourceLocation getTextureLocation(KiExplosionVisualEntity entity) {
+    public Identifier getTextureLocation(KiExplosionVisualEntity entity) {
         return TEXTURE_EXPLOSION;
     }
 }

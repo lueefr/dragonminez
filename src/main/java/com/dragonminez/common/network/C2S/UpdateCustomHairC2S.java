@@ -51,7 +51,7 @@ public class UpdateCustomHairC2S {
 			ServerPlayer player = ctx.get().getSender();
 			if (player == null || msg.customHair == null) return;
 
-			String playerName = player.getGameProfile().getName();
+			String playerName = player.getGameProfile().name();
 			HairStyleSlot slot = HairStyleSlot.byIndex(msg.hairIndex);
 			if (slot == null) {
 				LogUtil.warn(Env.SERVER, "Rejected hair update from {}: invalid style index {}", playerName, msg.hairIndex);

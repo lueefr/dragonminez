@@ -9,7 +9,7 @@ import com.dragonminez.common.hair.HairStrand;
 import com.dragonminez.common.hair.HairStrandSizing;
 import com.dragonminez.common.hair.HairStyleSlot;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
@@ -104,7 +104,7 @@ final class HairInspectorPanel implements HairInspectorRows.Context {
 		return editing != null;
 	}
 
-	void render(GuiGraphics graphics, int mouseX, int mouseY, ScissorBox scissor) {
+	void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, ScissorBox scissor) {
 		if (rebuildRequested) rebuild();
 		HairEditorUi.panel(graphics, x, y, width, height);
 		HairEditorUi.header(graphics, font, HairEditorUi.tr("gui.dragonminez.hair_editor.inspector"), x, y, width);
@@ -462,8 +462,8 @@ final class HairInspectorPanel implements HairInspectorRows.Context {
 	}
 
 	interface ScissorBox {
-		void enable(GuiGraphics graphics, int x0, int y0, int x1, int y1);
+		void enable(GuiGraphicsExtractor graphics, int x0, int y0, int x1, int y1);
 
-		void disable(GuiGraphics graphics);
+		void disable(GuiGraphicsExtractor graphics);
 	}
 }

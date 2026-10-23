@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -20,7 +20,7 @@ import java.util.function.IntSupplier;
 
 public class DragonBallSetDefinition {
 	private final String id;
-	private final Set<ResourceLocation> validDimensions;
+	private final Set<Identifier> validDimensions;
 	private final IntSupplier copiesSupplier;
 	private final IntSupplier spawnRangeSupplier;
 	private final int summonRadius;
@@ -31,7 +31,7 @@ public class DragonBallSetDefinition {
 	private final Map<Integer, DeferredHolder<net.minecraft.world.level.block.Block, ? extends Block>> registeredBlocksByStar = new LinkedHashMap<>();
 
 	public DragonBallSetDefinition(String id,
-			Set<ResourceLocation> validDimensions,
+			Set<Identifier> validDimensions,
 			IntSupplier copiesSupplier,
 			IntSupplier spawnRangeSupplier,
 			int summonRadius,
@@ -40,7 +40,7 @@ public class DragonBallSetDefinition {
 	}
 
 	public DragonBallSetDefinition(String id,
-			Set<ResourceLocation> validDimensions,
+			Set<Identifier> validDimensions,
 			IntSupplier copiesSupplier,
 			IntSupplier spawnRangeSupplier,
 			int summonRadius,
@@ -51,7 +51,7 @@ public class DragonBallSetDefinition {
 	}
 
 	public DragonBallSetDefinition(String id,
-			Set<ResourceLocation> validDimensions,
+			Set<Identifier> validDimensions,
 			IntSupplier copiesSupplier,
 			IntSupplier spawnRangeSupplier,
 			int summonRadius,
@@ -71,7 +71,7 @@ public class DragonBallSetDefinition {
 	}
 
 	public String getId() { return id; }
-	public Set<ResourceLocation> getValidDimensions() { return validDimensions; }
+	public Set<Identifier> getValidDimensions() { return validDimensions; }
 	public boolean supportsDimension(ResourceKey<Level> dimension) { return validDimensions.contains(dimension.location()); }
 	public int getCopies() { return Math.max(1, copiesSupplier.getAsInt()); }
 	public int getSpawnRange() { return Math.max(1, spawnRangeSupplier.getAsInt()); }
@@ -97,7 +97,7 @@ public class DragonBallSetDefinition {
 		JsonObject root = new JsonObject();
 		root.addProperty("id", id);
 		JsonArray dimensions = new JsonArray();
-		for (ResourceLocation dimension : validDimensions) dimensions.add(dimension.toString());
+		for (Identifier dimension : validDimensions) dimensions.add(dimension.toString());
 		root.add("dimensions", dimensions);
 		root.addProperty("copies", getCopies());
 		root.addProperty("spawn_range", getSpawnRange());
@@ -114,8 +114,8 @@ public class DragonBallSetDefinition {
 
 	public static DragonBallSetDefinition fromJson(JsonObject root) {
 		String id = root.get("id").getAsString();
-		Set<ResourceLocation> dimensions = new java.util.LinkedHashSet<>();
-		for (JsonElement element : root.getAsJsonArray("dimensions")) dimensions.add(ResourceLocation.parse(element.getAsString()));
+		Set<Identifier> dimensions = new java.util.LinkedHashSet<>();
+		for (JsonElement element : root.getAsJsonArray("dimensions")) dimensions.add(Identifier.parse(element.getAsString()));
 		int copies = root.has("copies") ? root.get("copies").getAsInt() : 5;
 		int spawnRange = root.get("spawn_range").getAsInt();
 		int summonRadius = root.get("summon_radius").getAsInt();

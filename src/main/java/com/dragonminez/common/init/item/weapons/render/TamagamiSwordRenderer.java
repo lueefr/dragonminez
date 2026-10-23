@@ -6,10 +6,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoItemRenderer;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.renderer.GeoItemRenderer;
 
 public class TamagamiSwordRenderer extends GeoItemRenderer<TamagamiSwordItem> {
 
@@ -29,7 +29,7 @@ public class TamagamiSwordRenderer extends GeoItemRenderer<TamagamiSwordItem> {
 	}
 
 	@Override
-	public RenderType getRenderType(TamagamiSwordItem animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+	public RenderType getRenderType(TamagamiSwordItem animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
 		return RenderType.entityCutoutNoCull(texture);
 	}
 }

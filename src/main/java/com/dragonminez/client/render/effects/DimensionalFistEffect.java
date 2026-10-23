@@ -39,10 +39,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.model.GeoModel;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -288,7 +288,7 @@ public final class DimensionalFistEffect {
 		try {
 			if (saga) {
 				GeoModel model = geoRenderer.getGeoModel();
-				BakedGeoModel baked = model.getBakedModel(model.getModelResource((software.bernie.geckolib.animatable.GeoAnimatable) owner));
+				BakedGeoModel baked = model.getBakedModel(model.getModelResource((com.geckolib.animatable.GeoAnimatable) owner));
 				if (baked != null) isolateArm(baked);
 			}
 			if (buffers == null) buffers = MultiBufferSource.immediate(new com.mojang.blaze3d.vertex.ByteBufferBuilder(4096));

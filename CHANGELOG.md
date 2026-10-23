@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2 — Fabric 26.1.2 port (unreleased, incomplete)
+
+- Started the Fabric/Java 25 build migration from the existing NeoForge 1.21.1 port.
+- Added draft extension APIs for content completion, dynamic form composition, isolated custom NPC definitions, and config translations.
+- Added independent API core tests. Full compilation and gameplay parity are still pending; this is not a playable Fabric release.
+
 ## 2.2 - Hotfix 2 — Minecraft 1.21.1 (NeoForge)
 
 ### Changed

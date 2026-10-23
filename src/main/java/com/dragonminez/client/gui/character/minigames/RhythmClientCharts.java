@@ -14,7 +14,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.WeighedSoundEvents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.RandomSource;
 import net.neoforged.fml.loading.FMLPaths;
@@ -61,11 +61,11 @@ final class RhythmClientCharts {
 		return chartFolder().resolve(fileStem(key) + ".json");
 	}
 
-	static CompletableFuture<RhythmChart> analyze(String key, ResourceLocation soundId, IntConsumer phase) {
+	static CompletableFuture<RhythmChart> analyze(String key, Identifier soundId, IntConsumer phase) {
 		WeighedSoundEvents events = Minecraft.getInstance().getSoundManager().getSoundEvent(soundId);
 		if (events == null) return CompletableFuture.completedFuture(null);
 		Sound sound = events.getSound(RandomSource.create());
-		ResourceLocation file = sound.getPath();
+		Identifier file = sound.getPath();
 		return CompletableFuture.supplyAsync(() -> {
 			try {
 				if (phase != null) phase.accept(RhythmAutoCharter.PHASE_ANALYZING);
@@ -120,7 +120,7 @@ final class RhythmClientCharts {
 	}
 
 	private static RhythmChart readBundled(String key) {
-		ResourceLocation location = ResourceLocation.tryBuild(Reference.MOD_ID, "rhythm_charts/" + fileStem(key).toLowerCase(java.util.Locale.ROOT) + ".json");
+		Identifier location = Identifier.tryBuild(Reference.MOD_ID, "rhythm_charts/" + fileStem(key).toLowerCase(java.util.Locale.ROOT) + ".json");
 		if (location == null) return null;
 		try {
 			Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(location);

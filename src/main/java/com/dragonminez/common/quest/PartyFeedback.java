@@ -18,13 +18,13 @@ public final class PartyFeedback {
 	public static void inviteRequest(ServerPlayer inviter, ServerPlayer invitee, PartyManager.InviteRequestResult result) {
 		switch (result) {
 			case INVITED -> {
-				inviter.sendSystemMessage(Component.translatable("quest.dmz.party.invite.sent", invitee.getGameProfile().getName()));
+				inviter.sendSystemMessage(Component.translatable("quest.dmz.party.invite.sent", invitee.getGameProfile().name()));
 				sendInviteReceived(inviter, invitee);
 			}
 			case SUGGESTED -> {
 				ServerPlayer leader = PartyManager.getPartyLeader(inviter);
 				inviter.sendSystemMessage(Component.translatable("quest.dmz.party.invite.suggested",
-						invitee.getGameProfile().getName(), leader != null ? leader.getGameProfile().getName() : "?"));
+						invitee.getGameProfile().name(), leader != null ? leader.getGameProfile().name() : "?"));
 			}
 			case CANNOT_INVITE_SELF -> inviter.sendSystemMessage(red("quest.dmz.party.invite.self"));
 			case ALREADY_IN_PARTY -> inviter.sendSystemMessage(red("quest.dmz.party.invite.same_party"));
@@ -34,22 +34,22 @@ public final class PartyFeedback {
 					PartyManager.getPartySize(inviter), PartyManager.maxMembers()));
 			case LEVEL_GAP -> {
 				ServerPlayer leader = resolvedLeader(inviter);
-				String inviteeName = invitee.getGameProfile().getName();
+				String inviteeName = invitee.getGameProfile().name();
 				int leaderLevel = PartyManager.levelOf(leader);
 				int inviteeLevel = PartyManager.levelOf(invitee);
 				int gap = PartyManager.maxLevelGap();
 				inviter.sendSystemMessage(red("quest.dmz.party.invite.level_gap.inviter", inviteeName, leaderLevel, inviteeLevel, gap));
 				invitee.sendSystemMessage(red("quest.dmz.party.invite.level_gap.invitee",
-						inviter.getGameProfile().getName(), leaderLevel, inviteeLevel, gap));
+						inviter.getGameProfile().name(), leaderLevel, inviteeLevel, gap));
 			}
 			case DIFFICULTY_TOO_LOW -> {
 				ServerPlayer leader = resolvedLeader(inviter);
 				Component partyDifficulty = difficultyName(PartyManager.difficultyOf(leader));
 				Component inviteeDifficulty = difficultyName(PartyManager.difficultyOf(invitee));
 				inviter.sendSystemMessage(red("quest.dmz.party.invite.difficulty_low.inviter",
-						invitee.getGameProfile().getName(), inviteeDifficulty, partyDifficulty));
+						invitee.getGameProfile().name(), inviteeDifficulty, partyDifficulty));
 				invitee.sendSystemMessage(red("quest.dmz.party.invite.difficulty_low.invitee",
-						inviter.getGameProfile().getName(), partyDifficulty, inviteeDifficulty));
+						inviter.getGameProfile().name(), partyDifficulty, inviteeDifficulty));
 			}
 		}
 	}
@@ -121,23 +121,23 @@ public final class PartyFeedback {
 				int members = leader != null ? PartyManager.getPartySize(leader) : PartyManager.maxMembers();
 				invitee.sendSystemMessage(red("quest.dmz.party.accept.party_full", members, PartyManager.maxMembers()));
 				if (leader != null) leader.sendSystemMessage(red("quest.dmz.party.accept.party_full.leader",
-						invitee.getGameProfile().getName(), members, PartyManager.maxMembers()));
+						invitee.getGameProfile().name(), members, PartyManager.maxMembers()));
 			}
 			case LEVEL_GAP -> {
 				int leaderLevel = PartyManager.levelOf(leader);
 				int inviteeLevel = PartyManager.levelOf(invitee);
 				int gap = PartyManager.maxLevelGap();
-				String leaderName = leader != null ? leader.getGameProfile().getName() : invite.getInviterName();
+				String leaderName = leader != null ? leader.getGameProfile().name() : invite.getInviterName();
 				invitee.sendSystemMessage(red("quest.dmz.party.accept.level_gap", leaderName, leaderLevel, inviteeLevel, gap));
 				if (leader != null) leader.sendSystemMessage(red("quest.dmz.party.accept.level_gap.leader",
-						invitee.getGameProfile().getName(), leaderLevel, inviteeLevel, gap));
+						invitee.getGameProfile().name(), leaderLevel, inviteeLevel, gap));
 			}
 			case DIFFICULTY_TOO_LOW -> {
 				Component partyDifficulty = difficultyName(leader != null ? PartyManager.difficultyOf(leader) : invite.getPartyDifficulty());
 				Component ownDifficulty = difficultyName(PartyManager.difficultyOf(invitee));
 				invitee.sendSystemMessage(red("quest.dmz.party.accept.difficulty_low", partyDifficulty, ownDifficulty));
 				if (leader != null) leader.sendSystemMessage(red("quest.dmz.party.accept.difficulty_low.leader",
-						invitee.getGameProfile().getName(), ownDifficulty, partyDifficulty));
+						invitee.getGameProfile().name(), ownDifficulty, partyDifficulty));
 			}
 			case DIFFICULTY_CONFIRM_REQUIRED -> {
 				Component partyDifficulty = difficultyName(leader != null ? PartyManager.difficultyOf(leader) : invite.getPartyDifficulty());

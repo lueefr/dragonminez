@@ -5,12 +5,12 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.io.IOException;
 
 /**
- * Reads and writes {@link ResourceLocation} as a plain {@code "namespace:path"} string.
+ * Reads and writes {@link Identifier} as a plain {@code "namespace:path"} string.
  * Without it Gson reflects over the two private fields and emits
  * {@code {"namespace": "...", "path": "..."}}.
  *
@@ -18,10 +18,10 @@ import java.io.IOException;
  * {@code toString()} and promotes the key name back to a string on read, so
  * {@code {"minecraft:sharpness": 3}} round-trips as-is.
  */
-public final class ResourceLocationTypeAdapter extends TypeAdapter<ResourceLocation> {
+public final class ResourceLocationTypeAdapter extends TypeAdapter<Identifier> {
 
 	@Override
-	public void write(JsonWriter out, ResourceLocation value) throws IOException {
+	public void write(JsonWriter out, Identifier value) throws IOException {
 		if (value == null) {
 			out.nullValue();
 			return;
@@ -30,14 +30,14 @@ public final class ResourceLocationTypeAdapter extends TypeAdapter<ResourceLocat
 	}
 
 	@Override
-	public ResourceLocation read(JsonReader in) throws IOException {
+	public Identifier read(JsonReader in) throws IOException {
 		if (in.peek() == JsonToken.NULL) {
 			in.nextNull();
 			return null;
 		}
 
 		String id = in.nextString();
-		ResourceLocation location = ResourceLocation.tryParse(id);
+		Identifier location = Identifier.tryParse(id);
 		if (location == null) {
 			throw new JsonSyntaxException("Invalid resource location: '" + id + "'");
 		}

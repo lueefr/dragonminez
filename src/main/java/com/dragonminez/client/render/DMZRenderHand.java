@@ -36,7 +36,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -142,13 +142,13 @@ public class DMZRenderHand extends LivingEntityRenderer<AbstractClientPlayer, Pl
 		final List<BodyLayerFadeTracker.FadingLayer> fadingLayers = new ArrayList<>();
 		SkinGathererProvider.BodyLayerSink layerConsumer = new SkinGathererProvider.BodyLayerSink() {
 			@Override
-			public void base(ResourceLocation texture, float[] color) {
+			public void base(Identifier texture, float[] color) {
 				applyFormTint(color, formTintColor, formTintIntensity, colorBuffer);
 				renderPart(pPoseStack, pBuffer, pCombinedLight, pRendererArm, texture, colorBuffer);
 			}
 
 			@Override
-			public void fading(String layerId, ResourceLocation texture, float[] color, float targetAlpha) {
+			public void fading(String layerId, Identifier texture, float[] color, float targetAlpha) {
 				fadingLayers.add(new BodyLayerFadeTracker.FadingLayer(layerId, texture, color, targetAlpha));
 			}
 		};
@@ -183,7 +183,7 @@ public class DMZRenderHand extends LivingEntityRenderer<AbstractClientPlayer, Pl
 		ModelPart geoPart = KiWeaponModelLoader.get(lower);
 		if (geoPart == null) return;
 
-		ResourceLocation tex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/weapons/kiweapon_" + lower + ".png");
+		Identifier tex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/weapons/kiweapon_" + lower + ".png");
 		ps.pushPose();
 		ps.translate(KI_GEO_TX, KI_GEO_TY, KI_GEO_TZ);
 		if (KI_GEO_RX != 0.0F) ps.mulPose(Axis.XP.rotationDegrees(KI_GEO_RX));
@@ -215,7 +215,7 @@ public class DMZRenderHand extends LivingEntityRenderer<AbstractClientPlayer, Pl
         }
 
         if (itemId != null) {
-            ResourceLocation armorResource = ArmorTextureResolver.resolve(modId, itemId, EquipmentSlot.CHEST, chestStack);
+            Identifier armorResource = ArmorTextureResolver.resolve(modId, itemId, EquipmentSlot.CHEST, chestStack);
 
             ps.pushPose();
 
@@ -235,7 +235,7 @@ public class DMZRenderHand extends LivingEntityRenderer<AbstractClientPlayer, Pl
 	private void addSsj4HandFur(AbstractClientPlayer player, StatsData stats, List<BodyLayerFadeTracker.FadingLayer> out) {
 		DMZSkinLayer.Ssj4Overlay ssj4 = DMZSkinLayer.resolveSsj4Overlay(player, stats);
 		if (ssj4 == null) return;
-		ResourceLocation tex = DMZSkinLayer.getSafeTexture(SkinGathererProvider.getCachedTexture("textures/entity/races/humansaiyan/" + ssj4.key() + "_layer1.png"));
+		Identifier tex = DMZSkinLayer.getSafeTexture(SkinGathererProvider.getCachedTexture("textures/entity/races/humansaiyan/" + ssj4.key() + "_layer1.png"));
 		out.add(new BodyLayerFadeTracker.FadingLayer("ssj4fur", tex, ssj4.color(), ssj4.target()));
 		BodyLayerFadeTracker.FadingLayer furShadow = DMZSkinLayer.ssj4FurShadowLayer(ssj4);
 		if (furShadow != null) out.add(furShadow);
@@ -251,17 +251,17 @@ public class DMZRenderHand extends LivingEntityRenderer<AbstractClientPlayer, Pl
 		}
 	}
 
-	private void renderPart(PoseStack stack, MultiBufferSource buffer, int light, ModelPart part, ResourceLocation texture, float[] rgb) {
+	private void renderPart(PoseStack stack, MultiBufferSource buffer, int light, ModelPart part, Identifier texture, float[] rgb) {
 		renderPart(stack, buffer, light, part, texture, rgb, 1.0F);
 	}
 
-	private void renderPart(PoseStack stack, MultiBufferSource buffer, int light, ModelPart part, ResourceLocation texture, float[] rgb, float alpha) {
+	private void renderPart(PoseStack stack, MultiBufferSource buffer, int light, ModelPart part, Identifier texture, float[] rgb, float alpha) {
 		VertexConsumer vc = buffer.getBuffer(RenderType.entityTranslucent(texture));
 		part.render(stack, vc, light, OverlayTexture.NO_OVERLAY, net.minecraft.util.FastColor.ARGB32.color((int)((alpha) * 255.0F), (int)((rgb[0]) * 255.0F), (int)((rgb[1]) * 255.0F), (int)((rgb[2]) * 255.0F)));
 	}
 
-	private ResourceLocation loc(String path) {
-		return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, path);
+	private Identifier loc(String path) {
+		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, path);
 	}
 
 	private static HumanoidModel.ArmPose getArmPose(AbstractClientPlayer pPlayer, InteractionHand pHand) {
@@ -313,11 +313,11 @@ public class DMZRenderHand extends LivingEntityRenderer<AbstractClientPlayer, Pl
 	}
 
 	@Override
-	public ResourceLocation getTextureLocation(AbstractClientPlayer pEntity) {
+	public Identifier getTextureLocation(AbstractClientPlayer pEntity) {
 		return pEntity.getSkin().texture();
 	}
 
-	private void renderKiPartTex(PoseStack ps, MultiBufferSource buffer, int light, ModelPart part, float[] color, ResourceLocation texture) {
+	private void renderKiPartTex(PoseStack ps, MultiBufferSource buffer, int light, ModelPart part, float[] color, Identifier texture) {
 		VertexConsumer vc = buffer.getBuffer(ModRenderTypes.kiblast(texture));
 		part.render(ps, vc, light, OverlayTexture.NO_OVERLAY, net.minecraft.util.FastColor.ARGB32.color((int)((0.85F) * 255.0F), (int)((color[0]) * 255.0F), (int)((color[1]) * 255.0F), (int)((color[2]) * 255.0F)));
 	}

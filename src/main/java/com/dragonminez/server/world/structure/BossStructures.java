@@ -19,7 +19,7 @@ import net.minecraft.core.QuartPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
@@ -2513,10 +2513,10 @@ public final class BossStructures {
 	public static class NamekRuinsStructure extends Structure {
 		public static final com.mojang.serialization.MapCodec<NamekRuinsStructure> CODEC = simpleCodec(NamekRuinsStructure::new);
 
-		private static final List<ResourceLocation> AJISSA_HOUSES = List.of(
+		private static final List<Identifier> AJISSA_HOUSES = List.of(
 				template("village_ajissa/houses/residence/ajissa_house_big"),
 				template("village_ajissa/houses/residence/ajissa_house_small"));
-		private static final List<ResourceLocation> SACRED_HOUSES = List.of(
+		private static final List<Identifier> SACRED_HOUSES = List.of(
 				template("village_sacred/houses/residence/sacred_house_big"),
 				template("village_sacred/houses/residence/sacred_house_small"));
 
@@ -2532,8 +2532,8 @@ public final class BossStructures {
 			super(settings);
 		}
 
-		private static ResourceLocation template(String path) {
-			return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, path);
+		private static Identifier template(String path) {
+			return Identifier.fromNamespaceAndPath(Reference.MOD_ID, path);
 		}
 
 		@Override
@@ -2550,7 +2550,7 @@ public final class BossStructures {
 
 			Holder<Biome> biome = context.biomeSource().getNoiseBiome(QuartPos.fromBlock(centerX), QuartPos.fromBlock(centerY),
 					QuartPos.fromBlock(centerZ), randomState.sampler());
-			List<ResourceLocation> houses = biome.is(NamekBiomes.SACRED_LAND) ? SACRED_HOUSES : AJISSA_HOUSES;
+			List<Identifier> houses = biome.is(NamekBiomes.SACRED_LAND) ? SACRED_HOUSES : AJISSA_HOUSES;
 
 			StructureTemplateManager templates = context.structureTemplateManager();
 			RandomSource random = context.random();
@@ -2561,7 +2561,7 @@ public final class BossStructures {
 			pieces.add(new PlazaPiece(centerX, centerY, centerZ, random.nextLong()));
 
 			for (int i = 0; i < count; i++) {
-				ResourceLocation location = houses.get(random.nextInt(houses.size()));
+				Identifier location = houses.get(random.nextInt(houses.size()));
 				Vec3i size = templates.getOrCreate(location).getSize();
 				if (size.getX() <= 0 || size.getZ() <= 0) continue;
 
@@ -2723,7 +2723,7 @@ public final class BossStructures {
 			private final Rotation rotation;
 			private final long seed;
 
-			public HousePiece(StructureTemplateManager templates, ResourceLocation location, BlockPos position, Rotation rotation, long seed) {
+			public HousePiece(StructureTemplateManager templates, Identifier location, BlockPos position, Rotation rotation, long seed) {
 				super(MainStructureTypes.NAMEK_RUINS_HOUSE.get(), 0, templates, location, location.toString(),
 						settings(rotation, pivot(templates, location)), position);
 				this.rotation = rotation;
@@ -2737,7 +2737,7 @@ public final class BossStructures {
 				this.seed = tag.getLong("RuinSeed");
 			}
 
-			private static BlockPos pivot(StructureTemplateManager templates, ResourceLocation location) {
+			private static BlockPos pivot(StructureTemplateManager templates, Identifier location) {
 				StructureTemplate template = templates.getOrCreate(location);
 				return new BlockPos(template.getSize().getX() / 2, 0, template.getSize().getZ() / 2);
 			}

@@ -4,12 +4,12 @@ import com.dragonminez.Reference;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
 
 public class TooltipDecor {
-	public static final ResourceLocation DEFAULT_BORDERS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/tooltip_borders.png");
+	public static final Identifier DEFAULT_BORDERS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/tooltip_borders.png");
 
 	public static int currentBorderStart = 0;
 	public static int currentBorderEnd = 0;

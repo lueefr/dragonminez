@@ -12,12 +12,12 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 
 public class KillDriverRenderer extends EntityRenderer<KillDriverEntity> {
 
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kidisc.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kidisc.png");
     private static final float SPIN_SPEED = 18.0F;
     private static final float PULSE_SPEED = 0.45F;
     private static final float PULSE_AMOUNT = 0.06F;
@@ -76,7 +76,7 @@ public class KillDriverRenderer extends EntityRenderer<KillDriverEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(KillDriverEntity entity) {
+    public Identifier getTextureLocation(KillDriverEntity entity) {
         return TEXTURE;
     }
 }

@@ -3,7 +3,7 @@ package com.dragonminez.client.gui.config;
 import com.dragonminez.client.util.ScrollbarState;
 import com.dragonminez.common.config.ConfigManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -87,7 +87,7 @@ public class DMZModConfigScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		this.renderBackground(graphics, mouseX, mouseY, partialTick);
 		graphics.drawCenteredString(this.font, this.title, this.width / 2, 8, 0xFFFFFF);
 		searchBox.render(graphics, mouseX, mouseY, partialTick);

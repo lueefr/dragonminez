@@ -4,7 +4,7 @@ import com.dragonminez.server.world.structure.helper.MainStructureTypes;
 import com.dragonminez.server.world.structure.placement.IncrementalStructure;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 
@@ -13,7 +13,7 @@ import java.util.Optional;
 public class IncrementalFittedTemplateStructure extends FittedTemplateStructure implements IncrementalStructure {
 	public static final com.mojang.serialization.MapCodec<IncrementalFittedTemplateStructure> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			settingsCodec(instance),
-			ResourceLocation.CODEC.fieldOf("template").forGetter(FittedTemplateStructure::template),
+			Identifier.CODEC.fieldOf("template").forGetter(FittedTemplateStructure::template),
 			TerrainFit.CODEC.optionalFieldOf("terrain_fit", TerrainFit.NONE).forGetter(FittedTemplateStructure::fit),
 			Rotation.CODEC.optionalFieldOf("rotation").forGetter(FittedTemplateStructure::fixedRotation),
 			Codec.floatRange(0.0F, 1.0F).optionalFieldOf("min_water", 0.0F).forGetter(FittedTemplateStructure::minWater),
@@ -26,7 +26,7 @@ public class IncrementalFittedTemplateStructure extends FittedTemplateStructure 
 	private final float minWater;
 	private final int sampleStep;
 
-	public IncrementalFittedTemplateStructure(StructureSettings settings, ResourceLocation template, TerrainFit fit,
+	public IncrementalFittedTemplateStructure(StructureSettings settings, Identifier template, TerrainFit fit,
 											  Optional<Rotation> fixedRotation, float minWater, int sampleStep) {
 		super(settings, template, fit, fixedRotation, 0.0F);
 		this.minWater = minWater;

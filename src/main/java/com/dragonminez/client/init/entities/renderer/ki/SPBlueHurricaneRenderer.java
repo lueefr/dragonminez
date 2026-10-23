@@ -14,18 +14,18 @@ import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.util.Color;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.util.Color;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 public class SPBlueHurricaneRenderer extends EntityRenderer<SPBlueHurricaneEntity> {
 
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/ki_laser.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/ki_laser.png");
 
     private static final float HEIGHT = 13.0F;
     private static final float GROUND_RADIUS = 6.5F;
@@ -153,7 +153,7 @@ public class SPBlueHurricaneRenderer extends EntityRenderer<SPBlueHurricaneEntit
     }
 
     @Override
-    public ResourceLocation getTextureLocation(SPBlueHurricaneEntity pEntity) {
+    public Identifier getTextureLocation(SPBlueHurricaneEntity pEntity) {
         return TEXTURE;
     }
 }

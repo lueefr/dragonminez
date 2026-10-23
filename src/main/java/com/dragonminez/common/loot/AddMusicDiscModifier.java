@@ -5,7 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.component.DataComponents;
@@ -31,7 +31,7 @@ public class AddMusicDiscModifier extends LootModifier {
 
 	@Override
 	protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> loot, LootContext context) {
-		ResourceLocation tableId = context.getQueriedLootTableId();
+		Identifier tableId = context.getQueriedLootTableId();
 		if (tableId == null || !tableId.getPath().startsWith("chests/")) return loot;
 		if (MainItems.MUSIC_DISCS.isEmpty()) return loot;
 

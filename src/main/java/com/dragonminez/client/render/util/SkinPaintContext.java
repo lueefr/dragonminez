@@ -1,7 +1,7 @@
 package com.dragonminez.client.render.util;
 
-import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.cache.object.GeoBone;
+import net.minecraft.resources.Identifier;
+import com.geckolib.cache.object.GeoBone;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Set;
 
 public final class SkinPaintContext {
-	public record Overlay(ResourceLocation texture, float[] rgb, float alpha) {}
+	public record Overlay(Identifier texture, float[] rgb, float alpha) {}
 
 	private static boolean active;
 	private static boolean picking;
-	private static ResourceLocation pickTexture;
+	private static Identifier pickTexture;
 	private static boolean showHair = true;
 	private static boolean showOverlay = true;
 	private static List<Overlay> overlays = List.of();
@@ -47,7 +47,7 @@ public final class SkinPaintContext {
 		return active && picking;
 	}
 
-	public static ResourceLocation pickTexture() {
+	public static Identifier pickTexture() {
 		return pickTexture;
 	}
 
@@ -71,21 +71,21 @@ public final class SkinPaintContext {
 		return highlight;
 	}
 
-	public static Scope begin(boolean pickPass, ResourceLocation pick, boolean hair, boolean overlay, Set<String> hidden, List<Overlay> marks, Overlay hover) {
+	public static Scope begin(boolean pickPass, Identifier pick, boolean hair, boolean overlay, Set<String> hidden, List<Overlay> marks, Overlay hover) {
 		return new Scope(pickPass, pick, hair, overlay, hidden, marks, hover);
 	}
 
 	public static final class Scope implements AutoCloseable {
 		private final boolean previousActive;
 		private final boolean previousPicking;
-		private final ResourceLocation previousPick;
+		private final Identifier previousPick;
 		private final boolean previousHair;
 		private final boolean previousOverlay;
 		private final Set<String> previousHidden;
 		private final List<Overlay> previousOverlays;
 		private final Overlay previousHighlight;
 
-		private Scope(boolean pickPass, ResourceLocation pick, boolean hair, boolean overlay, Set<String> hidden, List<Overlay> marks, Overlay hover) {
+		private Scope(boolean pickPass, Identifier pick, boolean hair, boolean overlay, Set<String> hidden, List<Overlay> marks, Overlay hover) {
 			previousActive = active;
 			previousPicking = picking;
 			previousPick = pickTexture;

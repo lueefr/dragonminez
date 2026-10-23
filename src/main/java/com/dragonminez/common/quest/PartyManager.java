@@ -276,8 +276,8 @@ public final class PartyManager {
         if (isInParty(inviter) && !isPartyLeader(inviter)) {
             ServerPlayer leader = getPartyLeader(inviter);
             if (leader != null) {
-                Component acceptBtn = Component.translatable("quest.dmz.party.invite.button").withStyle(style -> style.withColor(ChatFormatting.GREEN).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/dmzparty invite " + invitee.getGameProfile().getName())));
-                leader.sendSystemMessage(Component.translatable("quest.dmz.party.invite.suggest", inviter.getGameProfile().getName(), invitee.getGameProfile().getName()).append(Component.literal(" ")).append(acceptBtn));
+                Component acceptBtn = Component.translatable("quest.dmz.party.invite.button").withStyle(style -> style.withColor(ChatFormatting.GREEN).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/dmzparty invite " + invitee.getGameProfile().name())));
+                leader.sendSystemMessage(Component.translatable("quest.dmz.party.invite.suggest", inviter.getGameProfile().name(), invitee.getGameProfile().name()).append(Component.literal(" ")).append(acceptBtn));
                 return InviteRequestResult.SUGGESTED;
             }
             return InviteRequestResult.NO_PERMISSION;
@@ -296,12 +296,12 @@ public final class PartyManager {
                 inviter.getUUID(),
                 partyId,
                 leader.getUUID(),
-                inviter.getGameProfile().getName(),
+                inviter.getGameProfile().name(),
                 expiresAt,
                 getQuestData(leader).getDifficulty()
         ));
         syncSelf(invitee);
-        NetworkHandler.sendToPlayer(new PartyInviteToastS2C(inviter.getGameProfile().getName()), invitee);
+        NetworkHandler.sendToPlayer(new PartyInviteToastS2C(inviter.getGameProfile().name()), invitee);
     }
 
     public static InviteAcceptResult acceptInvite(ServerPlayer invitee) {
@@ -643,7 +643,7 @@ public final class PartyManager {
         ServerPlayer newLeader = server.getPlayerList().getPlayer(next);
         if (newLeader == null || (excluded != null && excluded.equals(next))) return true;
 
-        String name = newLeader.getGameProfile().getName();
+        String name = newLeader.getGameProfile().name();
         Component message;
         if (reason == LeaderChange.DISCONNECTED) {
             message = Component.translatable("quest.dmz.party.leader.transferred", name);
@@ -702,7 +702,7 @@ public final class PartyManager {
 
     private static PlayerQuestData getQuestData(Player player) {
         StatsData data = getStatsData(player);
-        if (data == null) throw new IllegalStateException("Missing stats capability for player " + player.getGameProfile().getName());
+        if (data == null) throw new IllegalStateException("Missing stats capability for player " + player.getGameProfile().name());
         return data.getPlayerQuestData();
     }
 

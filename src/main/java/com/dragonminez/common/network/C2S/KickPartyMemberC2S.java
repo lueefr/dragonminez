@@ -32,7 +32,7 @@ public class KickPartyMemberC2S {
 			if (!DMZPermissions.hasPermission(player.createCommandSourceStack(), DMZPermissions.PARTY_USE)) return;
 			ServerPlayer online = player.getServer().getPlayerList().getPlayer(targetId);
 			String name = online != null
-					? online.getGameProfile().getName()
+					? online.getGameProfile().name()
 					: player.getServer().getProfileCache().get(targetId).map(profile -> profile.getName()).orElse(targetId.toString());
 			PartyFeedback.kick(player, targetId, name);
 		});

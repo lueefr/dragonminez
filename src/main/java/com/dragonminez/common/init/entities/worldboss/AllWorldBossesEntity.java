@@ -105,10 +105,10 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.joml.Vector3f;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.animation.PlayState;
+import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.PlayState;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -873,7 +873,7 @@ public class AllWorldBossesEntity {
         private static final EntityDataAccessor<Boolean> MIGHT_EMPOWERED =
                 SynchedEntityData.defineId(Turles.class, EntityDataSerializers.BOOLEAN);
 
-        private static final net.minecraft.resources.ResourceLocation MIGHT_DAMAGE_ID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/5f0b7a54-2c1e-4f5b-9a57-7d1c1f2a9e11");
+        private static final net.minecraft.resources.Identifier MIGHT_DAMAGE_ID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/5f0b7a54-2c1e-4f5b-9a57-7d1c1f2a9e11");
         private static final double MIGHT_DAMAGE_BONUS = 0.5D;
         private static final int MIGHT_DURATION = 600;
         private static final int MIGHT_FIRST_DELAY = 900;
@@ -2868,7 +2868,7 @@ public class AllWorldBossesEntity {
         private static final double FALL_LIMIT = 12.0D;
         private static final int DORMANT_NOTICE_INTERVAL = 40;
         private static final double BALL_DROP_DISTANCE = 2.5D;
-        private static final net.minecraft.resources.ResourceLocation FAST_HIT_ID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/0d6b7f43-6a3e-4f6c-9b8e-2f3c1a5d7e91");
+        private static final net.minecraft.resources.Identifier FAST_HIT_ID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/0d6b7f43-6a3e-4f6c-9b8e-2f3c1a5d7e91");
         private static final String DORMANT_KEY = "worldboss.dragonminez.tamagami.dormant";
         private static final String BALL_KEY = "worldboss.dragonminez.tamagami.ball_dropped";
 
@@ -3327,7 +3327,7 @@ public class AllWorldBossesEntity {
         private static final float THROW_DAMAGE_RATIO = 1.3F;
         private static final int HAMMER_RECALL_TICKS = 200;
         private static final float UNARMED_DAMAGE = 0.6F;
-        private static final net.minecraft.resources.ResourceLocation UNARMED_ID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/5c2e8a71-3f4b-4d9e-a6c1-7b8d0e2f4a63");
+        private static final net.minecraft.resources.Identifier UNARMED_ID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/5c2e8a71-3f4b-4d9e-a6c1-7b8d0e2f4a63");
 
         private static final int SLAM_LAUNCH = 8;
         private static final int SLAM_DROP = 31;
@@ -5450,7 +5450,7 @@ public class AllWorldBossesEntity {
         public static final int BEAM_FIRE_TICK = 30;
 
         private static final EntityDataAccessor<Integer> EYE_STACKS = SynchedEntityData.defineId(Gomah.class, EntityDataSerializers.INT);
-        private static final net.minecraft.resources.ResourceLocation STACK_DAMAGE_ID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/5b0f6f44-9a71-4c34-8f0e-6a2d1c7e3b52");
+        private static final net.minecraft.resources.Identifier STACK_DAMAGE_ID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/5b0f6f44-9a71-4c34-8f0e-6a2d1c7e3b52");
         private static final String ESCORT_TAG = "dmz_gomah_escort";
 
         private static final float[] STACK_SCALES = {2.0F, 2.8F, 3.6F, 4.5F, 5.5F, 6.5F};

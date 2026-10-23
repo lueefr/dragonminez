@@ -33,19 +33,19 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
-import software.bernie.geckolib.util.Color;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.util.Color;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 
 public class DBSagasRenderer<T extends DBSagasEntity> extends GeoEntityRenderer<T> {
 
-    private static final ResourceLocation NAPPA_NORMAL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/sagas/saga_nappa.png");
-    private static final ResourceLocation NAPPA_DAMAGED = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/sagas/saga_nappa2.png");
+    private static final Identifier NAPPA_NORMAL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/sagas/saga_nappa.png");
+    private static final Identifier NAPPA_DAMAGED = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/sagas/saga_nappa2.png");
     private static final float MOTION_TRAIL_ALPHA = 0.55F;
     private static final int MOTION_TRAIL_SAMPLES = 26;
     private static final float FLIGHT_TRAIL_ALPHA = 0.55F;
@@ -65,7 +65,7 @@ public class DBSagasRenderer<T extends DBSagasEntity> extends GeoEntityRenderer<
     }
 
     @Override
-    public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(T animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
         if (animatable instanceof ShadowDummyEntity) {
             return RenderType.entityTranslucent(texture);
         }
@@ -195,7 +195,7 @@ public class DBSagasRenderer<T extends DBSagasEntity> extends GeoEntityRenderer<
     }
 
     @Override
-    public ResourceLocation getTextureLocation(T animatable) {
+    public Identifier getTextureLocation(T animatable) {
 
         if (animatable instanceof SagaNappaEntity nappa) {
             if (nappa.isBattleDamaged()) {
@@ -267,7 +267,7 @@ public class DBSagasRenderer<T extends DBSagasEntity> extends GeoEntityRenderer<
         float alphaCurve = (float) Math.sin(progress * Math.PI);
 
         String auraType = animatable.getAuraType() != null && !animatable.getAuraType().isEmpty() ? animatable.getAuraType().toLowerCase() : "kakarot";
-        ResourceLocation crossTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + auraType + "_cross.png");
+        Identifier crossTex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + auraType + "_cross.png");
 
         ShaderInstance shader = DMZShaders.auraShader;
         if (shader == null) return;
@@ -320,9 +320,9 @@ public class DBSagasRenderer<T extends DBSagasEntity> extends GeoEntityRenderer<
         Matrix4f projectionMatrix = RenderSystem.getProjectionMatrix();
 
         String auraType = animatable.getAuraType() != null && !animatable.getAuraType().isEmpty() ? animatable.getAuraType().toLowerCase() : "kakarot";
-        ResourceLocation mainTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + auraType + "_aura.png");
-        ResourceLocation crossTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + auraType + "_cross.png");
-        ResourceLocation sparkingTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/sparking_effects.png");
+        Identifier mainTex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + auraType + "_aura.png");
+        Identifier crossTex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + auraType + "_cross.png");
+        Identifier sparkingTex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/sparking_effects.png");
 
         float animSpeed = (animatable.tickCount + partialTick) * 0.5f;
         shader.safeGetUniform("speed").set(animSpeed);
@@ -430,9 +430,9 @@ public class DBSagasRenderer<T extends DBSagasEntity> extends GeoEntityRenderer<
         Matrix4f projectionMatrix = RenderSystem.getProjectionMatrix();
 
         String auraType = animatable.getAuraType() != null && !animatable.getAuraType().isEmpty() ? animatable.getAuraType().toLowerCase() : "kakarot";
-        ResourceLocation mainTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + auraType + "_aura.png");
-        ResourceLocation crossTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + auraType + "_cross.png");
-        ResourceLocation sparkingTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/sparking_effects.png");
+        Identifier mainTex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + auraType + "_aura.png");
+        Identifier crossTex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + auraType + "_cross.png");
+        Identifier sparkingTex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/sparking_effects.png");
 
         float animSpeed = (animatable.tickCount + partialTick) * 0.5f;
         shader.safeGetUniform("speed").set(animSpeed);
@@ -532,7 +532,7 @@ public class DBSagasRenderer<T extends DBSagasEntity> extends GeoEntityRenderer<
     }
 
     @Override
-    public void renderRecursively(com.mojang.blaze3d.vertex.PoseStack poseStack, T animatable, software.bernie.geckolib.cache.object.GeoBone bone,
+    public void renderRecursively(com.mojang.blaze3d.vertex.PoseStack poseStack, T animatable, com.geckolib.cache.object.GeoBone bone,
                                   net.minecraft.client.renderer.RenderType renderType, net.minecraft.client.renderer.MultiBufferSource bufferSource,
                                   com.mojang.blaze3d.vertex.VertexConsumer buffer, boolean isReRender, float partialTick,
                                   int packedLight, int packedOverlay, int renderColor) {

@@ -31,7 +31,7 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -40,7 +40,7 @@ import net.minecraft.client.renderer.CubeMap;
 import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
@@ -50,10 +50,10 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.cache.object.GeoCube;
-import software.bernie.geckolib.cache.object.GeoQuad;
-import software.bernie.geckolib.cache.object.GeoVertex;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.GeoCube;
+import com.geckolib.cache.object.GeoQuad;
+import com.geckolib.cache.object.GeoVertex;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -120,10 +120,10 @@ public class PixelEditorScreen extends ScaledScreen {
 
 	private record ViewButton(ViewPreset preset, int x, int y, int width) {}
 
-	private static final ResourceLocation BUTTONS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
-	private static final ResourceLocation PANORAMA = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/roshi");
-	private static final ResourceLocation PICK_LOCATION = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "pixels/editor/pick");
-	private static final ResourceLocation HIGHLIGHT_LOCATION = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "pixels/editor/highlight");
+	private static final Identifier BUTTONS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier PANORAMA = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/roshi");
+	private static final Identifier PICK_LOCATION = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "pixels/editor/pick");
+	private static final Identifier HIGHLIGHT_LOCATION = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "pixels/editor/highlight");
 	private static final CustomHair EMPTY_HAIR = new CustomHair();
 
 	private static final int MARGIN = 8;
@@ -231,7 +231,7 @@ public class PixelEditorScreen extends ScaledScreen {
 	private boolean lastClickRecorded;
 	private boolean confirmClose;
 
-	private ResourceLocation baseTexture;
+	private Identifier baseTexture;
 	private DynamicTexture pickTexture;
 	private DynamicTexture highlightTexture;
 	private int highlightFactor = 1;
@@ -264,7 +264,7 @@ public class PixelEditorScreen extends ScaledScreen {
 
 	private static boolean canUseTattooSize(int size) {
 		LocalPlayer player = Minecraft.getInstance().player;
-		return SkinPixels.canUseTattooSize(player != null ? player.getGameProfile().getName() : null, size);
+		return SkinPixels.canUseTattooSize(player != null ? player.getGameProfile().name() : null, size);
 	}
 
 	private final class PaintHairPreview implements HairRenderContext.Preview {
@@ -842,12 +842,12 @@ public class PixelEditorScreen extends ScaledScreen {
 		}
 
 		@Override
-		public void base(ResourceLocation texture, float[] color) {
+		public void base(Identifier texture, float[] color) {
 			blend(texture, color, 1.0f);
 		}
 
 		@Override
-		public void fading(String layerId, ResourceLocation texture, float[] color, float targetAlpha) {
+		public void fading(String layerId, Identifier texture, float[] color, float targetAlpha) {
 			blend(texture, color, targetAlpha);
 		}
 
@@ -855,7 +855,7 @@ public class PixelEditorScreen extends ScaledScreen {
 		public void saiyanTail(float[] color) {
 		}
 
-		private void blend(ResourceLocation texture, float[] color, float layerAlpha) {
+		private void blend(Identifier texture, float[] color, float layerAlpha) {
 			if (layerAlpha <= 0.0f) return;
 			NativeImage image = SkinPixelTextures.download(texture);
 			if (image == null) return;
@@ -1197,7 +1197,7 @@ public class PixelEditorScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		panorama.render(graphics, Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight(), partialTick, 1.0f);
 		renderCinematicBars(graphics);
 
@@ -1225,7 +1225,7 @@ public class PixelEditorScreen extends ScaledScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderCinematicBars(GuiGraphics graphics) {
+	private void renderCinematicBars(GuiGraphicsExtractor graphics) {
 		int totalBarHeight = Math.max(61, (int) (this.height * 0.12));
 		int fadeSize = 60;
 		int solidHeight = totalBarHeight - fadeSize;
@@ -1236,7 +1236,7 @@ public class PixelEditorScreen extends ScaledScreen {
 		graphics.fill(0, bottomBarStartY + fadeSize, this.width, this.height, 0xFF000000);
 	}
 
-	private void renderTopBar(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderTopBar(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		topBar.clear();
 		int x = MARGIN;
 		x = placeTopButton(TopButton.UNDO, x, 38);
@@ -1288,7 +1288,7 @@ public class PixelEditorScreen extends ScaledScreen {
 		};
 	}
 
-	private void renderLeftPanel(GuiGraphics graphics) {
+	private void renderLeftPanel(GuiGraphicsExtractor graphics) {
 		int x = MARGIN;
 		int y = PANEL_TOP;
 		int width = LEFT_WIDTH;
@@ -1335,7 +1335,7 @@ public class PixelEditorScreen extends ScaledScreen {
 		if (nextFormButton != null) nextFormButton.visible = formPreview.size() > 1;
 	}
 
-	private void renderHelp(GuiGraphics graphics) {
+	private void renderHelp(GuiGraphicsExtractor graphics) {
 		if (!layered) return;
 		Component text = tr("gui.dragonminez.pixel_editor.help.locked");
 		graphics.pose().pushPose();
@@ -1344,7 +1344,7 @@ public class PixelEditorScreen extends ScaledScreen {
 		graphics.pose().popPose();
 	}
 
-	private void renderViewportOverlay(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderViewportOverlay(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		boolean interactive = !confirmClose && !painting && !orbiting && !panning;
 		graphics.pose().pushPose();
 		graphics.pose().translate(0.0D, 0.0D, 900.0D);
@@ -1405,7 +1405,7 @@ public class PixelEditorScreen extends ScaledScreen {
 		return overViewportOverlay(mouseX, mouseY);
 	}
 
-	private void renderPartTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderPartTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		if (painting || orbiting || panning) return;
 		BodyPart part = partAt(mouseX, mouseY);
 		if (part == null) return;
@@ -1417,7 +1417,7 @@ public class PixelEditorScreen extends ScaledScreen {
 				HairEditorUi.HOVER_TEXT);
 	}
 
-	private void renderBucketTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderBucketTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		if (painting || orbiting || panning) return;
 		for (Placement placement : topBar) {
 			if (placement.button() != TopButton.BUCKET || !HairEditorUi.inside(mouseX, mouseY, placement.x(), TOP_BAR_Y, placement.width(), TOP_BAR_HEIGHT)) continue;
@@ -1426,11 +1426,11 @@ public class PixelEditorScreen extends ScaledScreen {
 		}
 	}
 
-	private int legendRow(GuiGraphics graphics, int x, int y, byte mark, String key) {
+	private int legendRow(GuiGraphicsExtractor graphics, int x, int y, byte mark, String key) {
 		return legendRow(graphics, x, y, mark, markerColor(mark), key);
 	}
 
-	private int legendRow(GuiGraphics graphics, int x, int y, byte mark, int color, String key) {
+	private int legendRow(GuiGraphicsExtractor graphics, int x, int y, byte mark, int color, String key) {
 		boolean current = mode == Mode.HAIR || mark == marker();
 		graphics.fill(x, y, x + 8, y + 8, 0xFF000000 | color);
 		HairEditorUi.outline(graphics, x - 1, y - 1, 10, 10, current ? 0xFFFFFFFF : HairEditorUi.DIVIDER);
@@ -1438,7 +1438,7 @@ public class PixelEditorScreen extends ScaledScreen {
 		return y + 12;
 	}
 
-	private void renderColorExtras(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderColorExtras(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int previewX = MARGIN + 8 + 82;
 		int previewY = PANEL_TOP + 44;
 		int previewSize = 34;
@@ -1478,7 +1478,7 @@ public class PixelEditorScreen extends ScaledScreen {
 		return false;
 	}
 
-	private void renderViewport(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderViewport(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		HairEditorUi.panel(graphics, viewX0, viewY0, viewX1 - viewX0, viewY1 - viewY0);
 		int innerX0 = viewX0 + 4;
 		int innerY0 = viewY0 + 4;
@@ -1634,22 +1634,22 @@ public class PixelEditorScreen extends ScaledScreen {
 		if (mode == Mode.TATTOO || !formPreview.current().isBase()) return overlays;
 		if (mode == Mode.EYES) {
 			for (byte mark = SkinPixels.MARK_BROW; mark < SkinPixels.MARK_IRIS; mark++) {
-				ResourceLocation mask = SkinPixelTextures.eyeMask(player, pixels, mark);
+				Identifier mask = SkinPixelTextures.eyeMask(player, pixels, mark);
 				if (mask != null) overlays.add(new SkinPaintContext.Overlay(mask, rgb(markerColor(mark)), MARK_ALPHA));
 			}
 			for (boolean secondEye : new boolean[]{false, true}) {
-				ResourceLocation mask = SkinPixelTextures.irisMask(player, pixels, secondEye);
+				Identifier mask = SkinPixelTextures.irisMask(player, pixels, secondEye);
 				int color = secondEye ? SECOND_IRIS_MARK_COLOR : markerColor(SkinPixels.MARK_IRIS);
 				if (mask != null) overlays.add(new SkinPaintContext.Overlay(mask, rgb(color), MARK_ALPHA));
 			}
 		} else {
-			ResourceLocation mask = SkinPixelTextures.hairMask(player, pixels);
+			Identifier mask = SkinPixelTextures.hairMask(player, pixels);
 			if (mask != null) overlays.add(new SkinPaintContext.Overlay(mask, rgb(HAIR_MARK_COLOR), MARK_ALPHA));
 		}
 		return overlays;
 	}
 
-	private void renderModel(GuiGraphics graphics, LocalPlayer player, boolean pick) {
+	private void renderModel(GuiGraphicsExtractor graphics, LocalPlayer player, boolean pick) {
 		FormPreview.Snapshot snapshot = formPreview.apply(player);
 		boolean previewApplied = !formPreview.current().isBase();
 
@@ -1718,7 +1718,7 @@ public class PixelEditorScreen extends ScaledScreen {
 		return visual[0];
 	}
 
-	private void renderConfirmClose(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderConfirmClose(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int width = 150;
 		int height = 58;
 		int x = (getUiWidth() - width) / 2;

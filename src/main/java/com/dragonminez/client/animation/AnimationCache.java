@@ -1,6 +1,6 @@
 package com.dragonminez.client.animation;
 
-import software.bernie.geckolib.animation.RawAnimation;
+import com.geckolib.animation.RawAnimation;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

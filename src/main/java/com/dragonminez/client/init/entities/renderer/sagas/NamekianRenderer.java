@@ -10,11 +10,11 @@ import com.dragonminez.common.init.entities.namek.NamekVillagerEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.PathfinderMob;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 public class NamekianRenderer extends GeoEntityRenderer<NamekTraderEntity> {
 
@@ -24,12 +24,12 @@ public class NamekianRenderer extends GeoEntityRenderer<NamekTraderEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(NamekTraderEntity animatable) {
+    public Identifier getTextureLocation(NamekTraderEntity animatable) {
         return animatable.getCurrentTexture();
     }
 
     @Override
-    public RenderType getRenderType(NamekTraderEntity animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(NamekTraderEntity animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityCutout(texture);
     }
 }

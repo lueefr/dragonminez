@@ -1,7 +1,7 @@
 package com.dragonminez.client.gui.hud;
 
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 final class HudRadar {
@@ -11,12 +11,12 @@ final class HudRadar {
 
 	private HudRadar() {}
 
-	static void draw(GuiGraphics graphics, HudSprites.RadarSprites sprites, float x, float y, float mirrorWidth,
+	static void draw(GuiGraphicsExtractor graphics, HudSprites.RadarSprites sprites, float x, float y, float mirrorWidth,
 					 String raceName, float iconY, float release, float formCharge) {
 		boolean mirrored = mirrorWidth >= 0.0f;
 		float level = Mth.clamp(release / 100.0f, 0.0f, 1.0f);
 
-		ResourceLocation icon = RacialIcons.forRace(raceName);
+		Identifier icon = RacialIcons.forRace(raceName);
 		float size = RacialIcons.SIZE;
 		float iconX = mx(x + ICON_X, size, mirrorWidth);
 		HudSprites.Sprite empty = new HudSprites.Sprite(icon, RacialIcons.TEXTURE_WIDTH, RacialIcons.TEXTURE_HEIGHT, 0, 0, RacialIcons.SIZE, RacialIcons.SIZE);

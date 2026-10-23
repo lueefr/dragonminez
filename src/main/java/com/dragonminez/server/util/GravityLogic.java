@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class GravityLogic {
-	public static final net.minecraft.resources.ResourceLocation GRAVITY_SPEED_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/019c3047-cd2f-7af4-a3cd-5bca51dd3588");
-	private static final net.minecraft.resources.ResourceLocation GRAVITY_ATTACK_SPEED_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/019c3047-4e91-74e1-ac87-d4ea8e463688");
+	public static final net.minecraft.resources.Identifier GRAVITY_SPEED_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/019c3047-cd2f-7af4-a3cd-5bca51dd3588");
+	private static final net.minecraft.resources.Identifier GRAVITY_ATTACK_SPEED_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/019c3047-4e91-74e1-ac87-d4ea8e463688");
 
 	private static final Map<UUID, Double> NPC_GRAVITY_CACHE = new HashMap<>();
 	private static final Map<UUID, Long> NPC_GRAVITY_TICK = new HashMap<>();

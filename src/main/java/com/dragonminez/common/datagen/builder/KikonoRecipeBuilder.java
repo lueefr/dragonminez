@@ -3,7 +3,7 @@ package com.dragonminez.common.datagen.builder;
 import com.dragonminez.server.recipes.KikonoRecipe;
 import net.minecraft.core.NonNullList;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -55,7 +55,7 @@ public class KikonoRecipeBuilder {
 		return this;
 	}
 
-	public void save(RecipeOutput output, ResourceLocation id) {
+	public void save(RecipeOutput output, Identifier id) {
 		if (pattern == null || template == null) throw new IllegalStateException("Missing pattern or template");
 
 		NonNullList<Ingredient> slots = NonNullList.withSize(9, Ingredient.EMPTY);

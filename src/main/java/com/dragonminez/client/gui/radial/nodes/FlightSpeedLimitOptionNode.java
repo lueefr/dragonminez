@@ -5,7 +5,7 @@ import com.dragonminez.common.network.C2S.SetFlightSpeedLimitC2S;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.stats.StatsData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class FlightSpeedLimitOptionNode extends AbstractRadialNode {
 
@@ -21,7 +21,7 @@ public class FlightSpeedLimitOptionNode extends AbstractRadialNode {
 	}
 
 	@Override
-	public ResourceLocation icon(StatsData stats) {
+	public Identifier icon(StatsData stats) {
 		return null;
 	}
 

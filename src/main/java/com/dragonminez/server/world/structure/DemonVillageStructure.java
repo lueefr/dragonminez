@@ -15,7 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -63,8 +63,8 @@ import java.util.Set;
 public class DemonVillageStructure extends Structure {
 	public static final com.mojang.serialization.MapCodec<DemonVillageStructure> CODEC = simpleCodec(DemonVillageStructure::new);
 
-	private static final ResourceLocation CENTER = template("demon_village/center");
-	private static final List<ResourceLocation> HOUSES = List.of(
+	private static final Identifier CENTER = template("demon_village/center");
+	private static final List<Identifier> HOUSES = List.of(
 			template("demon_village/house_big"),
 			template("demon_village/house_small"));
 	private static final String ENTRANCE = Reference.MOD_ID + ":building_entrance";
@@ -110,8 +110,8 @@ public class DemonVillageStructure extends Structure {
 		super(settings);
 	}
 
-	private static ResourceLocation template(String path) {
-		return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, path);
+	private static Identifier template(String path) {
+		return Identifier.fromNamespaceAndPath(Reference.MOD_ID, path);
 	}
 
 	@Override
@@ -209,7 +209,7 @@ public class DemonVillageStructure extends Structure {
 		level.addFreshEntityWithPassengers(resident);
 	}
 
-	private static Door door(StructureTemplateManager templates, ResourceLocation location) {
+	private static Door door(StructureTemplateManager templates, Identifier location) {
 		StructureTemplate template = templates.getOrCreate(location);
 		for (StructureTemplate.StructureBlockInfo info : template.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), Blocks.JIGSAW)) {
 			CompoundTag nbt = info.nbt();
@@ -356,7 +356,7 @@ public class DemonVillageStructure extends Structure {
 
 		void tryHouse(double angle, RandomSource random) {
 			for (int radius : DOOR_RADII) {
-				ResourceLocation location = HOUSES.get(random.nextInt(HOUSES.size()));
+				Identifier location = HOUSES.get(random.nextInt(HOUSES.size()));
 				Door door = door(this.templates, location);
 				if (door == null) continue;
 
@@ -565,7 +565,7 @@ public class DemonVillageStructure extends Structure {
 	public static class BuildingPiece extends TemplateStructurePiece {
 		private final Rotation rotation;
 
-		public BuildingPiece(StructureTemplateManager templates, ResourceLocation location, BlockPos position, Rotation rotation) {
+		public BuildingPiece(StructureTemplateManager templates, Identifier location, BlockPos position, Rotation rotation) {
 			super(MainStructureTypes.DEMON_VILLAGE_BUILDING.get(), 0, templates, location, location.toString(),
 					settings(rotation, pivot(templates, location)), position);
 			this.rotation = rotation;
@@ -577,7 +577,7 @@ public class DemonVillageStructure extends Structure {
 			this.rotation = Rotation.valueOf(tag.getString("Rot"));
 		}
 
-		private static BlockPos pivot(StructureTemplateManager templates, ResourceLocation location) {
+		private static BlockPos pivot(StructureTemplateManager templates, Identifier location) {
 			Vec3i size = templates.getOrCreate(location).getSize();
 			return new BlockPos(size.getX() / 2, 0, size.getZ() / 2);
 		}

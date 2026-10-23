@@ -11,13 +11,13 @@ import com.dragonminez.common.quest.QuestUnlocks;
 import com.dragonminez.common.quest.objectives.KillObjective;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -45,7 +45,7 @@ import java.util.Set;
 @OnlyIn(Dist.CLIENT)
 public class QuestEnemyPreview {
 
-	private static final ResourceLocation DMZ_FONT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	private static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
 
 	private static final float YAW_DEG_PER_SEC = 55.0f;
 	private static final int CYCLE_TICKS = 110; // ~5.5s per target before advancing
@@ -165,7 +165,7 @@ public class QuestEnemyPreview {
 	 * @param visibility 1 = fully shown, 0 = fully hidden (so the saga navigator can
 	 *                   superpose / take over the same left area as it slides in).
 	 */
-	public void render(GuiGraphics graphics, Font font, int regionX, int regionY, int regionW, int regionH,
+	public void render(GuiGraphicsExtractor graphics, Font font, int regionX, int regionY, int regionW, int regionH,
 	                   int mouseX, int mouseY, float dt, float visibility) {
 		if (targets.isEmpty() || visibility <= 0.02f) return;
 
@@ -220,7 +220,7 @@ public class QuestEnemyPreview {
 		}
 	}
 
-	private void renderRotatingEntity(GuiGraphics graphics, int x, int y, int scale, LivingEntity entity) {
+	private void renderRotatingEntity(GuiGraphicsExtractor graphics, int x, int y, int scale, LivingEntity entity) {
 		Quaternionf pose = new Quaternionf().rotateZ((float) Math.PI);
 		Quaternionf cameraOrientation = new Quaternionf();
 
@@ -240,7 +240,7 @@ public class QuestEnemyPreview {
 		graphics.pose().popPose();
 	}
 
-	private void renderStatsCard(GuiGraphics graphics, Font font, LivingEntity entity,
+	private void renderStatsCard(GuiGraphicsExtractor graphics, Font font, LivingEntity entity,
 	                             int regionX, int regionY, int regionW, int regionH, int baseAlpha) {
 		float ease = easeOut(hoverProgress);
 		int cardAlpha = (int) (baseAlpha * ease) & 0xFF;
@@ -385,7 +385,7 @@ public class QuestEnemyPreview {
 
 	private static EntityType<?> resolveType(String id) {
 		if (id != null && id.startsWith("#")) {
-			ResourceLocation tagId = ResourceLocation.tryParse(id.substring(1));
+			Identifier tagId = Identifier.tryParse(id.substring(1));
 			if (tagId == null) return null;
 			TagKey<EntityType<?>> tag = TagKey.create(Registries.ENTITY_TYPE, tagId);
 			for (var holder : BuiltInRegistries.ENTITY_TYPE.getTagOrEmpty(tag)) {
@@ -393,7 +393,7 @@ public class QuestEnemyPreview {
 			}
 			return null;
 		}
-		ResourceLocation rl = ResourceLocation.tryParse(id);
+		Identifier rl = Identifier.tryParse(id);
 		return rl == null ? null : BuiltInRegistries.ENTITY_TYPE.get(rl);
 	}
 

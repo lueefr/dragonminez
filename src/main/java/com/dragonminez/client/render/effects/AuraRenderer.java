@@ -36,14 +36,14 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.BakedGeoModel;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -107,11 +107,11 @@ public class AuraRenderer {
 	private static final Map<Integer, float[]> AURA_PHASE = new ConcurrentHashMap<>();
 	private static VertexBuffer cachedLightningMesh;
 
-	public static RenderType auraType(ResourceLocation texture) {
+	public static RenderType auraType(Identifier texture) {
 		return IrisCompat.isShaderPackInUse() ? ModRenderTypes.getCustomAuraCompat(texture) : ModRenderTypes.getCustomAura(texture);
 	}
 
-	public static void customSetup(RenderType type, ResourceLocation texture, ShaderInstance shader) {
+	public static void customSetup(RenderType type, Identifier texture, ShaderInstance shader) {
 		if (IrisCompat.isShaderPackInUse()) {
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();
@@ -139,7 +139,7 @@ public class AuraRenderer {
 	}
 
 	private static void applyAndDraw(VertexBuffer mesh, PoseStack poseStack, Matrix4f projectionMatrix, ShaderInstance shader,
-									 ResourceLocation texture, float[] color, float alpha, float speed, boolean ground) {
+									 Identifier texture, float[] color, float alpha, float speed, boolean ground) {
 		captureAuraBloom(mesh, texture, poseStack.last().pose(), projectionMatrix, color, alpha, speed);
 		mesh.bind();
 		mesh.drawWithShader(poseStack.last().pose(), projectionMatrix, shader);
@@ -179,7 +179,7 @@ public class AuraRenderer {
 		shader.safeGetUniform("color4").set(color[0] * 1.1f, color[1] * 1.1f, color[2] * 1.1f, 0.8f);
 	}
 
-	public static void captureAuraBloom(VertexBuffer mesh, ResourceLocation texture, Matrix4f modelMatrix,
+	public static void captureAuraBloom(VertexBuffer mesh, Identifier texture, Matrix4f modelMatrix,
 										Matrix4f projectionMatrix, float[] color, float alpha, float speed) {
 		if (!capturingBloom || alpha <= 0.01f) return;
 		Matrix4f model = new Matrix4f(modelMatrix);
@@ -188,7 +188,7 @@ public class AuraRenderer {
 		BLOOM_DRAWS.add(() -> drawAuraBloom(mesh, texture, model, proj, c, alpha, speed));
 	}
 
-	private static void drawAuraBloom(VertexBuffer mesh, ResourceLocation texture, Matrix4f modelMatrix,
+	private static void drawAuraBloom(VertexBuffer mesh, Identifier texture, Matrix4f modelMatrix,
 									  Matrix4f projectionMatrix, float[] c, float alpha, float speed) {
 		ShaderInstance shader = DMZShaders.auraShader;
 		if (shader == null) return;
@@ -317,8 +317,8 @@ public class AuraRenderer {
 		if (shader == null) return;
 
 		String typeStr = layer.type != null && !layer.type.isEmpty() ? layer.type.toLowerCase() : "kakarot";
-		ResourceLocation mainTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + typeStr + "_aura.png");
-		ResourceLocation sparkingTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/sparking_effects.png");
+		Identifier mainTex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + typeStr + "_aura.png");
+		Identifier sparkingTex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/sparking_effects.png");
 
 		float animSpeed = auraPhase(player, partialTick);
 		float alpha = layer.alpha;
@@ -1091,9 +1091,9 @@ public class AuraRenderer {
 		float finalAlpha = maxAlpha * alphaMultiplier * layer.alpha;
 
 		String typeStr = layer.type != null && !layer.type.isEmpty() ? layer.type.toLowerCase() : "kakarot";
-		ResourceLocation mainTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + typeStr + "_aura.png");
-		ResourceLocation crossTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + typeStr + "_cross.png");
-		ResourceLocation sparkingTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/sparking_effects.png");
+		Identifier mainTex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + typeStr + "_aura.png");
+		Identifier crossTex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + typeStr + "_cross.png");
+		Identifier sparkingTex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/sparking_effects.png");
 
 		float animSpeed = auraPhase(player, partialTick);
 
@@ -1527,7 +1527,7 @@ public class AuraRenderer {
 		float alphaCurve = (float) Math.sin(progress * Math.PI);
 
 		String typeStr = topLayer.type != null && !topLayer.type.isEmpty() ? topLayer.type.toLowerCase() : "kakarot";
-		ResourceLocation crossTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + typeStr + "_cross.png");
+		Identifier crossTex = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + typeStr + "_cross.png");
 
 		ShaderInstance shader = DMZShaders.auraShader;
 		if (shader == null) return;

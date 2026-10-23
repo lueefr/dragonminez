@@ -5,12 +5,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import software.bernie.geckolib.animatable.GeoBlockEntity;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import software.bernie.geckolib.animation.*;
-import software.bernie.geckolib.animation.PlayState;
+import com.geckolib.animatable.GeoBlockEntity;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import com.geckolib.animation.*;
+import com.geckolib.animation.PlayState;
 
 
 public class PatternStationBlockEntity extends BlockEntity implements GeoBlockEntity {
@@ -36,7 +36,7 @@ public class PatternStationBlockEntity extends BlockEntity implements GeoBlockEn
 
 	@Override
 	public double getTick(Object blockEntity) {
-		return software.bernie.geckolib.util.RenderUtil.getCurrentTick();
+		return com.geckolib.util.RenderUtil.getCurrentTick();
 	}
 
 	public AABB getRenderBoundingBox() {

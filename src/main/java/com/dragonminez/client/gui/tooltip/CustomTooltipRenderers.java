@@ -3,7 +3,7 @@ package com.dragonminez.client.gui.tooltip;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.locale.Language;
@@ -33,7 +33,7 @@ public class CustomTooltipRenderers {
 		}
 
 		@Override
-		public void renderImage(Font font, int x, int y, GuiGraphics graphics) {
+		public void renderImage(Font font, int x, int y, GuiGraphicsExtractor graphics) {
 			if (!TooltipDecor.hasSpecialBorder) return;
 
 			graphics.flush();
@@ -93,7 +93,7 @@ public class CustomTooltipRenderers {
 		public int getWidth(Font font) { return 0; }
 
 		@Override
-		public void renderImage(Font font, int x, int y, GuiGraphics graphics) {
+		public void renderImage(Font font, int x, int y, GuiGraphicsExtractor graphics) {
 			if (!TooltipDecor.hasSpecialBorder) return;
 			TooltipDecor.drawSeparator(graphics.pose(), TooltipDecor.lastTooltipX, y - 8, TooltipDecor.lastTooltipW, TooltipDecor.currentBorderStart);
 		}
@@ -104,6 +104,6 @@ public class CustomTooltipRenderers {
 		public PaddingRenderer(CustomTooltipNodes.PaddingNode node) { this.height = node.height(); }
 		@Override public int getHeight() { return height; }
 		@Override public int getWidth(Font font) { return 0; }
-		@Override public void renderImage(Font font, int x, int y, GuiGraphics graphics) { }
+		@Override public void renderImage(Font font, int x, int y, GuiGraphicsExtractor graphics) { }
 	}
 }

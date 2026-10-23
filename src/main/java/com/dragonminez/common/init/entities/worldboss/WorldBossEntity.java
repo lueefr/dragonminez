@@ -33,8 +33,8 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
+import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animation.AnimationController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,9 +60,9 @@ public abstract class WorldBossEntity extends DBSagasEntity {
 
     public static final double HEALTH_OVER_HARD = 4.0D;
 
-    private static final net.minecraft.resources.ResourceLocation GROUP_HEALTH_ID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/3f1c2a5e-7b8d-4e61-9a0c-5d2e8f4b7a11");
-    private static final net.minecraft.resources.ResourceLocation GROUP_MELEE_ID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/8a4d6e2b-1c3f-4b7a-a95e-0f6c2d8b3e22");
-    private static final net.minecraft.resources.ResourceLocation GROUP_KI_ID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/c27e9b14-5a6d-4f83-b0e1-7d4a9c3f5e33");
+    private static final net.minecraft.resources.Identifier GROUP_HEALTH_ID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/3f1c2a5e-7b8d-4e61-9a0c-5d2e8f4b7a11");
+    private static final net.minecraft.resources.Identifier GROUP_MELEE_ID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/8a4d6e2b-1c3f-4b7a-a95e-0f6c2d8b3e22");
+    private static final net.minecraft.resources.Identifier GROUP_KI_ID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/c27e9b14-5a6d-4f83-b0e1-7d4a9c3f5e33");
 
     public static float bossHealth(float sagaNormalHealth) {
         return (float) (sagaNormalHealth * Difficulty.HARD.hpMultiplier() * HEALTH_OVER_HARD);
@@ -215,7 +215,7 @@ public abstract class WorldBossEntity extends DBSagasEntity {
         if (this.getHealth() > this.getMaxHealth()) this.setHealth(this.getMaxHealth());
     }
 
-    private boolean setGroupModifier(net.minecraft.core.Holder<Attribute> attribute, net.minecraft.resources.ResourceLocation id, double amount) {
+    private boolean setGroupModifier(net.minecraft.core.Holder<Attribute> attribute, net.minecraft.resources.Identifier id, double amount) {
         AttributeInstance instance = this.getAttribute(attribute);
         if (instance == null) return false;
         AttributeModifier current = instance.getModifier(id);

@@ -15,7 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
@@ -51,8 +51,8 @@ import java.util.Set;
 public class GeteSpawnEvents {
 
 	private static final List<ResourceKey<Structure>> VILLAGES = List.of(
-			ResourceKey.create(Registries.STRUCTURE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "village_ajissa")),
-			ResourceKey.create(Registries.STRUCTURE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "village_sacred")));
+			ResourceKey.create(Registries.STRUCTURE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "village_ajissa")),
+			ResourceKey.create(Registries.STRUCTURE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "village_sacred")));
 
 	private static final int SCAN_INTERVAL_TICKS = 400;
 	private static final int SCAN_RADIUS_CHUNKS = 6;

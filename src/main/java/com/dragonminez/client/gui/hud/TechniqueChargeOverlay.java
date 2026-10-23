@@ -12,13 +12,13 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.client.gui.LayeredDraw;
 
 public class TechniqueChargeOverlay {
-	private static final ResourceLocation CHARGE_HUD_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/hud/kicharge_hud.png");
-	private static final ResourceLocation DMZ_FONT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	private static final Identifier CHARGE_HUD_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/hud/kicharge_hud.png");
+	private static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
 	private static volatile float currentChargePercent = 0.0f;
 
 	public static final LayeredDraw.Layer HUD_TECHNIQUE_CHARGE = (guiGraphics, deltaTracker) -> {
@@ -90,7 +90,7 @@ public class TechniqueChargeOverlay {
 		});
 	};
 
-	private static void drawChargeStatus(net.minecraft.client.gui.GuiGraphics guiGraphics, Font font, float percent, int width, int barY) {
+	private static void drawChargeStatus(net.minecraft.client.gui.GuiGraphicsExtractor guiGraphics, Font font, float percent, int width, int barY) {
 		boolean charging = percent < 100.0f - 0.01f;
 		MutableComponent hint = charging ? tr("technique.charge.charging") : tr("technique.charge.overcharging");
 		int color = charging ? 0xFFFFFFFF : 0xFFFFD200;

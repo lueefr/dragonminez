@@ -1681,6 +1681,10 @@ public class GeneralServerConfig {
 
 	@NoArgsConstructor
 	public static class GodRitualConfig {
+		private String completionId = "";
+		public String getCompletionId() {
+			return completionId != null && !completionId.isBlank() ? completionId : "dragonminez:ritual/" + getGroupName();
+		}
 		private Boolean enabled = true;
 		private String groupName = "godritual";
 		private String formName = "supersaiyangodritual";

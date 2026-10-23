@@ -6,7 +6,7 @@ import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.character.Cooldowns;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class NamekRegenNode extends AbstractRadialNode {
 
@@ -16,7 +16,7 @@ public class NamekRegenNode extends AbstractRadialNode {
 	}
 
 	@Override
-	public ResourceLocation icon(StatsData stats) {
+	public Identifier icon(StatsData stats) {
 		return icon("regen");
 	}
 

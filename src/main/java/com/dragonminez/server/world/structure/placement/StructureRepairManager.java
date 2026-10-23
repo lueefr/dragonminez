@@ -11,7 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
@@ -560,7 +560,7 @@ public final class StructureRepairManager {
 		private void finishForced(ServerLevel level, ForcedPlacement placement) {
 			if (!this.forced.remove(placement.salt, placement)) return;
 			RepairData.get(level).finish(placement.salt);
-			ResourceLocation id = level.registryAccess().registryOrThrow(Registries.STRUCTURE).getKey(placement.structure);
+			Identifier id = level.registryAccess().registryOrThrow(Registries.STRUCTURE).getKey(placement.structure);
 			LogUtil.info(Env.SERVER, "[DMZ] Finished materializing " + (id != null ? id.toString() : "salt:" + placement.salt)
 					+ " in " + level.dimension().location());
 		}

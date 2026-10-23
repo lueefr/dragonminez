@@ -2,7 +2,7 @@ package com.dragonminez.common.util.gson;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * The shared Gson configurations for wishes, quest rewards and item DTOs.
@@ -22,7 +22,7 @@ public final class GsonUtils {
 
 	private static GsonBuilder builder() {
 		return new GsonBuilder()
-				.registerTypeAdapter(ResourceLocation.class, new ResourceLocationTypeAdapter())
+				.registerTypeAdapter(Identifier.class, new ResourceLocationTypeAdapter())
 				.registerTypeAdapterFactory(new WishTypeAdapterFactory())
 				.registerTypeAdapterFactory(new GenericItemTypeAdapterFactory());
 	}

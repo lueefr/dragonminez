@@ -9,10 +9,10 @@ import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -58,7 +58,7 @@ public class PartyMarkerOverlay {
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
-	private static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	private static void render(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getDebugOverlay().showDebugScreen() || mc.options.hideGui || mc.player == null || mc.level == null) return;
 		if (!ConfigManager.getUserConfig().getPartyMarkers() || !CameraProjectionCapture.isAvailable()) return;
@@ -152,7 +152,7 @@ public class PartyMarkerOverlay {
 		return view.smoothed(member.x(), member.y(), member.z());
 	}
 
-	private static void drawMarker(GuiGraphics guiGraphics, Minecraft mc, MarkerView view, float unit) {
+	private static void drawMarker(GuiGraphicsExtractor guiGraphics, Minecraft mc, MarkerView view, float unit) {
 		PartyPackets.HudMember member = view.member;
 		boolean down = member.health() <= 0.0f;
 		Player entity = mc.level.getPlayerByUUID(member.id());
@@ -194,7 +194,7 @@ public class PartyMarkerOverlay {
 		}
 	}
 
-	private static void drawFace(GuiGraphics guiGraphics, ResourceLocation skin, float x, float y) {
+	private static void drawFace(GuiGraphicsExtractor guiGraphics, Identifier skin, float x, float y) {
 		float alpha = HudRender.currentAlphaScale();
 		if (alpha <= 0.004f) return;
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
@@ -203,7 +203,7 @@ public class PartyMarkerOverlay {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
-	private static ResourceLocation skinOf(Minecraft mc, UUID id) {
+	private static Identifier skinOf(Minecraft mc, UUID id) {
 		if (mc.getConnection() != null) {
 			PlayerInfo info = mc.getConnection().getPlayerInfo(id);
 			if (info != null) return info.getSkin().texture();

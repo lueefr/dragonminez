@@ -95,7 +95,7 @@ public class ReloadCommand {
 					}
 					syncedPlayers++;
 				} catch (Exception e) {
-					LogUtil.error(Env.SERVER, "Failed to resync {} after /dmzreload: {}", player.getGameProfile().getName(), e.toString());
+					LogUtil.error(Env.SERVER, "Failed to resync {} after /dmzreload: {}", player.getGameProfile().name(), e.toString());
 				}
 			}
 

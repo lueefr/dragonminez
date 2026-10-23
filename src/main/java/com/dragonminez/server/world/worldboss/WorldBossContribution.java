@@ -108,7 +108,7 @@ public final class WorldBossContribution {
 		if (bossKey == null || bossKey.isEmpty() || player == null) return null;
 		Score score = SESSIONS.computeIfAbsent(bossKey, k -> new LinkedHashMap<>())
 				.computeIfAbsent(player.getUUID(), Score::new);
-		score.name = player.getGameProfile().getName();
+		score.name = player.getGameProfile().name();
 		StatsData data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
 		if (data != null && data.getStatus().isHasCreatedCharacter()) score.auraRgb = parseHex(data.getCharacter().getAuraColor());
 		DIRTY.add(bossKey);

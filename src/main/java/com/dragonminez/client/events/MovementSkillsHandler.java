@@ -24,7 +24,7 @@ import java.util.UUID;
 
 @EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
 public class MovementSkillsHandler {
-	public static final net.minecraft.resources.ResourceLocation SPRINT_SPEED_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/c4c4e8b0-5f21-4f16-9a2d-123456789abc");
+	public static final net.minecraft.resources.Identifier SPRINT_SPEED_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/c4c4e8b0-5f21-4f16-9a2d-123456789abc");
 	private static final double SPRINT_BOOST_PER_LEVEL = 0.06;
 	private static int airTicks = 0;
 	private static boolean wasJumping = false;

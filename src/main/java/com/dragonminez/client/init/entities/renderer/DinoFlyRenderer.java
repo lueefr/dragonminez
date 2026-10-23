@@ -5,9 +5,9 @@ import com.dragonminez.common.init.entities.animal.DinoFlyEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 public class DinoFlyRenderer extends GeoEntityRenderer<DinoFlyEntity> {
 
@@ -17,7 +17,7 @@ public class DinoFlyRenderer extends GeoEntityRenderer<DinoFlyEntity> {
     }
 
 //    @Override
-//    public RenderType getRenderType(DinoFlyEntity animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+//    public RenderType getRenderType(DinoFlyEntity animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
 //        return RenderType.entity(texture);
 //    }
 }

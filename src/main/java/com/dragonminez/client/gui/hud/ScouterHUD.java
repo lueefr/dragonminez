@@ -17,9 +17,9 @@ import com.dragonminez.common.stats.*;
 import com.dragonminez.common.util.CuriosUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -50,10 +50,10 @@ import java.util.Optional;
 
 @EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public class ScouterHUD {
-	private static final ResourceLocation SCOUTER_GREEN = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/scouter/scouter_green.png");
-	private static final ResourceLocation SCOUTER_RED = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/scouter/scouter_red.png");
-	private static final ResourceLocation SCOUTER_BLUE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/scouter/scouter_blue.png");
-	private static final ResourceLocation SCOUTER_PURPLE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/scouter/scouter_purple.png");
+	private static final Identifier SCOUTER_GREEN = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/scouter/scouter_green.png");
+	private static final Identifier SCOUTER_RED = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/scouter/scouter_red.png");
+	private static final Identifier SCOUTER_BLUE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/scouter/scouter_blue.png");
+	private static final Identifier SCOUTER_PURPLE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/scouter/scouter_purple.png");
 
 	private static final float FRAME_WIDTH = 70.0f;
 	private static final float FRAME_HEIGHT = 41.0f;
@@ -166,7 +166,7 @@ public class ScouterHUD {
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
-	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	public static void render(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 		if (HudStyle.current() == HudStyle.COMPACT) return;
@@ -179,7 +179,7 @@ public class ScouterHUD {
 		if (scouterStack.isEmpty() && !preview) return;
 
 		Item currentItem = scouterStack.getItem();
-		ResourceLocation currentTexture = currentItem == MainItems.BLUE_SCOUTER.get() ? SCOUTER_BLUE :
+		Identifier currentTexture = currentItem == MainItems.BLUE_SCOUTER.get() ? SCOUTER_BLUE :
 				currentItem == MainItems.RED_SCOUTER.get() ? SCOUTER_RED :
 				currentItem == MainItems.PURPLE_SCOUTER.get() ? SCOUTER_PURPLE : SCOUTER_GREEN;
 
@@ -202,7 +202,7 @@ public class ScouterHUD {
 		}
 	}
 
-	private static void renderInfo(GuiGraphics guiGraphics, Minecraft mc, ResourceLocation currentTexture, float partialTicks) {
+	private static void renderInfo(GuiGraphicsExtractor guiGraphics, Minecraft mc, Identifier currentTexture, float partialTicks) {
 		LivingEntity focusedEntity = pickTarget(mc, partialTicks);
 
 		double distToFocus = (focusedEntity != null) ? mc.player.distanceTo(focusedEntity) : Double.MAX_VALUE;
@@ -282,14 +282,14 @@ public class ScouterHUD {
 		});
 	}
 
-	private static void part(GuiGraphics gui, ResourceLocation texture, float x, float y, float u, float v, float width, float height, float scale, boolean flip) {
+	private static void part(GuiGraphicsExtractor gui, Identifier texture, float x, float y, float u, float v, float width, float height, float scale, boolean flip) {
 		float drawnWidth = width * scale;
 		float drawX = mirrored ? FRAME_WIDTH - x - drawnWidth : x;
 		if (mirrored && flip) HudRender.blit(gui, texture, drawX, y, u + width, v, drawnWidth, height * scale, -width, height, 128, 128);
 		else HudRender.blit(gui, texture, drawX, y, u, v, drawnWidth, height * scale, width, height, 128, 128);
 	}
 
-	private static void renderScouterFrame(GuiGraphics gui, ResourceLocation texture) {
+	private static void renderScouterFrame(GuiGraphicsExtractor gui, Identifier texture) {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, drawAlpha);
 		part(gui, texture, 0, 0, 0, 15, 7, FRAME_HEIGHT, 1.0f, true);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, GLASS_ALPHA * drawAlpha);
@@ -297,7 +297,7 @@ public class ScouterHUD {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, drawAlpha);
 	}
 
-	private static void renderCustomNumbers(GuiGraphics gui, ResourceLocation texture, String text) {
+	private static void renderCustomNumbers(GuiGraphicsExtractor gui, Identifier texture, String text) {
 		if (text.length() > MAX_NUMBER_CHARS) text = text.substring(0, MAX_NUMBER_CHARS);
 		float textWidth = -GLYPH_SPACING;
 		for (int i = 0; i < text.length(); i++) textWidth += glyphWidth(text.charAt(i)) + GLYPH_SPACING;
@@ -333,7 +333,7 @@ public class ScouterHUD {
 		return c == '.' ? 1 : 3;
 	}
 
-	private static void renderDirectionIcon(GuiGraphics gui, ResourceLocation texture, Player player, LivingEntity target) {
+	private static void renderDirectionIcon(GuiGraphicsExtractor gui, Identifier texture, Player player, LivingEntity target) {
 		double dx = target.getX() - player.getX();
 		double dz = target.getZ() - player.getZ();
 		double angleToTarget = Math.toDegrees(Math.atan2(dz, dx)) - 90;
@@ -354,7 +354,7 @@ public class ScouterHUD {
 		if (left) HudRender.blit(gui, texture, centerX - reach - ARROW_SIZE, CENTER_Y - half, 19, 75, ARROW_SIZE, ARROW_SIZE, 128, 128);
 	}
 
-	private static void renderEntityInfo(GuiGraphics gui, ResourceLocation texture, boolean extraInfo, boolean isPlayer) {
+	private static void renderEntityInfo(GuiGraphicsExtractor gui, Identifier texture, boolean extraInfo, boolean isPlayer) {
 		part(gui, texture, CENTER_X - RETICLE_SIZE / 2.0f, CENTER_Y - RETICLE_SIZE / 2.0f, 2, 73, 9, 9, 2.0f, false);
 
 		if (!extraInfo) return;

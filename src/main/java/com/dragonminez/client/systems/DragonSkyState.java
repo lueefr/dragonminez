@@ -2,7 +2,7 @@ package com.dragonminez.client.systems;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 public final class DragonSkyState {
@@ -16,7 +16,7 @@ public final class DragonSkyState {
 
 	private DragonSkyState() {}
 
-	public static void update(ResourceLocation dimension, boolean isActive) {
+	public static void update(Identifier dimension, boolean isActive) {
 		ClientLevel level = Minecraft.getInstance().level;
 		if (level == null || !level.dimension().location().equals(dimension)) return;
 		active = isActive;

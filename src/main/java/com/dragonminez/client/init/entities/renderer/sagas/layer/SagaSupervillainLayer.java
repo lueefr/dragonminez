@@ -8,10 +8,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import net.minecraft.resources.Identifier;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.layer.GeoRenderLayer;
 
 public class SagaSupervillainLayer<T extends DBSagasEntity> extends GeoRenderLayer<T> {
 
@@ -53,7 +53,7 @@ public class SagaSupervillainLayer<T extends DBSagasEntity> extends GeoRenderLay
 		float[] tint = palette != null ? ColorUtils.rgbIntToFloat(palette.tint()) : TINT;
 		float tintAlpha = palette != null ? palette.tintAlpha() : TINT_ALPHA;
 
-		ResourceLocation texture = getRenderer().getTextureLocation(animatable);
+		Identifier texture = getRenderer().getTextureLocation(animatable);
 		RenderType tinted = ModRenderTypes.skinOverlayTranslucent(texture);
 		TransformationMaskBufferSource maskBuffer = bufferSource instanceof TransformationMaskBufferSource mask ? mask : null;
 

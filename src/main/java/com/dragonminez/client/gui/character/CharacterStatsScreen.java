@@ -40,12 +40,12 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -63,11 +63,11 @@ import java.util.Locale;
 @OnlyIn(Dist.CLIENT)
 public class CharacterStatsScreen extends BaseMenuScreen {
 
-	private static final ResourceLocation MENU_BIG = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+	private static final Identifier MENU_BIG = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 			"textures/gui/menu/menubig.png");
-	private static final ResourceLocation MENU_SMALL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+	private static final Identifier MENU_SMALL = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 			"textures/gui/menu/menusmall.png");
-	private static final ResourceLocation BUTTONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+	private static final Identifier BUTTONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 			"textures/gui/buttons/characterbuttons.png");
 	private int tpMultiplier = 1;
 	private int displayedTpCost = 0;
@@ -192,7 +192,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 	}
 
 	@Override
-	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		renderMenuBackground(graphics, partialTick);
 
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
@@ -381,7 +381,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		return new double[]{mitigationReductionPct, enchReduction * 100.0};
 	}
 
-	private void renderMenuPanels(GuiGraphics graphics, float leftOffset, float rightOffset, float topOffset) {
+	private void renderMenuPanels(GuiGraphicsExtractor graphics, float leftOffset, float rightOffset, float topOffset) {
 		int centerX = getUiWidth() / 2;
 		int centerY = getUiHeight() / 2;
 
@@ -400,7 +400,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		RenderSystem.disableBlend();
 	}
 
-	private void renderPlayerInfo(GuiGraphics graphics, int mouseX, int mouseY, int topOffset) {
+	private void renderPlayerInfo(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int topOffset) {
 		int centerX = getUiWidth() / 2;
 
 		if (Minecraft.getInstance().player == null) return;
@@ -458,7 +458,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		slideX(viewSwitchButton, getUiWidth() - 45, rightOffset);
 	}
 
-	private void renderStatsInfo(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderStatsInfo(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int centerY = getUiHeight() / 2;
 		int titleY = centerY - 88;
 
@@ -783,7 +783,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 				+ String.format(Locale.US, "%.1f", percent) + "%)").withStyle(ChatFormatting.GREEN));
 	}
 
-	private void renderStatisticsInfo(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderStatisticsInfo(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		if (useHexagonView && !TutorialManager.isActive(this)) renderStatisticsInfoHexagon(graphics, mouseX, mouseY);
 		else renderStatisticsInfoList(graphics, mouseX, mouseY);
 		renderBattlePowerInfo(graphics, mouseX, mouseY);
@@ -791,7 +791,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		renderTpMultiplierInfo(graphics, mouseX, mouseY);
 	}
 
-	private void renderBattlePowerInfo(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderBattlePowerInfo(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		if (statsData == null) return;
 
 		int centerY = getUiHeight() / 2;
@@ -820,7 +820,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void renderStatisticsInfoList(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderStatisticsInfoList(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int rightX = getUiWidth() - 137;
 		int centerY = getUiHeight() / 2;
 		int titleY = centerY - 88;
@@ -1073,7 +1073,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void renderStatisticsInfoHexagon(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderStatisticsInfoHexagon(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int centerY = getUiHeight() / 2;
 		int titleY = centerY - 88;
 		int centerX = getUiWidth() - 85;
@@ -1392,7 +1392,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void renderPlayerModel(GuiGraphics graphics, int x, int y, int scale, float mouseX, float mouseY) {
+	private void renderPlayerModel(GuiGraphicsExtractor graphics, int x, int y, int scale, float mouseX, float mouseY) {
 		LivingEntity player = Minecraft.getInstance().player;
 		if (player == null) return;
 
@@ -1446,7 +1446,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		this.addRenderableWidget(viewSwitchButton);
 	}
 
-	private void renderGravityInfo(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderGravityInfo(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		if (statsData == null) return;
 
 		int centerY = getUiHeight() / 2;
@@ -1549,7 +1549,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		};
 	}
 
-	private void renderTpMultiplierInfo(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderTpMultiplierInfo(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int centerY = getUiHeight() / 2;
 		int labelX = getUiWidth() - 137;
 		int y = centerY + 78;
@@ -1790,7 +1790,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		return Math.min(0.50, (skillLevel * 0.025) + (enchLevel * 0.025)) * 100.0;
 	}
 
-	private void drawHexagon(GuiGraphics graphics, int centerX, int centerY, float[] pointsX, float[] pointsY, float[] maxPointsX, float[] maxPointsY) {
+	private void drawHexagon(GuiGraphicsExtractor graphics, int centerX, int centerY, float[] pointsX, float[] pointsY, float[] maxPointsX, float[] maxPointsY) {
 		var pose = graphics.pose();
 		var matrix = pose.last().pose();
 

@@ -43,7 +43,7 @@ import com.dragonminez.common.util.TransformationsHelper;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -52,7 +52,7 @@ import net.minecraft.client.renderer.CubeMap;
 import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -68,8 +68,8 @@ import java.util.function.IntPredicate;
 
 @OnlyIn(Dist.CLIENT)
 public class CharacterCustomizationScreen extends ScaledScreen {
-	private static final ResourceLocation BUTTONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
-	private static final ResourceLocation MENU_BIG = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
+	private static final Identifier BUTTONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier MENU_BIG = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/menubig.png");
 
 	private static final int LEFT_PANEL_X = 12;
 	private static final int LEFT_PANEL_WIDTH = 141;
@@ -187,13 +187,13 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 
 	private PanoramaRenderer getPanorama(String raceName) {
 		return panoramaCache.computeIfAbsent(raceName, k -> {
-			ResourceLocation testLoc = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/" + k + "_panorama_0.png");
+			Identifier testLoc = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/" + k + "_panorama_0.png");
 			boolean exists = false;
 			if (Minecraft.getInstance().getResourceManager() != null) exists = Minecraft.getInstance().getResourceManager().getResource(testLoc).isPresent();
 
-			ResourceLocation baseLoc = exists
-					? ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/" + k + "_panorama")
-					: ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/roshi");
+			Identifier baseLoc = exists
+					? Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/" + k + "_panorama")
+					: Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background/roshi");
 
 			return new PanoramaRenderer(new CubeMap(baseLoc));
 		});
@@ -570,7 +570,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		long now = System.nanoTime();
 		float dt = lastFrameNanos == 0L ? 0.0f : Math.min(0.1f, (now - lastFrameNanos) / 1_000_000_000.0f);
 		lastFrameNanos = now;
@@ -608,14 +608,14 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderLeftPanel(GuiGraphics graphics) {
+	private void renderLeftPanel(GuiGraphicsExtractor graphics) {
 		int panelY = getUiHeight() / 2 - LEFT_PANEL_HEIGHT / 2;
 		RenderSystem.enableBlend();
 		blit(graphics, MENU_BIG, LEFT_PANEL_X, panelY, 0, 0, LEFT_PANEL_WIDTH, LEFT_PANEL_HEIGHT);
 		RenderSystem.disableBlend();
 	}
 
-	private void renderProgress(GuiGraphics graphics) {
+	private void renderProgress(GuiGraphicsExtractor graphics) {
 		int barW = 152;
 		int barX = getUiWidth() - 164;
 		int barY = getUiHeight() - 40;
@@ -638,7 +638,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		graphics.pose().popPose();
 	}
 
-	private void renderTabText(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderTabText(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int panelY = getUiHeight() / 2 - LEFT_PANEL_HEIGHT / 2;
 		int centerX = LEFT_PANEL_X + LEFT_PANEL_WIDTH / 2;
 		int top = panelY + LEFT_PANEL_PADDING;
@@ -663,7 +663,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		for (ScrollbarState bar : previewGridBars) bar.renderBar(graphics, mouseX, mouseY);
 	}
 
-	private void renderPresetText(GuiGraphics graphics, int centerX, int top) {
+	private void renderPresetText(GuiGraphicsExtractor graphics, int centerX, int top) {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.customization.body_type"), centerX, top + 2, 0xFF9B9B);
 		renderPreviewGrid(graphics, bodyTypeBar, top + 40, character.getMinBodyType(), getCombinedBodyTypeCount(), getCurrentCombinedBodyTypeValue(), PreviewRenderMode.FULL_BODY, false, presetGridRows());
 		if (Character.GENDER_FEMALE.equalsIgnoreCase(character.getGender())) {
@@ -674,7 +674,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		}
 	}
 
-	private void renderHairText(GuiGraphics graphics, int centerX, int top) {
+	private void renderHairText(GuiGraphicsExtractor graphics, int centerX, int top) {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.customization.hair"), centerX, top + 2, 0xFF9B9B);
 		int maxHairIndex = Math.max(0, getMaxHairForCurrentState() - 1);
 		Set<Integer> selected = getSelectedHeadBoneValues();
@@ -682,12 +682,12 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, txt(getCurrentPreviewTransformationName()), centerX, top + 178, 0xFFFFFF);
 	}
 
-	private void renderEyesText(GuiGraphics graphics, int centerX, int top) {
+	private void renderEyesText(GuiGraphicsExtractor graphics, int centerX, int top) {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.customization.eyes"), centerX, top + 2, 0xFF9B9B);
 		renderPreviewGrid(graphics, eyesBar, top + 30, 0, maxEyesTypes(), character.getEyesType(), PreviewRenderMode.EYES_ONLY, true, PREVIEW_GRID_VISIBLE_ROWS);
 	}
 
-	private void renderFaceText(GuiGraphics graphics, int centerX, int top) {
+	private void renderFaceText(GuiGraphicsExtractor graphics, int centerX, int top) {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.customization.nose"), centerX, top + 2, 0xFF9B9B);
 		renderPreviewGrid(graphics, noseBar, top + 20, 0, Math.max(1, TextureCounter.getMaxNoseTypes(getEffectiveModelBase())), character.getNoseType(), PreviewRenderMode.NOSE_ONLY, true, 1);
 
@@ -695,7 +695,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		renderPreviewGrid(graphics, mouthBar, top + 94, 0, Math.max(1, TextureCounter.getMaxMouthTypes(getEffectiveModelBase())), character.getMouthType(), PreviewRenderMode.MOUTH_ONLY, true, 2);
 	}
 
-	private void renderBodyText(GuiGraphics graphics, int centerX, int top) {
+	private void renderBodyText(GuiGraphicsExtractor graphics, int centerX, int top) {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.customization.tattoo"), centerX, top + 2, 0xFF9B9B);
 		renderPreviewGrid(graphics, tattooBar, top + 30, 0, tattooGridMax(), tattooGridValueForType(character.getTattooType()), PreviewRenderMode.TATTOO_ONLY, false, PREVIEW_GRID_VISIBLE_ROWS);
 		int[] customCard = SkinPixels.customTattooEnabled() ? previewCardPosition(tattooBar, top + 30, 0, tattooGridMax(), tattooGridMax()) : null;
@@ -719,7 +719,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		return new int[]{startX + col * (PREVIEW_CARD_WIDTH + PREVIEW_CARD_GAP), rowY - bar.scrollPixels()};
 	}
 
-	private void renderAuraClassText(GuiGraphics graphics, int centerX, int top, int mouseX, int mouseY) {
+	private void renderAuraClassText(GuiGraphicsExtractor graphics, int centerX, int top, int mouseX, int mouseY) {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.customization.class"), centerX, top - 2, 0xFF9B9B);
 		Component className = tr("class.dragonminez." + character.getCharacterClass());
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, className, centerX, top + 10, 0xFFFFFF);
@@ -728,12 +728,12 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		renderPassiveDescription(graphics);
 	}
 
-	private void renderAuraOptions(GuiGraphics graphics, int centerX, int top) {
+	private void renderAuraOptions(GuiGraphicsExtractor graphics, int centerX, int top) {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.customization.aura"), centerX, top + AURA_LABEL_Y, 0xFF9B9B);
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr(auraTypeKey()), centerX, top + AURA_TYPE_ROW_Y, 0xFFFFFF);
 	}
 
-	private void renderPassiveDescription(GuiGraphics graphics) {
+	private void renderPassiveDescription(GuiGraphicsExtractor graphics) {
 		int panelWidth = 130;
 		int marginFromEdge = 10;
 		int boxEndX = getUiWidth() - marginFromEdge;
@@ -755,7 +755,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		return TextUtil.wrap(this.font, text, maxWidth, DMZ_FONT);
 	}
 
-	private void renderBaseStatsInline(GuiGraphics graphics, int centerX, int startY, int mouseX, int mouseY) {
+	private void renderBaseStatsInline(GuiGraphicsExtractor graphics, int centerX, int startY, int mouseX, int mouseY) {
 		RaceStatsConfig statsConfig = ConfigManager.getRaceStats(character.getRace());
 		if (statsConfig == null) return;
 		RaceStatsConfig.ClassStats classStats = statsConfig.getClassStats(character.getCharacterClass());
@@ -882,7 +882,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		}
 	}
 
-	private void renderPlayerModel(GuiGraphics graphics, float partialTick) {
+	private void renderPlayerModel(GuiGraphicsExtractor graphics, float partialTick) {
 		Player player = Minecraft.getInstance().player;
 		if (player == null) return;
 
@@ -1528,7 +1528,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		syncCharacter();
 	}
 
-	private void renderColorPickerBackground(GuiGraphics graphics) {
+	private void renderColorPickerBackground(GuiGraphicsExtractor graphics) {
 		var poseStack = graphics.pose();
 		poseStack.pushPose();
 		poseStack.translate(0.0D, 0.0D, 200.0D);
@@ -1538,7 +1538,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		poseStack.popPose();
 	}
 
-	private void renderColorPreviewSquare(GuiGraphics graphics) {
+	private void renderColorPreviewSquare(GuiGraphicsExtractor graphics) {
 		if (hueSlider == null) return;
 		var poseStack = graphics.pose();
 		poseStack.pushPose();
@@ -1560,13 +1560,13 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 	}
 
 	@Override
-	protected void renderPanorama(GuiGraphics graphics, float partialTick) {
+	protected void renderPanorama(GuiGraphicsExtractor graphics, float partialTick) {
 		String currentRace = character.getRace() != null ? character.getRace().toLowerCase(Locale.ROOT) : "human";
 		PanoramaRenderer panorama = getPanorama(currentRace);
 		panorama.render(graphics, this.width, this.height, 1.0F, partialTick);
 	}
 
-	private void renderCinematicBars(GuiGraphics guiGraphics) {
+	private void renderCinematicBars(GuiGraphicsExtractor guiGraphics) {
 		int totalBarHeight = (int) (this.height * 0.12);
 		int fadeSize = 60;
 		if (totalBarHeight <= fadeSize) totalBarHeight = fadeSize + 1;
@@ -1779,11 +1779,11 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		return new ScrollbarState().colors(0x88000000, 0xFFDDDDDD, 0xFFFFFFFF).minThumb(8).step(PREVIEW_CARD_HEIGHT + PREVIEW_CARD_GAP);
 	}
 
-	private void renderPreviewGrid(GuiGraphics graphics, ScrollbarState bar, int startY, int minValue, int maxValue, int selectedValue, PreviewRenderMode mode, boolean headZoom, int visibleRows) {
+	private void renderPreviewGrid(GuiGraphicsExtractor graphics, ScrollbarState bar, int startY, int minValue, int maxValue, int selectedValue, PreviewRenderMode mode, boolean headZoom, int visibleRows) {
 		renderPreviewGrid(graphics, bar, startY, minValue, maxValue, (IntPredicate) (v -> v == selectedValue), mode, headZoom, visibleRows);
 	}
 
-	private void renderPreviewGrid(GuiGraphics graphics, ScrollbarState bar, int startY, int minValue, int maxValue, IntPredicate selectedPredicate, PreviewRenderMode mode, boolean headZoom, int visibleRows) {
+	private void renderPreviewGrid(GuiGraphicsExtractor graphics, ScrollbarState bar, int startY, int minValue, int maxValue, IntPredicate selectedPredicate, PreviewRenderMode mode, boolean headZoom, int visibleRows) {
 		if (maxValue < minValue) return;
 		int total = maxValue - minValue + 1;
 		int gridWidth = PREVIEW_GRID_COLUMNS * PREVIEW_CARD_WIDTH + (PREVIEW_GRID_COLUMNS - 1) * PREVIEW_CARD_GAP;
@@ -1823,7 +1823,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		return uiMouseX >= startX && uiMouseX <= startX + width && uiMouseY >= startY && uiMouseY <= startY + height;
 	}
 
-	private void renderPreviewModelVariant(GuiGraphics graphics, int cardX, int cardY, int x, int y, int scale, boolean headZoom, PreviewRenderMode mode, int value) {
+	private void renderPreviewModelVariant(GuiGraphicsExtractor graphics, int cardX, int cardY, int x, int y, int scale, boolean headZoom, PreviewRenderMode mode, int value) {
 		LivingEntity player = Minecraft.getInstance().player;
 		if (player == null) return;
 

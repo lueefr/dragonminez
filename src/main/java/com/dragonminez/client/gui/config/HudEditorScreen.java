@@ -23,13 +23,13 @@ import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.HudPlacement;
 import com.dragonminez.common.init.MainSounds;
 import com.google.gson.Gson;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -57,8 +57,8 @@ public class HudEditorScreen extends Screen {
 	private static final float SCREEN_MARGIN = 2.0f;
 	private static final float ELEMENT_GAP = 2.0f;
 	private static final float HANDLE = 5.0f;
-	private static final ResourceLocation DMZ_FONT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
-	private static final ResourceLocation BUTTONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	private static final Identifier BUTTONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
 	private static final int BUTTON_WIDTH = 74;
 	private static final int BUTTON_GAP = 4;
 	private static final int TITLE_Y = 6;
@@ -279,7 +279,7 @@ public class HudEditorScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		graphics.fill(0, 0, this.width, this.height, DIM_COLOR);
 
 		if (extras) {
@@ -334,7 +334,7 @@ public class HudEditorScreen extends Screen {
 		graphics.pose().popPose();
 	}
 
-	private void drawBox(GuiGraphics graphics, HudElement element, boolean hovered) {
+	private void drawBox(GuiGraphicsExtractor graphics, HudElement element, boolean hovered) {
 		HudLayout.Box box = box(element);
 		boolean isSelected = element == selected;
 		int x0 = Math.round(box.x()), y0 = Math.round(box.y()), x1 = Math.round(box.right()), y1 = Math.round(box.bottom());

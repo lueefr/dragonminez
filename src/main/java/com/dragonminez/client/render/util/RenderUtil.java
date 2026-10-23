@@ -6,7 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.UseAnim;
 import org.joml.Vector3d;
-import software.bernie.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.GeoBone;
 
 public class RenderUtil {
 

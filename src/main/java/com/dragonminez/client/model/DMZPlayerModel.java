@@ -29,16 +29,16 @@ import com.dragonminez.common.stats.character.Character;
 import com.dragonminez.common.util.lists.SaiyanForms;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.loading.math.MolangQueries;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.constant.DataTickets;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.loading.math.MolangQueries;
+import com.geckolib.model.GeoModel;
+import com.geckolib.model.data.EntityModelData;
 
 import java.util.Map;
 import java.util.Objects;
@@ -49,61 +49,61 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
     private static final String EXPLODE_ANIMATION = "base.explodecell";
     private static final float EXPLODE_RESET_EASE = 0.25f;
     private static final float EXPLODE_RESET_EPSILON = 0.01f;
-    private static final ResourceLocation BASE_DEFAULT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/human.geo.json");
-    private static final ResourceLocation BASE_SLIM = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/human_slim.geo.json");
-    private static final ResourceLocation MAJIN_FAT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/majin.geo.json");
-    private static final ResourceLocation MAJIN_SLIM = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/majin_slim.geo.json");
-    private static final ResourceLocation JANEMBA_SUPER = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/janemba_super.geo.json");
-    private static final ResourceLocation JANEMBA_IMPERFECT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/janemba_imperfect.geo.json");
-    private static final ResourceLocation JANEMBA_FAT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/janemba_fat.geo.json");
+    private static final Identifier BASE_DEFAULT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/human.geo.json");
+    private static final Identifier BASE_SLIM = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/human_slim.geo.json");
+    private static final Identifier MAJIN_FAT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/majin.geo.json");
+    private static final Identifier MAJIN_SLIM = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/majin_slim.geo.json");
+    private static final Identifier JANEMBA_SUPER = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/janemba_super.geo.json");
+    private static final Identifier JANEMBA_IMPERFECT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/janemba_imperfect.geo.json");
+    private static final Identifier JANEMBA_FAT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/janemba_fat.geo.json");
 
-    private static final ResourceLocation FROST_DEMON = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon.geo.json");
-    private static final ResourceLocation FROST_DEMON_SECOND = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon_second.geo.json");
-    private static final ResourceLocation FROST_DEMON_THIRD = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon_third.geo.json");
-    private static final ResourceLocation FROST_DEMON_FIFTH = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon_fifth.geo.json");
-    private static final ResourceLocation FROSTDEMON_BUFFED = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon_fp.geo.json");
-    private static final ResourceLocation FROSTDEMON_METALCORE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon_metalcore.geo.json");
+    private static final Identifier FROST_DEMON = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon.geo.json");
+    private static final Identifier FROST_DEMON_SECOND = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon_second.geo.json");
+    private static final Identifier FROST_DEMON_THIRD = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon_third.geo.json");
+    private static final Identifier FROST_DEMON_FIFTH = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon_fifth.geo.json");
+    private static final Identifier FROSTDEMON_BUFFED = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon_fp.geo.json");
+    private static final Identifier FROSTDEMON_METALCORE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/frostdemon_metalcore.geo.json");
 
-    private static final ResourceLocation BIO_ANDROID = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid.geo.json");
-    private static final ResourceLocation BIO_ANDROID_SEMI = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid_semi.geo.json");
-    private static final ResourceLocation BIO_ANDROID_PERFECT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid_perfect.geo.json");
-    private static final ResourceLocation BIO_ANDROID_ULTRA = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid_ultra.geo.json");
-    private static final ResourceLocation BIO_ANDROID_XENO = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid_xeno.geo.json");
-    private static final ResourceLocation BIO_ANDROID_XENO_FP = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid_xenofp.geo.json");
+    private static final Identifier BIO_ANDROID = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid.geo.json");
+    private static final Identifier BIO_ANDROID_SEMI = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid_semi.geo.json");
+    private static final Identifier BIO_ANDROID_PERFECT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid_perfect.geo.json");
+    private static final Identifier BIO_ANDROID_ULTRA = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid_ultra.geo.json");
+    private static final Identifier BIO_ANDROID_XENO = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid_xeno.geo.json");
+    private static final Identifier BIO_ANDROID_XENO_FP = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/bioandroid_xenofp.geo.json");
 
-    private static final ResourceLocation OOZARU = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/oozaru.geo.json");
-    private static final ResourceLocation HUMAN_SAIYAN_BUFFED = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/hbuffed.geo.json");
-    private static final ResourceLocation HUMAN_SAIYAN_SLIM_BUFFED = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/hbuffed_slim.geo.json");
-    private static final ResourceLocation HUMAN_SAIYAN_FEMALE_BUFFED = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/hbuffed_fem.geo.json");
-    private static final ResourceLocation HUMAN_SAIYAN_BUFFED_G3 = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/hbuffedg3.geo.json");
-    private static final ResourceLocation HUMAN_SAIYAN_SLIM_BUFFED_G3 = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/hbuffed_slimg3.geo.json");
-    private static final ResourceLocation HUMAN_SAIYAN_FEMALE_BUFFED_G3 = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/hbuffed_femg3.geo.json");
-    private static final ResourceLocation GLIND_TRUE_FORM = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/glindtrueform.geo.json");
-    private static final ResourceLocation GLIND_TRANSCENDED = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/trascended.geo.json");
-    private static final ResourceLocation GLIND_TRANSCENDED_FEMALE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/trascended_fem.geo.json");
-    private static final ResourceLocation GLIND_DARK = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/glinddark.geo.json");
+    private static final Identifier OOZARU = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/oozaru.geo.json");
+    private static final Identifier HUMAN_SAIYAN_BUFFED = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/hbuffed.geo.json");
+    private static final Identifier HUMAN_SAIYAN_SLIM_BUFFED = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/hbuffed_slim.geo.json");
+    private static final Identifier HUMAN_SAIYAN_FEMALE_BUFFED = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/hbuffed_fem.geo.json");
+    private static final Identifier HUMAN_SAIYAN_BUFFED_G3 = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/hbuffedg3.geo.json");
+    private static final Identifier HUMAN_SAIYAN_SLIM_BUFFED_G3 = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/hbuffed_slimg3.geo.json");
+    private static final Identifier HUMAN_SAIYAN_FEMALE_BUFFED_G3 = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/hbuffed_femg3.geo.json");
+    private static final Identifier GLIND_TRUE_FORM = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/glindtrueform.geo.json");
+    private static final Identifier GLIND_TRANSCENDED = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/trascended.geo.json");
+    private static final Identifier GLIND_TRANSCENDED_FEMALE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/trascended_fem.geo.json");
+    private static final Identifier GLIND_DARK = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/glinddark.geo.json");
 
-    private static final ResourceLocation HUMAN_SAIYAN_4ARMS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/h4arms.geo.json");
-    private static final ResourceLocation HUMAN_SAIYAN_4ARMS_SLIM = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/h4armsslim.geo.json");
-    private static final ResourceLocation HUMAN_SAIYAN_4ARMS_FEM = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/h4armsfem.geo.json");
+    private static final Identifier HUMAN_SAIYAN_4ARMS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/h4arms.geo.json");
+    private static final Identifier HUMAN_SAIYAN_4ARMS_SLIM = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/h4armsslim.geo.json");
+    private static final Identifier HUMAN_SAIYAN_4ARMS_FEM = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/h4armsfem.geo.json");
 
-    private static final ResourceLocation CANDY_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/candy.geo.json");
-    private static final ResourceLocation CANDY_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/candy.png");
+    private static final Identifier CANDY_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/candy.geo.json");
+    private static final Identifier CANDY_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/candy.png");
 
-    private static final Map<ResourceLocation, Boolean> FILE_EXISTS_CACHE = new ConcurrentHashMap<>();
-    private static final Map<String, ResourceLocation> MODEL_RESOLUTION_CACHE = new ConcurrentHashMap<>();
+    private static final Map<Identifier, Boolean> FILE_EXISTS_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, Identifier> MODEL_RESOLUTION_CACHE = new ConcurrentHashMap<>();
 
-    private static final ResourceLocation ANIM_PRIMARY = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/movement.animation.json");
-    private static final ResourceLocation[] ANIM_FALLBACKS = {
-        ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/combat.animation.json"),
-        ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/ki.animation.json"),
-        ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/transf.animation.json"),
-        ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/skp.animation.json"),
-        ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/evs.animation.json")
+    private static final Identifier ANIM_PRIMARY = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/movement.animation.json");
+    private static final Identifier[] ANIM_FALLBACKS = {
+        Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/combat.animation.json"),
+        Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/ki.animation.json"),
+        Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/transf.animation.json"),
+        Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/skp.animation.json"),
+        Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/evs.animation.json")
     };
 
-    private static final ResourceLocation PUPPET_ANIM_PRIMARY = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/sagas/saga_base.animation.json");
-    private static final ResourceLocation[] PUPPET_ANIM_FALLBACKS = {
+    private static final Identifier PUPPET_ANIM_PRIMARY = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/sagas/saga_base.animation.json");
+    private static final Identifier[] PUPPET_ANIM_FALLBACKS = {
         ANIM_PRIMARY,
         ANIM_FALLBACKS[0],
         ANIM_FALLBACKS[1],
@@ -112,30 +112,30 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         ANIM_FALLBACKS[4]
     };
 
-    private final ResourceLocation textureLocation;
+    private final Identifier textureLocation;
     private final String customModel;
     private BakedGeoModel activeModel;
 
     public DMZPlayerModel(String raceName, String customModel) {
         this.customModel = customModel;
-        this.textureLocation = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/null.png");
+        this.textureLocation = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/null.png");
     }
 
     @Override
-    public ResourceLocation getModelResource(T player) {
+    public Identifier getModelResource(T player) {
         if (CandyEffect.isCandy(player)) {
             return CANDY_MODEL;
         }
 
         return StatsProvider.get(StatsCapability.INSTANCE, player).map(data -> {
             Character character = data.getCharacter();
-            ResourceLocation current = resolveModel(player, data, character.getActiveForm(), customModelOf(character.getActiveFormData(), character.getActiveStackFormData()));
+            Identifier current = resolveModel(player, data, character.getActiveForm(), customModelOf(character.getActiveFormData(), character.getActiveStackFormData()));
             return ModelMorph.select(player, data, current, look -> resolveModel(player, data, look.form(), customModelOf(look.formData(), look.stackData())));
         }).orElse(BASE_DEFAULT);
     }
 
     @Override
-    public BakedGeoModel getBakedModel(ResourceLocation location) {
+    public BakedGeoModel getBakedModel(Identifier location) {
         BakedGeoModel morph = ModelMorph.baked(location);
         BakedGeoModel model = morph != null ? morph : super.getBakedModel(ModelMorph.source(location, BASE_DEFAULT));
         if (model != this.activeModel) {
@@ -155,7 +155,7 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         return "";
     }
 
-    private ResourceLocation resolveModel(T player, StatsData data, String currentForm, String activeCustomModel) {
+    private Identifier resolveModel(T player, StatsData data, String currentForm, String activeCustomModel) {
         Character character = data.getCharacter();
         String race = character.getRaceName().toLowerCase();
         String gender = character.getGender().toLowerCase();
@@ -236,12 +236,12 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         });
     }
 
-    private static ResourceLocation humanoidVariant(boolean slimBody, boolean isMale, int bodyType, ResourceLocation wide, ResourceLocation slim, ResourceLocation female) {
+    private static Identifier humanoidVariant(boolean slimBody, boolean isMale, int bodyType, Identifier wide, Identifier slim, Identifier female) {
         if (bodyType != 0 && !isMale) return female;
         return slimBody ? slim : wide;
     }
 
-    private ResourceLocation resolveCustomModel(String modelName, boolean isSlimSkin, boolean slimBody, boolean isMale, int bodyType, String customRaceGender) {
+    private Identifier resolveCustomModel(String modelName, boolean isSlimSkin, boolean slimBody, boolean isMale, int bodyType, String customRaceGender) {
         String key = modelName.toLowerCase();
 
         switch (key) {
@@ -299,14 +299,14 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         }
 
         String suffix = (customRaceGender != null && !customRaceGender.isEmpty()) ? "_" + customRaceGender : "";
-        ResourceLocation customLoc = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/" + modelName + suffix + ".geo.json");
+        Identifier customLoc = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/" + modelName + suffix + ".geo.json");
 
         if (fileExists(customLoc)) return customLoc;
         return isSlimSkin ? BASE_SLIM : BASE_DEFAULT;
     }
 
     @Override
-    public ResourceLocation getTextureResource(T t) {
+    public Identifier getTextureResource(T t) {
         if (CandyEffect.isCandy(t)) {
             return CANDY_TEXTURE;
         }
@@ -314,13 +314,13 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
     }
 
     @Override
-    public ResourceLocation getAnimationResource(T t) {
+    public Identifier getAnimationResource(T t) {
         if (t instanceof DMZRendererCache.NpcPuppet) return PUPPET_ANIM_PRIMARY;
         return ANIM_PRIMARY;
     }
 
     @Override
-    public ResourceLocation[] getAnimationResourceFallbacks(T t) {
+    public Identifier[] getAnimationResourceFallbacks(T t) {
         if (t instanceof DMZRendererCache.NpcPuppet) return PUPPET_ANIM_FALLBACKS;
         return ANIM_FALLBACKS;
     }
@@ -461,7 +461,7 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         };
     }
 
-    private boolean fileExists(ResourceLocation location) {
+    private boolean fileExists(Identifier location) {
         return FILE_EXISTS_CACHE.computeIfAbsent(location, loc ->
                 Minecraft.getInstance().getResourceManager().getResource(loc).isPresent()
         );

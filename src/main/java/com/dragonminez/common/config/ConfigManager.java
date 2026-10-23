@@ -39,6 +39,8 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class ConfigManager {
+	private static volatile long formConfigGeneration;
+	public static long getFormConfigGeneration() { return formConfigGeneration; }
 	public static final String CONFIG_VERSION = "2.2.0";
 	public static final String CLIENT_ONLY_CONFIG = "general-user";
 
@@ -85,6 +87,7 @@ public class ConfigManager {
 		private Map<String, RaceCharacterConfig> character = new HashMap<>();
 		private Map<String, FormConfig> stackForms = new HashMap<>();
 		private EntitiesConfig entities;
+		private final Map<String, Map<String, String>> translations = new HashMap<>();
 	}
 
 	public record SyncPayload(String path, byte[] data) {}
@@ -118,6 +121,9 @@ public class ConfigManager {
 			createOrLoadStackForms(true);
 			loadRaids();
 			loadTournaments();
+			com.dragonminez.api.lang.ConfigTranslations.INSTANCE.reload(CONFIG_DIR.resolve("lang"));
+			com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.reload(CONFIG_DIR);
+			validateFormComposition();
 
 			LogUtil.info(Env.COMMON, "Configuration system initialized successfully");
 			LogUtil.info(Env.COMMON, "Loaded races: {}", LOADED_RACES);
@@ -145,11 +151,28 @@ public class ConfigManager {
 			createOrLoadStackForms(true);
 			loadRaids();
 			loadTournaments();
+			com.dragonminez.api.lang.ConfigTranslations.INSTANCE.reload(CONFIG_DIR.resolve("lang"));
+			com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.reload(CONFIG_DIR);
+			validateFormComposition();
 			LogUtil.info(Env.COMMON, "Configuration system reloaded successfully");
 		} catch (IOException e) {
 			LogUtil.error(Env.COMMON, "Error reloading configuration system: {}", e.getMessage());
 		}
 	}
+
+	private static void validateFormComposition() {
+        RACE_FORMS.forEach((race, groups) -> {
+            java.util.List<com.dragonminez.api.forms.FormCompositionResolver.Definition> definitions = new ArrayList<>();
+            java.util.function.BiConsumer<String, FormConfig> collect = (groupId, config) -> config.getForms().values().forEach(form -> {
+                if (form.getCompletedContentRequisites() != null) form.getCompletedContentRequisites().forEach(com.dragonminez.api.content.ContentProgress::requireId);
+                definitions.add(com.dragonminez.api.forms.FormCompositionRuntime.definition(groupId, form));
+            });
+            groups.forEach(collect);
+            STACK_FORMS.forEach(collect);
+            try { new com.dragonminez.api.forms.FormCompositionResolver().reload(definitions); }
+            catch (IllegalArgumentException ex) { throw new IllegalArgumentException("Invalid form configuration for race " + race + ": " + ex.getMessage(), ex); }
+        });
+    }
 
 	private static void loadRaids() throws IOException {
 		RAIDS.clear();
@@ -1500,7 +1523,11 @@ public class ConfigManager {
 			if (techniqueConfig.addMissingDefaults()) saveWithAddedDefaults(path, techniqueConfig);
 		} else if (configFilePath.equals("entities")) {
 			entitiesConfig = LOADER.loadConfig(path, EntitiesConfig.class);
-		} else if (configFilePath.startsWith("races/")) {
+		} else if (configFilePath.startsWith("lang/")) {
+            com.dragonminez.api.lang.ConfigTranslations.INSTANCE.reload(CONFIG_DIR.resolve("lang"));
+        } else if (configFilePath.startsWith("custom_npcs/") || configFilePath.startsWith("custom_npc_placements/")) {
+            com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.reload(CONFIG_DIR);
+        } else if (configFilePath.startsWith("races/")) {
 			String[] parts = configFilePath.split("/");
 			String raceName = parts[1];
 			if (parts[2].equals("stats")) {
@@ -1516,6 +1543,7 @@ public class ConfigManager {
 			FormConfig formConfig = LOADER.loadConfig(path, FormConfig.class);
 			STACK_FORMS.put(formGroupKey(formConfig, configFilePath.split("/")[1]), formConfig);
 		}
+        validateFormComposition();
 	}
 
 	public static boolean saveRawConfig(String configFilePath, String json) {
@@ -1597,6 +1625,7 @@ public class ConfigManager {
 	}
 
 	private static void invalidateSyncPayloads() {
+		formConfigGeneration++;
 		cachedSyncPayloads = null;
 	}
 
@@ -1612,6 +1641,8 @@ public class ConfigManager {
 		addSyncPayload(payloads, "skills", GSON.toJson(skillsConfig != null ? skillsConfig : DefaultConfigs.SKILLS));
 		addSyncPayload(payloads, "techniques", GSON.toJson(techniqueConfig != null ? techniqueConfig : DefaultConfigs.TECHNIQUES));
 		addSyncPayload(payloads, "entities", GSON.toJson(entitiesConfig != null ? entitiesConfig : DefaultConfigs.ENTITIES));
+		com.dragonminez.api.lang.ConfigTranslations.INSTANCE.localSnapshot().forEach((locale, values) ->
+				addSyncPayload(payloads, "lang/" + locale, GSON.toJson(values)));
 		for (String race : new ArrayList<>(LOADED_RACES)) {
 			String key = race.toLowerCase();
 			RaceCharacterConfig character = RACE_CHARACTER.get(key);
@@ -1660,6 +1691,10 @@ public class ConfigManager {
 			else if (configFilePath.equals("skills")) target.skills = GSON.fromJson(json, SkillsConfig.class);
 			else if (configFilePath.equals("techniques")) target.techniques = GSON.fromJson(json, TechniqueConfig.class);
 			else if (configFilePath.equals("entities")) target.entities = GSON.fromJson(json, EntitiesConfig.class);
+			else if (configFilePath.startsWith("lang/")) {
+				String locale = com.dragonminez.api.lang.ConfigTranslations.requireLocale(configFilePath.substring(5));
+				target.translations.put(locale, com.dragonminez.api.lang.ConfigTranslations.parse(json));
+			}
 			else if (configFilePath.startsWith("races/")) {
 				String[] parts = configFilePath.split("/");
 				if (parts.length < 3) return false;
@@ -1687,14 +1722,18 @@ public class ConfigManager {
 	}
 
 	private static void commitServerSyncBatch() {
+		formConfigGeneration++;
 		if (pendingSync == null) return;
 		SYNCED = pendingSync;
+		com.dragonminez.api.lang.ConfigTranslations.INSTANCE.replaceRemote(SYNCED.translations);
 		pendingSync = null;
 		syncClientThread = Thread.currentThread();
 		serverSyncActive = true;
 	}
 
 	public static void clearServerSync() {
+		formConfigGeneration++;
+		com.dragonminez.api.lang.ConfigTranslations.INSTANCE.clearRemote();
 		pendingSync = null;
 		SYNCED = new SyncedConfigs();
 		serverSyncActive = false;

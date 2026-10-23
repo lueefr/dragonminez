@@ -7,11 +7,11 @@ import com.dragonminez.common.init.item.DragonRadarItem;
 import com.dragonminez.server.world.dimension.NamekDimension;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -30,7 +30,7 @@ import java.util.Map;
 
 @EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
 public class RadarRenderEvent {
-	private static final ResourceLocation RADAR_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/radar.png");
+	private static final Identifier RADAR_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/radar.png");
 
 	private static List<BlockPos> clientEarthPositions = new ArrayList<>();
 	private static List<BlockPos> clientNamekPositions = new ArrayList<>();
@@ -150,7 +150,7 @@ public class RadarRenderEvent {
 		return (r == 0) ? 150 : r;
 	}
 
-	private static void renderRadar(GuiGraphics gui, Player player, List<BlockPos> targets, int range, int centerX, int centerY, boolean showProximity) {
+	private static void renderRadar(GuiGraphicsExtractor gui, Player player, List<BlockPos> targets, int range, int centerX, int centerY, boolean showProximity) {
 		int textureW = 121;
 		int textureH = 146;
 

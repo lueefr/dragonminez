@@ -7,7 +7,7 @@ import com.dragonminez.common.racial.RacialData;
 import com.dragonminez.common.stats.StatsData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class AbsorptionEjectNode extends AbstractRadialNode {
 	private static final long CONFIRM_WINDOW_MS = 5000;
@@ -35,7 +35,7 @@ public class AbsorptionEjectNode extends AbstractRadialNode {
 	}
 
 	@Override
-	public ResourceLocation icon(StatsData stats) {
+	public Identifier icon(StatsData stats) {
 		return icon("absorption");
 	}
 

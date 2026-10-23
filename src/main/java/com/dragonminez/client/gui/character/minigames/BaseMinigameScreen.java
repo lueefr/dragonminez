@@ -25,14 +25,14 @@ import com.dragonminez.common.network.C2S.TrainingAnimationC2S;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
@@ -47,12 +47,12 @@ import java.util.Locale;
 import java.util.Map;
 
 public abstract class BaseMinigameScreen extends Screen {
-	protected static final ResourceLocation DMZ_FONT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	protected static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
 	private static final int FLUSH_INTERVAL_TICKS = 20;
 	private static final int CONNECT_TIMEOUT_TICKS = 100;
 	private static final int VERIFY_TIMEOUT_TICKS = 100;
 	private static final int MOUSE_KEY_BASE = -1000;
-	private static final ResourceLocation BUTTONS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
+	private static final Identifier BUTTONS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/characterbuttons.png");
 	protected static final int BUTTON_W = 74, BUTTON_H = 20;
 	private static final float PAUSE_FADE = 0.3f;
 	private static final float PAUSE_CLOSE = 0.25f;
@@ -550,7 +550,7 @@ public abstract class BaseMinigameScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		this.renderBackground(graphics, mouseX, mouseY, partialTick);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -575,7 +575,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		super.render(graphics, mouseX, mouseY, partialTick);
 	}
 
-	private void drawBigTitle(GuiGraphics graphics) {
+	private void drawBigTitle(GuiGraphicsExtractor graphics) {
 		MutableComponent title = this.getTitle().copy().withStyle(ChatFormatting.BOLD);
 		graphics.pose().pushPose();
 		graphics.pose().translate(this.width / 2f, 14, 0);
@@ -602,7 +602,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		};
 	}
 
-	private void drawRunningHud(GuiGraphics graphics) {
+	private void drawRunningHud(GuiGraphicsExtractor graphics) {
 		if (logic == null) return;
 		int cx = this.width / 2;
 		String grade = gradeLetter(logic.performance());
@@ -653,7 +653,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		return true;
 	}
 
-	private void drawScaledCentered(GuiGraphics graphics, Component text, float x, float y, float scale, int color) {
+	private void drawScaledCentered(GuiGraphicsExtractor graphics, Component text, float x, float y, float scale, int color) {
 		graphics.pose().pushPose();
 		graphics.pose().translate(x, y + 4, 0);
 		graphics.pose().scale(scale, scale, 1f);
@@ -661,7 +661,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		graphics.pose().popPose();
 	}
 
-	protected void drawNpcPanel(GuiGraphics graphics, int cx, int cy, int contentW, int contentH) {
+	protected void drawNpcPanel(GuiGraphicsExtractor graphics, int cx, int cy, int contentW, int contentH) {
 		int padding = 16;
 		int panelW = contentW + padding * 2;
 		int panelH = contentH + padding * 2;
@@ -669,7 +669,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		PanelSkin.NPC_PANEL.draw(graphics, cx - panelW / 2f, cy - panelH / 2f, panelW, panelH);
 	}
 
-	private void renderReadyOverlay(GuiGraphics graphics) {
+	private void renderReadyOverlay(GuiGraphicsExtractor graphics) {
 		graphics.fill(0, 0, this.width, this.height, 0xBB000000);
 		if (renderReadyCustom(graphics)) {
 			playButton = null;
@@ -703,11 +703,11 @@ public abstract class BaseMinigameScreen extends Screen {
 		graphics.pose().popPose();
 	}
 
-	protected void drawMenuButton(GuiGraphics graphics, float[] rect, String key, float alpha) {
+	protected void drawMenuButton(GuiGraphicsExtractor graphics, float[] rect, String key, float alpha) {
 		drawMenuButton(graphics, rect, tr(key), alpha);
 	}
 
-	protected void drawMenuButton(GuiGraphics graphics, float[] rect, Component label, float alpha) {
+	protected void drawMenuButton(GuiGraphicsExtractor graphics, float[] rect, Component label, float alpha) {
 		boolean hover = alpha > 0.5f && inside(rect, readyToUiX(guiMouseX()), readyToUiY(guiMouseY()));
 		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
 		RenderSystem.enableBlend();
@@ -717,7 +717,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, label, (int) (rect[0] + rect[2] / 2f), (int) (rect[1] + 6), color);
 	}
 
-	private void renderPauseOverlay(GuiGraphics graphics) {
+	private void renderPauseOverlay(GuiGraphicsExtractor graphics) {
 		float appear = pauseClosing ? 1f - easeOut(seconds(pauseClosingNanos) / PAUSE_CLOSE) : easeOut(seconds(pausedAtNanos) / PAUSE_FADE);
 		graphics.fill(0, 0, this.width, this.height, (Math.round(0xC8 * appear) << 24));
 		if (appear <= 0.02f) return;
@@ -763,7 +763,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		graphics.pose().popPose();
 	}
 
-	private void renderCountdown(GuiGraphics graphics) {
+	private void renderCountdown(GuiGraphicsExtractor graphics) {
 		float elapsed = seconds(resumeAtNanos);
 		float dim = 1f - Math.min(1f, elapsed / COUNTDOWN_SECONDS);
 		graphics.fill(0, 0, this.width, this.height, (Math.round(0x70 * dim) << 24));
@@ -788,7 +788,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		return (float) (cy + (mouseY - cy) / readyScale);
 	}
 
-	private void renderMessageOverlay(GuiGraphics graphics, Component message, int color) {
+	private void renderMessageOverlay(GuiGraphicsExtractor graphics, Component message, int color) {
 		graphics.fill(0, 0, this.width, this.height, 0x99000000);
 		int cx = this.width / 2;
 		int cy = this.height / 2;
@@ -818,7 +818,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		return (Math.max(8, a) << 24) | (argb & 0xFFFFFF);
 	}
 
-	private void renderFinishedOverlay(GuiGraphics graphics) {
+	private void renderFinishedOverlay(GuiGraphicsExtractor graphics) {
 		float elapsed = finishedSeconds();
 		float appear = easeOut(elapsed / RESULTS_FADE);
 		graphics.fill(0, 0, this.width, this.height, (Math.round(0xBB * appear) << 24));
@@ -914,7 +914,7 @@ public abstract class BaseMinigameScreen extends Screen {
 	protected static final int FILL_PURPLE = 4;
 	protected static final int BAR_THICKNESS = 9;
 
-	protected static void blitRegion(GuiGraphics graphics, ResourceLocation texture, float x, float y, float w, float h, float u, float v, float uw, float vh) {
+	protected static void blitRegion(GuiGraphicsExtractor graphics, Identifier texture, float x, float y, float w, float h, float u, float v, float uw, float vh) {
 		if (w <= 0 || h <= 0 || uw <= 0 || vh <= 0) return;
 		graphics.pose().pushPose();
 		graphics.pose().translate(x, y, 0);
@@ -923,7 +923,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		graphics.pose().popPose();
 	}
 
-	protected static void drawBarH(GuiGraphics graphics, ResourceLocation sheet, float x, float y, float w, float pct, int fill) {
+	protected static void drawBarH(GuiGraphicsExtractor graphics, Identifier sheet, float x, float y, float w, float pct, int fill) {
 		pct = Math.max(0f, Math.min(1f, pct));
 		blitRegion(graphics, sheet, x, y, 4, 9, 0, UI_V, 4, 9);
 		blitRegion(graphics, sheet, x + 4, y, w - 8, 9, 4, UI_V, 1, 9);
@@ -938,7 +938,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		}
 	}
 
-	protected static void drawBarV(GuiGraphics graphics, ResourceLocation sheet, float x, float y, float h, float pct, int fill) {
+	protected static void drawBarV(GuiGraphicsExtractor graphics, Identifier sheet, float x, float y, float h, float pct, int fill) {
 		pct = Math.max(0f, Math.min(1f, pct));
 		blitRegion(graphics, sheet, x, y, 9, 4, 9, UI_V, 9, 4);
 		blitRegion(graphics, sheet, x, y + 4, 9, h - 8, 9, UI_V + 4, 9, 1);
@@ -953,7 +953,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		}
 	}
 
-	protected static void drawHearts(GuiGraphics graphics, ResourceLocation sheet, float cx, float y, int lives, int max, float scale, long lostNanos) {
+	protected static void drawHearts(GuiGraphicsExtractor graphics, Identifier sheet, float cx, float y, int lives, int max, float scale, long lostNanos) {
 		float step = 9 * scale;
 		float x0 = cx - (max * step - 2 * scale) / 2f;
 		float lostAge = (System.nanoTime() - lostNanos) / 1_000_000_000f;
@@ -970,39 +970,39 @@ public abstract class BaseMinigameScreen extends Screen {
 		}
 	}
 
-	protected void pushField(GuiGraphics graphics) {
+	protected void pushField(GuiGraphicsExtractor graphics) {
 		graphics.pose().pushPose();
 		graphics.pose().translate(fieldLeft, fieldTop, 0);
 		graphics.pose().scale(fieldScale, fieldScale, 1f);
 	}
 
-	protected void popField(GuiGraphics graphics) {
+	protected void popField(GuiGraphicsExtractor graphics) {
 		graphics.flush();
 		graphics.pose().popPose();
 	}
 
-	protected static void rectF(GuiGraphics graphics, float x, float y, float w, float h, int argb) {
+	protected static void rectF(GuiGraphicsExtractor graphics, float x, float y, float w, float h, int argb) {
 		if (w <= 0 || h <= 0) return;
 		quad(graphics, x, y, x, y + h, x + w, y + h, x + w, y, argb, argb);
 	}
 
-	protected static void rectGradient(GuiGraphics graphics, float x, float y, float w, float h, int top, int bottom) {
+	protected static void rectGradient(GuiGraphicsExtractor graphics, float x, float y, float w, float h, int top, int bottom) {
 		if (w <= 0 || h <= 0) return;
 		quad(graphics, x, y, x, y + h, x + w, y + h, x + w, y, top, bottom);
 	}
 
-	protected static void outlineF(GuiGraphics graphics, float x, float y, float w, float h, float t, int argb) {
+	protected static void outlineF(GuiGraphicsExtractor graphics, float x, float y, float w, float h, float t, int argb) {
 		rectF(graphics, x, y, w, t, argb);
 		rectF(graphics, x, y + h - t, w, t, argb);
 		rectF(graphics, x, y + t, t, h - 2 * t, argb);
 		rectF(graphics, x + w - t, y + t, t, h - 2 * t, argb);
 	}
 
-	protected static void triangle(GuiGraphics graphics, float ax, float ay, float bx, float by, float cx, float cy, int argb) {
+	protected static void triangle(GuiGraphicsExtractor graphics, float ax, float ay, float bx, float by, float cx, float cy, int argb) {
 		quad(graphics, ax, ay, bx, by, cx, cy, cx, cy, argb, argb);
 	}
 
-	protected static void ring(GuiGraphics graphics, float cx, float cy, float radius, float thickness, int argb) {
+	protected static void ring(GuiGraphicsExtractor graphics, float cx, float cy, float radius, float thickness, int argb) {
 		if (radius <= 0) return;
 		int segments = Math.max(20, Math.min(96, (int) (radius * 2.5f)));
 		float inner = Math.max(0, radius - thickness);
@@ -1016,15 +1016,15 @@ public abstract class BaseMinigameScreen extends Screen {
 		}
 	}
 
-	protected static void trapezoidQuad(GuiGraphics graphics, float tlx, float tly, float trx, float try_, float brx, float bry, float blx, float bly, int top, int bottom) {
+	protected static void trapezoidQuad(GuiGraphicsExtractor graphics, float tlx, float tly, float trx, float try_, float brx, float bry, float blx, float bly, int top, int bottom) {
 		quad(graphics, tlx, tly, blx, bly, brx, bry, trx, try_, top, bottom);
 	}
 
-	protected static void disc(GuiGraphics graphics, float cx, float cy, float radius, int argb) {
+	protected static void disc(GuiGraphicsExtractor graphics, float cx, float cy, float radius, int argb) {
 		ring(graphics, cx, cy, radius, radius, argb);
 	}
 
-	private static void quad(GuiGraphics graphics, float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, int top, int bottom) {
+	private static void quad(GuiGraphicsExtractor graphics, float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, int top, int bottom) {
 		Matrix4f matrix = graphics.pose().last().pose();
 		VertexConsumer buffer = graphics.bufferSource().getBuffer(RenderType.gui());
 		float area = (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0);
@@ -1049,7 +1049,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		return (Math.max(0, Math.min(255, Math.round(alpha * 255))) << 24) | (rgb & 0xFFFFFF);
 	}
 
-	protected void drawSymbol(GuiGraphics graphics, String symbol, float x, float y, float scale, int color) {
+	protected void drawSymbol(GuiGraphicsExtractor graphics, String symbol, float x, float y, float scale, int color) {
 		graphics.pose().pushPose();
 		graphics.pose().translate(x, y, 0);
 		graphics.pose().scale(scale, scale, 1.0f);
@@ -1057,7 +1057,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		graphics.pose().popPose();
 	}
 
-	protected abstract void renderGame(GuiGraphics graphics, float partialTick);
+	protected abstract void renderGame(GuiGraphicsExtractor graphics, float partialTick);
 
 	protected MinigameLogic createLogic(MinigameStartS2C message) {
 		return MinigameLogics.create(minigameId, ConfigManager.getTrainingConfig(), message.getSeed());
@@ -1103,7 +1103,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		return Minecraft.getInstance().mouseHandler.ypos() * this.height / Minecraft.getInstance().getWindow().getScreenHeight();
 	}
 
-	protected void drawLegend(GuiGraphics graphics, String key, float centerX, float y) {
+	protected void drawLegend(GuiGraphicsExtractor graphics, String key, float centerX, float y) {
 		graphics.pose().pushPose();
 		graphics.pose().translate(centerX, y, 0);
 		graphics.pose().scale(0.75f, 0.75f, 1f);
@@ -1115,7 +1115,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		return true;
 	}
 
-	protected boolean renderReadyCustom(GuiGraphics graphics) {
+	protected boolean renderReadyCustom(GuiGraphicsExtractor graphics) {
 		return false;
 	}
 
@@ -1127,7 +1127,7 @@ public abstract class BaseMinigameScreen extends Screen {
 		return 0;
 	}
 
-	protected void renderReadyExtra(GuiGraphics graphics, int cx, int y) {}
+	protected void renderReadyExtra(GuiGraphicsExtractor graphics, int cx, int y) {}
 
 	protected void appendResultLines(List<Component> lines, List<Integer> colors) {}
 

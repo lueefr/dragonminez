@@ -38,9 +38,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -154,9 +154,9 @@ public class TriggerCommand {
 														.executes(ctx -> run(ctx, (source, target, data) -> zenkai(source, target, data, DoubleArgumentType.getDouble(ctx, "potency"), true))))))
 								.then(Commands.literal("majin")
 										.then(Commands.argument("potency", DoubleArgumentType.doubleArg(0.0, 100.0)).suggests(MAJIN_POTENCY_SUGGESTIONS)
-												.then(Commands.argument("mob", ResourceLocationArgument.id()).suggests(MOB_SUGGESTIONS)
+												.then(Commands.argument("mob", IdentifierArgument.id()).suggests(MOB_SUGGESTIONS)
 														.executes(ctx -> run(ctx, (source, target, data) -> absorb(source, target, data,
-																DoubleArgumentType.getDouble(ctx, "potency"), ResourceLocationArgument.getId(ctx, "mob")))))))
+																DoubleArgumentType.getDouble(ctx, "potency"), IdentifierArgument.getId(ctx, "mob")))))))
 								.then(Commands.literal("namekian")
 										.executes(ctx -> run(ctx, (source, target, data) -> assimilate(source, target, data, racialConfig().getNamekian().getAssimilationStatBoost() * 100.0)))
 										.then(Commands.argument("potency", DoubleArgumentType.doubleArg(0.0, 100.0)).suggests(NAMEK_POTENCY_SUGGESTIONS)
@@ -353,7 +353,7 @@ public class TriggerCommand {
 		return 1;
 	}
 
-	private static int absorb(CommandSourceStack source, ServerPlayer target, StatsData data, double percent, ResourceLocation mobId) {
+	private static int absorb(CommandSourceStack source, ServerPlayer target, StatsData data, double percent, Identifier mobId) {
 		if (!hasRacial(source, target, data, "majin")) return 0;
 		GeneralServerConfig.MajinRacialConfig config = racialConfig().getMajin();
 		if (MajinAbsorption.effectiveSlotsUsed(data) >= config.getAbsorptionAmount()) {

@@ -7,7 +7,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
@@ -22,14 +22,14 @@ public class VillagePoolInjector {
 				.registryOrThrow(Registries.PROCESSOR_LIST);
 
 		Holder<StructureProcessorList> empty = procs.getHolderOrThrow(
-				ResourceKey.create(Registries.PROCESSOR_LIST, ResourceLocation.fromNamespaceAndPath("minecraft", "empty")));
+				ResourceKey.create(Registries.PROCESSOR_LIST, Identifier.fromNamespaceAndPath("minecraft", "empty")));
 
 		inject(pools, empty, "minecraft:village/plains/houses", "dragonminez:cc_villager", 20);
 	}
 
 	private static void inject(Registry<StructureTemplatePool> pools, Holder<StructureProcessorList> processors,
 							   String poolId, String pieceId, int weight) {
-		StructureTemplatePool pool = pools.get(ResourceLocation.parse(poolId));
+		StructureTemplatePool pool = pools.get(Identifier.parse(poolId));
 		if (pool == null) {
 			LogUtil.warn(Env.SERVER, "VillagePoolInjector: pool '" + poolId + "' not found, skipping '" + pieceId + "'.");
 			return;

@@ -12,14 +12,14 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import java.util.List;
 
 public class KikonoStationCategory implements IRecipeCategory<KikonoRecipe> {
-	public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "kikono_crafting");
-	public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/screen/kikono_station_gui.png");
+	public static final Identifier UID = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "kikono_crafting");
+	public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/screen/kikono_station_gui.png");
 
 	public static final RecipeType<KikonoRecipe> TYPE = new RecipeType<>(UID, KikonoRecipe.class);
 

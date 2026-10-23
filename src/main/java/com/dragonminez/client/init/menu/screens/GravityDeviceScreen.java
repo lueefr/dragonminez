@@ -8,19 +8,19 @@ import com.dragonminez.common.network.C2S.GravityDeviceUpdateC2S;
 import com.dragonminez.common.network.NetworkHandler;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 public class GravityDeviceScreen extends AbstractContainerScreen<GravityDeviceMenu> {
-	protected static final ResourceLocation DMZ_FONT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
-	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/screen/gravity_device_gui.png");
+	protected static final Identifier DMZ_FONT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "smooth");
+	private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/screen/gravity_device_gui.png");
 
 	private EditBox gravityInput;
 	private Button toggleButton;
@@ -72,7 +72,7 @@ public class GravityDeviceScreen extends AbstractContainerScreen<GravityDeviceMe
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+	protected void renderBg(GuiGraphicsExtractor guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		RenderSystem.setShaderTexture(0, TEXTURE);
@@ -86,7 +86,7 @@ public class GravityDeviceScreen extends AbstractContainerScreen<GravityDeviceMe
 	}
 
 	@Override
-	public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float delta) {
+	public void render(GuiGraphicsExtractor guiGraphics, int pMouseX, int pMouseY, float delta) {
 		renderBackground(guiGraphics, pMouseX, pMouseY, delta);
 		if (toggleButton != null) toggleButton.setMessage(toggleLabel(menu.isActive()));
 		super.render(guiGraphics, pMouseX, pMouseY, delta);
@@ -111,14 +111,14 @@ public class GravityDeviceScreen extends AbstractContainerScreen<GravityDeviceMe
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics guiGraphics, int pMouseX, int pMouseY) {
+	protected void renderLabels(GuiGraphicsExtractor guiGraphics, int pMouseX, int pMouseY) {
 		Component title = this.title.copy().withStyle(Style.EMPTY.withFont(DMZ_FONT));
 		TextUtil.drawCenteredStringWithBorder(guiGraphics, this.font, title, this.imageWidth / 2, this.titleLabelY, 0xFFFFFF);
 		guiGraphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0x404040, false);
 	}
 
 	@Override
-	protected void renderTooltip(GuiGraphics guiGraphics, int pMouseX, int pMouseY) {
+	protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int pMouseX, int pMouseY) {
 		super.renderTooltip(guiGraphics, pMouseX, pMouseY);
 		int x = (width - imageWidth) / 2;
 		int y = (height - imageHeight) / 2;

@@ -8,8 +8,8 @@ import com.dragonminez.client.gui.hud.HudSmoother;
 import com.dragonminez.client.render.shader.FullscreenPostEffect;
 import com.dragonminez.client.render.util.IrisCompat;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
@@ -21,7 +21,7 @@ import net.neoforged.fml.common.Mod;
 @EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public final class BeamClashScreenRenderer {
 	private static final FullscreenPostEffect EFFECT = new FullscreenPostEffect(
-			ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/beam_clash.json"), "beam clash speed lines");
+			Identifier.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/beam_clash.json"), "beam clash speed lines");
 	private static final HudSmoother INTENSITY = new HudSmoother(0.22f, 0.004f);
 	private static final float FALLBACK_BORDER_SHARE = 0.15f;
 	private static final int FALLBACK_INK = 0x050505;
@@ -66,7 +66,7 @@ public final class BeamClashScreenRenderer {
 		float intensity = INTENSITY.value();
 		if (intensity <= 0.004f) return;
 
-		GuiGraphics graphics = event.getGuiGraphics();
+		GuiGraphicsExtractor graphics = event.getGuiGraphics();
 		int width = event.getGuiGraphics().guiWidth();
 		int height = event.getGuiGraphics().guiHeight();
 		float band = Math.min(width, height) * FALLBACK_BORDER_SHARE;

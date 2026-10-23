@@ -3,15 +3,15 @@ package com.dragonminez.client.gui.dialogue;
 import com.dragonminez.Reference;
 import com.dragonminez.client.gui.hud.HudRender;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 final class DialogueSkin {
-	static final ResourceLocation SHEET = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/npcdialogue.png");
+	static final Identifier SHEET = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/menu/npcdialogue.png");
 	private static final int SHEET_SIZE = 256;
 	static final int LINE_H = 5;
 
@@ -51,57 +51,57 @@ final class DialogueSkin {
 	private DialogueSkin() {
 	}
 
-	static void band(GuiGraphics graphics, float x, float y, float width, float height, float alpha) {
+	static void band(GuiGraphicsExtractor graphics, float x, float y, float width, float height, float alpha) {
 		tint(0xFFFFFF, alpha);
 		HudRender.blit(graphics, SHEET, x, y, 128, 72, width, height, 8, 64, SHEET_SIZE, SHEET_SIZE);
 		untint();
 	}
 
-	static void shadow(GuiGraphics graphics, float x, float y, float width, float height, float alpha) {
+	static void shadow(GuiGraphicsExtractor graphics, float x, float y, float width, float height, float alpha) {
 		tint(0xFFFFFF, alpha);
 		HudRender.blit(graphics, SHEET, x, y, 136, 72, width, height, 8, 32, SHEET_SIZE, SHEET_SIZE);
 		untint();
 	}
 
-	static void line(GuiGraphics graphics, float x, float y, float width, float alpha) {
+	static void line(GuiGraphicsExtractor graphics, float x, float y, float width, float alpha) {
 		tint(0xFFFFFF, alpha);
 		HudRender.blit(graphics, SHEET, x, y, 144, 72, width, LINE_H, 8, LINE_H, SHEET_SIZE, SHEET_SIZE);
 		untint();
 	}
 
-	static void tab(GuiGraphics graphics, float x, float y, float width, float alpha) {
+	static void tab(GuiGraphicsExtractor graphics, float x, float y, float width, float alpha) {
 		tint(0xFFFFFF, alpha);
 		threeSlice(graphics, x, y, width, 18, 64, 0, 48, 18, 6, 20);
 		untint();
 	}
 
-	static void row(GuiGraphics graphics, Row row, float x, float y, float width, float height, float alpha) {
+	static void row(GuiGraphicsExtractor graphics, Row row, float x, float y, float width, float height, float alpha) {
 		if (alpha <= 0.004f) return;
 		tint(0xFFFFFF, alpha);
 		threeSlice(graphics, x, y, width, height, row.u, 32, 40, 20, 4, 4);
 		untint();
 	}
 
-	static void icon(GuiGraphics graphics, Icon icon, float x, float y, int rgb, float alpha) {
+	static void icon(GuiGraphicsExtractor graphics, Icon icon, float x, float y, int rgb, float alpha) {
 		if (icon == Icon.NONE || alpha <= 0.004f) return;
 		tint(rgb, alpha);
 		HudRender.blit(graphics, SHEET, x, y, icon.u, 56, 10, 10, SHEET_SIZE, SHEET_SIZE);
 		untint();
 	}
 
-	static void input(GuiGraphics graphics, float x, float y, float width, float height, float alpha) {
+	static void input(GuiGraphicsExtractor graphics, float x, float y, float width, float height, float alpha) {
 		tint(0xFFFFFF, alpha);
 		HudRender.nineSlice(graphics, SHEET, x, y, width, height, 0, 128, 24, 18, 5, SHEET_SIZE, SHEET_SIZE);
 		untint();
 	}
 
-	static void chip(GuiGraphics graphics, float x, float y, float width, float height, float alpha) {
+	static void chip(GuiGraphicsExtractor graphics, float x, float y, float width, float height, float alpha) {
 		tint(0xFFFFFF, alpha);
 		HudRender.nineSlice(graphics, SHEET, x, y, width, height, 0, 160, 16, 12, 4, SHEET_SIZE, SHEET_SIZE);
 		untint();
 	}
 
-	private static void threeSlice(GuiGraphics graphics, float x, float y, float width, float height,
+	private static void threeSlice(GuiGraphicsExtractor graphics, float x, float y, float width, float height,
 								   int u, int v, int regionWidth, int regionHeight, int leftCap, int rightCap) {
 		float scale = height / regionHeight;
 		float left = Math.min(leftCap * scale, width / 2.0f);

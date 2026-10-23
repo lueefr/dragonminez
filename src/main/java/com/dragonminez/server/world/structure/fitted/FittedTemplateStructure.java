@@ -7,7 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Mirror;
@@ -28,7 +28,7 @@ import java.util.Optional;
 public class FittedTemplateStructure extends Structure {
 	public static final com.mojang.serialization.MapCodec<FittedTemplateStructure> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			settingsCodec(instance),
-			ResourceLocation.CODEC.fieldOf("template").forGetter(FittedTemplateStructure::template),
+			Identifier.CODEC.fieldOf("template").forGetter(FittedTemplateStructure::template),
 			TerrainFit.CODEC.optionalFieldOf("terrain_fit", TerrainFit.NONE).forGetter(FittedTemplateStructure::fit),
 			Rotation.CODEC.optionalFieldOf("rotation").forGetter(FittedTemplateStructure::fixedRotation),
 			Codec.floatRange(0.0F, 64.0F).optionalFieldOf("max_deviation", 0.0F).forGetter(structure -> structure.maxDeviation)
@@ -40,12 +40,12 @@ public class FittedTemplateStructure extends Structure {
 	private static final float MAX_WATER_FRACTION = 0.1F;
 	private static final float ESTIMATE_SLACK = 2.0F;
 
-	private final ResourceLocation template;
+	private final Identifier template;
 	private final TerrainFit fit;
 	private final Optional<Rotation> fixedRotation;
 	private final float maxDeviation;
 
-	public FittedTemplateStructure(StructureSettings settings, ResourceLocation template, TerrainFit fit, Optional<Rotation> fixedRotation, float maxDeviation) {
+	public FittedTemplateStructure(StructureSettings settings, Identifier template, TerrainFit fit, Optional<Rotation> fixedRotation, float maxDeviation) {
 		super(settings);
 		this.template = template;
 		this.fit = fit;
@@ -53,7 +53,7 @@ public class FittedTemplateStructure extends Structure {
 		this.maxDeviation = maxDeviation;
 	}
 
-	public ResourceLocation template() {
+	public Identifier template() {
 		return this.template;
 	}
 

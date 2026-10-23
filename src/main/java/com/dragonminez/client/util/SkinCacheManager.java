@@ -18,7 +18,7 @@ import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -67,7 +67,7 @@ public final class SkinCacheManager {
     private static final Type INDEX_TYPE = new TypeToken<HashMap<String, CacheEntry>>() {}.getType();
 
     private static final Map<String, CacheEntry> index = new ConcurrentHashMap<>();
-    private static final Map<String, ResourceLocation> registered = new ConcurrentHashMap<>();
+    private static final Map<String, Identifier> registered = new ConcurrentHashMap<>();
     private static final Set<String> inFlight = ConcurrentHashMap.newKeySet();
 
     private static final BlockingQueue<Task> downloadQueue = new LinkedBlockingQueue<>();
@@ -112,10 +112,10 @@ public final class SkinCacheManager {
 
     }
 
-    public static ResourceLocation resolveTexture(String username) {
+    public static Identifier resolveTexture(String username) {
         if (username == null || username.isEmpty()) return DefaultPlayerSkin.getDefaultTexture();
         String key = username.toLowerCase();
-        ResourceLocation loc = registered.get(key);
+        Identifier loc = registered.get(key);
         if (loc != null) return loc;
 
         if (initialized && !index.containsKey(key)) queueResolve(username, false);
@@ -333,7 +333,7 @@ public final class SkinCacheManager {
                 image.close();
                 return;
             }
-            ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "skins/" + key);
+            Identifier loc = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "skins/" + key);
             Minecraft.getInstance().getTextureManager().register(loc, new DynamicTexture(image));
             registered.put(key, loc);
         });

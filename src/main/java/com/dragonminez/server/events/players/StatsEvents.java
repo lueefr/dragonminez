@@ -46,7 +46,7 @@ import com.dragonminez.server.util.GravityLogic;
 import com.dragonminez.server.util.MutantManager;
 import com.dragonminez.server.util.PotionEffectHelper;
 import com.dragonminez.server.util.TriggerFormMarker;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
@@ -86,22 +86,22 @@ import java.util.concurrent.ConcurrentHashMap;
 @EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class StatsEvents {
 
-	public static final net.minecraft.resources.ResourceLocation DMZ_HEALTH_MODIFIER_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/b065b873-f4c8-4a0f-aa8c-6e778cd410e0");
-	public static final net.minecraft.resources.ResourceLocation SPEED_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/c8c07577-3365-4b1c-9917-26b237da6e08");
-	public static final net.minecraft.resources.ResourceLocation TURBO_SPEED_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/b3f4a1d2-6c8e-4b0a-9f21-7d5e3c9a1b64");
-	public static final net.minecraft.resources.ResourceLocation SURGE_SPEED_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/7d41b9a6-0e52-4c37-8fb0-3a6c15d9e824");
-	public static final net.minecraft.resources.ResourceLocation SURGE_ATTACK_SPEED_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/4e83c027-9a1b-4d65-b3f8-6c20d74a1e9b");
-	public static final net.minecraft.resources.ResourceLocation SPEED_STEP_HEIGHT_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/5a2f8c14-7b93-4e6d-b0a5-8c3f1e94d762");
+	public static final net.minecraft.resources.Identifier DMZ_HEALTH_MODIFIER_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/b065b873-f4c8-4a0f-aa8c-6e778cd410e0");
+	public static final net.minecraft.resources.Identifier SPEED_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/c8c07577-3365-4b1c-9917-26b237da6e08");
+	public static final net.minecraft.resources.Identifier TURBO_SPEED_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/b3f4a1d2-6c8e-4b0a-9f21-7d5e3c9a1b64");
+	public static final net.minecraft.resources.Identifier SURGE_SPEED_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/7d41b9a6-0e52-4c37-8fb0-3a6c15d9e824");
+	public static final net.minecraft.resources.Identifier SURGE_ATTACK_SPEED_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/4e83c027-9a1b-4d65-b3f8-6c20d74a1e9b");
+	public static final net.minecraft.resources.Identifier SPEED_STEP_HEIGHT_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/5a2f8c14-7b93-4e6d-b0a5-8c3f1e94d762");
 	private static final double TURBO_SPEED_BONUS = 0.30;
 	private static final float MEDI_ANT_RESTORE = 0.85F;
-	public static final net.minecraft.resources.ResourceLocation FORM_REACH_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/d8d18684-4476-5c2d-ba28-37c348eb521f");
-	public static final net.minecraft.resources.ResourceLocation FORM_ATTACK_SPEED_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/f2e0aaf0-a4ab-4921-a5b0-f34cf1c3533b");
-	public static final net.minecraft.resources.ResourceLocation KI_WEAPON_ATTACK_SPEED_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/a3b1c5d7-9e2f-4a6b-8c1d-5f7e9a0b2c4d");
+	public static final net.minecraft.resources.Identifier FORM_REACH_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/d8d18684-4476-5c2d-ba28-37c348eb521f");
+	public static final net.minecraft.resources.Identifier FORM_ATTACK_SPEED_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/f2e0aaf0-a4ab-4921-a5b0-f34cf1c3533b");
+	public static final net.minecraft.resources.Identifier KI_WEAPON_ATTACK_SPEED_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/a3b1c5d7-9e2f-4a6b-8c1d-5f7e9a0b2c4d");
 
-	public static final net.minecraft.resources.ResourceLocation WEIGHT_MOVEMENT_SPEED_MOD_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/6f663f73-199f-431a-8c35-132d75a31742");
-	private static final net.minecraft.resources.ResourceLocation WEIGHT_ATTACK_SPEED_MOD_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/a1b2c3d4-e5f6-431a-8c35-132d75a31742");
+	public static final net.minecraft.resources.Identifier WEIGHT_MOVEMENT_SPEED_MOD_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/6f663f73-199f-431a-8c35-132d75a31742");
+	private static final net.minecraft.resources.Identifier WEIGHT_ATTACK_SPEED_MOD_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/a1b2c3d4-e5f6-431a-8c35-132d75a31742");
 
-	private static void applySpeedModifier(AttributeInstance attribute, net.minecraft.resources.ResourceLocation uuid, String name, double amount) {
+	private static void applySpeedModifier(AttributeInstance attribute, net.minecraft.resources.Identifier uuid, String name, double amount) {
 		AttributeModifier existing = attribute.getModifier(uuid);
 		double current = existing != null ? existing.amount() : 0.0;
 		if (Math.abs(amount - current) <= 1.0E-9) return;
@@ -112,7 +112,7 @@ public class StatsEvents {
 		}
 	}
 
-	private static void applyWeightAttributeModifier(Player player, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute, net.minecraft.resources.ResourceLocation uuid, String name, double amount) {
+	private static void applyWeightAttributeModifier(Player player, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute, net.minecraft.resources.Identifier uuid, String name, double amount) {
 		var inst = player.getAttribute(attribute);
 		if (inst != null) {
 			AttributeModifier existing = inst.getModifier(com.dragonminez.common.util.AttributeMods.id(uuid));
@@ -443,7 +443,7 @@ public class StatsEvents {
 
 	private static boolean isMasteryBlacklisted(Entity entity) {
 		if (entity == null) return false;
-		ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+		Identifier key = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
 		if (key == null) return false;
 		return ConfigManager.getCombatConfig().getMasteryBlacklistEntities().contains(key.toString());
 	}
@@ -521,7 +521,7 @@ public class StatsEvents {
 
 		Player player = event.getEntity();
 		ItemStack stack = event.getItemStack();
-		ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(stack.getItem());
+		Identifier itemKey = BuiltInRegistries.ITEM.getKey(stack.getItem());
 		if (itemKey == null) return;
 		String itemId = itemKey.toString();
 		String namespace = itemKey.getNamespace();
@@ -541,7 +541,7 @@ public class StatsEvents {
 		if (event.getEntity().level().isClientSide || !(event.getEntity() instanceof ServerPlayer player)) return;
 
 		ItemStack stack = event.getItem();
-		ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(stack.getItem());
+		Identifier itemKey = BuiltInRegistries.ITEM.getKey(stack.getItem());
 		if (itemKey == null) return;
 		String itemId = itemKey.toString();
 		String namespace = itemKey.getNamespace();
@@ -646,7 +646,7 @@ public class StatsEvents {
 		if (event.getEntity().level().isClientSide || !(event.getEntity() instanceof ServerPlayer player)) return;
 
 		ItemStack stack = event.getItem();
-		ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(stack.getItem());
+		Identifier itemKey = BuiltInRegistries.ITEM.getKey(stack.getItem());
 		if (itemKey == null) return;
 		String itemId = itemKey.toString();
 

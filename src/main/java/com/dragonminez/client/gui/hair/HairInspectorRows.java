@@ -3,7 +3,7 @@ package com.dragonminez.client.gui.hair;
 import com.dragonminez.client.util.TextUtil;
 import com.dragonminez.common.hair.HairColors;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -43,7 +43,7 @@ final class HairInspectorRows {
 			return ROW_HEIGHT;
 		}
 
-		abstract void render(GuiGraphics graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context);
+		abstract void render(GuiGraphicsExtractor graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context);
 
 		boolean mouseClicked(double mouseX, double mouseY, int button, int x, int y, int width, Context context) {
 			return false;
@@ -65,7 +65,7 @@ final class HairInspectorRows {
 			return SECTION_HEIGHT;
 		}
 
-		void render(GuiGraphics graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
+		void render(GuiGraphicsExtractor graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
 			TextUtil.drawStringWithBorder(graphics, font, label, x + 4, y + 5, HairEditorUi.SECTION);
 			int lineStart = x + 8 + font.width(label);
 			HairEditorUi.divider(graphics, lineStart, x + width - 4, y + 9);
@@ -81,7 +81,7 @@ final class HairInspectorRows {
 			this.color = color;
 		}
 
-		void render(GuiGraphics graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
+		void render(GuiGraphicsExtractor graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
 			String value = HairEditorUi.trimToWidth(font, text.get().getString(), width - 8);
 			TextUtil.drawStringWithBorder(graphics, font, HairEditorUi.txt(value), x + 4, y + 3, color);
 		}
@@ -120,7 +120,7 @@ final class HairInspectorRows {
 			this.defaultValue = defaultValue;
 		}
 
-		void render(GuiGraphics graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
+		void render(GuiGraphicsExtractor graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
 			boolean hovered = HairEditorUi.inside(mouseX, mouseY, x, y, width, ROW_HEIGHT);
 			if (hovered || dragMode != DRAG_NONE) graphics.fill(x + 1, y, x + width - 1, y + ROW_HEIGHT, HairEditorUi.ROW_HOVER);
 			if (axisColor != 0) graphics.fill(x + 2, y + 2, x + 4, y + ROW_HEIGHT - 2, axisColor);
@@ -260,7 +260,7 @@ final class HairInspectorRows {
 			this.reset = reset;
 		}
 
-		void render(GuiGraphics graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
+		void render(GuiGraphicsExtractor graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
 			TextUtil.drawStringWithBorder(graphics, font, HairEditorUi.txt(HairEditorUi.trimToWidth(font, label.getString(), LABEL_WIDTH - 8)), x + 6, y + 3, HairEditorUi.MUTED);
 			int buttonX = x + LABEL_WIDTH;
 			int buttonWidth = width - LABEL_WIDTH - 3;
@@ -291,7 +291,7 @@ final class HairInspectorRows {
 			this.step = step;
 		}
 
-		void render(GuiGraphics graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
+		void render(GuiGraphicsExtractor graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
 			TextUtil.drawStringWithBorder(graphics, font, HairEditorUi.txt(HairEditorUi.trimToWidth(font, label.getString(), LABEL_WIDTH - 8)), x + 6, y + 3, HairEditorUi.MUTED);
 			int prevX = prevX(x);
 			int nextX = nextX(x, width);
@@ -349,7 +349,7 @@ final class HairInspectorRows {
 			setter.accept(hex);
 		}
 
-		void render(GuiGraphics graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
+		void render(GuiGraphicsExtractor graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
 			boolean hovered = HairEditorUi.inside(mouseX, mouseY, x, y, width, ROW_HEIGHT);
 			if (hovered) graphics.fill(x + 1, y, x + width - 1, y + ROW_HEIGHT, HairEditorUi.ROW_HOVER);
 			TextUtil.drawStringWithBorder(graphics, font, HairEditorUi.txt(HairEditorUi.trimToWidth(font, label.getString(), LABEL_WIDTH - 8)), x + 6, y + 3, HairEditorUi.MUTED);
@@ -393,7 +393,7 @@ final class HairInspectorRows {
 			return ROW_HEIGHT + 3;
 		}
 
-		void render(GuiGraphics graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
+		void render(GuiGraphicsExtractor graphics, Font font, int x, int y, int width, int mouseX, int mouseY, Context context) {
 			int buttonWidth = buttonWidth(width);
 			for (int i = 0; i < actions.size(); i++) {
 				Action action = actions.get(i);

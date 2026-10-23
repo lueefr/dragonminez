@@ -72,7 +72,7 @@ public class RequestITTargetsC2S {
 					String memberDim = member.level().dimension().location().toString();
 					boolean reachable = skillLevel >= CROSS_DIMENSION_SKILL_LEVEL || memberDim.equals(currentDim);
 					double distance = memberDim.equals(currentDim) ? player.distanceTo(member) : 0;
-					entries.add(new ITTargetEntry(ITTargetEntry.Type.PARTY, member.getUUID().toString(), member.getGameProfile().getName(), memberDim, reachable,
+					entries.add(new ITTargetEntry(ITTargetEntry.Type.PARTY, member.getUUID().toString(), member.getGameProfile().name(), memberDim, reachable,
 							travelCost(distance, memberDim, currentDim)));
 					listedPlayers.add(member.getUUID());
 				}
@@ -85,7 +85,7 @@ public class RequestITTargetsC2S {
 
 					double distance = player.distanceTo(other);
 					entries.add(new ITTargetEntry(ITTargetEntry.Type.EXTERNAL, other.getUUID().toString(),
-							other.getGameProfile().getName(), currentDim, true,
+							other.getGameProfile().name(), currentDim, true,
 							travelCost(distance, currentDim, currentDim)));
 				}
 

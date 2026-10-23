@@ -7,16 +7,16 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.cache.GeckoLibCache;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import net.minecraft.resources.Identifier;
+import com.geckolib.cache.GeckoLibCache;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.layer.GeoRenderLayer;
 
 public class SagaDragonBallLayer<T extends DBSagasEntity> extends GeoRenderLayer<T> {
 
-	private static final ResourceLocation NAMEK_BALL_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/block/dballnamek.geo.json");
+	private static final Identifier NAMEK_BALL_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/block/dballnamek.geo.json");
 	private static final String ANCHOR_BONE = "dball";
 	private static final String BALL_BONE = "esfera";
 	private static final float BALL_SCALE = 0.6f;
@@ -39,7 +39,7 @@ public class SagaDragonBallLayer<T extends DBSagasEntity> extends GeoRenderLayer
 		GeoBone ballBone = ballModel.getBone(BALL_BONE).orElse(null);
 		if (ballBone == null) return;
 
-		ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/block/custom/" + animatable.getDragonBallTexturePrefix() + stars + ".png");
+		Identifier texture = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/block/custom/" + animatable.getDragonBallTexturePrefix() + stars + ".png");
 		RenderType ballType = RenderType.entityCutoutNoCull(texture);
 
 		poseStack.pushPose();

@@ -21,7 +21,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
@@ -587,7 +587,7 @@ public class Raid {
 	public static Raid load(CompoundTag tag) {
 		UUID raidId = tag.getUUID("RaidId");
 		String typeId = tag.getString("Type");
-		ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(tag.getString("Dimension")));
+		ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, Identifier.parse(tag.getString("Dimension")));
 		BlockPos center = BlockPos.of(tag.getLong("Center"));
 		Set<UUID> participants = new HashSet<>();
 		loadUuids(tag, "Participants", participants);

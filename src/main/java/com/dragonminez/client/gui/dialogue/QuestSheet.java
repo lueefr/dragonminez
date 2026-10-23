@@ -15,7 +15,7 @@ import com.dragonminez.common.stats.StatsProvider;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -43,7 +43,7 @@ final class QuestSheet {
 		key = "";
 	}
 
-	ItemStack render(GuiGraphics graphics, Font font, ScrollbarState bar, DialogueQuest quest, int x, int y, int width, int height,
+	ItemStack render(GuiGraphicsExtractor graphics, Font font, ScrollbarState bar, DialogueQuest quest, int x, int y, int width, int height,
 					 int barX, double mouseX, double mouseY, float alpha) {
 		DialogueQuest.Status status = quest.status(Util.getMillis());
 		String nextKey = quest.id + "|" + width + "|" + status;

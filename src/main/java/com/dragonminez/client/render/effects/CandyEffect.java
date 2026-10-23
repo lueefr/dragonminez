@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,12 +34,12 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-import software.bernie.geckolib.cache.GeckoLibCache;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.cache.object.GeoCube;
-import software.bernie.geckolib.cache.object.GeoQuad;
-import software.bernie.geckolib.cache.object.GeoVertex;
+import com.geckolib.cache.GeckoLibCache;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.GeoCube;
+import com.geckolib.cache.object.GeoQuad;
+import com.geckolib.cache.object.GeoVertex;
 
 
 import java.util.ArrayList;
@@ -50,8 +50,8 @@ import java.util.Map;
 @EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public final class CandyEffect {
 
-	private static final ResourceLocation CANDY_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/candy.geo.json");
-	private static final ResourceLocation CANDY_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/candy.png");
+	private static final Identifier CANDY_MODEL = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/candy.geo.json");
+	private static final Identifier CANDY_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/candy.png");
 	private static final float[] BOLT_COLOR = new float[]{1.0F, 0.4F, 0.8F};
 	private static final float BOLT_RADIUS = 0.3F;
 	private static final float BOLT_SPEED = 1.8F;
@@ -111,7 +111,7 @@ public final class CandyEffect {
 
 	private static void renderBone(PoseStack poseStack, GeoBone bone, VertexConsumer consumer, int packedLight) {
 		poseStack.pushPose();
-		software.bernie.geckolib.util.RenderUtil.prepMatrixForBone(poseStack, bone);
+		com.geckolib.util.RenderUtil.prepMatrixForBone(poseStack, bone);
 		for (GeoCube cube : bone.getCubes()) renderCube(poseStack, cube, consumer, packedLight);
 		for (GeoBone child : bone.getChildBones()) renderBone(poseStack, child, consumer, packedLight);
 		poseStack.popPose();
@@ -119,15 +119,15 @@ public final class CandyEffect {
 
 	private static void renderCube(PoseStack poseStack, GeoCube cube, VertexConsumer consumer, int packedLight) {
 		poseStack.pushPose();
-		software.bernie.geckolib.util.RenderUtil.translateToPivotPoint(poseStack, cube);
-		software.bernie.geckolib.util.RenderUtil.rotateMatrixAroundCube(poseStack, cube);
-		software.bernie.geckolib.util.RenderUtil.translateAwayFromPivotPoint(poseStack, cube);
+		com.geckolib.util.RenderUtil.translateToPivotPoint(poseStack, cube);
+		com.geckolib.util.RenderUtil.rotateMatrixAroundCube(poseStack, cube);
+		com.geckolib.util.RenderUtil.translateAwayFromPivotPoint(poseStack, cube);
 		Matrix3f normalMatrix = poseStack.last().normal();
 		Matrix4f pose = new Matrix4f(poseStack.last().pose());
 		for (GeoQuad quad : cube.quads()) {
 			if (quad == null) continue;
 			Vector3f normal = normalMatrix.transform(new Vector3f(quad.normal()));
-			software.bernie.geckolib.util.RenderUtil.fixInvertedFlatCube(cube, normal);
+			com.geckolib.util.RenderUtil.fixInvertedFlatCube(cube, normal);
 			for (GeoVertex vertex : quad.vertices()) {
 				Vector3f position = vertex.position();
 				Vector4f transformed = pose.transform(new Vector4f(position.x(), position.y(), position.z(), 1.0F));

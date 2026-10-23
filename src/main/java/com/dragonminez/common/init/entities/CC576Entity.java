@@ -7,7 +7,7 @@ import com.dragonminez.common.init.entities.vehicle.VehicleProperties;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
-import software.bernie.geckolib.animation.AnimatableManager;
+import com.geckolib.animation.AnimatableManager;
 
 public class CC576Entity extends VehicleEntity {
 

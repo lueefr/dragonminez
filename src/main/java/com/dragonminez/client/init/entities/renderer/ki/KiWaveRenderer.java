@@ -18,14 +18,14 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 
 public class KiWaveRenderer extends EntityRenderer<KiWaveEntity> {
-    private static final ResourceLocation TEXTURE_WAVE_CORE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kiwave.png");
+    private static final Identifier TEXTURE_WAVE_CORE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kiwave.png");
 
     private static final float MUZZLE_FLAME_SCALE = 1.55F;
     private static final float DOUBLE_WAVE_BALL_SCALE = 0.82F;
@@ -582,7 +582,7 @@ public class KiWaveRenderer extends EntityRenderer<KiWaveEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(KiWaveEntity pEntity) {
+    public Identifier getTextureLocation(KiWaveEntity pEntity) {
         return TEXTURE_WAVE_CORE;
     }
 }

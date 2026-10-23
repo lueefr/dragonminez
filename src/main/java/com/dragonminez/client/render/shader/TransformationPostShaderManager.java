@@ -24,11 +24,11 @@ import net.minecraft.client.renderer.EffectInstance;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.PostPass;
 import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public final class TransformationPostShaderManager {
-	private static final ResourceLocation TRANSFORMATION_EFFECT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/transformation_outline.json");
+	private static final Identifier TRANSFORMATION_EFFECT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/transformation_outline.json");
 	private static final String UNPACK_PASS_NAME = Reference.MOD_ID + ":transformation_unpack";
 	private static final String BLUR_H_PASS_NAME = Reference.MOD_ID + ":transformation_blur_h";
 	private static final String BLUR_V_PASS_NAME = Reference.MOD_ID + ":transformation_blur_v";

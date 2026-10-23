@@ -31,7 +31,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
@@ -40,17 +40,17 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
-import software.bernie.geckolib.util.RenderUtil;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.renderer.GeoRenderer;
+import com.geckolib.renderer.layer.GeoRenderLayer;
+import com.geckolib.util.RenderUtil;
 
 import java.util.List;
 
 public class DMZHairLayer<T extends AbstractClientPlayer & GeoAnimatable> extends GeoRenderLayer<T> {
-	private static final ResourceLocation HAIR_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/hair.png");
+	private static final Identifier HAIR_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/hair.png");
 	private static final double FULL_PHYSICS_DISTANCE_SQR = 24.0 * 24.0;
 	private static final double REDUCED_PHYSICS_DISTANCE_SQR = 48.0 * 48.0;
 	private static final double PIXEL_DETAIL_DISTANCE_SQR = 32.0 * 32.0;
@@ -84,7 +84,7 @@ public class DMZHairLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 			headBonePose.set(poseStack.last().pose());
 			headBounds = HairColliders.boundsOf(bone);
 			poseStack.pushPose();
-			software.bernie.geckolib.util.RenderUtil.translateToPivotPoint(poseStack, bone);
+			com.geckolib.util.RenderUtil.translateToPivotPoint(poseStack, bone);
 			headPose.set(poseStack.last().pose());
 			headNormal.set(poseStack.last().normal());
 			poseStack.popPose();
@@ -225,7 +225,7 @@ public class DMZHairLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 
 		ItemStack headItem = resolveHeadArmorStack(animatable);
 		if (!headItem.isEmpty()) {
-			ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(headItem.getItem());
+			Identifier itemId = BuiltInRegistries.ITEM.getKey(headItem.getItem());
 			if (itemId != null) {
 				List<String> allowedHelmets = ConfigManager.getServerConfig().getGameplay().getHelmetsThatKeepHair();
 				if (!allowedHelmets.contains(itemId.toString())) return false;

@@ -4,7 +4,7 @@ import com.dragonminez.common.config.FormConfig;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -18,7 +18,7 @@ import java.util.Map;
 public class TransformationItemCostHelper {
 	private static final String PERSISTENT_FORM_DURATION_KEY = "dmz_form_duration_item_seconds";
 	private static final String PERSISTENT_STACK_DURATION_KEY = "dmz_stack_form_duration_item_seconds";
-	private static final Map<String, ResourceLocation> RESOURCE_LOCATION_CACHE = new HashMap<>();
+	private static final Map<String, Identifier> RESOURCE_LOCATION_CACHE = new HashMap<>();
 	private static final Map<String, TagKey<Item>> ITEM_TAG_CACHE = new HashMap<>();
 	private static final Map<String, CompoundTag> NBT_CACHE = new HashMap<>();
 
@@ -123,7 +123,7 @@ public class TransformationItemCostHelper {
 
 	private static boolean matchesItemOrTag(ItemStack stack, String itemId, String itemTag) {
 		if (itemId != null && !itemId.isBlank()) {
-			ResourceLocation itemKey = getCachedResourceLocation(itemId);
+			Identifier itemKey = getCachedResourceLocation(itemId);
 			if (itemKey == null) return false;
 			Item expectedItem = BuiltInRegistries.ITEM.get(itemKey);
 			return expectedItem != null && expectedItem == stack.getItem();
@@ -145,10 +145,10 @@ public class TransformationItemCostHelper {
 		return NbtUtils.compareNbt(requiredTag, stackTag, true);
 	}
 
-	private static ResourceLocation getCachedResourceLocation(String id) {
+	private static Identifier getCachedResourceLocation(String id) {
 		if (id == null || id.isBlank()) return null;
 		if (RESOURCE_LOCATION_CACHE.containsKey(id)) return RESOURCE_LOCATION_CACHE.get(id);
-		ResourceLocation location = ResourceLocation.tryParse(id);
+		Identifier location = Identifier.tryParse(id);
 		RESOURCE_LOCATION_CACHE.put(id, location);
 		return location;
 	}
@@ -156,7 +156,7 @@ public class TransformationItemCostHelper {
 	private static TagKey<Item> getCachedItemTag(String tagId) {
 		if (tagId == null || tagId.isBlank()) return null;
 		if (ITEM_TAG_CACHE.containsKey(tagId)) return ITEM_TAG_CACHE.get(tagId);
-		ResourceLocation location = getCachedResourceLocation(tagId);
+		Identifier location = getCachedResourceLocation(tagId);
 		TagKey<Item> tagKey = location != null ? TagKey.create(Registries.ITEM, location) : null;
 		ITEM_TAG_CACHE.put(tagId, tagKey);
 		return tagKey;

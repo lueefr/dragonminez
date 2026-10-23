@@ -18,7 +18,7 @@ import com.dragonminez.common.init.MainTags;
 import net.minecraft.data.PackOutput;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.recipes.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.BlastingRecipe;
@@ -111,46 +111,46 @@ public class DMZRecipeProvider extends RecipeProvider implements IConditionBuild
 				.pattern("RLR").pattern("LGL").pattern("RLR")
 				.define('R', Items.REDSTONE).define('L', Items.LAPIS_LAZULI).define('G', MainItems.GETE_INGOT.get())
 				.unlockedBy(getHasName(MainItems.GETE_INGOT.get()), has(MainItems.GETE_INGOT.get())).group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "ki_battery"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "ki_battery"));
 
 		SimpleCookingRecipeBuilder.smelting(Ingredient.of(MainItems.FROG_LEGS_RAW.get()),
 						RecipeCategory.FOOD, MainItems.FROG_LEGS_COOKED.get(), 0.35f, 200)
 				.unlockedBy(getHasName(MainItems.FROG_LEGS_RAW.get()), has(MainItems.FROG_LEGS_RAW.get())).group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "frog_legs_cooked"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "frog_legs_cooked"));
 		SimpleCookingRecipeBuilder.smoking(Ingredient.of(MainItems.FROG_LEGS_RAW.get()),
 						RecipeCategory.FOOD, MainItems.FROG_LEGS_COOKED.get(), 0.35f, 100)
 				.unlockedBy(getHasName(MainItems.FROG_LEGS_RAW.get()), has(MainItems.FROG_LEGS_RAW.get())).group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "frog_legs_cooked_smoking"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "frog_legs_cooked_smoking"));
 		SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(MainItems.FROG_LEGS_RAW.get()),
 						RecipeCategory.FOOD, MainItems.FROG_LEGS_COOKED.get(), 0.35f, 600)
 				.unlockedBy(getHasName(MainItems.FROG_LEGS_RAW.get()), has(MainItems.FROG_LEGS_RAW.get())).group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "frog_legs_cooked_campfire"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "frog_legs_cooked_campfire"));
 
 		SimpleCookingRecipeBuilder.smelting(Ingredient.of(MainItems.GIANT_FISH_RAW.get()),
 						RecipeCategory.FOOD, MainItems.GIANT_FISH_COOKED.get(), 0.35f, 200)
 				.unlockedBy(getHasName(MainItems.GIANT_FISH_RAW.get()), has(MainItems.GIANT_FISH_RAW.get())).group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "giant_fish_cooked"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "giant_fish_cooked"));
 		SimpleCookingRecipeBuilder.smoking(Ingredient.of(MainItems.GIANT_FISH_RAW.get()),
 						RecipeCategory.FOOD, MainItems.GIANT_FISH_COOKED.get(), 0.35f, 100)
 				.unlockedBy(getHasName(MainItems.GIANT_FISH_RAW.get()), has(MainItems.GIANT_FISH_RAW.get())).group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "giant_fish_cooked_smoking"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "giant_fish_cooked_smoking"));
 		SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(MainItems.GIANT_FISH_RAW.get()),
 						RecipeCategory.FOOD, MainItems.GIANT_FISH_COOKED.get(), 0.35f, 600)
 				.unlockedBy(getHasName(MainItems.GIANT_FISH_RAW.get()), has(MainItems.GIANT_FISH_RAW.get())).group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "giant_fish_cooked_campfire"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "giant_fish_cooked_campfire"));
 
 		SimpleCookingRecipeBuilder.smelting(Ingredient.of(MainItems.GIANT_TURTLE_RAW.get()),
 						RecipeCategory.FOOD, MainItems.GIANT_TURTLE_COOKED.get(), 0.35f, 200)
 				.unlockedBy(getHasName(MainItems.GIANT_TURTLE_RAW.get()), has(MainItems.GIANT_TURTLE_RAW.get())).group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "giant_turtle_cooked"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "giant_turtle_cooked"));
 		SimpleCookingRecipeBuilder.smoking(Ingredient.of(MainItems.GIANT_TURTLE_RAW.get()),
 						RecipeCategory.FOOD, MainItems.GIANT_TURTLE_COOKED.get(), 0.35f, 100)
 				.unlockedBy(getHasName(MainItems.GIANT_TURTLE_RAW.get()), has(MainItems.GIANT_TURTLE_RAW.get())).group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "giant_turtle_cooked_smoking"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "giant_turtle_cooked_smoking"));
 		SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(MainItems.GIANT_TURTLE_RAW.get()),
 						RecipeCategory.FOOD, MainItems.GIANT_TURTLE_COOKED.get(), 0.35f, 600)
 				.unlockedBy(getHasName(MainItems.GIANT_TURTLE_RAW.get()), has(MainItems.GIANT_TURTLE_RAW.get())).group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "giant_turtle_cooked_campfire"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "giant_turtle_cooked_campfire"));
 
 		// AGRICULTURA
 		ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, MainItems.NAMEK_MOSS.get(), 1)
@@ -158,7 +158,7 @@ public class DMZRecipeProvider extends RecipeProvider implements IConditionBuild
 				.requires(MainItems.HEALING_BUCKET.get())
 				.unlockedBy(getHasName(MainItems.HEALING_BUCKET.get()), has(MainItems.HEALING_BUCKET.get()))
 				.group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "namek_moss"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "namek_moss"));
 		statPlant(pWriter, MainItems.OOZARU_ROOT.get(), Ingredient.of(MainItems.DINO_MEAT_RAW.get()), "oozaru_root");
 		statPlant(pWriter, MainItems.KATCHIN_SPROUT.get(), Ingredient.of(MainItems.TURTLE_SCALE.get()), "katchin_sprout");
 		statPlant(pWriter, MainItems.METEOR_FLOWER.get(), Ingredient.of(Items.GUNPOWDER), "meteor_flower");
@@ -174,13 +174,13 @@ public class DMZRecipeProvider extends RecipeProvider implements IConditionBuild
 				.requires(MainItems.NAMEK_MOSS.get())
 				.unlockedBy(getHasName(MainItems.SENZU_BEAN_RED.get()), has(MainItems.SENZU_BEAN_RED.get()))
 				.group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "senzu_bean_from_colors"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "senzu_bean_from_colors"));
 
 		ShapedRecipeBuilder.shaped(RecipeCategory.MISC, MainItems.SENZU_BEAN_BAG.get())
 				.pattern("LSL").pattern(" L ")
 				.define('L', Items.LEATHER).define('S', Ingredient.of(Tags.Items.SEEDS))
 				.unlockedBy(getHasName(Items.LEATHER), has(Items.LEATHER)).group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "senzu_bean_bag"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "senzu_bean_bag"));
 
 		senzuSeeds(pWriter, MainItems.SENZU_BEAN_RED.get(), MainItems.GREEN_CAPSULE.get(), MainItems.SENZU_BEAN_SEEDS_RED.get(), "senzu_bean_seeds_red");
 		senzuSeeds(pWriter, MainItems.SENZU_BEAN_BLUE.get(), MainItems.BLUE_CAPSULE.get(), MainItems.SENZU_BEAN_SEEDS_BLUE.get(), "senzu_bean_seeds_blue");
@@ -189,12 +189,12 @@ public class DMZRecipeProvider extends RecipeProvider implements IConditionBuild
 		ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, MainItems.TURTLE_SCALE.get())
 				.requires(Items.TURTLE_SCUTE)
 				.unlockedBy(getHasName(Items.TURTLE_SCUTE), has(Items.TURTLE_SCUTE)).group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "turtle_scale"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "turtle_scale"));
 		ShapedRecipeBuilder.shaped(RecipeCategory.MISC, MainItems.EMPTY_CAPSULE.get())
 				.pattern("G").pattern("R").pattern("I")
 				.define('G', Items.GLASS_PANE).define('R', Items.REDSTONE).define('I', Items.IRON_INGOT)
 				.unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT)).group(Reference.MOD_ID)
-				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "empty_capsule"));
+				.save(pWriter, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "empty_capsule"));
 
 		statCapsule(pWriter, MainItems.RED_CAPSULE.get(), Ingredient.of(MainItems.DINO_MEAT_RAW.get()), MainItems.OOZARU_ROOT.get(), "str_capsule");
 		statCapsule(pWriter, MainItems.YELLOW_CAPSULE.get(), Ingredient.of(MainItems.TURTLE_SCALE.get()), MainItems.KATCHIN_SPROUT.get(), "res_capsule");
@@ -704,7 +704,7 @@ public class DMZRecipeProvider extends RecipeProvider implements IConditionBuild
 		ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, result)
 				.requires(base).requires(MainItems.GETE_INGOT.get())
 				.unlockedBy(getHasName(MainItems.GETE_INGOT.get()), has(MainItems.GETE_INGOT.get())).group(Reference.MOD_ID)
-				.save(w, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, id));
+				.save(w, Identifier.fromNamespaceAndPath(Reference.MOD_ID, id));
 	}
 
 	// Cápsula de estadística: frasco curativo + ingrediente + cápsula vacía + 2 plantas -> cápsula.
@@ -715,7 +715,7 @@ public class DMZRecipeProvider extends RecipeProvider implements IConditionBuild
 				.requires(MainItems.EMPTY_CAPSULE.get())
 				.requires(plant, 2)
 				.unlockedBy(getHasName(MainItems.EMPTY_CAPSULE.get()), has(MainItems.EMPTY_CAPSULE.get())).group(Reference.MOD_ID)
-				.save(w, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, id));
+				.save(w, Identifier.fromNamespaceAndPath(Reference.MOD_ID, id));
 	}
 
 	private Ingredient curativeFlask() {
@@ -726,19 +726,19 @@ public class DMZRecipeProvider extends RecipeProvider implements IConditionBuild
 		ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, seeds)
 				.requires(bean)
 				.unlockedBy(getHasName(bean), has(bean)).group(Reference.MOD_ID)
-				.save(w, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, id));
+				.save(w, Identifier.fromNamespaceAndPath(Reference.MOD_ID, id));
 		ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, seeds)
 				.requires(MainItems.NAMEK_MOSS.get())
 				.requires(capsule)
 				.unlockedBy(getHasName(capsule), has(capsule)).group(Reference.MOD_ID)
-				.save(w, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, id + "_from_capsule"));
+				.save(w, Identifier.fromNamespaceAndPath(Reference.MOD_ID, id + "_from_capsule"));
 	}
 
 	private void statPlant(RecipeOutput w, ItemLike result, Ingredient ingredient, String id) {
 		ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, result)
 				.requires(MainItems.NAMEK_MOSS.get(), 4).requires(ingredient, 2)
 				.unlockedBy(getHasName(MainItems.NAMEK_MOSS.get()), has(MainItems.NAMEK_MOSS.get())).group(Reference.MOD_ID)
-				.save(w, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, id));
+				.save(w, Identifier.fromNamespaceAndPath(Reference.MOD_ID, id));
 	}
 
 	private void buildingSet(RecipeOutput w, ItemLike base, ItemLike slab, ItemLike stairs, ItemLike wall) {

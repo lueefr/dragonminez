@@ -16,11 +16,11 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 
 public class KiLaserRenderer extends EntityRenderer<KiLaserEntity> {
-    private static final ResourceLocation TEXTURE_KI = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kiblast.png");
+    private static final Identifier TEXTURE_KI = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/ki/kiblast.png");
 
     public KiLaserRenderer(EntityRendererProvider.Context pContext) {
         super(pContext);
@@ -290,7 +290,7 @@ public class KiLaserRenderer extends EntityRenderer<KiLaserEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(KiLaserEntity pEntity) {
+    public Identifier getTextureLocation(KiLaserEntity pEntity) {
         return TEXTURE_KI;
     }
 }

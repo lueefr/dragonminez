@@ -6,16 +6,16 @@ import com.dragonminez.server.world.feature.NamekPlacedFeatures;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.levelgen.GenerationStep;
 
 public class NamekBiomes {
-	public static final ResourceKey<Biome> AJISSA_PLAINS = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "ajissa_plains"));
-	public static final ResourceKey<Biome> SACRED_LAND = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "sacred_land"));
-	public static final ResourceKey<Biome> NAMEKIAN_RIVERS = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "namekian_rivers"));
+	public static final ResourceKey<Biome> AJISSA_PLAINS = ResourceKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "ajissa_plains"));
+	public static final ResourceKey<Biome> SACRED_LAND = ResourceKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "sacred_land"));
+	public static final ResourceKey<Biome> NAMEKIAN_RIVERS = ResourceKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "namekian_rivers"));
 
 	public static void bootstrap(BootstrapContext<Biome> context) {
 		context.register(AJISSA_PLAINS, ajissaPlains(context));

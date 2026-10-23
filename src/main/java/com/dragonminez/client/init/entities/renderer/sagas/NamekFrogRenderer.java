@@ -10,15 +10,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.renderer.GeoEntityRenderer;
 
 import javax.naming.Name;
 
 public class NamekFrogRenderer<T extends NamekFrogEntity> extends GeoEntityRenderer<T> {
 
-    private static final ResourceLocation GINYU_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/animal/namekfrog_0.png");
+    private static final Identifier GINYU_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/animal/namekfrog_0.png");
 
     public NamekFrogRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new NamekFrogModel<>());
@@ -26,7 +26,7 @@ public class NamekFrogRenderer<T extends NamekFrogEntity> extends GeoEntityRende
     }
 
     @Override
-    public ResourceLocation getTextureLocation(T animatable) {
+    public Identifier getTextureLocation(T animatable) {
         if (animatable instanceof NamekFrogGinyuEntity) {
             return GINYU_TEXTURE;
         }
@@ -34,7 +34,7 @@ public class NamekFrogRenderer<T extends NamekFrogEntity> extends GeoEntityRende
     }
 
     @Override
-    public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(T animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityCutout(texture);
     }
 

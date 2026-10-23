@@ -9,7 +9,7 @@ import net.minecraft.data.recipes.RecipeOutput;
 import java.util.function.Consumer;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -29,8 +29,8 @@ public class ShapedDragonRadarRecipeDefinition extends DragonRadarRecipeDefiniti
 
 	@Override
 	public void buildRecipes(RecipeOutput output, DragonRadarDefinition radarDefinition) {
-		Item chipItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(chipItemId));
-		Item cpuItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(cpuItemId));
+		Item chipItem = BuiltInRegistries.ITEM.get(Identifier.parse(chipItemId));
+		Item cpuItem = BuiltInRegistries.ITEM.get(Identifier.parse(cpuItemId));
 		if (chipItem == null || cpuItem == null) throw new IllegalStateException("Missing radar recipe ingredient for radar '" + radarDefinition.getId() + "'");
 		ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, MainItems.getDragonRadarItemOrThrow(radarDefinition.getId()).get(), 1)
 			.pattern("OCO")
@@ -54,7 +54,7 @@ public class ShapedDragonRadarRecipeDefinition extends DragonRadarRecipeDefiniti
 
 
 	private static String getHasName(Item item) {
-		ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
+		Identifier key = BuiltInRegistries.ITEM.getKey(item);
 		return "has_" + (key == null ? "item" : key.getPath());
 	}
 

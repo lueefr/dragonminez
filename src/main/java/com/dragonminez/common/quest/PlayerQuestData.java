@@ -26,6 +26,10 @@ import java.util.Set;
 import java.util.UUID;
 
 public class PlayerQuestData {
+	private transient java.util.function.Consumer<String> completionListener = ignored -> {};
+	public void setCompletionListener(java.util.function.Consumer<String> listener) {
+		completionListener = java.util.Objects.requireNonNull(listener);
+	}
 
     public enum QuestStatus {
         NOT_STARTED,
@@ -94,6 +98,7 @@ public class PlayerQuestData {
         progress.setStatus(QuestStatus.SUCCESS);
         progress.recordCompletion(System.currentTimeMillis());
         clearStartRequirementTiming(questId);
+        completionListener.accept(questId);
     }
 
     public void restartCompletedQuest(String questId) {

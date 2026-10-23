@@ -7,7 +7,7 @@ import com.dragonminez.common.stats.StatsProvider;
 import com.dragonminez.common.util.FalseSuperSaiyanHelper;
 import com.dragonminez.common.util.FusionForms;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 import net.minecraft.client.gui.LayeredDraw;
 
@@ -28,7 +28,7 @@ public class RageMeterHUD {
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
-	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	public static void render(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 

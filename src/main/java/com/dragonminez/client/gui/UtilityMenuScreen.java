@@ -25,11 +25,11 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -157,7 +157,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		if (statsData == null) return;
 
 		updateUiScale();
@@ -246,7 +246,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 		return (int) Math.floor((uiY - rowsTop) / PANEL_ROW_H);
 	}
 
-	private void drawPanel(GuiGraphics graphics, float cx, float cy, double mouseX, double mouseY) {
+	private void drawPanel(GuiGraphicsExtractor graphics, float cx, float cy, double mouseX, double mouseY) {
 		List<RadialNode> opts = panelOptions;
 		int visibleRows = visiblePanelRows();
 
@@ -301,7 +301,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 		}
 	}
 
-	private void drawRowBorder(GuiGraphics graphics, int x0, int y0, int x1, int y1, int color) {
+	private void drawRowBorder(GuiGraphicsExtractor graphics, int x0, int y0, int x1, int y1, int color) {
 		graphics.fill(x0, y0, x1, y0 + 1, color);
 		graphics.fill(x0, y1 - 1, x1, y1, color);
 		graphics.fill(x0, y0, x0 + 1, y1, color);
@@ -394,7 +394,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 		return node.visible(statsData) && node.interactive(statsData);
 	}
 
-	private void drawBaseSectors(GuiGraphics graphics, float cx, float cy, Hover hover, float openScale) {
+	private void drawBaseSectors(GuiGraphicsExtractor graphics, float cx, float cy, Hover hover, float openScale) {
 		for (int i = 0; i < baseNodes.size(); i++) {
 			RadialNode node = baseNodes.get(i);
 			boolean active = isActiveSlot(node);
@@ -417,7 +417,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 		}
 	}
 
-	private void drawBaseFaces(GuiGraphics graphics, float cx, float cy, float openScale) {
+	private void drawBaseFaces(GuiGraphicsExtractor graphics, float cx, float cy, float openScale) {
 		float radius = (R_INNER + R_OUTER) / 2f * openScale;
 		for (int i = 0; i < baseNodes.size(); i++) {
 			RadialNode node = baseNodes.get(i);
@@ -427,7 +427,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 		}
 	}
 
-	private void drawChildSectors(GuiGraphics graphics, float cx, float cy, RadialNode parent, float parentCenter, int level, Hover hover, boolean facesPass, float openScale) {
+	private void drawChildSectors(GuiGraphicsExtractor graphics, float cx, float cy, RadialNode parent, float parentCenter, int level, Hover hover, boolean facesPass, float openScale) {
 		float expand = parent instanceof AbstractRadialNode a ? a.animExpand : 0f;
 		if (expand < 0.01f) return;
 
@@ -460,7 +460,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 		}
 	}
 
-	private void fillSector(GuiGraphics graphics, float cx, float cy, float rIn, float rOut, float startDeg, float endDeg, float[] color) {
+	private void fillSector(GuiGraphicsExtractor graphics, float cx, float cy, float rIn, float rOut, float startDeg, float endDeg, float[] color) {
 		if (rOut <= rIn || color[3] <= 0.01f) return;
 		Matrix4f mat = graphics.pose().last().pose();
 
@@ -496,7 +496,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 		RenderSystem.disableBlend();
 	}
 
-	private void drawFace(GuiGraphics graphics, float cx, float cy, RadialNode node, float angleDeg, float radius, float iconBase, float hoverAmt, float alpha, float sectorHalfDeg) {
+	private void drawFace(GuiGraphicsExtractor graphics, float cx, float cy, RadialNode node, float angleDeg, float radius, float iconBase, float hoverAmt, float alpha, float sectorHalfDeg) {
 		double rad = Math.toRadians(angleDeg);
 		float x = (float) (cx + Math.cos(rad) * radius);
 		float y = (float) (cy + Math.sin(rad) * radius);
@@ -507,7 +507,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 		drawLabel(graphics, node, x, y - 3f, iconBase, hoverAmt, alpha, maxWidth);
 	}
 
-	private void drawFaceText(GuiGraphics graphics, String text, float x, float y, float iconBase, float hoverAmt, int color, float alpha) {
+	private void drawFaceText(GuiGraphicsExtractor graphics, String text, float x, float y, float iconBase, float hoverAmt, int color, float alpha) {
 		if (alpha < 0.4f) return;
 		float scale = 1.5f + 0.25f * hoverAmt;
 		Style style = Style.EMPTY.withFont(DMZ_FONT);
@@ -519,11 +519,11 @@ public class UtilityMenuScreen extends ScaledScreen {
 		graphics.pose().popPose();
 	}
 
-	private void drawIcon(GuiGraphics graphics, ResourceLocation icon, float x, float y, float iconBase, float hoverAmt, int tint, float alpha) {
+	private void drawIcon(GuiGraphicsExtractor graphics, Identifier icon, float x, float y, float iconBase, float hoverAmt, int tint, float alpha) {
 		if (icon == null) return;
 		float size = iconBase + 4f * hoverAmt;
 		float half = size / 2f;
-		ResourceLocation safe = DMZSkinLayer.getSafeTexture(icon);
+		Identifier safe = DMZSkinLayer.getSafeTexture(icon);
 
 		float r = 1f, g = 1f, b = 1f;
 		if (tint >= 0) {
@@ -539,7 +539,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 		RenderSystem.disableBlend();
 	}
 
-	private void drawLabel(GuiGraphics graphics, RadialNode node, float x, float y, float iconBase, float hoverAmt, float alpha, int maxWidth) {
+	private void drawLabel(GuiGraphicsExtractor graphics, RadialNode node, float x, float y, float iconBase, float hoverAmt, float alpha, int maxWidth) {
 		if (alpha < 0.4f) return;
 		Component label = node.label(statsData);
 		if (label == null || label.getString().isEmpty()) return;

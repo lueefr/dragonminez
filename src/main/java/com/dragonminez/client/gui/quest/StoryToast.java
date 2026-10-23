@@ -1,7 +1,7 @@
 package com.dragonminez.client.gui.quest;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.network.chat.Component;
@@ -31,7 +31,7 @@ public class StoryToast implements Toast {
 	}
 
 	@Override
-	public Visibility render(GuiGraphics guiGraphics, ToastComponent toastComponent, long delta) {
+	public Visibility render(GuiGraphicsExtractor guiGraphics, ToastComponent toastComponent, long delta) {
 		int backgroundColor = switch (tone) {
 			case INFO -> 0xCC10212B;
 			case PROGRESS -> 0xCC1D2338;
@@ -67,7 +67,7 @@ public class StoryToast implements Toast {
 	}
 
 	private static int drawWrappedLines(
-			GuiGraphics guiGraphics,
+			GuiGraphicsExtractor guiGraphics,
 			Font font,
 			List<FormattedCharSequence> lines,
 			int x,

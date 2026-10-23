@@ -9,7 +9,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.FixedBiomeSource;
@@ -23,8 +23,8 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import java.util.List;
 
 public class OtherworldGeneration {
-	public static final ResourceKey<LevelStem> OTHERWORLD_STEM = ResourceKey.create(Registries.LEVEL_STEM, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "otherworld"));
-	public static final ResourceKey<NoiseGeneratorSettings> OTHERWORLD_NOISE_SETTINGS = ResourceKey.create(Registries.NOISE_SETTINGS, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "otherworld"));
+	public static final ResourceKey<LevelStem> OTHERWORLD_STEM = ResourceKey.create(Registries.LEVEL_STEM, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "otherworld"));
+	public static final ResourceKey<NoiseGeneratorSettings> OTHERWORLD_NOISE_SETTINGS = ResourceKey.create(Registries.NOISE_SETTINGS, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "otherworld"));
 
 	public static final int WORLD_BOTTOM = -64;
 	public static final int WORLD_TOP = 384;
@@ -277,7 +277,7 @@ public class OtherworldGeneration {
 	}
 
 	private static ResourceKey<NormalNoise.NoiseParameters> noiseKey(String name) {
-		return ResourceKey.create(Registries.NOISE, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
+		return ResourceKey.create(Registries.NOISE, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name));
 	}
 
 	private static DensityFunction scaled(double factor, DensityFunction function) {

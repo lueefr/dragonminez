@@ -4,7 +4,7 @@ import com.dragonminez.server.world.structure.helper.MainStructureTypes;
 import com.dragonminez.server.world.structure.helper.StructureFrame;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -24,13 +24,13 @@ import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class TerrainFitPiece extends StructurePiece {
 	private static final BlockState AIR = Blocks.AIR.defaultBlockState();
 	private static final int PLACE_FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE;
 
-	private final ResourceLocation template;
+	private final Identifier template;
 	private final BlockPos origin;
 	private final Rotation rotation;
 	private final int groundLevel;
@@ -40,7 +40,7 @@ public class TerrainFitPiece extends StructurePiece {
 	private final int carve;
 	private final boolean templateFoundation;
 
-	public TerrainFitPiece(ResourceLocation template, SitePlan site, TerrainFit fit) {
+	public TerrainFitPiece(Identifier template, SitePlan site, TerrainFit fit) {
 		super(MainStructureTypes.TERRAIN_FIT_PIECE.get(), 0, footprint(site));
 		this.template = template;
 		this.origin = site.origin();
@@ -55,7 +55,7 @@ public class TerrainFitPiece extends StructurePiece {
 
 	public TerrainFitPiece(CompoundTag tag) {
 		super(MainStructureTypes.TERRAIN_FIT_PIECE.get(), tag);
-		this.template = ResourceLocation.parse(tag.getString("Template"));
+		this.template = Identifier.parse(tag.getString("Template"));
 		this.origin = new BlockPos(tag.getInt("OX"), tag.getInt("OY"), tag.getInt("OZ"));
 		this.rotation = Rotation.valueOf(tag.getString("Rot"));
 		this.groundLevel = tag.getInt("Ground");

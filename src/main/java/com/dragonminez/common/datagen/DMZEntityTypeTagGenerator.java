@@ -6,7 +6,7 @@ import com.dragonminez.common.init.MainTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -82,7 +82,7 @@ public class DMZEntityTypeTagGenerator extends EntityTypeTagsProvider {
 	private void npc(TagKey<EntityType<?>> tag, String... names) {
 		IntrinsicTagAppender<EntityType<?>> appender = this.tag(tag);
 		for (String name : names) {
-			EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
+			EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(Identifier.fromNamespaceAndPath(Reference.MOD_ID, name));
 			if (type == null) throw new IllegalStateException("Unknown entity for tag " + tag.location() + ": " + name);
 			appender.add(type);
 		}

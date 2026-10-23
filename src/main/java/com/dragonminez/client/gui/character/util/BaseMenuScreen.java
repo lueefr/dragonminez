@@ -9,12 +9,12 @@ import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.client.KeyMapping;
 import net.neoforged.api.distmarker.Dist;
@@ -38,7 +38,7 @@ public abstract class BaseMenuScreen extends ScaledScreen {
 
 	protected static boolean GLOBAL_SWITCHING = false;
 	protected boolean isSwitchingMenu = false;
-	private static final ResourceLocation SCREEN_BUTTONS = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/menubuttons.png");
+	private static final Identifier SCREEN_BUTTONS = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/buttons/menubuttons.png");
 	private static final long PANEL_ENTER_ANIMATION_DURATION = 520;
 	private static final long PANEL_EXIT_ANIMATION_DURATION = 140;
 	private static final long MENU_CLOSE_ANIMATION_DURATION = 180;
@@ -243,7 +243,7 @@ public abstract class BaseMenuScreen extends ScaledScreen {
 		return -getTopPanelSwitchOffset(partialTick);
 	}
 
-	protected void renderWidgetsWithPanelOffsets(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, float leftOffset, float rightOffset) {
+	protected void renderWidgetsWithPanelOffsets(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick, float leftOffset, float rightOffset) {
 		int center = getUiWidth() / 2;
 		for (Renderable renderable : this.renderables) {
 			if (!(renderable instanceof AbstractWidget widget)) {
@@ -274,7 +274,7 @@ public abstract class BaseMenuScreen extends ScaledScreen {
 		return easeInBack(p) * CENTER_PANEL_SWITCH_DISTANCE;
 	}
 
-	protected void renderMenuBackground(GuiGraphics graphics, float partialTick) {
+	protected void renderMenuBackground(GuiGraphicsExtractor graphics, float partialTick) {
 		float visibility = 1.0f;
 		if (fadingMenu && panelSwitchState == PanelSwitchState.ENTERING) visibility = easeOutCubic(getPanelSwitchProgress(partialTick) * 2.0f);
 		else if (fadingMenu && panelSwitchState == PanelSwitchState.EXITING) visibility = 1.0f - getPanelSwitchProgress(partialTick);

@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 public class SummonPlayerShadowDummyC2S {
 	public static final String TAG_PLAYER_SHADOW = "dmz_player_shadow";
 	public static final String BONUS_KEY = "dmz_player_shadow_dummy";
-	public static final net.minecraft.resources.ResourceLocation SHADOW_HP_MODIFIER_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/4a9e6f8b-2c1d-4e3f-a5b6-c7d8e9f01234");
+	public static final net.minecraft.resources.Identifier SHADOW_HP_MODIFIER_UUID = net.minecraft.resources.Identifier.fromNamespaceAndPath("dragonminez", "modifier/4a9e6f8b-2c1d-4e3f-a5b6-c7d8e9f01234");
 
 	private final int percent;
 
@@ -49,7 +49,7 @@ public class SummonPlayerShadowDummyC2S {
 			if (!PacketRateLimiter.allow(player.getUUID(), "summonplayershadowdummyc2s", player.level().getGameTime(), 40)) return;
 
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
-				String playerName = player.getGameProfile().getName();
+				String playerName = player.getGameProfile().name();
 
 				boolean hasKill = data.getStatus().getShadowDummyKillCount() > 0;
 				boolean hasKiControl = data.getSkills().hasSkill("kicontrol");

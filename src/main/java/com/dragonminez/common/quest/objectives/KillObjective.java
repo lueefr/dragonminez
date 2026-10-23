@@ -3,12 +3,12 @@ package com.dragonminez.common.quest.objectives;
 import lombok.*;
 import com.dragonminez.common.quest.QuestObjective;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -88,10 +88,10 @@ public class KillObjective extends QuestObjective {
 		}
 		try {
 			if (isTag()) {
-				TagKey<EntityType<?>> tag = TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(entityId.substring(1)));
+				TagKey<EntityType<?>> tag = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse(entityId.substring(1)));
 				return type.builtInRegistryHolder().is(tag);
 			}
-			return type.equals(BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entityId)));
+			return type.equals(BuiltInRegistries.ENTITY_TYPE.get(Identifier.parse(entityId)));
 		} catch (Exception e) {
 			return false;
 		}
@@ -101,7 +101,7 @@ public class KillObjective extends QuestObjective {
 	public EntityType<?> resolveEntityType() {
 		try {
 			if (isTag()) {
-				TagKey<EntityType<?>> tag = TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(entityId.substring(1)));
+				TagKey<EntityType<?>> tag = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse(entityId.substring(1)));
 				List<EntityType<?>> members = new ArrayList<>();
 				for (var holder : BuiltInRegistries.ENTITY_TYPE.getTagOrEmpty(tag)) {
 					members.add(holder.value());
@@ -111,7 +111,7 @@ public class KillObjective extends QuestObjective {
 				}
 				return members.get(ThreadLocalRandom.current().nextInt(members.size()));
 			}
-			return BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entityId));
+			return BuiltInRegistries.ENTITY_TYPE.get(Identifier.parse(entityId));
 		} catch (Exception e) {
 			return null;
 		}

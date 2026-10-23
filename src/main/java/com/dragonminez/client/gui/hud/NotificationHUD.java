@@ -4,7 +4,7 @@ import com.dragonminez.client.gui.hud.layout.HudElement;
 import com.dragonminez.client.gui.hud.layout.HudLayout;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -112,7 +112,7 @@ public final class NotificationHUD {
 		for (Entry entry : PINNED.values()) entry.reset();
 	}
 
-	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
+	public static void render(GuiGraphicsExtractor guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 
@@ -205,7 +205,7 @@ public final class NotificationHUD {
 		return layout;
 	}
 
-	private static void draw(GuiGraphics guiGraphics, Font font, HudLayout.Box box, Layout layout, float slide, float y, float alpha) {
+	private static void draw(GuiGraphicsExtractor guiGraphics, Font font, HudLayout.Box box, Layout layout, float slide, float y, float alpha) {
 		guiGraphics.pose().pushPose();
 		guiGraphics.pose().translate(box.x(), box.y(), 0.0f);
 		guiGraphics.pose().scale(box.scale(), box.scale(), 1.0f);

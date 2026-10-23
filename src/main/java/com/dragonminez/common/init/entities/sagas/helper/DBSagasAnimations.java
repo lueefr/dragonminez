@@ -4,7 +4,7 @@ import com.dragonminez.server.events.players.combat.StrikeCombos.BeamSwordSlashC
 import com.dragonminez.server.events.players.combat.StrikeCombos.MysticBallCombo;
 import com.dragonminez.server.events.players.combat.StrikeCombos.PerfectRushCombo;
 import com.dragonminez.server.events.players.combat.StrikeCombos.SpiritBreakerCombo;
-import software.bernie.geckolib.animation.RawAnimation;
+import com.geckolib.animation.RawAnimation;
 
 public class DBSagasAnimations {
 

@@ -5,7 +5,7 @@ import com.dragonminez.server.world.biome.OverworldBiomes;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Climate;
 import terrablender.api.Region;
@@ -40,7 +40,7 @@ public class OverworldRegion extends Region {
 	private static final Climate.Parameter DEPTH_SURFACE = Climate.Parameter.point(0.0F);
 
 	public OverworldRegion(int weight) {
-		super(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "overworld_region"), RegionType.OVERWORLD, weight);
+		super(Identifier.fromNamespaceAndPath(Reference.MOD_ID, "overworld_region"), RegionType.OVERWORLD, weight);
 	}
 
 	@Override

@@ -7,14 +7,14 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.Carvers;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.levelgen.GenerationStep;
 
 public class SacredKaiBiomes {
-	public static final ResourceKey<Biome> SACREDKAI_PLAINS = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "sacredkai_plains"));
-	public static final ResourceKey<Biome> SACREDKAI_HILLS = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "sacredkai_hills"));
-	public static final ResourceKey<Biome> SACREDKAI_RIVERS = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "sacredkai_rivers"));
+	public static final ResourceKey<Biome> SACREDKAI_PLAINS = ResourceKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "sacredkai_plains"));
+	public static final ResourceKey<Biome> SACREDKAI_HILLS = ResourceKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "sacredkai_hills"));
+	public static final ResourceKey<Biome> SACREDKAI_RIVERS = ResourceKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(Reference.MOD_ID, "sacredkai_rivers"));
 
 	public static void bootstrap(BootstrapContext<Biome> context) {
 		context.register(SACREDKAI_PLAINS, plains(context));

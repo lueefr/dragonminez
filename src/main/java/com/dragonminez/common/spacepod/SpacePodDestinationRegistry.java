@@ -10,7 +10,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -44,12 +44,12 @@ public class SpacePodDestinationRegistry extends SimpleJsonResourceReloadListene
 	}
 
 	@Override
-	protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
-		List<Map.Entry<ResourceLocation, JsonElement>> entries = new ArrayList<>(map.entrySet());
+	protected void apply(Map<Identifier, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
+		List<Map.Entry<Identifier, JsonElement>> entries = new ArrayList<>(map.entrySet());
 		entries.sort(Comparator.comparing(entry -> entry.getKey().toString()));
 
 		List<SpacePodDestinationDefinition> loaded = new ArrayList<>();
-		for (Map.Entry<ResourceLocation, JsonElement> entry : entries) {
+		for (Map.Entry<Identifier, JsonElement> entry : entries) {
 			JsonObject root = GsonHelper.convertToJsonObject(entry.getValue(), entry.getKey().toString());
 			boolean replace = GsonHelper.getAsBoolean(root, "replace", false);
 			if (replace) {

@@ -5,7 +5,7 @@ import com.dragonminez.server.recipes.PatternRecipe;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -66,14 +66,14 @@ public class PatternRecipeBuilder {
 		return this;
 	}
 
-	public void save(RecipeOutput consumer, ResourceLocation id) {
+	public void save(RecipeOutput consumer, Identifier id) {
 		validate(id);
 		Map<String, Ingredient> ingredients = new LinkedHashMap<>();
         key.forEach((symbol, ingredient) -> ingredients.put(symbol.toString(), ingredient));
         consumer.accept(id, PatternRecipe.create(group, rows, ingredients, new net.minecraft.world.item.ItemStack(result, count), true), null);
 	}
 
-	private void validate(ResourceLocation id) {
+	private void validate(Identifier id) {
 		if (rows.isEmpty()) throw new IllegalStateException("No pattern is defined for pattern recipe " + id);
 		if (rows.size() > PatternRecipe.MAX_SIZE || rows.get(0).length() > PatternRecipe.MAX_SIZE) {
 			throw new IllegalStateException("Pattern recipe " + id + " exceeds " + PatternRecipe.MAX_SIZE + "x" + PatternRecipe.MAX_SIZE);

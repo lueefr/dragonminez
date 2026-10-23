@@ -415,7 +415,7 @@ public class StrikeAttackHandler {
 		}
 		if (ORPHANED_LOCK_TICKS.merge(id, 1, Integer::sum) < ORPHANED_LOCK_RELEASE_TICKS) return;
 		ORPHANED_LOCK_TICKS.remove(id);
-		LogUtil.warn(Env.SERVER, "Released a strike lock on {} that no strike, clash or grab was holding", player.getGameProfile().getName());
+		LogUtil.warn(Env.SERVER, "Released a strike lock on {} that no strike, clash or grab was holding", player.getGameProfile().name());
 		setStrikeLocked(player, false);
 	}
 

@@ -4,7 +4,7 @@ import com.dragonminez.mixin.common.SinglePoolElementAccessor;
 import com.dragonminez.server.world.structure.fitted.FittedTemplatePiece;
 import com.dragonminez.server.world.structure.fitted.TerrainFitPiece;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -18,12 +18,12 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public record StructureFrame(@Nullable ResourceLocation template, BlockPos origin, Rotation rotation, Mirror mirror,
+public record StructureFrame(@Nullable Identifier template, BlockPos origin, Rotation rotation, Mirror mirror,
 							 BlockPos pivot, BoundingBox box) {
 
 	public static List<StructureFrame> all(StructureStart start) {
@@ -43,7 +43,7 @@ public record StructureFrame(@Nullable ResourceLocation template, BlockPos origi
 		return Optional.empty();
 	}
 
-	public static Optional<StructureFrame> forTemplate(StructureStart start, @Nullable ResourceLocation template) {
+	public static Optional<StructureFrame> forTemplate(StructureStart start, @Nullable Identifier template) {
 		if (template == null) return core(start);
 		for (StructureFrame frame : all(start)) {
 			if (template.equals(frame.template())) return Optional.of(frame);
@@ -72,7 +72,7 @@ public record StructureFrame(@Nullable ResourceLocation template, BlockPos origi
 					settings.getMirror(), settings.getRotationPivot(), piece.getBoundingBox());
 		}
 		if (piece instanceof PoolElementStructurePiece pool) {
-			ResourceLocation id = pool.getElement() instanceof SinglePoolElement single
+			Identifier id = pool.getElement() instanceof SinglePoolElement single
 					? ((SinglePoolElementAccessor) single).getTemplateSource().left().orElse(null)
 					: null;
 			return new StructureFrame(id, pool.getPosition(), pool.getRotation(), Mirror.NONE, BlockPos.ZERO, piece.getBoundingBox());

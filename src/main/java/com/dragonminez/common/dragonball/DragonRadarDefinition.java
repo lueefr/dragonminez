@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 
 import java.util.LinkedHashSet;
@@ -15,7 +15,7 @@ import java.util.Set;
 public class DragonRadarDefinition {
 	private final String id;
 	private final String itemRegistryName;
-	private final Set<ResourceLocation> validDimensions;
+	private final Set<Identifier> validDimensions;
 	private final String ballSetId;
 	private final String tooltipKey;
 	private final int[] ranges;
@@ -27,23 +27,23 @@ public class DragonRadarDefinition {
 	private final String cpuModelItemId;
 	private final String displayName;
 
-	public DragonRadarDefinition(String id, String itemRegistryName, Set<ResourceLocation> validDimensions, String ballSetId, String tooltipKey, int[] ranges) {
+	public DragonRadarDefinition(String id, String itemRegistryName, Set<Identifier> validDimensions, String ballSetId, String tooltipKey, int[] ranges) {
 		this(id, itemRegistryName, validDimensions, ballSetId, tooltipKey, ranges, null, null, null, null, null, null, null);
 	}
 
-	public DragonRadarDefinition(String id, String itemRegistryName, Set<ResourceLocation> validDimensions, String ballSetId, String tooltipKey, int[] ranges, String recipeDefinitionId, String assetDefinitionId) {
+	public DragonRadarDefinition(String id, String itemRegistryName, Set<Identifier> validDimensions, String ballSetId, String tooltipKey, int[] ranges, String recipeDefinitionId, String assetDefinitionId) {
 		this(id, itemRegistryName, validDimensions, ballSetId, tooltipKey, ranges, recipeDefinitionId, assetDefinitionId, null, null, null, null, null);
 	}
 
-	public DragonRadarDefinition(String id, String itemRegistryName, Set<ResourceLocation> validDimensions, String ballSetId, String tooltipKey, int[] ranges, String recipeDefinitionId, String assetDefinitionId, String displayName) {
+	public DragonRadarDefinition(String id, String itemRegistryName, Set<Identifier> validDimensions, String ballSetId, String tooltipKey, int[] ranges, String recipeDefinitionId, String assetDefinitionId, String displayName) {
 		this(id, itemRegistryName, validDimensions, ballSetId, tooltipKey, ranges, recipeDefinitionId, assetDefinitionId, null, null, null, null, displayName);
 	}
 
-	public DragonRadarDefinition(String id, String itemRegistryName, Set<ResourceLocation> validDimensions, String ballSetId, String tooltipKey, int[] ranges, String recipeDefinitionId, String assetDefinitionId, String chipItemId, String cpuItemId, String displayName) {
+	public DragonRadarDefinition(String id, String itemRegistryName, Set<Identifier> validDimensions, String ballSetId, String tooltipKey, int[] ranges, String recipeDefinitionId, String assetDefinitionId, String chipItemId, String cpuItemId, String displayName) {
 		this(id, itemRegistryName, validDimensions, ballSetId, tooltipKey, ranges, recipeDefinitionId, assetDefinitionId, chipItemId, cpuItemId, null, null, displayName);
 	}
 
-	public DragonRadarDefinition(String id, String itemRegistryName, Set<ResourceLocation> validDimensions, String ballSetId, String tooltipKey, int[] ranges, String recipeDefinitionId, String assetDefinitionId, String chipItemId, String cpuItemId, String chipModelItemId, String cpuModelItemId, String displayName) {
+	public DragonRadarDefinition(String id, String itemRegistryName, Set<Identifier> validDimensions, String ballSetId, String tooltipKey, int[] ranges, String recipeDefinitionId, String assetDefinitionId, String chipItemId, String cpuItemId, String chipModelItemId, String cpuModelItemId, String displayName) {
 		this.id = id;
 		this.itemRegistryName = itemRegistryName;
 		this.validDimensions = Set.copyOf(validDimensions);
@@ -61,7 +61,7 @@ public class DragonRadarDefinition {
 
 	public String getId() { return id; }
 	public String getItemRegistryName() { return itemRegistryName; }
-	public Set<ResourceLocation> getValidDimensions() { return validDimensions; }
+	public Set<Identifier> getValidDimensions() { return validDimensions; }
 	public boolean supportsDimension(ResourceKey<Level> dimension) { return validDimensions.contains(dimension.location()); }
 	public boolean supportsBallSet(String setId) { return ballSetId != null && ballSetId.equals(setId); }
 	public String getBallSetId() { return ballSetId; }
@@ -89,7 +89,7 @@ public class DragonRadarDefinition {
 		root.addProperty("id", id);
 		root.addProperty("item_registry_name", itemRegistryName);
 		JsonArray dimensions = new JsonArray();
-		for (ResourceLocation dimension : validDimensions) dimensions.add(dimension.toString());
+		for (Identifier dimension : validDimensions) dimensions.add(dimension.toString());
 		root.add("dimensions", dimensions);
 		if (ballSetId != null) root.addProperty("ball_set", ballSetId);
 		root.addProperty("tooltip_key", tooltipKey);
@@ -109,7 +109,7 @@ public class DragonRadarDefinition {
 	private Optional<String> itemIdToRegistryName(String itemId) {
 		if (itemId == null || itemId.isBlank()) return Optional.empty();
 
-		ResourceLocation rl = ResourceLocation.tryParse(itemId);
+		Identifier rl = Identifier.tryParse(itemId);
 		if (rl == null) return Optional.empty();
 
 		if (!Reference.MOD_ID.equals(rl.getNamespace())) return Optional.empty();
@@ -120,8 +120,8 @@ public class DragonRadarDefinition {
 	public static DragonRadarDefinition fromJson(JsonObject root) {
 		String id = root.get("id").getAsString();
 		String itemRegistryName = root.get("item_registry_name").getAsString();
-		Set<ResourceLocation> dimensions = new LinkedHashSet<>();
-		for (JsonElement element : root.getAsJsonArray("dimensions")) dimensions.add(ResourceLocation.parse(element.getAsString()));
+		Set<Identifier> dimensions = new LinkedHashSet<>();
+		for (JsonElement element : root.getAsJsonArray("dimensions")) dimensions.add(Identifier.parse(element.getAsString()));
 
 		String ballSetId = root.get("ball_set").getAsString();
 

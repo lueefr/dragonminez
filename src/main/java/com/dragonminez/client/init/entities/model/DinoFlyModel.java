@@ -2,29 +2,29 @@ package com.dragonminez.client.init.entities.model;
 
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.entities.animal.DinoFlyEntity;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.geckolib.constant.DataTickets;
+import com.geckolib.cache.object.GeoBone;
+import com.geckolib.animation.AnimationState;
+import com.geckolib.model.GeoModel;
+import com.geckolib.model.data.EntityModelData;
 
 public class DinoFlyModel extends GeoModel<DinoFlyEntity> {
 
     @Override
-    public ResourceLocation getModelResource(DinoFlyEntity animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/animal/dino3.geo.json");
+    public Identifier getModelResource(DinoFlyEntity animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/animal/dino3.geo.json");
     }
 
     @Override
-    public ResourceLocation getTextureResource(DinoFlyEntity animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/animal/dino3.png");
+    public Identifier getTextureResource(DinoFlyEntity animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/animal/dino3.png");
     }
 
     @Override
-    public ResourceLocation getAnimationResource(DinoFlyEntity animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/animal/dino3.animation.json");
+    public Identifier getAnimationResource(DinoFlyEntity animatable) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/animal/dino3.animation.json");
     }
 
     @Override

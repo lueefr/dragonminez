@@ -15,7 +15,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Rotation;
@@ -222,6 +222,6 @@ public class DMZStructureSets {
 	}
 
 	private static ResourceKey<StructureSet> createKey(String name) {
-		return ResourceKey.create(Registries.STRUCTURE_SET, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
+		return ResourceKey.create(Registries.STRUCTURE_SET, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name));
 	}
 }

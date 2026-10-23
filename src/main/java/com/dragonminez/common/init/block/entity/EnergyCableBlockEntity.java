@@ -12,13 +12,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
-import software.bernie.geckolib.animatable.GeoBlockEntity;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import software.bernie.geckolib.animation.*;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.util.RenderUtil;
+import com.geckolib.animatable.GeoBlockEntity;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import com.geckolib.animation.*;
+import com.geckolib.animation.PlayState;
+import com.geckolib.util.RenderUtil;
 
 public class EnergyCableBlockEntity extends BlockEntity implements GeoBlockEntity {
 	private final AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);

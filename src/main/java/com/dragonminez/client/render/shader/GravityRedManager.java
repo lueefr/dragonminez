@@ -10,7 +10,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.PostPass;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.io.IOException;
 
@@ -21,7 +21,7 @@ import java.io.IOException;
  */
 public final class GravityRedManager {
 
-	private static final ResourceLocation EFFECT = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/gravity_red.json");
+	private static final Identifier EFFECT = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "shaders/post/gravity_red.json");
 
 	private static PostChain chain = null;
 	private static RenderTarget depthHolder = null;

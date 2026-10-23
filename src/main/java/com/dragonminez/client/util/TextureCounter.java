@@ -6,7 +6,7 @@ import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.RaceCharacterConfig;
 import com.dragonminez.common.stats.character.Character;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -18,7 +18,7 @@ import java.util.Map;
 @OnlyIn(Dist.CLIENT)
 public class TextureCounter {
 
-    private static final HashMap<String, ResourceLocation> CACHE = new HashMap<>();
+    private static final HashMap<String, Identifier> CACHE = new HashMap<>();
     private static final Map<String, Integer> BODY_TYPE_CACHE = new HashMap<>();
     private static final Map<String, Integer> HAIR_TYPE_CACHE = new HashMap<>();
     private static final Map<String, Integer> EYES_TYPE_CACHE = new HashMap<>();
@@ -27,8 +27,8 @@ public class TextureCounter {
     private static final Map<String, Integer> TATTOO_TYPE_CACHE = new HashMap<>();
     private static final Map<String, Integer> OWN_FACE_CACHE = new HashMap<>();
 
-    public static ResourceLocation cache(String namespace, String path) {
-        return CACHE.computeIfAbsent(namespace + ":" + path, ResourceLocation::parse);
+    public static Identifier cache(String namespace, String path) {
+        return CACHE.computeIfAbsent(namespace + ":" + path, Identifier::parse);
     }
 
     private static String normalizeRace(String race) {
@@ -122,7 +122,7 @@ public class TextureCounter {
         ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
         int count = 0;
         for (int i = 0; i <= 100; i++) {
-            ResourceLocation location = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/" + race + "/faces/" + race + "_eye_" + i + "_0.png");
+            Identifier location = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/" + race + "/faces/" + race + "_eye_" + i + "_0.png");
             if (resourceManager.getResource(location).isPresent()) count++;
             else break;
         }
@@ -150,7 +150,7 @@ public class TextureCounter {
         if (race.equals("majin")) {
             for (int i = 0; i <= 100; i++) {
                 String basePath = "textures/entity/races/majin/bodytype_" + gender + "_" + i + "_layer1.png";
-                ResourceLocation location = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, basePath);
+                Identifier location = Identifier.fromNamespaceAndPath(Reference.MOD_ID, basePath);
                 if (resourceManager.getResource(location).isPresent()) count++;
                 else break;
             }
@@ -160,7 +160,7 @@ public class TextureCounter {
         if (race.equals("bioandroid")) {
             for (int i = 0; i <= 100; i++) {
                 String basePath = "textures/entity/races/bioandroid/base_" + i + "_layer1.png";
-                ResourceLocation location = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, basePath);
+                Identifier location = Identifier.fromNamespaceAndPath(Reference.MOD_ID, basePath);
                 if (resourceManager.getResource(location).isPresent()) count++;
                 else break;
             }
@@ -170,7 +170,7 @@ public class TextureCounter {
         if (isNativeLayered) {
             for (int i = 0; i <= 100; i++) {
                 String basePath = "textures/entity/races/" + race + "/bodytype_" + i + "_layer1.png";
-                ResourceLocation location = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, basePath);
+                Identifier location = Identifier.fromNamespaceAndPath(Reference.MOD_ID, basePath);
                 if (resourceManager.getResource(location).isPresent()) count++;
                 else break;
             }
@@ -183,7 +183,7 @@ public class TextureCounter {
 
             for (int i = startIndex; i <= 100; i++) {
                 String basePath = "textures/entity/races/" + race + "/" + model + genSuffix + "_" + i + "_layer1.png";
-                ResourceLocation location = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, basePath);
+                Identifier location = Identifier.fromNamespaceAndPath(Reference.MOD_ID, basePath);
                 if (resourceManager.getResource(location).isPresent()) count++;
                 else break;
             }
@@ -196,7 +196,7 @@ public class TextureCounter {
             String basePath = getBasePathForBodyType(race, gender);
             String suffix = isHumanoid ? "_layer1.png" : ".png";
             for (int i = startIndex; i <= 100; i++) {
-                ResourceLocation location = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, basePath + i + suffix);
+                Identifier location = Identifier.fromNamespaceAndPath(Reference.MOD_ID, basePath + i + suffix);
                 if (resourceManager.getResource(location).isPresent()) count++;
                 else break;
             }
@@ -211,7 +211,7 @@ public class TextureCounter {
 
         if (race.equals("bioandroid") && type.equals("eye")) {
             for (int i = 1; i <= 100; i++) {
-                ResourceLocation location = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/bioandroid/faces/base_eye_" + i + "_layer0.png");
+                Identifier location = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/bioandroid/faces/base_eye_" + i + "_layer0.png");
                 if (resourceManager.getResource(location).isPresent()) count++;
                 else break;
             }
@@ -234,7 +234,7 @@ public class TextureCounter {
         String suffix = isEyes ? "_0.png" : ".png";
 
         for (int i = 0; i <= 100; i++) {
-            ResourceLocation location = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, basePath + i + suffix);
+            Identifier location = Identifier.fromNamespaceAndPath(Reference.MOD_ID, basePath + i + suffix);
             if (resourceManager.getResource(location).isPresent()) count++;
             else break;
         }
@@ -257,7 +257,7 @@ public class TextureCounter {
         int count = 0;
         String basePath = "textures/entity/races/tattoos/tattoo_";
         for (int i = 0; i <= 100; i++) {
-            ResourceLocation location = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, basePath + i + ".png");
+            Identifier location = Identifier.fromNamespaceAndPath(Reference.MOD_ID, basePath + i + ".png");
             if (resourceManager.getResource(location).isPresent()) count++;
             else break;
         }

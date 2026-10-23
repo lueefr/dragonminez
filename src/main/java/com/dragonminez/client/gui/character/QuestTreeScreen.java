@@ -55,12 +55,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
@@ -84,11 +84,11 @@ import java.util.UUID;
 @OnlyIn(Dist.CLIENT)
 public class QuestTreeScreen extends BaseMenuScreen {
 
-	private static final ResourceLocation BUTTONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+	private static final Identifier BUTTONS_TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 			"textures/gui/buttons/characterbuttons.png");
-	private static final ResourceLocation EXCLAMATION_MARK = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+	private static final Identifier EXCLAMATION_MARK = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 			"textures/gui/quest/exclamation_mark_quest.png");
-	private static final ResourceLocation REWARD_GENERIC_ICON = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID,
+	private static final Identifier REWARD_GENERIC_ICON = Identifier.fromNamespaceAndPath(Reference.MOD_ID,
 			"textures/gui/quest/reward_generic.png");
 
 	private static final Style DMZ_STYLE = Style.EMPTY.withFont(DMZ_FONT);
@@ -1584,7 +1584,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 	}
 
 	@Override
-	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		renderMenuBackground(graphics, partialTick);
 
 		navBar.clear();
@@ -1666,7 +1666,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		endUiScale(graphics);
 	}
 
-	private void renderTreeCanvas(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderTreeCanvas(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		hardModeIndicatorShown = false;
 		if (currentLayout == null || availableSagas.isEmpty()) {
 			TextUtil.drawCenteredStringWithBorder(graphics, this.font,
@@ -1733,7 +1733,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		graphics.disableScissor();
 	}
 
-	private void renderHardModeIndicator(GuiGraphics graphics, PanelRect tree, int mouseX, int mouseY) {
+	private void renderHardModeIndicator(GuiGraphicsExtractor graphics, PanelRect tree, int mouseX, int mouseY) {
 		Difficulty difficulty = statsData != null ? statsData.getPlayerQuestData().getDifficulty() : Difficulty.NORMAL;
 		hardModeToggleable = false;
 		hardModeIndicatorShown = true;
@@ -1763,7 +1763,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		TextUtil.drawStringWithBorder(graphics, this.font, state, stateX, y, stateColor);
 	}
 
-	private boolean renderHardModeTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+	private boolean renderHardModeTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		if (!hardModeIndicatorShown || statsData == null) return false;
 		if (mouseX < hardModeHitX || mouseX > hardModeHitX + hardModeHitW
 				|| mouseY < hardModeHitY || mouseY > hardModeHitY + hardModeHitH) {
@@ -1812,7 +1812,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		return Double.toString(value);
 	}
 
-	private void renderBackgroundGrid(GuiGraphics graphics, PanelRect tree) {
+	private void renderBackgroundGrid(GuiGraphicsExtractor graphics, PanelRect tree) {
 		int spacing = 20;
 		int offsetX = ((int) panX) % spacing;
 		int offsetY = ((int) panY) % spacing;
@@ -1825,7 +1825,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void renderEnemyPreview(GuiGraphics graphics, int mouseX, int mouseY, float dt) {
+	private void renderEnemyPreview(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float dt) {
 		Difficulty previewDifficulty = Difficulty.NORMAL;
 		int previewPartySize = 1;
 		if (statsData != null) {
@@ -1846,7 +1846,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 				mouseX, mouseY, dt, visibility);
 	}
 
-	private void renderLeftNavigatorPanel(GuiGraphics graphics, int mouseX, int mouseY, float dt) {
+	private void renderLeftNavigatorPanel(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float dt) {
 		PanelRect panel = getLeftPanelRect();
 		renderSidePanelBackground(graphics, panel, true, false, false);
 
@@ -1908,7 +1908,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		renderPartyFooter(graphics, panel);
 	}
 
-	private void renderNavigatorEntry(GuiGraphics graphics, NavRow row, int x, int rowWidth, boolean hovered) {
+	private void renderNavigatorEntry(GuiGraphicsExtractor graphics, NavRow row, int x, int rowWidth, boolean hovered) {
 		NavigatorEntry entry = row.entry;
 		int usableWidth = rowWidth - 6;
 
@@ -1947,7 +1947,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		TextUtil.drawStringWithBorder(graphics, this.font, txt(clipped), textX, 2, color);
 	}
 
-	private void renderSagaHeader(GuiGraphics graphics, NavRow row, int x, int width, boolean hovered) {
+	private void renderSagaHeader(GuiGraphicsExtractor graphics, NavRow row, int x, int width, boolean hovered) {
 		NavigatorEntry entry = row.entry;
 		boolean placeholder = entry.isPlaceholderSaga();
 		boolean unlocked = !placeholder && isSagaUnlockedByPreviousCompletion(entry.saga());
@@ -1969,7 +1969,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		TextUtil.drawStringWithBorder(graphics, this.font, txt(clipped).withStyle(ChatFormatting.BOLD), textX, 3, color);
 	}
 
-	private void renderNavigatorArrow(GuiGraphics graphics, float centerX, float centerY, float scale, float progress, boolean hovered) {
+	private void renderNavigatorArrow(GuiGraphicsExtractor graphics, float centerX, float centerY, float scale, float progress, boolean hovered) {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		graphics.pose().pushPose();
 		graphics.pose().translate(centerX, centerY, 0.0f);
@@ -1979,7 +1979,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		graphics.pose().popPose();
 	}
 
-	private void renderPartyFooter(GuiGraphics graphics, PanelRect panel) {
+	private void renderPartyFooter(GuiGraphicsExtractor graphics, PanelRect panel) {
 		PanelRect footer = getPartyFooterRect();
 		if (footer == null || statsData == null) return;
 
@@ -2070,7 +2070,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		return new PanelRect(panel.x + 8, panel.bottom() - footerHeight, panel.width - 16, footerHeight - 6);
 	}
 
-	private void renderRightDetailPanel(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderRightDetailPanel(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		if (rightPanelRevealProgress <= 0.001f && selectedQuest == null) return;
 
 		PanelRect panel = getRightPanelRect();
@@ -2165,7 +2165,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		return 24 + (objectiveLines.size() * getDetailLineHeight()) + 6;
 	}
 
-	private void renderTopSection(GuiGraphics graphics, int x, int y, int width, int height, QuestNodeStatus status) {
+	private void renderTopSection(GuiGraphicsExtractor graphics, int x, int y, int width, int height, QuestNodeStatus status) {
 		graphics.fill(x, y, x + width, y + height, 0x44111122);
 		graphics.renderOutline(x, y, width, height, 0x88444466);
 		int lineHeight = getDetailLineHeight();
@@ -2185,7 +2185,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 				getStatusColor(status));
 	}
 
-	private void renderRewardsSection(GuiGraphics graphics, int x, int y, int width, int height, String questKey, int mouseX, int mouseY) {
+	private void renderRewardsSection(GuiGraphicsExtractor graphics, int x, int y, int width, int height, String questKey, int mouseX, int mouseY) {
 		graphics.fill(x, y, x + width, y + height, 0x44111122);
 		graphics.renderOutline(x, y, width, height, 0x88444466);
 
@@ -2355,7 +2355,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		switch (reward.getType()) {
 			case ITEM -> {
 				if (reward instanceof ItemReward itemReward) {
-					Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemReward.getItemId()));
+					Item item = BuiltInRegistries.ITEM.get(Identifier.parse(itemReward.getItemId()));
 					return new ItemStack(item, Math.max(1, itemReward.getCount()));
 				}
 				return null;
@@ -2394,7 +2394,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void renderDescriptionSection(GuiGraphics graphics, int x, int y, int width, int height, String questKey, int mouseX, int mouseY) {
+	private void renderDescriptionSection(GuiGraphicsExtractor graphics, int x, int y, int width, int height, String questKey, int mouseX, int mouseY) {
 		graphics.fill(x, y, x + width, y + height, 0x44111122);
 		graphics.renderOutline(x, y, width, height, 0x88444466);
 
@@ -2409,7 +2409,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		TextUtil.renderScrollableText(graphics, this.font, descBar, lines, x + 6, y + 18, width - 13, viewHeight, lineHeight, 0xFFCCCCCC, false, mouseX, mouseY);
 	}
 
-	private void renderObjectivesSection(GuiGraphics graphics, int x, int y, int width, int height, Saga saga, int mouseX, int mouseY) {
+	private void renderObjectivesSection(GuiGraphicsExtractor graphics, int x, int y, int width, int height, Saga saga, int mouseX, int mouseY) {
 		graphics.fill(x, y, x + width, y + height, 0x44111122);
 		graphics.renderOutline(x, y, width, height, 0x88444466);
 
@@ -2580,7 +2580,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		return prefix;
 	}
 
-	private void renderRewardTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderRewardTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		if (!rewardsBar.isInView(mouseX, mouseY)) return;
 		for (RewardHitbox hitbox : rewardHitboxes) {
 			if (!hitbox.contains(mouseX, mouseY)) continue;
@@ -2593,7 +2593,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		}
 	}
 
-	private boolean renderActionButtonTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+	private boolean renderActionButtonTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		if (actionButton == null || actionButtonTooltip.isEmpty() || actionButton.active || !actionButton.visible) {
 			return false;
 		}
@@ -2606,7 +2606,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 
 
 
-	private void renderSimpleTooltip(GuiGraphics graphics, List<Component> lines, int mouseX, int mouseY) {
+	private void renderSimpleTooltip(GuiGraphicsExtractor graphics, List<Component> lines, int mouseX, int mouseY) {
 		if (lines == null || lines.isEmpty()) return;
 		TextUtil.renderAdvancedTooltip(graphics, this.font, mouseX, mouseY, getUiWidth(), getUiHeight(), null, lines, null, 0xFFFFFF);
 	}
@@ -2644,7 +2644,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		return lines;
 	}
 
-	private void renderSidePanelBackground(GuiGraphics graphics, PanelRect panel, boolean flushLeft, boolean flushRight, boolean drawFrame) {
+	private void renderSidePanelBackground(GuiGraphicsExtractor graphics, PanelRect panel, boolean flushLeft, boolean flushRight, boolean drawFrame) {
 		if (drawFrame) {
 			graphics.fill(panel.x, panel.y, panel.right(), panel.bottom(), 0xCC0F1020);
 		}
@@ -2699,7 +2699,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		return builder.toString();
 	}
 
-	private void renderConnections(GuiGraphics graphics, int panOffX, int panOffY, float viewRight, float viewBottom) {
+	private void renderConnections(GuiGraphicsExtractor graphics, int panOffX, int panOffY, float viewRight, float viewBottom) {
 		for (ConnRender conn : connRenders) {
 			int x1 = conn.baseX1() + panOffX;
 			int y1 = conn.baseY1() + panOffY;
@@ -2766,7 +2766,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		buf.addVertex(mat, x1 - nx, y1 - ny, 0.0f).setColor(r, g, b, a);
 	}
 
-	private void renderNode(GuiGraphics graphics, NodeRender node, int x, int y, boolean isHovered) {
+	private void renderNode(GuiGraphicsExtractor graphics, NodeRender node, int x, int y, boolean isHovered) {
 		boolean isBlurred = node.blurred();
 
 		boolean isSelected = selectedQuest != null && sameQuestIdentity(selectedQuest, node.quest());
@@ -2808,7 +2808,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void renderNodeTooltip(GuiGraphics graphics, Quest quest, int mouseX, int mouseY) {
+	private void renderNodeTooltip(GuiGraphicsExtractor graphics, Quest quest, int mouseX, int mouseY) {
 		NodeVisibility vis = getNodeVisibility(quest);
 		if (vis == NodeVisibility.HIDDEN) return;
 
@@ -2837,7 +2837,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		TextUtil.renderAdvancedTooltip(graphics, this.font, mouseX, mouseY, getUiWidth(), getUiHeight(), title, desc, extras, color);
 	}
 
-	private void renderActionButtonGlow(GuiGraphics graphics) {
+	private void renderActionButtonGlow(GuiGraphicsExtractor graphics) {
 		if (actionButton == null) return;
 		float pulse = (float) (Math.sin(System.currentTimeMillis() / 500.0) * 0.5 + 0.5);
 		int btnX = actionButton.getX();
@@ -2885,7 +2885,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		if (playerId == null) return "";
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.player != null && playerId.equals(mc.player.getUUID())) {
-			return mc.player.getGameProfile().getName();
+			return mc.player.getGameProfile().name();
 		}
 		if (mc.getConnection() != null) {
 			for (PlayerInfo info : mc.getConnection().getOnlinePlayers()) {
@@ -2999,7 +2999,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		return inviteBar.canScroll() ? listW - inviteBar.reserve() : listW;
 	}
 
-	private void renderInvitePopup(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderInvitePopup(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		graphics.fill(0, 0, getUiWidth(), getUiHeight(), 0x99000000);
 		PanelRect popup = getInvitePopupRect();
 		renderSidePanelBackground(graphics, popup, false, false, true);
@@ -3051,7 +3051,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 				0xFFAAAAAA);
 	}
 
-	private void renderConfirmOverlay(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderConfirmOverlay(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		graphics.fill(0, 0, getUiWidth(), getUiHeight(), 0xAA000000);
 		PanelRect popup = getConfirmRect();
 		renderSidePanelBackground(graphics, popup, false, false, true);
@@ -3075,7 +3075,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		renderModalButton(graphics, noRect, tr("gui.dragonminez.party.confirm_no"), noRect.contains(mouseX, mouseY));
 	}
 
-	private void renderModalButton(GuiGraphics graphics, PanelRect rect, Component label, boolean hovered) {
+	private void renderModalButton(GuiGraphicsExtractor graphics, PanelRect rect, Component label, boolean hovered) {
 		int fill = hovered ? 0x66FFFFFF : 0x33000000;
 		int outline = hovered ? 0xFFCCDDFF : 0x88444466;
 		graphics.fill(rect.x, rect.y, rect.right(), rect.bottom(), fill);
@@ -3117,7 +3117,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 				tr("gui.dragonminez.quest_tree.difficulty.tooltip.rewards", formatMultiplier(d.tpMultiplier()), formatMultiplier(d.questRewardMultiplier())));
 	}
 
-	private void renderDifficultySelectOverlay(GuiGraphics graphics, int mouseX, int mouseY) {
+	private void renderDifficultySelectOverlay(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		graphics.fill(0, 0, getUiWidth(), getUiHeight(), 0xAA000000);
 		PanelRect popup = getDifficultySelectRect();
 		renderSidePanelBackground(graphics, popup, false, false, true);
@@ -3822,7 +3822,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 	}
 
 
-	private void drawJustifiedTextBlock(GuiGraphics graphics, List<String> lines, int x, int y, int width, int maxLines, int lineHeight, int color) {
+	private void drawJustifiedTextBlock(GuiGraphicsExtractor graphics, List<String> lines, int x, int y, int width, int maxLines, int lineHeight, int color) {
 		int count = Math.min(maxLines, lines.size());
 		for (int i = 0; i < count; i++) {
 			boolean lastLine = i == count - 1;
@@ -3830,7 +3830,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		}
 	}
 
-	private void drawJustifiedLine(GuiGraphics graphics, String line, int x, int y, int width, int color, boolean isLastLine) {
+	private void drawJustifiedLine(GuiGraphicsExtractor graphics, String line, int x, int y, int width, int color, boolean isLastLine) {
 		String trimmed = line == null ? "" : line.trim();
 		if (trimmed.isEmpty() || isLastLine) {
 			TextUtil.drawStringWithBorder(graphics, this.font, txt(trimmed), x, y, color);
@@ -3980,7 +3980,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		return new PanelRect(0, 0, getUiWidth(), getUiHeight());
 	}
 
-	private void drawObjectiveLineWithSymbolColors(GuiGraphics graphics, String line, int x, int y) {
+	private void drawObjectiveLineWithSymbolColors(GuiGraphicsExtractor graphics, String line, int x, int y) {
 		int symbolIndex = -1;
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);
@@ -4032,7 +4032,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		};
 	}
 
-	private void drawPlainBoldStringWithBorder(GuiGraphics graphics, String text, int x, int y, int textColor) {
+	private void drawPlainBoldStringWithBorder(GuiGraphicsExtractor graphics, String text, int x, int y, int textColor) {
 		int borderColor = 0xFF000000;
 		Component marker = Component.literal(text).withStyle(ChatFormatting.BOLD);
 		graphics.drawString(this.font, marker, x + 1, y, borderColor, false);

@@ -1,7 +1,7 @@
 package com.dragonminez.common.init;
 
 import com.dragonminez.Reference;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -199,7 +199,7 @@ public final class MainSounds {
 	public static final DeferredHolder<SoundEvent, SoundEvent> WORLDBOSS_MUSIC_GOMAH = registerSoundEvent("worldboss_music.gomah");
 
 	private static DeferredHolder<SoundEvent, SoundEvent> registerSoundEvent(String name) {
-		ResourceLocation id = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name);
+		Identifier id = Identifier.fromNamespaceAndPath(Reference.MOD_ID, name);
 
 		return SOUND_EVENTS_REGISTER.register(name, () -> SoundEvent.createVariableRangeEvent(id));
 	}

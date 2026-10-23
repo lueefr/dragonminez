@@ -5,7 +5,7 @@ import com.dragonminez.common.network.C2S.FlightModeLockC2S;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.stats.StatsData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class FlightModeLockNode extends AbstractRadialNode {
 	@Override
@@ -16,7 +16,7 @@ public class FlightModeLockNode extends AbstractRadialNode {
 	}
 
 	@Override
-	public ResourceLocation icon(StatsData stats) {
+	public Identifier icon(StatsData stats) {
 		return icon(stats.getStatus().isFlightModeLocked() ? "flight_locked" : "flight_unlocked");
 	}
 

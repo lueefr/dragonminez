@@ -4,7 +4,7 @@ import com.dragonminez.Reference;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import com.dragonminez.compat.capabilities.Capability;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
  * Player stats provider backed by a serializable NeoForge data attachment.
  */
 public class StatsProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
-    public static final ResourceLocation ID = ResourceLocation.parse(Reference.MOD_ID);
+    public static final Identifier ID = Identifier.parse(Reference.MOD_ID);
 
     private final StatsData data;
     private final LazyOptional<StatsData> optional;

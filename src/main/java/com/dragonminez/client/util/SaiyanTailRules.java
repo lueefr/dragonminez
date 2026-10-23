@@ -6,7 +6,7 @@ import com.dragonminez.common.util.lists.SaiyanForms;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import software.bernie.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.GeoBone;
 
 import java.util.HashMap;
 import java.util.Locale;

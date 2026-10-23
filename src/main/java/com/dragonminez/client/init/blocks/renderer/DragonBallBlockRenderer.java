@@ -12,9 +12,9 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoBlockRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import com.geckolib.cache.object.BakedGeoModel;
+import com.geckolib.renderer.GeoBlockRenderer;
+import com.geckolib.renderer.layer.GeoRenderLayer;
 
 public class DragonBallBlockRenderer extends GeoBlockRenderer<DragonBallBlockEntity> {
 	private static final float BALL_CENTER_Y = 5.625F / 16.0F;

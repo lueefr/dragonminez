@@ -7,7 +7,7 @@ import com.dragonminez.common.combat.weapon.WeaponAttributes;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.player.Player;
 
@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class CombatAnimationResolver {
-    private static final ResourceLocation BASE_ANIMATION_FILE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/combat.animation.json");
+    private static final Identifier BASE_ANIMATION_FILE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "animations/entity/races/combat.animation.json");
 
     private static final Set<String> AVAILABLE_RAW = new HashSet<>();
 

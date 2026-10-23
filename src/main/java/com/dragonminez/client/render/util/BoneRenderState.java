@@ -1,6 +1,6 @@
 package com.dragonminez.client.render.util;
 
-import software.bernie.geckolib.cache.object.GeoBone;
+import com.geckolib.cache.object.GeoBone;
 
 public final class BoneRenderState {
 	private final GeoBone bone;

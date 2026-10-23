@@ -5,7 +5,7 @@ import com.dragonminez.common.datagen.builder.PatternRecipeBuilder;
 import com.dragonminez.common.init.MainItems;
 import com.dragonminez.server.recipes.PatternRecipe;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
@@ -653,7 +653,7 @@ public class DMZPatternRecipeProvider {
 		}
 
 		checkUnique(name, blankPattern, rows);
-		builder.save(this.consumer, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
+		builder.save(this.consumer, Identifier.fromNamespaceAndPath(Reference.MOD_ID, name));
 	}
 
 	private void checkUnique(String name, ItemLike blankPattern, String[] rows) {

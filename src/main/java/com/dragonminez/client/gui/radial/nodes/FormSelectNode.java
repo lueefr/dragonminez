@@ -11,7 +11,7 @@ import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.extras.ActionMode;
 import com.dragonminez.common.util.FusionForms;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class FormSelectNode extends AbstractRadialNode {
 
@@ -19,7 +19,7 @@ public class FormSelectNode extends AbstractRadialNode {
 	private final String group;
 	private final String form;
 	private final boolean stack;
-	private final ResourceLocation icon;
+	private final Identifier icon;
 	private final int tint;
 
 	public FormSelectNode(String race, String group, String form, boolean stack) {
@@ -49,7 +49,7 @@ public class FormSelectNode extends AbstractRadialNode {
 	}
 
 	@Override
-	public ResourceLocation icon(StatsData stats) {
+	public Identifier icon(StatsData stats) {
 		return icon;
 	}
 
