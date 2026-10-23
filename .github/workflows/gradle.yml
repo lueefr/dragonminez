@@ -87,6 +87,7 @@ jobs:
           fi
 
           tag="v${version}"
+          title="DragonMineZ ${version} (Minecraft ${minecraft_version})"
           artifact="build/libs/dragonminez-${minecraft_version}-${version}.jar"
           if [[ ! -f "$artifact" ]]; then
             echo "::error::Expected release artifact does not exist: $artifact"
@@ -94,16 +95,23 @@ jobs:
           fi
 
           if gh release view "$tag" >/dev/null 2>&1; then
-            echo "::notice::GitHub Release '$tag' already exists; skipping duplicate release."
-            exit 0
+            hotfix_tag="v${version}-hotfix"
+            if gh release view "$hotfix_tag" >/dev/null 2>&1; then
+              echo "::notice::GitHub Release '$hotfix_tag' already exists; skipping duplicate hotfix release."
+              exit 0
+            fi
+            tag="$hotfix_tag"
+            title="DragonMineZ ${version} Hotfix (Minecraft ${minecraft_version})"
           fi
 
-          if [[ -f "release-notes/${version}.md" ]]; then
+          if [[ -f "release-notes/${tag#v}.md" ]]; then
+            notes_file="release-notes/${tag#v}.md"
+          elif [[ -f "release-notes/${version}.md" ]]; then
             notes_file="release-notes/${version}.md"
           else
             notes_file="CHANGELOG.md"
           fi
 
           gh release create "$tag" "$artifact" \
-            --title "DragonMineZ ${version} (Minecraft ${minecraft_version})" \
+            --title "$title" \
             --notes-file "$notes_file"
