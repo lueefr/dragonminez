@@ -69,13 +69,13 @@ The project is still in active development, so features may change as we keep im
 
 ## 🚀 Download
 
-You can download DragonMine Z from our official mod pages:
+The original DragonMine Z from the mod pages:
 
 - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/dragonminez)
 - [Modrinth](https://modrinth.com/mod/dragonminez)
-- [GitHub Releases](https://github.com/lueefr/dragonminez/releases/latest)
 
-DragonMine Z is made for **Minecraft NeoForge 1.21.1**.
+You can only download the port from GitHub:
+- [GitHub Releases](https://github.com/lueefr/dragonminez/releases/latest)
 Release notes are available in the [changelog](CHANGELOG.md) and are included with each GitHub release.
 
 ---
@@ -84,9 +84,9 @@ Release notes are available in the [changelog](CHANGELOG.md) and are included wi
 
 Want early previews and extra behind-the-scenes updates?
 
-Join our [Patreon](https://patreon.com/DragonMineZ) to support development and get access to previews and similar perks. Your support helps us keep improving DragonMine Z and creating more content for the community.
+Join the [Patreon](https://patreon.com/DragonMineZ) to support the original mod development and get access to previews and similar perks. Your support helps us keep improving DragonMine Z and creating more content for the community.
 
-You can also join our [Discord server](https://discord.gg/b5MgRNb3D7) to follow development, report bugs, suggest ideas, and talk with the community.
+You can also join their [Discord server](https://discord.gg/b5MgRNb3D7) to follow development, report bugs, suggest ideas, and talk with the community.
 
 ---
 
@@ -96,7 +96,7 @@ You can also join our [Discord server](https://discord.gg/b5MgRNb3D7) to follow 
   <img src=".github/docs/img/roadmap.png" alt="DragonMine Z Roadmap" />
 </div>
 
-You can also follow our public [GitHub Progress Board](https://github.com/orgs/DragonMineZ/projects/4).
+You can also follow their public [GitHub Progress Board](https://github.com/orgs/DragonMineZ/projects/4).
 
 ---
 
