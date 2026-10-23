@@ -67,13 +67,17 @@ public class ArmorPatrollerModel extends HumanoidModel<LivingEntity> {
     }
 
     @Override
-	public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		head.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		right_arm.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		left_arm.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		right_leg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		left_leg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		hat.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+	public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int renderColor) {
+        float red = net.minecraft.util.FastColor.ARGB32.red(renderColor) / 255.0F;
+        float green = net.minecraft.util.FastColor.ARGB32.green(renderColor) / 255.0F;
+        float blue = net.minecraft.util.FastColor.ARGB32.blue(renderColor) / 255.0F;
+        float alpha = net.minecraft.util.FastColor.ARGB32.alpha(renderColor) / 255.0F;
+		head.render(poseStack, vertexConsumer, packedLight, packedOverlay, renderColor);
+		body.render(poseStack, vertexConsumer, packedLight, packedOverlay, renderColor);
+		right_arm.render(poseStack, vertexConsumer, packedLight, packedOverlay, renderColor);
+		left_arm.render(poseStack, vertexConsumer, packedLight, packedOverlay, renderColor);
+		right_leg.render(poseStack, vertexConsumer, packedLight, packedOverlay, renderColor);
+		left_leg.render(poseStack, vertexConsumer, packedLight, packedOverlay, renderColor);
+		hat.render(poseStack, vertexConsumer, packedLight, packedOverlay, renderColor);
 	}
 }

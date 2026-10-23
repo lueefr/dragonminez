@@ -35,6 +35,8 @@ import java.util.EnumMap;
 import java.util.Map;
 
 public class PatternStationBlock extends BaseEntityBlock {
+    public static final com.mojang.serialization.MapCodec<PatternStationBlock> CODEC = simpleCodec(PatternStationBlock::new);
+    @Override protected com.mojang.serialization.MapCodec<? extends BaseEntityBlock> codec() { return CODEC; }
 	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
 	private static final Component CONTAINER_TITLE = Component.translatable("container.dragonminez.pattern_station");
@@ -104,7 +106,7 @@ public class PatternStationBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+	public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
 		if (!level.isClientSide && player.isCreative() && state.getValue(HALF) == DoubleBlockHalf.UPPER) {
 			BlockPos lowerPos = pos.below();
 			BlockState lowerState = level.getBlockState(lowerPos);
@@ -113,7 +115,7 @@ public class PatternStationBlock extends BaseEntityBlock {
 				level.levelEvent(player, LevelEvent.PARTICLES_DESTROY_BLOCK, lowerPos, Block.getId(lowerState));
 			}
 		}
-		super.playerWillDestroy(level, pos, state, player);
+		return super.playerWillDestroy(level, pos, state, player);
 	}
 
 	@Override
@@ -127,7 +129,7 @@ public class PatternStationBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
 		if (level.isClientSide) return InteractionResult.SUCCESS;
 		player.openMenu(state.getMenuProvider(level, pos));
 		return InteractionResult.CONSUME;

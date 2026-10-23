@@ -1,5 +1,6 @@
 package com.dragonminez.server.events.players.combat;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.config.CombatConfig;
 import com.dragonminez.common.config.ConfigManager;
@@ -22,17 +23,17 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class SpeedDodgeHandler {
 
 	public static final String DODGE_CD = "SpeedDodgeCooldown";
@@ -48,7 +49,7 @@ public class SpeedDodgeHandler {
 	private record Streak(int count, long lastTick) {}
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
-	public static void onLivingAttack(LivingAttackEvent event) {
+	public static void onLivingAttack(LivingIncomingDamageEvent event) {
 		if (event.getEntity().level().isClientSide()) return;
 		if (!(event.getEntity() instanceof ServerPlayer defender)) return;
 
@@ -64,7 +65,7 @@ public class SpeedDodgeHandler {
 		StatsProvider.get(StatsCapability.INSTANCE, defender).ifPresent(data -> {
 			if (!data.getStatus().isHasCreatedCharacter()) return;
 			if (data.getStatus().isStunned()) return;
-			if (defender.hasEffect(MainEffects.STUN.get())) return;
+			if (defender.hasEffect(MainEffects.STUN)) return;
 			if (defender.isSpectator()) return;
 
 			if (data.getCooldowns().hasCooldown(Cooldowns.DASH_ACTIVE)) return;

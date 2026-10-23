@@ -1,5 +1,6 @@
 package com.dragonminez.server.world.data;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -23,7 +24,7 @@ public class StructurePlanSavedData extends SavedData {
 	private final Set<Integer> exhausted = new HashSet<>();
 
 	public static StructurePlanSavedData get(ServerLevel level) {
-		return level.getDataStorage().computeIfAbsent(StructurePlanSavedData::load, StructurePlanSavedData::new, NAME);
+		return level.getDataStorage().computeIfAbsent(new SavedData.Factory<>(StructurePlanSavedData::new, (tag, registries) -> StructurePlanSavedData.load(tag)), NAME);
 	}
 
 	public boolean isResolved() {
@@ -80,7 +81,7 @@ public class StructurePlanSavedData extends SavedData {
 	}
 
 	@Override
-	public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
+	public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.Provider registries) {
 		tag.putBoolean("resolved", resolved);
 		ListTag list = new ListTag();
 		for (Map.Entry<Integer, ChunkPos> e : positions.entrySet()) {

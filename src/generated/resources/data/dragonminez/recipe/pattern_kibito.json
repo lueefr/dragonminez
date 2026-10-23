@@ -1,0 +1,114 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:red_dye"
+    },
+    "1": {
+      "item": "minecraft:red_dye"
+    },
+    "2": {
+      "item": "minecraft:brown_dye"
+    },
+    "4": {
+      "item": "minecraft:cyan_dye"
+    },
+    "5": {
+      "item": "minecraft:orange_dye"
+    },
+    "6": {
+      "item": "minecraft:orange_dye"
+    },
+    "7": {
+      "item": "minecraft:orange_dye"
+    },
+    "8": {
+      "item": "minecraft:orange_dye"
+    },
+    "9": {
+      "item": "minecraft:cyan_dye"
+    },
+    "A": {
+      "item": "minecraft:red_dye"
+    },
+    "B": {
+      "item": "minecraft:red_dye"
+    },
+    "E": {
+      "item": "minecraft:red_dye"
+    },
+    "F": {
+      "item": "minecraft:red_dye"
+    },
+    "G": {
+      "item": "minecraft:red_dye"
+    },
+    "H": {
+      "item": "minecraft:red_dye"
+    },
+    "I": {
+      "item": "minecraft:cyan_dye"
+    },
+    "J": {
+      "item": "minecraft:cyan_dye"
+    },
+    "K": {
+      "item": "minecraft:red_dye"
+    },
+    "L": {
+      "item": "minecraft:red_dye"
+    },
+    "M": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "N": {
+      "item": "minecraft:red_dye"
+    },
+    "O": {
+      "item": "minecraft:red_dye"
+    },
+    "P": {
+      "item": "minecraft:red_dye"
+    },
+    "Q": {
+      "item": "minecraft:red_dye"
+    },
+    "R": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "S": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "T": {
+      "item": "minecraft:red_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "V": {
+      "item": "minecraft:red_dye"
+    },
+    "W": {
+      "item": "minecraft:red_dye"
+    },
+    "X": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "Z": {
+      "item": "minecraft:brown_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    " Z012 ",
+    "456789"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_kibito"
+  }
+}

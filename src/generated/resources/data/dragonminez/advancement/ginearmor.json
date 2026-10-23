@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternsuper",
+  "criteria": {
+    "ginearmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:gine_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:gine_armor_leggings"
+          },
+          {
+            "items": "dragonminez:gine_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.ginearmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:gine_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.ginearmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "ginearmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

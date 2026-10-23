@@ -33,8 +33,8 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,9 +60,9 @@ public abstract class WorldBossEntity extends DBSagasEntity {
 
     public static final double HEALTH_OVER_HARD = 4.0D;
 
-    private static final UUID GROUP_HEALTH_ID = UUID.fromString("3f1c2a5e-7b8d-4e61-9a0c-5d2e8f4b7a11");
-    private static final UUID GROUP_MELEE_ID = UUID.fromString("8a4d6e2b-1c3f-4b7a-a95e-0f6c2d8b3e22");
-    private static final UUID GROUP_KI_ID = UUID.fromString("c27e9b14-5a6d-4f83-b0e1-7d4a9c3f5e33");
+    private static final net.minecraft.resources.ResourceLocation GROUP_HEALTH_ID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/3f1c2a5e-7b8d-4e61-9a0c-5d2e8f4b7a11");
+    private static final net.minecraft.resources.ResourceLocation GROUP_MELEE_ID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/8a4d6e2b-1c3f-4b7a-a95e-0f6c2d8b3e22");
+    private static final net.minecraft.resources.ResourceLocation GROUP_KI_ID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/c27e9b14-5a6d-4f83-b0e1-7d4a9c3f5e33");
 
     public static float bossHealth(float sagaNormalHealth) {
         return (float) (sagaNormalHealth * Difficulty.HARD.hpMultiplier() * HEALTH_OVER_HARD);
@@ -111,11 +111,11 @@ public abstract class WorldBossEntity extends DBSagasEntity {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(BOSS_ASLEEP, false);
-        this.entityData.define(BOSS_ABILITY, -1);
-        this.entityData.define(BOSS_RESTING, false);
+    protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(BOSS_ASLEEP, false);
+        builder.define(BOSS_ABILITY, -1);
+        builder.define(BOSS_RESTING, false);
     }
 
     @Override
@@ -204,26 +204,26 @@ public abstract class WorldBossEntity extends DBSagasEntity {
         float fraction = this.getMaxHealth() > 0.0F ? this.getHealth() / this.getMaxHealth() : 1.0F;
         boolean healthChanged = setGroupModifier(Attributes.MAX_HEALTH, GROUP_HEALTH_ID, config.getHealthPerExtraMember() * extra);
         setGroupModifier(Attributes.ATTACK_DAMAGE, GROUP_MELEE_ID, config.getDamagePerExtraMember() * extra);
-        setGroupModifier(EntityAttributes.KI_BLAST_DAMAGE.get(), GROUP_KI_ID, config.getDamagePerExtraMember() * extra);
+        setGroupModifier(EntityAttributes.KI_BLAST_DAMAGE, GROUP_KI_ID, config.getDamagePerExtraMember() * extra);
         if (healthChanged && this.isAlive()) this.setHealth(Math.max(1.0F, this.getMaxHealth() * fraction));
     }
 
     private void clearGroupScaling() {
         setGroupModifier(Attributes.MAX_HEALTH, GROUP_HEALTH_ID, 0.0D);
         setGroupModifier(Attributes.ATTACK_DAMAGE, GROUP_MELEE_ID, 0.0D);
-        setGroupModifier(EntityAttributes.KI_BLAST_DAMAGE.get(), GROUP_KI_ID, 0.0D);
+        setGroupModifier(EntityAttributes.KI_BLAST_DAMAGE, GROUP_KI_ID, 0.0D);
         if (this.getHealth() > this.getMaxHealth()) this.setHealth(this.getMaxHealth());
     }
 
-    private boolean setGroupModifier(Attribute attribute, UUID id, double amount) {
+    private boolean setGroupModifier(net.minecraft.core.Holder<Attribute> attribute, net.minecraft.resources.ResourceLocation id, double amount) {
         AttributeInstance instance = this.getAttribute(attribute);
         if (instance == null) return false;
         AttributeModifier current = instance.getModifier(id);
         if (current == null && amount <= 0.0D) return false;
-        if (current != null && Math.abs(current.getAmount() - amount) < 1.0E-6D) return false;
+        if (current != null && Math.abs(current.amount() - amount) < 1.0E-6D) return false;
         if (current != null) instance.removeModifier(id);
         if (amount > 0.0D) {
-            instance.addPermanentModifier(new AttributeModifier(id, "World boss group scaling", amount, AttributeModifier.Operation.MULTIPLY_TOTAL));
+            instance.addPermanentModifier(new AttributeModifier(id, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         }
         return true;
     }

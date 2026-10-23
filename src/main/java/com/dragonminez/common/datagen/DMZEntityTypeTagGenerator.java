@@ -9,8 +9,9 @@ import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,7 +82,7 @@ public class DMZEntityTypeTagGenerator extends EntityTypeTagsProvider {
 	private void npc(TagKey<EntityType<?>> tag, String... names) {
 		IntrinsicTagAppender<EntityType<?>> appender = this.tag(tag);
 		for (String name : names) {
-			EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
+			EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name));
 			if (type == null) throw new IllegalStateException("Unknown entity for tag " + tag.location() + ": " + name);
 			appender.add(type);
 		}

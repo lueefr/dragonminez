@@ -32,8 +32,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.RecordItem;
-import net.minecraftforge.registries.ForgeRegistries;
+import com.dragonminez.common.training.MusicDiscHelper;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -166,10 +167,10 @@ public class RythmGameScreen extends BaseMinigameScreen {
 			for (ItemStack stack : mc.player.getInventory().offhand) addDisc(discs, stack.getItem(), learned);
 			for (String key : learned) {
 				ResourceLocation id = ResourceLocation.tryParse(key);
-				if (id != null) addDisc(discs, ForgeRegistries.ITEMS.getValue(id), learned);
+				if (id != null) addDisc(discs, BuiltInRegistries.ITEM.get(id), learned);
 			}
 		} else if (!requireDisc) {
-			for (Item item : ForgeRegistries.ITEMS) addDisc(discs, item, learned);
+			for (Item item : BuiltInRegistries.ITEM) addDisc(discs, item, learned);
 		}
 		List<Track> sorted = new ArrayList<>(discs.values());
 		sorted.sort(Comparator.comparing(Track::sortKey).thenComparing(t -> t.name().getString().toLowerCase(Locale.ROOT)));
@@ -181,16 +182,17 @@ public class RythmGameScreen extends BaseMinigameScreen {
 	}
 
 	private void addDisc(Map<String, Track> discs, Item item, Set<String> learned) {
-		if (!(item instanceof RecordItem record)) return;
-		ResourceLocation id = ForgeRegistries.ITEMS.getKey(item);
+		var record = MusicDiscHelper.song(item);
+        if (record == null) return;
+		ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
 		if (id == null || discs.containsKey(id.toString())) return;
 		String key = id.toString();
 		boolean isLearned = learned.contains(key);
-		String[] info = parseDiscInfo(id.getNamespace(), record.getDisplayName().getString());
+		String[] info = parseDiscInfo(id.getNamespace(), record.description().getString());
 		Component name = dmz(info[0]);
 		String credit = info[1] != null && info[2] != null ? info[1] + " - " + info[2] : info[1] != null ? info[1] : info[2];
 		Component subtitle = credit == null ? tr("gui.dragonminez.minigame.rhythm.music_disc") : dmz(credit);
-		discs.put(key, new Track(key, name, subtitle, sortKey(info[0]), record.getLengthInTicks() * 50, Kind.DISC, isLearned));
+		discs.put(key, new Track(key, name, subtitle, sortKey(info[0]), record.lengthInTicks() * 50, Kind.DISC, isLearned));
 	}
 
 	static String[] parseDiscInfo(String namespace, String displayName) {
@@ -309,8 +311,9 @@ public class RythmGameScreen extends BaseMinigameScreen {
 			return song == null ? null : ResourceLocation.tryParse(song.sound());
 		}
 		ResourceLocation id = ResourceLocation.tryParse(track.key());
-		Item item = id == null ? null : ForgeRegistries.ITEMS.getValue(id);
-		return item instanceof RecordItem record ? record.getSound().getLocation() : null;
+		Item item = id == null ? null : BuiltInRegistries.ITEM.get(id);
+		var record = MusicDiscHelper.song(item);
+        return record == null ? null : record.soundEvent().value().getLocation();
 	}
 
 	private void onChartReady(String key, RhythmChart chart, boolean keepChoices) {
@@ -486,12 +489,12 @@ public class RythmGameScreen extends BaseMinigameScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double delta) {
 		if (isReady() && !isChallenge() && insideRect(listBox, readyToUiX(mouseX), readyToUiY(mouseY))) {
 			listScroll.scrollWheel(delta);
 			return true;
 		}
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
 	}
 
 	@Override

@@ -32,13 +32,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.PlayState;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -166,60 +166,39 @@ public class SaiyanInvaderRenderer<T extends DBSagasEntity & SagaSaiyanInvadersE
 
 	private record TintedConsumer(VertexConsumer delegate, float red, float green, float blue) implements VertexConsumer {
 		@Override
-		public VertexConsumer vertex(double x, double y, double z) {
-			this.delegate.vertex(x, y, z);
+		public VertexConsumer addVertex(float x, float y, float z) {
+			this.delegate.addVertex(x, y, z);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer color(int r, int g, int b, int a) {
-			this.delegate.color(Math.round(r * this.red), Math.round(g * this.green), Math.round(b * this.blue), a);
+		public VertexConsumer setColor(int r, int g, int b, int a) {
+			this.delegate.setColor(Math.round(r * this.red), Math.round(g * this.green), Math.round(b * this.blue), a);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer uv(float u, float v) {
-			this.delegate.uv(u, v);
+		public VertexConsumer setUv(float u, float v) {
+			this.delegate.setUv(u, v);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer overlayCoords(int u, int v) {
-			this.delegate.overlayCoords(u, v);
+		public VertexConsumer setUv1(int u, int v) {
+			this.delegate.setUv1(u, v);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer uv2(int u, int v) {
-			this.delegate.uv2(u, v);
+		public VertexConsumer setUv2(int u, int v) {
+			this.delegate.setUv2(u, v);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer normal(float x, float y, float z) {
-			this.delegate.normal(x, y, z);
+		public VertexConsumer setNormal(float x, float y, float z) {
+			this.delegate.setNormal(x, y, z);
 			return this;
-		}
-
-		@Override
-		public void endVertex() {
-			this.delegate.endVertex();
-		}
-
-		@Override
-		public void vertex(float x, float y, float z, float r, float g, float b, float a, float u, float v,
-						   int overlay, int light, float normalX, float normalY, float normalZ) {
-			this.delegate.vertex(x, y, z, r * this.red, g * this.green, b * this.blue, a, u, v, overlay, light, normalX, normalY, normalZ);
-		}
-
-		@Override
-		public void defaultColor(int r, int g, int b, int a) {
-			this.delegate.defaultColor(Math.round(r * this.red), Math.round(g * this.green), Math.round(b * this.blue), a);
-		}
-
-		@Override
-		public void unsetDefaultColor() {
-			this.delegate.unsetDefaultColor();
 		}
 	}
 

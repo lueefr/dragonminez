@@ -1,5 +1,6 @@
 package com.dragonminez.common.combat.clash;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.common.combat.logic.player.TargetHelper;
@@ -31,17 +32,21 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public final class StrikeClash implements BeamClashManager.ExternalClash {
 	private static final double TRIGGER_GAP = 4.5;
 	private static final double HEADING_DOT = 0.35;
@@ -69,7 +74,7 @@ public final class StrikeClash implements BeamClashManager.ExternalClash {
 	private static final String POSE_ANIM = "skp.strike_clash";
 
 	@SuppressWarnings("unchecked")
-	private static final RegistryObject<SoundEvent>[] PUNCH_SOUNDS = new RegistryObject[]{
+	private static final DeferredHolder<SoundEvent, SoundEvent>[] PUNCH_SOUNDS = new DeferredHolder[]{
 			MainSounds.GOLPE1, MainSounds.GOLPE2, MainSounds.GOLPE3,
 			MainSounds.GOLPE4, MainSounds.GOLPE5, MainSounds.GOLPE6
 	};
@@ -304,14 +309,14 @@ public final class StrikeClash implements BeamClashManager.ExternalClash {
 		if (side == null) return false;
 		float serverTime = (float) (level.getGameTime() - startGameTime);
 		float realElapsed = (System.nanoTime() - startNanos) / 50_000_000.0f;
-		ClashMeter.Grade grade = side.participant().registerPlayerPress(pressTime, marker, serverTime, realElapsed, player.latency);
+		ClashMeter.Grade grade = side.participant().registerPlayerPress(pressTime, marker, serverTime, realElapsed, player.connection.latency());
 		BeamClashManager.playPressFeedback(player, grade);
 		return true;
 	}
 
 	@SubscribeEvent
-	public static void onLevelTick(TickEvent.LevelTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || !(event.level instanceof ServerLevel level)) return;
+	public static void onLevelTick(LevelTickEvent.Post event) {
+		if (!(event.getLevel() instanceof ServerLevel level)) return;
 
 		ACTIVE.removeIf(clash -> {
 			if (clash.level != level) return false;

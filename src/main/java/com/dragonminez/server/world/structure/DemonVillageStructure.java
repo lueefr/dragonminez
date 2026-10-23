@@ -61,7 +61,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class DemonVillageStructure extends Structure {
-	public static final Codec<DemonVillageStructure> CODEC = simpleCodec(DemonVillageStructure::new);
+	public static final com.mojang.serialization.MapCodec<DemonVillageStructure> CODEC = simpleCodec(DemonVillageStructure::new);
 
 	private static final ResourceLocation CENTER = template("demon_village/center");
 	private static final List<ResourceLocation> HOUSES = List.of(
@@ -204,7 +204,7 @@ public class DemonVillageStructure extends Structure {
 		if (resident == null) return;
 		BlockPos feet = floor.above();
 		resident.moveTo(feet.getX() + 0.5D, feet.getY(), feet.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
-		resident.finalizeSpawn(level, level.getCurrentDifficultyAt(feet), MobSpawnType.STRUCTURE, null, null);
+		resident.finalizeSpawn(level, level.getCurrentDifficultyAt(feet), MobSpawnType.STRUCTURE, null);
 		resident.setHome(home, radius);
 		level.addFreshEntityWithPassengers(resident);
 	}

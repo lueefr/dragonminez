@@ -17,8 +17,8 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -26,7 +26,7 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.object.GeoCube;
 import software.bernie.geckolib.cache.object.GeoQuad;
 import software.bernie.geckolib.cache.object.GeoVertex;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
@@ -58,7 +58,7 @@ final class NpcPortrait {
 		HudRender.scissor(graphics, clipX0, clipY0, clipX1, clipY1);
 		graphics.pose().pushPose();
 		graphics.pose().translate(headX, headY, 150.0f);
-		graphics.pose().mulPoseMatrix(new Matrix4f().scaling(scale, scale, -scale));
+		graphics.pose().mulPose(new Matrix4f().scaling(scale, scale, -scale));
 		graphics.pose().mulPose(Axis.ZP.rotation((float) Math.PI));
 		graphics.pose().mulPose(Axis.YP.rotationDegrees(TURN_DEGREES));
 		graphics.pose().translate(-head.x(), -head.y(), -head.z());

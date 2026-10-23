@@ -11,7 +11,7 @@ import com.dragonminez.common.wish.Wish;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.neoforged.fml.loading.FMLPaths;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

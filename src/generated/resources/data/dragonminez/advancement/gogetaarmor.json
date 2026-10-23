@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternz",
+  "criteria": {
+    "gogetaarmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:gogeta_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:gogeta_armor_leggings"
+          },
+          {
+            "items": "dragonminez:gogeta_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.gogetaarmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:gogeta_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.gogetaarmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "gogetaarmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

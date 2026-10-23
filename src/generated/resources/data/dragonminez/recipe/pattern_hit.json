@@ -1,0 +1,108 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:purple_dye"
+    },
+    "1": {
+      "item": "minecraft:purple_dye"
+    },
+    "2": {
+      "item": "minecraft:purple_dye"
+    },
+    "5": {
+      "item": "minecraft:black_dye"
+    },
+    "6": {
+      "item": "minecraft:yellow_dye"
+    },
+    "7": {
+      "item": "minecraft:yellow_dye"
+    },
+    "8": {
+      "item": "minecraft:black_dye"
+    },
+    "A": {
+      "item": "minecraft:black_dye"
+    },
+    "B": {
+      "item": "minecraft:purple_dye"
+    },
+    "E": {
+      "item": "minecraft:purple_dye"
+    },
+    "F": {
+      "item": "minecraft:black_dye"
+    },
+    "G": {
+      "item": "minecraft:purple_dye"
+    },
+    "H": {
+      "item": "minecraft:purple_dye"
+    },
+    "I": {
+      "item": "minecraft:black_dye"
+    },
+    "J": {
+      "item": "minecraft:black_dye"
+    },
+    "K": {
+      "item": "minecraft:purple_dye"
+    },
+    "L": {
+      "item": "minecraft:purple_dye"
+    },
+    "M": {
+      "item": "minecraft:cyan_dye"
+    },
+    "N": {
+      "item": "minecraft:purple_dye"
+    },
+    "O": {
+      "item": "minecraft:purple_dye"
+    },
+    "P": {
+      "item": "minecraft:purple_dye"
+    },
+    "Q": {
+      "item": "minecraft:purple_dye"
+    },
+    "R": {
+      "item": "minecraft:cyan_dye"
+    },
+    "S": {
+      "item": "minecraft:cyan_dye"
+    },
+    "T": {
+      "item": "minecraft:purple_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_super"
+    },
+    "V": {
+      "item": "minecraft:purple_dye"
+    },
+    "W": {
+      "item": "minecraft:purple_dye"
+    },
+    "X": {
+      "item": "minecraft:cyan_dye"
+    },
+    "Z": {
+      "item": "minecraft:purple_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    " Z012 ",
+    " 5678 "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_hit"
+  }
+}

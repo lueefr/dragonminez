@@ -36,13 +36,13 @@ jobs:
           fi
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "stable=${stable}" >> "$GITHUB_OUTPUT"
-          echo "artifact=build/libs/dragonminez-${version}.jar" >> "$GITHUB_OUTPUT"
+          echo "artifact=build/libs/dragonminez-1.21.1-${version}.jar" >> "$GITHUB_OUTPUT"
 
-      - name: Set up JDK 17 Temurin
+      - name: Set up JDK 21 Temurin
         if: steps.metadata.outputs.stable == 'true'
         uses: actions/setup-java@v6
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: temurin
 
       - name: Setup Gradle

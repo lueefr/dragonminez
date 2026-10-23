@@ -1,5 +1,6 @@
 package com.dragonminez.common.quest;
 
+import lombok.*;
 import lombok.Getter;
 import lombok.Setter;
 

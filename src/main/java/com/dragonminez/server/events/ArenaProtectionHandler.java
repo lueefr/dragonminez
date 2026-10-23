@@ -1,5 +1,6 @@
 package com.dragonminez.server.events;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.init.MainGameRules;
 import com.dragonminez.server.world.tournament.Tournament;
@@ -10,22 +11,22 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.event.entity.EntityMobGriefingEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.level.ExplosionEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.EntityMobGriefingEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.ExplosionEvent;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import java.util.List;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class ArenaProtectionHandler {
 
 	@SubscribeEvent
@@ -81,12 +82,12 @@ public class ArenaProtectionHandler {
 		if (level.getGameRules().getBoolean(MainGameRules.ALLOW_BUILDING_IN_ARENA_STRUCTURES)) return;
 
 		if (MainGameRules.isInBuildProtectedArea(level, entity.blockPosition())) {
-			event.setResult(Event.Result.DENY);
+			event.setCanGrief(false);
 		}
 	}
 
 	@SubscribeEvent
-	public static void onAttack(LivingAttackEvent event) {
+	public static void onAttack(LivingIncomingDamageEvent event) {
 		LivingEntity target = event.getEntity();
 		if (target == null || target.level().isClientSide()) return;
 
@@ -112,7 +113,7 @@ public class ArenaProtectionHandler {
 	}
 
 	@SubscribeEvent
-	public static void onPlayerHurt(LivingHurtEvent event) {
+	public static void onPlayerHurt(LivingIncomingDamageEvent event) {
 		LivingEntity target = event.getEntity();
 		if (target == null || target.level().isClientSide()) return;
 
@@ -141,18 +142,17 @@ public class ArenaProtectionHandler {
 		UUID owner = Tournament.Manager.ownerOf(mob);
 		if (owner == null) return;
 
-		LivingEntity newTarget = event.getNewTarget();
+		LivingEntity newTarget = event.getNewAboutToBeSetTarget();
 		if (newTarget == null) return;
 		if (!(newTarget instanceof ServerPlayer player) || !player.getUUID().equals(owner)) {
 			event.setCanceled(true);
 		}
 	}
 
-	@SubscribeEvent
 	public static void onInteract(PlayerInteractEvent event) {
-		if (!event.isCancelable() || event.getLevel().isClientSide()) return;
+		if (!(event instanceof net.neoforged.bus.api.ICancellableEvent cancellable) || event.getLevel().isClientSide()) return;
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
-		if (Tournament.Manager.isInGrace(player.getUUID(), event.getLevel().getGameTime())) event.setCanceled(true);
+		if (Tournament.Manager.isInGrace(player.getUUID(), event.getLevel().getGameTime())) cancellable.setCanceled(true);
 	}
 
 	@SubscribeEvent
@@ -167,4 +167,14 @@ public class ArenaProtectionHandler {
 					Component.translatable("message.dragonminez.arena.protected"), true);
 		}
 	}
+    @SubscribeEvent
+    public static void onInteractLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) { onInteract(event); }
+    @SubscribeEvent
+    public static void onInteractRightClickBlock(PlayerInteractEvent.RightClickBlock event) { onInteract(event); }
+    @SubscribeEvent
+    public static void onInteractRightClickItem(PlayerInteractEvent.RightClickItem event) { onInteract(event); }
+    @SubscribeEvent
+    public static void onInteractEntityInteract(PlayerInteractEvent.EntityInteract event) { onInteract(event); }
+    @SubscribeEvent
+    public static void onInteractEntityInteractSpecific(PlayerInteractEvent.EntityInteractSpecific event) { onInteract(event); }
 }

@@ -1,5 +1,6 @@
 package com.dragonminez.common.stats;
 
+import lombok.*;
 import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.FormConfig;

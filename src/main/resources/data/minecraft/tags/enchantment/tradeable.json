@@ -1,0 +1,11 @@
+{
+  "values": [
+    "dragonminez:vitality_recovery",
+    "dragonminez:resistance_recovery",
+    "dragonminez:energy_recovery",
+    "dragonminez:defense_penetration",
+    "dragonminez:healing_reduction",
+    "dragonminez:critical_chance",
+    "dragonminez:critical_damage"
+  ]
+}

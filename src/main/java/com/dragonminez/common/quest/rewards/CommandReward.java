@@ -1,5 +1,6 @@
 package com.dragonminez.common.quest.rewards;
 
+import lombok.*;
 import com.dragonminez.common.quest.QuestReward;
 import lombok.Getter;
 import net.minecraft.commands.CommandSourceStack;
@@ -13,7 +14,7 @@ public class CommandReward extends QuestReward {
 
 	@Getter
 	private final String command;
-	@Getter
+@Getter
 	private final String translationKey;
 
 	public CommandReward(String command, String translationKey) {
@@ -54,4 +55,3 @@ public class CommandReward extends QuestReward {
 		}
 	}
 }
-

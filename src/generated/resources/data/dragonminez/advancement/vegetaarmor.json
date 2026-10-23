@@ -1,0 +1,90 @@
+{
+  "parent": "dragonminez:patternz",
+  "criteria": {
+    "vegetaarmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:vegeta_saiyan_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:vegeta_saiyan_armor_leggings"
+          },
+          {
+            "items": "dragonminez:vegeta_saiyan_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "vegetaarmor_gt": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:vegeta_gt_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:vegeta_gt_armor_leggings"
+          },
+          {
+            "items": "dragonminez:vegeta_gt_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "vegetaarmor_namek": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:vegeta_namek_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:vegeta_namek_armor_leggings"
+          },
+          {
+            "items": "dragonminez:vegeta_namek_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "vegetaarmor_z": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:vegeta_z_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:vegeta_z_armor_leggings"
+          },
+          {
+            "items": "dragonminez:vegeta_z_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.vegetaarmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:vegeta_saiyan_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.vegetaarmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "vegetaarmor",
+      "vegetaarmor_namek",
+      "vegetaarmor_z",
+      "vegetaarmor_gt"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

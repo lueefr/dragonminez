@@ -1,5 +1,6 @@
 package com.dragonminez.common.util.types.items;
 
+import lombok.*;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.common.util.gson.PotionEffectListTypeAdapter;
@@ -8,13 +9,18 @@ import com.google.gson.annotations.JsonAdapter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.google.gson.GsonBuilder;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +39,7 @@ import java.util.List;
 public class PotionDTO extends GenericItemDTO {
 
 	public static final String ITEM_TYPE = "potion";
-	private static final ResourceLocation POTION_ITEM_ID = new ResourceLocation("minecraft", "potion");
+	private static final ResourceLocation POTION_ITEM_ID = ResourceLocation.fromNamespaceAndPath("minecraft", "potion");
 
 	protected ResourceLocation potion;
 
@@ -77,17 +83,17 @@ public class PotionDTO extends GenericItemDTO {
 
 	protected void applyPotionData(ItemStack itemStack) {
 		if (this.potion != null) {
-			Potion resolved = ForgeRegistries.POTIONS.getValue(this.potion);
+			Potion resolved = BuiltInRegistries.POTION.get(this.potion);
 			if (resolved == null) {
 				LogUtil.warn(Env.COMMON, "Unknown potion '{}' on item '{}', skipping.", this.potion, this.itemId);
 			} else {
-				PotionUtils.setPotion(itemStack, resolved);
+				itemStack.set(DataComponents.POTION_CONTENTS, new PotionContents(BuiltInRegistries.POTION.wrapAsHolder(resolved)));
 			}
 		}
 
 		List<MobEffectInstance> custom = resolveMobEffects();
 		if (!custom.isEmpty()) {
-			PotionUtils.setCustomEffects(itemStack, custom);
+			itemStack.update(DataComponents.POTION_CONTENTS, PotionContents.EMPTY, contents -> new PotionContents(contents.potion(), contents.customColor(), custom));
 		}
 	}
 
@@ -101,14 +107,14 @@ public class PotionDTO extends GenericItemDTO {
 			if (entry == null || entry.getEffect() == null) {
 				continue;
 			}
-			MobEffect effect = ForgeRegistries.MOB_EFFECTS.getValue(entry.getEffect());
+			MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(entry.getEffect());
 			if (effect == null) {
 				LogUtil.warn(Env.COMMON, "Unknown mob effect '{}' on item '{}', skipping.",
 						entry.getEffect(), this.itemId);
 				continue;
 			}
 			resolved.add(new MobEffectInstance(
-					effect,
+					BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect),
 					entry.getDuration() == null ? 1 : entry.getDuration(),
 					entry.getAmplifier() == null ? 0 : entry.getAmplifier(),
 					Boolean.TRUE.equals(entry.getAmbient()),

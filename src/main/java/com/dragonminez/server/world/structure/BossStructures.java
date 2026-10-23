@@ -59,7 +59,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.common.Tags;
+import net.neoforged.neoforge.common.Tags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,7 +76,7 @@ public final class BossStructures {
 	private BossStructures() {}
 
 	public static class TreeOfMightStructure extends Structure implements IncrementalStructure {
-		public static final Codec<TreeOfMightStructure> CODEC = simpleCodec(TreeOfMightStructure::new);
+		public static final com.mojang.serialization.MapCodec<TreeOfMightStructure> CODEC = simpleCodec(TreeOfMightStructure::new);
 
 		public TreeOfMightStructure(StructureSettings settings) {
 			super(settings);
@@ -1444,7 +1444,7 @@ public final class BossStructures {
 	}
 
 	public static class GeteStarStructure extends Structure implements IncrementalStructure {
-		public static final Codec<GeteStarStructure> CODEC = simpleCodec(GeteStarStructure::new);
+		public static final com.mojang.serialization.MapCodec<GeteStarStructure> CODEC = simpleCodec(GeteStarStructure::new);
 
 		private static final int DRAIN_SCAN_UP = 36;
 		private static final int DRAIN_SCAN_DOWN = 24;
@@ -2280,7 +2280,7 @@ public final class BossStructures {
 	}
 
 	public static class SaiyanCraterStructure extends Structure {
-		public static final Codec<SaiyanCraterStructure> CODEC = simpleCodec(SaiyanCraterStructure::new);
+		public static final com.mojang.serialization.MapCodec<SaiyanCraterStructure> CODEC = simpleCodec(SaiyanCraterStructure::new);
 
 		public static final int RADIUS = 10;
 		private static final int DEPTH = 5;
@@ -2511,7 +2511,7 @@ public final class BossStructures {
 	}
 
 	public static class NamekRuinsStructure extends Structure {
-		public static final Codec<NamekRuinsStructure> CODEC = simpleCodec(NamekRuinsStructure::new);
+		public static final com.mojang.serialization.MapCodec<NamekRuinsStructure> CODEC = simpleCodec(NamekRuinsStructure::new);
 
 		private static final List<ResourceLocation> AJISSA_HOUSES = List.of(
 				template("village_ajissa/houses/residence/ajissa_house_big"),
@@ -2788,7 +2788,7 @@ public final class BossStructures {
 
 							if (inBlast(blasts, x, y, z) || roll < BASE_COLLAPSE + ROOF_COLLAPSE * heightFactor * heightFactor) {
 								level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
-							} else if (state.is(Tags.Blocks.GLASS) || state.is(Tags.Blocks.GLASS_PANES)) {
+							} else if (state.is(Tags.Blocks.GLASS_BLOCKS) || state.is(Tags.Blocks.GLASS_PANES)) {
 								if (roll < BROKEN_GLASS) level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
 							} else if (roll > SCORCH_THRESHOLD && state.isCollisionShapeFullBlock(level, pos)) {
 								level.setBlock(pos, scorched(noise(this.seed, x, y + 7, z)), 2);
@@ -2822,7 +2822,7 @@ public final class BossStructures {
 	}
 
 	public static class GomahCampStructure extends Structure {
-		public static final Codec<GomahCampStructure> CODEC = simpleCodec(GomahCampStructure::new);
+		public static final com.mojang.serialization.MapCodec<GomahCampStructure> CODEC = simpleCodec(GomahCampStructure::new);
 
 		private static final int[][] FLOOR_BANDS = {
 				{DemonRealmGeneration.CRUST_A_BOTTOM - 1, DemonRealmGeneration.FIRST_BASE - 16},
@@ -3099,7 +3099,7 @@ public final class BossStructures {
 	}
 
 	public static class GomahCradleStructure extends Structure {
-		public static final Codec<GomahCradleStructure> CODEC = simpleCodec(GomahCradleStructure::new);
+		public static final com.mojang.serialization.MapCodec<GomahCradleStructure> CODEC = simpleCodec(GomahCradleStructure::new);
 
 		public GomahCradleStructure(StructureSettings settings) {
 			super(settings);

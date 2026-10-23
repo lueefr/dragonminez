@@ -1,0 +1,114 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:purple_dye"
+    },
+    "1": {
+      "item": "minecraft:purple_dye"
+    },
+    "2": {
+      "item": "minecraft:purple_dye"
+    },
+    "3": {
+      "item": "minecraft:purple_dye"
+    },
+    "5": {
+      "item": "minecraft:purple_dye"
+    },
+    "6": {
+      "item": "minecraft:purple_dye"
+    },
+    "7": {
+      "item": "minecraft:purple_dye"
+    },
+    "8": {
+      "item": "minecraft:purple_dye"
+    },
+    "B": {
+      "item": "minecraft:brown_dye"
+    },
+    "C": {
+      "item": "minecraft:brown_dye"
+    },
+    "D": {
+      "item": "minecraft:brown_dye"
+    },
+    "E": {
+      "item": "minecraft:brown_dye"
+    },
+    "G": {
+      "item": "minecraft:yellow_dye"
+    },
+    "H": {
+      "item": "minecraft:yellow_dye"
+    },
+    "I": {
+      "item": "minecraft:yellow_dye"
+    },
+    "J": {
+      "item": "minecraft:yellow_dye"
+    },
+    "K": {
+      "item": "minecraft:yellow_dye"
+    },
+    "L": {
+      "item": "minecraft:yellow_dye"
+    },
+    "M": {
+      "item": "minecraft:yellow_dye"
+    },
+    "N": {
+      "item": "minecraft:green_dye"
+    },
+    "O": {
+      "item": "minecraft:yellow_dye"
+    },
+    "P": {
+      "item": "minecraft:yellow_dye"
+    },
+    "Q": {
+      "item": "minecraft:green_dye"
+    },
+    "R": {
+      "item": "minecraft:yellow_dye"
+    },
+    "S": {
+      "item": "minecraft:yellow_dye"
+    },
+    "T": {
+      "item": "minecraft:yellow_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "V": {
+      "item": "minecraft:yellow_dye"
+    },
+    "W": {
+      "item": "minecraft:yellow_dye"
+    },
+    "X": {
+      "item": "minecraft:yellow_dye"
+    },
+    "Y": {
+      "item": "minecraft:purple_dye"
+    },
+    "Z": {
+      "item": "minecraft:purple_dye"
+    }
+  },
+  "pattern": [
+    " BCDE ",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    "YZ0123",
+    " 5678 "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_mighty_majin"
+  }
+}

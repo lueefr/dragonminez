@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternsuper",
+  "criteria": {
+    "cauliflaarmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:caulifla_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:caulifla_armor_leggings"
+          },
+          {
+            "items": "dragonminez:caulifla_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.cauliflaarmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:caulifla_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.cauliflaarmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "cauliflaarmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

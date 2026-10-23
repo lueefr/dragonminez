@@ -267,7 +267,7 @@ public final class WorldBossManager {
         BlockPos spawn = entry.lair.above();
         boss.setAnchor(entry.lair);
         boss.moveTo(spawn.getX() + 0.5D, spawn.getY(), spawn.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
-        boss.finalizeSpawn(level, level.getCurrentDifficultyAt(spawn), MobSpawnType.EVENT, null, null);
+        boss.finalizeSpawn(level, level.getCurrentDifficultyAt(spawn), MobSpawnType.EVENT, null);
         boss.fallAsleep();
 
         if (!level.addFreshEntity(boss)) return;
@@ -547,7 +547,7 @@ public final class WorldBossManager {
 
         public static Data get(MinecraftServer server) {
             DimensionDataStorage storage = server.getLevel(Level.OVERWORLD).getDataStorage();
-            return storage.computeIfAbsent(Data::load, Data::new, FILE_NAME);
+            return storage.computeIfAbsent(new net.minecraft.world.level.saveddata.SavedData.Factory<>(Data::new, (tag, registries) -> Data.load(tag)), FILE_NAME);
         }
 
         public static Data load(CompoundTag tag) {
@@ -568,7 +568,7 @@ public final class WorldBossManager {
         }
 
         @Override
-        public CompoundTag save(CompoundTag tag) {
+        public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
             for (Map.Entry<String, Entry> mapEntry : entries.entrySet()) {
                 Entry entry = mapEntry.getValue();
                 CompoundTag e = new CompoundTag();

@@ -11,7 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraft.client.gui.LayeredDraw;
 
 public class BabaReturnTimerHUD {
 	public static final float WIDTH = 112.0f;
@@ -41,13 +41,16 @@ public class BabaReturnTimerHUD {
 	private static String lastTag = "";
 	private static int lastTagColor = LOW_MULTIPLIER_COLOR;
 
-	public static final IGuiOverlay HUD_BABA_RETURN = (forgeGui, guiGraphics, partialTicks, width, height) -> {
+	public static final LayeredDraw.Layer HUD_BABA_RETURN = (guiGraphics, deltaTracker) -> {
+        float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
+        int width = guiGraphics.guiWidth();
+        int height = guiGraphics.guiHeight();
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
 	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.renderDebug || mc.player == null || mc.level == null) return;
+		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null || mc.level == null) return;
 
 		boolean preview = HudLayout.isPreview();
 		HudLayout.Box box = HudLayout.resolve(HudElement.BABA_TIMER, width, height);

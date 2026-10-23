@@ -1,5 +1,6 @@
 package com.dragonminez.client.render.effects;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.util.IrisCompat;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -15,12 +16,16 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
@@ -31,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public final class DimensionalShatterEffect {
 
 	private static final int MAX_CUBES = 900;
@@ -139,8 +144,8 @@ public final class DimensionalShatterEffect {
 	}
 
 	@SubscribeEvent
-	public static void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.START) return;
+	public static void onClientTick(ClientTickEvent.Pre event) {
+
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null) {
 			CUBES.clear();
@@ -173,7 +178,7 @@ public final class DimensionalShatterEffect {
 
 		Camera camera = mc.gameRenderer.getMainCamera();
 		Vec3 camPos = camera.getPosition();
-		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick();
+		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick().getGameTimeDeltaPartialTick(true);
 
 		if (iris) mc.getMainRenderTarget().bindWrite(false);
 		PoseStack poseStack = iris ? viewStack(camera) : event.getPoseStack();
@@ -187,14 +192,13 @@ public final class DimensionalShatterEffect {
 		RenderSystem.depthMask(true);
 		RenderSystem.disableCull();
 
-		PoseStack modelView = RenderSystem.getModelViewStack();
-		modelView.pushPose();
-		modelView.setIdentity();
+		org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
+		modelView.pushMatrix();
+		modelView.identity();
 		RenderSystem.applyModelViewMatrix();
 
 		Tesselator tesselator = Tesselator.getInstance();
-		BufferBuilder buffer = tesselator.getBuilder();
-		buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+		BufferBuilder buffer = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
 		for (Cube cube : CUBES) {
 			float time = cube.age + partialTick - cube.delay;
@@ -219,9 +223,9 @@ public final class DimensionalShatterEffect {
 			emitCube(buffer, poseStack, camPos, cube, pos, cube.spin * time * travel, scale, alpha);
 		}
 
-		tesselator.end();
+		com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(buffer.buildOrThrow());
 
-		modelView.popPose();
+		modelView.popMatrix();
 		RenderSystem.applyModelViewMatrix();
 		RenderSystem.enableCull();
 		RenderSystem.disableBlend();
@@ -253,10 +257,10 @@ public final class DimensionalShatterEffect {
 		float ux = f[3] * half, uy = f[4] * half, uz = f[5] * half;
 		float vx = f[6] * half, vy = f[7] * half, vz = f[8] * half;
 
-		buffer.vertex(pose, nx - ux - vx, ny - uy - vy, nz - uz - vz).color(r, g, b, a).endVertex();
-		buffer.vertex(pose, nx + ux - vx, ny + uy - vy, nz + uz - vz).color(r, g, b, a).endVertex();
-		buffer.vertex(pose, nx + ux + vx, ny + uy + vy, nz + uz + vz).color(r, g, b, a).endVertex();
-		buffer.vertex(pose, nx - ux + vx, ny - uy + vy, nz - uz + vz).color(r, g, b, a).endVertex();
+		buffer.addVertex(pose, nx - ux - vx, ny - uy - vy, nz - uz - vz).setColor(r, g, b, a);
+		buffer.addVertex(pose, nx + ux - vx, ny + uy - vy, nz + uz - vz).setColor(r, g, b, a);
+		buffer.addVertex(pose, nx + ux + vx, ny + uy + vy, nz + uz + vz).setColor(r, g, b, a);
+		buffer.addVertex(pose, nx - ux + vx, ny - uy + vy, nz - uz + vz).setColor(r, g, b, a);
 	}
 
 	private static float[] rgb(int color) {

@@ -128,12 +128,12 @@ public class BioAndroidEvolution implements RacialAbility {
 		}
 
 		teleportBehindTarget(player, target);
-		target.addEffect(new MobEffectInstance(MainEffects.STUN.get(), STUN_DURATION_TICKS, 0, false, false, true));
-		player.addEffect(new MobEffectInstance(MainEffects.STUN.get(), STUN_DURATION_TICKS, 0, false, false, true));
+		target.addEffect(new MobEffectInstance(MainEffects.STUN, STUN_DURATION_TICKS, 0, false, false, true));
+		player.addEffect(new MobEffectInstance(MainEffects.STUN, STUN_DURATION_TICKS, 0, false, false, true));
 		data.getStatus().setDrainingTargetId(target.getId());
 		data.getCooldowns().addCooldown(Cooldowns.DRAIN_ACTIVE, STUN_DURATION_TICKS);
 		data.getCooldowns().addCooldown(Cooldowns.DRAIN, config.getBioAndroidCooldownSeconds() * 20);
-		player.addEffect(new MobEffectInstance(MainEffects.BIOANDROID_PASSIVE.get(), config.getBioAndroidCooldownSeconds() * 20, 0, false, false, true));
+		player.addEffect(new MobEffectInstance(MainEffects.BIOANDROID_PASSIVE, config.getBioAndroidCooldownSeconds() * 20, 0, false, false, true));
 		player.playSound(MainSounds.TP_SHORT.get());
 		target.playSound(MainSounds.TP_SHORT.get());
 		return true;
@@ -175,7 +175,7 @@ public class BioAndroidEvolution implements RacialAbility {
 			} else {
 				data.getStatus().setDrainingTargetId(-1);
 				data.getCooldowns().removeCooldown(Cooldowns.DRAIN_ACTIVE);
-				player.removeEffect(MainEffects.STUN.get());
+				player.removeEffect(MainEffects.STUN);
 			}
 		} else {
 			Entity entity = player.level().getEntity(targetId);
@@ -189,7 +189,7 @@ public class BioAndroidEvolution implements RacialAbility {
 				player.playSound(MainSounds.KNOCKBACK_CHARACTER.get());
 			}
 			data.getStatus().setDrainingTargetId(-1);
-			player.removeEffect(MainEffects.STUN.get());
+			player.removeEffect(MainEffects.STUN);
 		}
 	}
 
@@ -222,7 +222,7 @@ public class BioAndroidEvolution implements RacialAbility {
 			target.hurtMarked = true;
 			data.getStatus().setDrainingTargetId(-1);
 			data.getCooldowns().removeCooldown(Cooldowns.DRAIN_ACTIVE);
-			player.removeEffect(MainEffects.STUN.get());
+			player.removeEffect(MainEffects.STUN);
 
 			if (resolveTier(data).equals("imperfect")) grantDrainTp(player, data, target, totalHealthToDrain, config);
 
@@ -376,7 +376,7 @@ public class BioAndroidEvolution implements RacialAbility {
 		data.getStatus().setActionCharging(false);
 		data.getResources().setActionCharge(0);
 		data.getCooldowns().setCooldown(Cooldowns.BIO_EXPLODE_CD, config.getExplodeCooldownSeconds() * 20);
-		player.addEffect(new MobEffectInstance(MainEffects.BIOANDROID_EXPLODE_CD.get(),
+		player.addEffect(new MobEffectInstance(MainEffects.BIOANDROID_EXPLODE_CD,
 				config.getExplodeCooldownSeconds() * 20, 0, false, false, true));
 
 		Level level = player.level();

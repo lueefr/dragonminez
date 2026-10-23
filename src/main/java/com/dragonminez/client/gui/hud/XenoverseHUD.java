@@ -8,7 +8,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraft.client.gui.LayeredDraw;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 
 public class XenoverseHUD {
 	private static final float HP_FRAME_X = 31.0f, HP_FRAME_Y = 13.0f;
@@ -34,13 +35,16 @@ public class XenoverseHUD {
 	private static float lastHealth = -1.0f;
 	private static float mirrorWidth = -1.0f;
 
-	public static final IGuiOverlay HUD_XENOVERSE = (forgeGui, guiGraphics, partialTicks, width, height) -> {
+	public static final LayeredDraw.Layer HUD_XENOVERSE = (guiGraphics, deltaTracker) -> {
+        float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
+        int width = guiGraphics.guiWidth();
+        int height = guiGraphics.guiHeight();
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
 	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.renderDebug || mc.player == null) return;
+		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 		if (HudStyle.current() != HudStyle.XENOVERSE) return;
 		HudLayout.Box box = HudLayout.resolve(HudElement.MAIN, width, height);
 		if (!box.visible() && !HudLayout.isPreview()) return;

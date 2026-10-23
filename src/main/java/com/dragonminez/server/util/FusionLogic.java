@@ -20,7 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
 import com.dragonminez.common.util.CuriosUtil;
 import com.dragonminez.common.util.FusionForms;
 import com.dragonminez.common.util.TransformationsHelper;
@@ -73,12 +73,12 @@ public class FusionLogic {
 		int finalDuration = durationPerLevel * fusionProm;
 
 		DMZEvent.FusionEvent event = new DMZEvent.FusionEvent(leader, partner, DMZEvent.FusionEvent.FusionType.METAMORU);
-		if (MinecraftForge.EVENT_BUS.post(event)) return false;
+		if (NeoForge.EVENT_BUS.post(event).isCanceled()) return false;
 		applyFusion(leader, partner, lData, pData, "METAMORU", lvl1, lvl2);
 		lData.getStatus().setFusionTimer(finalDuration);
 		leader.addEffect(
 				new MobEffectInstance(
-						MainEffects.FUSED.get(),
+						MainEffects.FUSED,
 						finalDuration,
 						0,
 						false,
@@ -87,7 +87,7 @@ public class FusionLogic {
 		);
 		partner.addEffect(
 				new MobEffectInstance(
-						MainEffects.FUSED.get(),
+						MainEffects.FUSED,
 						finalDuration,
 						0,
 						false,
@@ -107,7 +107,7 @@ public class FusionLogic {
 		int lvl2 = pData.getStats().getTotalStats();
 
 		DMZEvent.FusionEvent event = new DMZEvent.FusionEvent(leader, partner, DMZEvent.FusionEvent.FusionType.POTHALA);
-		if (MinecraftForge.EVENT_BUS.post(event)) return;
+		if (NeoForge.EVENT_BUS.post(event).isCanceled()) return;
 
 		ItemStack leaderHeadTech = CuriosUtil.getFirstStackForItem(leader, "head_tech", "pothala");
 		boolean isGreenPothala = !leaderHeadTech.isEmpty() && leaderHeadTech.getItem().getDescriptionId().contains("green");
@@ -119,8 +119,8 @@ public class FusionLogic {
 
 		applyFusion(leader, partner, lData, pData, "POTHALA", lvl1, lvl2);
 		lData.getStatus().setFusionTimer(FUSION_DURATION);
-		leader.addEffect(new MobEffectInstance(MainEffects.FUSED.get(), FUSION_DURATION, 0, false, false));
-		partner.addEffect(new MobEffectInstance(MainEffects.FUSED.get(), FUSION_DURATION, 0, false, false));
+		leader.addEffect(new MobEffectInstance(MainEffects.FUSED, FUSION_DURATION, 0, false, false));
+		partner.addEffect(new MobEffectInstance(MainEffects.FUSED, FUSION_DURATION, 0, false, false));
 		leader.displayClientMessage(Component.translatable("message.dragonminez.fusion.success", partner.getDisplayName()), true);
 		partner.displayClientMessage(Component.translatable("message.dragonminez.fusion.success", leader.getDisplayName()), true);
 		leader.level().playSound(null, leader.getX(), leader.getY(), leader.getZ(), MainSounds.FUSION.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -136,14 +136,14 @@ public class FusionLogic {
 		int lvl2 = pData.getStats().getTotalStats();
 
 		DMZEvent.FusionEvent event = new DMZEvent.FusionEvent(leader, partner, DMZEvent.FusionEvent.FusionType.BEETLE);
-		if (MinecraftForge.EVENT_BUS.post(event)) return;
+		if (NeoForge.EVENT_BUS.post(event).isCanceled()) return;
 
 		int FUSION_DURATION = ConfigManager.getServerConfig().getGameplay().getFusionDurationSeconds() * 20;
 
 		applyFusion(leader, partner, lData, pData, "BEETLE", lvl1, lvl2);
 		lData.getStatus().setFusionTimer(FUSION_DURATION);
-		leader.addEffect(new MobEffectInstance(MainEffects.FUSED.get(), FUSION_DURATION, 0, false, false));
-		partner.addEffect(new MobEffectInstance(MainEffects.FUSED.get(), FUSION_DURATION, 0, false, false));
+		leader.addEffect(new MobEffectInstance(MainEffects.FUSED, FUSION_DURATION, 0, false, false));
+		partner.addEffect(new MobEffectInstance(MainEffects.FUSED, FUSION_DURATION, 0, false, false));
 		leader.displayClientMessage(Component.translatable("message.dragonminez.fusion.success", partner.getDisplayName()), true);
 		partner.displayClientMessage(Component.translatable("message.dragonminez.fusion.success", leader.getDisplayName()), true);
 		leader.level().playSound(null, leader.getX(), leader.getY(), leader.getZ(), MainSounds.FUSION.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -237,8 +237,8 @@ public class FusionLogic {
 			clearFusionState(leaderData);
 
 			if (leaderRef != null) {
-				if (leaderRef.hasEffect(MainEffects.FUSED.get())) leaderRef.removeEffect(MainEffects.FUSED.get());
-				if (appliesCd) leaderRef.addEffect(new MobEffectInstance(MainEffects.FUSION_CD.get(), fusionCdTicks, 0, false, false, true));
+				if (leaderRef.hasEffect(MainEffects.FUSED)) leaderRef.removeEffect(MainEffects.FUSED);
+				if (appliesCd) leaderRef.addEffect(new MobEffectInstance(MainEffects.FUSION_CD, fusionCdTicks, 0, false, false, true));
 				PartyManager.endFusionParty(leaderRef);
 				refreshNames(leaderRef);
 				NetworkHandler.sendToTrackingEntityAndSelf(new StatsSyncS2C(leaderRef), leaderRef);
@@ -255,8 +255,8 @@ public class FusionLogic {
 			if (partnerRef != null) {
 				partnerRef.stopRiding();
 				partnerRef.setGameMode(GameType.SURVIVAL);
-				if (partnerRef.hasEffect(MainEffects.FUSED.get())) partnerRef.removeEffect(MainEffects.FUSED.get());
-				if (appliesCd) partnerRef.addEffect(new MobEffectInstance(MainEffects.FUSION_CD.get(), fusionCdTicks, 0, false, false, true));
+				if (partnerRef.hasEffect(MainEffects.FUSED)) partnerRef.removeEffect(MainEffects.FUSED);
+				if (appliesCd) partnerRef.addEffect(new MobEffectInstance(MainEffects.FUSION_CD, fusionCdTicks, 0, false, false, true));
 				PartyManager.endFusionParty(partnerRef);
 				refreshNames(partnerRef);
 				NetworkHandler.sendToTrackingEntityAndSelf(new StatsSyncS2C(partnerRef), partnerRef);
@@ -275,7 +275,7 @@ public class FusionLogic {
 					&& containsForm(TransformationsHelper.getUnlockedForms(data, character.getRaceName(), group), character.getActiveForm());
 			if (!owned) {
 				TransformationsHelper.revertToBaseForm(leader, data, false);
-				if (leader != null && !character.hasActiveForm()) leader.removeEffect(MainEffects.TRANSFORMED.get());
+				if (leader != null && !character.hasActiveForm()) leader.removeEffect(MainEffects.TRANSFORMED);
 			}
 		}
 		if (FusionForms.isQualified(character.getSelectedFormGroup())) {
@@ -392,14 +392,14 @@ public class FusionLogic {
 	private static void damageEarring(ServerPlayer player) {
 		ItemStack stack = CuriosUtil.getFirstStackForItem(player, "head_tech", "pothala");
 		if (!stack.isEmpty()) {
-			stack.hurtAndBreak(1, player, (entity) -> {});
+			stack.hurtAndBreak(1, player, net.minecraft.world.entity.EquipmentSlot.HEAD);
 		}
 	}
 
 	public static void breakPothala(ServerPlayer player) {
 		ItemStack stack = CuriosUtil.getFirstStackForItem(player, "head_tech", "pothala");
 		if (!stack.isEmpty() && stack.getItem().getDescriptionId().contains("pothala")) {
-			stack.hurtAndBreak(stack.getMaxDamage() + 1, player, (entity) -> {});
+			stack.hurtAndBreak(stack.getMaxDamage() + 1, player, net.minecraft.world.entity.EquipmentSlot.HEAD);
 		}
 	}
 }

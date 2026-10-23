@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class FittedTemplateStructure extends Structure {
-	public static final Codec<FittedTemplateStructure> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+	public static final com.mojang.serialization.MapCodec<FittedTemplateStructure> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			settingsCodec(instance),
 			ResourceLocation.CODEC.fieldOf("template").forGetter(FittedTemplateStructure::template),
 			TerrainFit.CODEC.optionalFieldOf("terrain_fit", TerrainFit.NONE).forGetter(FittedTemplateStructure::fit),

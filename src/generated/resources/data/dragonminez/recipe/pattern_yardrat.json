@@ -1,0 +1,114 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:white_dye"
+    },
+    "1": {
+      "item": "minecraft:white_dye"
+    },
+    "2": {
+      "item": "minecraft:blue_dye"
+    },
+    "4": {
+      "item": "minecraft:brown_dye"
+    },
+    "5": {
+      "item": "minecraft:yellow_dye"
+    },
+    "6": {
+      "item": "minecraft:blue_dye"
+    },
+    "7": {
+      "item": "minecraft:blue_dye"
+    },
+    "8": {
+      "item": "minecraft:yellow_dye"
+    },
+    "9": {
+      "item": "minecraft:brown_dye"
+    },
+    "A": {
+      "item": "minecraft:white_dye"
+    },
+    "B": {
+      "item": "minecraft:yellow_dye"
+    },
+    "E": {
+      "item": "minecraft:yellow_dye"
+    },
+    "F": {
+      "item": "minecraft:white_dye"
+    },
+    "G": {
+      "item": "minecraft:white_dye"
+    },
+    "H": {
+      "item": "minecraft:blue_dye"
+    },
+    "I": {
+      "item": "minecraft:yellow_dye"
+    },
+    "J": {
+      "item": "minecraft:yellow_dye"
+    },
+    "K": {
+      "item": "minecraft:blue_dye"
+    },
+    "L": {
+      "item": "minecraft:white_dye"
+    },
+    "M": {
+      "item": "minecraft:blue_dye"
+    },
+    "N": {
+      "item": "minecraft:white_dye"
+    },
+    "O": {
+      "item": "minecraft:blue_dye"
+    },
+    "P": {
+      "item": "minecraft:blue_dye"
+    },
+    "Q": {
+      "item": "minecraft:white_dye"
+    },
+    "R": {
+      "item": "minecraft:blue_dye"
+    },
+    "S": {
+      "item": "minecraft:yellow_dye"
+    },
+    "T": {
+      "item": "minecraft:blue_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "V": {
+      "item": "minecraft:blue_dye"
+    },
+    "W": {
+      "item": "minecraft:blue_dye"
+    },
+    "X": {
+      "item": "minecraft:yellow_dye"
+    },
+    "Z": {
+      "item": "minecraft:blue_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    " Z012 ",
+    "456789"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_yardrat"
+  }
+}

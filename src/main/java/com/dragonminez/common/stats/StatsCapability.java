@@ -21,23 +21,40 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import com.dragonminez.compat.capabilities.Capability;
+import com.dragonminez.compat.capabilities.CapabilityManager;
+import com.dragonminez.compat.capabilities.CapabilityToken;
+import com.dragonminez.compat.capabilities.RegisterCapabilitiesEvent;
+import com.dragonminez.compat.capabilities.AttachCapabilitiesEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+@EventBusSubscriber(modid = Reference.MOD_ID)
 public class StatsCapability {
 	public static final Capability<StatsData> INSTANCE = CapabilityManager.get(new CapabilityToken<>() {
 	});
+	private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
+			DeferredRegister.create(net.neoforged.neoforge.registries.NeoForgeRegistries.ATTACHMENT_TYPES, Reference.MOD_ID);
+	public static final DeferredHolder<AttachmentType<?>, AttachmentType<StatsProvider>> PLAYER_STATS =
+			ATTACHMENTS.register("player_stats", () -> AttachmentType
+					.serializable(holder -> new StatsProvider((Player) holder))
+					.copyOnDeath()
+					.build());
 
 	private static StatsData CLIENT_CACHE;
 
@@ -45,23 +62,14 @@ public class StatsCapability {
 		CLIENT_CACHE = null;
 	}
 
-	@SubscribeEvent
-	public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
-		event.register(StatsData.class);
-	}
-
-	@SubscribeEvent
-	public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-		if (event.getObject() instanceof Player player) {
-			if (!player.getCapability(INSTANCE).isPresent()) event.addCapability(StatsProvider.ID, new StatsProvider(player));
-		}
+	public static void register(IEventBus modEventBus) {
+		ATTACHMENTS.register(modEventBus);
 	}
 
 	@SubscribeEvent
 	public static void onPlayerClone(PlayerEvent.Clone event) {
 		Player player = event.getEntity();
 		Player original = event.getOriginal();
-		original.reviveCaps();
 
 		TickHandler.registerForceKillGrace(player.getUUID());
 		StatsProvider.get(INSTANCE, player).ifPresent(newData -> {
@@ -74,8 +82,8 @@ public class StatsCapability {
 				}
 			});
 		});
-
-		original.invalidateCaps();
+		// Drop original provider mapping after clone copy.
+		StatsProvider.remove(original);
 	}
 
 	@SubscribeEvent

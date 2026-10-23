@@ -72,7 +72,7 @@ public final class HeldVictim {
 	public static HeldVictim capture(LivingEntity target, int stunTicks) {
 		StrikeAttackHandler.setStrikeLocked(target, true);
 		if (!(target instanceof ServerPlayer)) {
-			target.addEffect(new MobEffectInstance(MainEffects.STUN.get(), stunTicks, 0, false, false, true));
+			target.addEffect(new MobEffectInstance(MainEffects.STUN, stunTicks, 0, false, false, true));
 		}
 		HeldVictim victim = new HeldVictim(target, true);
 		victim.renewLease();
@@ -159,12 +159,12 @@ public final class HeldVictim {
 		if (!this.pinned) return;
 		if (this.entity instanceof ServerPlayer player) LEASES.remove(player.getUUID());
 		StrikeAttackHandler.setStrikeLocked(this.entity, false);
-		if (!(this.entity instanceof ServerPlayer)) this.entity.removeEffect(MainEffects.STUN.get());
+		if (!(this.entity instanceof ServerPlayer)) this.entity.removeEffect(MainEffects.STUN);
 		if (this.entity instanceof ServerPlayer player) {
 			NetworkHandler.sendToTrackingEntityAndSelf(new TriggerAnimationS2C(player.getUUID(),
 					TriggerAnimationS2C.AnimationType.KI_ANIMATION_STOP, 0, -1, ""), player);
 		} else if (this.entity instanceof DBSagasEntity saga && this.sagaPose != null) {
-			saga.stopTriggeredAnimation(DBSagasEntity.HURT_CONTROLLER, this.sagaPose);
+			saga.stopTriggeredAnim(DBSagasEntity.HURT_CONTROLLER, this.sagaPose);
 		}
 		this.sagaPose = null;
 	}

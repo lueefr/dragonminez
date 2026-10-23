@@ -1,5 +1,6 @@
 package com.dragonminez.client.render.effects;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.events.LockOnEvent;
 import com.dragonminez.client.render.DMZRendererCache;
@@ -22,18 +23,22 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public final class AfterimageEffect {
 
 	private static final int BAND_PASSES = 3;
@@ -100,8 +105,8 @@ public final class AfterimageEffect {
 	}
 
 	@SubscribeEvent
-	public static void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.START) return;
+	public static void onClientTick(ClientTickEvent.Pre event) {
+
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null) {
 			ACTIVE.clear();
@@ -127,7 +132,7 @@ public final class AfterimageEffect {
 		ShaderInstance shader = DMZShaders.afterimageShader;
 		boolean customShader = shader != null && !IrisCompat.isShaderPackInUse();
 
-		float partialTick = event.getPartialTick();
+		float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(true);
 		Vec3 camPos = event.getCamera().getPosition();
 		Vector3f camLeft = event.getCamera().getLeftVector();
 		PoseStack poseStack = event.getPoseStack();
@@ -184,7 +189,7 @@ public final class AfterimageEffect {
 									PoseStack poseStack, int light, boolean customShader, float alpha) {
 		rendering = true;
 		try {
-			if (buffers == null) buffers = MultiBufferSource.immediate(new BufferBuilder(4096));
+			if (buffers == null) buffers = MultiBufferSource.immediate(new com.mojang.blaze3d.vertex.ByteBufferBuilder(4096));
 			GHOST_SOURCE.prepare(customShader, alpha);
 			renderer.render(player, entityYaw, partialTick, poseStack, GHOST_SOURCE, light);
 			buffers.endBatch();
@@ -221,54 +226,39 @@ public final class AfterimageEffect {
 		}
 
 		@Override
-		public VertexConsumer vertex(double x, double y, double z) {
-			delegate.vertex(x, y, z);
+		public VertexConsumer addVertex(float x, float y, float z) {
+			delegate.addVertex(x, y, z);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer color(int red, int green, int blue, int alpha) {
-			delegate.color(red, green, blue, Math.round(alpha * this.alpha));
+		public VertexConsumer setColor(int red, int green, int blue, int alpha) {
+			delegate.setColor(red, green, blue, Math.round(alpha * this.alpha));
 			return this;
 		}
 
 		@Override
-		public VertexConsumer uv(float u, float v) {
-			delegate.uv(u, v);
+		public VertexConsumer setUv(float u, float v) {
+			delegate.setUv(u, v);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer overlayCoords(int u, int v) {
-			delegate.overlayCoords(u, v);
+		public VertexConsumer setUv1(int u, int v) {
+			delegate.setUv1(u, v);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer uv2(int u, int v) {
-			delegate.uv2(u, v);
+		public VertexConsumer setUv2(int u, int v) {
+			delegate.setUv2(u, v);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer normal(float x, float y, float z) {
-			delegate.normal(x, y, z);
+		public VertexConsumer setNormal(float x, float y, float z) {
+			delegate.setNormal(x, y, z);
 			return this;
-		}
-
-		@Override
-		public void endVertex() {
-			delegate.endVertex();
-		}
-
-		@Override
-		public void defaultColor(int red, int green, int blue, int alpha) {
-			delegate.defaultColor(red, green, blue, Math.round(alpha * this.alpha));
-		}
-
-		@Override
-		public void unsetDefaultColor() {
-			delegate.unsetDefaultColor();
 		}
 	}
 
@@ -276,30 +266,21 @@ public final class AfterimageEffect {
 		private static final EmptyConsumer INSTANCE = new EmptyConsumer();
 
 		@Override
-		public VertexConsumer vertex(double x, double y, double z) { return this; }
+		public VertexConsumer addVertex(float x, float y, float z) { return this; }
 
 		@Override
-		public VertexConsumer color(int red, int green, int blue, int alpha) { return this; }
+		public VertexConsumer setColor(int red, int green, int blue, int alpha) { return this; }
 
 		@Override
-		public VertexConsumer uv(float u, float v) { return this; }
+		public VertexConsumer setUv(float u, float v) { return this; }
 
 		@Override
-		public VertexConsumer overlayCoords(int u, int v) { return this; }
+		public VertexConsumer setUv1(int u, int v) { return this; }
 
 		@Override
-		public VertexConsumer uv2(int u, int v) { return this; }
+		public VertexConsumer setUv2(int u, int v) { return this; }
 
 		@Override
-		public VertexConsumer normal(float x, float y, float z) { return this; }
-
-		@Override
-		public void endVertex() {}
-
-		@Override
-		public void defaultColor(int red, int green, int blue, int alpha) {}
-
-		@Override
-		public void unsetDefaultColor() {}
+		public VertexConsumer setNormal(float x, float y, float z) { return this; }
 	}
 }

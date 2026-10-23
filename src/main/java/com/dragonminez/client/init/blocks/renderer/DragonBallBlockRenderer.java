@@ -34,16 +34,20 @@ public class DragonBallBlockRenderer extends GeoBlockRenderer<DragonBallBlockEnt
 				poseStack.translate(0.0F, BALL_CENTER_Y, 0.0F);
 				poseStack.scale(HALO_SCALE, HALO_SCALE, HALO_SCALE);
 				poseStack.translate(0.0F, -BALL_CENTER_Y, 0.0F);
-				getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, glow, bufferSource.getBuffer(glow), partialTick, LightTexture.FULL_BRIGHT, packedOverlay, color[0] * pulse, color[1] * pulse, color[2] * pulse, 1.0F);
+				getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, glow, bufferSource.getBuffer(glow), partialTick, LightTexture.FULL_BRIGHT, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(color[0] * pulse, color[1] * pulse, color[2] * pulse, 1.0F));
 				poseStack.popPose();
 			}
 		});
 	}
 
 	@Override
-	public void actuallyRender(PoseStack poseStack, DragonBallBlockEntity animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	public void actuallyRender(PoseStack poseStack, DragonBallBlockEntity animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int renderColor) {
+        float red = net.minecraft.util.FastColor.ARGB32.red(renderColor) / 255.0F;
+        float green = net.minecraft.util.FastColor.ARGB32.green(renderColor) / 255.0F;
+        float blue = net.minecraft.util.FastColor.ARGB32.blue(renderColor) / 255.0F;
+        float alpha = net.minecraft.util.FastColor.ARGB32.alpha(renderColor) / 255.0F;
 		int light = !isReRender && isGathered(animatable) ? LightTexture.FULL_BRIGHT : packedLight;
-		super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, light, packedOverlay, red, green, blue, alpha);
+		super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, light, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(red, green, blue, alpha));
 	}
 
 	private static boolean isGathered(DragonBallBlockEntity animatable) {

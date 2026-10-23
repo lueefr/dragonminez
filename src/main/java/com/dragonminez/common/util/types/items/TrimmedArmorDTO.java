@@ -1,5 +1,6 @@
 package com.dragonminez.common.util.types.items;
 
+import lombok.*;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.google.gson.JsonSyntaxException;
@@ -9,8 +10,8 @@ import lombok.Setter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ArmorItem;
+import com.google.gson.GsonBuilder;
 import net.minecraft.world.item.ItemStack;
-
 import java.util.Map;
 
 /**
@@ -69,8 +70,13 @@ public class TrimmedArmorDTO extends EnchantedItemDTO {
 			return;
 		}
 
-		CompoundTag trimTag = itemStack.getOrCreateTagElement("Trim");
-		trimTag.putString("material", this.material.toString());
-		trimTag.putString("pattern", this.pattern.toString());
-	}
+        var registries = com.dragonminez.common.util.RuntimeRegistries.access();
+        var material = registries.registry(net.minecraft.core.registries.Registries.TRIM_MATERIAL)
+                .flatMap(registry -> registry.getHolder(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.TRIM_MATERIAL, this.material)));
+        var pattern = registries.registry(net.minecraft.core.registries.Registries.TRIM_PATTERN)
+                .flatMap(registry -> registry.getHolder(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.TRIM_PATTERN, this.pattern)));
+        if (material.isPresent() && pattern.isPresent()) itemStack.set(net.minecraft.core.component.DataComponents.TRIM,
+                new net.minecraft.world.item.armortrim.ArmorTrim(material.get(), pattern.get()));
+        else LogUtil.warn(Env.COMMON, "Unknown trim material '{}' or pattern '{}' on item '{}'", this.material, this.pattern, this.itemId);
+    }
 }

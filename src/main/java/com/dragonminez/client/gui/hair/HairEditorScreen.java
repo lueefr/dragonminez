@@ -159,7 +159,7 @@ public class HairEditorScreen extends ScaledScreen {
 	}
 
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		panorama.render(partialTick, 1.0f);
+		panorama.render(graphics, Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight(), partialTick, 1.0f);
 		renderCinematicBars(graphics);
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
 		int uiMouseY = (int) Math.round(toUiY(mouseY));
@@ -280,7 +280,7 @@ public class HairEditorScreen extends ScaledScreen {
 		return super.mouseReleased(mouseX, mouseY, button);
 	}
 
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double delta) {
 		double uiX = toUiX(mouseX);
 		double uiY = toUiY(mouseY);
 		if (confirmClose || colorPicker.isOpen()) return true;
@@ -290,7 +290,7 @@ public class HairEditorScreen extends ScaledScreen {
 			targetZoom = Mth.clamp(targetZoom + (float) delta * ZOOM_STEP, MIN_ZOOM, MAX_ZOOM);
 			return true;
 		}
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
 	}
 
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
@@ -392,7 +392,7 @@ public class HairEditorScreen extends ScaledScreen {
 		graphics.pose().pushPose();
 		graphics.pose().translate(0.0f, 0.0f, 150.0f);
 		try (HairRenderContext.Scope scope = HairRenderContext.editorPreview(state)) {
-			InventoryScreen.renderEntityInInventory(graphics, centerX, baseY, Math.round(zoom), new Quaternionf().rotateZ((float) Math.PI), new Quaternionf(), player);
+			InventoryScreen.renderEntityInInventory(graphics, centerX, baseY, Math.round(zoom), new org.joml.Vector3f(), new Quaternionf().rotateZ((float) Math.PI), new Quaternionf(), player);
 		} finally {
 			graphics.pose().popPose();
 			graphics.disableScissor();

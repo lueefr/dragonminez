@@ -17,8 +17,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.client.KeyMapping;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -100,12 +100,12 @@ public abstract class BaseMenuScreen extends ScaledScreen {
 	public void tick() {
 		super.tick();
 		this.tooltipScrollY = Mth.lerp(0.5f, this.tooltipScrollY, this.targetTooltipScrollY);
-		if (panelSwitchState == PanelSwitchState.ENTERING && getPanelSwitchProgress(getMinecraft().getPartialTick()) >= 1.0f) {
+		if (panelSwitchState == PanelSwitchState.ENTERING && getPanelSwitchProgress(getMinecraft().getTimer().getGameTimeDeltaPartialTick(true)) >= 1.0f) {
 			panelSwitchState = PanelSwitchState.NONE;
 			fadingMenu = false;
 		}
 
-		if (panelSwitchState == PanelSwitchState.EXITING && getPanelSwitchProgress(getMinecraft().getPartialTick()) >= 1.0f && this.minecraft != null) {
+		if (panelSwitchState == PanelSwitchState.EXITING && getPanelSwitchProgress(getMinecraft().getTimer().getGameTimeDeltaPartialTick(true)) >= 1.0f && this.minecraft != null) {
 			if (closingMenu) {
 				this.minecraft.setScreen(null);
 				return;
@@ -335,16 +335,17 @@ public abstract class BaseMenuScreen extends ScaledScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        double delta = scrollY;
 		if (panelSwitchState == PanelSwitchState.EXITING) return true;
 
 		if (Screen.hasAltDown()) {
-			this.targetTooltipScrollY += (float) (delta * 15.0);
+			this.targetTooltipScrollY += (float) (scrollY * 15.0);
 			if (this.targetTooltipScrollY > 0) this.targetTooltipScrollY = 0;
 			return true;
 		}
 
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	private void startPanelEnterTransition() {

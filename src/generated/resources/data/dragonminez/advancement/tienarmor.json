@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternz",
+  "criteria": {
+    "tienarmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:tien_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:tien_armor_leggings"
+          },
+          {
+            "items": "dragonminez:tien_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.tienarmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:tien_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.tienarmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "tienarmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

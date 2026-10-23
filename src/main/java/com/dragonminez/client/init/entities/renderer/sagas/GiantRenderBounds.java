@@ -14,10 +14,10 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.object.GeoCube;
 import software.bernie.geckolib.cache.object.GeoQuad;
 import software.bernie.geckolib.cache.object.GeoVertex;
-import software.bernie.geckolib.core.state.BoneSnapshot;
+import software.bernie.geckolib.animation.state.BoneSnapshot;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import software.bernie.geckolib.util.RenderUtils;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -77,17 +77,17 @@ public final class GiantRenderBounds {
         float rotY = rest != null ? rest.getRotY() : bone.getRotY();
         float rotZ = rest != null ? rest.getRotZ() : bone.getRotZ();
 
-        RenderUtils.translateToPivotPoint(poseStack, bone);
+        software.bernie.geckolib.util.RenderUtil.translateToPivotPoint(poseStack, bone);
         if (rotZ != 0.0F) poseStack.mulPose(Axis.ZP.rotation(rotZ));
         if (rotY != 0.0F) poseStack.mulPose(Axis.YP.rotation(rotY));
         if (rotX != 0.0F) poseStack.mulPose(Axis.XP.rotation(rotX));
-        RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
+        software.bernie.geckolib.util.RenderUtil.translateAwayFromPivotPoint(poseStack, bone);
 
         for (GeoCube cube : bone.getCubes()) {
             poseStack.pushPose();
-            RenderUtils.translateToPivotPoint(poseStack, cube);
-            RenderUtils.rotateMatrixAroundCube(poseStack, cube);
-            RenderUtils.translateAwayFromPivotPoint(poseStack, cube);
+            software.bernie.geckolib.util.RenderUtil.translateToPivotPoint(poseStack, cube);
+            software.bernie.geckolib.util.RenderUtil.rotateMatrixAroundCube(poseStack, cube);
+            software.bernie.geckolib.util.RenderUtil.translateAwayFromPivotPoint(poseStack, cube);
 
             Matrix4f pose = poseStack.last().pose();
             for (GeoQuad quad : cube.quads()) {

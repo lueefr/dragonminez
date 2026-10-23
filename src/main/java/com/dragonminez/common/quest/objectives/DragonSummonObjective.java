@@ -1,9 +1,9 @@
 package com.dragonminez.common.quest.objectives;
 
+import lombok.*;
 import com.dragonminez.common.quest.QuestObjective;
-import lombok.Getter;
-
 @Getter
+
 public class DragonSummonObjective extends QuestObjective {
 	private final String dragonId;
 	private final String ballSetId;
@@ -22,10 +22,7 @@ public class DragonSummonObjective extends QuestObjective {
 
 	@Override
 	public boolean checkProgress(Object... params) {
-		if (params.length >= 2
-				&& params[0] instanceof String summonedDragonId
-				&& params[1] instanceof String summonedBallSetId
-				&& matches(summonedDragonId, summonedBallSetId)) {
+		if (params.length >= 2 && params[0] instanceof String summonedDragonId && params[1] instanceof String summonedBallSetId && matches(summonedDragonId, summonedBallSetId)) {
 			setProgress(1);
 			return true;
 		}

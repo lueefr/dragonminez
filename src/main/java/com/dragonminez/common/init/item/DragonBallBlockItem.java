@@ -10,7 +10,7 @@ public class DragonBallBlockItem extends BlockItem {
 	}
 
 	@Override
-	public boolean canBeHurtBy(DamageSource source) {
+	public boolean canBeHurtBy(net.minecraft.world.item.ItemStack stack, DamageSource source) {
 		return false;
 	}
 }

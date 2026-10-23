@@ -40,7 +40,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
@@ -402,7 +402,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
         var legendaryGroup = character.getActiveFormGroup().equals("legendaryforms");
 		float[] skinBase = ColorUtils.skinBaseTone(skin);
 
-		boolean isMajin = animatable.hasEffect(MainEffects.MAJIN.get());
+		boolean isMajin = animatable.hasEffect(MainEffects.MAJIN);
 
 		String race = character.getRaceName().toLowerCase();
 		int humanEye = character.getEyesType() - TextureCounter.getRaceEyeCount(race);
@@ -699,7 +699,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 			});
 		}
 
-		getRenderer().reRender(model, poseStack, bufferSource, animatable, renderType, bufferSource.getBuffer(renderType), partialTick, packedLight, packedOverlay, r, g, b, alpha);
+		getRenderer().reRender(model, poseStack, bufferSource, animatable, renderType, bufferSource.getBuffer(renderType), partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderBufferUtil.packColor(r, g, b, alpha));
 
 		for (GeoBone bone : hiddenArmors) bone.setHidden(false);
 
@@ -777,7 +777,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 
 	private static boolean usesSlimSsj4Model(AbstractClientPlayer player, Character character) {
 		int bodyType = character.getBodyType();
-		if (bodyType == 0) return player != null && player.getModelName().contains("slim");
+		if (bodyType == 0) return player != null && player.getSkin().model().id().contains("slim");
 		if (!Character.GENDER_MALE.equalsIgnoreCase(character.getGender())) return false;
 		RaceCharacterConfig raceConfig = ConfigManager.getRaceCharacter(character.getRaceName().toLowerCase());
 		return raceConfig != null && raceConfig.isSlimBodyType(bodyType);

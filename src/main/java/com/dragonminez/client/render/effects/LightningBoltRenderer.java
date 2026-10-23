@@ -59,7 +59,8 @@ public final class LightningBoltRenderer {
 	private static final float SPHERE_SPIKE_CHANCE = 0.6f;
 
 	private static final Matrix4f IDENTITY = new Matrix4f();
-	private static final BufferBuilder BUILDER = new BufferBuilder(8192);
+	private static final com.mojang.blaze3d.vertex.ByteBufferBuilder BYTE_BUFFER = new com.mojang.blaze3d.vertex.ByteBufferBuilder(8192);
+    private static BufferBuilder BUILDER;
 	private static VertexBuffer mesh;
 
 	private LightningBoltRenderer() {}
@@ -127,7 +128,7 @@ public final class LightningBoltRenderer {
 		ShaderInstance shader = DMZShaders.lightningBoltShader;
 		if (shader == null) return;
 
-		BUILDER.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+		BUILDER = new BufferBuilder(BYTE_BUFFER, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 		int tracks = sphere ? SPHERE_TRACKS : TRACKS;
 		for (int segment = 0; segment < segments; segment++) {
 			Matrix4f segmentPose = segment == 0 ? pose : new Matrix4f(pose).translate(0.0f, height * segment, 0.0f);
@@ -136,7 +137,7 @@ public final class LightningBoltRenderer {
 				emitBurst(segmentPose, segmentSeed, track, tracks, ageTicks * speed, height, radius, charged, screen, sphere);
 			}
 		}
-		BufferBuilder.RenderedBuffer rendered = BUILDER.endOrDiscardIfEmpty();
+		com.mojang.blaze3d.vertex.MeshData rendered = BUILDER.build();
 		if (rendered == null) return;
 
 		if (mesh == null) mesh = new VertexBuffer(VertexBuffer.Usage.DYNAMIC);
@@ -421,7 +422,7 @@ public final class LightningBoltRenderer {
 	}
 
 	private static void vertex(float x, float y, float z, float u, float v, int alpha) {
-		BUILDER.vertex(x, y, z).uv(u, v).color(255, 255, 255, alpha).endVertex();
+		BUILDER.addVertex(x, y, z).setUv(u, v).setColor(255, 255, 255, alpha);
 	}
 
 	private static long mix(int seed, int slot, long cycle) {

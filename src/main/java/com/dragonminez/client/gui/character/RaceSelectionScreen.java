@@ -11,6 +11,7 @@ import com.dragonminez.client.gui.tutorial.TutorialManager;
 import com.dragonminez.client.gui.tutorial.TutorialRect;
 import com.dragonminez.client.gui.tutorial.TutorialStep;
 import com.dragonminez.client.util.ScrollbarState;
+import com.dragonminez.client.render.shader.UtilityMenuBlur;
 import com.dragonminez.client.util.TextUtil;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.config.RaceCharacterConfig;
@@ -35,8 +36,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 
 import java.util.ArrayList;
@@ -122,6 +123,7 @@ public class RaceSelectionScreen extends ScaledScreen {
 
 	@Override
 	protected void init() {
+		UtilityMenuBlur.stop();
 		super.init();
 		startOpenTransition();
 
@@ -320,11 +322,12 @@ public class RaceSelectionScreen extends ScaledScreen {
 		guiGraphics.fill(0, bottomBarStartY + fadeSize, this.width, this.height, colorSolid);
 	}
 
-	private void renderPanorama(GuiGraphics graphics, float partialTick) {
+	@Override
+	protected void renderPanorama(GuiGraphics graphics, float partialTick) {
 		if (previousPanorama != null && panoramaFade < 1.0f) {
-			previousPanorama.render(partialTick, 1.0f);
-			if (currentPanorama != null) currentPanorama.render(partialTick, panoramaFade);
-		} else if (currentPanorama != null) currentPanorama.render(partialTick, 1.0f);
+			previousPanorama.render(graphics, this.width, this.height, 1.0f, partialTick);
+			if (currentPanorama != null) currentPanorama.render(graphics, this.width, this.height, panoramaFade, partialTick);
+		} else if (currentPanorama != null) currentPanorama.render(graphics, this.width, this.height, 1.0f, partialTick);
 	}
 
 	private void renderRaceInfo(GuiGraphics graphics) {
@@ -432,7 +435,7 @@ public class RaceSelectionScreen extends ScaledScreen {
 
 		graphics.pose().pushPose();
 		graphics.pose().translate(0.0D, 0.0D, 150.0D);
-		InventoryScreen.renderEntityInInventory(graphics, x, y, adjustedScale, pose, cameraOrientation, player);
+		InventoryScreen.renderEntityInInventory(graphics, x, y, adjustedScale, new org.joml.Vector3f(0.0F, 0.0F, 0.0F), pose, cameraOrientation, player);
 		graphics.pose().popPose();
 
 		player.yBodyRot = yBodyRotO;
@@ -602,10 +605,10 @@ public class RaceSelectionScreen extends ScaledScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double delta) {
 		if (transitionState == TransitionState.CLOSING) return true;
 		if (racialBar.mouseScrolled(toUiX(mouseX), toUiY(mouseY), delta)) return true;
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
 	}
 
 	@Override

@@ -1,5 +1,8 @@
 package com.dragonminez.common.events;
 
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -85,34 +88,55 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.saveddata.maps.MapDecoration;
+import net.minecraft.world.level.saveddata.maps.MapDecorationTypes;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.*;
-import net.minecraftforge.event.village.VillagerTradesEvent;
-import net.minecraftforge.event.entity.living.*;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.CriticalHitEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.level.ChunkEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.*;
+import net.neoforged.neoforge.event.village.VillagerTradesEvent;
+import net.neoforged.neoforge.event.entity.living.*;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 import java.util.*;
 
 import static com.dragonminez.common.diagnostics.JsonLoadReport.logConsoleReport;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class ForgeCommonEvents {
+    @SubscribeEvent
+    public static void onRegisterBrewing(net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent event) {
+
+			net.minecraft.world.item.ItemStack waterBottle = net.minecraft.world.item.alchemy.PotionContents.createItemStack(net.minecraft.world.item.Items.POTION, net.minecraft.world.item.alchemy.Potions.WATER);
+			net.minecraft.world.item.ItemStack curativePotion = com.dragonminez.common.init.MainPotions.createCurativeFlask();
+			event.getBuilder().addRecipe(new net.neoforged.neoforge.common.brewing.BrewingRecipe(
+					net.neoforged.neoforge.common.crafting.DataComponentIngredient.of(true, waterBottle),
+					net.minecraft.world.item.crafting.Ingredient.of(com.dragonminez.common.init.MainItems.NAMEK_MOSS.get()),
+					curativePotion));
+
+			net.minecraft.world.item.ItemStack heartMedicine = new net.minecraft.world.item.ItemStack(com.dragonminez.common.init.MainItems.HEART_MEDICINE.get());
+			for (var regeneration : java.util.List.of(net.minecraft.world.item.alchemy.Potions.REGENERATION, net.minecraft.world.item.alchemy.Potions.LONG_REGENERATION, net.minecraft.world.item.alchemy.Potions.STRONG_REGENERATION)) {
+				event.getBuilder().addRecipe(new net.neoforged.neoforge.common.brewing.BrewingRecipe(
+						net.neoforged.neoforge.common.crafting.DataComponentIngredient.of(true, net.minecraft.world.item.alchemy.PotionContents.createItemStack(net.minecraft.world.item.Items.POTION, regeneration)),
+						net.minecraft.world.item.crafting.Ingredient.of(com.dragonminez.common.init.MainItems.SENZU_BEAN.get()),
+						heartMedicine));
+			}
+
+    }
+
 
 	@SubscribeEvent
 	public static void onVillagerTrades(VillagerTradesEvent event) {
@@ -183,7 +207,7 @@ public class ForgeCommonEvents {
 	private static CapsuleCorpMapTrade mapTrade(ResourceKey<Structure> destination, String displayName,
 			ItemStack cost) {
 		return new CapsuleCorpMapTrade(emptyMap(), cost, destination, displayName,
-				MapDecoration.Type.RED_X, MAP_MAX_USES, MAP_XP);
+				MapDecorationTypes.RED_X, MAP_MAX_USES, MAP_XP);
 	}
 
 	@SubscribeEvent
@@ -318,17 +342,17 @@ public class ForgeCommonEvents {
 	}
 
 	public static double getCriticalChance(Player player) {
-		double chance = player.getAttributeValue(MainAttributes.CRIT_CHANCE.get());
-		int chanceLevel = player.getMainHandItem().getEnchantmentLevel(MainEnchants.CRIT_CHANCE.get());
+		double chance = player.getAttributeValue(MainAttributes.CRIT_CHANCE);
+		int chanceLevel = MainEnchants.level(player.getMainHandItem(), player.level(), MainEnchants.CRIT_CHANCE);
 		if (chanceLevel > 0) chance += (chanceLevel * 0.05D);
 		DMZEvent.CritChanceEvent event = new DMZEvent.CritChanceEvent(player, chance);
-		MinecraftForge.EVENT_BUS.post(event);
+		NeoForge.EVENT_BUS.post(event);
 		return event.getChance();
 	}
 
 	public static double getCriticalDamage(Player player) {
-		double multiplier = player.getAttributeValue(MainAttributes.CRIT_DAMAGE.get());
-		int damageLevel = player.getMainHandItem().getEnchantmentLevel(MainEnchants.CRIT_DAMAGE.get());
+		double multiplier = player.getAttributeValue(MainAttributes.CRIT_DAMAGE);
+		int damageLevel = MainEnchants.level(player.getMainHandItem(), player.level(), MainEnchants.CRIT_DAMAGE);
 		if (damageLevel > 0) multiplier += (damageLevel * 0.05D);
 		return multiplier;
 	}
@@ -378,14 +402,14 @@ public class ForgeCommonEvents {
 			}
 
 			if (isCrit) {
-				RegistryObject<SoundEvent>[] sonidosCritico = new RegistryObject[]{
+				DeferredHolder<SoundEvent, ? extends SoundEvent>[] sonidosCritico = new DeferredHolder[]{
 						MainSounds.CRITICO1, MainSounds.CRITICO2
 				};
 				int indiceRandom = level.random.nextInt(sonidosCritico.length);
 				SoundEvent sonidoCritico = sonidosCritico[indiceRandom].get();
 				attacker.playNotifySound(sonidoCritico, SoundSource.PLAYERS, 1.0F, 1.0F);
 			} else if (attacker.getMainHandItem() == ItemStack.EMPTY || attacker.getMainHandItem().is(Items.AIR)) {
-				RegistryObject<SoundEvent>[] sonidosGolpe = new RegistryObject[]{
+				DeferredHolder<SoundEvent, ? extends SoundEvent>[] sonidosGolpe = new DeferredHolder[]{
 						MainSounds.GOLPE1,
 						MainSounds.GOLPE2,
 						MainSounds.GOLPE3,
@@ -410,13 +434,15 @@ public class ForgeCommonEvents {
 		boolean isCrit = ((Player_DMZ) player).rollAndGetCriticalStatus(chance);
 
 		if (isCrit) {
-			event.setDamageModifier((float) getCriticalDamage(player));
-			event.setResult(Event.Result.ALLOW);
-		} else event.setResult(Event.Result.DENY);
+			event.setDamageMultiplier((float) getCriticalDamage(player));
+			event.setCriticalHit(true);
+		} else {
+			event.setCriticalHit(false);
+		}
 	}
 
 	@SubscribeEvent
-	public static void onRangedCriticalHit(LivingHurtEvent event) {
+	public static void onRangedCriticalHit(LivingIncomingDamageEvent event) {
 		if (event.getSource().getDirectEntity() instanceof AbstractArrow && event.getSource().getEntity() instanceof Player player) {
 			if (player.level().isClientSide) return;
 
@@ -432,38 +458,30 @@ public class ForgeCommonEvents {
 		if (event.getSound() == SoundEvents.PLAYER_ATTACK_CRIT) event.setCanceled(true);
 	}
 
-	private static final UUID WEAPON_CRIT_CHANCE_UUID = UUID.fromString("c37e2055-7783-4559-b18a-1b3e6f5a0410");
-	private static final UUID WEAPON_CRIT_DAMAGE_UUID = UUID.fromString("496f2714-a61f-41e2-aed5-265e7fa0e0fa");
+	private static final net.minecraft.resources.ResourceLocation WEAPON_CRIT_CHANCE_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/c37e2055-7783-4559-b18a-1b3e6f5a0410");
+	private static final net.minecraft.resources.ResourceLocation WEAPON_CRIT_DAMAGE_UUID = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "modifier/496f2714-a61f-41e2-aed5-265e7fa0e0fa");
 
 	@SubscribeEvent
 	public static void attachDynamicWeaponAttributes(ItemAttributeModifierEvent event) {
-		if (event.getSlotType() == EquipmentSlot.MAINHAND) {
-			ItemStack stack = event.getItemStack();
+		ItemStack stack = event.getItemStack();
+		WeaponAttributes attributes = WeaponRegistry.getAttributes(stack);
+		if (attributes == null) return;
 
-			WeaponAttributes attributes = WeaponRegistry.getAttributes(stack);
+		double weaponCritChance = attributes.getSafeCritChance();
+		double weaponCritDamage = attributes.getSafeCritDamage();
 
-			if (attributes != null) {
-				double weaponCritChance = attributes.getSafeCritChance();
-				double weaponCritDamage = attributes.getSafeCritDamage();
+		if (weaponCritChance > 0.0D) {
+			event.addModifier(
+					MainAttributes.CRIT_CHANCE,
+					com.dragonminez.common.util.AttributeMods.of(WEAPON_CRIT_CHANCE_UUID, "Weapon innate crit chance", weaponCritChance, AttributeModifier.Operation.ADD_VALUE),
+					net.minecraft.world.entity.EquipmentSlotGroup.MAINHAND);
+		}
 
-				if (weaponCritChance > 0.0D) {
-					event.addModifier(MainAttributes.CRIT_CHANCE.get(), new AttributeModifier(
-							WEAPON_CRIT_CHANCE_UUID,
-							"Weapon innate crit chance",
-							weaponCritChance,
-							AttributeModifier.Operation.ADDITION
-					));
-				}
-
-				if (weaponCritDamage > 0.0D) {
-					event.addModifier(MainAttributes.CRIT_DAMAGE.get(), new AttributeModifier(
-							WEAPON_CRIT_DAMAGE_UUID,
-							"Weapon innate crit damage",
-							weaponCritDamage,
-							AttributeModifier.Operation.ADDITION
-					));
-				}
-			}
+		if (weaponCritDamage > 0.0D) {
+			event.addModifier(
+					MainAttributes.CRIT_DAMAGE,
+					com.dragonminez.common.util.AttributeMods.of(WEAPON_CRIT_DAMAGE_UUID, "Weapon innate crit damage", weaponCritDamage, AttributeModifier.Operation.ADD_VALUE),
+					net.minecraft.world.entity.EquipmentSlotGroup.MAINHAND);
 		}
 	}
 
@@ -492,7 +510,7 @@ public class ForgeCommonEvents {
 	}
 
 	@SubscribeEvent
-	public static void onServerAboutToStart(net.minecraftforge.event.server.ServerAboutToStartEvent event) {
+	public static void onServerAboutToStart(net.neoforged.neoforge.event.server.ServerAboutToStartEvent event) {
 		if (!event.getServer().isDedicatedServer()) ConfigManager.reload();
 		if (ConfigManager.getServerConfig().getWorldGen().getOtherworldActive()) {
 			OtherworldRegionLoader.loadPreGeneratedRegions(event.getServer());
@@ -548,9 +566,8 @@ public class ForgeCommonEvents {
 	}
 
 	@SubscribeEvent
-	public static void onLevelTick(TickEvent.LevelTickEvent event) {
-		if (event.phase != TickEvent.Phase.END) return;
-		if (!(event.level instanceof ServerLevel serverLevel)) return;
+	public static void onLevelTick(LevelTickEvent.Post event) {
+		if (!(event.getLevel() instanceof ServerLevel serverLevel)) return;
 		try {
 			com.dragonminez.server.world.npc.StructureNpcs.tick(serverLevel);
 		} catch (RuntimeException e) {
@@ -576,7 +593,7 @@ public class ForgeCommonEvents {
 	}
 
 	@SubscribeEvent
-	public static void onStructureEntityJoin(net.minecraftforge.event.entity.EntityJoinLevelEvent event) {
+	public static void onStructureEntityJoin(net.neoforged.neoforge.event.entity.EntityJoinLevelEvent event) {
 		if (event.getLevel() instanceof ServerLevel level
 				&& com.dragonminez.server.world.structure.fitted.FittedTemplatePiece.hasTwin(level, event.getEntity())) {
 			event.setCanceled(true);
@@ -614,7 +631,7 @@ public class ForgeCommonEvents {
 	}
 
 	@SubscribeEvent
-	public void onServerStopping(ServerStoppingEvent event) {
+	public static void onServerStopping(ServerStoppingEvent event) {
 		StorageManager.shutdown();
 		com.dragonminez.server.world.structure.placement.StructureSpawnPlanner.reset();
 		com.dragonminez.server.world.tournament.Tournament.Manager.reset();
@@ -652,7 +669,7 @@ public class ForgeCommonEvents {
 	}
 
 	@SubscribeEvent
-	public static void onMobSpawn(MobSpawnEvent.FinalizeSpawn event) {
+	public static void onMobSpawn(MobSpawnEvent.PositionCheck event) {
 		Mob mob = event.getEntity();
 		MobCategory category = mob.getType().getCategory();
 		if (category != MobCategory.MONSTER && category != MainEntities.WILD_ENEMY) return;
@@ -661,10 +678,8 @@ public class ForgeCommonEvents {
 		List<MastersEntity> masters = mob.level().getEntitiesOfClass(MastersEntity.class, new AABB(mob.blockPosition()).inflate(80));
 		if (masters.isEmpty()) return;
 
-		try {
-			event.setSpawnCancelled(true);
-		} catch (Throwable ignored) {}
-		event.setResult(Event.Result.DENY);
+		event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
+
 	}
 
 	@SubscribeEvent
@@ -684,7 +699,7 @@ public class ForgeCommonEvents {
 			boolean shouldBeArmored = false;
 
 			if (!newStack.isEmpty() && newStack.getItem() instanceof ArmorItem) {
-				boolean isVanilla = ForgeRegistries.ITEMS.getKey(newStack.getItem()).getNamespace().equals("minecraft");
+				boolean isVanilla = BuiltInRegistries.ITEM.getKey(newStack.getItem()).getNamespace().equals("minecraft");
 				boolean isDbzArmor = newStack.getItem() instanceof DbzArmorTextured;
 
 				if (!isVanilla && !isDbzArmor) {
@@ -699,7 +714,7 @@ public class ForgeCommonEvents {
 	}
 
 	@SubscribeEvent
-	public static void onLivingAttack(LivingAttackEvent event) {
+	public static void onLivingAttack(LivingIncomingDamageEvent event) {
 		LivingEntity victim = event.getEntity();
 		if (isCharacterCreationProtected(victim)) {
 			event.setCanceled(true);
@@ -715,7 +730,7 @@ public class ForgeCommonEvents {
 			if (barrier.isActive() && barrier.protects(victim)) {
 				event.setCanceled(true);
 				barrier.absorbDamage(event.getAmount(), event.getSource().getEntity());
-				MinecraftForge.EVENT_BUS.post(new DMZEvent.BarrierAbsorbEvent(barrier.getOwner(), victim,
+				NeoForge.EVENT_BUS.post(new DMZEvent.BarrierAbsorbEvent(barrier.getOwner(), victim,
 						event.getSource().getEntity(), event.getAmount()));
 				return;
 			}
@@ -723,13 +738,13 @@ public class ForgeCommonEvents {
 	}
 
 	@SubscribeEvent
-	public static void onLivingDamage(LivingDamageEvent event) {
+	public static void onLivingDamage(LivingDamageEvent.Pre event) {
 		if (isCharacterCreationProtected(event.getEntity())) {
-			event.setCanceled(true);
+			event.setNewDamage(0.0F);
 			return;
 		}
-		if (event.getEntity().hasEffect(MainEffects.MEDI_SHELL.get())) {
-			event.setAmount(event.getAmount() * MEDI_SHELL_DAMAGE_TAKEN);
+		if (event.getEntity().hasEffect(MainEffects.MEDI_SHELL)) {
+			event.setNewDamage(event.getNewDamage() * MEDI_SHELL_DAMAGE_TAKEN);
 		}
 	}
 

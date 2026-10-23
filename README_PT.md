@@ -1,3 +1,5 @@
+
+> Port 2.2 / Minecraft 1.21.1: [build, dependencies and validation](PORTING-1.21.1.md).
 <div align="center">
   <img src=".github/docs/img/dragonminez_big_logo.png" alt="Banner do DragonMine Z" width="70%" />
 </div>
@@ -22,7 +24,7 @@
 
 ## Sobre
 
-**DragonMine Z** é um mod imersivo de **Minecraft Forge 1.20.1** em desenvolvimento, inspirado na obra mais famosa de Akira Toriyama: [Dragon Ball](https://en.dragon-ball-official.com/).
+**DragonMine Z** é um mod imersivo de **Minecraft NeoForge 1.21.1** em desenvolvimento, inspirado na obra mais famosa de Akira Toriyama: [Dragon Ball](https://en.dragon-ball-official.com/).
 
 Nosso objetivo é levar a experiência completa de Dragon Ball para o Minecraft: personagens personalizados, raças, transformações, habilidades, atributos, conteúdo de história, dimensões, NPCs, estruturas e uma experiência de sobrevivência renovada.
 
@@ -72,7 +74,7 @@ Você pode baixar DragonMine Z nas nossas páginas oficiais:
 - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/dragonminez)
 - [Modrinth](https://modrinth.com/mod/dragonminez)
 
-DragonMine Z foi feito para **Minecraft Forge 1.20.1**.
+DragonMine Z foi feito para **Minecraft NeoForge 1.21.1**.
 
 ---
 

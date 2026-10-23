@@ -149,7 +149,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
     private static final float OVERHEAD_GAP = 0.6F;
 
     private float halfBoxHeight(float sphereSize) {
-        return this.getType().getDimensions().height * sphereSize * 0.5F;
+        return this.getType().getDimensions().height() * sphereSize * 0.5F;
     }
 
     private float calcCenterOffsetY(LivingEntity owner, float sphereSize) {
@@ -973,7 +973,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
     private static AABB effectiveBounds(LivingEntity owner) {
         AABB box = owner.getBoundingBox();
         if (owner.isMultipartEntity() && owner.getParts() != null) {
-            for (net.minecraftforge.entity.PartEntity<?> part : owner.getParts()) {
+            for (net.neoforged.neoforge.entity.PartEntity<?> part : owner.getParts()) {
                 if (part != null) box = box.minmax(part.getBoundingBox());
             }
         }
@@ -1443,22 +1443,22 @@ public class KiBlastEntity extends AbstractKiProjectile {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(CAST_TIME, 0);
-        this.entityData.define(DETACHED, false);
-        this.entityData.define(STRETCH, 1.0F);
-        this.entityData.define(PURIFY_RADIUS, 0.0F);
-        this.entityData.define(GENKI_DONATED_SIZE, 0.0F);
-        this.entityData.define(OFFSET_X, 0.0F);
-        this.entityData.define(OFFSET_Y, 0.0F);
-        this.entityData.define(OFFSET_Z, 0.0F);
+    protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(CAST_TIME, 0);
+        builder.define(DETACHED, false);
+        builder.define(STRETCH, 1.0F);
+        builder.define(PURIFY_RADIUS, 0.0F);
+        builder.define(GENKI_DONATED_SIZE, 0.0F);
+        builder.define(OFFSET_X, 0.0F);
+        builder.define(OFFSET_Y, 0.0F);
+        builder.define(OFFSET_Z, 0.0F);
 
-        this.entityData.define(IS_CONTROLLABLE, false);
-        this.entityData.define(IS_PARKED, false);
-        this.entityData.define(PARKED_DISTANCE, 0.0F);
+        builder.define(IS_CONTROLLABLE, false);
+        builder.define(IS_PARKED, false);
+        builder.define(PARKED_DISTANCE, 0.0F);
 
-        this.entityData.define(IS_FIRING, false);
+        builder.define(IS_FIRING, false);
 
     }
 

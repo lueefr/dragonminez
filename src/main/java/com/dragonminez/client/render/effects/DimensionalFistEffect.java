@@ -1,5 +1,6 @@
 package com.dragonminez.client.render.effects;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.DMZRendererCache;
 import com.dragonminez.client.render.util.IrisCompat;
@@ -26,12 +27,16 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -44,7 +49,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public final class DimensionalFistEffect {
 
 	private static final int MAX_FISTS = 12;
@@ -208,8 +213,8 @@ public final class DimensionalFistEffect {
 	}
 
 	@SubscribeEvent
-	public static void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.START) return;
+	public static void onClientTick(ClientTickEvent.Pre event) {
+
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null) {
 			FISTS.clear();
@@ -227,7 +232,7 @@ public final class DimensionalFistEffect {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null || mc.player == null) return;
 
-		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick();
+		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick().getGameTimeDeltaPartialTick(true);
 		Vec3 camPos = event.getCamera().getPosition();
 		PoseStack poseStack = event.getPoseStack();
 
@@ -283,10 +288,10 @@ public final class DimensionalFistEffect {
 		try {
 			if (saga) {
 				GeoModel model = geoRenderer.getGeoModel();
-				BakedGeoModel baked = model.getBakedModel(model.getModelResource((software.bernie.geckolib.core.animatable.GeoAnimatable) owner));
+				BakedGeoModel baked = model.getBakedModel(model.getModelResource((software.bernie.geckolib.animatable.GeoAnimatable) owner));
 				if (baked != null) isolateArm(baked);
 			}
-			if (buffers == null) buffers = MultiBufferSource.immediate(new BufferBuilder(4096));
+			if (buffers == null) buffers = MultiBufferSource.immediate(new com.mojang.blaze3d.vertex.ByteBufferBuilder(4096));
 			renderer.render(owner, bodyYaw, partialTick, poseStack, buffers, light);
 			buffers.endBatch();
 		} finally {
@@ -336,7 +341,7 @@ public final class DimensionalFistEffect {
 
 		Camera camera = mc.gameRenderer.getMainCamera();
 		Vec3 camPos = camera.getPosition();
-		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick();
+		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick().getGameTimeDeltaPartialTick(true);
 
 		if (iris) mc.getMainRenderTarget().bindWrite(false);
 		PoseStack poseStack = iris ? viewStack(camera) : event.getPoseStack();
@@ -350,9 +355,9 @@ public final class DimensionalFistEffect {
 		RenderSystem.depthMask(false);
 		RenderSystem.disableCull();
 
-		PoseStack modelView = RenderSystem.getModelViewStack();
-		modelView.pushPose();
-		modelView.setIdentity();
+		org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
+		modelView.pushMatrix();
+		modelView.identity();
 		RenderSystem.applyModelViewMatrix();
 
 		for (Fist fist : FISTS) {
@@ -377,7 +382,7 @@ public final class DimensionalFistEffect {
 			poseStack.popPose();
 		}
 
-		modelView.popPose();
+		modelView.popMatrix();
 		RenderSystem.applyModelViewMatrix();
 		RenderSystem.depthMask(true);
 		RenderSystem.enableCull();
@@ -387,20 +392,20 @@ public final class DimensionalFistEffect {
 
 	private static void drawPortal(Matrix4f pose, float radius, float time, float opening) {
 		Tesselator tesselator = Tesselator.getInstance();
-		BufferBuilder buffer = tesselator.getBuilder();
+		BufferBuilder buffer;
 
 		float pulse = 0.85F + 0.15F * Mth.sin(time * 0.9F);
 		float coreAlpha = 0.55F * opening;
 
-		buffer.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
-		buffer.vertex(pose, 0.0F, 0.0F, 0.0F).color(CORE_COLOR[0], CORE_COLOR[1], CORE_COLOR[2], coreAlpha).endVertex();
+		buffer = tesselator.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+		buffer.addVertex(pose, 0.0F, 0.0F, 0.0F).setColor(CORE_COLOR[0], CORE_COLOR[1], CORE_COLOR[2], coreAlpha);
 		for (int i = 0; i <= RING_SEGMENTS; i++) {
 			double angle = (Math.PI * 2.0D / RING_SEGMENTS) * i;
 			float px = (float) Math.cos(angle) * radius * 0.86F;
 			float py = (float) Math.sin(angle) * radius * 0.86F;
-			buffer.vertex(pose, px, py, 0.0F).color(GLOW_COLOR[0], GLOW_COLOR[1], GLOW_COLOR[2], coreAlpha * 0.75F).endVertex();
+			buffer.addVertex(pose, px, py, 0.0F).setColor(GLOW_COLOR[0], GLOW_COLOR[1], GLOW_COLOR[2], coreAlpha * 0.75F);
 		}
-		tesselator.end();
+		com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(buffer.buildOrThrow());
 
 		drawRing(pose, radius * 0.86F, radius, RIM_COLOR, 0.95F * opening * pulse, 0.0F);
 		drawRing(pose, radius * 1.08F, radius * 1.16F, GLOW_COLOR, 0.55F * opening * pulse, time * 0.12F);
@@ -409,17 +414,15 @@ public final class DimensionalFistEffect {
 
 	private static void drawRing(Matrix4f pose, float inner, float outer, float[] color, float alpha, float spin) {
 		Tesselator tesselator = Tesselator.getInstance();
-		BufferBuilder buffer = tesselator.getBuilder();
-
-		buffer.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+		BufferBuilder buffer = tesselator.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 		for (int i = 0; i <= RING_SEGMENTS; i++) {
 			double angle = (Math.PI * 2.0D / RING_SEGMENTS) * i + spin;
 			float cos = (float) Math.cos(angle);
 			float sin = (float) Math.sin(angle);
-			buffer.vertex(pose, cos * inner, sin * inner, 0.0F).color(color[0], color[1], color[2], alpha).endVertex();
-			buffer.vertex(pose, cos * outer, sin * outer, 0.0F).color(color[0], color[1], color[2], alpha * 0.85F).endVertex();
+			buffer.addVertex(pose, cos * inner, sin * inner, 0.0F).setColor(color[0], color[1], color[2], alpha);
+			buffer.addVertex(pose, cos * outer, sin * outer, 0.0F).setColor(color[0], color[1], color[2], alpha * 0.85F);
 		}
-		tesselator.end();
+		com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(buffer.buildOrThrow());
 	}
 
 	private static float lengthScaleOf(Entity entity) {

@@ -46,11 +46,11 @@ import org.joml.Quaternionf;
 import org.lwjgl.opengl.GL11;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
-import software.bernie.geckolib.util.RenderUtils;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -96,17 +96,20 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 
 	public void reRender(GeoRenderLayer<T> calledFrom, BakedGeoModel model, PoseStack poseStack, MultiBufferSource bufferSource,
 						 T animatable, RenderType renderType, VertexConsumer buffer, float partialTick,
-						 int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+						 int packedLight, int packedOverlay, int colour) {
 		this.caller = calledFrom;
 		super.reRender(model, poseStack, bufferSource, animatable, renderType, buffer, partialTick,
-				packedLight, packedOverlay, red, green, blue, alpha);
+				packedLight, packedOverlay, colour);
 		this.caller = null;
 	}
 
 	@Override
-	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		float finalAlpha = animatable.isSpectator() ? 0.15f : alpha;
-		super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, finalAlpha);
+	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
+		int finalColour = colour;
+		if (animatable.isSpectator()) {
+			finalColour = (38 << 24) | (colour & 0x00FFFFFF); // ~0.15 alpha
+		}
+		super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, finalColour);
 		BoneVisibilityHandler.updateVisibility(model, animatable, this.caller);
 	}
 
@@ -338,23 +341,27 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 	}
 
 	@Override
-	public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int renderColor) {
+        float red = net.minecraft.util.FastColor.ARGB32.red(renderColor) / 255.0F;
+        float green = net.minecraft.util.FastColor.ARGB32.green(renderColor) / 255.0F;
+        float blue = net.minecraft.util.FastColor.ARGB32.blue(renderColor) / 255.0F;
+        float alpha = net.minecraft.util.FastColor.ARGB32.alpha(renderColor) / 255.0F;
 		if (SkinPaintContext.hidesBone(bone.getName())) return;
 		SkinPaintContext.recordPickedBone(bone);
 		if (!HeadPortraitRenderer.isActive()) {
 			if (editorHeadOnly() && !isHeadOrHeadChild(bone)) {
 				if (!containsHead(bone)) return;
 				poseStack.pushPose();
-				RenderUtils.prepMatrixForBone(poseStack, bone);
+				software.bernie.geckolib.util.RenderUtil.prepMatrixForBone(poseStack, bone);
 				for (GeoBone child : bone.getChildBones()) {
-					renderRecursively(poseStack, animatable, child, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+					renderRecursively(poseStack, animatable, child, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(red, green, blue, alpha));
 				}
 				poseStack.popPose();
 				return;
 			}
 			float[] fistPose = DimensionalFistEffect.beginBonePose(bone);
 			try {
-				super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+				super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(red, green, blue, alpha));
 			} finally {
 				DimensionalFistEffect.endBonePose(bone, fistPose);
 			}
@@ -363,7 +370,7 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 
 		if (isHeadOrHeadChild(bone)) {
 			if (!HEAD_BONE.equals(bone.getName())) {
-				super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+				super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(red, green, blue, alpha));
 				return;
 			}
 			float rotX = bone.getRotX(), rotY = bone.getRotY(), rotZ = bone.getRotZ();
@@ -371,7 +378,7 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 			bone.setRotX(0.0f); bone.setRotY(0.0f); bone.setRotZ(0.0f);
 			bone.setPosX(0.0f); bone.setPosY(0.0f); bone.setPosZ(0.0f);
 			try {
-				super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+				super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(red, green, blue, alpha));
 			} finally {
 				bone.setRotX(rotX); bone.setRotY(rotY); bone.setRotZ(rotZ);
 				bone.setPosX(posX); bone.setPosY(posY); bone.setPosZ(posZ);
@@ -381,7 +388,7 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 
 		if (!containsHead(bone)) return;
 		for (GeoBone child : bone.getChildBones()) {
-			renderRecursively(poseStack, animatable, child, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+			renderRecursively(poseStack, animatable, child, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(red, green, blue, alpha));
 		}
 	}
 
@@ -411,11 +418,11 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 	}
 
 	@Override
-	public int getPackedOverlay(T animatable, float u) {
+	public int getPackedOverlay(T animatable, float u, float partialTick) {
 		if (BioSwellRenderState.isFlashingWhite(animatable)) {
 			return OverlayTexture.pack(OverlayTexture.u(1.0F), 10);
 		}
-		return super.getPackedOverlay(animatable, u);
+		return super.getPackedOverlay(animatable, u, partialTick);
 	}
 
 	@Override

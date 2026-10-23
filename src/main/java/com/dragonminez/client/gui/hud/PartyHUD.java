@@ -16,7 +16,7 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraft.client.gui.LayeredDraw;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,13 +42,16 @@ public class PartyHUD {
 	private static final Map<UUID, MemberView> VIEWS = new HashMap<>();
 	private static final HudSmoother ROWS = new HudSmoother(0.12f, 0.01f);
 
-	public static final IGuiOverlay HUD_PARTY = (forgeGui, guiGraphics, partialTicks, width, height) -> {
+	public static final LayeredDraw.Layer HUD_PARTY = (guiGraphics, deltaTracker) -> {
+        float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
+        int width = guiGraphics.guiWidth();
+        int height = guiGraphics.guiHeight();
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
 	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.renderDebug || mc.player == null || mc.level == null) return;
+		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null || mc.level == null) return;
 
 		HudLayout.Box box = HudLayout.resolve(HudElement.PARTY, width, height);
 		boolean preview = HudLayout.isPreview();
@@ -152,7 +155,7 @@ public class PartyHUD {
 				HeadPortraitRenderer.render(guiGraphics, clientPlayer, 0.0f, 0.0f, HEAD, partialTicks, mirrored);
 			} else if (mc.getConnection() != null) {
 				PlayerInfo info = mc.getConnection().getPlayerInfo(member.id());
-				if (info != null) PlayerFaceRenderer.draw(guiGraphics, info.getSkinLocation(), 2, 2, (int) HEAD - 4);
+				if (info != null) PlayerFaceRenderer.draw(guiGraphics, info.getSkin().texture(), 2, 2, (int) HEAD - 4);
 			}
 		}
 		if (down) {

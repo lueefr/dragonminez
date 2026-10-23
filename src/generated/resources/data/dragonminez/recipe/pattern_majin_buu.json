@@ -1,0 +1,120 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:purple_dye"
+    },
+    "1": {
+      "item": "minecraft:purple_dye"
+    },
+    "2": {
+      "item": "minecraft:purple_dye"
+    },
+    "3": {
+      "item": "minecraft:yellow_dye"
+    },
+    "4": {
+      "item": "minecraft:yellow_dye"
+    },
+    "5": {
+      "item": "minecraft:purple_dye"
+    },
+    "6": {
+      "item": "minecraft:purple_dye"
+    },
+    "7": {
+      "item": "minecraft:purple_dye"
+    },
+    "8": {
+      "item": "minecraft:purple_dye"
+    },
+    "9": {
+      "item": "minecraft:yellow_dye"
+    },
+    "A": {
+      "item": "minecraft:purple_dye"
+    },
+    "B": {
+      "item": "minecraft:purple_dye"
+    },
+    "E": {
+      "item": "minecraft:purple_dye"
+    },
+    "F": {
+      "item": "minecraft:purple_dye"
+    },
+    "G": {
+      "item": "minecraft:black_dye"
+    },
+    "H": {
+      "item": "minecraft:purple_dye"
+    },
+    "I": {
+      "item": "minecraft:purple_dye"
+    },
+    "J": {
+      "item": "minecraft:purple_dye"
+    },
+    "K": {
+      "item": "minecraft:purple_dye"
+    },
+    "L": {
+      "item": "minecraft:black_dye"
+    },
+    "M": {
+      "item": "minecraft:black_dye"
+    },
+    "N": {
+      "item": "minecraft:yellow_dye"
+    },
+    "O": {
+      "item": "minecraft:black_dye"
+    },
+    "P": {
+      "item": "minecraft:black_dye"
+    },
+    "Q": {
+      "item": "minecraft:yellow_dye"
+    },
+    "R": {
+      "item": "minecraft:black_dye"
+    },
+    "S": {
+      "item": "minecraft:yellow_dye"
+    },
+    "T": {
+      "item": "minecraft:black_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "V": {
+      "item": "minecraft:black_dye"
+    },
+    "W": {
+      "item": "minecraft:black_dye"
+    },
+    "X": {
+      "item": "minecraft:yellow_dye"
+    },
+    "Y": {
+      "item": "minecraft:yellow_dye"
+    },
+    "Z": {
+      "item": "minecraft:purple_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    "YZ0123",
+    "456789"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_majin_buu"
+  }
+}

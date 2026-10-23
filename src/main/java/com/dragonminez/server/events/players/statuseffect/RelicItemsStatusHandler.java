@@ -20,7 +20,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import top.theillusivec4.curios.api.CuriosApi;
 
 public class RelicItemsStatusHandler implements IStatusEffectHandler {
@@ -99,8 +99,8 @@ public class RelicItemsStatusHandler implements IStatusEffectHandler {
 		player.refreshDimensions();
 	}
 
-	public static void onFinalDamage(LivingDamageEvent event) {
-		if (event.isCanceled() || event.getAmount() <= 0.0f) return;
+	public static void onFinalDamage(LivingDamageEvent.Pre event) {
+		if (event.getNewDamage() <= 0.0f) return;
 		if (!(event.getEntity() instanceof ServerPlayer victim)) return;
 		DamageSource source = event.getSource();
 		if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == victim) return;
@@ -145,7 +145,7 @@ public class RelicItemsStatusHandler implements IStatusEffectHandler {
 	}
 
 	private static boolean knockOffDemonEye(ServerPlayer player) {
-		var inventory = CuriosApi.getCuriosInventory(player).resolve().orElse(null);
+		var inventory = CuriosApi.getCuriosInventory(player).orElse(null);
 		if (inventory == null) return false;
 		var handler = inventory.getCurios().get("head_tech");
 		if (handler == null) return false;

@@ -1,0 +1,114 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:lime_dye"
+    },
+    "1": {
+      "item": "minecraft:lime_dye"
+    },
+    "2": {
+      "item": "minecraft:green_dye"
+    },
+    "4": {
+      "item": "minecraft:black_dye"
+    },
+    "5": {
+      "item": "minecraft:green_dye"
+    },
+    "6": {
+      "item": "minecraft:green_dye"
+    },
+    "7": {
+      "item": "minecraft:green_dye"
+    },
+    "8": {
+      "item": "minecraft:green_dye"
+    },
+    "9": {
+      "item": "minecraft:black_dye"
+    },
+    "A": {
+      "item": "minecraft:red_dye"
+    },
+    "B": {
+      "item": "minecraft:red_dye"
+    },
+    "E": {
+      "item": "minecraft:red_dye"
+    },
+    "F": {
+      "item": "minecraft:red_dye"
+    },
+    "G": {
+      "item": "minecraft:red_dye"
+    },
+    "H": {
+      "item": "minecraft:black_dye"
+    },
+    "I": {
+      "item": "minecraft:lime_dye"
+    },
+    "J": {
+      "item": "minecraft:lime_dye"
+    },
+    "K": {
+      "item": "minecraft:black_dye"
+    },
+    "L": {
+      "item": "minecraft:red_dye"
+    },
+    "M": {
+      "item": "minecraft:black_dye"
+    },
+    "N": {
+      "item": "minecraft:lime_dye"
+    },
+    "O": {
+      "item": "minecraft:lime_dye"
+    },
+    "P": {
+      "item": "minecraft:lime_dye"
+    },
+    "Q": {
+      "item": "minecraft:lime_dye"
+    },
+    "R": {
+      "item": "minecraft:black_dye"
+    },
+    "S": {
+      "item": "minecraft:black_dye"
+    },
+    "T": {
+      "item": "minecraft:lime_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "V": {
+      "item": "minecraft:green_dye"
+    },
+    "W": {
+      "item": "minecraft:lime_dye"
+    },
+    "X": {
+      "item": "minecraft:black_dye"
+    },
+    "Z": {
+      "item": "minecraft:green_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    " Z012 ",
+    "456789"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_age1000"
+  }
+}

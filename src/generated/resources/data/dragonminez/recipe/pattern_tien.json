@@ -1,0 +1,81 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:red_dye"
+    },
+    "1": {
+      "item": "minecraft:red_dye"
+    },
+    "2": {
+      "item": "minecraft:red_dye"
+    },
+    "3": {
+      "item": "minecraft:red_dye"
+    },
+    "6": {
+      "item": "minecraft:red_dye"
+    },
+    "7": {
+      "item": "minecraft:red_dye"
+    },
+    "E": {
+      "item": "minecraft:green_dye"
+    },
+    "F": {
+      "item": "minecraft:green_dye"
+    },
+    "J": {
+      "item": "minecraft:green_dye"
+    },
+    "K": {
+      "item": "minecraft:green_dye"
+    },
+    "O": {
+      "item": "minecraft:green_dye"
+    },
+    "P": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "Q": {
+      "item": "minecraft:green_dye"
+    },
+    "S": {
+      "item": "minecraft:red_dye"
+    },
+    "T": {
+      "item": "minecraft:green_dye"
+    },
+    "U": {
+      "item": "minecraft:green_dye"
+    },
+    "V": {
+      "item": "minecraft:green_dye"
+    },
+    "W": {
+      "item": "minecraft:green_dye"
+    },
+    "X": {
+      "item": "minecraft:red_dye"
+    },
+    "Y": {
+      "item": "minecraft:red_dye"
+    },
+    "Z": {
+      "item": "minecraft:red_dye"
+    }
+  },
+  "pattern": [
+    "    EF",
+    "   JK ",
+    "  OPQ ",
+    "STUVWX",
+    "YZ0123",
+    "  67  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_tien"
+  }
+}

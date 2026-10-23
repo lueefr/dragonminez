@@ -344,7 +344,7 @@ public final class StructureRepairManager {
 		private final Map<Integer, Pending> forced = new HashMap<>();
 
 		static RepairData get(ServerLevel level) {
-			return level.getDataStorage().computeIfAbsent(RepairData::load, RepairData::new, NAME);
+			return level.getDataStorage().computeIfAbsent(new net.minecraft.world.level.saveddata.SavedData.Factory<>(RepairData::new, (tag, registries) -> RepairData.load(tag)), NAME);
 		}
 
 		void begin(int salt, ChunkPos origin, Set<Long> chunks) {
@@ -369,7 +369,7 @@ public final class StructureRepairManager {
 		}
 
 		@Override
-		public CompoundTag save(CompoundTag tag) {
+		public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
 			ListTag list = new ListTag();
 			for (Map.Entry<Integer, Pending> e : this.forced.entrySet()) {
 				CompoundTag entry = new CompoundTag();

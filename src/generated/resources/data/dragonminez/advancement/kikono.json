@@ -1,0 +1,33 @@
+{
+  "parent": "dragonminez:namekdim",
+  "criteria": {
+    "kikono": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:kikono_shard"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.kikono.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:kikono_shard"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.kikono.title"
+    }
+  },
+  "requirements": [
+    [
+      "kikono"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

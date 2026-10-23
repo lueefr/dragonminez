@@ -1,0 +1,96 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:magenta_dye"
+    },
+    "1": {
+      "item": "minecraft:magenta_dye"
+    },
+    "2": {
+      "item": "minecraft:magenta_dye"
+    },
+    "6": {
+      "item": "minecraft:magenta_dye"
+    },
+    "7": {
+      "item": "minecraft:magenta_dye"
+    },
+    "A": {
+      "item": "minecraft:magenta_dye"
+    },
+    "B": {
+      "item": "minecraft:magenta_dye"
+    },
+    "E": {
+      "item": "minecraft:magenta_dye"
+    },
+    "F": {
+      "item": "minecraft:magenta_dye"
+    },
+    "H": {
+      "item": "minecraft:magenta_dye"
+    },
+    "I": {
+      "item": "minecraft:magenta_dye"
+    },
+    "J": {
+      "item": "minecraft:magenta_dye"
+    },
+    "K": {
+      "item": "minecraft:magenta_dye"
+    },
+    "M": {
+      "item": "minecraft:yellow_dye"
+    },
+    "N": {
+      "item": "minecraft:magenta_dye"
+    },
+    "O": {
+      "item": "dragonminez:blank_pattern_super"
+    },
+    "P": {
+      "item": "minecraft:magenta_dye"
+    },
+    "Q": {
+      "item": "minecraft:magenta_dye"
+    },
+    "R": {
+      "item": "minecraft:yellow_dye"
+    },
+    "S": {
+      "item": "minecraft:yellow_dye"
+    },
+    "T": {
+      "item": "minecraft:magenta_dye"
+    },
+    "U": {
+      "item": "minecraft:magenta_dye"
+    },
+    "V": {
+      "item": "minecraft:magenta_dye"
+    },
+    "W": {
+      "item": "minecraft:magenta_dye"
+    },
+    "X": {
+      "item": "minecraft:yellow_dye"
+    },
+    "Z": {
+      "item": "minecraft:magenta_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    " HIJK ",
+    "MNOPQR",
+    "STUVWX",
+    " Z012 ",
+    "  67  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_kefla"
+  }
+}

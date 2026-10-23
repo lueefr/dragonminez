@@ -27,13 +27,13 @@ public class DMZEffect extends MobEffect {
 		return this;
 	}
 
-	@Override
-	public List<ItemStack> getCurativeItems() {
-		return curable ? super.getCurativeItems() : new ArrayList<>();
-	}
+    @Override
+    public void fillEffectCures(java.util.Set<net.neoforged.neoforge.common.EffectCure> cures, net.minecraft.world.effect.MobEffectInstance instance) {
+        if (curable) super.fillEffectCures(cures, instance);
+    }
 
     @Override
-    public boolean isDurationEffectTick(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 }

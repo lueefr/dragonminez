@@ -71,16 +71,19 @@ import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import com.dragonminez.common.util.CuriosUtil;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
 import java.util.*;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class TickHandler {
 	private static final Env LOG_ENV = Env.SERVER;
 	private static final Map<String, IActionModeHandler> ACTION_MODE_HANDLERS = new HashMap<>();
@@ -113,9 +116,9 @@ public class TickHandler {
 	}
 
 	@SubscribeEvent
-	public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || event.player.level().isClientSide) return;
-		if (!(event.player instanceof ServerPlayer serverPlayer)) return;
+	public static void onPlayerTick(PlayerTickEvent.Post event) {
+		if (event.getEntity().level().isClientSide) return;
+		if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
 
 		MeleeWindupTracker.tick(serverPlayer);
 
@@ -138,7 +141,7 @@ public class TickHandler {
 
 			if (serverPlayer.tickCount % AURA_LIGHT_INTERVAL == 0) updateAuraLight(serverPlayer, data);
 
-			boolean isStunned = serverPlayer.hasEffect(MainEffects.STUN.get()) || data.getStatus().isStrikeLocked();
+			boolean isStunned = serverPlayer.hasEffect(MainEffects.STUN) || data.getStatus().isStrikeLocked();
 			boolean isDowned = data.getStatus().isKnockedDown();
 			boolean isFrozen = com.dragonminez.server.world.tournament.Tournament.Manager.isInGrace(serverPlayer.getUUID(), serverPlayer.level().getGameTime());
 			if (data.getStatus().isMatchFrozen() != isFrozen) {
@@ -703,7 +706,7 @@ public class TickHandler {
 		if (currentHealth >= maxHealth) return;
 
 		DMZEvent.HealthRegenEvent event = new DMZEvent.HealthRegenEvent(player, data, data.getHealthRegenPerSecond());
-		if (MinecraftForge.EVENT_BUS.post(event)) return;
+		if (NeoForge.EVENT_BUS.post(event).isCanceled()) return;
 
 		double finalRegen = Math.max(0.0, event.getAmount()) * foodRegenMod;
 		if (!Double.isFinite(finalRegen) || finalRegen <= 0.0) return;
@@ -724,7 +727,7 @@ public class TickHandler {
 
 		if (activeCharging) {
 			DMZEvent.KiChargeEvent kiEvent = new DMZEvent.KiChargeEvent(player, currentEnergy, maxEnergy);
-			if (MinecraftForge.EVENT_BUS.post(kiEvent)) energyChange = 0;
+			if (NeoForge.EVENT_BUS.post(kiEvent).isCanceled()) energyChange = 0;
 		}
 
 		UUID masteryPlayerId = player.getUUID();
@@ -770,7 +773,7 @@ public class TickHandler {
 
 		if (energyChange != 0) {
 			DMZEvent.EnergyRegenEvent regenEvent = new DMZEvent.EnergyRegenEvent(player, data, energyChange);
-			energyChange = MinecraftForge.EVENT_BUS.post(regenEvent) ? 0 : regenEvent.getAmount();
+			energyChange = NeoForge.EVENT_BUS.post(regenEvent).isCanceled() ? 0 : regenEvent.getAmount();
 		}
 
 		if (energyChange != 0) {
@@ -807,7 +810,7 @@ public class TickHandler {
 		if (regenPerSecond <= 0.0) return;
 
 		DMZEvent.StaminaRegenEvent event = new DMZEvent.StaminaRegenEvent(player, data, regenPerSecond);
-		if (MinecraftForge.EVENT_BUS.post(event)) return;
+		if (NeoForge.EVENT_BUS.post(event).isCanceled()) return;
 		regenPerSecond = Math.max(0.0, event.getAmount()) * foodRegenMod;
 		if (regenPerSecond <= 0.0) return;
 
@@ -830,7 +833,7 @@ public class TickHandler {
 		if (currentPoise < maxPoise) {
 			double baseRegen = 0.1;
 
-			int totalEnchLvl = getTotalArmorEnchantmentLevel(MainEnchants.RESISTANCE_RECOVERY.get(), data.getPlayer());
+			int totalEnchLvl = getTotalArmorEnchantmentLevel(MainEnchants.RESISTANCE_RECOVERY, data.getPlayer());
 			double enchMult = getRecoveryMultiplier(totalEnchLvl);
 
 			double regenAmount = maxPoise * baseRegen * meditationBonus * enchMult;
@@ -839,10 +842,10 @@ public class TickHandler {
 		}
 	}
 
-	public static int getTotalArmorEnchantmentLevel(Enchantment enchantment, LivingEntity entity) {
+	public static int getTotalArmorEnchantmentLevel(net.minecraft.resources.ResourceKey<Enchantment> enchantment, LivingEntity entity) {
 		int totalLevel = 0;
 		for (ItemStack stack : entity.getArmorSlots()) {
-			totalLevel += EnchantmentHelper.getItemEnchantmentLevel(enchantment, stack);
+			totalLevel += com.dragonminez.common.init.MainEnchants.level(stack, entity.level(), enchantment);
 		}
 		return totalLevel;
 	}
@@ -1050,7 +1053,7 @@ public class TickHandler {
 						boolean creative = player.isCreative();
 						int baseCooldown = creative ? 60 : Math.max(1, (int) Math.ceil(kiAttack.getActualCooldown() * chargeMultiplier));
 						DMZEvent.KiAttackFireEvent fireEvent = new DMZEvent.KiAttackFireEvent(player, data, kiAttack, chargeMultiplier, baseCooldown);
-						MinecraftForge.EVENT_BUS.post(fireEvent);
+						NeoForge.EVENT_BUS.post(fireEvent);
 						int cooldownTicks = Math.max(1, fireEvent.getCooldownTicks());
 						data.getCooldowns().setCooldown(getTechniqueCooldownKey(kiAttack.getId()), cooldownTicks);
 
@@ -1082,7 +1085,7 @@ public class TickHandler {
 				boolean creative = player.isCreative();
 				int baseCooldown = creative ? 60 : Math.max(1, kiAttack.getActualCooldown());
 				DMZEvent.KiAttackFireEvent fireEvent = new DMZEvent.KiAttackFireEvent(player, data, kiAttack, 1.0f, baseCooldown);
-				MinecraftForge.EVENT_BUS.post(fireEvent);
+				NeoForge.EVENT_BUS.post(fireEvent);
 				int cooldownTicks = Math.max(1, fireEvent.getCooldownTicks());
 				data.getCooldowns().setCooldown(getTechniqueCooldownKey(kiAttack.getId()), cooldownTicks);
 			}
@@ -1171,7 +1174,7 @@ public class TickHandler {
 				&& !SaiyanForms.SUPER_SAIYAN_4.equals(data.getCharacter().getActiveForm())
 				&& !TransformationsHelper.isInScriptedForm(data)) {
 			if (TransformationsHelper.revertToBaseForm(player, data)) {
-				player.removeEffect(MainEffects.TRANSFORMED.get());
+				player.removeEffect(MainEffects.TRANSFORMED);
 			}
 			TransformationItemCostHelper.clearFormDurationSecondsRemaining(player);
 			player.refreshDimensions();
@@ -1212,9 +1215,9 @@ public class TickHandler {
 			} else {
 				data.getCharacter().clearActiveStackForm(player);
 				TransformationItemCostHelper.clearStackFormDurationSecondsRemaining(player);
-				player.removeEffect(MainEffects.STACK_TRANSFORMED.get());
+				player.removeEffect(MainEffects.STACK_TRANSFORMED);
 				if (TransformationsHelper.revertToBaseForm(player, data)) {
-					player.removeEffect(MainEffects.TRANSFORMED.get());
+					player.removeEffect(MainEffects.TRANSFORMED);
 				}
 				TransformationItemCostHelper.clearFormDurationSecondsRemaining(player);
 				player.refreshDimensions();
@@ -1274,13 +1277,13 @@ public class TickHandler {
 	private static void clearTransformationForMissingDurationItem(ServerPlayer player, StatsData data, boolean baseForm) {
 		if (baseForm) {
 			if (TransformationsHelper.revertToBaseForm(player, data)) {
-				player.removeEffect(MainEffects.TRANSFORMED.get());
+				player.removeEffect(MainEffects.TRANSFORMED);
 			}
 			TransformationItemCostHelper.clearFormDurationSecondsRemaining(player);
 		} else {
 			data.getCharacter().clearActiveStackForm(player);
 			TransformationItemCostHelper.clearStackFormDurationSecondsRemaining(player);
-			player.removeEffect(MainEffects.STACK_TRANSFORMED.get());
+			player.removeEffect(MainEffects.STACK_TRANSFORMED);
 		}
 		player.sendSystemMessage(Component.translatable("message.dragonminez.form.no_duration_item"), true);
 		player.refreshDimensions();

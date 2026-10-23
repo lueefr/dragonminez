@@ -31,14 +31,13 @@ public class AuraMeshFactory {
 	public static VertexBuffer getFullscreenQuad() {
 		if (fullscreenQuad == null) {
 			fullscreenQuad = new VertexBuffer(VertexBuffer.Usage.STATIC);
-			BufferBuilder builder = Tesselator.getInstance().getBuilder();
-			builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-			builder.vertex(-1.0f, -1.0f, 0.0f).endVertex();
-			builder.vertex(1.0f, -1.0f, 0.0f).endVertex();
-			builder.vertex(1.0f, 1.0f, 0.0f).endVertex();
-			builder.vertex(-1.0f, 1.0f, 0.0f).endVertex();
+			BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+			builder.addVertex(-1.0f, -1.0f, 0.0f);
+			builder.addVertex(1.0f, -1.0f, 0.0f);
+			builder.addVertex(1.0f, 1.0f, 0.0f);
+			builder.addVertex(-1.0f, 1.0f, 0.0f);
 			fullscreenQuad.bind();
-			fullscreenQuad.upload(builder.end());
+			fullscreenQuad.upload(builder.buildOrThrow());
 			VertexBuffer.unbind();
 		}
 		return fullscreenQuad;
@@ -64,8 +63,7 @@ public class AuraMeshFactory {
 		}
 
 		VertexBuffer buffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
-		BufferBuilder builder = Tesselator.getInstance().getBuilder();
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+		BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
 
 		double angleStep = (Math.PI * 2.0) / resolution;
 		for (int i = 0; i < resolution; i++) {
@@ -74,15 +72,15 @@ public class AuraMeshFactory {
 			for (int j = 0; j < resolution; j++) {
 				float cos1 = (float) Math.cos(j * angleStep), sin1 = (float) Math.sin(j * angleStep);
 				float cos2 = (float) Math.cos((j + 1) * angleStep), sin2 = (float) Math.sin((j + 1) * angleStep);
-				builder.vertex(r1 * cos1, y1, r1 * sin1).endVertex();
-				builder.vertex(r1 * cos2, y1, r1 * sin2).endVertex();
-				builder.vertex(r2 * cos2, y2, r2 * sin2).endVertex();
-				builder.vertex(r2 * cos1, y2, r2 * sin1).endVertex();
+				builder.addVertex(r1 * cos1, y1, r1 * sin1);
+				builder.addVertex(r1 * cos2, y1, r1 * sin2);
+				builder.addVertex(r2 * cos2, y2, r2 * sin2);
+				builder.addVertex(r2 * cos1, y2, r2 * sin1);
 			}
 		}
 
 		buffer.bind();
-		buffer.upload(builder.end());
+		buffer.upload(builder.buildOrThrow());
 		VertexBuffer.unbind();
 		return buffer;
 	}
@@ -91,14 +89,13 @@ public class AuraMeshFactory {
 		if (billboardQuad == null) {
 			billboardQuad = new VertexBuffer(VertexBuffer.Usage.STATIC);
 			Tesselator tesselator = Tesselator.getInstance();
-			BufferBuilder builder = tesselator.getBuilder();
-			builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-			builder.vertex(-1.0f, -1.0f, 0.0f).uv(0.0f, 1.0f).endVertex();
-			builder.vertex(1.0f, -1.0f, 0.0f).uv(1.0f, 1.0f).endVertex();
-			builder.vertex(1.0f, 1.0f, 0.0f).uv(1.0f, 0.0f).endVertex();
-			builder.vertex(-1.0f, 1.0f, 0.0f).uv(0.0f, 0.0f).endVertex();
+			BufferBuilder builder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+			builder.addVertex(-1.0f, -1.0f, 0.0f).setUv(0.0f, 1.0f);
+			builder.addVertex(1.0f, -1.0f, 0.0f).setUv(1.0f, 1.0f);
+			builder.addVertex(1.0f, 1.0f, 0.0f).setUv(1.0f, 0.0f);
+			builder.addVertex(-1.0f, 1.0f, 0.0f).setUv(0.0f, 0.0f);
 			billboardQuad.bind();
-			billboardQuad.upload(builder.end());
+			billboardQuad.upload(builder.buildOrThrow());
 			VertexBuffer.unbind();
 		}
 		return billboardQuad;
@@ -108,14 +105,13 @@ public class AuraMeshFactory {
 		if (groundQuad == null) {
 			groundQuad = new VertexBuffer(VertexBuffer.Usage.STATIC);
 			Tesselator tesselator = Tesselator.getInstance();
-			BufferBuilder builder = tesselator.getBuilder();
-			builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-			builder.vertex(-1.0f, 0.0f, -1.0f).uv(0.0f, 0.0f).endVertex();
-			builder.vertex(-1.0f, 0.0f, 1.0f).uv(0.0f, 1.0f).endVertex();
-			builder.vertex(1.0f, 0.0f, 1.0f).uv(1.0f, 1.0f).endVertex();
-			builder.vertex(1.0f, 0.0f, -1.0f).uv(1.0f, 0.0f).endVertex();
+			BufferBuilder builder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+			builder.addVertex(-1.0f, 0.0f, -1.0f).setUv(0.0f, 0.0f);
+			builder.addVertex(-1.0f, 0.0f, 1.0f).setUv(0.0f, 1.0f);
+			builder.addVertex(1.0f, 0.0f, 1.0f).setUv(1.0f, 1.0f);
+			builder.addVertex(1.0f, 0.0f, -1.0f).setUv(1.0f, 0.0f);
 			groundQuad.bind();
-			groundQuad.upload(builder.end());
+			groundQuad.upload(builder.buildOrThrow());
 			VertexBuffer.unbind();
 		}
 		return groundQuad;
@@ -133,8 +129,7 @@ public class AuraMeshFactory {
 		for (int i = 0; i <= rings; i++) radii[i] /= peak;
 
 		VertexBuffer buffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
-		BufferBuilder builder = Tesselator.getInstance().getBuilder();
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+		BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_NORMAL);
 
 		double angleStep = (Math.PI * 2.0) / segments;
 		float ringStep = 2.0f / rings;
@@ -162,7 +157,7 @@ public class AuraMeshFactory {
 		}
 
 		buffer.bind();
-		buffer.upload(builder.end());
+		buffer.upload(builder.buildOrThrow());
 		VertexBuffer.unbind();
 		return buffer;
 	}
@@ -176,14 +171,13 @@ public class AuraMeshFactory {
 
 	private static void emit(BufferBuilder builder, float x, float y, float z, float cos, float sin, float slope) {
 		Vector3f normal = new Vector3f(cos, -slope, sin).normalize();
-		builder.vertex(x, y, z).color(255, 255, 255, 255).normal(normal.x(), normal.y(), normal.z()).endVertex();
+		builder.addVertex(x, y, z).setColor(255, 255, 255, 255).setNormal(normal.x(), normal.y(), normal.z());
 	}
 
 	public static VertexBuffer getTornadoMesh() {
 		if (tornado == null) {
 			tornado = new VertexBuffer(VertexBuffer.Usage.STATIC);
-			BufferBuilder builder = Tesselator.getInstance().getBuilder();
-			builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+			BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
 			for (int i = 0; i < TORNADO_RINGS; i++) {
 				float v1 = (float) i / TORNADO_RINGS;
@@ -193,15 +187,15 @@ public class AuraMeshFactory {
 					float u2 = (float) (j + 1) / TORNADO_SEGMENTS;
 					float cos1 = (float) Math.cos(u1 * Math.PI * 2.0), sin1 = (float) Math.sin(u1 * Math.PI * 2.0);
 					float cos2 = (float) Math.cos(u2 * Math.PI * 2.0), sin2 = (float) Math.sin(u2 * Math.PI * 2.0);
-					builder.vertex(cos1, v1, sin1).uv(u1, v1).endVertex();
-					builder.vertex(cos2, v1, sin2).uv(u2, v1).endVertex();
-					builder.vertex(cos2, v2, sin2).uv(u2, v2).endVertex();
-					builder.vertex(cos1, v2, sin1).uv(u1, v2).endVertex();
+					builder.addVertex(cos1, v1, sin1).setUv(u1, v1);
+					builder.addVertex(cos2, v1, sin2).setUv(u2, v1);
+					builder.addVertex(cos2, v2, sin2).setUv(u2, v2);
+					builder.addVertex(cos1, v2, sin1).setUv(u1, v2);
 				}
 			}
 
 			tornado.bind();
-			tornado.upload(builder.end());
+			tornado.upload(builder.buildOrThrow());
 			VertexBuffer.unbind();
 		}
 		return tornado;
@@ -210,8 +204,7 @@ public class AuraMeshFactory {
 	public static VertexBuffer getGodFlameMesh() {
 		if (godFlame == null) {
 			godFlame = new VertexBuffer(VertexBuffer.Usage.STATIC);
-			BufferBuilder builder = Tesselator.getInstance().getBuilder();
-			builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+			BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
 			for (int i = 0; i < GOD_RINGS; i++) {
 				float t1 = (float) i / GOD_RINGS;
@@ -227,7 +220,7 @@ public class AuraMeshFactory {
 			}
 
 			godFlame.bind();
-			godFlame.upload(builder.end());
+			godFlame.upload(builder.buildOrThrow());
 			VertexBuffer.unbind();
 		}
 		return godFlame;
@@ -237,7 +230,7 @@ public class AuraMeshFactory {
 		double y = t * 2.0 - 1.0;
 		double radius = Math.pow(Math.sqrt(Math.max(0.0, 1.0 - y * y)), 0.9) * (0.86 + 0.30 * Math.pow(1.0 - t, 1.3));
 		double angle = u * Math.PI * 2.0;
-		builder.vertex((float) (Math.cos(angle) * radius), t, (float) (Math.sin(angle) * radius)).uv(u, t).endVertex();
+		builder.addVertex((float) (Math.cos(angle) * radius), t, (float) (Math.sin(angle) * radius)).setUv(u, t);
 	}
 
 	public static VertexBuffer getSparkingFlameMesh() {

@@ -1,0 +1,105 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "1": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "2": {
+      "item": "minecraft:black_dye"
+    },
+    "3": {
+      "item": "minecraft:purple_dye"
+    },
+    "4": {
+      "item": "minecraft:black_dye"
+    },
+    "9": {
+      "item": "minecraft:black_dye"
+    },
+    "B": {
+      "item": "minecraft:white_dye"
+    },
+    "E": {
+      "item": "minecraft:white_dye"
+    },
+    "F": {
+      "item": "minecraft:brown_dye"
+    },
+    "G": {
+      "item": "minecraft:purple_dye"
+    },
+    "H": {
+      "item": "minecraft:white_dye"
+    },
+    "I": {
+      "item": "minecraft:lime_dye"
+    },
+    "J": {
+      "item": "minecraft:lime_dye"
+    },
+    "K": {
+      "item": "minecraft:white_dye"
+    },
+    "L": {
+      "item": "minecraft:purple_dye"
+    },
+    "M": {
+      "item": "minecraft:black_dye"
+    },
+    "N": {
+      "item": "minecraft:lime_dye"
+    },
+    "O": {
+      "item": "minecraft:lime_dye"
+    },
+    "P": {
+      "item": "minecraft:lime_dye"
+    },
+    "Q": {
+      "item": "minecraft:lime_dye"
+    },
+    "R": {
+      "item": "minecraft:black_dye"
+    },
+    "S": {
+      "item": "minecraft:purple_dye"
+    },
+    "T": {
+      "item": "minecraft:lime_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "V": {
+      "item": "minecraft:lime_dye"
+    },
+    "W": {
+      "item": "minecraft:lime_dye"
+    },
+    "X": {
+      "item": "minecraft:purple_dye"
+    },
+    "Y": {
+      "item": "minecraft:purple_dye"
+    },
+    "Z": {
+      "item": "minecraft:black_dye"
+    }
+  },
+  "pattern": [
+    " B  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    "YZ0123",
+    "4    9"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_cooler_soldier"
+  }
+}

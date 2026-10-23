@@ -38,34 +38,41 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+@EventBusSubscriber(modid = Reference.MOD_ID)
 public class QuestEvents {
 	@SubscribeEvent
-	public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || event.player.level().isClientSide) {
+	public static void onPlayerTick(PlayerTickEvent.Post event) {
+		if (event.getEntity().level().isClientSide) {
 			return;
 		}
-		if (event.player.tickCount % 20 != 0) {
+		if (event.getEntity().tickCount % 20 != 0) {
 			return;
 		}
-		if (!(event.player instanceof ServerPlayer player) || StorageManager.isLoadPending(player)) {
+		if (!(event.getEntity() instanceof ServerPlayer player) || StorageManager.isLoadPending(player)) {
 			return;
 		}
 
@@ -96,7 +103,7 @@ public class QuestEvents {
 	}
 
 	@SubscribeEvent
-	public static void onSparHurt(LivingHurtEvent event) {
+	public static void onSparHurt(LivingIncomingDamageEvent event) {
 		LivingEntity target = event.getEntity();
 		if (target.level().isClientSide) return;
 		if (!(event.getSource().getEntity() instanceof ServerPlayer attacker)) return;
@@ -248,7 +255,7 @@ public class QuestEvents {
 				QuestParty.allParticipants(player, questKey),
 				reason
 		);
-		if (MinecraftForge.EVENT_BUS.post(failEvent)) {
+		if (NeoForge.EVENT_BUS.post(failEvent).isCanceled()) {
 			return false;
 		}
 
@@ -668,7 +675,7 @@ public class QuestEvents {
 				newProgress,
 				required
 		);
-		if (MinecraftForge.EVENT_BUS.post(progressEvent)) {
+		if (NeoForge.EVENT_BUS.post(progressEvent).isCanceled()) {
 			return;
 		}
 		newProgress = Math.max(0, progressEvent.getNewProgress());
@@ -711,9 +718,7 @@ public class QuestEvents {
 				quest,
 				QuestParty.allParticipants(player, questKey)
 		);
-		if (MinecraftForge.EVENT_BUS.post(completeEvent)) {
-			return;
-		}
+		NeoForge.EVENT_BUS.post(completeEvent);
 
 		pqd.completeQuest(questKey);
 		QuestFieldSessions.clearQuest(player, questKey);

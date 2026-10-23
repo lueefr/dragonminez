@@ -33,16 +33,17 @@ public class FoodItem extends Item {
     private static FoodProperties food(int hunger, float saturation, @Nullable Supplier<MobEffectInstance> effect) {
         FoodProperties.Builder builder = new FoodProperties.Builder()
                 .nutrition(hunger)
-                .saturationMod(saturation)
-                .meat()
-                .alwaysEat();
+                .saturationModifier(saturation)
+
+                .alwaysEdible();
         if (effect != null) builder.effect(effect, 1.0F);
         return builder.build();
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        net.minecraft.world.level.Level level = context.level();
         if (this.tooltipKey != null) tooltip.add(Component.translatable(this.tooltipKey).withStyle(ChatFormatting.GRAY));
-        super.appendHoverText(stack, level, tooltip, flag);
+        super.appendHoverText(stack, context, tooltip, flag);
     }
 }

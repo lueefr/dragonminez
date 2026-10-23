@@ -1,0 +1,30 @@
+{
+  "parent": "dragonminez:root",
+  "criteria": {
+    "namekdim": {
+      "conditions": {
+        "to": "dragonminez:namek"
+      },
+      "trigger": "minecraft:changed_dimension"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.namekdim.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:namek_grass_block"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.namekdim.title"
+    }
+  },
+  "requirements": [
+    [
+      "namekdim"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

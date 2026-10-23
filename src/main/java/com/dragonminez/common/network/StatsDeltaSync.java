@@ -1,5 +1,6 @@
 package com.dragonminez.common.network;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.network.S2C.StatsDeltaS2C;
 import com.dragonminez.common.network.S2C.StatsSyncS2C;
@@ -15,9 +16,13 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,7 +32,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+@EventBusSubscriber(modid = Reference.MOD_ID)
 public final class StatsDeltaSync {
 	public static final String TECHNIQUES = "Techniques";
 	public static final String RACIAL_DATA = "RacialData";
@@ -106,8 +111,8 @@ public final class StatsDeltaSync {
 	}
 
 	@SubscribeEvent
-	public static void onServerTick(TickEvent.ServerTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || DIRTY.isEmpty()) return;
+	public static void onServerTick(ServerTickEvent.Post event) {
+		if (DIRTY.isEmpty()) return;
 		Map<UUID, Set<String>> pending = new HashMap<>(DIRTY);
 		DIRTY.clear();
 		for (Map.Entry<UUID, Set<String>> entry : pending.entrySet()) {

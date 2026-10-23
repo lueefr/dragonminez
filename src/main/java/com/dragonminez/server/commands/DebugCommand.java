@@ -36,9 +36,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.versions.forge.ForgeVersion;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -161,7 +161,7 @@ public class DebugCommand {
 		mod.addProperty("version", ModList.get().getModContainerById(Reference.MOD_ID)
 				.map(container -> container.getModInfo().getVersion().toString()).orElse("unknown"));
 		mod.addProperty("mc", SharedConstants.getCurrentVersion().getName());
-		mod.addProperty("forge", ForgeVersion.getVersion());
+		mod.addProperty("forge", NeoForgeVersion.getVersion());
 		json.add("mod", mod);
 
 		JsonObject serverInfo = new JsonObject();

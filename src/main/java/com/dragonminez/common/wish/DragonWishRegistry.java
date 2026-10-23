@@ -1,5 +1,6 @@
 package com.dragonminez.common.wish;
 
+import lombok.*;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
@@ -9,28 +10,27 @@ import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.network.S2C.SyncWishesS2C;
 import com.dragonminez.common.util.gson.GsonUtils;
 import com.google.gson.JsonElement;
-import lombok.Getter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.OnDatapackSyncEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import org.jspecify.annotations.NonNull;
-
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import org.jetbrains.annotations.NotNull;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class DragonWishRegistry extends SimpleJsonResourceReloadListener {
 	public static final String ROOT_DIRECTORY = "dragonminez/dragonballs";
 	public static final DragonWishRegistry INSTANCE = new DragonWishRegistry();
-	@Getter
+@Getter
 	private static Map<String, List<Wish>> serverWishes = Map.of();
 	private static Map<String, List<Wish>> clientWishes = Map.of();
 
@@ -39,7 +39,7 @@ public class DragonWishRegistry extends SimpleJsonResourceReloadListener {
 	}
 
 	@Override
-	protected void apply(@NonNull Map<ResourceLocation, JsonElement> ignored, @NonNull ResourceManager resourceManager, @NonNull ProfilerFiller profiler) {
+	protected void apply(Map<ResourceLocation, JsonElement> ignored, ResourceManager resourceManager, ProfilerFiller profiler) {
 		DragonBallPackManager.LoadedDefinitions external = DragonBallPackManager.loadAll();
 		Map<String, List<Wish>> loaded = new LinkedHashMap<>(external.wishes);
 		for (var dragon : DragonBallDefinitions.getDragons()) loaded.putIfAbsent(dragon.getId(), List.of());
@@ -47,9 +47,19 @@ public class DragonWishRegistry extends SimpleJsonResourceReloadListener {
 		LogUtil.info(Env.COMMON, "Loaded {} dragon wish list(s) from the dragonballs system", serverWishes.size());
 	}
 
-	public static void setServerWishes(Map<String, List<Wish>> wishes) { serverWishes = Map.copyOf(wishes); }
-	@OnlyIn(Dist.CLIENT) public static Map<String, List<Wish>> getClientWishes() { return clientWishes; }
-	@OnlyIn(Dist.CLIENT) public static void setClientWishes(Map<String, List<Wish>> wishes) { clientWishes = Map.copyOf(wishes); }
+	public static void setServerWishes(Map<String, List<Wish>> wishes) {
+		serverWishes = Map.copyOf(wishes);
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	public static Map<String, List<Wish>> getClientWishes() {
+		return clientWishes;
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	public static void setClientWishes(Map<String, List<Wish>> wishes) {
+		clientWishes = Map.copyOf(wishes);
+	}
 
 	@SubscribeEvent
 	public static void onDatapackSync(OnDatapackSyncEvent event) {

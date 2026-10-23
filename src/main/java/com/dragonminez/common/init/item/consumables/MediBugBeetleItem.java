@@ -38,11 +38,12 @@ public class MediBugBeetleItem extends FoodItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        net.minecraft.world.level.Level level = context.level();
 		if (PothalaPairItem.getPairId(stack) != 0) {
 			tooltip.add(Component.translatable("item.dragonminez.medi_bug_beetle.tooltip.paired").withStyle(ChatFormatting.GRAY));
 			PothalaPairItem.appendPairIdTooltip(stack, tooltip);
 		}
-		super.appendHoverText(stack, level, tooltip, flag);
+		super.appendHoverText(stack, context, tooltip, flag);
 	}
 }

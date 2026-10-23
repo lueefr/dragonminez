@@ -264,8 +264,7 @@ public final class AuraTrailRenderer {
 		for (int i = count - 1; i > 0; i--) if (alphas[i] > 0.002f || alphas[i - 1] > 0.002f) { lastVisible = i; break; }
 		if (lastVisible < 1) return false;
 
-		BufferBuilder builder = Tesselator.getInstance().getBuilder();
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+		BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
 		for (int i = 0; i < lastVisible; i++) {
 			float u0 = (float) i / (count - 1);
@@ -292,7 +291,7 @@ public final class AuraTrailRenderer {
 		AuraRenderer.customSetup(renderType, DUMMY_TEXTURE, shader);
 
 		buffer.bind();
-		buffer.upload(builder.end());
+		buffer.upload(builder.buildOrThrow());
 		buffer.drawWithShader(pose, projectionMatrix, shader);
 		VertexBuffer.unbind();
 		if (bloom) shader.safeGetUniform("bloomMode").set(0.0f);
@@ -303,6 +302,6 @@ public final class AuraTrailRenderer {
 	}
 
 	private static void vertex(BufferBuilder builder, Vec3 pos, float alpha, float u, float v) {
-		builder.vertex(pos.x, pos.y, pos.z).color(1.0f, 1.0f, 1.0f, alpha).uv(u, v).endVertex();
+		builder.addVertex((float)pos.x, (float)pos.y, (float)pos.z).setColor(1.0f, 1.0f, 1.0f, alpha).setUv(u, v);
 	}
 }

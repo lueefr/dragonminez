@@ -15,14 +15,14 @@ public class FarmingBuffStatusHandler implements IStatusEffectHandler {
 	@Override
 	public void handleStatusEffects(ServerPlayer player, StatsData data) {
 		// Buffs planos de estadística (el bonus vive mientras el efecto esté activo).
-		syncStatBonus(player, data, MainEffects.OOZARU_ROOT.get(), "STR", "DEF", "oozaru_root", false);
-		syncStatBonus(player, data, MainEffects.KATCHIN_SPROUT.get(), "RES", "DEF", "katchin_sprout", true);
-		syncStatBonus(player, data, MainEffects.METEOR_FLOWER.get(), "SKP", "SKP", "meteor_flower", false);
-		syncStatBonus(player, data, MainEffects.AURA_LILY.get(), "PWR", "PWR", "aura_lily", false);
-		syncStatBonus(player, data, MainEffects.HERMIT_FERN.get(), "VIT", "VIT", "hermit_fern", false);
+		syncStatBonus(player, data, MainEffects.OOZARU_ROOT, "STR", "DEF", "oozaru_root", false);
+		syncStatBonus(player, data, MainEffects.KATCHIN_SPROUT, "RES", "DEF", "katchin_sprout", true);
+		syncStatBonus(player, data, MainEffects.METEOR_FLOWER, "SKP", "SKP", "meteor_flower", false);
+		syncStatBonus(player, data, MainEffects.AURA_LILY, "PWR", "PWR", "aura_lily", false);
+		syncStatBonus(player, data, MainEffects.HERMIT_FERN, "VIT", "VIT", "hermit_fern", false);
 	}
 
-	private void syncStatBonus(ServerPlayer player, StatsData data, MobEffect effect,
+	private void syncStatBonus(ServerPlayer player, StatsData data, net.minecraft.core.Holder<MobEffect> effect,
 	                           String bonusStat, String checkStat, String bonusName, boolean split) {
 		boolean active = player.hasEffect(effect);
 		boolean present = data.getBonusStats().hasBonus(checkStat, bonusName);
@@ -42,7 +42,7 @@ public class FarmingBuffStatusHandler implements IStatusEffectHandler {
 
 	@Override
 	public void onPlayerSecond(ServerPlayer serverPlayer, StatsData data) {
-		if (serverPlayer.hasEffect(MainEffects.KAIOSHIN_FRUIT.get())) {
+		if (serverPlayer.hasEffect(MainEffects.KAIOSHIN_FRUIT)) {
 			float maxEnergy = data.getMaxEnergy();
 			float regen = (float) (maxEnergy * KI_REGEN_PER_SECOND);
 			float newEnergy = Math.min(maxEnergy, data.getResources().getCurrentEnergy() + regen);

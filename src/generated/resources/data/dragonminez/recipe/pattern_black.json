@@ -1,0 +1,114 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:gray_dye"
+    },
+    "1": {
+      "item": "minecraft:gray_dye"
+    },
+    "2": {
+      "item": "minecraft:gray_dye"
+    },
+    "4": {
+      "item": "minecraft:black_dye"
+    },
+    "5": {
+      "item": "minecraft:red_dye"
+    },
+    "6": {
+      "item": "minecraft:red_dye"
+    },
+    "7": {
+      "item": "minecraft:red_dye"
+    },
+    "8": {
+      "item": "minecraft:red_dye"
+    },
+    "9": {
+      "item": "minecraft:black_dye"
+    },
+    "A": {
+      "item": "minecraft:gray_dye"
+    },
+    "B": {
+      "item": "minecraft:gray_dye"
+    },
+    "E": {
+      "item": "minecraft:gray_dye"
+    },
+    "F": {
+      "item": "minecraft:gray_dye"
+    },
+    "G": {
+      "item": "minecraft:gray_dye"
+    },
+    "H": {
+      "item": "minecraft:gray_dye"
+    },
+    "I": {
+      "item": "minecraft:black_dye"
+    },
+    "J": {
+      "item": "minecraft:black_dye"
+    },
+    "K": {
+      "item": "minecraft:gray_dye"
+    },
+    "L": {
+      "item": "minecraft:gray_dye"
+    },
+    "M": {
+      "item": "minecraft:black_dye"
+    },
+    "N": {
+      "item": "minecraft:gray_dye"
+    },
+    "O": {
+      "item": "minecraft:black_dye"
+    },
+    "P": {
+      "item": "minecraft:black_dye"
+    },
+    "Q": {
+      "item": "minecraft:gray_dye"
+    },
+    "R": {
+      "item": "minecraft:black_dye"
+    },
+    "S": {
+      "item": "minecraft:black_dye"
+    },
+    "T": {
+      "item": "minecraft:gray_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_super"
+    },
+    "V": {
+      "item": "minecraft:gray_dye"
+    },
+    "W": {
+      "item": "minecraft:gray_dye"
+    },
+    "X": {
+      "item": "minecraft:black_dye"
+    },
+    "Z": {
+      "item": "minecraft:gray_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    " Z012 ",
+    "456789"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_black"
+  }
+}

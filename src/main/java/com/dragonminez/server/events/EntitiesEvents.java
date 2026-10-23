@@ -31,16 +31,18 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.living.MobEffectEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import com.dragonminez.common.quest.QuestService;
 import com.dragonminez.server.world.data.PartySavedData;
@@ -49,7 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class EntitiesEvents {
 
 	private static final double QUEST_TETHER_RANGE_SQR = 31250.0;
@@ -88,7 +90,7 @@ public class EntitiesEvents {
 				sagasEntity.setTransformationDisabled(true);
 			}
 		} else {
-			String registryName = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType()).toString();
+			String registryName = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString();
 			EntitiesConfig.EntityStats defaultStats = ConfigManager.getEntityStats(registryName);
 
 			if (defaultStats != null) {
@@ -116,19 +118,19 @@ public class EntitiesEvents {
 	}
 
 	@SubscribeEvent
-	public static void onStunnedEntityAttack(LivingAttackEvent event) {
+	public static void onStunnedEntityAttack(LivingIncomingDamageEvent event) {
 		if (event.getEntity().level().isClientSide()) return;
 		if (event.getSource().getDirectEntity() instanceof LivingEntity attacker
-				&& attacker.hasEffect(MainEffects.STUN.get())) {
+				&& attacker.hasEffect(MainEffects.STUN)) {
 			event.setCanceled(true);
 		}
 	}
 
 	@SubscribeEvent
 	public static void onStunApplied(MobEffectEvent.Added event) {
-		LivingEntity entity = event.getEntity();
+		if (!(event.getEntity() instanceof LivingEntity entity)) return;
 		if (entity.level().isClientSide() || entity instanceof Player) return;
-		if (event.getEffectInstance().getEffect() != MainEffects.STUN.get()) return;
+		if (event.getEffectInstance().getEffect() != MainEffects.STUN) return;
 
 		if (entity instanceof DBSagasEntity saga && saga.isCasting()) {
 			saga.stopCasting();
@@ -141,10 +143,10 @@ public class EntitiesEvents {
 	}
 
 	@SubscribeEvent
-	public static void onStunnedEntityTick(LivingEvent.LivingTickEvent event) {
-		LivingEntity entity = event.getEntity();
+	public static void onStunnedEntityTick(EntityTickEvent.Post event) {
+		if (!(event.getEntity() instanceof LivingEntity entity)) return;
 		if (entity.level().isClientSide() || entity instanceof Player) return;
-		if (!entity.hasEffect(MainEffects.STUN.get())) return;
+		if (!entity.hasEffect(MainEffects.STUN)) return;
 
 		Vec3 movement = entity.getDeltaMovement();
 		entity.setDeltaMovement(0.0D, Math.min(movement.y, 0.0D), 0.0D);
@@ -157,11 +159,11 @@ public class EntitiesEvents {
 	private static final int KI_SLOW_DURATION_TICKS = 30;
 
 	@SubscribeEvent
-	public static void onKiHitSlow(LivingHurtEvent event) {
+	public static void onKiHitSlow(LivingIncomingDamageEvent event) {
 		if (event.getEntity().level().isClientSide()) return;
 		if (!MainDamageTypes.isKiblastDamage(event.getSource())) return;
 		if (isSmallKiBlast(event.getSource())) return;
-		event.getEntity().addEffect(new MobEffectInstance(MainEffects.KI_SLOW.get(), KI_SLOW_DURATION_TICKS, 0, false, false, true));
+		event.getEntity().addEffect(new MobEffectInstance(MainEffects.KI_SLOW, KI_SLOW_DURATION_TICKS, 0, false, false, true));
 	}
 	private static boolean isSmallKiBlast(DamageSource source) {
 		return source.getDirectEntity() instanceof AbstractKiProjectile projectile
@@ -176,8 +178,8 @@ public class EntitiesEvents {
 		if (entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE)) {
 			entity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(melee);
 		}
-		if (entity.getAttributes().hasAttribute(EntityAttributes.KI_BLAST_DAMAGE.get())) {
-			entity.getAttribute(EntityAttributes.KI_BLAST_DAMAGE.get()).setBaseValue(ki);
+		if (entity.getAttributes().hasAttribute(EntityAttributes.KI_BLAST_DAMAGE)) {
+			entity.getAttribute(EntityAttributes.KI_BLAST_DAMAGE).setBaseValue(ki);
 		}
 	}
 
@@ -204,8 +206,8 @@ public class EntitiesEvents {
 	}
 
 	@SubscribeEvent
-	public static void onEntityTick(LivingEvent.LivingTickEvent event) {
-		LivingEntity entity = event.getEntity();
+	public static void onEntityTick(EntityTickEvent.Post event) {
+		if (!(event.getEntity() instanceof LivingEntity entity)) return;
 		if (entity.level().isClientSide() || entity.tickCount % 1000 != 0) return;
 
 		if (!entity.getPersistentData().contains("dmz_quest_owner")) return;
@@ -240,8 +242,8 @@ public class EntitiesEvents {
 	}
 
 	@SubscribeEvent
-	public static void onQuestCombatTick(LivingEvent.LivingTickEvent event) {
-		LivingEntity entity = event.getEntity();
+	public static void onQuestCombatTick(EntityTickEvent.Post event) {
+		if (!(event.getEntity() instanceof LivingEntity entity)) return;
 		if (entity.level().isClientSide() || entity.tickCount % QUEST_COMBAT_TICK_INTERVAL != 0) return;
 		if (!(entity instanceof Mob mob)) return;
 		if (!mob.getPersistentData().contains(QuestService.QUEST_KEY_TAG)

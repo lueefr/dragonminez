@@ -8,9 +8,10 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 
 @OnlyIn(Dist.CLIENT)
 public final class RaidMusicManager {
@@ -33,7 +34,7 @@ public final class RaidMusicManager {
 			return;
 		}
 
-		SoundEvent event = ForgeRegistries.SOUND_EVENTS.getValue(location);
+		SoundEvent event = BuiltInRegistries.SOUND_EVENT.get(location);
 		if (event == null) {
 			LogUtil.warn(Env.CLIENT, "Raid asked for unknown sound '{}'", soundId);
 			return;

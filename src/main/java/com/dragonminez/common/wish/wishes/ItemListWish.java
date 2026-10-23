@@ -7,7 +7,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +27,11 @@ public class ItemListWish extends Wish {
 		this.items = items;
 	}
 
-	public ItemListWish(String name, String description, RegistryObject<? extends Item> item) {
+	public ItemListWish(String name, String description, DeferredHolder<net.minecraft.world.item.Item, ? extends Item> item) {
 		this(name, description, item, 1);
 	}
 
-	public ItemListWish(String name, String description, RegistryObject<? extends Item> item, int count) {
+	public ItemListWish(String name, String description, DeferredHolder<net.minecraft.world.item.Item, ? extends Item> item, int count) {
 		super(name, description, WISH_TYPE);
 		this.items = List.of(new GenericItemDTO(item.getId(), count));
 	}
@@ -42,11 +42,11 @@ public class ItemListWish extends Wish {
 	 * varies between JVM runs; datagen output has to be byte-stable, so the order is
 	 * pinned here.
 	 */
-	public ItemListWish(String name, String description, Map<ArmorItem.Type, RegistryObject<Item>> armorSet) {
+	public ItemListWish(String name, String description, Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>> armorSet) {
 		super(name, description, WISH_TYPE);
 		List<GenericItemDTO> pieces = new ArrayList<>();
 		for (ArmorItem.Type type : ArmorItem.Type.values()) {
-			RegistryObject<Item> piece = armorSet.get(type);
+			DeferredHolder<net.minecraft.world.item.Item, ? extends Item> piece = armorSet.get(type);
 			if (piece != null) {
 				pieces.add(new GenericItemDTO(piece.getId(), 1));
 			}

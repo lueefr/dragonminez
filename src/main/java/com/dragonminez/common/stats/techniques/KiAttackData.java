@@ -1,5 +1,6 @@
 package com.dragonminez.common.stats.techniques;
 
+import lombok.*;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.common.config.ConfigManager;
@@ -461,7 +462,7 @@ public class KiAttackData extends TechniqueData {
 				if (data.length > MAX_IMPORT_NBT_BYTES) return null;
 				ByteArrayInputStream bais = new ByteArrayInputStream(data);
 				GZIPInputStream gzip = new GZIPInputStream(bais);
-				CompoundTag tag = NbtIo.read(new DataInputStream(gzip), new NbtAccounter(MAX_IMPORT_NBT_BYTES));
+				CompoundTag tag = NbtIo.read(new DataInputStream(gzip), NbtAccounter.create(MAX_IMPORT_NBT_BYTES));
 				gzip.close();
 
 				KiAttackData attack = new KiAttackData();
@@ -481,7 +482,7 @@ public class KiAttackData extends TechniqueData {
 
 			ByteArrayInputStream byteIn = new ByteArrayInputStream(decompressed);
 			DataInputStream dataIn = new DataInputStream(byteIn);
-			CompoundTag tag = NbtIo.read(dataIn, new NbtAccounter(MAX_IMPORT_NBT_BYTES));
+			CompoundTag tag = NbtIo.read(dataIn, NbtAccounter.create(MAX_IMPORT_NBT_BYTES));
 
 			KiAttackData attack = new KiAttackData();
 			attack.load(tag);

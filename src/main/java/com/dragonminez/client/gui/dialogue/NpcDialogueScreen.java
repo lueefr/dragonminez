@@ -1,5 +1,6 @@
 package com.dragonminez.client.gui.dialogue;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.gui.character.util.ScaledScreen;
 import com.dragonminez.client.gui.hud.HudRender;
@@ -24,13 +25,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import org.jspecify.annotations.NonNull;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.RenderHandEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayDeque;
@@ -152,7 +153,7 @@ public class NpcDialogueScreen extends ScaledScreen {
 	}
 
 	@Override
-	public void render(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 		long now = Util.getMillis();
 		if (openedAt == 0L) openedAt = now;
 		float open = ease((now - openedAt) / (float) OPEN_MS);
@@ -258,7 +259,7 @@ public class NpcDialogueScreen extends ScaledScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double delta) {
 		if (closingAt > 0L) return true;
 		double x = toUiX(mouseX);
 		double y = toUiY(mouseY);
@@ -647,7 +648,7 @@ public class NpcDialogueScreen extends ScaledScreen {
 	private record FooterButton(Component label, DialogueSkin.Row row, int x, Runnable action) {
 	}
 
-	@Mod.EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+	@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 	public static final class HudVisibility {
 		private HudVisibility() {
 		}

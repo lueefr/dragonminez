@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_makai_sand": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:makai_sand"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "dragonminez:adobe"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_makai_sand"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "dragonminez:adobe"
+    ]
+  }
+}

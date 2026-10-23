@@ -16,7 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraft.client.gui.LayeredDraw;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,13 +51,16 @@ public class PartyMarkerOverlay {
 
 	private static final Map<UUID, MarkerView> VIEWS = new HashMap<>();
 
-	public static final IGuiOverlay HUD_PARTY_MARKER = (forgeGui, guiGraphics, partialTicks, width, height) -> {
+	public static final LayeredDraw.Layer HUD_PARTY_MARKER = (guiGraphics, deltaTracker) -> {
+        float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
+        int width = guiGraphics.guiWidth();
+        int height = guiGraphics.guiHeight();
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
 	private static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.renderDebug || mc.options.hideGui || mc.player == null || mc.level == null) return;
+		if (mc.getDebugOverlay().showDebugScreen() || mc.options.hideGui || mc.player == null || mc.level == null) return;
 		if (!ConfigManager.getUserConfig().getPartyMarkers() || !CameraProjectionCapture.isAvailable()) return;
 
 		StatsData localData = StatsProvider.get(StatsCapability.INSTANCE, mc.player).orElse(null);
@@ -203,9 +206,9 @@ public class PartyMarkerOverlay {
 	private static ResourceLocation skinOf(Minecraft mc, UUID id) {
 		if (mc.getConnection() != null) {
 			PlayerInfo info = mc.getConnection().getPlayerInfo(id);
-			if (info != null) return info.getSkinLocation();
+			if (info != null) return info.getSkin().texture();
 		}
-		return DefaultPlayerSkin.getDefaultSkin(id);
+		return DefaultPlayerSkin.get(id).texture();
 	}
 
 	private static final class MarkerView {

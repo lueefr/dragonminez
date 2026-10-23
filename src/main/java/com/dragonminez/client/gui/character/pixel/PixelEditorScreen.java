@@ -43,8 +43,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
@@ -1198,7 +1198,7 @@ public class PixelEditorScreen extends ScaledScreen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		panorama.render(partialTick, 1.0f);
+		panorama.render(graphics, Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight(), partialTick, 1.0f);
 		renderCinematicBars(graphics);
 
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
@@ -1685,7 +1685,7 @@ public class PixelEditorScreen extends ScaledScreen {
 		DMZSkinLayer.PREVIEW_MODE = previewApplied;
 		try (SkinPaintContext.Scope ignored = SkinPaintContext.begin(pick, PICK_LOCATION, showHair, overlayLayer, hiddenBones, overlays, highlight);
 		     HairRenderContext.Scope hairScope = HairRenderContext.editorPreview(hairPreview)) {
-			InventoryScreen.renderEntityInInventory(graphics, centerX, centerY, scale, modelPose, new Quaternionf(), player);
+			InventoryScreen.renderEntityInInventory(graphics, centerX, centerY, scale, new org.joml.Vector3f(), modelPose, new Quaternionf(), player);
 		} finally {
 			DMZSkinLayer.PREVIEW_MODE = false;
 			graphics.pose().popPose();
@@ -1881,14 +1881,14 @@ public class PixelEditorScreen extends ScaledScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double delta) {
 		double uiX = toUiX(mouseX);
 		double uiY = toUiY(mouseY);
 		if (!confirmClose && insideViewport(uiX, uiY)) {
 			targetZoom = Mth.clamp(targetZoom * (delta > 0 ? ZOOM_FACTOR : 1.0f / ZOOM_FACTOR), MIN_ZOOM, MAX_ZOOM);
 			return true;
 		}
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
 	}
 
 	@Override

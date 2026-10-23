@@ -1,13 +1,12 @@
 package com.dragonminez.client.crowdin;
 
+import lombok.*;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import lombok.Getter;
 import net.minecraft.client.Minecraft;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,42 +26,28 @@ public class CrowdinManager {
 	private static final String BASE_URL = "https://distributions.crowdin.net/" + DISTRIBUTION_HASH;
 	private static final String CROWDIN_OVERRIDE_PROPERTY = "dmz.crowdin.enabled";
 	private static JsonObject cachedLangData = null;
-	@Getter
+@Getter
 	private static String cachedLangCode = "";
-
 
 	public static void fetchLanguage(String mcLangCode) {
 		if (!isLiveTranslationsEnabled()) return;
-
 		String crowdinPath = formatPath(mcLangCode);
-
 		if ((mcLangCode.equals(cachedLangCode) && cachedLangData != null) || mcLangCode.equals("en_us")) return;
-
 		LogUtil.info(Env.CLIENT, "[DMZ-CROWDIN] Searching updates for: " + crowdinPath);
-
 		HttpClient client = HttpClient.newHttpClient();
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create(BASE_URL + crowdinPath))
-				.header("Accept-Encoding", "gzip")
-				.GET()
-				.build();
-
+		HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + crowdinPath)).header("Accept-Encoding", "gzip").GET().build();
 		CompletableFuture<HttpResponse<InputStream>> responseFuture = client.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream());
-
 		responseFuture.thenAccept(res -> {
 			if (res.statusCode() == 200) {
 				try (InputStream bodyStream = res.body()) {
 					String encoding = res.headers().firstValue("Content-Encoding").orElse("");
 					InputStream effectiveStream = "gzip".equalsIgnoreCase(encoding) ? new GZIPInputStream(bodyStream) : bodyStream;
-
 					try (Reader reader = new InputStreamReader(effectiveStream, StandardCharsets.UTF_8)) {
 						JsonObject rawJson = JsonParser.parseReader(reader).getAsJsonObject();
 						fixColors(rawJson);
 						cachedLangData = rawJson;
 						cachedLangCode = mcLangCode;
-
 						LogUtil.info(Env.CLIENT, "[DMZ-CROWDIN] Remote translation for " + mcLangCode + " loaded successfully.");
-
 						if (Minecraft.getInstance().screen != null) {
 							Minecraft.getInstance().execute(() -> Minecraft.getInstance().reloadResourcePacks());
 						}
@@ -94,7 +79,6 @@ public class CrowdinManager {
 		Set<Map.Entry<String, JsonElement>> entries = json.entrySet();
 		for (Map.Entry<String, JsonElement> entry : entries) {
 			JsonElement element = entry.getValue();
-
 			if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
 				String originalText = element.getAsString();
 				if (originalText.contains("&")) {
@@ -108,15 +92,12 @@ public class CrowdinManager {
 
 	private static String formatPath(String mcCode) {
 		String basePath = "/content/src/main/resources/assets/dragonminez/lang/";
-
 		String[] parts = mcCode.split("_");
 		String lang = parts[0];
 		String region = (parts.length > 1) ? parts[1].toUpperCase() : "";
-
 		String fileName;
 		if (region.isEmpty()) fileName = lang + ".json";
-		else fileName = lang + "_" + region + ".json";
-
+		 else fileName = lang + "_" + region + ".json";
 		return basePath + fileName;
 	}
 
@@ -128,5 +109,4 @@ public class CrowdinManager {
 	public static boolean hasData() {
 		return cachedLangData != null;
 	}
-
 }

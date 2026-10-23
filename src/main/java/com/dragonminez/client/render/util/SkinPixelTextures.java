@@ -90,7 +90,7 @@ public final class SkinPixelTextures {
 		sweep(now);
 		Entry entry = ENTRIES.computeIfAbsent(player.getUUID(), Entry::new);
 		entry.lastUsed = now;
-		ResourceLocation skin = player.getSkinTextureLocation();
+		ResourceLocation skin = player.getSkin().texture();
 		if (entry.source != pixels || entry.revision != pixels.getRevision() || !Objects.equals(entry.skin, skin)) {
 			rebuild(entry, pixels, skin);
 		}

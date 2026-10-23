@@ -190,7 +190,7 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 	@Override
 	public void tick() {
 		super.tick();
-		nameField.tick();
+
 		if (heldAdjuster != null) {
 			holdTicks++;
 			if (holdTicks >= HOLD_DELAY && (holdTicks - HOLD_DELAY) % HOLD_INTERVAL == 0) heldAdjuster.run();
@@ -222,7 +222,7 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		renderBackground(graphics);
+		renderBackground(graphics, mouseX, mouseY, partialTick);
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
 		int uiMouseY = (int) Math.round(toUiY(mouseY));
 		beginUiScale(graphics);

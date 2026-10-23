@@ -1,5 +1,6 @@
 package com.dragonminez.client.render.effects;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.util.IrisCompat;
 import com.dragonminez.client.render.util.PlayerEffectQueue;
@@ -18,12 +19,16 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -35,14 +40,14 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.object.GeoCube;
 import software.bernie.geckolib.cache.object.GeoQuad;
 import software.bernie.geckolib.cache.object.GeoVertex;
-import software.bernie.geckolib.util.RenderUtils;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public final class CandyEffect {
 
 	private static final ResourceLocation CANDY_MODEL = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "geo/entity/races/candy.geo.json");
@@ -79,7 +84,7 @@ public final class CandyEffect {
 
 	public static boolean isCandy(LivingEntity entity) {
 		if (entity == null) return false;
-		if (entity.hasEffect(MainEffects.CANDY.get())) return true;
+		if (entity.hasEffect(MainEffects.CANDY)) return true;
 		Long until = CANDIED.get(entity.getId());
 		return until != null && entity.level().getGameTime() < until;
 	}
@@ -106,7 +111,7 @@ public final class CandyEffect {
 
 	private static void renderBone(PoseStack poseStack, GeoBone bone, VertexConsumer consumer, int packedLight) {
 		poseStack.pushPose();
-		RenderUtils.prepMatrixForBone(poseStack, bone);
+		software.bernie.geckolib.util.RenderUtil.prepMatrixForBone(poseStack, bone);
 		for (GeoCube cube : bone.getCubes()) renderCube(poseStack, cube, consumer, packedLight);
 		for (GeoBone child : bone.getChildBones()) renderBone(poseStack, child, consumer, packedLight);
 		poseStack.popPose();
@@ -114,19 +119,19 @@ public final class CandyEffect {
 
 	private static void renderCube(PoseStack poseStack, GeoCube cube, VertexConsumer consumer, int packedLight) {
 		poseStack.pushPose();
-		RenderUtils.translateToPivotPoint(poseStack, cube);
-		RenderUtils.rotateMatrixAroundCube(poseStack, cube);
-		RenderUtils.translateAwayFromPivotPoint(poseStack, cube);
+		software.bernie.geckolib.util.RenderUtil.translateToPivotPoint(poseStack, cube);
+		software.bernie.geckolib.util.RenderUtil.rotateMatrixAroundCube(poseStack, cube);
+		software.bernie.geckolib.util.RenderUtil.translateAwayFromPivotPoint(poseStack, cube);
 		Matrix3f normalMatrix = poseStack.last().normal();
 		Matrix4f pose = new Matrix4f(poseStack.last().pose());
 		for (GeoQuad quad : cube.quads()) {
 			if (quad == null) continue;
 			Vector3f normal = normalMatrix.transform(new Vector3f(quad.normal()));
-			RenderUtils.fixInvertedFlatCube(cube, normal);
+			software.bernie.geckolib.util.RenderUtil.fixInvertedFlatCube(cube, normal);
 			for (GeoVertex vertex : quad.vertices()) {
 				Vector3f position = vertex.position();
 				Vector4f transformed = pose.transform(new Vector4f(position.x(), position.y(), position.z(), 1.0F));
-				consumer.vertex(transformed.x(), transformed.y(), transformed.z(), 1.0F, 1.0F, 1.0F, 1.0F,
+				consumer.addVertex(transformed.x(), transformed.y(), transformed.z(), 0xFFFFFFFF,
 						vertex.texU(), vertex.texV(), OverlayTexture.NO_OVERLAY, packedLight, normal.x(), normal.y(), normal.z());
 			}
 		}
@@ -134,8 +139,8 @@ public final class CandyEffect {
 	}
 
 	@SubscribeEvent
-	public static void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.START) return;
+	public static void onClientTick(ClientTickEvent.Pre event) {
+
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null) {
 			CANDIED.clear();
@@ -152,7 +157,7 @@ public final class CandyEffect {
 	public static void onRenderLevelStage(RenderLevelStageEvent event) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null || BOLTS.isEmpty() || !LightningBoltRenderer.isAvailable()) return;
-		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick();
+		float partialTick = mc.isPaused() ? 0.0F : event.getPartialTick().getGameTimeDeltaPartialTick(true);
 
 		if (!IrisCompat.isShaderPackInUse(mc.level.getGameTime())) {
 			if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;

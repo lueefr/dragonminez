@@ -330,13 +330,13 @@ public final class HairMeshBuilder {
 	}
 
 	private void vertex(Vector3f position, float u, float v) {
-		buffer.vertex(pose, position.x, position.y, position.z)
-				.color(rgb[0], rgb[1], rgb[2], alpha)
-				.uv(u, v)
-				.overlayCoords(overlay)
-				.uv2(light)
-				.normal(normalMatrix, normal.x, normal.y, normal.z)
-				.endVertex();
+		com.dragonminez.client.render.util.RenderNormals.set(buffer.addVertex(pose, position.x, position.y, position.z)
+				.setColor(rgb[0], rgb[1], rgb[2], alpha)
+				.setUv(u, v)
+				.setOverlay(overlay)
+				.setLight(light)
+				, normalMatrix, normal.x, normal.y, normal.z)
+				;
 	}
 
 	private static boolean isOffsetZero(StrandPose strand, int segment) {

@@ -1,7 +1,7 @@
 package com.dragonminez.common.quest.rewards;
 
+import lombok.*;
 import com.dragonminez.common.quest.QuestReward;
-import lombok.Getter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -10,16 +10,17 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.ForgeRegistries;
-
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 @Getter
+
 public class ItemReward extends QuestReward {
 	private final String itemId;
 	private final int count;
 
 	public ItemReward(ItemStack itemStack) {
 		super(RewardType.ITEM);
-		this.itemId = ForgeRegistries.ITEMS.getKey(itemStack.getItem()).toString();
+		this.itemId = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString();
 		this.count = itemStack.getCount();
 	}
 
@@ -30,7 +31,7 @@ public class ItemReward extends QuestReward {
 
 	@Override
 	public void giveReward(ServerPlayer player, double rewardMultiplier) {
-		Item item = ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemId));
+		Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemId));
 		if (item == null) return;
 		int scaledCount = scaledCount(rewardMultiplier);
 		if (scaledCount <= 0) return;
@@ -68,7 +69,7 @@ public class ItemReward extends QuestReward {
 	public MutableComponent itemName() {
 		ResourceLocation id = ResourceLocation.tryParse(itemId);
 		if (id == null) return Component.literal(itemId);
-		Item item = ForgeRegistries.ITEMS.getValue(id);
+		Item item = BuiltInRegistries.ITEM.get(id);
 		if (item == null || item == Items.AIR) return Component.translatable("item." + id.toLanguageKey());
 		return new ItemStack(item).getHoverName().copy();
 	}

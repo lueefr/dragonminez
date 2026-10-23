@@ -1,5 +1,6 @@
 package com.dragonminez.common.stats.character;
 
+import lombok.*;
 import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.events.DMZEvent;
 import com.dragonminez.common.init.MainAttributes;
@@ -9,7 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Setter
 @Getter
@@ -35,14 +36,14 @@ public class Stats {
         return (int) result;
     }
 
-    private int getAttributeBaseValue(Attribute attribute, int fallback) {
+    private int getAttributeBaseValue(net.minecraft.core.Holder<Attribute> attribute, int fallback) {
         if (player == null) return fallback;
         AttributeInstance instance = player.getAttribute(attribute);
         if (instance == null) return fallback;
         return (int) Math.round(instance.getBaseValue());
     }
 
-    private void setAttributeBaseValue(Attribute attribute, int value) {
+    private void setAttributeBaseValue(net.minecraft.core.Holder<Attribute> attribute, int value) {
         if (player == null) return;
         AttributeInstance instance = player.getAttribute(attribute);
         if (instance != null) {
@@ -51,27 +52,27 @@ public class Stats {
     }
 
     public int getStrength() {
-        return getAttributeBaseValue(MainAttributes.STRENGTH.get(), 0);
+        return getAttributeBaseValue(MainAttributes.STRENGTH, 0);
     }
 
     public int getStrikePower() {
-        return getAttributeBaseValue(MainAttributes.STRIKE_POWER.get(), 0);
+        return getAttributeBaseValue(MainAttributes.STRIKE_POWER, 0);
     }
 
     public int getResistance() {
-        return getAttributeBaseValue(MainAttributes.RESISTANCE.get(), 0);
+        return getAttributeBaseValue(MainAttributes.RESISTANCE, 0);
     }
 
     public int getVitality() {
-        return getAttributeBaseValue(MainAttributes.VITALITY.get(), 0);
+        return getAttributeBaseValue(MainAttributes.VITALITY, 0);
     }
 
     public int getKiPower() {
-        return getAttributeBaseValue(MainAttributes.KI_POWER.get(), 0);
+        return getAttributeBaseValue(MainAttributes.KI_POWER, 0);
     }
 
     public int getEnergy() {
-        return getAttributeBaseValue(MainAttributes.ENERGY.get(), 0);
+        return getAttributeBaseValue(MainAttributes.ENERGY, 0);
     }
 
     public void setStrength(int value) {
@@ -79,11 +80,11 @@ public class Stats {
         int newValue = clampStatValue(value);
         if (oldValue != newValue && player != null) {
             DMZEvent.StatChangeEvent event = new DMZEvent.StatChangeEvent(player, DMZEvent.StatChangeEvent.StatType.STRENGTH, oldValue, newValue);
-            if (!MinecraftForge.EVENT_BUS.post(event)) {
-                setAttributeBaseValue(MainAttributes.STRENGTH.get(), newValue);
+            if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+                setAttributeBaseValue(MainAttributes.STRENGTH, newValue);
             }
         } else {
-            setAttributeBaseValue(MainAttributes.STRENGTH.get(), newValue);
+            setAttributeBaseValue(MainAttributes.STRENGTH, newValue);
         }
     }
 
@@ -92,11 +93,11 @@ public class Stats {
         int newValue = clampStatValue(value);
         if (oldValue != newValue && player != null) {
             DMZEvent.StatChangeEvent event = new DMZEvent.StatChangeEvent(player, DMZEvent.StatChangeEvent.StatType.STRIKE_POWER, oldValue, newValue);
-            if (!MinecraftForge.EVENT_BUS.post(event)) {
-                setAttributeBaseValue(MainAttributes.STRIKE_POWER.get(), newValue);
+            if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+                setAttributeBaseValue(MainAttributes.STRIKE_POWER, newValue);
             }
         } else {
-            setAttributeBaseValue(MainAttributes.STRIKE_POWER.get(), newValue);
+            setAttributeBaseValue(MainAttributes.STRIKE_POWER, newValue);
         }
     }
 
@@ -105,11 +106,11 @@ public class Stats {
         int newValue = clampStatValue(value);
         if (oldValue != newValue && player != null) {
             DMZEvent.StatChangeEvent event = new DMZEvent.StatChangeEvent(player, DMZEvent.StatChangeEvent.StatType.RESISTANCE, oldValue, newValue);
-            if (!MinecraftForge.EVENT_BUS.post(event)) {
-                setAttributeBaseValue(MainAttributes.RESISTANCE.get(), newValue);
+            if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+                setAttributeBaseValue(MainAttributes.RESISTANCE, newValue);
             }
         } else {
-            setAttributeBaseValue(MainAttributes.RESISTANCE.get(), newValue);
+            setAttributeBaseValue(MainAttributes.RESISTANCE, newValue);
         }
     }
 
@@ -118,11 +119,11 @@ public class Stats {
         int newValue = clampStatValue(value);
         if (oldValue != newValue && player != null) {
             DMZEvent.StatChangeEvent event = new DMZEvent.StatChangeEvent(player, DMZEvent.StatChangeEvent.StatType.VITALITY, oldValue, newValue);
-            if (!MinecraftForge.EVENT_BUS.post(event)) {
-                setAttributeBaseValue(MainAttributes.VITALITY.get(), newValue);
+            if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+                setAttributeBaseValue(MainAttributes.VITALITY, newValue);
             }
         } else {
-            setAttributeBaseValue(MainAttributes.VITALITY.get(), newValue);
+            setAttributeBaseValue(MainAttributes.VITALITY, newValue);
         }
     }
 
@@ -131,11 +132,11 @@ public class Stats {
         int newValue = clampStatValue(value);
         if (oldValue != newValue && player != null) {
             DMZEvent.StatChangeEvent event = new DMZEvent.StatChangeEvent(player, DMZEvent.StatChangeEvent.StatType.KI_POWER, oldValue, newValue);
-            if (!MinecraftForge.EVENT_BUS.post(event)) {
-                setAttributeBaseValue(MainAttributes.KI_POWER.get(), newValue);
+            if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+                setAttributeBaseValue(MainAttributes.KI_POWER, newValue);
             }
         } else {
-            setAttributeBaseValue(MainAttributes.KI_POWER.get(), newValue);
+            setAttributeBaseValue(MainAttributes.KI_POWER, newValue);
         }
     }
 
@@ -144,11 +145,11 @@ public class Stats {
         int newValue = clampStatValue(value);
         if (oldValue != newValue && player != null) {
             DMZEvent.StatChangeEvent event = new DMZEvent.StatChangeEvent(player, DMZEvent.StatChangeEvent.StatType.ENERGY, oldValue, newValue);
-            if (!MinecraftForge.EVENT_BUS.post(event)) {
-                setAttributeBaseValue(MainAttributes.ENERGY.get(), newValue);
+            if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+                setAttributeBaseValue(MainAttributes.ENERGY, newValue);
             }
         } else {
-            setAttributeBaseValue(MainAttributes.ENERGY.get(), newValue);
+            setAttributeBaseValue(MainAttributes.ENERGY, newValue);
         }
     }
 

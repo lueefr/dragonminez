@@ -1,0 +1,34 @@
+{
+  "parent": "dragonminez:root",
+  "criteria": {
+    "radar": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:dball_radar"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.radar.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:dball_radar"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.radar.title"
+    }
+  },
+  "requirements": [
+    [
+      "radar"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

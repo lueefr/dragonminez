@@ -53,7 +53,7 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -136,11 +136,12 @@ public final class Tournament {
 			ResourceLocation tagId = ResourceLocation.tryParse(entityId.substring(1));
 			if (tagId == null) return "";
 			List<String> members = new ArrayList<>();
-			var tags = ForgeRegistries.ENTITY_TYPES.tags();
-			if (tags == null) return "";
-			tags.getTag(TagKey.create(Registries.ENTITY_TYPE, tagId)).forEach(type -> {
+			var tags = BuiltInRegistries.ENTITY_TYPE.getTag(TagKey.create(Registries.ENTITY_TYPE, tagId));
+            if (tags.isEmpty()) return "";
+            tags.get().forEach(holder -> {
+                var type = holder.value();
 				if (type.is(MainTags.EntityTypes.NON_FIGHTERS)) return;
-				ResourceLocation key = ForgeRegistries.ENTITY_TYPES.getKey(type);
+				ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(type);
 				if (key != null) members.add(key.toString());
 			});
 			if (members.isEmpty()) {
@@ -639,7 +640,7 @@ public final class Tournament {
 
 		public static Progress get(ServerLevel level) {
 			ServerLevel target = level.getServer().overworld();
-			return target.getDataStorage().computeIfAbsent(Progress::load, Progress::new, NAME);
+			return target.getDataStorage().computeIfAbsent(new net.minecraft.world.level.saveddata.SavedData.Factory<>(Progress::new, (tag, registries) -> Progress.load(tag)), NAME);
 		}
 
 		@Nullable
@@ -741,7 +742,7 @@ public final class Tournament {
 		}
 
 		@Override
-		public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
+		public @NotNull CompoundTag save(@NotNull CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
 			ListTag runList = new ListTag();
 			for (Run run : runs.values()) {
 				if (run.isFinished()) continue;
@@ -1415,7 +1416,7 @@ public final class Tournament {
 			}
 
 			ResourceLocation wanted = ResourceLocation.tryParse(entityId);
-			ResourceLocation actual = ForgeRegistries.ENTITY_TYPES.getKey(mob.getType());
+			ResourceLocation actual = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
 			if (wanted == null || !wanted.equals(actual)) {
 				mob.discard();
 				run.setStandingOpponent(null);
@@ -2139,7 +2140,7 @@ public final class Tournament {
 			ResourceLocation id = ResourceLocation.tryParse(entityId);
 			if (id == null) return null;
 
-			EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(id);
+			EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(id);
 			if (type == null) {
 				LogUtil.warn(Env.SERVER, "Tournament fighter '{}' is not a registered entity", entityId);
 				return null;
@@ -2152,7 +2153,7 @@ public final class Tournament {
 			}
 
 			mob.moveTo(ringCentre.getX() + 0.5D + radius, ringCentre.getY(), ringCentre.getZ() + 0.5D, 270.0F, 0.0F);
-			mob.finalizeSpawn(level, level.getCurrentDifficultyAt(ringCentre), MobSpawnType.EVENT, null, null);
+			mob.finalizeSpawn(level, level.getCurrentDifficultyAt(ringCentre), MobSpawnType.EVENT, null);
 
 			mob.getPersistentData().putString(MATCH_TAG, target.getUUID().toString());
 			mob.getPersistentData().putBoolean(STATS_CONFIGURED_TAG, true);
@@ -2181,7 +2182,7 @@ public final class Tournament {
 			AttributeInstance attack = mob.getAttribute(Attributes.ATTACK_DAMAGE);
 			if (attack != null) attack.setBaseValue(fighter.meleeDamageOr(5.0D) * scaling);
 
-			AttributeInstance kiDamage = mob.getAttribute(EntityAttributes.KI_BLAST_DAMAGE.get());
+			AttributeInstance kiDamage = mob.getAttribute(EntityAttributes.KI_BLAST_DAMAGE);
 			if (kiDamage != null) kiDamage.setBaseValue(fighter.kiDamageOr(5.0D) * scaling);
 
 			mob.setHealth(mob.getMaxHealth());
@@ -2297,7 +2298,7 @@ public final class Tournament {
 			if (slot == null || slot.isEmpty() || Bracket.isPlayerSlot(slot)) return Component.empty();
 
 			ResourceLocation location = ResourceLocation.tryParse(slot);
-			EntityType<?> type = location != null ? ForgeRegistries.ENTITY_TYPES.getValue(location) : null;
+			EntityType<?> type = location != null ? BuiltInRegistries.ENTITY_TYPE.get(location) : null;
 			return type != null ? type.getDescription().copy() : Component.literal(slot);
 		}
 

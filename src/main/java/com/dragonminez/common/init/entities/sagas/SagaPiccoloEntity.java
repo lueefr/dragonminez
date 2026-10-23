@@ -138,7 +138,7 @@ public class SagaPiccoloEntity{
                 double dz = victim.getZ() - this.trapPos.z;
                 if (dx * dx + dz * dz > TRAP_RADIUS * TRAP_RADIUS) continue;
 
-                victim.addEffect(new MobEffectInstance(MainEffects.STUN.get(), STUN_DURATION, 0, false, false, true));
+                victim.addEffect(new MobEffectInstance(MainEffects.STUN, STUN_DURATION, 0, false, false, true));
             }
 
             if (this.level() instanceof ServerLevel serverLevel) {
@@ -146,7 +146,7 @@ public class SagaPiccoloEntity{
                         this.trapPos.x, this.trapPos.y + 0.2D, this.trapPos.z, 65, 0.9D, 0.2D, 0.9D, 0.05D);
             }
 
-            this.playSound(SoundEvents.GENERIC_EXPLODE, 0.5F, 1.8F);
+            this.playSound(SoundEvents.GENERIC_EXPLODE.value(), 0.5F, 1.8F);
             this.trapPos = null;
         }
 

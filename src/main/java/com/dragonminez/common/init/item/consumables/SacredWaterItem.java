@@ -41,7 +41,7 @@ public class SacredWaterItem extends Item {
 	}
 
 	@Override
-	public int getUseDuration(@NotNull ItemStack stack) {
+	public int getUseDuration(@NotNull ItemStack stack, net.minecraft.world.entity.LivingEntity entity) {
 		return DRINK_TICKS;
 	}
 
@@ -77,7 +77,8 @@ public class SacredWaterItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+	public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+        net.minecraft.world.level.Level level = context.level();
 		double multiplier = ConfigManager.getServerConfig().getGameplay().getSacredWaterMultiplier();
 		tooltip.add(Component.translatable("item.dragonminez.sacred_water.tooltip", formatMultiplier(multiplier)).withStyle(ChatFormatting.GRAY));
 		tooltip.add(Component.translatable("item.dragonminez.sacred_water.tooltip2").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));

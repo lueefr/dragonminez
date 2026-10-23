@@ -31,8 +31,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
@@ -470,8 +470,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
 		Tesselator tess = Tesselator.getInstance();
-		BufferBuilder buf = tess.getBuilder();
-		buf.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+		BufferBuilder buf = tess.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
 
 		int steps = Math.max(2, (int) Math.ceil(Math.abs(endDeg - startDeg) / 5.0));
 		float r = color[0], g = color[1], b = color[2], a = color[3];
@@ -484,14 +483,14 @@ public class UtilityMenuScreen extends ScaledScreen {
 			float ox0 = cx + cos0 * rOut, oy0 = cy + sin0 * rOut;
 			float ix1 = cx + cos1 * rIn, iy1 = cy + sin1 * rIn;
 			float ox1 = cx + cos1 * rOut, oy1 = cy + sin1 * rOut;
-			buf.vertex(mat, ix0, iy0, 0).color(r, g, b, a).endVertex();
-			buf.vertex(mat, ox0, oy0, 0).color(r, g, b, a).endVertex();
-			buf.vertex(mat, ox1, oy1, 0).color(r, g, b, a).endVertex();
-			buf.vertex(mat, ix0, iy0, 0).color(r, g, b, a).endVertex();
-			buf.vertex(mat, ox1, oy1, 0).color(r, g, b, a).endVertex();
-			buf.vertex(mat, ix1, iy1, 0).color(r, g, b, a).endVertex();
+			buf.addVertex(mat, ix0, iy0, 0).setColor(r, g, b, a);
+			buf.addVertex(mat, ox0, oy0, 0).setColor(r, g, b, a);
+			buf.addVertex(mat, ox1, oy1, 0).setColor(r, g, b, a);
+			buf.addVertex(mat, ix0, iy0, 0).setColor(r, g, b, a);
+			buf.addVertex(mat, ox1, oy1, 0).setColor(r, g, b, a);
+			buf.addVertex(mat, ix1, iy1, 0).setColor(r, g, b, a);
 		}
-		tess.end();
+		com.mojang.blaze3d.vertex.BufferUploader.drawWithShader(buf.buildOrThrow());
 
 		RenderSystem.enableCull();
 		RenderSystem.disableBlend();
@@ -859,7 +858,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double delta) {
 		if (statsData != null && panelOptions == null) {
 			Hover hover = resolveHover(getUiWidth() / 2f, getUiHeight() / 2f, toUiX(mouseX), toUiY(mouseY), computeOpenScale());
 			if (hover.deepest instanceof ReleaseNode release) {
@@ -875,7 +874,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 			panelBar.scrollWheel(delta);
 			return true;
 		}
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, scrollX, delta);
 	}
 
 	@Override

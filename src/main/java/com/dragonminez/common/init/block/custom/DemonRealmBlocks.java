@@ -17,15 +17,15 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.HalfTransparentBlock;
-import net.minecraft.world.level.block.SandBlock;
+import net.minecraft.world.level.block.ColoredFallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.ToolAction;
-import net.minecraftforge.common.ToolActions;
+import net.neoforged.neoforge.common.ItemAbility;
+import net.neoforged.neoforge.common.ItemAbilities;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -66,8 +66,8 @@ public final class DemonRealmBlocks {
 		}
 
 		@Override
-		public @Nullable BlockState getToolModifiedState(BlockState state, UseOnContext context, ToolAction toolAction, boolean simulate) {
-			if (toolAction == ToolActions.HOE_TILL && context.getItemInHand().canPerformAction(toolAction)
+		public @Nullable BlockState getToolModifiedState(BlockState state, UseOnContext context, ItemAbility toolAction, boolean simulate) {
+			if (toolAction == ItemAbilities.HOE_TILL && context.getItemInHand().canPerformAction(toolAction)
 					&& context.getClickedFace() != Direction.DOWN
 					&& context.getLevel().getBlockState(context.getClickedPos().above()).isAir()) {
 				return Blocks.FARMLAND.defaultBlockState();
@@ -76,9 +76,9 @@ public final class DemonRealmBlocks {
 		}
 	}
 
-	public static class SkylitSandBlock extends SandBlock {
+	public static class SkylitSandBlock extends ColoredFallingBlock {
 		public SkylitSandBlock(int dustColor, Properties properties) {
-			super(dustColor, properties);
+			super(new net.minecraft.util.ColorRGBA(dustColor), properties);
 			this.registerDefaultState(this.stateDefinition.any().setValue(NATURAL, false));
 		}
 
@@ -161,6 +161,8 @@ public final class DemonRealmBlocks {
 	}
 
 	public static class MakaiShrubBlock extends BushBlock {
+        public static final com.mojang.serialization.MapCodec<MakaiShrubBlock> CODEC = simpleCodec(MakaiShrubBlock::new);
+        @Override public com.mojang.serialization.MapCodec<MakaiShrubBlock> codec() { return CODEC; }
 		private static final VoxelShape SHAPE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 13.0D, 14.0D);
 
 		public MakaiShrubBlock(Properties properties) {

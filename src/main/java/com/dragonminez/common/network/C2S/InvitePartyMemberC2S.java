@@ -5,7 +5,7 @@ import com.dragonminez.common.quest.PartyManager;
 import com.dragonminez.server.commands.DMZPermissions;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import com.dragonminez.compat.network.NetworkEvent;
 
 import java.util.Map;
 import java.util.UUID;

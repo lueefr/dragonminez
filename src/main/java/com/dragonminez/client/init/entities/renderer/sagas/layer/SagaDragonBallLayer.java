@@ -46,9 +46,7 @@ public class SagaDragonBallLayer<T extends DBSagasEntity> extends GeoRenderLayer
 		poseStack.translate(bone.getPivotX() / 16.0f, bone.getPivotY() / 16.0f, bone.getPivotZ() / 16.0f);
 		poseStack.scale(BALL_SCALE, BALL_SCALE, BALL_SCALE);
 		poseStack.translate(0.0f, -BALL_CENTER_Y, 0.0f);
-		getRenderer().renderRecursively(poseStack, animatable, ballBone, ballType, bufferSource,
-				bufferSource.getBuffer(ballType), true, partialTick, packedLight, OverlayTexture.NO_OVERLAY,
-				1.0f, 1.0f, 1.0f, 1.0f);
+		getRenderer().renderRecursively(poseStack, animatable, ballBone, ballType, bufferSource, bufferSource.getBuffer(ballType), true, partialTick, packedLight, OverlayTexture.NO_OVERLAY, com.dragonminez.client.render.util.RenderColors.pack(1.0f, 1.0f, 1.0f, 1.0f));
 		poseStack.popPose();
 
 		bufferSource.getBuffer(renderType);

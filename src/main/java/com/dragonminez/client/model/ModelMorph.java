@@ -16,7 +16,7 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.object.GeoCube;
 import software.bernie.geckolib.cache.object.GeoQuad;
 import software.bernie.geckolib.cache.object.GeoVertex;
-import software.bernie.geckolib.core.state.BoneSnapshot;
+import software.bernie.geckolib.animation.state.BoneSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;

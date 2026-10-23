@@ -1,9 +1,9 @@
 package com.dragonminez.common.combat.clash;
 
+import lombok.*;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.common.init.entities.ki.AbstractKiProjectile;
-import lombok.Getter;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;

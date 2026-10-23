@@ -1,0 +1,108 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:green_dye"
+    },
+    "1": {
+      "item": "minecraft:green_dye"
+    },
+    "2": {
+      "item": "minecraft:green_dye"
+    },
+    "5": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "6": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "7": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "8": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "A": {
+      "item": "minecraft:green_dye"
+    },
+    "B": {
+      "item": "minecraft:green_dye"
+    },
+    "E": {
+      "item": "minecraft:green_dye"
+    },
+    "F": {
+      "item": "minecraft:green_dye"
+    },
+    "G": {
+      "item": "minecraft:green_dye"
+    },
+    "H": {
+      "item": "minecraft:green_dye"
+    },
+    "I": {
+      "item": "minecraft:black_dye"
+    },
+    "J": {
+      "item": "minecraft:black_dye"
+    },
+    "K": {
+      "item": "minecraft:green_dye"
+    },
+    "L": {
+      "item": "minecraft:green_dye"
+    },
+    "M": {
+      "item": "minecraft:green_dye"
+    },
+    "N": {
+      "item": "minecraft:green_dye"
+    },
+    "O": {
+      "item": "minecraft:green_dye"
+    },
+    "P": {
+      "item": "minecraft:green_dye"
+    },
+    "Q": {
+      "item": "minecraft:green_dye"
+    },
+    "R": {
+      "item": "minecraft:green_dye"
+    },
+    "S": {
+      "item": "minecraft:orange_dye"
+    },
+    "T": {
+      "item": "minecraft:green_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "V": {
+      "item": "minecraft:green_dye"
+    },
+    "W": {
+      "item": "minecraft:green_dye"
+    },
+    "X": {
+      "item": "minecraft:orange_dye"
+    },
+    "Z": {
+      "item": "minecraft:green_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    " Z012 ",
+    " 5678 "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_fighter"
+  }
+}

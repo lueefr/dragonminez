@@ -1,0 +1,108 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:white_dye"
+    },
+    "1": {
+      "item": "minecraft:white_dye"
+    },
+    "2": {
+      "item": "minecraft:black_dye"
+    },
+    "3": {
+      "item": "minecraft:yellow_dye"
+    },
+    "4": {
+      "item": "minecraft:yellow_dye"
+    },
+    "9": {
+      "item": "minecraft:yellow_dye"
+    },
+    "A": {
+      "item": "minecraft:orange_dye"
+    },
+    "B": {
+      "item": "minecraft:orange_dye"
+    },
+    "E": {
+      "item": "minecraft:orange_dye"
+    },
+    "F": {
+      "item": "minecraft:orange_dye"
+    },
+    "G": {
+      "item": "minecraft:orange_dye"
+    },
+    "H": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "I": {
+      "item": "minecraft:orange_dye"
+    },
+    "J": {
+      "item": "minecraft:orange_dye"
+    },
+    "K": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "L": {
+      "item": "minecraft:orange_dye"
+    },
+    "M": {
+      "item": "minecraft:orange_dye"
+    },
+    "N": {
+      "item": "minecraft:white_dye"
+    },
+    "O": {
+      "item": "minecraft:red_dye"
+    },
+    "P": {
+      "item": "minecraft:red_dye"
+    },
+    "Q": {
+      "item": "minecraft:white_dye"
+    },
+    "R": {
+      "item": "minecraft:orange_dye"
+    },
+    "S": {
+      "item": "minecraft:orange_dye"
+    },
+    "T": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "V": {
+      "item": "minecraft:red_dye"
+    },
+    "W": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "X": {
+      "item": "minecraft:orange_dye"
+    },
+    "Y": {
+      "item": "minecraft:yellow_dye"
+    },
+    "Z": {
+      "item": "minecraft:black_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    "YZ0123",
+    "4    9"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_a20"
+  }
+}

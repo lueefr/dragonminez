@@ -13,7 +13,8 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,11 +56,11 @@ public final class RaidReward {
 		if (rewards.getEffects() == null) return;
 
 		for (RaidDefinition.EffectReward reward : rewards.getEffects()) {
-			MobEffect effect = resolve(ForgeRegistries.MOB_EFFECTS, reward.getId(), "effect");
+			MobEffect effect = resolve(BuiltInRegistries.MOB_EFFECT, reward.getId(), "effect");
 			if (effect == null) continue;
 
 			int ticks = reward.durationTicksOr(20 * 600);
-			player.addEffect(new MobEffectInstance(effect, ticks, reward.amplifierOr(0), false, true, true));
+			player.addEffect(new MobEffectInstance(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect), ticks, reward.amplifierOr(0), false, true, true));
 			line(summary, Component.translatable("raid.dragonminez.rewards.effect",
 					Component.translatable(effect.getDescriptionId()), ticks / 20 / 60));
 		}
@@ -69,7 +70,7 @@ public final class RaidReward {
 		if (rewards.getItems() == null) return;
 
 		for (RaidDefinition.ItemReward reward : rewards.getItems()) {
-			Item item = resolve(ForgeRegistries.ITEMS, reward.getId(), "item");
+			Item item = resolve(BuiltInRegistries.ITEM, reward.getId(), "item");
 			if (item == null) continue;
 
 			ItemStack stack = new ItemStack(item, reward.countOr(1));
@@ -79,7 +80,7 @@ public final class RaidReward {
 		}
 	}
 
-	private static <T> T resolve(net.minecraftforge.registries.IForgeRegistry<T> registry, String id, String what) {
+	private static <T> T resolve(net.minecraft.core.Registry<T> registry, String id, String what) {
 		if (id == null || id.isBlank()) return null;
 
 		ResourceLocation location = ResourceLocation.tryParse(id);
@@ -88,7 +89,7 @@ public final class RaidReward {
 			return null;
 		}
 
-		T value = registry.getValue(location);
+		T value = registry.getOptional(location).orElse(null);
 		if (value == null) {
 			LogUtil.warn(Env.SERVER, "Raid reward points at unknown {} '{}'; skipping it", what, id);
 		}

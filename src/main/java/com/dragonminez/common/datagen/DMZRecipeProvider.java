@@ -9,34 +9,39 @@ import com.dragonminez.common.init.MainBlocks;
 import com.dragonminez.common.init.MainItems;
 import com.dragonminez.common.init.MainPotions;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.alchemy.Potions;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.crafting.StrictNBTIngredient;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import com.dragonminez.common.init.MainTags;
 import net.minecraft.data.PackOutput;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.recipes.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.BlastingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.crafting.conditions.IConditionBuilder;
+import net.neoforged.neoforge.common.conditions.IConditionBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 public class DMZRecipeProvider extends RecipeProvider implements IConditionBuilder {
-	public DMZRecipeProvider(PackOutput pOutput) {
-		super(pOutput);
+	public DMZRecipeProvider(PackOutput pOutput, CompletableFuture<HolderLookup.Provider> registries) {
+		super(pOutput, registries);
 	}
 
 	@Override
-	protected void buildRecipes(@NotNull Consumer<FinishedRecipe> pWriter) {
+	protected void buildRecipes(@NotNull RecipeOutput pWriter) {
 		DragonBallPackManager.LoadedDefinitions externalDragonballPacks = DragonBallPackManager.loadAll();
 		Map<String, DragonRadarDefinition> radarDefinitions = new LinkedHashMap<>();
 		for (var radarDefinition : DragonBallDefinitions.getBootstrapRadars()) radarDefinitions.put(radarDefinition.getId(), radarDefinition);
@@ -182,8 +187,8 @@ public class DMZRecipeProvider extends RecipeProvider implements IConditionBuild
 		senzuSeeds(pWriter, MainItems.SENZU_BEAN_YELLOW.get(), MainItems.YELLOW_CAPSULE.get(), MainItems.SENZU_BEAN_SEEDS_YELLOW.get(), "senzu_bean_seeds_yellow");
 
 		ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, MainItems.TURTLE_SCALE.get())
-				.requires(Items.SCUTE)
-				.unlockedBy(getHasName(Items.SCUTE), has(Items.SCUTE)).group(Reference.MOD_ID)
+				.requires(Items.TURTLE_SCUTE)
+				.unlockedBy(getHasName(Items.TURTLE_SCUTE), has(Items.TURTLE_SCUTE)).group(Reference.MOD_ID)
 				.save(pWriter, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "turtle_scale"));
 		ShapedRecipeBuilder.shaped(RecipeCategory.MISC, MainItems.EMPTY_CAPSULE.get())
 				.pattern("G").pattern("R").pattern("I")
@@ -663,38 +668,39 @@ public class DMZRecipeProvider extends RecipeProvider implements IConditionBuild
 	private static final List<ItemLike> Cobre = List.of(MainBlocks.NAMEK_COPPER_ORE.get(), MainBlocks.NAMEK_DEEPSLATE_COPPER.get());
 	private static final List<ItemLike> Carbon = List.of(MainBlocks.NAMEK_COAL_ORE.get(), MainBlocks.NAMEK_DEEPSLATE_COAL.get());
 
-	protected static void oreSmelting(@NotNull Consumer<FinishedRecipe> pFinishedRecipeConsumer,
+	protected static void oreSmelting(@NotNull RecipeOutput pRecipeOutputConsumer,
 									  List<ItemLike> pIngredients, @NotNull RecipeCategory pCategory,
 									  @NotNull ItemLike pResult, float pExperience, int pCookingTIme,
 									  @NotNull String pGroup) {
-		oreCooking(pFinishedRecipeConsumer, RecipeSerializer.SMELTING_RECIPE, pIngredients, pCategory, pResult,
+		oreCooking(pRecipeOutputConsumer, RecipeSerializer.SMELTING_RECIPE, SmeltingRecipe::new, pIngredients, pCategory, pResult,
 				pExperience, pCookingTIme, pGroup, "_from_smelting");
 	}
 
-	protected static void oreBlasting(@NotNull Consumer<FinishedRecipe> pFinishedRecipeConsumer,
+	protected static void oreBlasting(@NotNull RecipeOutput pRecipeOutputConsumer,
 									  List<ItemLike> pIngredients, @NotNull RecipeCategory pCategory,
 									  @NotNull ItemLike pResult, float pExperience, int pCookingTime,
 									  @NotNull String pGroup) {
-		oreCooking(pFinishedRecipeConsumer, RecipeSerializer.BLASTING_RECIPE, pIngredients, pCategory, pResult,
+		oreCooking(pRecipeOutputConsumer, RecipeSerializer.BLASTING_RECIPE, BlastingRecipe::new, pIngredients, pCategory, pResult,
 				pExperience, pCookingTime, pGroup, "_from_blasting");
 	}
 
-	protected static void oreCooking(@NotNull Consumer<FinishedRecipe> pFinishedRecipeConsumer,
-									 @NotNull RecipeSerializer<? extends AbstractCookingRecipe> pCookingSerializer,
+	protected static <T extends AbstractCookingRecipe> void oreCooking(@NotNull RecipeOutput pRecipeOutputConsumer,
+									 @NotNull RecipeSerializer<T> pCookingSerializer,
+									 @NotNull AbstractCookingRecipe.Factory<T> recipeFactory,
 									 List<ItemLike> pIngredients, @NotNull RecipeCategory pCategory,
 									 @NotNull ItemLike pResult, float pExperience, int pCookingTime,
 									 @NotNull String pGroup, String pRecipeName) {
 		for (ItemLike itemlike : pIngredients) {
 			SimpleCookingRecipeBuilder.generic(Ingredient.of(itemlike), pCategory, pResult, pExperience, pCookingTime,
-							pCookingSerializer)
+							pCookingSerializer, recipeFactory)
 					.group(pGroup).unlockedBy(getHasName(itemlike), has(itemlike))
-					.save(pFinishedRecipeConsumer, Reference.MOD_ID + ":" + getItemName(pResult)
+					.save(pRecipeOutputConsumer, Reference.MOD_ID + ":" + getItemName(pResult)
 							+ pRecipeName + "_" + getItemName(itemlike));
 		}
 	}
 
 	// --- Gete tech ---
-	private void geteCapsule(Consumer<FinishedRecipe> w, ItemLike base, ItemLike result, String id) {
+	private void geteCapsule(RecipeOutput w, ItemLike base, ItemLike result, String id) {
 		ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, result)
 				.requires(base).requires(MainItems.GETE_INGOT.get())
 				.unlockedBy(getHasName(MainItems.GETE_INGOT.get()), has(MainItems.GETE_INGOT.get())).group(Reference.MOD_ID)
@@ -702,7 +708,7 @@ public class DMZRecipeProvider extends RecipeProvider implements IConditionBuild
 	}
 
 	// Cápsula de estadística: frasco curativo + ingrediente + cápsula vacía + 2 plantas -> cápsula.
-	private void statCapsule(Consumer<FinishedRecipe> w, ItemLike result, Ingredient ingredient, ItemLike plant, String id) {
+	private void statCapsule(RecipeOutput w, ItemLike result, Ingredient ingredient, ItemLike plant, String id) {
 		ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, result)
 				.requires(curativeFlask())
 				.requires(ingredient)
@@ -713,10 +719,10 @@ public class DMZRecipeProvider extends RecipeProvider implements IConditionBuild
 	}
 
 	private Ingredient curativeFlask() {
-		return StrictNBTIngredient.of(MainPotions.createCurativeFlask());
+		return DataComponentIngredient.of(true, MainPotions.createCurativeFlask());
 	}
 
-	private void senzuSeeds(Consumer<FinishedRecipe> w, ItemLike bean, ItemLike capsule, ItemLike seeds, String id) {
+	private void senzuSeeds(RecipeOutput w, ItemLike bean, ItemLike capsule, ItemLike seeds, String id) {
 		ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, seeds)
 				.requires(bean)
 				.unlockedBy(getHasName(bean), has(bean)).group(Reference.MOD_ID)
@@ -728,14 +734,14 @@ public class DMZRecipeProvider extends RecipeProvider implements IConditionBuild
 				.save(w, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, id + "_from_capsule"));
 	}
 
-	private void statPlant(Consumer<FinishedRecipe> w, ItemLike result, Ingredient ingredient, String id) {
+	private void statPlant(RecipeOutput w, ItemLike result, Ingredient ingredient, String id) {
 		ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, result)
 				.requires(MainItems.NAMEK_MOSS.get(), 4).requires(ingredient, 2)
 				.unlockedBy(getHasName(MainItems.NAMEK_MOSS.get()), has(MainItems.NAMEK_MOSS.get())).group(Reference.MOD_ID)
 				.save(w, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, id));
 	}
 
-	private void buildingSet(Consumer<FinishedRecipe> w, ItemLike base, ItemLike slab, ItemLike stairs, ItemLike wall) {
+	private void buildingSet(RecipeOutput w, ItemLike base, ItemLike slab, ItemLike stairs, ItemLike wall) {
 		ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, slab, 6)
 				.pattern("###")
 				.define('#', base)

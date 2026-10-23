@@ -11,7 +11,7 @@ import net.minecraft.world.level.levelgen.structure.StructureType;
 import java.util.Optional;
 
 public class IncrementalFittedTemplateStructure extends FittedTemplateStructure implements IncrementalStructure {
-	public static final Codec<IncrementalFittedTemplateStructure> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+	public static final com.mojang.serialization.MapCodec<IncrementalFittedTemplateStructure> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			settingsCodec(instance),
 			ResourceLocation.CODEC.fieldOf("template").forGetter(FittedTemplateStructure::template),
 			TerrainFit.CODEC.optionalFieldOf("terrain_fit", TerrainFit.NONE).forGetter(FittedTemplateStructure::fit),

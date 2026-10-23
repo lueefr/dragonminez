@@ -1,14 +1,10 @@
 package com.dragonminez.common.quest;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
+import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
-
 @Setter
 @Getter
+
 public class Saga {
     private final String id;
     private final String name;
@@ -42,18 +38,14 @@ public class Saga {
     }
 
     public boolean isCompleted() {
-        return currentQuestIndex >= quests.size() - 1 &&
-               (getCurrentQuest() == null || getCurrentQuest().isCompleted());
+        return currentQuestIndex >= quests.size() - 1 && (getCurrentQuest() == null || getCurrentQuest().isCompleted());
     }
 
     public Quest getQuestById(int questId) {
-        return quests.stream()
-                .filter(q -> q.getId() == questId)
-                .findFirst()
-                .orElse(null);
+        return quests.stream().filter(q -> q.getId() == questId).findFirst().orElse(null);
     }
-    
+
+
     public record SagaRequirements(String previousSagaId) {
     }
 }
-

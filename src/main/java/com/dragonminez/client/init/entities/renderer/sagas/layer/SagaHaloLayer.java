@@ -49,9 +49,7 @@ public class SagaHaloLayer<T extends DBSagasEntity> extends GeoRenderLayer<T> {
 		}
 
 		RenderType haloType = ModRenderTypes.energy(RACES_PARTS_TEXTURE);
-		getRenderer().renderRecursively(poseStack, animatable, haloBone, haloType, bufferSource,
-				bufferSource.getBuffer(haloType), true, partialTick, packedLight, OverlayTexture.NO_OVERLAY,
-				HALO_COLOR[0], HALO_COLOR[1], HALO_COLOR[2], HALO_ALPHA);
+		getRenderer().renderRecursively(poseStack, animatable, haloBone, haloType, bufferSource, bufferSource.getBuffer(haloType), true, partialTick, packedLight, OverlayTexture.NO_OVERLAY, com.dragonminez.client.render.util.RenderColors.pack(HALO_COLOR[0], HALO_COLOR[1], HALO_COLOR[2], HALO_ALPHA));
 		poseStack.popPose();
 
 		bufferSource.getBuffer(renderType);

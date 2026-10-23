@@ -47,7 +47,9 @@ import com.dragonminez.server.world.dimension.CustomSpecialEffects;
 import com.mojang.blaze3d.platform.MacosUtil;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.server.packs.PackLocationInfo;
+import net.minecraft.server.packs.PackSelectionConfig;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -66,14 +68,15 @@ import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.*;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
-import net.minecraftforge.event.AddPackFindersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.system.MemoryStack;
@@ -84,30 +87,31 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ModClientEvents {
+
 	@SubscribeEvent
-	public static void registerGuiOverlays(RegisterGuiOverlaysEvent e) {
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "ki_sense_hud", com.dragonminez.client.gui.hud.KiSenseOverlay.HUD_KI_SENSE);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "party_marker_hud", com.dragonminez.client.gui.hud.PartyMarkerOverlay.HUD_PARTY_MARKER);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "xenoversehud", XenoverseHUD.HUD_XENOVERSE);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "alternativehud", AlternativeHUD.HUD_ALTERNATIVE);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "technique_charge_hud", TechniqueChargeOverlay.HUD_TECHNIQUE_CHARGE);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "scouterhud", ScouterHUD.HUD_SCOUTER);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "tournament_countdown", com.dragonminez.client.gui.tournament.TournamentOverlay.OVERLAY);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "techniquehud", TechniqueHotbarHUD.HUD_TECHNIQUES);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "beam_clash_hud", BeamClashOverlay.HUD_BEAM_CLASH);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "baba_return_timer_hud", BabaReturnTimerHUD.HUD_BABA_RETURN);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "saga_title_card_hud", SagaTitleCardHUD.HUD_SAGA_TITLE_CARD);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "modernhud", ModernHUD.HUD_MODERN);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "minecrafthud", MinecraftHUD.HUD_MINECRAFT);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "ki_reserve_hud", KiReserveHUD.HUD_KI_RESERVE);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "rage_meter_hud", RageMeterHUD.HUD_RAGE_METER);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "party_hud", PartyHUD.HUD_PARTY);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "notifications_hud", com.dragonminez.client.gui.hud.NotificationHUD.HUD_NOTIFICATIONS);
+	public static void registerGuiOverlays(RegisterGuiLayersEvent e) {
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "ki_sense_hud"), com.dragonminez.client.gui.hud.KiSenseOverlay.HUD_KI_SENSE);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "party_marker_hud"), com.dragonminez.client.gui.hud.PartyMarkerOverlay.HUD_PARTY_MARKER);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "xenoversehud"), XenoverseHUD.HUD_XENOVERSE);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "alternativehud"), AlternativeHUD.HUD_ALTERNATIVE);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "technique_charge_hud"), TechniqueChargeOverlay.HUD_TECHNIQUE_CHARGE);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "scouterhud"), ScouterHUD.HUD_SCOUTER);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "tournament_countdown"), com.dragonminez.client.gui.tournament.TournamentOverlay.OVERLAY);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "techniquehud"), TechniqueHotbarHUD.HUD_TECHNIQUES);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "beam_clash_hud"), BeamClashOverlay.HUD_BEAM_CLASH);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "baba_return_timer_hud"), BabaReturnTimerHUD.HUD_BABA_RETURN);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "saga_title_card_hud"), SagaTitleCardHUD.HUD_SAGA_TITLE_CARD);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "modernhud"), ModernHUD.HUD_MODERN);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "minecrafthud"), MinecraftHUD.HUD_MINECRAFT);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "ki_reserve_hud"), KiReserveHUD.HUD_KI_RESERVE);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "rage_meter_hud"), RageMeterHUD.HUD_RAGE_METER);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "party_hud"), PartyHUD.HUD_PARTY);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "notifications_hud"), com.dragonminez.client.gui.hud.NotificationHUD.HUD_NOTIFICATIONS);
 		com.dragonminez.client.gui.hud.NotificationFeeds.registerDefaults();
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "boss_contribution_hud", com.dragonminez.client.gui.hud.WorldBossContributionHUD.HUD_BOSS_CONTRIBUTION);
-		e.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "worldboss_revive_hud", com.dragonminez.client.gui.hud.WorldBossReviveOverlay.HUD_WORLDBOSS_REVIVE);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "boss_contribution_hud"), com.dragonminez.client.gui.hud.WorldBossContributionHUD.HUD_BOSS_CONTRIBUTION);
+		e.registerAbove(VanillaGuiLayers.PLAYER_HEALTH, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "worldboss_revive_hud"), com.dragonminez.client.gui.hud.WorldBossReviveOverlay.HUD_WORLDBOSS_REVIVE);
 	}
 	@SubscribeEvent
 	public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
@@ -145,15 +149,33 @@ public class ModClientEvents {
 			}
 
 			event.addRepositorySource((packConsumer) -> {
-				Pack crowdinPack = Pack.readMetaAndCreate("dmz_crowdin_ota", Component.literal("DMZ Live Translations"), true,
-						CrowdinPackResources::new, PackType.CLIENT_RESOURCES, Pack.Position.TOP, PackSource.BUILT_IN);
+				PackLocationInfo crowdinInfo = new PackLocationInfo("dmz_crowdin_ota", Component.literal("DMZ Live Translations"), PackSource.BUILT_IN, java.util.Optional.empty());
+				Pack.ResourcesSupplier crowdinSupplier = new Pack.ResourcesSupplier() {
+					@Override public net.minecraft.server.packs.PackResources openPrimary(PackLocationInfo location) { return new CrowdinPackResources(location); }
+					@Override public net.minecraft.server.packs.PackResources openFull(PackLocationInfo location, Pack.Metadata metadata) { return openPrimary(location); }
+				};
+				Pack crowdinPack = Pack.readMetaAndCreate(crowdinInfo, crowdinSupplier, PackType.CLIENT_RESOURCES,
+						new PackSelectionConfig(true, Pack.Position.TOP, false));
 				if (crowdinPack != null) packConsumer.accept(crowdinPack);
 
-				Pack dragonBallRuntimePack = Pack.readMetaAndCreate("dmz_dragonballs_runtime", Component.literal("DMZ Dragonballs Runtime Resources"), true,
-						DragonBallPackResources::new, PackType.CLIENT_RESOURCES, Pack.Position.TOP, PackSource.BUILT_IN);
+				PackLocationInfo dragonballInfo = new PackLocationInfo("dmz_dragonballs_runtime", Component.literal("DMZ Dragonballs Runtime Resources"), PackSource.BUILT_IN, java.util.Optional.empty());
+				Pack.ResourcesSupplier dragonballSupplier = new Pack.ResourcesSupplier() {
+					@Override public net.minecraft.server.packs.PackResources openPrimary(PackLocationInfo location) { return new DragonBallPackResources(location); }
+					@Override public net.minecraft.server.packs.PackResources openFull(PackLocationInfo location, Pack.Metadata metadata) { return openPrimary(location); }
+				};
+				Pack dragonBallRuntimePack = Pack.readMetaAndCreate(dragonballInfo, dragonballSupplier, PackType.CLIENT_RESOURCES,
+						new PackSelectionConfig(true, Pack.Position.TOP, false));
 				if (dragonBallRuntimePack != null) packConsumer.accept(dragonBallRuntimePack);
 			});
 		}
+	}
+
+	@SubscribeEvent
+	public static void onRegisterMenuScreens(RegisterMenuScreensEvent event) {
+		event.register(MainMenus.KIKONO_STATION_MENU.get(), KikonoStationScreen::new);
+		event.register(MainMenus.FUEL_GENERATOR_MENU.get(), FuelGeneratorScreen::new);
+		event.register(MainMenus.GRAVITY_DEVICE_MENU.get(), GravityDeviceScreen::new);
+        event.register(MainMenus.PATTERN_STATION_MENU.get(), PatternStationScreen::new);
 	}
 
 
@@ -180,10 +202,6 @@ public class ModClientEvents {
 			ItemBlockRenderTypes.setRenderLayer(MainBlocks.INVISIBLE_LADDER_BLOCK.get(), RenderType.translucent());
 
 			//MENÚS
-			MenuScreens.register(MainMenus.KIKONO_STATION_MENU.get(), KikonoStationScreen::new);
-			MenuScreens.register(MainMenus.FUEL_GENERATOR_MENU.get(), FuelGeneratorScreen::new);
-			MenuScreens.register(MainMenus.PATTERN_STATION_MENU.get(), PatternStationScreen::new);
-			MenuScreens.register(MainMenus.GRAVITY_DEVICE_MENU.get(), GravityDeviceScreen::new);
 
 			// Fluids
 			ItemBlockRenderTypes.setRenderLayer(MainFluids.SOURCE_NAMEK.get(), RenderType.translucent());
@@ -354,9 +372,10 @@ public class ModClientEvents {
     }
 
     @SafeVarargs
-    private static <T extends Entity> void regRender(EntityRenderersEvent.RegisterRenderers event, EntityRendererProvider<T> provider, RegistryObject<? extends EntityType<? extends T>>... entities) {
-        for (RegistryObject<? extends EntityType<? extends T>> reg : entities) {
-            event.registerEntityRenderer(reg.get(), provider);
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static void regRender(EntityRenderersEvent.RegisterRenderers event, EntityRendererProvider provider, DeferredHolder... entities) {
+        for (DeferredHolder reg : entities) {
+            event.registerEntityRenderer((EntityType) reg.get(), provider);
         }
     }
 

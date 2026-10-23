@@ -17,8 +17,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
-import net.minecraftforge.client.settings.KeyModifier;
+import net.minecraft.client.gui.LayeredDraw;
+import net.neoforged.neoforge.client.settings.KeyModifier;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -51,13 +51,16 @@ public class TechniqueHotbarHUD {
 		for (int i = 0; i < SLOTS; i++) VIEWS[i] = new SlotView();
 	}
 
-	public static final IGuiOverlay HUD_TECHNIQUES = (forgeGui, guiGraphics, partialTicks, width, height) -> {
+	public static final LayeredDraw.Layer HUD_TECHNIQUES = (guiGraphics, deltaTracker) -> {
+        float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
+        int width = guiGraphics.guiWidth();
+        int height = guiGraphics.guiHeight();
 		if (!HudLayout.isPreview()) render(guiGraphics, partialTicks, width, height);
 	};
 
 	public static void render(GuiGraphics guiGraphics, float partialTicks, int width, int height) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.renderDebug || mc.player == null) return;
+		if (mc.getDebugOverlay().showDebugScreen() || mc.player == null) return;
 
 		StatsData data = StatsProvider.get(StatsCapability.INSTANCE, mc.player).orElse(null);
 		if (data == null || !data.getStatus().isHasCreatedCharacter()) return;

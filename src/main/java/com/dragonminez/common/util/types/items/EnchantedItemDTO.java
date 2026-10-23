@@ -1,17 +1,21 @@
 package com.dragonminez.common.util.types.items;
 
+import lombok.*;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.google.gson.JsonSyntaxException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.google.gson.GsonBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraftforge.registries.ForgeRegistries;
-
+import com.dragonminez.common.util.RuntimeRegistries;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -78,20 +82,20 @@ public class EnchantedItemDTO extends GenericItemDTO {
 	}
 
 	protected void applyEnchantments(ItemStack itemStack) {
-		Map<Enchantment, Integer> resolved = resolveEnchantments();
+		Map<Holder<Enchantment>, Integer> resolved = resolveEnchantments();
 		if (!resolved.isEmpty()) {
-			EnchantmentHelper.setEnchantments(resolved, itemStack);
+			EnchantmentHelper.updateEnchantments(itemStack, mutable -> resolved.forEach(mutable::set));
 		}
 	}
 
 	/** Resolves what it can; unknown enchantments are logged and skipped, not fatal. */
-	protected final Map<Enchantment, Integer> resolveEnchantments() {
-		Map<Enchantment, Integer> resolved = new LinkedHashMap<>();
+	protected final Map<Holder<Enchantment>, Integer> resolveEnchantments() {
+		Map<Holder<Enchantment>, Integer> resolved = new LinkedHashMap<>();
 		if (this.enchantments == null) {
 			return resolved;
 		}
 		this.enchantments.forEach((id, level) -> {
-			Enchantment enchantment = resolveEnchantment(id);
+			Holder<Enchantment> enchantment = resolveEnchantment(id);
 			if (enchantment != null) {
 				resolved.put(enchantment, level);
 			}
@@ -99,11 +103,11 @@ public class EnchantedItemDTO extends GenericItemDTO {
 		return resolved;
 	}
 
-	protected final Enchantment resolveEnchantment(ResourceLocation id) {
+	protected final Holder<Enchantment> resolveEnchantment(ResourceLocation id) {
 		if (id == null) {
 			return null;
 		}
-		Enchantment enchantment = ForgeRegistries.ENCHANTMENTS.getValue(id);
+		Holder<Enchantment> enchantment = RuntimeRegistries.access().registry(Registries.ENCHANTMENT).flatMap(registry -> registry.getHolder(net.minecraft.resources.ResourceKey.create(Registries.ENCHANTMENT, id))).orElse(null);
 		if (enchantment == null) {
 			LogUtil.warn(Env.COMMON, "Unknown enchantment '{}' on item '{}', skipping.", id, this.itemId);
 		}

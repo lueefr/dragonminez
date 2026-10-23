@@ -46,7 +46,7 @@ import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ public final class DemonVillagersEntity {
 	public static final int PATROLLER_HAIR = 0xF2C2FF;
 	private static final int[] VILLAGER_HAIR = {0xF2C2FF, 0xF0F0CC, 0xCCEDF0};
 
-	private static final List<Map<ArmorItem.Type, RegistryObject<Item>>> OUTFITS = List.of(
+	private static final List<Map<ArmorItem.Type, DeferredHolder<net.minecraft.world.item.Item, ? extends Item>>> OUTFITS = List.of(
 			MainItems.AGE1000_ARMOR, MainItems.WARRIOR_CLAN_ARMOR, MainItems.WONDER_MAJIN_ARMOR,
 			MainItems.DRAGON_CLAN_ARMOR, MainItems.MIGHTY_MAJIN_ARMOR, MainItems.MYSTIC_ARMOR);
 	private static final int PATROLLER_OUTFIT = 0;
@@ -79,7 +79,7 @@ public final class DemonVillagersEntity {
 
 	private DemonVillagersEntity() {}
 
-	private record BugTrade(RegistryObject<Item> item, int emeralds, int maxUses) {}
+	private record BugTrade(DeferredHolder<net.minecraft.world.item.Item, ? extends Item> item, int emeralds, int maxUses) {}
 
 	public record Look(int hairId, int hairColor, int outfit, boolean female) {
 		public static final Look DEFAULT = new Look(1, PATROLLER_HAIR, 1, false);
@@ -114,7 +114,7 @@ public final class DemonVillagersEntity {
 		}
 
 		public ItemStack armorPiece(ArmorItem.Type type) {
-			RegistryObject<Item> item = OUTFITS.get(Math.floorMod(this.outfit, OUTFITS.size())).get(type);
+			DeferredHolder<net.minecraft.world.item.Item, ? extends Item> item = OUTFITS.get(Math.floorMod(this.outfit, OUTFITS.size())).get(type);
 			return item != null ? new ItemStack(item.get()) : ItemStack.EMPTY;
 		}
 
@@ -181,9 +181,9 @@ public final class DemonVillagersEntity {
 		}
 
 		@Override
-		protected void defineSynchedData() {
-			super.defineSynchedData();
-			this.entityData.define(LOOK, new CompoundTag());
+		protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+			super.defineSynchedData(builder);
+			builder.define(LOOK, new CompoundTag());
 		}
 
 		@Override
@@ -230,7 +230,7 @@ public final class DemonVillagersEntity {
 			if (time - this.lastRestock >= RESTOCK_TICKS) {
 				this.lastRestock = time;
 				for (MerchantOffer offer : offers) {
-					CompoundTag result = offer.getResult().getTag();
+					CompoundTag result = offer.getResult().getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
 					if (result == null || !result.getBoolean(CapsuleCorpMapTrade.PENDING_TAG)) offer.resetUses();
 				}
 			}
@@ -244,7 +244,7 @@ public final class DemonVillagersEntity {
 			int count = MIN_BUG_TRADES + this.random.nextInt(MAX_BUG_TRADES - MIN_BUG_TRADES + 1);
 			for (int i = 0; i < count && !pool.isEmpty(); i++) {
 				BugTrade trade = pool.remove(this.random.nextInt(pool.size()));
-				this.offers.add(new MerchantOffer(new ItemStack(Items.EMERALD, trade.emeralds()),
+				this.offers.add(new MerchantOffer(new net.minecraft.world.item.trading.ItemCost(Items.EMERALD, trade.emeralds()),
 						new ItemStack(trade.item().get()), trade.maxUses(), BUG_TRADE_XP, 0.05F));
 			}
 		}
@@ -321,7 +321,7 @@ public final class DemonVillagersEntity {
 			if (!(this.level() instanceof ServerLevel level)) return offers;
 			Set<String> present = new HashSet<>();
 			for (int i = 0; i < offers.size(); i++) {
-				CompoundTag tag = offers.get(i).getResult().getTag();
+				CompoundTag tag = offers.get(i).getResult().getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
 				BossMap bossMap = bossMapOf(tag);
 				if (bossMap == null) continue;
 				present.add(bossMap.key());
@@ -354,15 +354,15 @@ public final class DemonVillagersEntity {
 			if (lair != null) {
 				map = MapItem.create(level, lair.getX(), lair.getZ(), (byte) 2, true, true);
 				MapItem.renderBiomePreviewMap(level, map);
-				MapItemSavedData.addTargetDecoration(map, lair, "+", MapDecoration.Type.RED_X);
+				MapItemSavedData.addTargetDecoration(map, lair, "+", net.minecraft.world.level.saveddata.maps.MapDecorationTypes.RED_X);
 			} else {
 				map = new ItemStack(Items.FILLED_MAP);
-				map.getOrCreateTag().putBoolean(CapsuleCorpMapTrade.PENDING_TAG, true);
+				net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA, map, tag -> tag.putBoolean(CapsuleCorpMapTrade.PENDING_TAG, true));
 			}
-			map.setHoverName(Component.translatable("filled_map." + Reference.MOD_ID + "." + bossMap.key()));
-			map.getOrCreateTag().putString(BOSS_MAP_TAG, bossMap.key());
+			map.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, Component.translatable("filled_map." + Reference.MOD_ID + "." + bossMap.key()));
+			net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA, map, tag -> tag.putString(BOSS_MAP_TAG, bossMap.key()));
 
-			MerchantOffer offer = new MerchantOffer(new ItemStack(Items.EMERALD, bossMap.price()), map, BOSS_MAP_USES, BOSS_MAP_XP, 0.2F);
+			MerchantOffer offer = new MerchantOffer(new net.minecraft.world.item.trading.ItemCost(Items.EMERALD, bossMap.price()), map, BOSS_MAP_USES, BOSS_MAP_XP, 0.2F);
 			if (lair == null) offer.setToOutOfStock();
 			return offer;
 		}

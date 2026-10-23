@@ -17,7 +17,7 @@ import com.dragonminez.server.world.structure.fitted.TerrainFit;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstapContext;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BiomeTags;
@@ -58,7 +58,7 @@ public class DMZStructures {
 	private static final float BUDOKAI_TENKAICHI_MIN_WATER = 0.98F;
 	private static final int BUDOKAI_TENKAICHI_SAMPLE_STEP = 16;
 
-	public static void bootstrap(BootstapContext<Structure> context) {
+	public static void bootstrap(BootstrapContext<Structure> context) {
 		HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
 		HolderGetter<StructureTemplatePool> pools = context.lookup(Registries.TEMPLATE_POOL);
 
@@ -188,17 +188,17 @@ public class DMZStructures {
 		));
 	}
 
-	private static void fitted(BootstapContext<Structure> context, ResourceKey<Structure> key, HolderSet<Biome> biomes,
+	private static void fitted(BootstrapContext<Structure> context, ResourceKey<Structure> key, HolderSet<Biome> biomes,
 							   String template, TerrainFit fit) {
 		fitted(context, key, biomes, template, fit, Optional.empty(), 0.0F);
 	}
 
-	private static void fitted(BootstapContext<Structure> context, ResourceKey<Structure> key, HolderSet<Biome> biomes,
+	private static void fitted(BootstrapContext<Structure> context, ResourceKey<Structure> key, HolderSet<Biome> biomes,
 							   String template, TerrainFit fit, Optional<Rotation> rotation) {
 		fitted(context, key, biomes, template, fit, rotation, 0.0F);
 	}
 
-	private static void fitted(BootstapContext<Structure> context, ResourceKey<Structure> key, HolderSet<Biome> biomes,
+	private static void fitted(BootstrapContext<Structure> context, ResourceKey<Structure> key, HolderSet<Biome> biomes,
 							   String template, TerrainFit fit, Optional<Rotation> rotation, float maxDeviation) {
 		context.register(key, new FittedTemplateStructure(
 				new Structure.StructureSettings(biomes, Map.of(), GenerationStep.Decoration.TOP_LAYER_MODIFICATION, TerrainAdjustment.NONE),

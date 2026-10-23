@@ -4,7 +4,7 @@ import com.dragonminez.server.events.players.combat.StrikeAttackHandler;
 import com.dragonminez.common.training.MinigameSessionManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import com.dragonminez.compat.network.NetworkEvent;
 
 import java.util.function.Supplier;
 

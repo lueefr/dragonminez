@@ -183,16 +183,16 @@ public final class AuraBorderRenderer {
 		mask.clear(Minecraft.ON_OSX);
 		mask.copyDepthFrom(main);
 
-		PoseStack modelView = RenderSystem.getModelViewStack();
-		modelView.pushPose();
-		modelView.setIdentity();
+		org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
+		modelView.pushMatrix();
+		modelView.identity();
 		RenderSystem.applyModelViewMatrix();
 		TransformationMaskRenderState.setCurrentTargets(mask);
 		try {
 			SOURCE.endMaskBatch();
 		} finally {
 			TransformationMaskRenderState.setCurrentTargets(null);
-			modelView.popPose();
+			modelView.popMatrix();
 			RenderSystem.applyModelViewMatrix();
 		}
 	}

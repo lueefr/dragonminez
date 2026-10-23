@@ -1,0 +1,57 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "3": {
+      "item": "minecraft:brown_dye"
+    },
+    "4": {
+      "item": "minecraft:brown_dye"
+    },
+    "9": {
+      "item": "minecraft:brown_dye"
+    },
+    "E": {
+      "item": "minecraft:brown_dye"
+    },
+    "F": {
+      "item": "minecraft:brown_dye"
+    },
+    "J": {
+      "item": "minecraft:brown_dye"
+    },
+    "K": {
+      "item": "minecraft:brown_dye"
+    },
+    "O": {
+      "item": "minecraft:brown_dye"
+    },
+    "P": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "T": {
+      "item": "minecraft:yellow_dye"
+    },
+    "U": {
+      "item": "minecraft:brown_dye"
+    },
+    "Y": {
+      "item": "minecraft:brown_dye"
+    },
+    "Z": {
+      "item": "minecraft:brown_dye"
+    }
+  },
+  "pattern": [
+    "    EF",
+    "   JK ",
+    "  OP  ",
+    " TU   ",
+    "YZ   3",
+    "4    9"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_a14"
+  }
+}

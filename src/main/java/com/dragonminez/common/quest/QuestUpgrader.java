@@ -1,5 +1,6 @@
 package com.dragonminez.common.quest;
 
+import lombok.*;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.common.diagnostics.JsonLoadReport;

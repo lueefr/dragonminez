@@ -1,0 +1,102 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:yellow_dye"
+    },
+    "1": {
+      "item": "minecraft:yellow_dye"
+    },
+    "2": {
+      "item": "minecraft:red_dye"
+    },
+    "6": {
+      "item": "minecraft:yellow_dye"
+    },
+    "7": {
+      "item": "minecraft:yellow_dye"
+    },
+    "A": {
+      "item": "minecraft:red_dye"
+    },
+    "B": {
+      "item": "minecraft:yellow_dye"
+    },
+    "E": {
+      "item": "minecraft:yellow_dye"
+    },
+    "F": {
+      "item": "minecraft:red_dye"
+    },
+    "G": {
+      "item": "minecraft:yellow_dye"
+    },
+    "H": {
+      "item": "minecraft:red_dye"
+    },
+    "I": {
+      "item": "minecraft:yellow_dye"
+    },
+    "J": {
+      "item": "minecraft:yellow_dye"
+    },
+    "K": {
+      "item": "minecraft:red_dye"
+    },
+    "L": {
+      "item": "minecraft:yellow_dye"
+    },
+    "M": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "N": {
+      "item": "minecraft:red_dye"
+    },
+    "O": {
+      "item": "minecraft:yellow_dye"
+    },
+    "P": {
+      "item": "minecraft:yellow_dye"
+    },
+    "Q": {
+      "item": "minecraft:red_dye"
+    },
+    "R": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "S": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "T": {
+      "item": "minecraft:red_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_super"
+    },
+    "V": {
+      "item": "minecraft:red_dye"
+    },
+    "W": {
+      "item": "minecraft:red_dye"
+    },
+    "X": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "Z": {
+      "item": "minecraft:red_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    " Z012 ",
+    "  67  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_gas"
+  }
+}

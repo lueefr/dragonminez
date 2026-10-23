@@ -11,7 +11,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
+import software.bernie.geckolib.cache.object.GeoBone;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -46,7 +46,7 @@ public final class KiSharePose {
 		return null;
 	}
 
-	public static void apply(AbstractClientPlayer player, CoreGeoBone rightArm, CoreGeoBone leftArm, float partialTick) {
+	public static void apply(AbstractClientPlayer player, GeoBone rightArm, GeoBone leftArm, float partialTick) {
 		StatsData data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
 		if (data == null || !data.getStatus().isKiShareLocked()) return;
 		Aim aim = resolve(player, data, partialTick);
@@ -160,7 +160,7 @@ public final class KiSharePose {
 		return shoulder.add(nx * horizontal, dir.y, nz * horizontal);
 	}
 
-	private static void aimBone(Player player, StatsData data, float partialTick, boolean right, Vec3 target, CoreGeoBone bone) {
+	private static void aimBone(Player player, StatsData data, float partialTick, boolean right, Vec3 target, GeoBone bone) {
 		Vec3 dir = target.subtract(shoulder(player, data, partialTick, right));
 		if (dir.lengthSqr() < 1.0E-6) return;
 		dir = dir.normalize();

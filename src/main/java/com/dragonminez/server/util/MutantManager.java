@@ -51,7 +51,7 @@ public final class MutantManager {
 	public static void revoke(ServerPlayer player, StatsData data) {
 		if (player == null || data == null) return;
 		data.getEffects().removeEffect(EFFECT_NAME);
-		player.removeEffect(MainEffects.MUTANT.get());
+		player.removeEffect(MainEffects.MUTANT);
 
 		MutantSavedData saved = MutantSavedData.get(player.getServer());
 		saved.removeHolder(player.getUUID());
@@ -61,7 +61,7 @@ public final class MutantManager {
 		boolean hasSkill = data.getSkills().getSkillLevel("legendaryforms") > 0;
 		if (inLegendaryForm && !hasSkill) {
 			data.getCharacter().clearActiveForm(player);
-			player.removeEffect(MainEffects.TRANSFORMED.get());
+			player.removeEffect(MainEffects.TRANSFORMED);
 			player.refreshDimensions();
 		}
 

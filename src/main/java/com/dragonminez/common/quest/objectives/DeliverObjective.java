@@ -1,5 +1,6 @@
 package com.dragonminez.common.quest.objectives;
 
+import lombok.*;
 import com.dragonminez.common.quest.QuestObjective;
 import lombok.Getter;
 import net.minecraft.world.item.Item;

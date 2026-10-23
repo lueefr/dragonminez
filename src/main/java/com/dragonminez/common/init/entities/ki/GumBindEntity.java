@@ -42,11 +42,11 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.Map;
@@ -173,12 +173,12 @@ public class GumBindEntity extends Entity implements GeoEntity {
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		this.entityData.define(VICTIM_ID, -1);
-		this.entityData.define(CASTER_ID, -1);
-		this.entityData.define(COLOR, 0xF4A0B6);
-		this.entityData.define(RELEASE_AT, -1);
-		this.entityData.define(STRUGGLES, 0);
+	protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+		builder.define(VICTIM_ID, -1);
+		builder.define(CASTER_ID, -1);
+		builder.define(COLOR, 0xF4A0B6);
+		builder.define(RELEASE_AT, -1);
+		builder.define(STRUGGLES, 0);
 	}
 
 	public int victimId() {
@@ -274,8 +274,8 @@ public class GumBindEntity extends Entity implements GeoEntity {
 				StrikeAttackHandler.setStrikeLocked(player, true);
 				this.pose(player);
 			}
-		} else if (!victim.hasEffect(MainEffects.STUN.get())) {
-			victim.addEffect(new MobEffectInstance(MainEffects.STUN.get(), Math.max(1, this.ticksLeft), 0, false, false, true));
+		} else if (!victim.hasEffect(MainEffects.STUN)) {
+			victim.addEffect(new MobEffectInstance(MainEffects.STUN, Math.max(1, this.ticksLeft), 0, false, false, true));
 		}
 	}
 
@@ -329,7 +329,7 @@ public class GumBindEntity extends Entity implements GeoEntity {
 				}
 				if (escaped) KnockbackHelper.apply(player, new Vec3(0.0D, 0.45D, 0.0D));
 			} else if (victim instanceof DBSagasEntity saga && victim.getUUID().equals(this.victimUuid)) {
-				saga.stopTriggeredAnimation(DBSagasEntity.HURT_CONTROLLER, DBSagasEntity.HURT_ANIM_GUM_BOUND);
+				saga.stopTriggeredAnim(DBSagasEntity.HURT_CONTROLLER, DBSagasEntity.HURT_ANIM_GUM_BOUND);
 			}
 			Vec3 center = victim != null ? victim.position().add(0.0D, victim.getBbHeight() * 0.5D, 0.0D) : this.position().add(0.0D, 1.0D, 0.0D);
 			level.sendParticles(new DustParticleOptions(this.dustColor(), 1.6F), center.x, center.y, center.z, 30, 0.6D, 0.7D, 0.6D, 0.1D);
@@ -413,8 +413,8 @@ public class GumBindEntity extends Entity implements GeoEntity {
 		}
 
 		@Override
-		protected void defineSynchedData() {
-			this.entityData.define(BALL_COLOR, 0xF4A0B6);
+		protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+			builder.define(BALL_COLOR, 0xF4A0B6);
 		}
 
 		public int color() {

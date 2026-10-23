@@ -10,7 +10,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstapContext;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.CubicSpline;
@@ -82,7 +82,7 @@ public class DemonRealmGeneration {
 		return (float) (blockY - (WORLD_BOTTOM + WORLD_TOP) / 2) / ((WORLD_TOP - WORLD_BOTTOM) / 2.0F);
 	}
 
-	public static void bootstrap(BootstapContext<LevelStem> context) {
+	public static void bootstrap(BootstrapContext<LevelStem> context) {
 		HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
 		HolderGetter<DimensionType> dimTypes = context.lookup(Registries.DIMENSION_TYPE);
 		HolderGetter<NoiseGeneratorSettings> noiseSettings = context.lookup(Registries.NOISE_SETTINGS);
@@ -100,7 +100,7 @@ public class DemonRealmGeneration {
 		context.register(DEMON_REALM_STEM, new LevelStem(dimTypes.getOrThrow(DemonRealmDimension.DEMON_REALM_TYPE), chunkGenerator));
 	}
 
-	public static void bootstrapNoiseParameters(BootstapContext<NormalNoise.NoiseParameters> context) {
+	public static void bootstrapNoiseParameters(BootstrapContext<NormalNoise.NoiseParameters> context) {
 		context.register(ABYSS, new NormalNoise.NoiseParameters(-9, 1.0, 1.0, 0.5));
 		context.register(MESA, new NormalNoise.NoiseParameters(-7, 1.0, 0.5, 0.25));
 		context.register(HILLS, new NormalNoise.NoiseParameters(-6, 1.0, 0.5, 0.25));
@@ -112,7 +112,7 @@ public class DemonRealmGeneration {
 		context.register(CRAGS, new NormalNoise.NoiseParameters(-6, 1.0, 0.6, 0.3));
 	}
 
-	public static void bootstrapNoise(BootstapContext<NoiseGeneratorSettings> context) {
+	public static void bootstrapNoise(BootstrapContext<NoiseGeneratorSettings> context) {
 		HolderGetter<NormalNoise.NoiseParameters> noiseParams = context.lookup(Registries.NOISE);
 
 		context.register(DEMON_REALM_NOISE_SETTINGS, new NoiseGeneratorSettings(

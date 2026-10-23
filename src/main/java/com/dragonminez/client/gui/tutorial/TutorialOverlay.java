@@ -426,31 +426,30 @@ final class TutorialOverlay {
 
 		static Quads begin(GuiGraphics graphics) {
 			graphics.flush();
-			BufferBuilder builder = Tesselator.getInstance().getBuilder();
-			builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+			BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 			return new Quads(builder, graphics.pose().last().pose());
 		}
 
 		void rect(float left, float top, float right, float bottom, int rgb, int alpha) {
 			if (right <= left || bottom <= top || alpha <= 0) return;
 			int a = Math.min(255, alpha), r = (rgb >> 16) & 0xFF, g = (rgb >> 8) & 0xFF, b = rgb & 0xFF;
-			builder.vertex(matrix, left, top, 0.0f).color(r, g, b, a).endVertex();
-			builder.vertex(matrix, left, bottom, 0.0f).color(r, g, b, a).endVertex();
-			builder.vertex(matrix, right, bottom, 0.0f).color(r, g, b, a).endVertex();
-			builder.vertex(matrix, right, top, 0.0f).color(r, g, b, a).endVertex();
+			builder.addVertex(matrix, left, top, 0.0f).setColor(r, g, b, a);
+			builder.addVertex(matrix, left, bottom, 0.0f).setColor(r, g, b, a);
+			builder.addVertex(matrix, right, bottom, 0.0f).setColor(r, g, b, a);
+			builder.addVertex(matrix, right, top, 0.0f).setColor(r, g, b, a);
 			any = true;
 		}
 
 		void end() {
 			if (!any) {
-				builder.end().release();
+				builder.buildOrThrow().close();
 				return;
 			}
 			RenderSystem.setShader(GameRenderer::getPositionColorShader);
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();
 			RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-			BufferUploader.drawWithShader(builder.end());
+			BufferUploader.drawWithShader(builder.buildOrThrow());
 		}
 	}
 }

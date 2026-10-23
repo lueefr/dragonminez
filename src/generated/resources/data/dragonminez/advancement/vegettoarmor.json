@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternz",
+  "criteria": {
+    "vegettoarmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:vegetto_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:vegetto_armor_leggings"
+          },
+          {
+            "items": "dragonminez:vegetto_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.vegettoarmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:vegetto_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.vegettoarmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "vegettoarmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

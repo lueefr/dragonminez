@@ -1,0 +1,120 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:brown_dye"
+    },
+    "1": {
+      "item": "minecraft:yellow_dye"
+    },
+    "2": {
+      "item": "minecraft:light_gray_dye"
+    },
+    "3": {
+      "item": "minecraft:blue_dye"
+    },
+    "4": {
+      "item": "minecraft:blue_dye"
+    },
+    "5": {
+      "item": "minecraft:orange_dye"
+    },
+    "6": {
+      "item": "minecraft:brown_dye"
+    },
+    "7": {
+      "item": "minecraft:brown_dye"
+    },
+    "8": {
+      "item": "minecraft:orange_dye"
+    },
+    "9": {
+      "item": "minecraft:blue_dye"
+    },
+    "A": {
+      "item": "minecraft:yellow_dye"
+    },
+    "B": {
+      "item": "minecraft:yellow_dye"
+    },
+    "E": {
+      "item": "minecraft:yellow_dye"
+    },
+    "F": {
+      "item": "minecraft:yellow_dye"
+    },
+    "G": {
+      "item": "minecraft:orange_dye"
+    },
+    "H": {
+      "item": "minecraft:white_dye"
+    },
+    "I": {
+      "item": "minecraft:blue_dye"
+    },
+    "J": {
+      "item": "minecraft:blue_dye"
+    },
+    "K": {
+      "item": "minecraft:white_dye"
+    },
+    "L": {
+      "item": "minecraft:orange_dye"
+    },
+    "M": {
+      "item": "minecraft:blue_dye"
+    },
+    "N": {
+      "item": "minecraft:white_dye"
+    },
+    "O": {
+      "item": "minecraft:white_dye"
+    },
+    "P": {
+      "item": "minecraft:white_dye"
+    },
+    "Q": {
+      "item": "minecraft:white_dye"
+    },
+    "R": {
+      "item": "minecraft:blue_dye"
+    },
+    "S": {
+      "item": "minecraft:blue_dye"
+    },
+    "T": {
+      "item": "minecraft:white_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "V": {
+      "item": "minecraft:white_dye"
+    },
+    "W": {
+      "item": "minecraft:white_dye"
+    },
+    "X": {
+      "item": "minecraft:blue_dye"
+    },
+    "Y": {
+      "item": "minecraft:blue_dye"
+    },
+    "Z": {
+      "item": "minecraft:light_gray_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    "STUVWX",
+    "YZ0123",
+    "456789"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_vegeta1"
+  }
+}

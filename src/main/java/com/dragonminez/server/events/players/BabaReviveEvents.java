@@ -1,5 +1,6 @@
 package com.dragonminez.server.events.players;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.events.DMZEvent;
 import com.dragonminez.common.stats.StatsCapability;
@@ -10,14 +11,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingHealEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+@EventBusSubscriber(modid = Reference.MOD_ID)
 public final class BabaReviveEvents {
 
 	private BabaReviveEvents() {
@@ -62,7 +63,7 @@ public final class BabaReviveEvents {
 
 	@SubscribeEvent
 	public static void onChangeTarget(LivingChangeTargetEvent event) {
-		LivingEntity newTarget = event.getNewTarget();
+		LivingEntity newTarget = event.getNewAboutToBeSetTarget();
 		if (!(newTarget instanceof ServerPlayer player)) return;
 		StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 			if (BabaReviveService.isHiddenFromMobs(data)) event.setCanceled(true);

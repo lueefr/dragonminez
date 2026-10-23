@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.dragonminez.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "refmap": "dragonminez.refmap.json",
   "mixins": [
     "common.ChunkSerializerMixin",
@@ -18,8 +18,7 @@
     "common.SinglePoolElementAccessor",
     "common.StructureTemplateAccessor",
     "common.StructureTemplatePaletteInvoker",
-    "common.StructureTemplatePoolAccessor",
-    "common.SweepingEdgeEnchantmentMixin"
+    "common.StructureTemplatePoolAccessor"
   ],
   "client": [
     "client.AbstractSoundInstanceAccessor",

@@ -1,0 +1,108 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "0": {
+      "item": "minecraft:white_dye"
+    },
+    "1": {
+      "item": "minecraft:green_dye"
+    },
+    "2": {
+      "item": "minecraft:brown_dye"
+    },
+    "3": {
+      "item": "minecraft:brown_dye"
+    },
+    "4": {
+      "item": "minecraft:brown_dye"
+    },
+    "5": {
+      "item": "minecraft:brown_dye"
+    },
+    "8": {
+      "item": "minecraft:brown_dye"
+    },
+    "9": {
+      "item": "minecraft:brown_dye"
+    },
+    "A": {
+      "item": "minecraft:white_dye"
+    },
+    "B": {
+      "item": "minecraft:white_dye"
+    },
+    "E": {
+      "item": "minecraft:white_dye"
+    },
+    "F": {
+      "item": "minecraft:white_dye"
+    },
+    "G": {
+      "item": "minecraft:white_dye"
+    },
+    "H": {
+      "item": "minecraft:white_dye"
+    },
+    "I": {
+      "item": "minecraft:black_dye"
+    },
+    "J": {
+      "item": "minecraft:black_dye"
+    },
+    "K": {
+      "item": "minecraft:white_dye"
+    },
+    "L": {
+      "item": "minecraft:white_dye"
+    },
+    "M": {
+      "item": "minecraft:black_dye"
+    },
+    "N": {
+      "item": "minecraft:white_dye"
+    },
+    "O": {
+      "item": "minecraft:white_dye"
+    },
+    "P": {
+      "item": "minecraft:white_dye"
+    },
+    "Q": {
+      "item": "minecraft:white_dye"
+    },
+    "R": {
+      "item": "minecraft:black_dye"
+    },
+    "T": {
+      "item": "minecraft:white_dye"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "V": {
+      "item": "minecraft:white_dye"
+    },
+    "W": {
+      "item": "minecraft:white_dye"
+    },
+    "Y": {
+      "item": "minecraft:brown_dye"
+    },
+    "Z": {
+      "item": "minecraft:brown_dye"
+    }
+  },
+  "pattern": [
+    "AB  EF",
+    "GHIJKL",
+    "MNOPQR",
+    " TUVW ",
+    "YZ0123",
+    "45  89"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_videl"
+  }
+}

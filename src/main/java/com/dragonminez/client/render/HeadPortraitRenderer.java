@@ -53,7 +53,7 @@ public final class HeadPortraitRenderer {
 
 		DMZPlayerRenderer renderer = failed ? null : DMZRendererCache.getTPRenderer(player);
 		if (renderer == null) {
-			PlayerFaceRenderer.draw(graphics, player.getSkinTextureLocation(), Math.round(x), Math.round(y), Math.round(size));
+			PlayerFaceRenderer.draw(graphics, player.getSkin().texture(), Math.round(x), Math.round(y), Math.round(size));
 			return;
 		}
 
@@ -72,7 +72,7 @@ public final class HeadPortraitRenderer {
 		PoseStack pose = graphics.pose();
 		pose.pushPose();
 		pose.translate(x + size / 2.0f, y + size / 2.0f, 150.0f);
-		pose.mulPoseMatrix(new Matrix4f().scaling(scale, scale, -scale));
+		pose.mulPose(new Matrix4f().scaling(scale, scale, -scale));
 		pose.mulPose(new Quaternionf().rotateZ((float) Math.PI));
 		pose.mulPose(Axis.XP.rotationDegrees(PITCH_DEGREES));
 		pose.mulPose(Axis.YP.rotationDegrees(mirrored ? -YAW_DEGREES : YAW_DEGREES));

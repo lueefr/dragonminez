@@ -3,7 +3,8 @@ package com.dragonminez.common.init.entities.ai;
 import com.dragonminez.common.quest.Difficulty;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 
 import java.util.Set;
 
@@ -32,7 +33,7 @@ public final class AiTierResolver {
 
     public static boolean isFinalBoss(EntityType<?> type) {
         if (type == null) return false;
-        ResourceLocation key = ForgeRegistries.ENTITY_TYPES.getKey(type);
+        ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(type);
         return key != null && FINAL_BOSSES.contains(key.getPath());
     }
 

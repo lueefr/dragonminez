@@ -1,5 +1,6 @@
 package com.dragonminez.common.dialogue;
 
+import lombok.*;
 import com.dragonminez.common.quest.rewards.CommandReward;
 import com.dragonminez.common.quest.QuestService;
 import com.dragonminez.common.stats.StatsCapability;

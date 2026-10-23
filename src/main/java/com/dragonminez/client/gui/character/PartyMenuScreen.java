@@ -26,8 +26,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 
 import java.util.ArrayList;
@@ -193,8 +193,8 @@ public class PartyMenuScreen extends BaseMenuScreen {
 				}
 
 				displayList.sort((e1, e2) -> {
-					if (e1.id().equals(localId)) return -1;
-					if (e2.id().equals(localId)) return 1;
+					if (e1.equals(localId)) return -1;
+					if (e2.equals(localId)) return 1;
 					return e1.name().compareToIgnoreCase(e2.name());
 				});
 			});
@@ -204,7 +204,7 @@ public class PartyMenuScreen extends BaseMenuScreen {
 		if (selectedId != null) {
 			for (int i = 0; i < displayList.size(); i++) {
 				PartyEntry entry = displayList.get(i);
-				if (entry.id().equals(selectedId)) {
+				if (entry.equals(selectedId)) {
 					if (entry.isOnline()) selectedIndex = i;
 					break;
 				}
@@ -746,7 +746,7 @@ public class PartyMenuScreen extends BaseMenuScreen {
 
 		graphics.pose().pushPose();
 		graphics.pose().translate(0.0D, 0.0D, 150.0D);
-		InventoryScreen.renderEntityInInventory(graphics, x, y, adjustedScale, pose, cameraOrientation, renderEntity);
+		InventoryScreen.renderEntityInInventory(graphics, x, y, adjustedScale, new org.joml.Vector3f(0.0F, 0.0F, 0.0F), pose, cameraOrientation, renderEntity);
 		graphics.pose().popPose();
 
 		renderEntity.yBodyRot = yBodyRotO;
@@ -757,9 +757,9 @@ public class PartyMenuScreen extends BaseMenuScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double delta) {
 		if (listScroll.scrollWheel(delta) || welcomeScroll.scrollWheel(delta)) return true;
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
 	}
 
 	@Override

@@ -1,0 +1,72 @@
+{
+  "type": "dragonminez:pattern_crafting",
+  "group": "dragonminez",
+  "key": {
+    "3": {
+      "item": "minecraft:gold_nugget"
+    },
+    "4": {
+      "item": "minecraft:gold_nugget"
+    },
+    "5": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "8": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "9": {
+      "item": "minecraft:gold_nugget"
+    },
+    "A": {
+      "item": "minecraft:brown_dye"
+    },
+    "F": {
+      "item": "minecraft:brown_dye"
+    },
+    "G": {
+      "item": "minecraft:brown_dye"
+    },
+    "H": {
+      "item": "minecraft:gold_nugget"
+    },
+    "K": {
+      "item": "minecraft:gold_nugget"
+    },
+    "L": {
+      "item": "minecraft:brown_dye"
+    },
+    "N": {
+      "item": "minecraft:gold_nugget"
+    },
+    "O": {
+      "item": "minecraft:gold_nugget"
+    },
+    "P": {
+      "item": "minecraft:gold_nugget"
+    },
+    "Q": {
+      "item": "minecraft:gold_nugget"
+    },
+    "U": {
+      "item": "dragonminez:blank_pattern_z"
+    },
+    "V": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "Y": {
+      "item": "minecraft:gold_nugget"
+    }
+  },
+  "pattern": [
+    "A    F",
+    "GH  KL",
+    " NOPQ ",
+    "  UV  ",
+    "Y    3",
+    "45  89"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:pattern_broly_z"
+  }
+}

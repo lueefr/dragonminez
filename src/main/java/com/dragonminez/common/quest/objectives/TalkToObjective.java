@@ -1,7 +1,7 @@
 package com.dragonminez.common.quest.objectives;
 
+import lombok.*;
 import com.dragonminez.common.quest.QuestObjective;
-import lombok.Getter;
 
 /**
  * Objective that requires the player to talk to a specific quest NPC.
@@ -28,4 +28,3 @@ public class TalkToObjective extends QuestObjective {
 		return false;
 	}
 }
-

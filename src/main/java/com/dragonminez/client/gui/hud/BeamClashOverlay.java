@@ -10,7 +10,7 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraft.client.gui.LayeredDraw;
 
 public class BeamClashOverlay {
 	private static final ResourceLocation BAR_TEXTURE =
@@ -37,9 +37,12 @@ public class BeamClashOverlay {
 
 	private static final float FLASH_SHARE = 0.25f;
 
-	public static final IGuiOverlay HUD_BEAM_CLASH = (forgeGui, guiGraphics, partialTicks, width, height) -> {
+	public static final LayeredDraw.Layer HUD_BEAM_CLASH = (guiGraphics, deltaTracker) -> {
+		float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(false);
+		int width = guiGraphics.guiWidth();
+		int height = guiGraphics.guiHeight();
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.player == null || mc.options.renderDebug) return;
+		if (mc.player == null || mc.getDebugOverlay().showDebugScreen()) return;
 		if (!ClientBeamClashState.isActive()) {
 			drawExhausted(guiGraphics, partialTicks, width, height);
 			return;

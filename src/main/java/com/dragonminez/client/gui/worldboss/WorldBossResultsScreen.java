@@ -31,8 +31,8 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -166,7 +166,7 @@ public class WorldBossResultsScreen extends ScaledScreen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		renderBackground(graphics);
+		renderBackground(graphics, mouseX, mouseY, partialTick);
 		int uiMouseX = (int) toUiX(mouseX);
 		int uiMouseY = (int) toUiY(mouseY);
 
@@ -474,14 +474,14 @@ public class WorldBossResultsScreen extends ScaledScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double delta) {
 		double uiX = toUiX(mouseX);
 		double uiY = toUiY(mouseY);
 		int left = guiLeft + PADDING;
 		if (uiX < guiLeft + DIVIDER_X && uiX >= left && listBar.scrollWheel(delta)) return true;
 		boolean overRewards = uiX >= guiLeft + DIVIDER_X && uiX < guiLeft + PANEL_WIDTH && uiY >= guiTop && uiY < guiTop + PANEL_HEIGHT;
 		if (overRewards && rewardBar.scrollWheel(delta)) return true;
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
 	}
 
 	@Override

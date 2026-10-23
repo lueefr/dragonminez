@@ -1,16 +1,16 @@
 package com.dragonminez.common.network.S2C;
 
+import lombok.*;
 import com.dragonminez.common.network.ClientPacketHandler;
-import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.api.distmarker.Dist;
+import com.dragonminez.compat.DistExecutor;
+import com.dragonminez.compat.network.NetworkEvent;
 
 import java.util.function.Supplier;
-
 @Getter
+
 public class BeamClashStateS2C {
 	private final boolean active;
 	private final long startGameTime;
@@ -78,8 +78,7 @@ public class BeamClashStateS2C {
 	}
 
 	public static void handle(BeamClashStateS2C msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
-				() -> () -> ClientPacketHandler.handleBeamClashState(msg)));
+		ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandler.handleBeamClashState(msg)));
 		ctx.get().setPacketHandled(true);
 	}
 }

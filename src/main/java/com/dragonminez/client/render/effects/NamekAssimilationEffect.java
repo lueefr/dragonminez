@@ -1,5 +1,6 @@
 package com.dragonminez.client.render.effects;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.render.layer.DMZSkinLayer;
 import com.dragonminez.client.render.util.IrisCompat;
@@ -23,17 +24,21 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
 public final class NamekAssimilationEffect {
 
 	private static final double RANGE = 3.0;
@@ -67,8 +72,8 @@ public final class NamekAssimilationEffect {
 	}
 
 	@SubscribeEvent
-	public static void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.END) return;
+	public static void onClientTick(ClientTickEvent.Post event) {
+
 		Minecraft mc = Minecraft.getInstance();
 		ClientLevel level = mc.level;
 		if (level == null) {
@@ -205,54 +210,39 @@ public final class NamekAssimilationEffect {
 		}
 
 		@Override
-		public VertexConsumer vertex(double x, double y, double z) {
-			delegate.vertex(x, y, z);
+		public VertexConsumer addVertex(float x, float y, float z) {
+			delegate.addVertex(x, y, z);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer color(int red, int green, int blue, int alpha) {
-			delegate.color(red, green, blue, alpha);
+		public VertexConsumer setColor(int red, int green, int blue, int alpha) {
+			delegate.setColor(red, green, blue, alpha);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer uv(float u, float v) {
-			delegate.uv(u, v);
+		public VertexConsumer setUv(float u, float v) {
+			delegate.setUv(u, v);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer overlayCoords(int u, int v) {
-			delegate.overlayCoords(encodedProgress, mode);
+		public VertexConsumer setUv1(int u, int v) {
+			delegate.setUv1(encodedProgress, mode);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer uv2(int u, int v) {
-			delegate.uv2(u, v);
+		public VertexConsumer setUv2(int u, int v) {
+			delegate.setUv2(u, v);
 			return this;
 		}
 
 		@Override
-		public VertexConsumer normal(float x, float y, float z) {
-			delegate.normal(x, y, z);
+		public VertexConsumer setNormal(float x, float y, float z) {
+			delegate.setNormal(x, y, z);
 			return this;
-		}
-
-		@Override
-		public void endVertex() {
-			delegate.endVertex();
-		}
-
-		@Override
-		public void defaultColor(int red, int green, int blue, int alpha) {
-			delegate.defaultColor(red, green, blue, alpha);
-		}
-
-		@Override
-		public void unsetDefaultColor() {
-			delegate.unsetDefaultColor();
 		}
 	}
 }

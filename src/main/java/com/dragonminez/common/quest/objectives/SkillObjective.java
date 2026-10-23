@@ -1,9 +1,9 @@
 package com.dragonminez.common.quest.objectives;
 
+import lombok.*;
 import com.dragonminez.common.quest.QuestObjective;
-import lombok.Getter;
-
 @Getter
+
 public class SkillObjective extends QuestObjective {
 	private final String skill;
 	private final int level;

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "dragonminez",
+  "ingredients": [
+    {
+      "item": "minecraft:wheat_seeds"
+    },
+    {
+      "item": "dragonminez:healing_liquid_bucket"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "dragonminez:namek_moss"
+  }
+}

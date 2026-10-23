@@ -1,13 +1,13 @@
 package com.dragonminez.common.quest.rewards;
 
+import lombok.*;
 import com.dragonminez.common.quest.QuestReward;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
-import lombok.Getter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-
 @Getter
+
 public class AlignmentReward extends QuestReward {
 	private final int amount;
 
@@ -29,8 +29,7 @@ public class AlignmentReward extends QuestReward {
 	public void giveReward(ServerPlayer player, double rewardMultiplier) {
 		int scaled = scaledAmount(rewardMultiplier);
 		if (scaled == 0) return;
-		StatsProvider.get(StatsCapability.INSTANCE, player)
-				.ifPresent(data -> data.getResources().addAlignment(scaled));
+		StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> data.getResources().addAlignment(scaled));
 	}
 
 	@Override

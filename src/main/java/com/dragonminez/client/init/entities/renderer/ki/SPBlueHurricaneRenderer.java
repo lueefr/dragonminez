@@ -19,6 +19,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.util.Color;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class SPBlueHurricaneRenderer extends EntityRenderer<SPBlueHurricaneEntity> {
 

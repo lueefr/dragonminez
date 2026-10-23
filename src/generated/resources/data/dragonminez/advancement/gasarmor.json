@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternsuper",
+  "criteria": {
+    "gasarmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:gas_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:gas_armor_leggings"
+          },
+          {
+            "items": "dragonminez:gas_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.gasarmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:gas_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.gasarmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "gasarmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

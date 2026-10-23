@@ -41,9 +41,9 @@ public abstract class EvilCloneEntity extends DBSagasEntity {
                 .add(Attributes.FOLLOW_RANGE, 32.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.6D)
                 .add(Attributes.ATTACK_SPEED, 4.0D)
-                .add(EntityAttributes.KI_BLAST_DAMAGE.get(), 140.0D)
-                .add(EntityAttributes.FLY_SPEED.get(), 0.0D)
-                .add(EntityAttributes.KI_BLAST_SPEED.get(), 0.6D);
+                .add(EntityAttributes.KI_BLAST_DAMAGE, 140.0D)
+                .add(EntityAttributes.FLY_SPEED, 0.0D)
+                .add(EntityAttributes.KI_BLAST_SPEED, 0.6D);
     }
 
     public static boolean canSpawnAtNight(EntityType<? extends Mob> type, ServerLevelAccessor level, MobSpawnType reason, BlockPos pos, RandomSource random) {

@@ -15,7 +15,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkEvent;
+import com.dragonminez.compat.network.NetworkEvent;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -129,7 +129,7 @@ public class KiBlastC2S {
 
 	private static void setKiBlastCooldown(ServerPlayer player, StatsData data, int ticks) {
 		data.getCooldowns().setCooldown(Cooldowns.KI_BLAST_CD, ticks);
-		player.addEffect(new MobEffectInstance(MainEffects.KI_BLAST_CD.get(), ticks, 0, false, false, true));
+		player.addEffect(new MobEffectInstance(MainEffects.KI_BLAST_CD, ticks, 0, false, false, true));
 	}
 
 	public static void tickVolley(ServerPlayer player, StatsData data, boolean interrupted) {

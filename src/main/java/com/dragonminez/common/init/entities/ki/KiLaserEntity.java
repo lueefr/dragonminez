@@ -366,16 +366,16 @@ public class KiLaserEntity extends AbstractKiProjectile{
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(BEAM_LENGTH, 0.0F);
-        this.entityData.define(FIXED_YAW, 0.0F);
-        this.entityData.define(FIXED_PITCH, 0.0F);
-        this.entityData.define(CAST_TIME, 0);
-        this.entityData.define(STRIKE, false);
-        this.entityData.define(OFFSET_X, 0.0F);
-        this.entityData.define(OFFSET_Y, 0.0F);
-        this.entityData.define(OFFSET_Z, 0.0F);
+    protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(BEAM_LENGTH, 0.0F);
+        builder.define(FIXED_YAW, 0.0F);
+        builder.define(FIXED_PITCH, 0.0F);
+        builder.define(CAST_TIME, 0);
+        builder.define(STRIKE, false);
+        builder.define(OFFSET_X, 0.0F);
+        builder.define(OFFSET_Y, 0.0F);
+        builder.define(OFFSET_Z, 0.0F);
     }
 
     public float getBeamLength() {return this.entityData.get(BEAM_LENGTH);}
@@ -729,7 +729,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
         this.level().playSound(null, pos.x, pos.y, pos.z, net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE, SoundSource.HOSTILE, 4.0F, 0.7F);
         Level.ExplosionInteraction interaction = this.getKiExplosionInteraction(BlockPos.containing(pos));
         float blastRadius = this.scaledDestructionRadius(radius);
-        this.level().explode(this, this.damageSources().explosion(this, this.getOwner()), null, pos.x, pos.y, pos.z, blastRadius, false, interaction, false);
+        this.level().explode(this, this.damageSources().explosion(this, this.getOwner()), null, pos.x, pos.y, pos.z, blastRadius, false, interaction);
         this.discard();
     }
 }

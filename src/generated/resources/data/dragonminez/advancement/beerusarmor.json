@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternsuper",
+  "criteria": {
+    "beerusarmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:beerus_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:beerus_armor_leggings"
+          },
+          {
+            "items": "dragonminez:beerus_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.beerusarmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:beerus_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.beerusarmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "beerusarmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

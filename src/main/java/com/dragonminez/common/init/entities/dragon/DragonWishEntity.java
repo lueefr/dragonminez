@@ -30,16 +30,16 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.jspecify.annotations.NonNull;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.core.registries.BuiltInRegistries;
+import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.*;
-import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.animation.*;
+import software.bernie.geckolib.animation.PlayState;
 
 public class DragonWishEntity extends Mob implements GeoEntity {
 	private static final EntityDataAccessor<String> OWNER_NAME = SynchedEntityData.defineId(DragonWishEntity.class, EntityDataSerializers.STRING);
@@ -67,12 +67,12 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.entityData.define(OWNER_NAME, "");
-		this.entityData.define(GRANTED_WISH, false);
-		this.entityData.define(DRAGON_DEFINITION_ID, defaultDragonDefinitionId == null ? "" : defaultDragonDefinitionId);
-		this.entityData.define(DESPAWN_FADE, -1);
+	protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(OWNER_NAME, "");
+		builder.define(GRANTED_WISH, false);
+		builder.define(DRAGON_DEFINITION_ID, defaultDragonDefinitionId == null ? "" : defaultDragonDefinitionId);
+		builder.define(DESPAWN_FADE, -1);
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 
 	@OnlyIn(Dist.CLIENT)
 	@Override
-	public @NonNull InteractionResult mobInteract(@NonNull Player player, @NonNull InteractionHand hand) {
+	public InteractionResult mobInteract(Player player, InteractionHand hand) {
 		DragonDefinition definition = getDragonDefinition();
 		if (definition != null && this.level().isClientSide && this.getOwnerName().equals(player.getName().getString())) {
 			if (!this.hasGrantedWish() && Minecraft.getInstance().player != null && Minecraft.getInstance().player.equals(player)) {
@@ -161,7 +161,7 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 	private boolean despawnHandled = false;
 
 	@Override
-	public void remove(@NonNull RemovalReason reason) {
+	public void remove(@NotNull RemovalReason reason) {
 		if (!this.level().isClientSide && reason.shouldDestroy() && !this.despawnHandled) {
 			this.despawnHandled = true;
 			onDespawn();
@@ -250,7 +250,7 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 	public DragonDefinition getDragonDefinition() {
 		String definitionId = getDragonDefinitionId();
 		if (definitionId == null || definitionId.isBlank()) {
-			var key = ForgeRegistries.ENTITY_TYPES.getKey(this.getType());
+			var key = BuiltInRegistries.ENTITY_TYPE.getKey(this.getType());
 			definitionId = key == null ? defaultDragonDefinitionId : key.getPath();
 		}
 		return DragonBallDefinitions.getDragon(definitionId);

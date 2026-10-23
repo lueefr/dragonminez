@@ -1,0 +1,39 @@
+{
+  "parent": "dragonminez:patternsuper",
+  "criteria": {
+    "pridetrooparmor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:pride_troops_armor_chestplate"
+          },
+          {
+            "items": "dragonminez:pride_troops_armor_leggings"
+          },
+          {
+            "items": "dragonminez:pride_troops_armor_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.dragonminez.pridetroopsarmor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "dragonminez:pride_troops_armor_chestplate"
+    },
+    "title": {
+      "translate": "advancements.dragonminez.pridetroopsarmor.title"
+    }
+  },
+  "requirements": [
+    [
+      "pridetrooparmor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

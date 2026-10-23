@@ -1,5 +1,6 @@
 package com.dragonminez.common.combat.util;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.network.S2C.SwordSlashS2C;
@@ -10,9 +11,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+@EventBusSubscriber(modid = Reference.MOD_ID)
 public final class SwordSlashManager {
 
 	public static final float[] ROLL_SEQUENCE = {0.0F, 90.0F, 35.0F, -35.0F, 0.0F, 90.0F};
@@ -106,9 +111,9 @@ public final class SwordSlashManager {
 	}
 
 	@SubscribeEvent
-	public static void onLevelTick(TickEvent.LevelTickEvent event) {
-		if (event.phase != TickEvent.Phase.END || CUTS.isEmpty()) return;
-		if (!(event.level instanceof ServerLevel level)) return;
+	public static void onLevelTick(LevelTickEvent.Post event) {
+		if (CUTS.isEmpty()) return;
+		if (!(event.getLevel() instanceof ServerLevel level)) return;
 
 		Iterator<Cut> it = CUTS.iterator();
 		while (it.hasNext()) {

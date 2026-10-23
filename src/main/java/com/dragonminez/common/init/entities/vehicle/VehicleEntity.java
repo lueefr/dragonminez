@@ -36,8 +36,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
 
 import java.util.Arrays;
 import java.util.List;
@@ -101,7 +101,7 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 		super(type, level);
 		this.properties = properties;
 		this.setNoGravity(true);
-		this.setMaxUpStep(properties.stepHeight());
+		this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.STEP_HEIGHT).setBaseValue(properties.stepHeight());
 	}
 
 	public static AttributeSupplier createAttributes() {
@@ -205,10 +205,10 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.entityData.define(FLIGHT_MODE, false);
-		this.entityData.define(SEAT_OCCUPANTS, new CompoundTag());
+	protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(FLIGHT_MODE, false);
+		builder.define(SEAT_OCCUPANTS, new CompoundTag());
 	}
 
 	@Override
@@ -622,9 +622,9 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 	}
 
 	@Override
-	public double getPassengersRidingOffset() {
-		return properties.seats().get(0).y;
-	}
+	protected Vec3 getPassengerAttachmentPoint(Entity passenger, net.minecraft.world.entity.EntityDimensions dimensions, float scale) {
+        return properties.seats().get(0);
+    }
 
 	@Override
 	protected void positionRider(Entity passenger, MoveFunction callback) {
@@ -633,7 +633,7 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 		Vec3 seat = properties.seats().get(index);
 		if (this.level().isClientSide) seat = applyVisualTransform(seat, 1.0F);
 		Vec3 offset = new Vec3(seat.x, 0.0D, seat.z).yRot(-this.getYRot() * Mth.DEG_TO_RAD);
-		callback.accept(passenger, this.getX() + offset.x, this.getY() + seat.y + passenger.getMyRidingOffset(), this.getZ() + offset.z);
+		callback.accept(passenger, this.getX() + offset.x, this.getY() + seat.y - passenger.getVehicleAttachmentPoint(this).y, this.getZ() + offset.z);
 		if (passenger instanceof LivingEntity living) living.yBodyRot = this.getYRot();
 	}
 
@@ -751,8 +751,8 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 	}
 
 	@Override
-	public boolean canBreatheUnderwater() {
-		return true;
+	public boolean canDrownInFluidType(net.neoforged.neoforge.fluids.FluidType type) {
+		return false;
 	}
 
 	@Override

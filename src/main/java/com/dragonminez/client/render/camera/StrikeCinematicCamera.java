@@ -1,5 +1,6 @@
 package com.dragonminez.client.render.camera;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.events.LockOnEvent;
 import com.dragonminez.client.render.firstperson.dto.DMZCameraBuffer;
@@ -16,13 +17,17 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.ViewportEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public final class StrikeCinematicCamera {
 	private static final double BLEND_IN_SECONDS = 0.35;
 	private static final double BLEND_OUT_SECONDS = 0.45;
@@ -171,8 +176,8 @@ public final class StrikeCinematicCamera {
 	}
 
 	@SubscribeEvent
-	public static void onClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.END) return;
+	public static void onClientTick(ClientTickEvent.Post event) {
+
 		float fovTarget = phase == Phase.FILMING ? FOV_FACTOR : 1.0F;
 		fovFactor += (fovTarget - fovFactor) * FOV_EASE;
 		if (Math.abs(fovFactor - fovTarget) < 0.001F) fovFactor = fovTarget;

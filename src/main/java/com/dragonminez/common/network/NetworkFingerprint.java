@@ -3,8 +3,8 @@ package com.dragonminez.common.network;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.Reference;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.forgespi.language.IModFileInfo;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforgespi.language.IModFileInfo;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;

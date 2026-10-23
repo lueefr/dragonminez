@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.server.packs.resources.IoSupplier;
@@ -17,14 +18,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class DragonBallDataPackResources implements PackResources {
-    private final String packId;
+    private final PackLocationInfo location;
     private final byte[] packMcmetaBytes;
 
-    public DragonBallDataPackResources(String packId) {
-        this.packId = packId;
+    public DragonBallDataPackResources(PackLocationInfo location) {
+        this.location = location;
         JsonObject packInfo = new JsonObject();
         packInfo.addProperty("description", "DMZ Dragonballs Runtime Data");
-        packInfo.addProperty("pack_format", 15);
+        packInfo.addProperty("pack_format", 48);
 
         JsonObject root = new JsonObject();
         root.add("pack", packInfo);
@@ -65,7 +66,7 @@ public class DragonBallDataPackResources implements PackResources {
             if ("earth_radar".equals(radarDefinition.getId()) || "namek_radar".equals(radarDefinition.getId())) continue;
             DragonRadarRecipeDefinition recipeDefinition = radarDefinition.resolveRecipeDefinition();
             if (recipeDefinition == null) continue;
-            String recipePath = "recipes/" + radarDefinition.getItemRegistryName() + ".json";
+            String recipePath = "recipe/" + radarDefinition.getItemRegistryName() + ".json";
             if (!path.equals(recipePath)) continue;
 
             if (recipeDefinition instanceof ShapedDragonRadarRecipeDefinition shaped) {
@@ -107,7 +108,7 @@ public class DragonBallDataPackResources implements PackResources {
             if ("earth_radar".equals(radarDefinition.getId()) || "namek_radar".equals(radarDefinition.getId())) continue;
             DragonRadarRecipeDefinition recipeDefinition = radarDefinition.resolveRecipeDefinition();
             if (recipeDefinition == null) continue;
-            publishIfMatches(path, "recipes/" + radarDefinition.getItemRegistryName() + ".json", resourceOutput);
+            publishIfMatches(path, "recipe/" + radarDefinition.getItemRegistryName() + ".json", resourceOutput);
         }
     }
 
@@ -139,9 +140,9 @@ public class DragonBallDataPackResources implements PackResources {
     }
 
     @Override
-    public String packId() { return packId; }
+    public PackLocationInfo location() { return location; }
     @Override
     public void close() {}
     @Override
-    public boolean isBuiltin() { return true; }
+    public boolean isHidden() { return false; }
 }

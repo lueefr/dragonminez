@@ -10,10 +10,10 @@ import net.minecraft.world.entity.Entity;
 import software.bernie.geckolib.cache.GeckoLibCache;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.state.BoneSnapshot;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animation.state.BoneSnapshot;
 import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.util.RenderUtils;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +42,7 @@ public final class DonorBoneRenderer {
 		if (layers.isEmpty()) return;
 		withDonor(animatable, playerModel, donorModel, boneName, tail, partialTick, root -> {
 			for (Layer layer : layers) {
-				renderer.renderRecursively(poseStack, animatable, root, layer.type(), bufferSource, bufferSource.getBuffer(layer.type()), true,
-						partialTick, packedLight, packedOverlay, layer.red(), layer.green(), layer.blue(), layer.alpha());
+				renderer.renderRecursively(poseStack, animatable, root, layer.type(), bufferSource, bufferSource.getBuffer(layer.type()), true, partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(layer.red(), layer.green(), layer.blue(), layer.alpha()));
 			}
 		});
 	}
@@ -56,8 +55,7 @@ public final class DonorBoneRenderer {
 		root.setHidden(false);
 		try {
 			for (Layer layer : layers) {
-				renderer.renderRecursively(poseStack, animatable, root, layer.type(), bufferSource, bufferSource.getBuffer(layer.type()), true,
-						partialTick, packedLight, packedOverlay, layer.red(), layer.green(), layer.blue(), layer.alpha());
+				renderer.renderRecursively(poseStack, animatable, root, layer.type(), bufferSource, bufferSource.getBuffer(layer.type()), true, partialTick, packedLight, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(layer.red(), layer.green(), layer.blue(), layer.alpha()));
 			}
 		} finally {
 			root.setHidden(hidden);
@@ -72,7 +70,7 @@ public final class DonorBoneRenderer {
 
 	private static void walk(GeoBone bone, PoseStack poseStack, BoneVisitor visitor) {
 		poseStack.pushPose();
-		RenderUtils.prepMatrixForBone(poseStack, bone);
+		software.bernie.geckolib.util.RenderUtil.prepMatrixForBone(poseStack, bone);
 		if (!bone.isHidden()) visitor.visit(bone, poseStack);
 		if (!bone.isHidingChildren()) {
 			for (GeoBone child : bone.getChildBones()) walk(child, poseStack, visitor);

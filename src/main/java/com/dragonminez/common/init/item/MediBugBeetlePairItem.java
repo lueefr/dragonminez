@@ -18,7 +18,8 @@ public class MediBugBeetlePairItem extends PothalaPairItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        net.minecraft.world.level.Level level = context.level();
 		tooltip.add(Component.translatable("item.dragonminez.medi_bug_beetle_pair.tooltip.split").withStyle(ChatFormatting.GRAY));
 		tooltip.add(Component.translatable("item.dragonminez.medi_bug_beetle_pair.tooltip.fuse").withStyle(ChatFormatting.GRAY));
 		appendPairIdTooltip(stack, tooltip);

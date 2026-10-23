@@ -4,7 +4,7 @@ import com.dragonminez.common.init.entities.vehicle.VehicleEntity;
 import com.dragonminez.common.network.PacketRateLimiter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import com.dragonminez.compat.network.NetworkEvent;
 
 import java.util.function.Supplier;
 

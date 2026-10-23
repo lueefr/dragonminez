@@ -31,8 +31,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 
 import java.util.ArrayList;
@@ -601,7 +601,8 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        double delta = scrollY;
 		double uiMouseX = toUiX(mouseX);
 		double uiMouseY = toUiY(mouseY);
 		int leftPanelX = 12;
@@ -615,7 +616,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 
 		if (descScroll.mouseScrolled(uiMouseX, uiMouseY, delta)) return true;
 
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	@Override
@@ -682,7 +683,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 
 		graphics.pose().pushPose();
 		graphics.pose().translate(0.0D, 0.0D, 150.0D);
-		InventoryScreen.renderEntityInInventory(graphics, x, y, 100, pose, cameraOrientation, masterEntity);
+		InventoryScreen.renderEntityInInventory(graphics, x, y, 100, new org.joml.Vector3f(0.0F, 0.0F, 0.0F), pose, cameraOrientation, masterEntity);
 		graphics.pose().popPose();
 
 		masterEntity.yBodyRot = yBodyRotO;

@@ -1,5 +1,6 @@
 package com.dragonminez.common.combat.clash;
 
+import lombok.*;
 import com.dragonminez.common.init.MainEffects;
 import com.dragonminez.common.init.entities.ki.AbstractKiProjectile;
 import com.dragonminez.common.network.NetworkHandler;
@@ -185,8 +186,8 @@ public class BeamClash {
     }
 
     public static void exhaust(LivingEntity owner) {
-        owner.removeEffect(MainEffects.STUN.get());
-        owner.addEffect(new MobEffectInstance(MainEffects.STUN.get(), LOSER_EXHAUST_TICKS, 0, false, false, true));
+        owner.removeEffect(MainEffects.STUN);
+        owner.addEffect(new MobEffectInstance(MainEffects.STUN, LOSER_EXHAUST_TICKS, 0, false, false, true));
         if (owner instanceof ServerPlayer player) {
             StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
                 data.getStatus().setStunEffect(true);

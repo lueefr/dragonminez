@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.ForgeHooks;
+import net.neoforged.neoforge.common.CommonHooks;
 
 import java.util.Optional;
 
@@ -73,11 +73,12 @@ public class PatternStationMenu extends AbstractContainerMenu {
 		if (level.isClientSide) return;
 		ServerPlayer serverPlayer = (ServerPlayer) player;
 		ItemStack result = ItemStack.EMPTY;
-		Optional<PatternRecipe> optional = level.getServer().getRecipeManager().getRecipeFor(MainRecipes.PATTERN_TYPE.get(), craftSlots, level);
+		Optional<net.minecraft.world.item.crafting.RecipeHolder<PatternRecipe>> optional = level.getServer().getRecipeManager().getRecipeFor(MainRecipes.PATTERN_TYPE.get(), craftSlots.asCraftInput(), level);
 		if (optional.isPresent()) {
-			PatternRecipe recipe = optional.get();
-			if (resultSlots.setRecipeUsed(level, serverPlayer, recipe)) {
-				ItemStack assembled = recipe.assemble(craftSlots, level.registryAccess());
+			var holder = optional.get();
+            PatternRecipe recipe = holder.value();
+			if (resultSlots.setRecipeUsed(level, serverPlayer, holder)) {
+				ItemStack assembled = recipe.assemble(craftSlots.asCraftInput(), level.registryAccess());
 				if (assembled.isItemEnabled(level.enabledFeatures())) {
 					result = assembled;
 				}
@@ -172,10 +173,10 @@ public class PatternStationMenu extends AbstractContainerMenu {
 		@Override
 		public void onTake(Player player, ItemStack stack) {
 			this.checkTakeAchievements(stack);
-			ForgeHooks.setCraftingPlayer(player);
+			CommonHooks.setCraftingPlayer(player);
 			NonNullList<ItemStack> remaining = player.level().getRecipeManager()
-					.getRemainingItemsFor(MainRecipes.PATTERN_TYPE.get(), this.craftSlots, player.level());
-			ForgeHooks.setCraftingPlayer(null);
+					.getRemainingItemsFor(MainRecipes.PATTERN_TYPE.get(), this.craftSlots.asCraftInput(), player.level());
+			CommonHooks.setCraftingPlayer(null);
 
 			for (int i = 0; i < remaining.size(); ++i) {
 				ItemStack current = this.craftSlots.getItem(i);
@@ -188,7 +189,7 @@ public class PatternStationMenu extends AbstractContainerMenu {
 				if (!leftover.isEmpty()) {
 					if (current.isEmpty()) {
 						this.craftSlots.setItem(i, leftover);
-					} else if (ItemStack.isSameItemSameTags(current, leftover)) {
+					} else if (ItemStack.isSameItemSameComponents(current, leftover)) {
 						leftover.grow(current.getCount());
 						this.craftSlots.setItem(i, leftover);
 					} else if (!this.player.getInventory().add(leftover)) {

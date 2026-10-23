@@ -7,7 +7,7 @@ import com.dragonminez.server.world.dimension.OtherworldDimension;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstapContext;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
@@ -60,7 +60,7 @@ public class OtherworldGeneration {
 	private static final double MOUNTAIN_HEIGHT = 70.0;
 	private static final double NEEDLE_HEIGHT = 34.0;
 
-	public static void bootstrap(BootstapContext<LevelStem> context) {
+	public static void bootstrap(BootstrapContext<LevelStem> context) {
 		HolderGetter<Biome> biomeRegistry = context.lookup(Registries.BIOME);
 		HolderGetter<DimensionType> dimTypes = context.lookup(Registries.DIMENSION_TYPE);
 		HolderGetter<NoiseGeneratorSettings> noiseSettings = context.lookup(Registries.NOISE_SETTINGS);
@@ -75,7 +75,7 @@ public class OtherworldGeneration {
 		context.register(OTHERWORLD_STEM, new LevelStem(dimTypes.getOrThrow(OtherworldDimension.OTHERWORLD_TYPE), chunkGenerator));
 	}
 
-	public static void bootstrapNoise(BootstapContext<NoiseGeneratorSettings> context) {
+	public static void bootstrapNoise(BootstrapContext<NoiseGeneratorSettings> context) {
 		HolderGetter<NormalNoise.NoiseParameters> noiseParams = context.lookup(Registries.NOISE);
 
 		SurfaceRules.RuleSource bedrock = SurfaceRules.ifTrue(
@@ -224,7 +224,7 @@ public class OtherworldGeneration {
 		return DensityFunctions.add(DensityFunctions.constant(1.0), scaled(-1.0, noise.abs()));
 	}
 
-	public static void bootstrapNoiseParameters(BootstapContext<NormalNoise.NoiseParameters> context) {
+	public static void bootstrapNoiseParameters(BootstrapContext<NormalNoise.NoiseParameters> context) {
 		context.register(CLOUD_BILLOW, new NormalNoise.NoiseParameters(-5, 1.0, 0.5));
 		context.register(CLOUD_PUFF, new NormalNoise.NoiseParameters(-4, 1.0, 0.5));
 	}

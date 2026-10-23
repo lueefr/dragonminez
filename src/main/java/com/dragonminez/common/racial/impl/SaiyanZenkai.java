@@ -85,7 +85,7 @@ public class SaiyanZenkai implements RacialAbility {
 
 		player.displayClientMessage(Component.translatable("message.dragonminez.racial.zenkai.used"), true);
 		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MainSounds.TRANSFORM_ON.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
-		player.addEffect(new MobEffectInstance(MainEffects.SAIYAN_PASSIVE.get(), config.getCooldownSeconds() * 20, 0, false, false, true));
+		player.addEffect(new MobEffectInstance(MainEffects.SAIYAN_PASSIVE, config.getCooldownSeconds() * 20, 0, false, false, true));
 		NetworkHandler.sendToTrackingEntityAndSelf(new StatsSyncS2C(player), player);
 	}
 
