@@ -1,6 +1,12 @@
 # Changelog
 
-## 2.2 Hotfix — Minecraft 1.21.1 (NeoForge)
+## 2.2 - Hotfix 2 — Minecraft 1.21.1 (NeoForge)
+
+### Changed
+
+- Publish a numbered GitHub hotfix release for every update to the main branch, resetting the sequence when the DragonMineZ source version changes.
+
+## 2.2 - Hotfix 1 — Minecraft 1.21.1 (NeoForge)
 
 ### Fixed
 
