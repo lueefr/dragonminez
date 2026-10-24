@@ -102,24 +102,20 @@ jobs:
             exit 0
           fi
 
-          base_tag="v${version}"
-          if gh release view "$base_tag" >/dev/null 2>&1; then
-            hotfix_number=0
-            release_tags="$(gh release list --limit 1000 --json tagName --jq '.[].tagName')"
-            while IFS= read -r existing_tag; do
-              if [[ "$existing_tag" == "${base_tag}-hotfix" ]]; then
-                (( hotfix_number < 1 )) && hotfix_number=1
-              elif [[ "$existing_tag" == "${base_tag}-hotfix-"* ]]; then
-                candidate="${existing_tag#"${base_tag}-hotfix-"}"
-                if [[ "$candidate" =~ ^[0-9]+$ ]]; then
-                  candidate_number=$((10#$candidate))
-                  (( candidate_number > hotfix_number )) && hotfix_number="$candidate_number"
-                fi
-              fi
-            done <<< "$release_tags"
+          git ls-remote --tags origin \
+            | sed -E 's#^[^[:space:]]+[[:space:]]+refs/tags/##; s/\^\{\}$//' \
+            | sort -u > "$RUNNER_TEMP/git-tags.txt"
+          gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=100" --paginate \
+            --jq '.[].tag_name' > "$RUNNER_TEMP/release-tags.txt"
+          release_target="$(python3 -m scripts.release.next_github_release \
+            --version "$version" \
+            --tags-file "$RUNNER_TEMP/git-tags.txt" \
+            --release-tags-file "$RUNNER_TEMP/release-tags.txt")"
+          tag="$(jq -r '.tag' <<< "$release_target")"
+          release_kind="$(jq -r '.kind' <<< "$release_target")"
 
-            hotfix_number=$((hotfix_number + 1))
-            tag="${base_tag}-hotfix-${hotfix_number}"
+          if [[ "$release_kind" == "hotfix" ]]; then
+            hotfix_number="$(jq -r '.hotfix_number' <<< "$release_target")"
             title="DragonMineZ ${version} - Hotfix ${hotfix_number} (Minecraft ${minecraft_version})"
             if [[ -f "release-notes/${version}-hotfix-${hotfix_number}.md" ]]; then
               notes_file="release-notes/${version}-hotfix-${hotfix_number}.md"
@@ -131,7 +127,6 @@ jobs:
               notes_file="CHANGELOG.md"
             fi
           else
-            tag="$base_tag"
             title="DragonMineZ ${version} (Minecraft ${minecraft_version})"
             if [[ -f "release-notes/${version}.md" ]]; then
               notes_file="release-notes/${version}.md"

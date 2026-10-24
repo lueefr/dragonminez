@@ -78,6 +78,8 @@ You can only download the port from GitHub:
 - [GitHub Releases](https://github.com/lueefr/dragonminez/releases/latest)
 Release notes are available in the [changelog](CHANGELOG.md) and are included with each GitHub release.
 
+Hotfix 7 fixes player aura positioning, improves muscle overlay rendering with shaders, and moves Otherworld landmarks into the normal per-chunk feature pipeline. In a server-only Distant Horizons 3.3.1 native-generation check, decoded FullData coordinates align with the Otherworld landmark after accounting for the dimension's `minY=-64`. No visual LOD overlay was captured, and the DH SeedGen data is still being checked with the same coordinate normalization. Other LOD addons remain untested. See the [Hotfix 7 notes](release-notes/2.2-hotfix-7.md) for details and limits.
+
 ---
 
 ## 🫴 Support the Project
@@ -158,3 +160,7 @@ Copyright © 2025 GeckoThePecko. See the [`THIRD_PARTY_LICENSES`](THIRD_PARTY_LI
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License or, at your option, any later version.
 
 [GNU General Public License v3.0](https://github.com/DragonMineZ/dragonminez/blob/main/LICENSE)
+
+The configurable extension APIs are maintained separately on [`feature/2.2-neoforge-1.21.1-api`](https://github.com/lueefr/dragonminez/tree/feature/2.2-neoforge-1.21.1-api).
+
+Player aura/lightning alignment and shader skin-overlay fixes are maintained with the extension APIs in [PR #6](https://github.com/lueefr/dragonminez/pull/6). This branch is reserved for Otherworld worldgen and LOD compatibility.
