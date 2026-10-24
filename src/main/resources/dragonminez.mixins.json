@@ -5,6 +5,10 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "dragonminez.refmap.json",
   "mixins": [
+    "common.ConfigTranslationCacheMixin",
+    "common.DistantHorizonsCloudMixin",
+    "common.DistantHorizonsOtherworldGeneratorMixin",
+    "common.DhSeedGenOtherworldMixin",
     "common.ChunkSerializerMixin",
     "common.EnchantmentMixin",
     "common.EntityMixin",
@@ -21,6 +25,7 @@
     "common.StructureTemplatePoolAccessor"
   ],
   "client": [
+    "client.ConfigLanguageMixin",
     "client.AbstractSoundInstanceAccessor",
     "client.BundleTooltipComponentAccessor",
     "client.BrandingControlMixin",

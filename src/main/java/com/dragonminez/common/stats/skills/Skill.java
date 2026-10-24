@@ -4,6 +4,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class Skill {
+    private transient Runnable progressionListener = () -> {};
+    public void setProgressionListener(Runnable listener) { progressionListener = java.util.Objects.requireNonNull(listener); }
+
     private final String name;
     private int level;
     private boolean isActive;
@@ -32,11 +35,12 @@ public class Skill {
     }
 
     public void setLevel(int level) {
-        this.level = Math.min(level, maxLevel);
+        int next = Math.min(level, maxLevel);
+        if (this.level != next) { this.level = next; progressionListener.run(); }
     }
 
     public void addLevel(int amount) {
-        this.level = Math.min(this.level + amount, maxLevel);
+        setLevel(this.level + amount);
     }
 
     public boolean isActive() {
@@ -52,6 +56,7 @@ public class Skill {
     }
 
     public void setMaxLevel(int maxLevel) {
+        if (this.maxLevel != maxLevel || this.level > maxLevel) progressionListener.run();
         this.maxLevel = maxLevel;
         if (this.level > maxLevel) {
             this.level = maxLevel;
@@ -99,6 +104,7 @@ public class Skill {
     }
 
     public void copyFrom(Skill other) {
+        if (this.level != other.level || this.maxLevel != other.maxLevel) progressionListener.run();
         this.level = other.level;
         this.isActive = other.isActive;
         this.maxLevel = other.maxLevel;

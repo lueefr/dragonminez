@@ -45,7 +45,13 @@ public class Quest {
 	private final boolean secret;
 	private final ClaimMode claimMode;
 
-	private boolean repeatable;
+	private String completionId;
+
+    public void setCompletionId(String id) {
+        completionId = id == null || id.isBlank() ? null : com.dragonminez.api.content.ContentProgress.requireId(id);
+    }
+
+    private boolean repeatable;
 	private int repeatCooldownSeconds;
 	private int timeLimitSeconds;
 

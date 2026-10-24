@@ -98,6 +98,7 @@ public class QuestParser {
 		boolean repeatable = json.has("repeatable") && json.get("repeatable").getAsBoolean();
 		int repeatCooldownSeconds = json.has("repeat_cooldown_seconds") ? json.get("repeat_cooldown_seconds").getAsInt() : 0;
 		quest.setRepeatConfig(repeatable, repeatCooldownSeconds);
+        if (json.has("completionId")) quest.setCompletionId(json.get("completionId").getAsString());
 		quest.setTimeLimitSeconds(json.has("time_limit_seconds") ? json.get("time_limit_seconds").getAsInt() : 0);
 
 		return quest;

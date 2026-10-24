@@ -121,6 +121,7 @@ public final class NpcDispositionService {
 
 	@Nullable
 	public static Component npcAlignmentBlocker(StatsData data, String npcId) {
+        if (npcId != null && com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.get(npcId).isPresent()) return customAlignmentBlocker(data,npcId);
 		String key = normalizeNpcKey(npcId);
 		if (MASTER_IDS.contains(key)) {
 			return masterAlignmentBlocker(data, key);
@@ -154,6 +155,7 @@ public final class NpcDispositionService {
 
 	@Nullable
 	public static Component masterAlignmentBlocker(StatsData data, String masterName) {
+        if (masterName != null && com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.get(masterName).isPresent()) return customAlignmentBlocker(data,masterName);
 		String key = normalizeNpcKey(masterName);
 		int alignment = data.getResources().getAlignment();
 		if (GOOD_ALIGNED_MASTERS.contains(key) && alignment < GOOD_ALIGNMENT_MIN) {
@@ -165,7 +167,17 @@ public final class NpcDispositionService {
 		return null;
 	}
 
+    private static Component customAlignmentBlocker(StatsData data, String id) {
+        var custom=com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.get(id);
+        if (custom.isEmpty()) return null;
+        int alignment=custom.get().alignment(), player=data.getResources().getAlignment();
+        if (alignment>=GOOD_ALIGNMENT_MIN && player<GOOD_ALIGNMENT_MIN) return Component.translatable("message.dragonminez.npc.master_alignment_too_low",GOOD_ALIGNMENT_MIN);
+        if (alignment<=EVIL_ALIGNMENT_MAX && player>EVIL_ALIGNMENT_MAX) return Component.translatable("message.dragonminez.npc.master_alignment_too_high",EVIL_ALIGNMENT_MAX);
+        return null;
+    }
+
 	public static String resolveNpcKey(Entity entity) {
+        if (entity instanceof com.dragonminez.common.init.entities.questnpc.CustomNpcEntity custom) return custom.getNpcId();
 		if (entity instanceof QuestNPCEntity questNPC) {
 			return normalizeNpcKey(questNPC.getNpcId());
 		}

@@ -188,6 +188,7 @@ dependencies {
     }
 
     testImplementation("org.junit.jupiter:junit-jupiter:6.1.0")
+    testImplementation("com.google.code.gson:gson:2.10.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // JEI API only (optional compile). Full JEI for client runs is optional localRuntime.

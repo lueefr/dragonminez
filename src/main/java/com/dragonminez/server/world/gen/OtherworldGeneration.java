@@ -82,6 +82,7 @@ public class OtherworldGeneration {
 				SurfaceRules.verticalGradient("bedrock_floor", VerticalAnchor.aboveBottom(0), VerticalAnchor.aboveBottom(3)),
 				SurfaceRules.state(Blocks.BEDROCK.defaultBlockState())
 		);
+		SurfaceRules.RuleSource cloud = SurfaceRules.state(MainBlocks.OTHERWORLD_CLOUD.get().defaultBlockState());
 
 		SurfaceRules.RuleSource calcite = SurfaceRules.state(Blocks.CALCITE.defaultBlockState());
 		SurfaceRules.RuleSource hellStone = SurfaceRules.state(MainBlocks.HELL_STONE.get().defaultBlockState());
@@ -142,7 +143,14 @@ public class OtherworldGeneration {
 				)
 		);
 
-		SurfaceRules.RuleSource otherWorldRules = SurfaceRules.sequence(bedrock, hell);
+		SurfaceRules.RuleSource otherWorldRules = SurfaceRules.sequence(
+				bedrock,
+				hell,
+				SurfaceRules.ifTrue(
+						SurfaceRules.yBlockCheck(VerticalAnchor.absolute(HELL_CEILING), 0),
+						cloud
+				)
+		);
 
 		NoiseSettings noiseSettings = NoiseSettings.create(WORLD_BOTTOM, WORLD_TOP - WORLD_BOTTOM, 1, 1);
 

@@ -2241,6 +2241,10 @@ public class MainEntities {
                     .noSave()
                     .build("gum_ball"));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<com.dragonminez.common.init.entities.questnpc.CustomNpcEntity>> CUSTOM_NPC =
+            ENTITY_TYPES.register("custom_npc", () -> EntityType.Builder.of(com.dragonminez.common.init.entities.questnpc.CustomNpcEntity::new, MobCategory.CREATURE)
+                    .sized(0.6f, 1.8f).build("dragonminez:custom_npc"));
+
     // Single generic entity type for ALL data-driven quest NPCs
     public static final DeferredHolder<EntityType<?>, ? extends EntityType<QuestNPCEntity>> QUEST_NPC =
             ENTITY_TYPES.register("quest_npc",

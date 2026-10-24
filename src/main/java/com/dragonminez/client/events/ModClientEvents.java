@@ -260,6 +260,7 @@ public class ModClientEvents {
 
         // Quest NPC — single renderer for all data-driven quest NPCs | usa un renderer genérico para los NPCs de misiones, después usa gráficos.json para asignar modelos/texturas específicos a cada npcId
         event.registerEntityRenderer(MainEntities.QUEST_NPC.get(), QuestNPCRenderer::new);
+        event.registerEntityRenderer(MainEntities.CUSTOM_NPC.get(), com.dragonminez.client.init.entities.renderer.CustomNpcRenderer::new);
 
         for (var sagaEntity : MainEntities.getSagaEntities()) {
             event.registerEntityRenderer((EntityType) sagaEntity.get(), context -> new DBSagasRenderer(context));

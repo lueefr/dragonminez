@@ -157,7 +157,10 @@ public class UpdateSkillC2S {
 			if (offersSkill(player, master.getMasterName(), skillName)) return true;
 		}
 		for (QuestNPCEntity npc : player.serverLevel().getEntitiesOfClass(QuestNPCEntity.class, range)) {
-			if (offersSkill(player, npc.getNpcId(), skillName)) return true;
+			if (npc instanceof com.dragonminez.common.init.entities.questnpc.CustomNpcEntity
+                    && (npc.distanceToSqr(player) > MASTER_SHOP_RANGE * MASTER_SHOP_RANGE
+                    || com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.get(npc.getNpcId()).isEmpty())) continue;
+            if (offersSkill(player, npc.getNpcId(), skillName)) return true;
 		}
 		return false;
 	}
@@ -165,6 +168,8 @@ public class UpdateSkillC2S {
 	private static boolean offersSkill(ServerPlayer player, String npcName, String skillName) {
 		if (npcName == null || npcName.isBlank()) return false;
 		if (NpcDispositionService.getServiceBlocker(player, npcName) != null) return false;
+        var custom = com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.get(npcName);
+        if (custom.isPresent()) return custom.get().offers().skills().contains(skillName.toLowerCase(Locale.ROOT));
 		Map<String, List<String>> offerings = ConfigManager.getSkillsConfig().getSkillOfferings();
 		List<String> offered = offerings.getOrDefault(npcName.toLowerCase(), offerings.get("default"));
 		return offered != null && (offered.contains(skillName) || offered.contains(skillName.toLowerCase()));
