@@ -31,6 +31,11 @@ public final class CustomNpcEntity extends QuestNPCEntity {
         setCustomName(Component.translatable(definition.name()));setCustomNameVisible(true);
         getPersistentData().putInt(NpcDispositionService.NPC_ALIGNMENT_TAG,definition.alignment());
     }
+    @Override public Component getName() {
+        Component configured = getCustomName();
+        return configured != null ? configured : super.getName();
+    }
+    @Override public Component getDisplayName() { return getName(); }
     public CustomNpcRegistry.Definition definition() {
         String json=entityData.get(DEFINITION);
         if (!json.equals(cachedJson)) {

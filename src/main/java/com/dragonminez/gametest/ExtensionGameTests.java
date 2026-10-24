@@ -69,6 +69,8 @@ public final class ExtensionGameTests {
         var npc = com.dragonminez.common.init.MainEntities.CUSTOM_NPC.get().create(helper.getLevel());
         helper.assertTrue(npc != null,"Custom NPC entity type was not registered");
         npc.setDefinition(definition);
+        helper.assertTrue(npc.getName().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents name
+                && name.getKey().equals(definition.name()),"NPC configured name was replaced by the inherited quest-NPC key");
         helper.assertTrue(npc.cosmeticItem(net.minecraft.world.entity.EquipmentSlot.CHEST)
                 .is(net.minecraft.world.item.Items.IRON_CHESTPLATE),"Cosmetic armor was not resolved");
         helper.assertTrue(npc.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST).isEmpty(),
@@ -114,12 +116,87 @@ public final class ExtensionGameTests {
             player.getInventory().clearContent();
             npc.setPos(player.getX()+11,player.getY(),player.getZ());
             helper.assertTrue(!com.dragonminez.api.npc.CustomNpcServices.purchase(player,npc,0),"Out-of-range purchase was accepted");
+            npc.setPos(player.getX()+1,player.getY(),player.getZ());
+            String original = java.nio.file.Files.readString(root.resolve("custom_npcs/guide.json"));
+            java.nio.file.Files.writeString(root.resolve("custom_npcs/guide.json"), original.replace("\"alignment\":50", "\"alignment\":100"));
+            registry.reload(root);
+            data.getResources().setAlignment(50);
+            helper.assertTrue(!com.dragonminez.api.npc.CustomNpcServices.purchase(player,npc,0),"Good-aligned NPC accepted incompatible alignment");
+            helper.assertTrue(data.getResources().getTrainingPointsExact()==20,"Alignment rejection charged the player");
+            data.getResources().setAlignment(100);
+            helper.assertTrue(com.dragonminez.api.npc.CustomNpcServices.purchase(player,npc,0),"Good-aligned NPC rejected compatible alignment");
+            java.nio.file.Files.writeString(root.resolve("custom_npcs/guide.json"), original.replace("\"alignment\":50", "\"alignment\":0"));
+            registry.reload(root);
+            helper.assertTrue(!com.dragonminez.api.npc.CustomNpcServices.purchase(player,npc,0),"Evil-aligned NPC accepted incompatible alignment");
+            data.getResources().setAlignment(0);
+            helper.assertTrue(com.dragonminez.api.npc.CustomNpcServices.purchase(player,npc,0),"Evil-aligned NPC rejected compatible alignment");
+            java.nio.file.Files.writeString(root.resolve("custom_npcs/guide.json"), original.replace("\"price\":5", "\"price\":16777217"));
+            registry.reload(root);
+            data.getResources().setTrainingPointsExact(16777218);
+            helper.assertTrue(com.dragonminez.api.npc.CustomNpcServices.purchase(player,npc,0),"Large-price purchase failed");
+            helper.assertTrue(data.getResources().getTrainingPointsExact()==1,"Large shop price lost double precision");
         } catch (java.io.IOException ex) { throw new IllegalStateException(ex); }
         finally {
             if (npc != null) npc.discard();
             try { com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.reload(
                     net.neoforged.fml.loading.FMLPaths.CONFIGDIR.get().resolve("dragonminez")); }
             catch (java.io.IOException ex) { throw new IllegalStateException(ex); }
+        }
+        helper.succeed();
+    }
+    @GameTest(template="port_empty")
+    public static void nativeFormCompositionProgressionReloadAndCurrentAnchor(GameTestHelper helper) {
+        String race = "api_test_" + UUID.randomUUID().toString().replace("-", "");
+        var root = net.neoforged.fml.loading.FMLPaths.CONFIGDIR.get().resolve("dragonminez/races").resolve(race);
+        var forms = root.resolve("forms");
+        try {
+            java.nio.file.Files.createDirectories(forms);
+            String source = """
+                    {"configVersion":"2.2.0","groupName":"foundation","formType":"superforms","forms":{
+                     "basic":{"name":"basic","unlockOnSkillLevel":1,"strMultiplier":2.0},
+                     "stronger":{"name":"stronger","unlockOnSkillLevel":2,"strMultiplier":4.0,
+                                 "completedContentRequisites":["example:composition_trial"]}}}
+                    """;
+            String chain = """
+                    {"configVersion":"2.2.0","groupName":"custom_path","formType":"superforms","forms":{
+                     "stage_one":{"name":"stage_one","unlockOnSkillLevel":1,"baseForm":"best","strMultiplier":1.1},
+                     "stage_two":{"name":"stage_two","unlockOnSkillLevel":1,"inheritsMultipliersFrom":"custom_path.stage_one","strMultiplier":1.5}}}
+                    """;
+            java.nio.file.Files.writeString(forms.resolve("different_filename.json"), source);
+            java.nio.file.Files.writeString(forms.resolve("chain.json"), chain);
+            com.dragonminez.common.config.ConfigManager.reloadSpecificConfig("races/"+race+"/forms/different_filename");
+            com.dragonminez.common.config.ConfigManager.reloadSpecificConfig("races/"+race+"/forms/chain");
+            var player = FakePlayerFactory.get(helper.getLevel(),new GameProfile(UUID.randomUUID(),"FormRuntimeTest"));
+            var data = StatsProvider.get(StatsCapability.INSTANCE,player).orElseThrow(IllegalStateException::new);
+            data.getCharacter().setRace(race);
+            data.getSkills().registerDefaultSkill("superforms",10);
+            data.getSkills().setSkillLevel("superforms",1);
+            data.getCharacter().setActiveForm("custom_path","stage_two");
+            helper.assertTrue(Math.abs(data.getFormMultiplier("STR")-3.3)<1e-8,"Native chained best multiplier is incorrect");
+            data.getSkills().setSkillLevel("superforms",2);
+            helper.assertTrue(Math.abs(data.getFormMultiplier("STR")-3.3)<1e-8,"Best selected a content-locked form");
+            ContentCompletionApi.complete(player,"example:composition_trial","test");
+            helper.assertTrue(Math.abs(data.getFormMultiplier("STR")-6.6)<1e-8,"Completion did not invalidate the player's best-form cache");
+            java.nio.file.Files.writeString(forms.resolve("different_filename.json"),source.replace("4.0","6.0"));
+            com.dragonminez.common.config.ConfigManager.reloadSpecificConfig("races/"+race+"/forms/different_filename");
+            helper.assertTrue(Math.abs(data.getFormMultiplier("STR")-9.9)<1e-8,"Config reload did not propagate through the composition chain");
+            java.nio.file.Files.writeString(forms.resolve("chain.json"),chain.replace("\"best\"","\"current\""));
+            com.dragonminez.common.config.ConfigManager.reloadSpecificConfig("races/"+race+"/forms/chain");
+            data.getCharacter().setActiveForm("foundation","basic");
+            data.getCharacter().setActiveForm("custom_path","stage_two");
+            helper.assertTrue(Math.abs(data.getFormMultiplier("STR")-3.3)<1e-8,"Current-form chain did not retain its preceding source");
+            var restored = new StatsData(player);
+            restored.load(data.save());
+            helper.assertTrue(Math.abs(restored.getFormMultiplier("STR")-3.3)<1e-8,"Current-form source was lost during persistence");
+        } catch (java.io.IOException | ClassNotFoundException ex) { throw new IllegalStateException(ex); }
+        finally {
+            com.dragonminez.common.config.ConfigManager.getAllForms().remove(race);
+            try {
+                java.nio.file.Files.deleteIfExists(forms.resolve("different_filename.json"));
+                java.nio.file.Files.deleteIfExists(forms.resolve("chain.json"));
+                java.nio.file.Files.deleteIfExists(forms);
+                java.nio.file.Files.deleteIfExists(root);
+            } catch (java.io.IOException ex) { throw new IllegalStateException(ex); }
         }
         helper.succeed();
     }
