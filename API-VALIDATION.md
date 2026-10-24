@@ -33,7 +33,7 @@ Scope: `feature/2.2-neoforge-1.21.1-api`. Player effect alignment and shader ski
 ## Remaining verification
 
 - Check skill/quest offerings and placement unload/reload.
-- Resolve and capture hair-enabled NPC rendering; verify appearance defaults and armor/hair combinations.
+- Review appearance defaults and further armor/hair combinations (three hair presets with cosmetic armor were captured successfully).
 - Verify translation snapshots across separate multiplayer clients and actual disconnect events (local component refresh/clear checks passed).
 - Run the relevant multiplayer and gameplay checks before merging.
 
@@ -50,3 +50,10 @@ No release or merge is justified solely by the historical combined-branch checks
 - Custom placements now wait for persistent entities to finish loading before checking their UUID, avoiding premature replacement while a chunk's entity data is pending. Actual placement unload/reload verification remains pending.
 
 - Fresh combined `test build runGameTestServer` passed after the effect and placement changes: six unit tests, nine required GameTests. Log: `/tmp/dmz-api-effects-validation.log`.
+
+## Custom NPC hair and skill purchase follow-up — 2026-10-24
+
+- A fresh hair-enabled client run completed with presets 1–3, cosmetic armor and the services screen. The temporary harness disabled pause-on-lost-focus and recorded tick progress; this successful run does not establish why earlier captures stopped progressing.
+- Screenshots: `/tmp/dmz-api-visual/game-client/screenshots/2026-10-24_15.01.06.png`, `2026-10-24_15.01.09.png`. Log: `/tmp/dmz-api-visual/run-hair-progress.log`. Cached translation refresh and clear checks also passed.
+- A new native skill-purchase test reproduced a superclass-validation bypass: custom NPCs were also enumerated as built-in masters, allowing purchases outside the ten-block sphere and fallback offerings after config removal. Custom NPCs now use only their isolated, live-definition/range validation; dead custom NPCs are rejected.
+- Regression evidence: `/tmp/dmz-api-skill-regression.log` fails on the old range check. After the fix, `test build runGameTestServer` passed six unit tests and ten required GameTests: `/tmp/dmz-api-skill-fixed.log`. The new test also verifies successful nearby purchase, server price authority and removal of the custom definition.

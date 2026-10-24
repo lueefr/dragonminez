@@ -154,11 +154,13 @@ public class UpdateSkillC2S {
 	private static boolean isOfferedByNearbyMaster(ServerPlayer player, String skillName) {
 		AABB range = player.getBoundingBox().inflate(MASTER_SHOP_RANGE);
 		for (MastersEntity master : player.serverLevel().getEntitiesOfClass(MastersEntity.class, range)) {
+            // Custom NPCs inherit MastersEntity, but must use the isolated validation below.
+            if (master instanceof com.dragonminez.common.init.entities.questnpc.CustomNpcEntity) continue;
 			if (offersSkill(player, master.getMasterName(), skillName)) return true;
 		}
 		for (QuestNPCEntity npc : player.serverLevel().getEntitiesOfClass(QuestNPCEntity.class, range)) {
 			if (npc instanceof com.dragonminez.common.init.entities.questnpc.CustomNpcEntity
-                    && (npc.distanceToSqr(player) > MASTER_SHOP_RANGE * MASTER_SHOP_RANGE
+                    && (!npc.isAlive() || npc.distanceToSqr(player) > MASTER_SHOP_RANGE * MASTER_SHOP_RANGE
                     || com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.get(npc.getNpcId()).isEmpty())) continue;
             if (offersSkill(player, npc.getNpcId(), skillName)) return true;
 		}

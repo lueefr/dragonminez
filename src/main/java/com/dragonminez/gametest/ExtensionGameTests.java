@@ -145,6 +145,54 @@ public final class ExtensionGameTests {
         helper.succeed();
     }
     @GameTest(template="port_empty")
+    public static void customNpcSkillPurchaseUsesLiveDefinitionAndSphericalRange(GameTestHelper helper) {
+        com.dragonminez.common.init.entities.questnpc.CustomNpcEntity npc = null;
+        var registry = com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE;
+        try {
+            var root = java.nio.file.Files.createTempDirectory("dmz-npc-skill-test-");
+            var file = root.resolve("custom_npcs/guide.json");
+            java.nio.file.Files.createDirectories(file.getParent());
+            java.nio.file.Files.writeString(file, """
+                    {"id":"example:skill_guide","baseTexture":"master_male","hairType":"none",
+                     "name":"npc.example.skill_guide","alignment":50,"offers":{"skills":["jump"]}}
+                    """);
+            registry.reload(root);
+            var player = FakePlayerFactory.get(helper.getLevel(),new GameProfile(UUID.randomUUID(),"NpcSkillTest"));
+            var pos = helper.absolutePos(net.minecraft.core.BlockPos.ZERO);
+            player.setPos(pos.getX(),pos.getY(),pos.getZ());
+            var data = StatsProvider.get(StatsCapability.INSTANCE,player).orElseThrow(IllegalStateException::new);
+            data.getCharacter().setRace("human");
+            data.getResources().setAlignment(50);
+            data.getResources().setTrainingPointsExact(10000);
+            data.getSkills().removeSkill("jump");
+            npc = com.dragonminez.api.npc.CustomNpcApi.spawn(helper.getLevel(),"example:skill_guide",
+                    player.getX()+8,player.getY(),player.getZ()+8,0);
+            npc.setNoAi(true);
+            var request = new com.dragonminez.common.network.C2S.UpdateSkillC2S(
+                    com.dragonminez.common.network.C2S.UpdateSkillC2S.SkillAction.PURCHASE,"jump",0);
+            var context = new com.dragonminez.compat.network.NetworkEvent.Context(player);
+            request.handle(() -> context);
+            helper.assertTrue(data.getSkills().getSkillLevel("jump")==0,"Custom master allowed purchase outside the 10-block sphere");
+            helper.assertTrue(data.getResources().getTrainingPointsExact()==10000,"Rejected range check charged the player");
+            npc.setPos(player.getX()+1,player.getY(),player.getZ());
+            request.handle(() -> context);
+            helper.assertTrue(data.getSkills().getSkillLevel("jump")==1,"Nearby custom master did not sell the configured skill");
+            int price = com.dragonminez.common.config.ConfigManager.getSkillsConfig().getSkillCosts("jump").getCosts().getFirst();
+            helper.assertTrue(data.getResources().getTrainingPointsExact()==10000-price,"Purchase trusted client cost instead of server price");
+            data.getSkills().removeSkill("jump");
+            java.nio.file.Files.delete(file);
+            registry.reload(root);
+            request.handle(() -> context);
+            helper.assertTrue(data.getSkills().getSkillLevel("jump")==0,"Removed custom master fell back to built-in default offerings");
+        } catch (java.io.IOException ex) { throw new IllegalStateException(ex); }
+        finally {
+            if (npc!=null) npc.discard();
+            try { registry.reload(net.neoforged.fml.loading.FMLPaths.CONFIGDIR.get().resolve("dragonminez")); }
+            catch (java.io.IOException ex) { throw new IllegalStateException(ex); }
+        }
+        helper.succeed();
+    }
+    @GameTest(template="port_empty")
     public static void nativeFormCompositionProgressionReloadAndCurrentAnchor(GameTestHelper helper) {
         String race = "api_test_" + UUID.randomUUID().toString().replace("-", "");
         var root = net.neoforged.fml.loading.FMLPaths.CONFIGDIR.get().resolve("dragonminez/races").resolve(race);
