@@ -12,6 +12,10 @@ This file records instructions, preferences, prohibitions, decisions, and durabl
 - If information belongs only to the current task, put it in a task note, not here.
 - Do not duplicate broad architecture already documented elsewhere unless the memory changes future behavior.
 
+## Branch Note
+
+Most entries below were learned on the original Forge 1.20.1 version 2.2 codebase. The repository now has two branches: `main` (NeoForge 1.21.1 port) and `port/2.2-fabric-26.1.2` (Fabric 26.1.2, work in progress). Class and package paths in older entries may have moved on the ports. Verify a referenced path exists on the current branch before relying on it, and state which branch a finding applies to.
+
 ## What To Record
 
 Record an entry when the information is likely to affect future AI behavior across sessions.
@@ -51,6 +55,7 @@ Do not record:
 - Remove or update stale entries when they become wrong.
 - If a memory conflicts with `AI/Agents.md`, do not silently override it. Record the conflict and ask the user before relying on it.
 - If an entry affects JSON formats editable by players or addon authors, explicitly call out compatibility and user-editability impact.
+- If an entry was learned on a specific branch, say which branch in `Scope` or `Related`.
 
 ## Entry Template
 
@@ -108,12 +113,22 @@ Use this schema for each memory entry:
 
 Add durable memories below this line, newest first.
 
+### 2026-10-23 - Repo Has Two Active Branches With Different Rules
+
+- Type: durable-fact
+- Status: active
+- Source: repo-inspection
+- Scope: repo-wide
+- Summary: `main` is the NeoForge 1.21.1 port (Java 21, verified build); `port/2.2-fabric-26.1.2` is a Fabric 26.1.2 work in progress (Java 25) whose full build is expected to fail.
+- Guidance: Check `git branch --show-current` before applying any rule, path, or command from memory. Follow the branch-specific sections of `AI/Agents.md`.
+- Do Not: Do not run or recommend NeoForge-only paths, events, or commands on the Fabric branch, or claim the Fabric build passes.
+
 ### 2026-10-05 - Player Cooldowns Tick Once, Only In TickHandler
 
 - Type: decision
 - Status: active
 - Source: user
-- Scope: `common/stats/character/Cooldowns`, `server/events/players/TickHandler`
+- Scope: `common/stats/character/Cooldowns`, `server/events/players/TickHandler` (paths from the Forge 1.20.1 codebase; verify on the current branch)
 - Summary: From 2026-01-19 (5b938e478) to 2026-10-05 `StatsCapability.onPlayerTick` and `TickHandler.onPlayerTick` both called `Cooldowns.tick()`, so every `StatsData` cooldown and duration (dash, techniques, knockdowns, Senzu gift, Kami, Baba revive, racial abilities...) lasted half its configured value, released 2.1.x included. The user chose to keep every configured value and remove the extra tick, so from 2.2 they all last their full written length.
 - Guidance: Treat cooldown values as real ticks (`xxxSeconds * 20` = real seconds). Before adding a `PlayerTickEvent` subscriber that advances player state, check that nothing else already advances it.
 - Do Not: Do not tick `Cooldowns` from a second place, and do not halve config values or constants to "restore" the old 2.1 timing without asking.
@@ -136,7 +151,7 @@ Add durable memories below this line, newest first.
 - Type: prohibition
 - Status: active
 - Source: review
-- Scope: `common/network/C2S/*`
+- Scope: `common/network/C2S/*` (Forge 1.20.1 layout; on the Fabric branch use the Fabric network stack with the same discipline)
 - Summary: An audit found packets that trusted the client for gating it only enforced in the GUI: recustomize (class swap + full heal), space pod travel without a pod, master-only skill purchase from anywhere, remote quest turn-in, uncapped `readUtf`/collection sizes, NaN floats passing `Mth.clamp`, and unthrottled handlers that broadcast a full `StatsSyncS2C`.
 - Guidance: Re-check on the server what the screen assumes (nearby NPC/entity, vehicle, pending wish token, skill/offering, alive/spectator), cap every decoded string and collection, reject non-finite floats before clamping, and throttle spammable handlers with `PacketRateLimiter` (use `StatsSyncS2C.sendRequested` for immediate syncs; the 10-tick periodic sync covers drops).
 - Do Not: Do not rely on a client-side button condition as the only gate.
@@ -146,7 +161,7 @@ Add durable memories below this line, newest first.
 - Type: pitfall
 - Status: active
 - Source: debugging
-- Scope: `client/render/shader/BloomPipeline.java`, and any raw framebuffer built on another `RenderTarget`'s textures
+- Scope: `client/render/shader/BloomPipeline.java`, and any raw framebuffer built on another `RenderTarget`'s textures (Forge 1.20.1 layout; rendering was adapted on the ports, verify class location)
 - Summary: `RenderTarget.resize` deletes and recreates its textures and NVIDIA returns the same texture names, so a raw framebuffer whose attachments were cached by id kept pointing at the deleted textures, still reported `GL_FRAMEBUFFER_COMPLETE`, and drew nowhere. Every bloom (ki attacks and auras) vanished after the first maximise or fullscreen switch until a restart.
 - Guidance: Re-attach such framebuffers once per frame. To verify, make the effect render once, then resize the window (GLFW maximise/restore, `Window.toggleFullScreen`) and read the target texture back.
 - Do Not: Do not treat an unchanged texture id or a complete framebuffer status as proof that an attachment is still the live texture.
@@ -156,7 +171,7 @@ Add durable memories below this line, newest first.
 - Type: pitfall
 - Status: active
 - Source: debugging
-- Scope: effects drawn manually in `PlayerEffectsRenderHandler` / `EffectBloomRenderer` (ki tasks)
+- Scope: effects drawn manually in `PlayerEffectsRenderHandler` / `EffectBloomRenderer` (ki tasks) (Forge 1.20.1 layout)
 - Summary: `RenderType.clearRenderState()` (and `BufferSource.endBatch()`, which calls it) leaves blending and the depth test off, depth writes on and culling on. Inside the ki pass this made everything drawn after the Final Flash/Galick Gun lightning opaque, visible through walls, and written at full strength into the bloom mask.
 - Guidance: After flushing a RenderType in the middle of a manual pass, put the pass state back (`EffectBloomRenderer.restoreKiState` for ki tasks).
 - Related: `KiWaveRenderer#renderGalickLightning`, `KiProjectileRenderer`
@@ -166,7 +181,7 @@ Add durable memories below this line, newest first.
 - Type: pitfall
 - Status: active
 - Source: debugging
-- Scope: repo-wide (`TickEvent.LevelTickEvent` subscribers)
+- Scope: repo-wide (`TickEvent.LevelTickEvent` subscribers; on Fabric the equivalent per-level tick callbacks have the same trap)
 - Summary: `LevelTickEvent` fires for every loaded `ServerLevel` each server tick; global per-tick state advanced inside it runs N times per tick (6+ with DMZ's dimensions). The beam clash tug-of-war and meter ran 6× too fast this way until 2026-09-23.
 - Guidance: In a `LevelTickEvent` handler only advance state that belongs to `event.level` (compare the entity/level reference), or move per-tick global work to `TickEvent.ServerTickEvent`.
 - Do Not: Do not keep a static list of world objects and tick all of it from a level tick handler.
@@ -187,7 +202,7 @@ Add durable memories below this line, newest first.
 - Type: pitfall
 - Status: active
 - Source: debugging
-- Scope: `src/main/resources/assets/dragonminez/shaders/`
+- Scope: `src/main/resources/assets/dragonminez/shaders/` (Forge 1.20.1; verify shader format on the current branch)
 - Summary: Vanilla's `blit` post program blends with `srcalpha`/`1-srcalpha` (it is not an overwrite), and undrawn horizon/fog pixels in the main buffer carry alpha 0, so a post pass that forwards `color.a` makes the swap-back blit drop those pixels and show the render target's clear color (black horizon, hardware/scene dependent).
 - Guidance: Any `.fsh` used in a `shaders/post` chain whose result is blitted back to `minecraft:main` via the vanilla `blit` pass must write `fragColor` with alpha `1.0` (see `gravity_red.fsh`, `kisense_grayscale.fsh`, `impact_frame.fsh`, `taiyoken_flash.fsh`).
 - Do Not: Do not propagate the sampled framebuffer alpha (`color.a`) through a post pass that feeds the vanilla `blit`.
@@ -198,7 +213,7 @@ Add durable memories below this line, newest first.
 - Type: pitfall
 - Status: active
 - Source: debugging
-- Scope: `src/main/java/com/dragonminez/server/events/QuestEvents.java`
+- Scope: `src/main/java/com/dragonminez/server/events/QuestEvents.java` (Forge 1.20.1 layout)
 - Summary: Sequential quests may still present multiple kill objectives at once because quest-spawned enemies are spawned for all kill objectives when the quest starts, and natural mixed-kill quests expect simultaneous counting.
 - Guidance: Treat contiguous kill objectives as one tracking block; preserve sequencing between blocks with intervening non-kill objectives instead of gating each kill objective behind earlier kill progress.
 - Related: `QuestEvents.isKillObjectiveUnlocked`
