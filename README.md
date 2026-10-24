@@ -2,14 +2,6 @@
 
 An unofficial fork of [DragonMineZ](https://github.com/DragonMineZ/dragonminez), the Dragon Ball-inspired Minecraft mod created by the DragonMineZ team. This repository maintains ports and additional fixes; it is not the original project or an official release channel.
 
-## Differences from upstream
-
-Based on the original Forge 1.20.1 release **2.2**, this fork provides:
-
-- A **Minecraft 1.21.1 / NeoForge** port, keeping mod version **2.2**.
-- Fixes for player aura/lightning alignment and shader-related skin overlays.
-- Persistent content-completion prerequisites, additive JSON NPCs, recursive form multiplier composition and config-based translations.
-
 See the [Wiki guide](https://github.com/lueefr/dragonminez/wiki), [API documentation and JSON examples](API-EXTENSIONS.md), [porting notes and dependencies](PORTING-1.21.1.md), and [API validation results](API-VALIDATION.md).
 
 ## Downloads
