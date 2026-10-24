@@ -153,7 +153,7 @@ Each file defines a separate custom NPC. Built-in masters and enemies are not re
 | `armor` | Cosmetic item IDs in `head`, `chest`, `legs` and `feet`. Cosmetic items grant no equipment attributes. |
 | `hairType` | Existing hair-style slot; `base` selects the ordinary slot and `none` disables hair. |
 | `hairPreset` | Existing preset ID; defaults to 1. Positive IDs must exist. |
-| `forcedHairCode` | Optional hairstyle encoded with the existing hair-code system. |
+| `hairCode` / `forcedHairCode` | Complete Hair Salon export; see the import instructions below. |
 | `name` | Display name or translation key. |
 | `dialogues` | Display strings or translation keys; these are not executable scripts. |
 | `alignment` | Value from 0 to 100; defaults to 50. Existing alignment service gates apply. |
@@ -166,6 +166,32 @@ Use empty offers for an ambient NPC. Shop prices must be nonnegative integers. C
 Skill offers reuse existing pricing and progression rules. Form skill prices remain in the race's `character.json`, under `formSkillsCosts`, with `buyFromMaster` and `prices`. The number of prices determines the configured maximum skill level; `-1` means that level cannot be purchased. Listing content on an NPC does not bypass its requirements.
 
 Skill purchases and quest actions require the custom NPC's live definition and proximity within ten blocks. Shop purchases also validate alignment, balance and inventory capacity on the server. The client does not supply the purchase price.
+
+### Import a Hair Salon hairstyle
+
+1. Open the [Hair Salon](https://dragonminez.com/hairsalon) and use **Copy code** for the hairstyle, or export it from the editor.
+2. Copy the entire value, including `DMZ22:` or `DMZF22:`. This is an encoded hairstyle, not a numeric preset ID or a page URL.
+3. Put the value in `hairCode` in your custom NPC JSON and run `/dmzreload config`.
+
+For example, this complete, minimal export can be used as a starting point:
+
+```json
+{
+  "id": "example:hair_guide",
+  "baseTexture": "master_male",
+  "name": "npc.example.hair_guide",
+  "hairType": "base",
+  "hairCode": "DMZF22:tdBLDoIwFAXQ26LyGRinzkjcABT8jZTycQG4A2KM0YBBYtyKrsMVuDIfYocwY_Rum_bm5FmABSY1sDsA3QDLMd4d8kN5yuzbpahsxwA_ZtBnriuE55lgiUVPGX050YQGfjvS5EPwSx5QqkO5mT5fFKrrP5SPzxug_l-V8AIZUnFVnyjShUk9hWo-1_P_OImjUNa9BE07oK6C-v58vli0QrUGOukTylPRIRVKulyuVut1q3TQSO1eV7rvgHoKGgRShmErdNhAnX5X6ndIfSWNojhOklbpqJFu-5PiCw"
+}
+```
+
+Replace the sample with the full exported code for your design. `DMZ22:` contains one style, which is used directly. `DMZF22:` contains a set; `hairType` selects the corresponding style from that set. `base` selects the ordinary style, and `none` hides hair. Other slots use the existing `hairType` identifiers. An empty selected style remains empty instead of reverting to a numeric preset.
+
+Imported hair preserves its global, strand, tip and segment colors. Whitespace and invisible clipboard separators are removed before decoding. The code takes precedence over `hairPreset`; when no code is supplied, numeric presets keep their existing behavior. No network request to the Hair Salon is made when spawning or rendering the NPC.
+
+`forcedHairCode` remains supported and is the canonical field used in synchronized/saved NPC definitions; `hairCode` is an accepted JSON alias. Use one field, not both. The existing limit of 30,000 characters for the complete serialized NPC definition still applies, including the code and other fields.
+
+Java integrations can use `com.dragonminez.api.npc.CustomNpcHair.resolveCode(code, hairType)` to resolve a single export or a selected full-set slot, and `normalizeCode(code)` for clipboard cleanup.
 
 ### Spawn the NPC
 

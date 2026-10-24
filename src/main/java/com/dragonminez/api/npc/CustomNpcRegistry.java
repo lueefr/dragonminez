@@ -21,7 +21,7 @@ public final class CustomNpcRegistry {
         }
     }
     public record Definition(String id, String baseTexture, Map<String, String> armor,
-                             String hairType, String forcedHairCode, Integer hairPreset, String name,
+                             String hairType, @com.google.gson.annotations.SerializedName(value="forcedHairCode", alternate={"hairCode"}) String forcedHairCode, Integer hairPreset, String name,
                              List<String> dialogues, Integer alignment, Offers offers) {
         public Definition {
             requireId(id);
@@ -33,9 +33,10 @@ public final class CustomNpcRegistry {
             if (hairPreset < 0 || (hairPreset > 0 && !com.dragonminez.common.hair.HairPresets.exists(hairPreset))) {
                 throw new IllegalArgumentException(id + ": unknown hairPreset " + hairPreset);
             }
+            forcedHairCode = CustomNpcHair.normalizeCode(forcedHairCode);
             if (forcedHairCode != null && !forcedHairCode.isBlank()
-                    && com.dragonminez.common.hair.HairCodec.fromCode(forcedHairCode) == null) {
-                throw new IllegalArgumentException(id + ": invalid forcedHairCode");
+                    && CustomNpcHair.resolveCode(forcedHairCode, hairType) == null) {
+                throw new IllegalArgumentException(id + ": invalid hairCode/forcedHairCode");
             }
             if (baseTexture == null || baseTexture.isBlank()) throw new IllegalArgumentException(id + ": baseTexture is required");
             if (name == null || name.isBlank()) throw new IllegalArgumentException(id + ": name is required");

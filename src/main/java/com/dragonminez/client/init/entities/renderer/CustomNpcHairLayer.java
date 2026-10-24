@@ -1,5 +1,6 @@
 package com.dragonminez.client.init.entities.renderer;
 
+import com.dragonminez.api.npc.CustomNpcHair;
 import com.dragonminez.client.render.hair.*;
 import com.dragonminez.client.render.layer.DMZHairLayer;
 import com.dragonminez.common.hair.*;
@@ -19,7 +20,8 @@ import java.util.*;
 final class CustomNpcHairLayer extends GeoRenderLayer<CustomNpcEntity> {
     private static final ResourceLocation HAIR_TEXTURE = ResourceLocation.parse("dragonminez:textures/entity/races/hair.png");
     private final HairMeshBuilder mesh = new HairMeshBuilder();
-    private final Map<String, HairEntityState> cache = new HashMap<>();
+    private record CachedHair(HairEntityState state, int color, boolean forceColor, boolean empty) {}
+    private final Map<String, CachedHair> cache = new HashMap<>();
     private final Matrix4f headPose = new Matrix4f();
     private final Matrix3f headNormal = new Matrix3f();
     private int capturedEntity = -1;
@@ -46,19 +48,23 @@ final class CustomNpcHairLayer extends GeoRenderLayer<CustomNpcEntity> {
         var definition = npc.definition();
         if (definition == null || definition.hairType().equals("none")) return;
         String key = definition.hairPreset()+"/"+definition.hairType()+"/"+definition.forcedHairCode();
-        HairEntityState state = cache.get(key);
-        if (state == null) {
+        CachedHair cached = cache.get(key);
+        if (cached == null) {
             var slot = HairStyleSlot.byHairType(definition.hairType());
-            CustomHair hair = definition.forcedHairCode() != null && !definition.forcedHairCode().isBlank()
-                    ? HairCodec.fromCode(definition.forcedHairCode()) : HairPresets.get(definition.hairPreset(), slot);
-            if (hair == null || hair.isEmpty()) return;
-            state = new HairEntityState();
+            boolean imported = definition.forcedHairCode() != null && !definition.forcedHairCode().isBlank();
+            CustomHair hair = imported
+                    ? CustomNpcHair.resolveCode(definition.forcedHairCode(), definition.hairType()) : HairPresets.get(definition.hairPreset(), slot);
+            if (hair == null) return;
+            HairEntityState state = new HairEntityState();
             state.updatePoses(hair, hair, 0, slot, slot);
             if (cache.size() >= 128) cache.clear();
-            cache.put(key, state);
+            int color = imported ? Integer.parseInt(hair.getGlobalColor().substring(1), 16) : 0x202020;
+            cached = new CachedHair(state, color, !imported, hair.isEmpty());
+            cache.put(key, cached);
         }
+        if (cached.empty()) return;
         mesh.emit(buffers.getBuffer(RenderType.entityCutoutNoCull(HAIR_TEXTURE)), headPose, headNormal,
-                state, false, 0x202020, 0x202020, true, true, light, overlay, 1,
+                cached.state(), false, cached.color(), cached.color(), cached.forceColor(), cached.forceColor(), light, overlay, 1,
                 DMZHairLayer.wantsPixelDetail(npc), null, null, null);
         buffers.getBuffer(type);
     }
