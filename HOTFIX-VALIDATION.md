@@ -1,3 +1,5 @@
+> Scope update: player effect alignment and skin-overlay fixes have moved to API PR #6. Any rendering checks below describe the earlier combined snapshot; this branch now carries worldgen/LOD changes.
+
 # 2.2 Hotfix 7 validation
 
 ## Confirmed results

@@ -505,8 +505,7 @@ public class AuraRenderer {
 			for (var entry : sparks) {
 				if (entry != null) {
 					boolean isFirstLocal = isFirstPerson && entry.player() == Minecraft.getInstance().player;
-					Matrix4f viewPose = new Matrix4f(poseStack.last().pose()).mul(entry.poseMatrix());
-					renderSparksImpl(entry.player(), viewPose, poseStack, projectionMatrix, entry.partialTick(), isFirstLocal);
+					renderSparksImpl(entry.player(), entry.poseMatrix(), poseStack, projectionMatrix, entry.partialTick(), isFirstLocal);
 				}
 			}
 		}
@@ -765,6 +764,14 @@ public class AuraRenderer {
 		return new float[]{r, g, b};
 	}
 
+	private static PoseStack shaderpackViewStack(Minecraft mc) {
+		PoseStack stack = new PoseStack();
+		var cam = mc.gameRenderer.getMainCamera();
+		stack.mulPose(Axis.XP.rotationDegrees(cam.getXRot()));
+		stack.mulPose(Axis.YP.rotationDegrees(cam.getYRot() + 180.0F));
+		return stack;
+	}
+
 	public static void renderShaderFirstPersonAura(Player player, float partialTick, PoseStack poseStack, Minecraft mc, Matrix4f projectionMatrix) {
 		var stats = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
 		if (stats == null) return;
@@ -797,6 +804,10 @@ public class AuraRenderer {
 		if (activeLayers.isEmpty()) return;
 		data.lastLayers = activeLayers;
 		advanceMotions(player, data, activeLayers, true);
+
+		if (IrisCompat.isShaderPackInUse()) {
+			poseStack = shaderpackViewStack(mc);
+		}
 
 		Vec3 cameraPos = mc.gameRenderer.getMainCamera().getPosition();
 		double lerpX = Mth.lerp(partialTick, player.xo, player.getX());
@@ -871,6 +882,10 @@ public class AuraRenderer {
 
 	private static void drawShaderAura(Player player, CachedAuraData data, List<AuraLayer> activeLayers, Vec3 position,
 									   float partialTick, PoseStack poseStack, Minecraft mc, Matrix4f projectionMatrix) {
+		if (IrisCompat.isShaderPackInUse()) {
+			poseStack = shaderpackViewStack(mc);
+		}
+
 		// Match DMZ 1.20.1: the deferred stage starts from the world-render base pose,
 		// so position the aura with the interpolated camera-relative entity position.
 		Vec3 cameraPos = mc.gameRenderer.getMainCamera().getPosition();
@@ -1022,6 +1037,10 @@ public class AuraRenderer {
 		advanceMotions(player, data, activeLayers, false);
 		boolean shellVisible = data.use3D && data.growth > 0.001f;
 		if (data.alphaProgress <= 0.001f && !shellVisible) return false;
+
+		if (IrisCompat.isShaderPackInUse()) {
+			poseStack = shaderpackViewStack(mc);
+		}
 
 		Vec3 cameraPos = mc.gameRenderer.getMainCamera().getPosition();
 		double lerpX = Mth.lerp(partialTick, player.xo, player.getX());

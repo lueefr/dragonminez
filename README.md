@@ -162,3 +162,5 @@ This program is free software: you can redistribute it and/or modify it under th
 [GNU General Public License v3.0](https://github.com/DragonMineZ/dragonminez/blob/main/LICENSE)
 
 The configurable extension APIs are maintained separately on [`feature/2.2-neoforge-1.21.1-api`](https://github.com/lueefr/dragonminez/tree/feature/2.2-neoforge-1.21.1-api).
+
+Player aura/lightning alignment and shader skin-overlay fixes are maintained with the extension APIs in [PR #6](https://github.com/lueefr/dragonminez/pull/6). This branch is reserved for Otherworld worldgen and LOD compatibility.
