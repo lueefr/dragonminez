@@ -15,12 +15,14 @@ public class OtherworldConfiguredFeatures {
 	public static final ResourceKey<ConfiguredFeature<?, ?>> CRYSTAL_SPIKE = key("otherworld_crystal_spike");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> BONE_SPINE = key("otherworld_bone_spine");
 	public static final ResourceKey<ConfiguredFeature<?, ?>> THORN_BALL = key("otherworld_thorn_ball");
+	public static final ResourceKey<ConfiguredFeature<?, ?>> FIXED_STRUCTURES = key("otherworld_fixed_structures");
 
 	public static void bootstrap(BootstrapContext<ConfiguredFeature<?, ?>> context) {
 		register(context, CANDY_ORB, OtherworldFeatures.CANDY_ORB.get(), NoneFeatureConfiguration.INSTANCE);
 		register(context, CRYSTAL_SPIKE, OtherworldFeatures.CRYSTAL_SPIKE.get(), NoneFeatureConfiguration.INSTANCE);
 		register(context, BONE_SPINE, OtherworldFeatures.BONE_SPINE.get(), NoneFeatureConfiguration.INSTANCE);
 		register(context, THORN_BALL, OtherworldFeatures.THORN_BALL.get(), NoneFeatureConfiguration.INSTANCE);
+		register(context, FIXED_STRUCTURES, OtherworldFeatures.FIXED_STRUCTURES.get(), NoneFeatureConfiguration.INSTANCE);
 	}
 
 	private static ResourceKey<ConfiguredFeature<?, ?>> key(String name) {

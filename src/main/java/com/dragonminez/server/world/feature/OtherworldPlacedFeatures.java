@@ -20,6 +20,7 @@ public class OtherworldPlacedFeatures {
 	public static final ResourceKey<PlacedFeature> CRYSTAL_SPIKE_PLACED = registerKey("otherworld_crystal_spike_placed");
 	public static final ResourceKey<PlacedFeature> BONE_SPINE_PLACED = registerKey("otherworld_bone_spine_placed");
 	public static final ResourceKey<PlacedFeature> THORN_BALL_PLACED = registerKey("otherworld_thorn_ball_placed");
+	public static final ResourceKey<PlacedFeature> FIXED_STRUCTURES_PLACED = registerKey("otherworld_fixed_structures_placed");
 
 	public static void bootstrap(BootstrapContext<PlacedFeature> context) {
 		HolderGetter<ConfiguredFeature<?, ?>> configured = context.lookup(Registries.CONFIGURED_FEATURE);
@@ -55,6 +56,9 @@ public class OtherworldPlacedFeatures {
 						HeightRangePlacement.uniform(VerticalAnchor.absolute(OtherworldGeneration.HELL_CEILING - 4), VerticalAnchor.absolute(OtherworldGeneration.HELL_CEILING - 2)),
 						BiomeFilter.biome()
 				));
+
+	register(context, FIXED_STRUCTURES_PLACED, configured.getOrThrow(OtherworldConfiguredFeatures.FIXED_STRUCTURES),
+				List.of(BiomeFilter.biome()));
 	}
 
 	private static ResourceKey<PlacedFeature> registerKey(String name) {
