@@ -22,7 +22,12 @@ public final class CustomNpcRegistry {
     }
     public record Definition(String id, String baseTexture, Map<String, String> armor,
                              String hairType, @com.google.gson.annotations.SerializedName(value="forcedHairCode", alternate={"hairCode"}) String forcedHairCode, Integer hairPreset, String name,
-                             List<String> dialogues, Integer alignment, Offers offers) {
+                             List<String> dialogues, Integer alignment, Offers offers, String baseModel) {
+        public Definition(String id, String baseTexture, Map<String, String> armor,
+                          String hairType, String forcedHairCode, Integer hairPreset, String name,
+                          List<String> dialogues, Integer alignment, Offers offers) {
+            this(id, baseTexture, armor, hairType, forcedHairCode, hairPreset, name, dialogues, alignment, offers, null);
+        }
         public Definition {
             requireId(id);
             hairType = hairType == null || hairType.isBlank() ? "base" : hairType;
@@ -39,6 +44,17 @@ public final class CustomNpcRegistry {
                 throw new IllegalArgumentException(id + ": invalid hairCode/forcedHairCode");
             }
             if (baseTexture == null || baseTexture.isBlank()) throw new IllegalArgumentException(id + ": baseTexture is required");
+            // Old definitions used baseTexture as a model alias; retain their model selection.
+            if (baseModel == null || baseModel.isBlank()) {
+                if (CustomNpcVisuals.bases().containsKey(baseTexture)) {
+                    baseModel = baseTexture;
+                    baseTexture = "master_base";
+                } else {
+                    baseModel = "master_male";
+                }
+            }
+            CustomNpcVisuals.get(baseModel);
+            CustomNpcVisuals.texture(baseTexture);
             if (name == null || name.isBlank()) throw new IllegalArgumentException(id + ": name is required");
             alignment = alignment == null ? 50 : alignment;
             if (alignment < 0 || alignment > 100) throw new IllegalArgumentException(id + ": alignment must be 0..100");
@@ -75,7 +91,7 @@ public final class CustomNpcRegistry {
         for (Path path : files(configRoot.resolve("custom_npcs"))) {
             Definition definition = read(path, Definition.class);
             toJson(definition);
-            CustomNpcVisuals.get(definition.baseTexture());
+            CustomNpcVisuals.get(definition.baseModel());
             if (definitions.putIfAbsent(definition.id(), definition) != null) throw new IllegalArgumentException("Duplicate custom NPC: " + definition.id());
         }
         Map<String, Placement> placements = new TreeMap<>();

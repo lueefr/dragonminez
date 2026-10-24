@@ -186,6 +186,7 @@ public class ModClientEvents {
 
 			BetaWhitelist.reload();
 			SkinCacheManager.init();
+			com.dragonminez.client.util.CustomNpcTextures.initialize();
 			DBSagasEntity.setRenderExtentsProvider(GiantRenderBounds::extentsFor);
 
 			//Bloques

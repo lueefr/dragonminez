@@ -26,7 +26,8 @@ Place new definitions in `config/dragonminez/custom_npcs/*.json`. This registry 
 ```json
 {
   "id": "example:guide",
-  "baseTexture": "master_male",
+  "baseModel": "master_male",
+  "baseTexture": "master_base",
   "armor": {"chest": "minecraft:iron_chestplate"},
   "hairType": "base",
   "hairPreset": 1,
@@ -41,7 +42,34 @@ Place new definitions in `config/dragonminez/custom_npcs/*.json`. This registry 
 }
 ```
 
-Skills and quests reference content already registered with their respective systems. Side-quest IDs such as `custom_task` do not contain a colon; `saga:quest` keys retain the existing saga format. Empty offers create an ambient NPC. Armor is cosmetic and occupies separate rendering slots (`head`, `chest`, `legs`, `feet`); it does not grant equipment attributes. Appearance bases include `master_male`, `master_female` and `humanoid_slim`. Hair uses `hairType` with an optional Hair Salon `hairCode` (`forcedHairCode` is also accepted); `hairType: "none"` disables hair. Names and dialogue strings can be translation keys. Alignment uses the existing 0–100 scale and service gates.
+Skills and quests reference content already registered with their respective systems. Side-quest IDs such as `custom_task` do not contain a colon; `saga:quest` keys retain the existing saga format. Empty offers create an ambient NPC. Armor is cosmetic and occupies separate rendering slots (`head`, `chest`, `legs`, `feet`); it does not grant equipment attributes. Use `baseModel` to select `master_male`, `master_female` or `humanoid_slim`, and `baseTexture` to select an external PNG by filename. Hair uses `hairType` with an optional Hair Salon `hairCode` (`forcedHairCode` is also accepted); `hairType: "none"` disables hair. Names and dialogue strings can be translation keys. Alignment uses the existing 0–100 scale and service gates.
+
+### External NPC textures
+
+On client startup, the mod creates `config/dragonminez/npc_textures/master_base.png` as a copy of the bundled default texture. Existing files are never overwritten. Edit that external file to change the default appearance for all three body models, or add another PNG to the same folder:
+
+```text
+config/dragonminez/npc_textures/
+  master_base.png
+  custom_outfit.png
+```
+
+```json
+{
+  "id": "example:visitor",
+  "baseModel": "master_female",
+  "baseTexture": "custom_outfit",
+  "name": "npc.example.visitor"
+}
+```
+
+The JSON name must match the filename exactly, excluding `.png`. Use lowercase letters, digits, underscores, hyphens or dots; directory paths are rejected. A texture may be shared by multiple NPCs and body models. Keep the supplied PNG's UV layout when editing it. Armor and Hair Salon hair remain separate cosmetic layers.
+
+PNG edits are detected within approximately one second while the NPC is rendered. Changing `baseTexture` or `baseModel` in an NPC JSON requires the usual config reload. Missing or invalid PNGs produce a warning and use the bundled default. Images are limited to 4 MiB and 2048 × 2048 pixels.
+
+Textures are local client files: on multiplayer, install the same PNGs in this folder on every client that should display them. Entity synchronization sends the texture name, not the image. No resource pack or JAR editing is required.
+
+Older definitions that used a model alias directly in `baseTexture` without `baseModel` keep that model and use `master_base` as their texture.
 
 Spawn with `/dmzcustomnpc spawn example:guide [x y z]`, or create a separate `config/dragonminez/custom_npc_placements/guide.json`:
 
@@ -67,7 +95,8 @@ For example, this complete, minimal export can be used as a starting point:
 ```json
 {
   "id": "example:hair_guide",
-  "baseTexture": "master_male",
+  "baseModel": "master_male",
+  "baseTexture": "master_base",
   "name": "npc.example.hair_guide",
   "hairType": "base",
   "hairCode": "DMZF22:tdBLDoIwFAXQ26LyGRinzkjcABT8jZTycQG4A2KM0YBBYtyKrsMVuDIfYocwY_Rum_bm5FmABSY1sDsA3QDLMd4d8kN5yuzbpahsxwA_ZtBnriuE55lgiUVPGX050YQGfjvS5EPwSx5QqkO5mT5fFKrrP5SPzxug_l-V8AIZUnFVnyjShUk9hWo-1_P_OImjUNa9BE07oK6C-v58vli0QrUGOukTylPRIRVKulyuVut1q3TQSO1eV7rvgHoKGgRShmErdNhAnX5X6ndIfSWNojhOklbpqJFu-5PiCw"

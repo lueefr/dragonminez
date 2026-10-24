@@ -127,7 +127,8 @@ Create `config/dragonminez/custom_npcs/guide.json`:
 ```json
 {
   "id": "example:guide",
-  "baseTexture": "master_male",
+  "baseModel": "master_male",
+  "baseTexture": "master_base",
   "armor": {"chest": "minecraft:iron_chestplate"},
   "hairType": "base",
   "hairPreset": 1,
@@ -149,7 +150,8 @@ Each file defines a separate custom NPC. Built-in masters and enemies are not re
 | Field | Usage |
 | --- | --- |
 | `id` | Unique namespaced NPC ID. |
-| `baseTexture` | Registered appearance alias: `master_male`, `master_female` or `humanoid_slim`. These provide neutral body models/textures, not a face/color editor. |
+| `baseModel` | Body model alias: `master_male` (default), `master_female` or `humanoid_slim`. |
+| `baseTexture` | Filename without `.png` from `config/dragonminez/npc_textures/`, such as `master_base`. |
 | `armor` | Cosmetic item IDs in `head`, `chest`, `legs` and `feet`. Cosmetic items grant no equipment attributes. |
 | `hairType` | Existing hair-style slot; `base` selects the ordinary slot and `none` disables hair. |
 | `hairPreset` | Existing preset ID; defaults to 1. Positive IDs must exist. |
@@ -167,6 +169,33 @@ Skill offers reuse existing pricing and progression rules. Form skill prices rem
 
 Skill purchases and quest actions require the custom NPC's live definition and proximity within ten blocks. Shop purchases also validate alignment, balance and inventory capacity on the server. The client does not supply the purchase price.
 
+### External NPC textures
+
+On client startup, the mod creates `config/dragonminez/npc_textures/master_base.png` as a copy of the bundled default texture. Existing files are never overwritten. Edit that external file to change the default appearance for all three body models, or add another PNG to the same folder:
+
+```text
+config/dragonminez/npc_textures/
+  master_base.png
+  custom_outfit.png
+```
+
+```json
+{
+  "id": "example:visitor",
+  "baseModel": "master_female",
+  "baseTexture": "custom_outfit",
+  "name": "npc.example.visitor"
+}
+```
+
+The JSON name must match the filename exactly, excluding `.png`. Use lowercase letters, digits, underscores, hyphens or dots; directory paths are rejected. A texture may be shared by multiple NPCs and body models. Keep the supplied PNG's UV layout when editing it. Armor and Hair Salon hair remain separate cosmetic layers.
+
+PNG edits are detected within approximately one second while the NPC is rendered. Changing `baseTexture` or `baseModel` in an NPC JSON requires the usual config reload. Missing or invalid PNGs produce a warning and use the bundled default. Images are limited to 4 MiB and 2048 × 2048 pixels.
+
+Textures are local client files: on multiplayer, install the same PNGs in this folder on every client that should display them. Entity synchronization sends the texture name, not the image. No resource pack or JAR editing is required.
+
+Older definitions that used a model alias directly in `baseTexture` without `baseModel` keep that model and use `master_base` as their texture.
+
 ### Import a Hair Salon hairstyle
 
 1. Open the [Hair Salon](https://dragonminez.com/hairsalon) and use **Copy code** for the hairstyle, or export it from the editor.
@@ -178,7 +207,8 @@ For example, this complete, minimal export can be used as a starting point:
 ```json
 {
   "id": "example:hair_guide",
-  "baseTexture": "master_male",
+  "baseModel": "master_male",
+  "baseTexture": "master_base",
   "name": "npc.example.hair_guide",
   "hairType": "base",
   "hairCode": "DMZF22:tdBLDoIwFAXQ26LyGRinzkjcABT8jZTycQG4A2KM0YBBYtyKrsMVuDIfYocwY_Rum_bm5FmABSY1sDsA3QDLMd4d8kN5yuzbpahsxwA_ZtBnriuE55lgiUVPGX050YQGfjvS5EPwSx5QqkO5mT5fFKrrP5SPzxug_l-V8AIZUnFVnyjShUk9hWo-1_P_OImjUNa9BE07oK6C-v58vli0QrUGOukTylPRIRVKulyuVut1q3TQSO1eV7rvgHoKGgRShmErdNhAnX5X6ndIfSWNojhOklbpqJFu-5PiCw"
