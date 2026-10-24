@@ -18,6 +18,19 @@ on:
   push:
     branches:
       - main
+    # Release only when inputs to the mod artifact or its build change. In
+    # particular, docs, AI instructions, release notes, update.json, and
+    # workflow-only edits must not create a new release.
+    paths:
+      - 'src/main/**'
+      - 'src/generated/resources/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'gradlew.bat'
+      - 'packsquash.toml'
 
 permissions:
   pull-requests: read
