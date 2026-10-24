@@ -134,6 +134,25 @@ public class ModRenderTypes extends RenderType {
         RenderSystem.disablePolygonOffset();
     });
 
+    // Body shading belongs below subsequent appearance layers such as fur. Keeping
+    // both at the same biased depth lets the translucent muscle pass win depth ties.
+    private static final RenderStateShard.LayeringStateShard BODY_SHADOW_LAYERING = new RenderStateShard.LayeringStateShard(SKIN_OVERLAY_LAYERING_TOKEN + "_body_shadow", () -> {
+        RenderSystem.polygonOffset(0.0F, -5.0F);
+        RenderSystem.enablePolygonOffset();
+    }, () -> {
+        RenderSystem.polygonOffset(0.0F, 0.0F);
+        RenderSystem.disablePolygonOffset();
+    });
+
+    private static RenderStateShard.LayeringStateShard skinOverlayLayering(@Nullable ResourceLocation texture) {
+        if (texture != null && texture.getNamespace().equals("dragonminez")
+                && texture.getPath().startsWith("textures/entity/races/humansaiyan/bodytype")
+                && texture.getPath().endsWith("_layer1_shadow.png")) {
+            return BODY_SHADOW_LAYERING;
+        }
+        return SKIN_OVERLAY_LAYERING;
+    }
+
     private static final RenderStateShard.LayeringStateShard MASK_BODY_LAYERING = new RenderStateShard.LayeringStateShard("dmz_mask_body_layering", () -> {
         SKIN_OVERLAY_LAYERING.setupRenderState();
         POLYGON_OFFSET_LAYERING.setupRenderState();
@@ -145,7 +164,7 @@ public class ModRenderTypes extends RenderType {
     private static RenderStateShard.LayeringStateShard layeringOf(@Nullable RenderType sourceRenderType) {
         String name = sourceRenderType != null ? sourceRenderType.toString() : "";
         if (name.contains(VIEW_OFFSET_LAYERING_TOKEN)) return VIEW_OFFSET_Z_LAYERING;
-        if (name.contains(SKIN_OVERLAY_LAYERING_TOKEN)) return SKIN_OVERLAY_LAYERING;
+        if (name.contains(SKIN_OVERLAY_LAYERING_TOKEN)) return skinOverlayLayering(resolveSourceTexture(sourceRenderType));
         return MASK_BODY_LAYERING;
     }
 
@@ -314,7 +333,7 @@ public class ModRenderTypes extends RenderType {
                     .setCullState(NO_CULL)
                     .setLightmapState(LIGHTMAP)
                     .setOverlayState(OVERLAY)
-                    .setLayeringState(SKIN_OVERLAY_LAYERING)
+                    .setLayeringState(skinOverlayLayering(pLocation))
                     .createCompositeState(true)));
 
     private static final Function<ResourceLocation, RenderType> SKIN_OVERLAY_TRANSLUCENT = Util.memoize((pLocation) ->
@@ -325,7 +344,7 @@ public class ModRenderTypes extends RenderType {
                     .setCullState(NO_CULL)
                     .setLightmapState(LIGHTMAP)
                     .setOverlayState(OVERLAY)
-                    .setLayeringState(SKIN_OVERLAY_LAYERING)
+                    .setLayeringState(skinOverlayLayering(pLocation))
                     .createCompositeState(true)));
 
     private static final Function<ResourceLocation, RenderType> SKIN_PAINT_PICK = Util.memoize((pLocation) ->
@@ -424,7 +443,7 @@ public class ModRenderTypes extends RenderType {
         RenderStateShard.LayeringStateShard layering = layeringOf(sourceRenderType);
         if (texture != null) {
             Map<ResourceLocation, RenderType> cache = layering == VIEW_OFFSET_Z_LAYERING ? TEXTURED_MASK_VIEW_OFFSET_CACHE
-                    : layering == SKIN_OVERLAY_LAYERING ? TEXTURED_MASK_SKIN_OVERLAY_CACHE
+                    : (layering == SKIN_OVERLAY_LAYERING || layering == BODY_SHADOW_LAYERING) ? TEXTURED_MASK_SKIN_OVERLAY_CACHE
                     : TEXTURED_MASK_CACHE;
             return cache.computeIfAbsent(texture, t -> buildTexturedMask(t, layering));
         }
@@ -479,7 +498,7 @@ public class ModRenderTypes extends RenderType {
 
     private static final Function<ResourceLocation, RenderType> AFTERIMAGE = Util.memoize((pLocation) -> buildAfterimage(pLocation, null, "dmz_afterimage"));
     private static final Function<ResourceLocation, RenderType> AFTERIMAGE_OFFSET = Util.memoize((pLocation) -> buildAfterimage(pLocation, POLYGON_OFFSET_LAYERING, "dmz_afterimage_offset"));
-    private static final Function<ResourceLocation, RenderType> AFTERIMAGE_SKIN_OVERLAY = Util.memoize((pLocation) -> buildAfterimage(pLocation, SKIN_OVERLAY_LAYERING, "dmz_afterimage_skin_overlay"));
+    private static final Function<ResourceLocation, RenderType> AFTERIMAGE_SKIN_OVERLAY = Util.memoize((pLocation) -> buildAfterimage(pLocation, skinOverlayLayering(pLocation), "dmz_afterimage_skin_overlay"));
 
     private static RenderType buildAfterimage(ResourceLocation texture, @Nullable RenderStateShard.LayeringStateShard layering, String name) {
         CompositeState.CompositeStateBuilder builder = CompositeState.builder()
@@ -524,7 +543,7 @@ public class ModRenderTypes extends RenderType {
         if (texture == null) return null;
         RenderStateShard.LayeringStateShard layering = layeringOf(sourceRenderType);
         Map<ResourceLocation, RenderType> cache = layering == VIEW_OFFSET_Z_LAYERING ? RITUAL_SHELL_VIEW_OFFSET_CACHE
-                : layering == SKIN_OVERLAY_LAYERING ? RITUAL_SHELL_SKIN_OVERLAY_CACHE
+                : (layering == SKIN_OVERLAY_LAYERING || layering == BODY_SHADOW_LAYERING) ? RITUAL_SHELL_SKIN_OVERLAY_CACHE
                 : RITUAL_SHELL_CACHE;
         return cache.computeIfAbsent(texture, t -> buildRitualShell(t, layering));
     }
@@ -567,10 +586,10 @@ public class ModRenderTypes extends RenderType {
         ResourceLocation texture = resolveSourceTexture(sourceRenderType);
         if (texture == null) return null;
         RenderStateShard.LayeringStateShard layering = sourceName.contains(VIEW_OFFSET_LAYERING_TOKEN) ? VIEW_OFFSET_Z_LAYERING
-                : sourceName.contains(SKIN_OVERLAY_LAYERING_TOKEN) ? SKIN_OVERLAY_LAYERING
+                : sourceName.contains(SKIN_OVERLAY_LAYERING_TOKEN) ? skinOverlayLayering(texture)
                 : null;
         Map<ResourceLocation, RenderType> cache = layering == VIEW_OFFSET_Z_LAYERING ? ASSIMILATION_SKETCH_VIEW_OFFSET_CACHE
-                : layering == SKIN_OVERLAY_LAYERING ? ASSIMILATION_SKETCH_SKIN_OVERLAY_CACHE
+                : (layering == SKIN_OVERLAY_LAYERING || layering == BODY_SHADOW_LAYERING) ? ASSIMILATION_SKETCH_SKIN_OVERLAY_CACHE
                 : ASSIMILATION_SKETCH_CACHE;
         return cache.computeIfAbsent(texture, t -> buildAssimilationSketch(t, layering));
     }
