@@ -10,10 +10,13 @@ import software.bernie.geckolib.constant.DataTickets;
 public final class CustomNpcModel extends GeoModel<CustomNpcEntity> {
     private CustomNpcVisuals.Base base(CustomNpcEntity npc) {
         var definition=npc.definition();
-        return CustomNpcVisuals.get(definition==null ? "master_male" : definition.baseTexture());
+        return CustomNpcVisuals.get(definition==null ? "master_male" : definition.baseModel());
     }
     @Override public ResourceLocation getModelResource(CustomNpcEntity npc) { return base(npc).model(); }
-    @Override public ResourceLocation getTextureResource(CustomNpcEntity npc) { return base(npc).texture(); }
+    @Override public ResourceLocation getTextureResource(CustomNpcEntity npc) {
+        var definition = npc.definition();
+        return com.dragonminez.client.util.CustomNpcTextures.resolve(definition == null ? "master_base" : definition.baseTexture());
+    }
     @Override public ResourceLocation getAnimationResource(CustomNpcEntity npc) {
         return ResourceLocation.parse("dragonminez:animations/entity/races/movement.animation.json");
     }
