@@ -15,12 +15,12 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.ItemArmorGeoLayer;
+import com.dragonminez.client.render.layer.ArmorGeoLayer;
 import top.theillusivec4.curios.api.CuriosApi;
 
 import javax.annotation.Nullable;
 
-public class DMZWeightCapeLayer<T extends AbstractClientPlayer & GeoAnimatable> extends ItemArmorGeoLayer<T> {
+public class DMZWeightCapeLayer<T extends AbstractClientPlayer & GeoAnimatable> extends ArmorGeoLayer<T> {
 
     private final WeightCapeRenderer capeRenderer = new WeightCapeRenderer();
 

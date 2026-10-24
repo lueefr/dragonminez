@@ -803,13 +803,7 @@ public class AuraRenderer {
 		double lerpY = Mth.lerp(partialTick, player.yo, player.getY());
 		double lerpZ = Mth.lerp(partialTick, player.zo, player.getZ());
 
-		if (player.onGround()) {
-			AuraLayer topLayer = activeLayers.get(activeLayers.size() - 1);
-			poseStack.pushPose();
-			poseStack.translate(lerpX - cameraPos.x, lerpY - cameraPos.y + 0.05, lerpZ - cameraPos.z);
-			renderShaderPulseAura(player, data, topLayer, poseStack, mc, projectionMatrix, partialTick, data.alphaProgress);
-			poseStack.popPose();
-		}
+		drawGroundPulse(player, data, activeLayers, new Vec3(lerpX, lerpY, lerpZ), poseStack, mc, projectionMatrix, partialTick);
 
 		drawFlightTrail(player, data, activeLayers, poseStack, projectionMatrix, partialTick);
 
@@ -878,13 +872,7 @@ public class AuraRenderer {
 		double offsetY = position.y - cameraPos.y;
 		double offsetZ = position.z - cameraPos.z;
 
-		if (player.onGround()) {
-			AuraLayer topLayer = activeLayers.get(activeLayers.size() - 1);
-			poseStack.pushPose();
-			poseStack.translate(offsetX, offsetY + 0.05, offsetZ);
-			renderShaderPulseAura(player, data, topLayer, poseStack, mc, projectionMatrix, partialTick, data.alphaProgress);
-			poseStack.popPose();
-		}
+		drawGroundPulse(player, data, activeLayers, position, poseStack, mc, projectionMatrix, partialTick);
 
 		drawFlightTrail(player, data, activeLayers, poseStack, projectionMatrix, partialTick);
 
@@ -895,6 +883,21 @@ public class AuraRenderer {
 			poseStack.popPose();
 		}
 	}
+
+	private static void drawGroundPulse(Player player, CachedAuraData data, List<AuraLayer> layers, Vec3 feet,
+                                        PoseStack poseStack, Minecraft mc, Matrix4f projectionMatrix, float partialTick) {
+        var ground = com.dragonminez.common.util.GroundProjection.below(player, feet);
+        if (ground.isEmpty()) return;
+        Vec3 offset = ground.get().subtract(mc.gameRenderer.getMainCamera().getPosition());
+        poseStack.pushPose();
+        try {
+            poseStack.translate(offset.x, offset.y + 0.05, offset.z);
+            renderShaderPulseAura(player, data, layers.get(layers.size() - 1), poseStack, mc,
+                    projectionMatrix, partialTick, data.alphaProgress);
+        } finally {
+            poseStack.popPose();
+        }
+    }
 
 	private static List<List<PreparedAura>> groupTouchingAuras(List<PreparedAura> auras) {
 		int count = auras.size();
@@ -1028,13 +1031,7 @@ public class AuraRenderer {
 		double lerpY = Mth.lerp(partialTick, player.yo, player.getY());
 		double lerpZ = Mth.lerp(partialTick, player.zo, player.getZ());
 
-		if (player.onGround()) {
-			AuraLayer topLayer = activeLayers.get(activeLayers.size() - 1);
-			poseStack.pushPose();
-			poseStack.translate(lerpX - cameraPos.x, lerpY - cameraPos.y + 0.05, lerpZ - cameraPos.z);
-			renderShaderPulseAura(player, data, topLayer, poseStack, mc, projectionMatrix, partialTick, data.alphaProgress);
-			poseStack.popPose();
-		}
+		drawGroundPulse(player, data, activeLayers, new Vec3(lerpX, lerpY, lerpZ), poseStack, mc, projectionMatrix, partialTick);
 
 		boolean isLocalPlayer = player == mc.player;
 		boolean isFirstPerson = isLocalPlayer && mc.options.getCameraType().isFirstPerson();

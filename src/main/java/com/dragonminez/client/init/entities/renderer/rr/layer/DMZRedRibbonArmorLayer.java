@@ -16,11 +16,11 @@ import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.ItemArmorGeoLayer;
+import com.dragonminez.client.render.layer.ArmorGeoLayer;
 
 import javax.annotation.Nullable;
 
-public class DMZRedRibbonArmorLayer<T extends RedRibbonEntity> extends ItemArmorGeoLayer<T> {
+public class DMZRedRibbonArmorLayer<T extends RedRibbonEntity> extends ArmorGeoLayer<T> {
 
 	public DMZRedRibbonArmorLayer(GeoRenderer<T> geoRenderer) {
 		super(geoRenderer);

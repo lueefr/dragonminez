@@ -16,11 +16,11 @@ import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.ItemArmorGeoLayer;
+import com.dragonminez.client.render.layer.ArmorGeoLayer;
 
 import javax.annotation.Nullable;
 
-public class CustomNpcArmorLayer<T extends CustomNpcEntity> extends ItemArmorGeoLayer<T> {
+public class CustomNpcArmorLayer<T extends CustomNpcEntity> extends ArmorGeoLayer<T> {
 
 	public CustomNpcArmorLayer(GeoRenderer<T> geoRenderer) {
 		super(geoRenderer);

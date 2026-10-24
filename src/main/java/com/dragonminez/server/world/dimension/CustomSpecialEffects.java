@@ -217,7 +217,9 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		return f / (4.0F - 3.0F * f);
 	}
 
-	protected void renderCloudLayer(PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, double camX, double camY, double camZ, Vec3 color, float cloudHeight, float cloudTicks) {
+	protected void renderCloudLayer(Matrix4f modelViewMatrix, Matrix4f projectionMatrix, float partialTick, double camX, double camY, double camZ, Vec3 color, float cloudHeight, float cloudTicks) {
+        PoseStack poseStack = new PoseStack();
+        poseStack.mulPose(modelViewMatrix);
 		float shade = Mth.lerp(DragonSkyState.darkness(partialTick), 1.0F, DRAGON_NIGHT_CLOUD_SHADE);
 		RenderSystem.setShaderColor(shade, shade, shade, 1.0F);
 		this.cloudRenderer.render(poseStack, projectionMatrix, partialTick, camX, camY, camZ, color, cloudHeight, cloudTicks);
@@ -408,7 +410,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		@Override
 		public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
 			if (DragonSkyState.darkness(partialTick) <= 0.0F) return false;
-			renderCloudLayer(poseStack, projectionMatrix, partialTick, camX, camY, camZ, level.getCloudColor(partialTick), this.getCloudHeight(), ticks + partialTick);
+			renderCloudLayer(modelViewMatrix, projectionMatrix, partialTick, camX, camY, camZ, level.getCloudColor(partialTick), this.getCloudHeight(), ticks + partialTick);
 			return true;
 		}
 	}
@@ -443,7 +445,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 
 		@Override
 		public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
-			renderCloudLayer(poseStack, projectionMatrix, partialTick, camX, camY, camZ, CLOUD_COLOR, this.getCloudHeight(), level.getGameTime() + partialTick);
+			renderCloudLayer(modelViewMatrix, projectionMatrix, partialTick, camX, camY, camZ, CLOUD_COLOR, this.getCloudHeight(), level.getGameTime() + partialTick);
 			return true;
 		}
 
@@ -768,7 +770,7 @@ public class CustomSpecialEffects extends DimensionSpecialEffects {
 		public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
 			double[] weights = layerWeights(camY);
 			int layer = weights[0] >= weights[1] ? 0 : (weights[1] >= weights[2] ? 1 : 2);
-			renderCloudLayer(poseStack, projectionMatrix, partialTick, camX, camY, camZ, CLOUD_COLORS[layer], CLOUD_HEIGHTS[layer], level.getGameTime() + partialTick);
+			renderCloudLayer(modelViewMatrix, projectionMatrix, partialTick, camX, camY, camZ, CLOUD_COLORS[layer], CLOUD_HEIGHTS[layer], level.getGameTime() + partialTick);
 			return true;
 		}
 

@@ -415,7 +415,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		String race = character.getRaceName().toLowerCase();
 		int humanEye = character.getEyesType() - TextureCounter.getRaceEyeCount(race);
 		if (humanEye < 0) {
-			renderRaceEyes(model, poseStack, animatable, bufferSource, race, character.getEyesType(), sclera, eye1, eye2, hair, pt, pl, po, alpha);
+			renderRaceEyes(model, poseStack, animatable, bufferSource, character, race, character.getEyesType(), sclera, eye1, eye2, hair, pt, pl, po, alpha);
 		} else {
 			renderHumanEyes(model, poseStack, animatable, bufferSource, character, humanEye, sclera, eye1, eye2, hair, skinBase, pt, pl, po, alpha);
 
@@ -443,26 +443,34 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
         renderFeatureShadow(model, poseStack, animatable, bufferSource, folder + "humansaiyan_mouth_" + character.getMouthType() + ".png", skin, pt, pl, po, alpha);
 	}
 
+    private static boolean browless(Character character) {
+        return browless(character.getActiveFormData()) || browless(character.getActiveStackFormData());
+    }
+
+    private static boolean browless(FormConfig.FormData form) {
+        return form != null && !Boolean.TRUE.equals(form.getEditHair()) && "ssj3".equalsIgnoreCase(form.getHairType());
+    }
+
 	private void renderHumanEyes(BakedGeoModel model, PoseStack poseStack, T animatable, MultiBufferSource bufferSource, Character character, int eyeType, float[] sclera, float[] eye1, float[] eye2, float[] brow, float[] ssj3Brow, float pt, int pl, int po, float alpha) {
+        boolean isSsj3 = browless(character);
 		String eyeBase = HUMAN_FACE_FOLDER + "humansaiyan_eye_" + eyeType;
 		String fallback = HUMAN_FACE_FOLDER + "humansaiyan_eye_0";
 
 		renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, eyeBase + "_0.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, fallback + "_0.png")).getPath(), sclera, pt, pl, po, alpha);
 		renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, eyeBase + "_1.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, fallback + "_1.png")).getPath(), eye1, pt, pl, po, alpha);
 		renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, eyeBase + "_2.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, fallback + "_2.png")).getPath(), eye2, pt, pl, po, alpha);
-		renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, eyeBase + "_3.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, fallback + "_3.png")).getPath(), brow, pt, pl, po, alpha);
+        if (!isSsj3) renderColoredLayer(model, poseStack, animatable, bufferSource, getSafeTexture(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, eyeBase + "_3.png"), ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, fallback + "_3.png")).getPath(), brow, pt, pl, po, alpha);
 
-		boolean isSsj3 = (character.hasActiveStackForm() && character.getActiveStackFormData() != null && character.getActiveStackFormData().getHairType().equalsIgnoreCase("ssj3")) ||
-				(character.hasActiveForm() && character.getActiveFormData() != null && character.getActiveFormData().getHairType().equalsIgnoreCase("ssj3"));
+
 		if (isSsj3) renderColoredLayer(model, poseStack, animatable, bufferSource, HUMAN_FACE_FOLDER + "ssj3eyebrows_eye_" + eyeType + ".png", ssj3Brow, pt, pl, po, alpha);
 	}
 
-	private void renderRaceEyes(BakedGeoModel model, PoseStack poseStack, T animatable, MultiBufferSource bufferSource, String race, int eyeType, float[] sclera, float[] eye1, float[] eye2, float[] brow, float pt, int pl, int po, float alpha) {
+	private void renderRaceEyes(BakedGeoModel model, PoseStack poseStack, T animatable, MultiBufferSource bufferSource, Character character, String race, int eyeType, float[] sclera, float[] eye1, float[] eye2, float[] brow, float pt, int pl, int po, float alpha) {
 		String eyeBase = "textures/entity/races/" + race + "/faces/" + race + "_eye_" + eyeType;
 		renderColoredLayer(model, poseStack, animatable, bufferSource, eyeBase + "_0.png", sclera, pt, pl, po, alpha);
 		renderColoredLayer(model, poseStack, animatable, bufferSource, eyeBase + "_1.png", eye1, pt, pl, po, alpha);
 		renderColoredLayer(model, poseStack, animatable, bufferSource, eyeBase + "_2.png", eye2, pt, pl, po, alpha);
-		renderColoredLayer(model, poseStack, animatable, bufferSource, eyeBase + "_3.png", brow, pt, pl, po, alpha);
+        if (!browless(character)) renderColoredLayer(model, poseStack, animatable, bufferSource, eyeBase + "_3.png", brow, pt, pl, po, alpha);
 	}
 
 	private boolean renderBorrowedHumanEyes(BakedGeoModel model, PoseStack poseStack, T animatable, MultiBufferSource bufferSource, Character character, float[] eye1, float[] eye2, float[] hair, float[] faceColor, float pt, int pl, int po, float alpha) {
@@ -654,7 +662,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		ResourceLocation scleraMask = SkinPixelTextures.eyeMask(player, pixels, SkinPixels.MARK_SCLERA);
 		ResourceLocation irisMask = SkinPixelTextures.irisMask(player, pixels, false);
 		ResourceLocation iris2Mask = SkinPixelTextures.irisMask(player, pixels, true);
-		ResourceLocation browMask = SkinPixelTextures.eyeMask(player, pixels, SkinPixels.MARK_BROW);
+        ResourceLocation browMask = browless(character) ? null : SkinPixelTextures.eyeMask(player, pixels, SkinPixels.MARK_BROW);
 		if (scleraMask == null && irisMask == null && iris2Mask == null && browMask == null) return;
 		float[] iris = applyColorTint(FormVisualTransition.color(stats, character.getRgbEye1Color(), FormConfig.FormData::getRgbEye1Color), stats);
 		float[] iris2 = applyColorTint(FormVisualTransition.color(stats, character.getRgbEye2Color(), FormConfig.FormData::getRgbEye2Color), stats);

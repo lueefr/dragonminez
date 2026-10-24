@@ -1,7 +1,6 @@
 package com.dragonminez.client.init.blocks.renderer;
 
 import com.dragonminez.client.init.blocks.model.DragonBallBlockModel;
-import com.dragonminez.client.render.util.ModRenderTypes;
 import com.dragonminez.common.init.block.custom.DragonBallBlock;
 import com.dragonminez.common.init.block.entity.DragonBallBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -14,31 +13,11 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
 public class DragonBallBlockRenderer extends GeoBlockRenderer<DragonBallBlockEntity> {
-	private static final float BALL_CENTER_Y = 5.625F / 16.0F;
-	private static final float HALO_SCALE = 1.12F;
-
 	public DragonBallBlockRenderer(BlockEntityRendererProvider.Context context) {
-		super(new DragonBallBlockModel());
-		addRenderLayer(new GeoRenderLayer<>(this) {
-			@Override
-			public void render(PoseStack poseStack, DragonBallBlockEntity animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-				if (!isGathered(animatable)) return;
-				long time = animatable.getLevel() == null ? 0L : animatable.getLevel().getGameTime();
-				float pulse = 0.35F + 0.25F * Mth.sin((time + partialTick) * 0.15F);
-				float[] color = glowColor(animatable.getBallSetId());
-				RenderType glow = ModRenderTypes.whiteFlash(getTextureLocation(animatable));
-				poseStack.pushPose();
-				poseStack.translate(0.0F, BALL_CENTER_Y, 0.0F);
-				poseStack.scale(HALO_SCALE, HALO_SCALE, HALO_SCALE);
-				poseStack.translate(0.0F, -BALL_CENTER_Y, 0.0F);
-				getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, glow, bufferSource.getBuffer(glow), partialTick, LightTexture.FULL_BRIGHT, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(color[0] * pulse, color[1] * pulse, color[2] * pulse, 1.0F));
-				poseStack.popPose();
-			}
-		});
-	}
+        super(new DragonBallBlockModel());
+    }
 
 	@Override
 	public void actuallyRender(PoseStack poseStack, DragonBallBlockEntity animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int renderColor) {
@@ -46,7 +25,17 @@ public class DragonBallBlockRenderer extends GeoBlockRenderer<DragonBallBlockEnt
         float green = net.minecraft.util.FastColor.ARGB32.green(renderColor) / 255.0F;
         float blue = net.minecraft.util.FastColor.ARGB32.blue(renderColor) / 255.0F;
         float alpha = net.minecraft.util.FastColor.ARGB32.alpha(renderColor) / 255.0F;
-		int light = !isReRender && isGathered(animatable) ? LightTexture.FULL_BRIGHT : packedLight;
+        // One depth-writing textured pass: an inflated additive copy exposed all the
+        // overlapping component cubes and flickered as their draw order changed.
+        boolean gathered = isGathered(animatable);
+        if (gathered && !isReRender) {
+            double time = animatable.getLevel() == null ? 0 : animatable.getLevel().getGameTime() + partialTick;
+            float pulse = 0.9F + 0.1F * Mth.sin((float) (time * 0.15));
+            red *= pulse;
+            green *= pulse;
+            blue *= pulse;
+        }
+        int light = gathered ? LightTexture.FULL_BRIGHT : packedLight;
 		super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, light, packedOverlay, com.dragonminez.client.render.util.RenderColors.pack(red, green, blue, alpha));
 	}
 
@@ -55,11 +44,4 @@ public class DragonBallBlockRenderer extends GeoBlockRenderer<DragonBallBlockEnt
 		return state.hasProperty(DragonBallBlock.GATHERED) && state.getValue(DragonBallBlock.GATHERED);
 	}
 
-	private static float[] glowColor(String ballSetId) {
-		return switch (ballSetId == null ? "" : ballSetId) {
-			case "namek" -> new float[]{1.0F, 0.6F, 0.15F};
-			case "demon" -> new float[]{1.0F, 0.35F, 0.1F};
-			default -> new float[]{1.0F, 0.8F, 0.3F};
-		};
-	}
 }
