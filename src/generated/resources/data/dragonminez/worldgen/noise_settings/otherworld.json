@@ -22,7 +22,7 @@
       "argument1": {
         "type": "minecraft:add",
         "argument1": {
-          "type": "dragonminez:column_cache",
+          "type": "minecraft:cache_2d",
           "argument": {
             "type": "minecraft:clamp",
             "input": {
@@ -194,7 +194,7 @@
               "argument1": {
                 "type": "minecraft:add",
                 "argument1": {
-                  "type": "dragonminez:column_cache",
+                  "type": "minecraft:cache_2d",
                   "argument": {
                     "type": "minecraft:add",
                     "argument1": 103.0,
@@ -316,7 +316,7 @@
                   "type": "minecraft:mul",
                   "argument1": -1.0,
                   "argument2": {
-                    "type": "dragonminez:column_cache",
+                    "type": "minecraft:cache_2d",
                     "argument": {
                       "type": "minecraft:add",
                       "argument1": 101.0,
@@ -471,7 +471,7 @@
               "argument1": {
                 "type": "minecraft:add",
                 "argument1": {
-                  "type": "dragonminez:column_cache",
+                  "type": "minecraft:cache_2d",
                   "argument": {
                     "type": "minecraft:add",
                     "argument1": 262.0,
@@ -593,7 +593,7 @@
                   "type": "minecraft:mul",
                   "argument1": -1.0,
                   "argument2": {
-                    "type": "dragonminez:column_cache",
+                    "type": "minecraft:cache_2d",
                     "argument": {
                       "type": "minecraft:add",
                       "argument1": 260.0,
@@ -738,7 +738,7 @@
       "argument1": {
         "type": "minecraft:add",
         "argument1": {
-          "type": "dragonminez:column_cache",
+          "type": "minecraft:cache_2d",
           "argument": {
             "type": "minecraft:clamp",
             "input": {
@@ -910,7 +910,7 @@
               "argument1": {
                 "type": "minecraft:add",
                 "argument1": {
-                  "type": "dragonminez:column_cache",
+                  "type": "minecraft:cache_2d",
                   "argument": {
                     "type": "minecraft:add",
                     "argument1": 103.0,
@@ -1032,7 +1032,7 @@
                   "type": "minecraft:mul",
                   "argument1": -1.0,
                   "argument2": {
-                    "type": "dragonminez:column_cache",
+                    "type": "minecraft:cache_2d",
                     "argument": {
                       "type": "minecraft:add",
                       "argument1": 101.0,
@@ -1187,7 +1187,7 @@
               "argument1": {
                 "type": "minecraft:add",
                 "argument1": {
-                  "type": "dragonminez:column_cache",
+                  "type": "minecraft:cache_2d",
                   "argument": {
                     "type": "minecraft:add",
                     "argument1": 262.0,
@@ -1309,7 +1309,7 @@
                   "type": "minecraft:mul",
                   "argument1": -1.0,
                   "argument2": {
-                    "type": "dragonminez:column_cache",
+                    "type": "minecraft:cache_2d",
                     "argument": {
                       "type": "minecraft:add",
                       "argument1": 260.0,
@@ -1455,7 +1455,7 @@
       "argument1": {
         "type": "minecraft:add",
         "argument1": {
-          "type": "dragonminez:column_cache",
+          "type": "minecraft:cache_2d",
           "argument": {
             "type": "minecraft:clamp",
             "input": {
@@ -1627,7 +1627,7 @@
               "argument1": {
                 "type": "minecraft:add",
                 "argument1": {
-                  "type": "dragonminez:column_cache",
+                  "type": "minecraft:cache_2d",
                   "argument": {
                     "type": "minecraft:add",
                     "argument1": 103.0,
@@ -1749,7 +1749,7 @@
                   "type": "minecraft:mul",
                   "argument1": -1.0,
                   "argument2": {
-                    "type": "dragonminez:column_cache",
+                    "type": "minecraft:cache_2d",
                     "argument": {
                       "type": "minecraft:add",
                       "argument1": 101.0,
@@ -1904,7 +1904,7 @@
               "argument1": {
                 "type": "minecraft:add",
                 "argument1": {
-                  "type": "dragonminez:column_cache",
+                  "type": "minecraft:cache_2d",
                   "argument": {
                     "type": "minecraft:add",
                     "argument1": 262.0,
@@ -2026,7 +2026,7 @@
                   "type": "minecraft:mul",
                   "argument1": -1.0,
                   "argument2": {
-                    "type": "dragonminez:column_cache",
+                    "type": "minecraft:cache_2d",
                     "argument": {
                       "type": "minecraft:add",
                       "argument1": 260.0,

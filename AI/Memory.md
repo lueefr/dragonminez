@@ -113,6 +113,16 @@ Use this schema for each memory entry:
 
 Add durable memories below this line, newest first.
 
+### 2026-10-23 - Orchestrator And Worker Boundaries
+
+- Type: workflow
+- Status: active
+- Source: user
+- Scope: repo-wide
+- Summary: The orchestrator presents a plan and agents before actions, delegates all implementation and file edits to workers in closed scopes, and coordinates explorers and reviewers.
+- Guidance: Use explorers to map before each major change and have a reviewer check diffs before claiming work is ready. The orchestrator verifies delegated results and is the only agent that stages files.
+- Do Not: Do not edit implementation or documentation directly as the orchestrator, and do not stage files from a worker task.
+
 ### 2026-10-23 - Repo Has Two Active Branches With Different Rules
 
 - Type: durable-fact

@@ -187,7 +187,7 @@ public class OtherworldGeneration {
 				ridged(DensityFunctions.noise(noiseParams.getOrThrow(Noises.SURFACE_SECONDARY), 5.0, 0.0)).cube().cube()
 		));
 
-		DensityFunction hellHeight = new ColumnCache(DensityFunctions.add(
+		DensityFunction hellHeight = DensityFunctions.cache2d(DensityFunctions.add(
 				DensityFunctions.add(DensityFunctions.constant(HELL_BASE_HEIGHT), DensityFunctions.add(wideDunes, DensityFunctions.add(midDunes, ripples))),
 				DensityFunctions.add(mountains, needles)
 		).clamp(WORLD_BOTTOM + 2, HELL_CEILING - 8));
@@ -233,14 +233,14 @@ public class OtherworldGeneration {
 		Holder<NormalNoise.NoiseParameters> billowNoise = noiseParams.getOrThrow(CLOUD_BILLOW);
 		Holder<NormalNoise.NoiseParameters> puffNoise = noiseParams.getOrThrow(CLOUD_PUFF);
 
-		DensityFunction top = new ColumnCache(DensityFunctions.add(
+		DensityFunction top = DensityFunctions.cache2d(DensityFunctions.add(
 				DensityFunctions.constant(surface + CLOUD_TOP_MIN),
 				DensityFunctions.add(
 						scaled(CLOUD_BILLOW_HEIGHT, dome(billowNoise, CLOUD_BILLOW_GAIN, offset)),
 						scaled(CLOUD_PUFF_HEIGHT, dome(puffNoise, CLOUD_PUFF_GAIN, offset))
 				)
 		));
-		DensityFunction belly = new ColumnCache(DensityFunctions.add(
+		DensityFunction belly = DensityFunctions.cache2d(DensityFunctions.add(
 				DensityFunctions.constant(surface + CLOUD_BELLY_MAX),
 				DensityFunctions.add(
 						scaled(-CLOUD_BELLY_BILLOW_DEPTH, dome(billowNoise, CLOUD_BILLOW_GAIN, offset + 1777.0)),

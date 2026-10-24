@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.2 - Hotfix 7 — Minecraft 1.21.1 (NeoForge)
+
+### Fixed
+
+- Corrected the placement of aura outlines and sparks relative to the player.
+- Improved muscle overlay rendering with shaders; the texture remained visible in checks with shaders disabled and with Iris plus Complementary Shaders r5.9.2 using `bodyType=1`.
+- Put Otherworld landmarks on the normal per-chunk feature pipeline. A Distant Horizons 3.3.1 and DH Seedgen 0.8.0 check confirmed generation and persistence of the tested Otherworld chunk; a Distant Horizons FullData cell at the corresponding position was also persisted.
+
+The Distant Horizons check covers that setup only. It does not establish Voxy, other Seedgen, or universal LOD compatibility; an addon that skips custom chunk features may omit landmarks. See [Hotfix 7 validation](HOTFIX-VALIDATION.md).
+
 ## 2.2 - Hotfix 2 — Minecraft 1.21.1 (NeoForge)
 
 ### Changed

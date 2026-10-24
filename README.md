@@ -78,6 +78,8 @@ You can only download the port from GitHub:
 - [GitHub Releases](https://github.com/lueefr/dragonminez/releases/latest)
 Release notes are available in the [changelog](CHANGELOG.md) and are included with each GitHub release.
 
+Hotfix 7 fixes player aura positioning, improves muscle overlay rendering with shaders, and moves Otherworld landmarks into the normal per-chunk feature pipeline. Rendering was checked with and without shaders, and a distant-terrain generation check was completed with Distant Horizons 3.3.1 and DH Seedgen 0.8.0. That result applies to the tested setup only; addons that skip custom chunk features may still omit landmarks. See the [Hotfix 7 notes](release-notes/2.2-hotfix-7.md) for validation details and limits.
+
 ---
 
 ## 🫴 Support the Project
