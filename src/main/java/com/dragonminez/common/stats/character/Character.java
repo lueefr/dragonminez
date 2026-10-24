@@ -134,6 +134,11 @@ public class Character {
 
 	private int hairId;
 	private final EnumMap<HairStyleSlot, CustomHair> hairStyles = createEmptyHairStyles();
+    private final java.util.Map<String,CustomHair> formHair = new java.util.HashMap<>();
+    public CustomHair getFormHair(String id) { return formHair.get(getRaceName()+":"+id); }
+    public void setFormHair(String id,CustomHair hair) { setFormHairKey(getRaceName()+":"+id,hair); }
+    public void setFormHairKey(String key,CustomHair hair) { formHair.put(key,hair.copy()); }
+
 	private String activeHeadBone = "";
 	private int bodyType;
 	private int eyesType;
@@ -509,6 +514,7 @@ public class Character {
 		tag.putString("Class", safeString(characterClass));
 		tag.putInt("HairId", hairId);
 		for (HairStyleSlot slot : HairStyleSlot.values()) tag.put(slot.getNbtKey(), hairStyles.get(slot).save());
+        var formStyles=new CompoundTag();formHair.forEach((key,hair)->formStyles.put(key,hair.save()));tag.put("FormHair",formStyles);
 		tag.putString("ActiveHeadBone", activeHeadBone != null ? activeHeadBone : "");
 		tag.putInt("BodyType", bodyType);
 		tag.putInt("EyesType", eyesType);
@@ -587,6 +593,7 @@ public class Character {
 		this.gender = tag.getString("Gender");
 		this.characterClass = tag.getString("Class");
 		this.hairId = tag.getInt("HairId");
+        formHair.clear();var formStyles=tag.getCompound("FormHair");for(String key:formStyles.getAllKeys())formHair.put(key,CustomHair.fromTag(formStyles.getCompound(key)));
 		for (HairStyleSlot slot : HairStyleSlot.values()) {
 			if (!tag.contains(slot.getNbtKey())) {
 				hairStyles.put(slot, new CustomHair());
@@ -901,6 +908,7 @@ public class Character {
 		this.characterClass = other.characterClass;
 		this.hairId = other.hairId;
 		for (HairStyleSlot slot : HairStyleSlot.values()) hairStyles.put(slot, other.hairStyles.get(slot).copy());
+        formHair.clear();other.formHair.forEach((key,hair)->formHair.put(key,hair.copy()));
 		this.activeHeadBone = other.activeHeadBone;
 		this.bodyType = other.bodyType;
 		this.eyesType = other.eyesType;

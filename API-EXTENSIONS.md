@@ -148,3 +148,7 @@ Place a flat string-to-string map in `config/dragonminez/lang/pt_br.json`, with 
 ```
 
 The example uses race ID `custom_race` and group `custom_path`; retain the existing UI key pattern for form, group and skill names. Stack forms use `race.dragonminez.stack.form.<group>.<form>` and `race.dragonminez.stack.group.<group>`. Use arbitrary keys in configurable NPC names and dialogue. Config translations override the selected locale, fall back to config English, then allow normal bundled translations and the raw key fallback. Server config translation snapshots are synchronized to connected clients and cleared on disconnect. No resource pack is required. The API is `ConfigTranslations.INSTANCE`, including locale lookup, reload, snapshots and revision tracking.
+
+## Rules, visuals and form hairstyles
+
+See [the rule API guide](docs/wiki/Rules.md) for the optional `rules.json`, automatic completion rewards, purchase gates, per-part form visuals, lifetime first-use conditions, player-owned form hairstyles and custom NPC location commands.

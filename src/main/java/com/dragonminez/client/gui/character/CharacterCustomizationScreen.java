@@ -174,7 +174,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		super.init();
 		activeTabs.clear();
 		activeTabs.add(TabId.PRESET);
-		if (getMaxHairForCurrentState() > 0) activeTabs.add(TabId.HAIR);
+		if (getMaxHairForCurrentState() > 0 || !com.dragonminez.api.forms.FormHair.editable(character.getRaceName()).isEmpty()) activeTabs.add(TabId.HAIR);
 		activeTabs.add(TabId.EYES);
 		activeTabs.add(TabId.FACE);
 		activeTabs.add(TabId.BODY);
@@ -284,7 +284,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		addRenderableWidget(createColorButton(LEFT_PANEL_X + 60, y - 18, "hairColor"));
 		boolean skinPixels = SkinGathererProvider.rendersPlayerSkin(character);
 		if (skinPixels) addRenderableWidget(createPixelEditIcon(LEFT_PANEL_X + LEFT_PANEL_WIDTH - 32, getUiHeight() - 40, PixelEditorScreen.Mode.HAIR));
-		if (HairManager.canUseHair(character)) {
+		if (HairManager.canUseHair(character) || !com.dragonminez.api.forms.FormHair.editable(character.getRaceName()).isEmpty()) {
 			addRenderableWidget(new TexturedTextButton.Builder()
 					.position(skinPixels ? LEFT_PANEL_X + 22 : LEFT_PANEL_X + 33, getUiHeight() - 40)
 					.size(74, 20)
@@ -294,7 +294,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 					.message(tr("gui.dragonminez.customization.edit"))
 					.onPress(btn -> {
 						if (this.minecraft != null) {
-							this.minecraft.setScreen(new HairEditorScreen(this, character));
+							this.minecraft.setScreen(com.dragonminez.client.gui.hair.FormHairScreen.open(this,character));
 						}
 					})
 					.build());

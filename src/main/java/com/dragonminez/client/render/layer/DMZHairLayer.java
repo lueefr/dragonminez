@@ -117,9 +117,11 @@ public class DMZHairLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		if (!shouldRenderHair(animatable)) return false;
 		if (!SkinPaintContext.showHair()) return false;
 		StatsData stats = StatsProvider.get(StatsCapability.INSTANCE, animatable).orElse(null);
-		if (stats == null) return false;
+		if (stats == null || !com.dragonminez.api.forms.FormVisuals.flag(stats,"hair",true)) return false;
 		Character character = stats.getCharacter();
-		if (!character.rendersHair()) return false;
+		boolean formHair=character.getActiveFormData()!=null && Boolean.TRUE.equals(character.getActiveFormData().getEditHair());
+        boolean stackHair=character.getActiveStackFormData()!=null && Boolean.TRUE.equals(character.getActiveStackFormData().getEditHair());
+        if (!character.rendersHair() && !formHair && !stackHair) return false;
 		preparedStats = stats;
 		HairRenderContext.Preview preview = editorPreview(animatable);
 		if (preview == null) resolver.resolve(animatable, stats, resolved);

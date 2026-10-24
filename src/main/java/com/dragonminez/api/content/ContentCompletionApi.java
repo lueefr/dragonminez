@@ -20,10 +20,42 @@ public final class ContentCompletionApi {
             throw new IllegalStateException("Content completion requires the server thread");
         }
         var data = StatsProvider.get(StatsCapability.INSTANCE, player).orElseThrow(IllegalStateException::new);
-        int count = data.getContentProgress().complete(contentId);
-        NeoForge.EVENT_BUS.post(new ContentCompletedEvent(player, contentId, kind, count));
-        StatsSyncS2C.sendRequested(player);
+        var batches = PENDING.get();
+        var batch = batches.get(player.getUUID());
+        boolean root = batch == null;
+        if (root) {
+            batch = new Pending(!data.getContentProgress().hasCompleted(contentId) && !com.dragonminez.common.config.ConfigManager.getRulesConfig().rewards(contentId).isEmpty() ? data.save() : null, new java.util.ArrayList<>());
+            batches.put(player.getUUID(), batch);
+        }
+        int count;
+        try {
+            count = data.getContentProgress().complete(contentId);
+            if (count == 1) com.dragonminez.api.rules.Rewards.apply(player, data, contentId,
+                    com.dragonminez.common.config.ConfigManager.getRulesConfig().rewards(contentId));
+            batch.events().add(new ContentCompletedEvent(player, contentId, kind, count));
+        } catch (RuntimeException ex) {
+            if (root) {
+                try { if(batch.before()!=null)data.load(batch.before()); } catch (ClassNotFoundException restore) { ex.addSuppressed(restore); }
+                batches.remove(player.getUUID());
+                if (batches.isEmpty()) PENDING.remove();
+            }
+            throw ex;
+        }
+        if (root) {
+            batches.remove(player.getUUID());
+            if (batches.isEmpty()) PENDING.remove();
+            StatsSyncS2C.sendRequested(player);
+            batch.events().forEach(NeoForge.EVENT_BUS::post);
+        }
         return count;
+    }
+
+    private record Pending(net.minecraft.nbt.CompoundTag before,java.util.List<net.neoforged.bus.api.Event> events) {}
+    private static final ThreadLocal<java.util.Map<java.util.UUID,Pending>> PENDING = ThreadLocal.withInitial(java.util.HashMap::new);
+    /** Reward events are emitted only when the entire completion/reward chain succeeds. */
+    public static void afterCommit(ServerPlayer player,net.neoforged.bus.api.Event event) {
+        var batch=PENDING.get().get(player.getUUID());
+        if(batch==null)NeoForge.EVENT_BUS.post(event);else batch.events().add(event);
     }
 
     public static boolean hasCompleted(ServerPlayer player, String contentId) {

@@ -5318,5 +5318,22 @@
   "gui.dragonminez.custom_npc.quest_turn_in": "Complete: %s",
   "gui.dragonminez.custom_npc.trade": "%s × %s — %s TP",
   "message.dragonminez.custom_npc.purchase_success": "Purchase completed.",
-  "message.dragonminez.custom_npc.purchase_failed": "Purchase unavailable."
+  "message.dragonminez.custom_npc.purchase_failed": "Purchase unavailable.",
+  "gui.dragonminez.form_hair.title": "Edit hair",
+  "gui.dragonminez.form_hair.base": "Ordinary hair styles",
+  "rules.dragonminez.content": "Complete %s",
+  "rules.dragonminez.level": "Reach level %s",
+  "rules.dragonminez.mastery": "Reach %2$s%% mastery in %1$s",
+  "rules.dragonminez.skill": "Learn %1$s at level %2$s",
+  "rules.dragonminez.used": "Use %s at least once",
+  "rules.dragonminez.not": "Must not satisfy: %s",
+  "rules.dragonminez.first": "First activation: %s",
+  "rules.dragonminez.race": "Race: %s",
+  "rules.dragonminez.flying": "Flying: %s",
+  "rules.dragonminez.charging": "Charging: %s",
+  "rules.dragonminez.aura": "Aura active: %s",
+  "rules.dragonminez.grounded": "On ground: %s",
+  "rules.dragonminez.sneaking": "Sneaking: %s",
+  "rules.dragonminez.water": "In water: %s",
+  "rules.dragonminez.night": "Night: %s"
 }

@@ -795,7 +795,8 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 
 		int cost = getUpgradeCost(selectedSkill, skill.getLevel());
 		double currentTPS = statsData.getResources().getTrainingPointsExact();
-		boolean canUpgrade = !skill.isMaxLevel() && currentTPS >= cost;
+		var purchaseLock = FormRequisites.checkSkillLevel(statsData,selectedSkill,skill.getLevel()+1,true);
+		boolean canUpgrade = !skill.isMaxLevel() && currentTPS >= cost && !purchaseLock.isLocked();
 		if (cost == -1 || cost == Integer.MAX_VALUE) return;
 
 		if (!skill.isMaxLevel()) {
@@ -815,6 +816,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 					.build();
 
 			upgradeButton.active = canUpgrade;
+            if(purchaseLock.isLocked())upgradeButton.setTooltip(net.minecraft.client.gui.components.Tooltip.create(FormRequisites.describeInline(purchaseLock,true)));
 			this.addRenderableWidget(upgradeButton);
 		}
 	}

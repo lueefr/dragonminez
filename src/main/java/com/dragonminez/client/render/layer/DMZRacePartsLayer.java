@@ -320,7 +320,8 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 				float tailAlpha = alpha * enrolledAlpha;
 				partsModel.getBone("tailenrolled").ifPresent(targetBone -> {
 					syncTargetBoneAndParents(targetBone, playerModel);
-					float[] tailColor = resolveTailColor(stats);
+					if(!com.dragonminez.api.forms.FormVisuals.flag(stats,"tail",true))return;
+		float[] tailColor = resolveTailColor(stats);
 					float[] tintedColor = applyAuraTint(tailColor[0], tailColor[1], tailColor[2], formTintColor, formTintIntensity, topAuraColor, tintProgress);
 					float[] shadowColor = tintedShadow(tailColor, formTintColor, formTintIntensity, topAuraColor, tintProgress);
 					renderTargetedBone(targetBone, poseStack, bufferSource, animatable, tailRenderType, tintedColor[0], tintedColor[1], tintedColor[2], tailAlpha, partialTick, packedLight);
@@ -363,6 +364,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 
 	private void renderBorrowedSaiyanTail(PoseStack poseStack, T animatable, BakedGeoModel playerModel, BakedGeoModel partsModel, MultiBufferSource bufferSource, StatsData stats, boolean leaderTail,
 										  float partialTick, int packedLight, int packedOverlay, float alpha, float[] formTint, float formTintIntensity, float[] auraColor, float tintProgress) {
+		if(!com.dragonminez.api.forms.FormVisuals.flag(stats,"tail",true))return;
 		float[] tailColor = resolveTailColor(stats);
 		if (stats.getStatus().isTailVisible()) {
 			float[] color = tint(tailColor, formTint, formTintIntensity, auraColor, tintProgress, BODY_AURA_TINT);
@@ -455,7 +457,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 		float[] baseTail = character.getBodyColor2() != null && !character.getBodyColor2().isEmpty()
 				? character.getRgbBodyColor2()
 				: ColorUtils.hexToRgb("#572117");
-		return FormVisualTransition.color(stats, baseTail, FormConfig.FormData::getRgbBodyColor2);
+		return com.dragonminez.api.forms.FormVisuals.color(stats,"tail",FormVisualTransition.color(stats, baseTail, FormConfig.FormData::getRgbBodyColor2));
 	}
 
 	private float[] tintedShadow(float[] color, float[] formTintColor, float formTintIntensity, float[] auraColor, float tintProgress) {

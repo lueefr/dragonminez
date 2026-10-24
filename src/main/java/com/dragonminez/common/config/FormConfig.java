@@ -180,6 +180,12 @@ public class FormConfig {
 	@NoArgsConstructor
 	public static class FormData {
 		private String name = "";
+        private com.google.gson.JsonObject buy;
+        private com.google.gson.JsonObject visual;
+        private Boolean editHair;
+        public com.google.gson.JsonObject getBuy() { return buy; }
+        public com.google.gson.JsonObject getVisual() { return visual; }
+        public Boolean getEditHair() { return editHair; }
 		private Integer unlockOnSkillLevel = 0;
 		private String formCombo = "";
 		private String customModel = "";
