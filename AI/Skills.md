@@ -11,7 +11,7 @@ Use the right layer:
 - `AI/Agents.md`: Local onboarding, repo rules, and operating procedure every AI agent must follow.
 - `AI/Skills.md`: How to design and apply repeatable AI workflows.
 - `AI/Memory.md`: Durable lessons, decisions, pitfalls, and conventions learned from past work.
-- Codex/Superpowers skills: Runtime-loaded procedural workflows for broadly reusable techniques.
+- Runtime skill systems: Procedural workflows loaded by the agent tool in use (Superpowers, Claude Code skills, Codex skills, and similar). Trigger names differ per tool; adapt them.
 
 ## DragonMineZ Constraints
 
@@ -36,17 +36,17 @@ When designing AI workflows for this repo:
 
 Use an existing skill when the task matches its trigger. Do this before exploring files or proposing a solution.
 
-Common Superpowers triggers:
+Common process-skill triggers (adapt names to the tool in use):
 
-- `superpowers:brainstorming`: Use before creative feature work, behavior changes, or new components.
-- `superpowers:systematic-debugging`: Use before fixing bugs, test failures, or unexpected behavior.
-- `superpowers:test-driven-development`: Use before implementing features or bugfixes when tests are feasible.
-- `superpowers:writing-plans`: Use when converting requirements into a multi-step implementation plan.
-- `superpowers:executing-plans`: Use when following a written implementation plan.
-- `superpowers:verification-before-completion`: Use before claiming work is complete, fixed, or passing.
-- `superpowers:writing-skills`: Use when creating or editing reusable skill instructions.
-- `superpowers:requesting-code-review`: Use after substantial implementation before merge/PR readiness.
-- `superpowers:receiving-code-review`: Use when addressing review feedback.
+- brainstorming: Use before creative feature work, behavior changes, or new components.
+- systematic-debugging: Use before fixing bugs, test failures, or unexpected behavior.
+- test-driven-development: Use before implementing features or bugfixes when tests are feasible.
+- writing-plans: Use when converting requirements into a multi-step implementation plan.
+- executing-plans: Use when following a written implementation plan.
+- verification-before-completion: Use before claiming work is complete, fixed, or passing.
+- writing-skills: Use when creating or editing reusable skill instructions.
+- requesting-code-review: Use after substantial implementation before merge/PR readiness.
+- receiving-code-review: Use when addressing review feedback.
 
 If multiple skills apply, use process skills first, then implementation skills.
 
@@ -179,7 +179,7 @@ Before saying work is complete:
 - For generated data changes on main, run or recommend `./gradlew runData`.
 - For localization JSON, use `scripts/check_lang.sh` when the environment supports it.
 - For user-editable JSON, verify missing/corrupt/custom files are handled safely.
-- Use `superpowers:verification-before-completion` before final success claims.
+- Use the verification-before-completion skill of the tool in use before final success claims.
 
 Do not claim "fixed," "complete," or "passing" without verification evidence.
 
