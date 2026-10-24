@@ -10,7 +10,7 @@ Based on the original Forge 1.20.1 release **2.2**, this fork provides:
 - Fixes for player aura/lightning alignment and shader-related skin overlays.
 - Persistent content-completion prerequisites, additive JSON NPCs, recursive form multiplier composition and config-based translations.
 
-See the [Wiki guide](https://github.com/lueefr/dragonminez/wiki), [API documentation and JSON examples](API-EXTENSIONS.md), [porting notes and dependencies](PORTING-1.21.1.md), and [API validation results](API-VALIDATION.md). Otherworld worldgen/LOD improvements remain under development in [PR #7](https://github.com/lueefr/dragonminez/pull/7).
+See the [Wiki guide](https://github.com/lueefr/dragonminez/wiki), [API documentation and JSON examples](API-EXTENSIONS.md), [porting notes and dependencies](PORTING-1.21.1.md), and [API validation results](API-VALIDATION.md).
 
 ## Downloads
 
