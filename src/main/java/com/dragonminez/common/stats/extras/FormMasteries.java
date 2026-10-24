@@ -7,6 +7,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FormMasteries {
+    private long progressionRevision;
+    public long getProgressionRevision() { return progressionRevision; }
+    private void put(String key, double value) {
+        if (Double.compare(masteries.getOrDefault(key, 0.0), value) != 0) {
+            masteries.put(key, value);
+            progressionRevision++;
+        }
+    }
+
     private final Map<String, Double> masteries = new HashMap<>();
 
     public FormMasteries() {}
@@ -18,14 +27,14 @@ public class FormMasteries {
 
     public void setMastery(String formGroup, String formName, double mastery, double maxMastery) {
         String key = getKey(formGroup, formName);
-        masteries.put(key, Math.max(0.0, Math.min(maxMastery, mastery)));
+        put(key, Math.max(0.0, Math.min(maxMastery, mastery)));
     }
 
     public void addMastery(String formGroup, String formName, double amount, double maxMastery) {
         String key = getKey(formGroup, formName);
         double current = masteries.getOrDefault(key, 0.0);
         double newMastery = Math.min(maxMastery, current + amount);
-        masteries.put(key, newMastery);
+        put(key, newMastery);
     }
 
     public boolean hasMaxMastery(String formGroup, String formName, double maxMastery) {
@@ -45,15 +54,15 @@ public class FormMasteries {
     }
 
     public void putMax(String key, double value) {
-        masteries.merge(key, value, Math::max);
+        put(key, Math.max(getRaw(key), value));
     }
 
     public void addRaw(String key, double amount) {
-        masteries.merge(key, amount, Double::sum);
+        put(key, getRaw(key) + amount);
     }
 
     public void clear() {
-        masteries.clear();
+        masteries.clear(); progressionRevision++;
     }
 
     public CompoundTag save() {
@@ -65,7 +74,7 @@ public class FormMasteries {
     }
 
     public void load(CompoundTag nbt) {
-        masteries.clear();
+        masteries.clear(); progressionRevision++;
         for (String key : nbt.getAllKeys()) {
             masteries.put(key, nbt.getDouble(key));
         }
@@ -80,7 +89,7 @@ public class FormMasteries {
     }
 
     public void fromBytes(FriendlyByteBuf buf) {
-        masteries.clear();
+        masteries.clear(); progressionRevision++;
         int size = buf.readInt();
         for (int i = 0; i < size; i++) {
             String key = buf.readUtf();
@@ -90,7 +99,7 @@ public class FormMasteries {
     }
 
     public void copyFrom(FormMasteries other) {
-        this.masteries.clear();
+        this.masteries.clear(); progressionRevision++;
         this.masteries.putAll(other.masteries);
     }
 }

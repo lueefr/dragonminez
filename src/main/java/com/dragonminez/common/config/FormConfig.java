@@ -233,7 +233,10 @@ public class FormConfig {
 		private Double passiveMasteryEveryFiveSeconds = 0.001;
 		private Double maxCostMultiplier = 0.5;
 		private Double maxStatsMultiplier = 1.25;
-		private String formRequisite = "";
+		private String baseForm = "";
+        private String inheritsMultipliersFrom = "";
+        private String formRequisite = "";
+        private List<String> completedContentRequisites = new ArrayList<>();
 		private String formRequisiteType = "all";
 		private Integer levelRequisite = 0;
 		private String sagaRequisite = "";

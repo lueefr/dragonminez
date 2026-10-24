@@ -64,6 +64,18 @@ public class QuestActionC2S {
 			}
 
 			try {
+                var custom = com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.get(npcId);
+                var nearbyCustomNpcs = player.serverLevel().getEntitiesOfClass(
+                        com.dragonminez.common.init.entities.questnpc.CustomNpcEntity.class,
+                        player.getBoundingBox().inflate(10),
+                        npc -> npc.isAlive() && npcId.equals(npc.getNpcId()) && npc.distanceToSqr(player) <= 100);
+                if (custom.isPresent() || !nearbyCustomNpcs.isEmpty()) {
+                    if (custom.isEmpty() || nearbyCustomNpcs.isEmpty() || !custom.get().offers().quests().contains(questId)
+                            || NpcDispositionService.getServiceBlocker(player, npcId) != null) {
+                        replyToDialogue(player, false, Component.translatable("message.dragonminez.npc.unavailable"));
+                        return;
+                    }
+                }
 				Component failure = switch (actionType) {
 					case START -> {
 						Component blocker = giverAlignmentBlocker(player, questId);

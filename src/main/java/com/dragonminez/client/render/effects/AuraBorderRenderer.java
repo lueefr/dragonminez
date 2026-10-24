@@ -17,7 +17,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -152,10 +151,10 @@ public final class AuraBorderRenderer {
 		int bound = GlStateManager.getBoundFramebuffer();
 		try {
 			ensureTargets(main);
-			captureMask(main);
+			Matrix4f view = viewMatrix(poseStack);
+			captureMask(main, view);
 			bindScene(bound, main);
 
-			Matrix4f view = viewMatrix(mc, poseStack);
 			Vec3 camera = mc.gameRenderer.getMainCamera().getPosition();
 			REQUESTS.sort(Comparator.comparingDouble((Request request) -> request.entity().distanceToSqr(camera)).reversed());
 			for (Request request : REQUESTS) {
@@ -176,7 +175,7 @@ public final class AuraBorderRenderer {
 		}
 	}
 
-	private static void captureMask(RenderTarget main) {
+	private static void captureMask(RenderTarget main, Matrix4f view) {
 		RenderSystem.depthMask(true);
 		RenderSystem.colorMask(true, true, true, true);
 		mask.setClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -185,7 +184,7 @@ public final class AuraBorderRenderer {
 
 		org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
 		modelView.pushMatrix();
-		modelView.identity();
+		modelView.set(view);
 		RenderSystem.applyModelViewMatrix();
 		TransformationMaskRenderState.setCurrentTargets(mask);
 		try {
@@ -202,12 +201,11 @@ public final class AuraBorderRenderer {
 		GlStateManager._viewport(0, 0, main.viewWidth, main.viewHeight);
 	}
 
-	private static Matrix4f viewMatrix(Minecraft mc, PoseStack poseStack) {
-		if (!IrisCompat.isShaderPackInUse()) return new Matrix4f(poseStack.last().pose());
-		Camera camera = mc.gameRenderer.getMainCamera();
-		return new Matrix4f()
-				.rotateX(camera.getXRot() * Mth.DEG_TO_RAD)
-				.rotateY((camera.getYRot() + 180.0f) * Mth.DEG_TO_RAD);
+	private static Matrix4f viewMatrix(PoseStack poseStack) {
+		// The stage matrix is the same camera rotation used for the rendered scene.
+		// Rebuilding it from yaw/pitch drops roll and any camera transforms used by
+		// shader pipelines, which makes the projected border drift from its mask.
+		return new Matrix4f(poseStack.last().pose());
 	}
 
 	private record Placement(float centerX, float centerY, float upX, float upY, float thickness, float alpha,

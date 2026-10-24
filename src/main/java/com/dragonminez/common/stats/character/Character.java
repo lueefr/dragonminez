@@ -54,7 +54,9 @@ public class Character {
 	private UsedForms formsUsedBefore = new UsedForms();
 	private int activeFormItemDurationTicks = 0;
 
-	private String previousFormGroup = "";
+	private String compositionBaseFormGroup = "";
+    private String compositionBaseForm = "";
+    private String previousFormGroup = "";
 	private String previousForm = "";
 	private boolean hasPreviousFormRecord = false;
 
@@ -522,7 +524,9 @@ public class Character {
 		tag.putString("SelectedForm", safeString(selectedForm));
 		tag.putString("CurrentForm", safeString(activeForm));
 		tag.putInt("ActiveFormItemDurationTicks", activeFormItemDurationTicks);
-		tag.putString("PreviousFormGroup", safeString(previousFormGroup));
+		tag.putString("CompositionBaseFormGroup", safeString(compositionBaseFormGroup));
+        tag.putString("CompositionBaseForm", safeString(compositionBaseForm));
+        tag.putString("PreviousFormGroup", safeString(previousFormGroup));
 		tag.putString("PreviousForm", safeString(previousForm));
 		tag.putBoolean("HasPreviousFormRecord", hasPreviousFormRecord);
 		tag.put("FormMasteries", formMasteries.save());
@@ -613,7 +617,9 @@ public class Character {
 		this.selectedForm = tag.getString("SelectedForm");
 		this.activeForm = tag.getString("CurrentForm");
 		this.activeFormItemDurationTicks = tag.getInt("ActiveFormItemDurationTicks");
-		this.previousFormGroup = tag.getString("PreviousFormGroup");
+		this.compositionBaseFormGroup = tag.getString("CompositionBaseFormGroup");
+        this.compositionBaseForm = tag.getString("CompositionBaseForm");
+        this.previousFormGroup = tag.getString("PreviousFormGroup");
 		this.previousForm = tag.getString("PreviousForm");
 		this.hasPreviousFormRecord = tag.getBoolean("HasPreviousFormRecord");
 		if (tag.contains("FormMasteries")) formMasteries.load(tag.getCompound("FormMasteries"));
@@ -675,6 +681,12 @@ public class Character {
 	}
 
 	public void setActiveForm(String groupName, String formName) {
+        if (statsData != null && (!java.util.Objects.equals(activeFormGroup, groupName)
+                || !java.util.Objects.equals(activeForm, formName))
+                && !com.dragonminez.api.forms.FormCompositionRuntime.usesCurrent(statsData, activeFormGroup, activeForm)) {
+            this.compositionBaseFormGroup = activeFormGroup;
+            this.compositionBaseForm = activeForm;
+        }
 		this.activeFormGroup = groupName != null ? groupName : "";
 		this.activeForm = formName != null ? formName : "";
 		this.activeFormItemDurationTicks = 0;
@@ -910,7 +922,9 @@ public class Character {
 		this.selectedForm = safeString(other.selectedForm);
 		this.activeForm = safeString(other.activeForm);
 		this.activeFormItemDurationTicks = other.activeFormItemDurationTicks;
-		this.previousFormGroup = safeString(other.previousFormGroup);
+		this.compositionBaseFormGroup = safeString(other.compositionBaseFormGroup);
+        this.compositionBaseForm = safeString(other.compositionBaseForm);
+        this.previousFormGroup = safeString(other.previousFormGroup);
 		this.previousForm = safeString(other.previousForm);
 		this.hasPreviousFormRecord = other.hasPreviousFormRecord;
 		this.formMasteries.copyFrom(other.formMasteries);

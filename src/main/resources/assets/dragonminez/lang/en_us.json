@@ -5310,5 +5310,13 @@
   "death.attack.strike_attack.perfect_rush": "%1$s was driven into the ground by %2$s's Perfect Rush",
   "death.attack.strike_attack.spirit_breaker": "%1$s was broken by %2$s's Spirit Breaker",
   "death.attack.strike_attack.android_combo": "%1$s was blown apart by %2$s's Android Combo",
-  "death.attack.strike_attack.beam_sword_slash": "%1$s was cut down by %2$s's Beam Sword Slash"
+  "death.attack.strike_attack.beam_sword_slash": "%1$s was cut down by %2$s's Beam Sword Slash",
+  "gui.dragonminez.skills.locked_content": "Complete %s at least once",
+  "command.dragonminez.content.completed": "Marked %s complete for %s player(s)",
+  "gui.dragonminez.custom_npc.skill": "Learn: %s",
+  "gui.dragonminez.custom_npc.quest_start": "Start: %s",
+  "gui.dragonminez.custom_npc.quest_turn_in": "Complete: %s",
+  "gui.dragonminez.custom_npc.trade": "%s × %s — %s TP",
+  "message.dragonminez.custom_npc.purchase_success": "Purchase completed.",
+  "message.dragonminez.custom_npc.purchase_failed": "Purchase unavailable."
 }

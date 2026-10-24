@@ -2,7 +2,6 @@ package com.dragonminez.client.events;
 
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import com.dragonminez.Reference;
-import com.dragonminez.client.render.CameraProjectionCapture;
 import com.dragonminez.client.render.effects.AuraBorderRenderer;
 import com.dragonminez.client.render.effects.AuraRenderer;
 import com.dragonminez.client.render.effects.AuraTrailRenderer;
@@ -62,6 +61,7 @@ public class PlayerEffectsRenderHandler {
 
 	@SubscribeEvent
 	public static void onRenderLevelStage(RenderLevelStageEvent event) {
+		if (IrisCompat.isRenderingShadowPass()) return;
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null || mc.player == null) return;
 
@@ -186,7 +186,7 @@ public class PlayerEffectsRenderHandler {
 			if (cameraPos.distanceToSqr(entityPos) < 0.25) isCameraColliding = true;
 		}
 
-		AuraRenderer.processFusionFlashes(mc, gameTime, partialTick, CameraProjectionCapture.viewPoseStack(poseStack), buffers);
+		AuraRenderer.processFusionFlashes(mc, gameTime, partialTick, poseStack, buffers);
 		org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
 		modelView.pushMatrix();
 		modelView.identity();

@@ -98,6 +98,7 @@ public class QuestParser {
 		boolean repeatable = json.has("repeatable") && json.get("repeatable").getAsBoolean();
 		int repeatCooldownSeconds = json.has("repeat_cooldown_seconds") ? json.get("repeat_cooldown_seconds").getAsInt() : 0;
 		quest.setRepeatConfig(repeatable, repeatCooldownSeconds);
+        if (json.has("completionId")) quest.setCompletionId(json.get("completionId").getAsString());
 		quest.setTimeLimitSeconds(json.has("time_limit_seconds") ? json.get("time_limit_seconds").getAsInt() : 0);
 
 		return quest;
@@ -710,7 +711,7 @@ public class QuestParser {
 			"id", "title", "type", "description", "category", "parallel_objectives", "party_scaling",
 			"quest_giver", "turn_in", "secret", "claim_mode", "prerequisites", "requirements",
 			"objectives", "rewards", "defaultsVersion",
-			"repeatable", "repeat_cooldown_seconds", "time_limit_seconds");
+			"repeatable", "repeat_cooldown_seconds", "time_limit_seconds", "completionId");
 
 	private static final Set<String> CONDITION_BLOCK_KEYS = Set.of("operator", "conditions");
 	private static final Set<String> STRUCTURE_HINT_KEYS = Set.of("dimension", "x", "y", "z");

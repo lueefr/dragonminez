@@ -17,7 +17,9 @@ import java.util.Locale;
 
 public final class FormRequisites {
 
-	public record Lock(int level, String sagaId, int questId) {
+	public record Lock(int level, String sagaId, int questId, List<String> completedContent) {
+        public Lock(int level, String sagaId, int questId) { this(level, sagaId, questId, List.of()); }
+        public Lock { completedContent = List.copyOf(completedContent); }
 		public static final Lock NONE = new Lock(0, null, -1);
 
 		public boolean levelLocked() {
@@ -29,7 +31,7 @@ public final class FormRequisites {
 		}
 
 		public boolean isLocked() {
-			return levelLocked() || sagaLocked();
+			return levelLocked() || sagaLocked() || !completedContent.isEmpty();
 		}
 	}
 
@@ -55,7 +57,9 @@ public final class FormRequisites {
 			}
 		}
 
-		return level == 0 && sagaId == null ? Lock.NONE : new Lock(level, sagaId, questId);
+        List<String> missing = form.getCompletedContentRequisites() == null ? List.of()
+                : form.getCompletedContentRequisites().stream().filter(id -> !data.getContentProgress().hasCompleted(id)).distinct().toList();
+        return level == 0 && sagaId == null && missing.isEmpty() ? Lock.NONE : new Lock(level, sagaId, questId, missing);
 	}
 
 	public static Lock checkSkillLevel(StatsData data, String skillName, int targetLevel, boolean clientSide) {
@@ -63,15 +67,17 @@ public final class FormRequisites {
 		int level = 0;
 		String sagaId = null;
 		int questId = -1;
+        var missing = new java.util.LinkedHashSet<String>();
 		for (FormConfig.FormData form : formsAtSkillLevel(data, skillName, targetLevel)) {
 			Lock lock = check(data, form, clientSide);
+            missing.addAll(lock.completedContent());
 			level = Math.max(level, lock.level());
 			if (sagaId == null && lock.sagaLocked()) {
 				sagaId = lock.sagaId();
 				questId = lock.questId();
 			}
 		}
-		return level == 0 && sagaId == null ? Lock.NONE : new Lock(level, sagaId, questId);
+        return level == 0 && sagaId == null && missing.isEmpty() ? Lock.NONE : new Lock(level, sagaId, questId, new ArrayList<>(missing));
 	}
 
 	public static List<Component> describe(Lock lock, boolean clientSide) {
@@ -79,6 +85,7 @@ public final class FormRequisites {
 		if (lock == null) return lines;
 		if (lock.sagaLocked()) lines.add(Component.translatable("gui.dragonminez.skills.locked_until", sagaQuestReference(lock.sagaId(), lock.questId(), clientSide)));
 		if (lock.levelLocked()) lines.add(Component.translatable("gui.dragonminez.skills.locked_until", Component.translatable("gui.dragonminez.skills.locked_level", lock.level())));
+        for (String id : lock.completedContent()) lines.add(Component.translatable("gui.dragonminez.skills.locked_content", Component.translatable(id)));
 		return lines;
 	}
 
@@ -89,6 +96,10 @@ public final class FormRequisites {
 			if (lock.sagaLocked()) requirements.append(" / ");
 			requirements.append(Component.translatable("gui.dragonminez.skills.locked_level", lock.level()));
 		}
+        for (String id : lock.completedContent()) {
+            if (!requirements.getString().isEmpty()) requirements.append(" / ");
+            requirements.append(Component.translatable("gui.dragonminez.skills.locked_content", Component.translatable(id)));
+        }
 		return Component.translatable("gui.dragonminez.skills.locked_until", requirements);
 	}
 
