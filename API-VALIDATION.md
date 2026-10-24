@@ -1,6 +1,6 @@
 # NeoForge 1.21.1 extension API validation
 
-Scope: `feature/2.2-neoforge-1.21.1-api`. LOD, worldgen and rendering changes are maintained on a separate branch.
+Scope: `feature/2.2-neoforge-1.21.1-api`. Player effect alignment and shader skin-overlay fixes are included. LOD and worldgen changes are maintained on a separate branch.
 
 ## Checks from the combined development snapshot
 
@@ -38,3 +38,15 @@ Scope: `feature/2.2-neoforge-1.21.1-api`. LOD, worldgen and rendering changes ar
 - Run the relevant multiplayer and gameplay checks before merging.
 
 No release or merge is justified solely by the historical combined-branch checks.
+
+## Player effect fixes moved into the API branch — 2026-10-24
+
+- Deferred lightning now composes the stage camera view with the queued entity transform. Aura border projection and its mask use the same scene view; shader paths retain the stage camera transforms. Shadow passes skip the deferred effect handler.
+- Skin overlays use polygon depth bias instead of scaling the global model-view matrix.
+- Fresh isolated Minecraft runs completed both without shaders and with Iris 1.8.0 / Sodium 0.6.13 / Complementary Reimagined r5.9.2 (Mesa software rendering). Inspected front-camera captures show effects centered on the player and the clean muscle overlay. These checks cover this scene and shader combination, not all packs or GPUs.
+- No-shader screenshots: `/tmp/dmz-render-smoke/game-noshader/screenshots/2026-10-24_14.55.47.png` (effects), `2026-10-24_14.55.55.png` (skin).
+- Shader screenshots: `/tmp/dmz-render-smoke/game-shader/screenshots/2026-10-24_14.57.03.png` (effects), `2026-10-24_14.57.11.png` (skin).
+- Logs: `/tmp/dmz-render-smoke/clean-noshader-gradle.log`, `/tmp/dmz-render-smoke/clean-shader-gradle.log`. Both client runs exited successfully.
+- Custom placements now wait for persistent entities to finish loading before checking their UUID, avoiding premature replacement while a chunk's entity data is pending. Actual placement unload/reload verification remains pending.
+
+- Fresh combined `test build runGameTestServer` passed after the effect and placement changes: six unit tests, nine required GameTests. Log: `/tmp/dmz-api-effects-validation.log`.

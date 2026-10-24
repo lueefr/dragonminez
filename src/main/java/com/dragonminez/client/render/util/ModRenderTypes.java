@@ -122,34 +122,16 @@ public class ModRenderTypes extends RenderType {
 
     private static final String VIEW_OFFSET_LAYERING_TOKEN = "view_offset_z_layering";
     private static final String SKIN_OVERLAY_LAYERING_TOKEN = "dmz_skin_overlay_layering";
-    private static final float SKIN_OVERLAY_VIEW_SCALE = 0.99987793F;
-    private static final float SKIN_OVERLAY_ORTHO_DEPTH_UNITS = -10.0F;
-    private static boolean skinOverlayLayeringUsesPolygonOffset;
-
-    private static boolean isOrthographicProjection() {
-        return RenderSystem.getProjectionMatrix().m33() != 0.0F;
-    }
 
     public static final RenderStateShard.LayeringStateShard SKIN_OVERLAY_LAYERING = new RenderStateShard.LayeringStateShard(SKIN_OVERLAY_LAYERING_TOKEN, () -> {
-        skinOverlayLayeringUsesPolygonOffset = isOrthographicProjection();
-        if (skinOverlayLayeringUsesPolygonOffset) {
-            RenderSystem.polygonOffset(0.0F, SKIN_OVERLAY_ORTHO_DEPTH_UNITS);
-            RenderSystem.enablePolygonOffset();
-            return;
-        }
-        org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
-        modelView.pushMatrix();
-        modelView.scale(SKIN_OVERLAY_VIEW_SCALE, SKIN_OVERLAY_VIEW_SCALE, SKIN_OVERLAY_VIEW_SCALE);
-        RenderSystem.applyModelViewMatrix();
+        // A model-view scale moves every overlay toward the camera origin and
+        // diverges from the body in Iris world and shadow passes. Use the same
+        // depth-bias mechanism as vanilla's polygon-offset render types instead.
+        RenderSystem.polygonOffset(0.0F, -10.0F);
+        RenderSystem.enablePolygonOffset();
     }, () -> {
-        if (skinOverlayLayeringUsesPolygonOffset) {
-            RenderSystem.polygonOffset(0.0F, 0.0F);
-            RenderSystem.disablePolygonOffset();
-            return;
-        }
-        org.joml.Matrix4fStack modelView = RenderSystem.getModelViewStack();
-        modelView.popMatrix();
-        RenderSystem.applyModelViewMatrix();
+        RenderSystem.polygonOffset(0.0F, 0.0F);
+        RenderSystem.disablePolygonOffset();
     });
 
     private static final RenderStateShard.LayeringStateShard MASK_BODY_LAYERING = new RenderStateShard.LayeringStateShard("dmz_mask_body_layering", () -> {

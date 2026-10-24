@@ -4,6 +4,7 @@ import com.dragonminez.Reference;
 import com.dragonminez.api.npc.CustomNpcRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -23,7 +24,8 @@ public final class CustomNpcPlacements {
         CustomNpcRegistry.INSTANCE.placements().forEach((key, placement) -> {
             if (!dimension.equals(placement.dimension())) return;
             BlockPos pos = BlockPos.containing(placement.x(), placement.y(), placement.z());
-            if (!level.hasChunkAt(pos)) return;
+            // Terrain can be available before persistent entities finish loading.
+            if (!level.hasChunkAt(pos) || !level.areEntitiesLoaded(ChunkPos.asLong(pos))) return;
             String identity = "dragonminez:custom_npc_placement/" + dimension + "/" + key;
             UUID uuid = UUID.nameUUIDFromBytes(identity.getBytes(StandardCharsets.UTF_8));
             if (level.getEntity(uuid) != null) return;
