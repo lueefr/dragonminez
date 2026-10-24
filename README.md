@@ -196,13 +196,13 @@ Place new definitions in `config/dragonminez/custom_npcs/*.json`. This registry 
   "alignment": 50,
   "offers": {
     "skills": ["custom_training"],
-    "quests": ["example:custom_task"],
+    "quests": ["custom_task"],
     "shop": [{"item": "minecraft:apple", "count": 2, "price": 5}]
   }
 }
 ```
 
-Skills and quests reference content already registered with their respective systems. Empty offers create an ambient NPC. Armor is cosmetic and occupies separate rendering slots (`head`, `chest`, `legs`, `feet`); it does not grant equipment attributes. Appearance bases include `master_male`, `master_female` and `humanoid_slim`. Hair uses the existing `hairType` and optional `forcedHairCode` system; `hairType: "none"` disables hair. Names and dialogue strings can be translation keys. Alignment uses the existing 0–100 scale and service gates.
+Skills and quests reference content already registered with their respective systems. Side-quest IDs such as `custom_task` do not contain a colon; `saga:quest` keys retain the existing saga format. Empty offers create an ambient NPC. Armor is cosmetic and occupies separate rendering slots (`head`, `chest`, `legs`, `feet`); it does not grant equipment attributes. Appearance bases include `master_male`, `master_female` and `humanoid_slim`. Hair uses the existing `hairType` and optional `forcedHairCode` system; `hairType: "none"` disables hair. Names and dialogue strings can be translation keys. Alignment uses the existing 0–100 scale and service gates.
 
 Spawn with `/dmzcustomnpc spawn example:guide [x y z]`, or create a separate `config/dragonminez/custom_npc_placements/guide.json`:
 

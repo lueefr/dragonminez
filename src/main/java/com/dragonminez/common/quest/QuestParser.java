@@ -711,7 +711,7 @@ public class QuestParser {
 			"id", "title", "type", "description", "category", "parallel_objectives", "party_scaling",
 			"quest_giver", "turn_in", "secret", "claim_mode", "prerequisites", "requirements",
 			"objectives", "rewards", "defaultsVersion",
-			"repeatable", "repeat_cooldown_seconds", "time_limit_seconds");
+			"repeatable", "repeat_cooldown_seconds", "time_limit_seconds", "completionId");
 
 	private static final Set<String> CONDITION_BLOCK_KEYS = Set.of("operator", "conditions");
 	private static final Set<String> STRUCTURE_HINT_KEYS = Set.of("dimension", "x", "y", "z");
