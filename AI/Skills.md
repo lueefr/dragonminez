@@ -15,7 +15,12 @@ Use the right layer:
 
 ## DragonMineZ Constraints
 
-DragonMineZ is a Forge `1.20.1` Java 17 mod with mod id `dragonminez`. Runtime data matters: many JSON files are intentionally user-editable by players, addon authors, and server owners.
+DragonMineZ version 2.2 has two active branches with different toolchains. Check `git branch --show-current` first:
+
+- `main`: NeoForge 1.21.1 port, Java 21. Verified build and integration tests.
+- `port/2.2-fabric-26.1.2`: Fabric 26.1.2 work in progress, Java 25. Full build is expected to fail; `verifyExtensionApiCore` is the only green check.
+
+Runtime data matters on both branches: many JSON files are intentionally user-editable by players, addon authors, and server owners.
 
 When designing AI workflows for this repo:
 
@@ -24,7 +29,8 @@ When designing AI workflows for this repo:
 - Prefer replacing old code with the new intended approach when backward compatibility was not requested.
 - Avoid editing generated/runtime folders unless explicitly asked: `build/`, `run/`, `run-data/`.
 - Keep generated resources in sync when changing datagen providers.
-- If files are changed, stage changed tracked files before finishing unless the user explicitly excludes them.
+- If files are changed, stage changed tracked files before finishing unless the user explicitly excludes them. In orchestrated sessions, only the orchestrator stages; workers report changed paths.
+- Do not claim the build passes on the Fabric branch; it is expected to fail until `porting/STATUS.md` says otherwise.
 
 ## When To Use A Skill
 
@@ -118,8 +124,7 @@ Write the condition that tells an AI agent, "use this workflow now." Include fil
 Include only the steps needed to prevent mistakes and complete the task reliably.
 
 5. Add DragonMineZ-specific context.
-Mention relevant files and systems, such as:
-
+Mention relevant files and systems. Paths differ between branches; on `main` check:
 - `src/main/java/com/dragonminez/common/DMZCommon.java`
 - `src/main/java/com/dragonminez/common/network/NetworkHandler.java`
 - `src/main/java/com/dragonminez/common/quest/QuestRegistry.java`
@@ -128,8 +133,13 @@ Mention relevant files and systems, such as:
 - `src/generated/resources/`
 - `scripts/check_lang.sh`
 
+On the Fabric branch, locate the equivalent classes before referencing them, and check `porting/STATUS.md` for what is not yet ported.
+
 6. Define verification.
-Require evidence, not assumptions. Prefer `.\gradlew.bat build` for broad validation, `.\gradlew.bat runData` for generated data changes, `.\gradlew.bat runClient` or `.\gradlew.bat runServer` for gameplay behavior, and targeted JSON/lang checks where relevant.
+Require evidence, not assumptions. Use the branch-appropriate commands:
+- `main`: `./gradlew build` for broad validation, `./gradlew runData` for generated data changes, `./gradlew runGameTestServer` for integration checks, `./gradlew runClient` or `./gradlew runServer` for gameplay behavior.
+- Fabric branch: `./gradlew verifyExtensionApiCore`; report `./gradlew build` honestly.
+- Both: `scripts/check_lang.sh` or equivalent JSON validation for language files, and targeted JSON checks for user-editable formats.
 
 7. Document update points.
 State what should be added to `AI/Memory.md` after the workflow reveals a reusable lesson.
@@ -145,6 +155,7 @@ Planning checklist:
 
 - Read `AI/Agents.md`.
 - Check `AI/Memory.md`.
+- Check `git branch --show-current` and apply the matching branch rules.
 - Inspect the files closest to the requested system.
 - Identify whether JSON formats, addons, configs, generated data, or network packets are involved.
 - Ask only when a decision changes behavior, compatibility, or user-facing data formats.
@@ -153,6 +164,7 @@ Planning checklist:
 Plans should include:
 
 - Scope of files/systems affected.
+- Which branch and its toolchain.
 - Data compatibility expectations.
 - Verification commands or manual gameplay scenario.
 - Documentation or memory updates needed afterward.
@@ -161,10 +173,10 @@ Plans should include:
 
 Before saying work is complete:
 
-- Run the most relevant automated checks available.
+- Run the most relevant automated checks available for the current branch.
 - If a check cannot be run, state why.
-- For gameplay-sensitive changes, describe the manual `runClient` or `runServer` scenario needed.
-- For generated data changes, run or recommend `.\gradlew.bat runData`.
+- For gameplay-sensitive changes, describe the manual `runClient` or `runServer` scenario needed (main branch only, while the Fabric branch cannot run the game).
+- For generated data changes on main, run or recommend `./gradlew runData`.
 - For localization JSON, use `scripts/check_lang.sh` when the environment supports it.
 - For user-editable JSON, verify missing/corrupt/custom files are handled safely.
 - Use `superpowers:verification-before-completion` before final success claims.
@@ -183,6 +195,7 @@ Good candidates:
 - A compatibility rule for user-editable JSON.
 - A verification scenario that caught a real issue.
 - A recurring dependency or environment constraint.
+- A branch-specific fact (which branch, and what differs).
 
 Memory entries should be short, dated when useful, and actionable.
 
@@ -191,8 +204,9 @@ Memory entries should be short, dated when useful, and actionable.
 When finishing a task:
 
 - Summarize what changed.
+- Mention which branch was touched.
 - Mention verification performed.
 - Mention any verification not run.
 - Mention updates made or recommended for `AI/Memory.md`.
-- If files changed, stage changed tracked files before final response unless explicitly excluded.
+- If files changed, stage changed tracked files before final response unless explicitly excluded (orchestrator only in orchestrated sessions).
 - If no files changed, say no files were edited.
