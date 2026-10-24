@@ -165,6 +165,8 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 
 			@Override
 			public void saiyanTail(float[] color) {
+                if(!com.dragonminez.api.forms.FormVisuals.flag(stats,"tail",true))return;
+                color=com.dragonminez.api.forms.FormVisuals.color(stats,"tail",color);
 				if (!tailMesh.hasCapture(animatable)) {
 					SkinGathererProvider.BodyLayerSink.super.saiyanTail(color);
 					return;
@@ -190,11 +192,17 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		};
 
 		SkinGathererProvider.INSTANCE.gatherBodyLayers(player, stats, partialTick, geoConsumer);
+        var customFur=com.dragonminez.api.forms.FormVisuals.resolve(stats).get("fur");
+        if(customFur!=null && customFur.isJsonPrimitive() && !customFur.getAsBoolean())ssj4=null;
 		if (ssj4 != null) {
 			ResourceLocation furTex = getSafeTexture(SkinGathererProvider.getCachedTexture("textures/entity/races/humansaiyan/" + ssj4.key() + "_layer1.png"));
-			fadingLayers.add(new BodyLayerFadeTracker.FadingLayer(SSJ4_FUR_LAYER, furTex, ssj4.color(), ssj4.target()));
+			if(customFur!=null && customFur.isJsonObject() && customFur.getAsJsonObject().has("texture")) {
+                var customTexture=com.dragonminez.client.util.FormTextures.resolve(customFur.getAsJsonObject().get("texture").getAsString());
+                if(customTexture!=null)furTex=customTexture;
+            }
+            fadingLayers.add(new BodyLayerFadeTracker.FadingLayer(SSJ4_FUR_LAYER, furTex, ssj4.color(), ssj4.target()));
 			BodyLayerFadeTracker.FadingLayer furShadow = ssj4FurShadowLayer(ssj4);
-			if (furShadow != null) fadingLayers.add(furShadow);
+			if (furShadow != null && !(customFur!=null && customFur.isJsonObject() && customFur.getAsJsonObject().has("texture"))) fadingLayers.add(furShadow);
 		}
 		SkinGathererProvider.INSTANCE.gatherAndroidLayers(player, stats, partialTick, geoConsumer);
 		if (maskBuffer != null) maskBuffer.setMaskCaptureBlocked(true);
@@ -412,10 +420,13 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 			renderHumanEyes(model, poseStack, animatable, bufferSource, character, humanEye, sclera, eye1, eye2, hair, skinBase, pt, pl, po, alpha);
 
 			String ssj4Eyes = folder + "ssj4_eyes_" + humanEye + ".png";
-			if (isMajin) {
-				renderColoredLayer(model, poseStack, animatable, bufferSource, ssj4Eyes, ColorUtils.hexToRgb("#292929"), pt, pl, po, alpha);
-			} else if (this.currentSsj4Alpha > 0.001f && this.currentSsj4Color != null) {
-				renderFadingColoredLayer(model, poseStack, animatable, bufferSource, ssj4Eyes, this.currentSsj4Color, pt, pl, po, alpha * this.currentSsj4Alpha);
+            var eyeStats=StatsProvider.get(StatsCapability.INSTANCE,animatable).orElse(null);
+            float[] eyeLine=com.dragonminez.api.forms.FormVisuals.color(eyeStats,"eyes",this.currentSsj4Color);
+            if(!com.dragonminez.api.forms.FormVisuals.flag(eyeStats,"eyes",true))eyeLine=null;
+			if (isMajin && com.dragonminez.api.forms.FormVisuals.flag(eyeStats,"eyes",true)) {
+				renderColoredLayer(model, poseStack, animatable, bufferSource, ssj4Eyes, com.dragonminez.api.forms.FormVisuals.color(eyeStats,"eyes",ColorUtils.hexToRgb("#292929")), pt, pl, po, alpha);
+			} else if (this.currentSsj4Alpha > 0.001f && eyeLine != null) {
+				renderFadingColoredLayer(model, poseStack, animatable, bufferSource, ssj4Eyes, eyeLine, pt, pl, po, alpha * this.currentSsj4Alpha);
 			}
 		}
 
@@ -736,7 +747,12 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		boolean currentSsj4 = isSsj4Model(currentModel);
 		boolean chargeSsj4 = isSsj4Model(chargeModel);
 		boolean revertSsj4 = isSsj4Model(revertModel);
-		if (!currentSsj4 && !chargeSsj4 && !revertSsj4) return null;
+		if (!currentSsj4 && !chargeSsj4 && !revertSsj4) {
+            var fur=com.dragonminez.api.forms.FormVisuals.resolve(stats).get("fur");
+            if(fur==null||!fur.isJsonObject()||!fur.getAsJsonObject().has("texture"))return null;
+            var config=fur.getAsJsonObject();if(com.dragonminez.client.util.FormTextures.resolve(config.get("texture").getAsString())==null)return null;
+            return new Ssj4Overlay("",config.has("color")?com.dragonminez.api.forms.FormVisuals.rgb(config.get("color").getAsString()):WHITE,1);
+        }
 
 		float target = currentSsj4 ? 1.0f : 0.0f;
 		if (charge != null) target = Mth.lerp(charge.factor(), target, chargeSsj4 ? 1.0f : 0.0f);
@@ -751,7 +767,10 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		float[] color = hairFur
 				? FormVisualTransition.color(stats, character.getRgbHairColor(), HelmetFormLook.hair(stats))
 				: FormVisualTransition.color(stats, character.getRgbBodyColor2(), FormConfig.FormData::getRgbBodyColor2);
-		return new Ssj4Overlay(key, color, target);
+		var fur=com.dragonminez.api.forms.FormVisuals.resolve(stats).get("fur");
+        if(fur!=null && fur.isJsonObject() && fur.getAsJsonObject().has("color"))color=com.dragonminez.api.forms.FormVisuals.rgb(fur.getAsJsonObject().get("color").getAsString());
+        if(fur!=null && fur.isJsonPrimitive() && !fur.getAsBoolean())target=0;
+        return new Ssj4Overlay(key, color, target);
 	}
 
 	private static FormConfig.FormData modelForm(FormTransition.Look look) {

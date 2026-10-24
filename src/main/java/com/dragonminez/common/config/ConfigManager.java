@@ -88,6 +88,7 @@ public class ConfigManager {
 		private Map<String, RaceCharacterConfig> character = new HashMap<>();
 		private Map<String, FormConfig> stackForms = new HashMap<>();
 		private EntitiesConfig entities;
+        private RuleConfig rules = new RuleConfig();
         private Map<String, Map<String, String>> translations = new HashMap<>();
 	}
 
@@ -107,6 +108,8 @@ public class ConfigManager {
 	private static SkillsConfig skillsConfig;
 	private static TechniqueConfig techniqueConfig;
 	private static EntitiesConfig entitiesConfig;
+    private static RuleConfig rulesConfig = new RuleConfig();
+    public static RuleConfig getRulesConfig() { return useServerSync() ? SYNCED.rules : rulesConfig; }
 
 	public static void initialize() {
 		LogUtil.info(Env.COMMON, "Initializing DragonMineZ configuration system...");
@@ -124,6 +127,7 @@ public class ConfigManager {
 			loadTournaments();
             com.dragonminez.api.lang.ConfigTranslations.INSTANCE.reload(CONFIG_DIR.resolve("lang"));
             com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.reload(CONFIG_DIR);
+            rulesConfig = RuleConfig.load(CONFIG_DIR.resolve("rules.json"));
             validateFormComposition();
 
 			LogUtil.info(Env.COMMON, "Configuration system initialized successfully");
@@ -154,6 +158,7 @@ public class ConfigManager {
 			loadTournaments();
             com.dragonminez.api.lang.ConfigTranslations.INSTANCE.reload(CONFIG_DIR.resolve("lang"));
             com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.reload(CONFIG_DIR);
+            rulesConfig = RuleConfig.load(CONFIG_DIR.resolve("rules.json"));
             validateFormComposition();
 			LogUtil.info(Env.COMMON, "Configuration system reloaded successfully");
 		} catch (IOException e) {
@@ -161,10 +166,19 @@ public class ConfigManager {
 		}
 	}
 
+    public static void validateExtensionRules() {
+        com.dragonminez.api.rules.Conditions.finishRegistration();
+        RuleConfig.parse(GSON.toJson(rulesConfig));
+        validateFormComposition();
+    }
+
     private static void validateFormComposition() {
         RACE_FORMS.forEach((race, groups) -> {
             var definitions = new ArrayList<com.dragonminez.api.forms.FormCompositionResolver.Definition>();
             java.util.function.BiConsumer<String, FormConfig> collect = (groupId, config) -> config.getForms().values().forEach(form -> {
+                com.dragonminez.api.rules.Conditions.validate(form.getBuy());
+                com.dragonminez.api.forms.FormVisuals.validate(form.getVisual());
+                if(Boolean.FALSE.equals(form.getEditHair()) && !form.hasHairCodeOverride() && !"none".equals(form.getHairType()))throw new IllegalArgumentException("editHair:false requires forcedHairCode or hairType:none for "+groupId+"."+form.getName());
                 if (form.getCompletedContentRequisites() != null) form.getCompletedContentRequisites().forEach(com.dragonminez.api.content.ContentProgress::requireId);
                 definitions.add(com.dragonminez.api.forms.FormCompositionRuntime.definition(groupId, form));
             });
@@ -1539,10 +1553,13 @@ public class ConfigManager {
 		} else if (configFilePath.startsWith("forms/")) {
 			FormConfig formConfig = LOADER.loadConfig(path, FormConfig.class);
 			STACK_FORMS.put(formGroupKey(formConfig, configFilePath.split("/")[1]), formConfig);
+        } else if (configFilePath.equals("rules")) {
+            rulesConfig = RuleConfig.load(CONFIG_DIR.resolve("rules.json"));
         } else if (configFilePath.startsWith("lang/")) {
             com.dragonminez.api.lang.ConfigTranslations.INSTANCE.reload(CONFIG_DIR.resolve("lang"));
         } else if (configFilePath.startsWith("custom_npcs/") || configFilePath.startsWith("custom_npc_placements/")) {
             com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.reload(CONFIG_DIR);
+            rulesConfig = RuleConfig.load(CONFIG_DIR.resolve("rules.json"));
         }
         validateFormComposition();
     }
@@ -1586,7 +1603,7 @@ public class ConfigManager {
 	public static List<String> getEditorConfigFiles() {
 		if (!isViewingRemoteServerConfig()) return new ArrayList<>(getAvailableConfigFiles());
 		SyncedConfigs synced = SYNCED;
-		List<String> files = new ArrayList<>(List.of("general-server", "combat", "training", "skills", "techniques", "entities", CLIENT_ONLY_CONFIG, HudLayoutConfig.FILE_NAME));
+		List<String> files = new ArrayList<>(List.of("general-server", "combat", "training", "skills", "techniques", "entities", "rules", CLIENT_ONLY_CONFIG, HudLayoutConfig.FILE_NAME));
 		synced.character.keySet().forEach(race -> files.add("races/" + race + "/character"));
 		synced.stats.keySet().forEach(race -> files.add("races/" + race + "/stats"));
 		synced.forms.forEach((race, groups) -> groups.keySet().forEach(group -> files.add("races/" + race + "/forms/" + group)));
@@ -1604,6 +1621,7 @@ public class ConfigManager {
 			case "skills" -> synced.skills;
 			case "techniques" -> synced.techniques;
 			case "entities" -> synced.entities;
+            case "rules" -> synced.rules;
 			default -> null;
 		};
 		String[] parts = configFilePath.split("/");
@@ -1639,6 +1657,7 @@ public class ConfigManager {
 		addSyncPayload(payloads, "general-server", GSON.toJson(server));
 		addSyncPayload(payloads, "combat", GSON.toJson(combatConfig != null ? combatConfig : DefaultConfigs.COMBAT));
 		addSyncPayload(payloads, "training", GSON.toJson(trainingConfig != null ? trainingConfig : DefaultConfigs.TRAINING));
+		addSyncPayload(payloads, "rules", GSON.toJson(rulesConfig));
 		addSyncPayload(payloads, "skills", GSON.toJson(skillsConfig != null ? skillsConfig : DefaultConfigs.SKILLS));
 		addSyncPayload(payloads, "techniques", GSON.toJson(techniqueConfig != null ? techniqueConfig : DefaultConfigs.TECHNIQUES));
 		addSyncPayload(payloads, "entities", GSON.toJson(entitiesConfig != null ? entitiesConfig : DefaultConfigs.ENTITIES));
@@ -1689,6 +1708,7 @@ public class ConfigManager {
 			if (configFilePath.equals("general-server")) target.generalServer = GSON.fromJson(json, GeneralServerConfig.class);
 			else if (configFilePath.equals("combat")) target.combat = GSON.fromJson(json, CombatConfig.class);
 			else if (configFilePath.equals("training")) target.training = GSON.fromJson(json, TrainingConfig.class);
+			else if (configFilePath.equals("rules")) target.rules = RuleConfig.parse(json);
 			else if (configFilePath.equals("skills")) target.skills = GSON.fromJson(json, SkillsConfig.class);
 			else if (configFilePath.equals("techniques")) target.techniques = GSON.fromJson(json, TechniqueConfig.class);
 			else if (configFilePath.equals("entities")) target.entities = GSON.fromJson(json, EntitiesConfig.class);

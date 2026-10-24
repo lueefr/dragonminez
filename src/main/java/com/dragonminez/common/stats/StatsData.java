@@ -65,6 +65,7 @@ public class StatsData {
 	private final Effects effects;
 	private final SecondaryStatEffects secondaryStatEffects;
 	private final PlayerQuestData playerQuestData;
+	private final com.dragonminez.api.forms.FormHistory formHistory = new com.dragonminez.api.forms.FormHistory();
 	private final com.dragonminez.api.content.ContentProgress contentProgress = new com.dragonminez.api.content.ContentProgress();
 	private final BonusStats bonusStats;
 	private final Techniques techniques;
@@ -1798,6 +1799,7 @@ public class StatsData {
 		nbt.put("SecondaryStatEffects", secondaryStatEffects.save());
 		nbt.put("PlayerQuestData", playerQuestData.serializeNBT());
 		nbt.put("CompletedContent", contentProgress.save());
+        nbt.put("FormHistory", formHistory.save());
 		nbt.put("BonusStats", bonusStats.save());
 		nbt.put("Techniques", techniques.save());
 		nbt.put("DynamicGrowth", dynamicGrowth.save());
@@ -1809,12 +1811,18 @@ public class StatsData {
 
 	public void load(CompoundTag nbt) throws ClassNotFoundException {
 		boolean fullPayload = nbt.contains("Character") && nbt.contains("Stats");
+        if (nbt.contains("FormHistory")) formHistory.load(nbt.getCompound("FormHistory"));
+        else if (fullPayload) formHistory.load(new CompoundTag());
         if (nbt.contains("CompletedContent")) contentProgress.load(nbt.getCompound("CompletedContent"));
         else if (fullPayload) contentProgress.load(new CompoundTag());
 		if (nbt.contains("Stats")) stats.load(nbt.getCompound("Stats"));
 		if (nbt.contains("Status")) status.load(nbt.getCompound("Status"));
 		if (nbt.contains("Cooldowns")) cooldowns.load(nbt.getCompound("Cooldowns"));
 		if (nbt.contains("Character")) character.load(nbt.getCompound("Character"));
+        if(fullPayload && !nbt.contains("FormHistory")) {
+            if(character.hasActiveForm())formHistory.resume("base",character.getRaceName(),character.getActiveFormGroup()+"."+character.getActiveForm());
+            if(character.hasActiveStackForm())formHistory.resume("stack",character.getRaceName(),character.getActiveStackFormGroup()+"."+character.getActiveStackForm());
+        }
 		if (nbt.contains("Resources")) resources.load(nbt.getCompound("Resources"));
 		if (nbt.contains("Skills")) skills.load(nbt.getCompound("Skills"));
 		if (nbt.contains("Effects")) effects.load(nbt.getCompound("Effects"));
@@ -1852,6 +1860,7 @@ public class StatsData {
 
 	public void copyFrom(StatsData other) {
 		this.contentProgress.copyFrom(other.contentProgress);
+        this.formHistory.copyFrom(other.formHistory);
 		this.stats.copyFrom(other.stats);
 		this.status.copyFrom(other.status);
 		this.cooldowns.copyFrom(other.cooldowns);

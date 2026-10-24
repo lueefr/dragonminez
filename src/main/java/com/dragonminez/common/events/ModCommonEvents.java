@@ -162,6 +162,7 @@ public class ModCommonEvents {
     }
 
 	public static void commonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(com.dragonminez.common.config.ConfigManager::validateExtensionRules);
 		new PredefinedTechniques().init();
 
 		event.enqueueWork(() -> {

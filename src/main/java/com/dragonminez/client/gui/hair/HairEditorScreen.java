@@ -88,8 +88,10 @@ public class HairEditorScreen extends ScaledScreen {
 	private int viewportY0;
 	private int viewportY1;
 
-	public HairEditorScreen(Screen previousScreen, Character character) {
-		super(HairEditorUi.tr("gui.dragonminez.hair_editor.title"));
+    public HairEditorScreen(Screen previousScreen,Character character) { this(previousScreen,character,null); }
+
+    public HairEditorScreen(Screen previousScreen,Character character,String formId) {
+		super(formId==null?HairEditorUi.tr("gui.dragonminez.hair_editor.title"):HairEditorUi.tr("gui.dragonminez.hair_editor.title").copy().append(" — ").append(com.dragonminez.api.forms.FormHair.name(character.getRaceName(),formId)));
 		this.previousScreen = previousScreen;
 		this.character = character;
 
@@ -97,11 +99,13 @@ public class HairEditorScreen extends ScaledScreen {
 		boolean fromPreset = character.getHairId() > 0;
 		for (HairStyleSlot slot : HairStyleSlot.values()) {
 			CustomHair source = fromPreset ? HairPresets.get(character.getHairId(), slot) : character.getOwnHairStyle(slot);
+            if(formId!=null && slot==HairStyleSlot.BASE) {var own=character.getFormHair(formId);source=own!=null?own:character.getHairStyle(HairStyleSlot.BASE);}
 			CustomHair copy = source != null ? source.copy() : new CustomHair();
-			if (character.getHairColor() != null) copy.setGlobalColor(character.getHairColor());
+			if (formId==null && character.getHairColor() != null) copy.setGlobalColor(character.getHairColor());
 			styles.put(slot, copy);
 		}
-		this.state = new HairEditorState(styles, character.isRenderHairBase(), character.getHairId());
+		this.state = new HairEditorState(styles, character.isRenderHairBase(), formId==null?character.getHairId():0);
+        this.state.formId=formId;
 		this.inspector = new HairInspectorPanel(state, Minecraft.getInstance().font, this::openColorPicker);
 		this.outliner = new HairOutlinerPanel(state, Minecraft.getInstance().font, new HairOutlinerPanel.Listener() {
 			public void onSelectionChanged() {
@@ -650,6 +654,10 @@ public class HairEditorScreen extends ScaledScreen {
 
 	private void save() {
 		inspector.commitTextEdit();
+        if(state.formId!=null) {
+            var hair=state.styles().get(HairStyleSlot.BASE).copy();character.setFormHair(state.formId,hair);
+            NetworkHandler.sendToServer(new UpdateCustomHairC2S(character.getRaceName()+":"+state.formId,hair));close();return;
+        }
 		character.setHairId(0);
 		for (HairStyleSlot slot : HairStyleSlot.values()) character.setHairStyle(slot, state.styles().get(slot).copy());
 		if (state.hairBaseChanged() || state.globalColorChanged()) {

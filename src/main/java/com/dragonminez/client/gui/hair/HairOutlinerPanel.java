@@ -95,7 +95,7 @@ final class HairOutlinerPanel {
 		if (button != 0) return true;
 
 		int cursor = y + HEADER_HEIGHT + 2;
-		HairStyleSlot slot = tabHit(mouseX, mouseY, cursor, HairStyleSlot.count()) >= 0 ? HairStyleSlot.byIndex(tabHit(mouseX, mouseY, cursor, HairStyleSlot.count())) : null;
+		HairStyleSlot slot = tabHit(mouseX, mouseY, cursor, state.slotCount()) >= 0 ? HairStyleSlot.byIndex(tabHit(mouseX, mouseY, cursor, state.slotCount())) : null;
 		if (slot != null) {
 			state.setSlot(slot);
 			HairEditorSounds.click();
@@ -193,7 +193,7 @@ final class HairOutlinerPanel {
 	}
 
 	private void renderStyleTabs(GuiGraphics graphics, int mouseX, int mouseY, int top) {
-		int count = HairStyleSlot.count();
+		int count = state.slotCount();
 		int tabWidth = tabWidth(count);
 		for (int i = 0; i < count; i++) {
 			HairStyleSlot slot = HairStyleSlot.byIndex(i);

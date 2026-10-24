@@ -28,13 +28,15 @@ public class DMZAuraLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		if (stats == null) return;
 
 		boolean isAuraActive = stats.getStatus().isAuraActive() || stats.getStatus().isPermanentAura() || stats.getStatus().isForcedAura();
+		isAuraActive = com.dragonminez.api.forms.FormVisuals.flag(stats,"aura",isAuraActive);
 		boolean isAndroidChargingForm = stats.getStatus().isAndroidUpgraded() && stats.getStatus().isActionCharging() && stats.getStatus().getSelectedAction() == ActionMode.FORM;
 
 		boolean hasLightning = AuraFxState.hasLightning(stats);
 
-		if (stats.getStatus().isAndroidUpgraded() && !isAndroidChargingForm && !hasLightning) return;
+		boolean configuredAura = com.dragonminez.api.forms.FormVisuals.resolve(stats).has("aura");
+        if (stats.getStatus().isAndroidUpgraded() && !isAndroidChargingForm && !hasLightning && !(configuredAura && isAuraActive)) return;
 
-		if (isAuraActive && !isAndroidChargingForm) PlayerEffectQueue.addAura(animatable, playerModel, poseStack, partialTick, packedLight);
+		if (isAuraActive && (!isAndroidChargingForm || configuredAura)) PlayerEffectQueue.addAura(animatable, playerModel, poseStack, partialTick, packedLight);
 
 		if (isAuraActive || hasLightning) {
 			PlayerEffectQueue.addSpark(animatable, playerModel, poseStack, partialTick, packedLight);

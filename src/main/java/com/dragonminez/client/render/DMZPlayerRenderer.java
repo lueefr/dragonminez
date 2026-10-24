@@ -228,7 +228,7 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 		float swellScale = BioSwellRenderState.bodyScale(entity);
 		poseStack.scale(scalingX * swellScale, scalingY * swellScale, scalingZ * swellScale);
 
-		boolean isAuraActive = stats.getStatus().isAuraActive() || stats.getStatus().isPermanentAura() || stats.getStatus().isForcedAura();
+		boolean isAuraActive = com.dragonminez.api.forms.FormVisuals.flag(stats,"aura",stats.getStatus().isAuraActive() || stats.getStatus().isPermanentAura() || stats.getStatus().isForcedAura());
 
 		if (isAuraActive) {
 			if (bufferSource instanceof MultiBufferSource.BufferSource bs) bs.endBatch();
@@ -340,8 +340,33 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 		return preview != null && preview.bodyHidden();
 	}
 
-	@Override
-	public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int renderColor) {
+    @Override
+    public void renderRecursively(PoseStack poseStack,T animatable,GeoBone bone,RenderType renderType,MultiBufferSource bufferSource,VertexConsumer buffer,boolean isReRender,float partialTick,int packedLight,int packedOverlay,int renderColor) {
+        var data=StatsProvider.get(StatsCapability.INSTANCE,animatable).orElse(null);
+        if(data!=null && com.dragonminez.api.forms.FormVisuals.parts().get("tail").contains(bone.getName()) && !com.dragonminez.api.forms.FormVisuals.flag(data,"tail",true))return;
+        var part=data==null?null:com.dragonminez.api.forms.FormVisuals.part(data,bone.getName());
+        if(part!=null && part.isJsonPrimitive() && !part.getAsBoolean())return;
+        float x=bone.getScaleX(),y=bone.getScaleY(),z=bone.getScaleZ();
+        if(part!=null && part.isJsonArray()) {var scale=part.getAsJsonArray();bone.setScaleX(x*scale.get(0).getAsFloat());bone.setScaleY(y*scale.get(1).getAsFloat());bone.setScaleZ(z*scale.get(2).getAsFloat());}
+        try { renderFormBone(poseStack,animatable,bone,renderType,bufferSource,buffer,isReRender,partialTick,packedLight,packedOverlay,renderColor); }
+        finally { bone.setScaleX(x);bone.setScaleY(y);bone.setScaleZ(z); }
+    }
+
+    @Override
+    public void renderCubesOfBone(PoseStack poseStack,GeoBone bone,VertexConsumer buffer,int packedLight,int packedOverlay,int color) {
+        var player=getAnimatable();var data=player==null?null:StatsProvider.get(StatsCapability.INSTANCE,player).orElse(null);
+        var arm=com.dragonminez.client.model.FormPartMesh.arm(bone);
+        var scale=data==null?null:com.dragonminez.client.model.FormPartMesh.scale(data,arm);
+        if(scale==null){super.renderCubesOfBone(poseStack,bone,buffer,packedLight,packedOverlay,color);return;}
+        if(bone.isHidden())return;
+        for(var cube:bone.getCubes()) {
+            poseStack.pushPose();
+            try {renderCube(poseStack,com.dragonminez.client.model.FormPartMesh.deform(cube,arm,scale),buffer,packedLight,packedOverlay,color);}
+            finally {poseStack.popPose();}
+        }
+    }
+
+    private void renderFormBone(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int renderColor) {
         float red = net.minecraft.util.FastColor.ARGB32.red(renderColor) / 255.0F;
         float green = net.minecraft.util.FastColor.ARGB32.green(renderColor) / 255.0F;
         float blue = net.minecraft.util.FastColor.ARGB32.blue(renderColor) / 255.0F;
