@@ -1,21 +1,21 @@
 # Quest Addon API & FTB Quests Compat Design
 
-Status: registry API shipped in v2.2; FTB Quests compat designed, not yet implemented.
+Status: registry API shipped in v2.2 on the Forge 1.20.1 codebase; FTB Quests compat designed, not yet implemented. On branch `main` (NeoForge 1.21.1) and on `port/2.2-fabric-26.1.2`, treat the shipped status as unverified until confirmed by inspection.
 
-## 1. Addon objective/reward registry (shipped)
+## 1. Addon objective/reward registry (shipped on the 2.2 codebase)
 
 `QuestObjectiveRegistry` and `QuestRewardRegistry` (`common/quest/`) let addons add quest content
-types without touching DMZ's parser switches. Register during mod init (e.g. `FMLCommonSetupEvent`):
+types without touching DMZ's parser switches. Register during mod init (e.g. `FMLCommonSetupEvent` on Forge; use the branch's equivalent common-setup entrypoint on the ports):
 
 ```java
 QuestObjectiveRegistry.register("MEDITATE",
-    json -> new MeditateObjective(json.get("seconds").getAsInt()),            // parse quest JSON
-    (objective, out) -> out.addProperty("seconds", ((MeditateObjective) objective).getSeconds()), // client sync fields
-    objective -> Component.translatable("myaddon.quest.meditate.obj"));       // HUD/journal text
+    json -&gt; new MeditateObjective(json.get("seconds").getAsInt()),            // parse quest JSON
+    (objective, out) -&gt; out.addProperty("seconds", ((MeditateObjective) objective).getSeconds()), // client sync fields
+    objective -&gt; Component.translatable("myaddon.quest.meditate.obj"));       // HUD/journal text
 
 QuestRewardRegistry.register("MY_CURRENCY",
-    json -> new MyCurrencyReward(json.get("amount").getAsInt()),
-    (reward, out) -> out.addProperty("amount", ((MyCurrencyReward) reward).getAmount()));
+    json -&gt; new MyCurrencyReward(json.get("amount").getAsInt()),
+    (reward, out) -&gt; out.addProperty("amount", ((MyCurrencyReward) reward).getAmount()));
 ```
 
 Contract:
@@ -46,10 +46,13 @@ rewards, without a hard dependency.
 - `compileOnly` on the FTB Quests API (CurseMaven/Modrinth maven), same pattern as JEI.
 - Runtime guard: `ModList.get().isLoaded("ftbquests")` gates classloading of a dedicated
   `com.dragonminez.common.compat.ftbquests` package (one entry class, initialized from
-  `DMZCommon.init()` behind the guard). No reflection needed given a real API jar; keep every
-  FTB import inside the guarded package (WorldGuardCompat precedent for the isolation rule).
-- FTB Quests 1.20.1 needs Architectury; both stay optional in `mods.toml` (`ordering=AFTER`,
-  `mandatory=false`).
+  `DMZCommon.init()` behind the guard). On the Fabric branch, use Fabric Loader's equivalent
+  guard (`FabricLoader.getInstance().isModLoaded("ftbquests")`) and entrypoint wiring. No
+  reflection needed given a real API jar; keep every FTB import inside the guarded package
+  (WorldGuardCompat precedent for the isolation rule).
+- FTB Quests needs Architectury on the versions that require it; both stay optional in the mod
+  manifest (`ordering=AFTER`, `mandatory=false`; in `META-INF/neoforge.mods.toml` on main, in
+  `fabric.mod.json` on the Fabric branch).
 
 ### Direction A (priority): DMZ progression as FTB *tasks*
 Register custom `TaskType`s via FTB's `TaskTypes.register(...)`:
@@ -58,10 +61,10 @@ Register custom `TaskType`s via FTB's `TaskTypes.register(...)`:
 |---|---|---|
 | `dmz_quest` | player completes DMZ quest id | `DMZEvent.QuestCompletedEvent` |
 | `dmz_saga` | all quests of a saga complete | same event + saga scan |
-| `dmz_stat` | STR/DEF/PWR/... >= X | poll on FTB's task tick / stat sync |
-| `dmz_level` | `StatsData.getLevel()` >= X | same |
+| `dmz_stat` | STR/DEF/PWR/... &gt;= X | poll on FTB's task tick / stat sync |
+| `dmz_level` | `StatsData.getLevel()` &gt;= X | same |
 | `dmz_alignment` | alignment in [min,max] | same |
-| `dmz_skill` | skill at level >= X | same |
+| `dmz_skill` | skill at level &gt;= X | same |
 | `dmz_form` | form/mastery unlocked | form unlock path |
 
 Event-driven where DMZ fires events; otherwise cheap polling in the task's `submitTask`/tick.
@@ -71,17 +74,18 @@ Custom `RewardType`s: `dmz_tps`, `dmz_skill`, `dmz_form`, `dmz_alignment` — ea
 same logic as the DMZ quest rewards (`TPSReward` etc.), so behavior stays identical.
 
 ### Direction B (later): FTB state inside DMZ quests
-A new DMZ prerequisite condition `FTBQUEST` (`{"type": "FTBQUEST", "quest": "<ftb id>"}`)
+A new DMZ prerequisite condition `FTBQUEST` (`{"type": "FTBQUEST", "quest": "&lt;ftb id&gt;"}`)
 evaluated through the compat module; absent FTB Quests, the condition parses but always fails
 with a log warning. Needs the prerequisite condition switch to become registry-based first.
 
 ### Implementation checklist (one PR)
-1. Gradle: add FTB Quests + Architectury `compileOnly` deps (mind offline mode).
-2. `compat/ftbquests/FTBQuestsCompat.init()` guarded in `DMZCommon.init()`.
+1. Gradle: add FTB Quests (+ Architectury if required) `compileOnly` deps (mind offline mode).
+2. `compat/ftbquests/FTBQuestsCompat.init()` guarded in the branch's common init.
 3. Task types (start with `dmz_quest`, `dmz_stat`, `dmz_level`, `dmz_alignment`).
 4. Reward types (`dmz_tps`, `dmz_skill`).
 5. Lang + icons (reuse form/skill icons in `textures/gui/icons/`).
-6. Verify dedicated-server + FTB-absent startup, and `runData` unaffected.
+6. Verify dedicated-server + FTB-absent startup, and `runData` unaffected (on the Fabric
+   branch, run `verifyExtensionApiCore` and report the full build state honestly).
 
 Alternative for packs not on FTB: Heracles uses a similar pluggable task registry; the compat
 module boundary (one guarded package per mod) keeps the door open.
