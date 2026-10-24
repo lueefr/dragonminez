@@ -18,12 +18,12 @@ This is the first local AI entry point for DragonMineZ work. Read this before in
 
 ## Agent Orchestration
 
-This project uses a two-model setup in Codex.
+This project uses a multi-model setup in Codex tuned for the ChatGPT Plus allowance.
 
-- The main session (Astra) is the orchestrator. It plans, decomposes, delegates, and verifies. It does not write large implementations directly.
-- Workers (Luna) execute: implementation, exploration, reviews.
-- Keep the orchestrator at medium effort by default. Escalate to high only for a specific hard task, then revert.
-- Workers run at high effort; Luna is cheap, so let it do the heavy reasoning.
+- The main session is the orchestrator. Default: GPT-6 Sol at medium effort. It plans, decomposes, delegates, and verifies. It does not write large implementations directly.
+- Workers (GPT-6 Luna) execute: implementation, exploration, reviews. Workers run at high effort; Luna is cheap and has a large allowance.
+- Do NOT run the orchestrator on GPT-6 Astra by default. On Plus, Astra has a very small allowance (roughly 5-45 messages per 5-hour window) and can exhaust it in a couple of turns. Switch to Astra with /model only for one specific hard task (deep debugging, architecture), then switch back.
+- Subagents inherit the parent model unless the .toml overrides it. Every subagent definition sets its model explicitly so workers never drain the orchestrator model quota.
 
 Delegation rules:
 
