@@ -18,20 +18,13 @@ This is the first local AI entry point for DragonMineZ work. Read this before in
 
 ## Agent Orchestration
 
-This project uses a multi-model setup in Codex tuned for the ChatGPT Plus allowance.
+This project may be worked on with a single agent or with an orchestrator plus subagents, depending on how the user started the session. Do not assume a specific AI model, vendor, or quota: the user configures those per session outside this document.
 
-- The main session is the orchestrator. Default: GPT-6 Sol at medium effort. It plans, decomposes, delegates, and verifies. It does not write large implementations directly.
-- Workers (GPT-6 Luna) execute: implementation, exploration, reviews. Workers run at high effort; Luna is cheap and has a large allowance.
-- Do NOT run the orchestrator on GPT-6 Astra by default. On Plus, Astra has a very small allowance (roughly 5-45 messages per 5-hour window) and can exhaust it in a couple of turns. Switch to Astra with /model only for one specific hard task (deep debugging, architecture), then switch back.
-- Subagents inherit the parent model unless the .toml overrides it. Every subagent definition sets its model explicitly so workers never drain the orchestrator model quota.
-
-Delegation rules:
-
-- Use explorer for read-only codebase mapping before large changes.
-- Use worker for implementation in closed scope.
-- Use reviewer for diff checks before reporting done.
+- The main session is the orchestrator. It plans, decomposes, delegates, and verifies. It does not write large implementations directly when subagents are available.
+- Workers execute: implementation, exploration, reviews.
+- Roles: explorer for read-only codebase mapping before large changes; worker for implementation in closed scope; reviewer for diff checks before reporting done.
+- Subagent definitions live in the agent configuration directory of the tool in use (for example `.codex/agents/` in Codex). If the tool has no subagent support, the main session does the work directly and ignores the delegation rules.
 - After a worker returns, verify the result before reporting success to the user.
-- Subagent definitions live in `.codex/agents/`.
 - Only the orchestrator stages files. Workers report changed paths but do not stage.
 
 All Operating Rules and First Steps in this file apply to every spawned subagent, not only to the main session.
