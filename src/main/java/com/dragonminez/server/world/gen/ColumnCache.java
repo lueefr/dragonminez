@@ -3,10 +3,6 @@ package com.dragonminez.server.world.gen;
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.world.level.levelgen.DensityFunction;
 
-/**
- * Kept registered for datapacks that still reference the former DragonMineZ density-function type.
- * New worldgen graphs should use vanilla density-function markers where their semantics match.
- */
 public final class ColumnCache implements DensityFunction {
 	public static final KeyDispatchDataCodec<ColumnCache> CODEC = KeyDispatchDataCodec.of(
 			DensityFunction.HOLDER_HELPER_CODEC.fieldOf("argument").xmap(ColumnCache::new, ColumnCache::argument));

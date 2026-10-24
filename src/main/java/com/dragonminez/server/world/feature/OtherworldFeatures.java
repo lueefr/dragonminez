@@ -23,9 +23,6 @@ public class OtherworldFeatures {
 	public static final DeferredHolder<Feature<?>, Feature<NoneFeatureConfiguration>> THORN_BALL = FEATURES.register("thorn_ball",
 			() -> new ThornBallFeature(NoneFeatureConfiguration.CODEC));
 
-	public static final DeferredHolder<Feature<?>, Feature<NoneFeatureConfiguration>> FIXED_STRUCTURES = FEATURES.register("fixed_structures",
-			() -> new OtherworldFixedStructuresFeature(NoneFeatureConfiguration.CODEC));
-
 	public static void register(IEventBus eventBus) {
 		FEATURES.register(eventBus);
 	}

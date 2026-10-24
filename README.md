@@ -78,8 +78,6 @@ You can only download the port from GitHub:
 - [GitHub Releases](https://github.com/lueefr/dragonminez/releases/latest)
 Release notes are available in the [changelog](CHANGELOG.md) and are included with each GitHub release.
 
-Hotfix 7 fixes player aura positioning, improves muscle overlay rendering with shaders, and moves Otherworld landmarks into the normal per-chunk feature pipeline. In a server-only Distant Horizons 3.3.1 native-generation check, decoded FullData coordinates align with the Otherworld landmark after accounting for the dimension's `minY=-64`. No visual LOD overlay was captured, and the DH SeedGen data is still being checked with the same coordinate normalization. Other LOD addons remain untested. See the [Hotfix 7 notes](release-notes/2.2-hotfix-7.md) for details and limits.
-
 ---
 
 ## 🫴 Support the Project
@@ -163,7 +161,7 @@ This program is free software: you can redistribute it and/or modify it under th
 
 ### Configurable extension API (NeoForge 1.21.1)
 
-This branch adds the following extension surfaces. Runtime and compatibility validation is still in progress; see the validation notes before treating a development build as a release.
+This branch adds the following extension surfaces. Runtime and compatibility validation is still in progress; see [API validation](API-VALIDATION.md) before treating a development build as a release.
 
 #### Lifetime content completion
 
@@ -256,3 +254,6 @@ Place a flat string-to-string map in `config/dragonminez/lang/pt_br.json`, with 
 ```
 
 The example uses race ID `custom_race` and group `custom_path`; retain the existing UI key pattern for form, group and skill names. Stack forms use `race.dragonminez.stack.form.<group>.<form>` and `race.dragonminez.stack.group.<group>`. Use arbitrary keys in configurable NPC names and dialogue. Config translations override the selected locale, fall back to config English, then allow normal bundled translations and the raw key fallback. Server config translation snapshots are synchronized to connected clients and cleared on disconnect. No resource pack is required. The API is `ConfigTranslations.INSTANCE`, including locale lookup, reload, snapshots and revision tracking.
+
+
+LOD, Otherworld worldgen and rendering fixes are maintained separately on [`fix/2.2-neoforge-1.21.1-lod`](https://github.com/lueefr/dragonminez/tree/fix/2.2-neoforge-1.21.1-lod).

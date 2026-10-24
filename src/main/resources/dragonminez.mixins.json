@@ -6,9 +6,6 @@
   "refmap": "dragonminez.refmap.json",
   "mixins": [
     "common.ConfigTranslationCacheMixin",
-    "common.DistantHorizonsCloudMixin",
-    "common.DistantHorizonsOtherworldGeneratorMixin",
-    "common.DhSeedGenOtherworldMixin",
     "common.ChunkSerializerMixin",
     "common.EnchantmentMixin",
     "common.EntityMixin",

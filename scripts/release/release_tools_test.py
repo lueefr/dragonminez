@@ -7,7 +7,6 @@ from pathlib import Path
 
 from scripts.release.release_common import (
     build_manifest,
-    next_github_release,
     read_gradle_properties,
     update_forge_update_json,
     version_type,
@@ -15,67 +14,6 @@ from scripts.release.release_common import (
 
 
 class ReleaseToolsTest(unittest.TestCase):
-    def test_initial_github_release_uses_base_tag(self):
-        self.assertEqual(
-            next_github_release("2.2", [], []),
-            {"tag": "v2.2", "kind": "base", "hotfix_number": None},
-        )
-
-    def test_reserved_tags_without_releases_advance_hotfix_sequence(self):
-        result = next_github_release(
-            "2.2",
-            ["v2.2", "v2.2-hotfix-1", "v2.2-hotfix-4"],
-            [],
-        )
-
-        self.assertEqual(result["tag"], "v2.2-hotfix-5")
-        self.assertEqual(result["kind"], "hotfix")
-
-    def test_releases_without_local_tags_advance_hotfix_sequence(self):
-        result = next_github_release(
-            "2.2",
-            [],
-            ["v2.2", "v2.2-hotfix-2", "v2.2-hotfix-5"],
-        )
-
-        self.assertEqual(result["tag"], "v2.2-hotfix-6")
-
-    def test_legacy_hotfix_tag_reserves_number_one(self):
-        result = next_github_release("2.2", ["v2.2", "v2.2-hotfix"], [])
-
-        self.assertEqual(result["tag"], "v2.2-hotfix-2")
-
-    def test_next_hotfix_seven_considers_tags_through_six(self):
-        tags = ["v2.2", *(f"v2.2-hotfix-{number}" for number in range(1, 7))]
-
-        result = next_github_release("2.2", tags, [])
-
-        self.assertEqual(result["tag"], "v2.2-hotfix-7")
-        self.assertEqual(result["hotfix_number"], 7)
-
-    def test_other_versions_and_invalid_or_prerelease_suffixes_are_ignored(self):
-        result = next_github_release(
-            "2.2",
-            [
-                "v2.2",
-                "v2.1-hotfix-99",
-                "v2.20-hotfix-100",
-                "v2.2-hotfix-0",
-                "v2.2-hotfix-beta",
-                "v2.2-hotfix-8-alpha",
-            ],
-            ["v2.2-hotfix-7-invalid"],
-        )
-
-        self.assertEqual(result["tag"], "v2.2-hotfix-1")
-
-    def test_prerelease_mod_versions_are_rejected(self):
-        for version in ("2.2-alpha", "2.2-beta"):
-            with self.subTest(version=version), self.assertRaisesRegex(
-                ValueError, "stable releases"
-            ):
-                next_github_release(version, [], [])
-
     def test_read_gradle_properties_ignores_comments_and_blank_lines(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             props = Path(temp_dir) / "gradle.properties"

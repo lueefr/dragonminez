@@ -1,6 +1,5 @@
 import hashlib
 import json
-import re
 from pathlib import Path
 
 
@@ -31,38 +30,6 @@ def ensure_stable_release(version):
             f"Automatic publishing on main is limited to stable releases; "
             f"version '{version}' is classified as '{detected}'."
         )
-
-
-def next_github_release(version, tags, release_tags):
-    """Choose the next GitHub tag from all existing tags and release tags."""
-    ensure_stable_release(version)
-    base_tag = f"v{version}"
-    known_tags = set(tags) | set(release_tags)
-
-    hotfix_numbers = []
-    has_release_for_version = base_tag in known_tags
-    numbered_prefix = f"{base_tag}-hotfix-"
-    legacy_tag = f"{base_tag}-hotfix"
-
-    for tag in known_tags:
-        if tag == legacy_tag:
-            has_release_for_version = True
-            hotfix_numbers.append(1)
-        elif tag.startswith(numbered_prefix):
-            suffix = tag[len(numbered_prefix):]
-            if re.fullmatch(r"[1-9][0-9]*", suffix):
-                has_release_for_version = True
-                hotfix_numbers.append(int(suffix))
-
-    if not has_release_for_version:
-        return {"tag": base_tag, "kind": "base", "hotfix_number": None}
-
-    hotfix_number = max(hotfix_numbers, default=0) + 1
-    return {
-        "tag": f"{base_tag}-hotfix-{hotfix_number}",
-        "kind": "hotfix",
-        "hotfix_number": hotfix_number,
-    }
 
 
 def sha256_file(path):

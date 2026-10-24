@@ -4,17 +4,20 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
-import com.dragonminez.client.render.util.IrisCompat;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
+import com.mojang.blaze3d.vertex.PoseStack;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
 @EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public final class CameraProjectionCapture {
 	private static final Matrix4f VIEW_PROJECTION = new Matrix4f();
+	private static final Matrix4f VIEW = new Matrix4f();
+	private static final Matrix3f VIEW_NORMAL = new Matrix3f();
 	private static Vec3 cameraPosition = Vec3.ZERO;
 	private static long capturedFrame = -1L;
 	private static long frameCounter;
@@ -24,15 +27,21 @@ public final class CameraProjectionCapture {
 	@SubscribeEvent
 	public static void onRenderLevelStage(RenderLevelStageEvent event) {
 		if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SKY) return;
-		if (IrisCompat.isRenderingShadowPass()) return;
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null) return;
-		// AFTER_SKY is dispatched with a null PoseStack, which NeoForge replaces
-		// with an identity stack. The event's model-view matrix is the camera view
-		// used by LevelRenderer for the scene.
-		VIEW_PROJECTION.set(event.getProjectionMatrix()).mul(event.getModelViewMatrix());
+		VIEW_PROJECTION.set(event.getProjectionMatrix()).mul(event.getPoseStack().last().pose());
+		VIEW.set(event.getPoseStack().last().pose());
+		VIEW_NORMAL.set(event.getPoseStack().last().normal());
 		cameraPosition = event.getCamera().getPosition();
 		capturedFrame = ++frameCounter;
+	}
+
+	public static PoseStack viewPoseStack(PoseStack fallback) {
+		if (capturedFrame < 0L) return fallback;
+		PoseStack view = new PoseStack();
+		view.last().pose().set(VIEW);
+		view.last().normal().set(VIEW_NORMAL);
+		return view;
 	}
 
 	public static boolean isAvailable() {
