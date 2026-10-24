@@ -18,7 +18,7 @@ Cached LOD data may need rebuilding through the relevant addon's own tools; this
 
 - An isolated Minecraft client with the supplied DH 3.3.3 and DH SeedGen 0.9.1 loaded both optional compatibility mixins. SeedGen logged that its surface approximation is disabled specifically for Otherworld. The client completed its run. Screenshot `/tmp/dmz-lod-client-api/game-client/screenshots/2026-10-24_11.15.10.png` shows the bridge and terrain again, but false walls remain at the sides. This is a partial improvement, not a passing LOD validation. A second run restricting native DH generation to complete columns in Otherworld produced `/tmp/dmz-lod-client-api/game-client/screenshots/2026-10-24_11.20.27.png`: the false side walls are absent, with the bridge, planet and separated cloud decks visible. Both clients completed successfully. This validates that comparison scenario, not every distance, camera position or LOD implementation.
 
-These captures came from the combined development snapshot before the API/LOD branch split. The isolated branch requires fresh build and runtime checks.
+These captures came from the combined development snapshot before the API/LOD branch split. The independent branch passed `./gradlew build runGameTestServer` with eight required GameTests; log: `/tmp/dmz-lod-split-validation.log`. Source and assets match the tested split snapshot exactly. Additional runtime scenarios remain pending.
 
 ### Supplied Voxy pair diagnostic
 
