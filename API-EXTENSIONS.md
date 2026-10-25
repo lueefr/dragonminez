@@ -3,7 +3,7 @@
 For the current nested layout and safe automatic migration, see [Content configuration](docs/wiki/Content-configuration.md). Additional guides cover [independent purchase/use conditions](docs/wiki/Use-and-purchase.md), [aura and additive composition](docs/wiki/Aura-and-composition.md), [translations](docs/wiki/Translations.md) and [permanent mutant ownership](docs/wiki/Mutant-lifetime.md).
 
 
-This fork adds the following extension APIs for NeoForge 1.21.1. See [validation results and coverage limits](API-VALIDATION.md).
+This fork adds the following extension APIs for NeoForge 1.21.1. See [API validation results](API-VALIDATION.md) and [content/configuration validation and coverage limits](CONTENT-CONFIG-VALIDATION.md).
 
 ## Lifetime content completion
 
