@@ -249,8 +249,52 @@ public class AuraRenderer {
 		List<AuraLayer> lastLayers;
 		float growth;
 		long motionNanos;
-		Map<Integer, LayerMotion> motions = new HashMap<>();
+		Map<LayerKey, LayerMotion> motions = new HashMap<>();
+        final AuraTypeBlend<LayerKey> typeBlend = new AuraTypeBlend<>();
+        final Map<LayerKey, AuraLayer> typeLayers = new HashMap<>();
+        long typeNanos;
+        boolean type3D;
+        java.util.UUID typeOwner;
 	}
+
+    private record LayerKey(int layer, String type) {}
+
+    private static LayerKey layerKey(AuraLayer layer) {
+        return new LayerKey(layer.layerId, layer.type == null ? "" : layer.type.toLowerCase(java.util.Locale.ROOT));
+    }
+
+    private static List<AuraLayer> transitionLayers(Player player, CachedAuraData data, List<AuraLayer> desired) {
+        long now = Util.getNanos();
+        if (!player.getUUID().equals(data.typeOwner) || data.type3D != data.use3D) {
+            data.typeBlend.clear();
+            data.typeLayers.clear();
+            data.motions.clear();
+            data.typeNanos = 0;
+            data.typeOwner = player.getUUID();
+            data.type3D = data.use3D;
+        }
+        double dt = data.typeNanos == 0 || Minecraft.getInstance().isPaused() ? 0 : (now - data.typeNanos) / 1.0e9;
+        data.typeNanos = now;
+        List<LayerKey> keys = new ArrayList<>();
+        for (AuraLayer layer : desired) {
+            LayerKey key = layerKey(layer);
+            keys.add(key);
+            data.typeLayers.put(key, layer);
+        }
+        Map<LayerKey, Double> weights = data.typeBlend.update(keys, dt);
+        List<AuraLayer> result = new ArrayList<>();
+        weights.forEach((key, weight) -> {
+            if (weight <= 0) return;
+            AuraLayer source = data.typeLayers.get(key);
+            AuraLayer layer = new AuraLayer(source.type, source.layerId, source.color, source.alpha * weight.floatValue());
+            layer.style = source.style;
+            result.add(layer);
+        });
+        data.typeLayers.keySet().retainAll(weights.keySet());
+        data.motions.keySet().retainAll(weights.keySet());
+        result.sort(Comparator.comparingInt(layer -> layer.layerId));
+        return result;
+    }
 
 	private static final class LayerMotion {
 		final AuraStyle style = new AuraStyle();
@@ -276,6 +320,7 @@ public class AuraRenderer {
 		data.bodyScaleX = body[0]; data.bodyScaleY = body[1]; data.bodyScaleZ = body[2];
 		data.auraScaleX = auraScale[0]; data.auraScaleY = auraScale[1]; data.auraScaleZ = auraScale[2];
 		data.use3D = use3D;
+        activeLayers = transitionLayers(player, data, activeLayers);
 		data.alphaProgress = 1.0f;
 		data.lastLayers = activeLayers;
 		advanceMotions(player, data, activeLayers, true);
@@ -793,7 +838,7 @@ public class AuraRenderer {
 		data.auraScaleX = auraScale[0]; data.auraScaleY = auraScale[1]; data.auraScaleZ = auraScale[2];
 
 		data.use3D = useAura3D(player);
-		List<AuraLayer> activeLayers = getAuraLayers(player, stats, partialTick, data.use3D);
+		List<AuraLayer> activeLayers = transitionLayers(player, data, getAuraLayers(player, stats, partialTick, data.use3D));
 		if (activeLayers.isEmpty()) return;
 		data.lastLayers = activeLayers;
 		advanceMotions(player, data, activeLayers, true);
@@ -848,7 +893,7 @@ public class AuraRenderer {
 		data.playerModel = entry.playerModel();
 
 		data.use3D = useAura3D(player);
-		List<AuraLayer> activeLayers = getAuraLayers(player, stats, entry.partialTick(), data.use3D);
+		List<AuraLayer> activeLayers = transitionLayers(player, data, getAuraLayers(player, stats, entry.partialTick(), data.use3D));
 		if (activeLayers.isEmpty()) return null;
 		data.lastLayers = activeLayers;
 		advanceMotions(player, data, activeLayers, true);
@@ -892,7 +937,7 @@ public class AuraRenderer {
         poseStack.pushPose();
         try {
             poseStack.translate(offset.x, offset.y + 0.05, offset.z);
-            renderShaderPulseAura(player, data, layers.get(layers.size() - 1), poseStack, mc,
+            renderShaderPulseAura(player, data, layers, poseStack, mc,
                     projectionMatrix, partialTick, data.alphaProgress);
         } finally {
             poseStack.popPose();
@@ -1312,7 +1357,7 @@ public class AuraRenderer {
 		float blend = 1.0f - (float) Math.exp(-dt * SMOOTH_STYLE_BLEND_RATE);
 		for (AuraLayer layer : layers) {
 			if (layer.style == null) continue;
-			LayerMotion motion = data.motions.computeIfAbsent(layer.layerId, k -> new LayerMotion());
+			LayerMotion motion = data.motions.computeIfAbsent(layerKey(layer), k -> new LayerMotion());
 			if (!motion.ready) {
 				motion.style.copyFrom(layer.style);
 				motion.ready = true;
@@ -1330,7 +1375,7 @@ public class AuraRenderer {
 
 	private static void executeSmoothDraw(Player player, CachedAuraData data, AuraLayer layer, PoseStack poseStack,
 										  Matrix4f projectionMatrix, float partialTick, boolean firstPerson, boolean upright) {
-		LayerMotion motion = data.motions.get(layer.layerId);
+		LayerMotion motion = data.motions.get(layerKey(layer));
 		if (motion == null || !motion.ready) return;
 
 		float bodyRot = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot);
@@ -1361,7 +1406,7 @@ public class AuraRenderer {
 
 	private static void executeGodDraw(Player player, CachedAuraData data, AuraLayer layer, PoseStack poseStack,
 									   Matrix4f projectionMatrix, float partialTick, boolean firstPerson, boolean upright) {
-		LayerMotion motion = data.motions.get(layer.layerId);
+		LayerMotion motion = data.motions.get(layerKey(layer));
 		if (motion == null || !motion.ready) return;
 
 		float bodyRot = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot);
@@ -1394,7 +1439,7 @@ public class AuraRenderer {
 
 	private static void executeAura3DDraw(Player player, CachedAuraData data, AuraLayer layer, PoseStack poseStack,
 										  Matrix4f projectionMatrix, float partialTick, boolean firstPerson, boolean upright) {
-		LayerMotion motion = data.motions.get(layer.layerId);
+		LayerMotion motion = data.motions.get(layerKey(layer));
 		if (motion == null || !motion.ready) return;
 
 		float bodyRot = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot);
@@ -1448,7 +1493,7 @@ public class AuraRenderer {
 
 	private static void drawSinglePulse3D(Player player, CachedAuraData data, AuraLayer topLayer, PoseStack poseStack,
 										  Matrix4f projectionMatrix, float partialTick, float progress) {
-		LayerMotion motion = data.motions.get(topLayer.layerId);
+		LayerMotion motion = data.motions.get(layerKey(topLayer));
 		if (motion == null || !motion.ready) return;
 
 		float expansion = 1.0f + (3.0f * progress);
@@ -1472,7 +1517,7 @@ public class AuraRenderer {
 				auraPhase(player, partialTick) / 10.0f, radius, data.auraScaleY * 0.22f, spin);
 	}
 
-	private static void renderShaderPulseAura(Player player, CachedAuraData data, AuraLayer topLayer, PoseStack poseStack, Minecraft mc, Matrix4f projectionMatrix, float partialTick, float alphaMultiplier) {
+	private static void renderShaderPulseAura(Player player, CachedAuraData data, List<AuraLayer> layers, PoseStack poseStack, Minecraft mc, Matrix4f projectionMatrix, float partialTick, float alphaMultiplier) {
 		int playerId = player.getId();
 		long gameTime = player.level().getGameTime();
 
@@ -1489,10 +1534,12 @@ public class AuraRenderer {
 			PULSE_PROGRESS.put(playerId, currentProgress);
 		}
 
-		drawSinglePulseInstance(player, data, topLayer, poseStack, mc, projectionMatrix, partialTick, alphaMultiplier, currentProgress);
-
-		float progressPhase2 = (currentProgress + 0.5f) % 1.0f;
-		drawSinglePulseInstance(player, data, topLayer, poseStack, mc, projectionMatrix, partialTick, alphaMultiplier, progressPhase2);
+        int topId = layers.get(layers.size() - 1).layerId;
+        for (AuraLayer layer : layers) {
+            if (layer.layerId != topId) continue;
+            drawSinglePulseInstance(player, data, layer, poseStack, mc, projectionMatrix, partialTick, alphaMultiplier, currentProgress);
+            drawSinglePulseInstance(player, data, layer, poseStack, mc, projectionMatrix, partialTick, alphaMultiplier, (currentProgress + 0.5f) % 1.0f);
+        }
 	}
 
 	private static void drawSinglePulseInstance(Player player, CachedAuraData data, AuraLayer topLayer, PoseStack poseStack, Minecraft mc, Matrix4f projectionMatrix, float partialTick, float alphaMultiplier, float progress) {
