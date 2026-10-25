@@ -33,7 +33,6 @@ const float EDGE_LOW = 0.125;
 const float EDGE_HIGH = 0.175;
 const float EROSION = 0.16;
 const float RIM_ALPHA = 0.40;
-const float CORE_WHITE = 0.45;
 const float OCCLUSION_FADE = 0.75;
 const float INK_LOW = 0.40;
 const float INK_HIGH = 0.48;
@@ -56,7 +55,7 @@ void main() {
 
     float near = texture(Field, texCoord).r;
     vec3 bright = auraBrightest(Color);
-    vec3 hot = mix(bright, vec3(1.0), CORE_WHITE);
+    vec3 hot = bright;
 
     if (self) {
         float rim = (1.0 - smoothstep(0.50, 0.90, near)) * RIM_ALPHA * Alpha;

@@ -143,6 +143,8 @@ Add `visual` inside a form entry. This example uses one optional object and an o
 
 On the first activation session, lightning and the energy outline are enabled. On subsequent activations they remain disabled. The aura is visible while flying. Conditions do not change the player's flight, aura toggle, stats, or other gameplay state.
 
+Outline colors come from the form's existing `outlineShader` settings. Charging/surge borders and ki burst explosions use the enabled stack form's `primaryColor`, then the enabled racial form's `primaryColor`, with aura color as the fallback. Java integrations can read this selection through `character.getActiveOutlineColor()`.
+
 Rules run in array order; later matching `set` objects override earlier values. `set` uses the same visual fields as `visual` but cannot contain another `rules` list. Base-form visuals are resolved first and stack-form overrides afterward. Omitted values keep the existing renderer's result. Visual evaluation is cached per player/tick and invalidated by form, history and config changes.
 
 | Field | Usage |
@@ -225,6 +227,8 @@ Conditions.register("addon:ready", new Conditions.Type() {
 ```
 
 JSON can then use `{"addon:ready": true}` wherever a condition object is accepted. Condition evaluators must be side-effect-free and work on both sides using synchronized state. `Context.data()` provides player stats and `Context.form()` is the visual rule's `group.form`, or `null` for a purchase.
+
+To describe a requirement using player-specific information, optionally override `describe(Conditions.Context context, JsonElement value)`. The default delegates to `describe(JsonElement)`, so existing condition types continue to work. Return nested `Component.translatable(...)` arguments for custom names rather than flattened strings; the receiving client then applies its config language and normal translation fallbacks. Built-in form references use the player's race and the referenced group when constructing their name key.
 
 ```java
 Rewards.register("addon:grant", new Rewards.Type() {
