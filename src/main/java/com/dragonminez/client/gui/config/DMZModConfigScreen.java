@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
@@ -115,7 +116,10 @@ public class DMZModConfigScreen extends Screen {
 
 		scrollBar.renderBar(graphics, mouseX, mouseY);
 
-		super.render(graphics, mouseX, mouseY, partialTick);
+		// Screen.render also draws the background in 1.21.1; it would blur the list again.
+		for (Renderable renderable : this.renderables) {
+			renderable.render(graphics, mouseX, mouseY, partialTick);
+		}
 	}
 
 	@Override
