@@ -35,8 +35,9 @@ public class DbzArmorPatrollerItem extends ArmorItem implements DbzArmorTextured
         this.itemId = itemId;
     }
 
-    public @Nullable String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
-        return ArmorTextureResolver.resolve(modId, itemId, slot, stack).toString();
+    @Override
+    public net.minecraft.resources.ResourceLocation getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
+        return ArmorTextureResolver.resolve(modId, itemId, slot, stack);
     }
 
     @Override

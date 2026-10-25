@@ -44,7 +44,12 @@ public class VehicleRenderer<T extends VehicleEntity> extends GeoEntityRenderer<
 
 	@Override
 	protected void applyRotations(T animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
-		super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
+        applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, 1.0F);
+    }
+
+    @Override
+    protected void applyRotations(T animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
+        super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
 		VehicleProperties properties = animatable.getProperties();
 		float roll = animatable.getTiltRoll(partialTick);
 		float pitch = animatable.getTiltPitch(partialTick);
