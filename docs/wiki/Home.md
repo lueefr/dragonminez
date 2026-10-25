@@ -6,6 +6,10 @@ Use the API to add completion requirements to forms, define custom NPCs, compose
 
 See [Historical compatibility and text auditing](History-and-audit) for migration fixtures, backup guarantees and translation auditing.
 
+## Otherworld / LOD work in progress
+
+See [Otherworld generation and LOD](Otherworld-LOD) for the PR #7 branch behavior, existing-world limits and verification commands.
+
 ## Rules and visual extensions
 
 See [Rules, rewards and form visuals](Rules) for first-completion rewards, purchase conditions, body-part scaling, fur/tail/eye-marking colors, conditional aura/lightning/outlines, first-use history, editable form hairstyles and `/dmzlocate npc`.

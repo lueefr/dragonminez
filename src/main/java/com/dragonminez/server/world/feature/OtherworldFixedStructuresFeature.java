@@ -5,10 +5,10 @@ import com.dragonminez.server.world.dimension.OtherworldDimension;
 import com.dragonminez.server.world.gen.OtherworldGeneration;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -39,8 +39,11 @@ public final class OtherworldFixedStructuresFeature extends Feature<NoneFeatureC
 	@Override
 	public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
 		WorldGenLevel world = context.level();
-		ServerLevel level = world.getLevel();
-		if (!level.dimension().equals(OtherworldDimension.OTHERWORLD_KEY)) return false;
+		// LOD workers may run this generator in a synthetic level with a different dimension key.
+		boolean otherworldLevel = world.getLevel().dimension().equals(OtherworldDimension.OTHERWORLD_KEY);
+		boolean otherworldGenerator = context.chunkGenerator() instanceof NoiseBasedChunkGenerator noise
+				&& noise.generatorSettings().is(OtherworldGeneration.OTHERWORLD_NOISE_SETTINGS);
+		if (!otherworldLevel && !otherworldGenerator) return false;
 
 		ChunkPos chunkPos = new ChunkPos(context.origin());
 		TemplateVerticalBounds templateBounds = TEMPLATE_BOUNDS.get(chunkPos.toLong());

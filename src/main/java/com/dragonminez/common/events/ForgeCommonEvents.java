@@ -512,9 +512,6 @@ public class ForgeCommonEvents {
 	@SubscribeEvent
 	public static void onServerAboutToStart(net.neoforged.neoforge.event.server.ServerAboutToStartEvent event) {
 		if (!event.getServer().isDedicatedServer()) ConfigManager.reload();
-		if (ConfigManager.getServerConfig().getWorldGen().getOtherworldActive()) {
-			OtherworldRegionLoader.loadPreGeneratedRegions(event.getServer());
-		}
 
 		com.dragonminez.server.world.structure.helper.VillagePoolInjector.injectAll(event.getServer());
 	}
@@ -556,12 +553,6 @@ public class ForgeCommonEvents {
 	public static void onServerStarted(ServerStartedEvent event) {
 		com.dragonminez.server.world.structure.placement.StructureSpawnPlanner.precomputeAndWait(event.getServer());
 
-		ServerLevel otherworld = event.getServer().getLevel(OtherworldDimension.OTHERWORLD_KEY);
-
-		if (otherworld != null) {
-			LogUtil.info(Env.SERVER, "ServerStartedEvent: Attempting to load Otherworld regions, double-checking dimension presence.");
-			OtherworldRegionLoader.loadPreGeneratedRegions(event.getServer());
-		}
 		NPCPlacementManager.spawnForLoadedLevels(event.getServer());
 	}
 
@@ -623,10 +614,6 @@ public class ForgeCommonEvents {
 			} catch (Throwable ignored) {
 			}
 
-			if (serverLevel.dimension().equals(OtherworldDimension.OTHERWORLD_KEY)) {
-				LogUtil.info(Env.SERVER, "LevelEvent.Load: Detected Otherworld dimension load, attempting to load regions.");
-				OtherworldRegionLoader.loadPreGeneratedRegions(serverLevel.getServer());
-			}
 		}
 	}
 

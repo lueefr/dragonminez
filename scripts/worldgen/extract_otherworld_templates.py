@@ -420,14 +420,14 @@ def verify_template(path: Path, chunk_x, chunk_z, min_y, max_y, palette, blocks)
     return air_blocks, len(actual_blocks) - air_blocks, block_entities
 
 
-def extract(dry_run: bool, verify: bool):
+def extract(dry_run: bool, verify: bool, check_existing: bool = False):
     entries = []
     total_blocks = 0
     verified_chunks = 0
     verified_air_blocks = 0
     verified_non_air_blocks = 0
     verified_block_entities = 0
-    if not dry_run:
+    if not dry_run and not check_existing:
         TEMPLATES.mkdir(parents=True, exist_ok=True)
         INDEX.parent.mkdir(parents=True, exist_ok=True)
     for region_path in sorted(REGIONS.glob("r.*.*.mca")):
@@ -452,7 +452,8 @@ def extract(dry_run: bool, verify: bool):
                 total_blocks += len(blocks)
                 if not dry_run:
                     path = TEMPLATES / f"chunk_{chunk_x}_{chunk_z}.nbt"
-                    path.write_bytes(encode_template(min_y, max_y, palette, blocks))
+                    if not check_existing:
+                        path.write_bytes(encode_template(min_y, max_y, palette, blocks))
                     if verify:
                         air_count, non_air_count, block_entity_count = verify_template(
                             path, chunk_x, chunk_z, min_y, max_y, palette, blocks
@@ -463,13 +464,19 @@ def extract(dry_run: bool, verify: bool):
                         verified_block_entities += block_entity_count
 
     print(f"templates={len(entries)} blocks={total_blocks}")
-    if not dry_run:
-        INDEX.write_text(
-            "# chunkX,chunkZ,minY,maxY; generated from OtherworldLandmarks and bundled 1.21.1 MCA regions\n"
-            + "\n".join(",".join(map(str, row)) for row in sorted(entries))
-            + "\n",
-            encoding="utf-8",
-        )
+    index_text = (
+        "# chunkX,chunkZ,minY,maxY; generated from OtherworldLandmarks and bundled 1.21.1 MCA regions\n"
+        + "\n".join(",".join(map(str, row)) for row in sorted(entries))
+        + "\n"
+    )
+    if check_existing:
+        if INDEX.read_text(encoding="utf-8") != index_text:
+            raise AssertionError("Bundled Otherworld template index differs from source regions")
+        expected_files = {f"chunk_{x}_{z}.nbt" for x, z, _min, _max in entries}
+        if {path.name for path in TEMPLATES.glob("*.nbt")} != expected_files:
+            raise AssertionError("Bundled Otherworld template files differ from source chunk set")
+    elif not dry_run:
+        INDEX.write_text(index_text, encoding="utf-8")
     if verify:
         if not any(chunk_x < 0 or chunk_z < 0 for chunk_x, chunk_z, _min_y, _max_y in entries):
             raise AssertionError("No negative-coordinate template was generated")
@@ -485,10 +492,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="Count output templates without writing resources")
     parser.add_argument("--verify", action="store_true", help="Round-trip compare every generated template to its MCA mask")
+    parser.add_argument("--check", action="store_true", help="Verify the existing templates and index without writing files")
     args = parser.parse_args()
-    if args.verify and args.dry_run:
-        parser.error("--verify requires writing templates; it cannot be combined with --dry-run")
-    extract(args.dry_run, args.verify)
+    if (args.verify or args.check) and args.dry_run:
+        parser.error("--verify/--check cannot be combined with --dry-run")
+    extract(args.dry_run, args.verify or args.check, args.check)
 
 
 if __name__ == "__main__":

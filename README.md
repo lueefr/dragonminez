@@ -4,6 +4,8 @@ An unofficial fork of [DragonMineZ](https://github.com/DragonMineZ/dragonminez),
 
 See the [Wiki guide](https://github.com/lueefr/dragonminez/wiki), [API documentation and JSON examples](API-EXTENSIONS.md), [content schemas and migration](docs/wiki/Content-configuration.md), [porting notes and dependencies](PORTING-1.21.1.md), and [API validation results](API-VALIDATION.md), and [configuration/audit validation](CONTENT-COMPLETENESS-VALIDATION.md).
 
+For the Otherworld/LOD work-in-progress branch, see [generation behavior and limits](docs/wiki/Otherworld-LOD.md) and [current validation](LOD-VALIDATION.md).
+
 ## Downloads
 
 - **Fork builds:** [GitHub Releases](https://github.com/lueefr/dragonminez/releases).
