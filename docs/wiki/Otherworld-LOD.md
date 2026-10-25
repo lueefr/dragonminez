@@ -38,6 +38,6 @@ python3 scripts/worldgen/extract_otherworld_templates.py --check
 
 The regression checks fill fresh protochunks with vanilla noise and surface generation, compare published columns at both sides of a former region boundary and at negative/distant coordinates, assert both cloud decks and the empty gap, and place a landmark in an auxiliary level using the Otherworld generator. They do not require importing bundled regions.
 
-The current Neo-Voxy comparison passed full-chunk cache readback for selected cloud and landmark fixtures. After explicitly ingesting all 80 palace-area chunks, the palace appeared in the near capture but was absent in the far capture at vanilla distance 4. Distant visual compatibility has therefore not passed. The cause of that rendering failure is still under investigation.
+The current Neo-Voxy comparison passed full-chunk cache readback for selected cloud and landmark fixtures. After explicitly submitting all 80 palace-area chunks and waiting 20 seconds, the palace appeared in the near capture but was absent in the far capture at vanilla distance 4. Completion of every ingest/mesh job was not asserted, and the larger run stalled during shutdown. Distant visual compatibility has therefore not passed. The cause of that rendering failure is still under investigation.
 
 Detailed local runtime evidence and remaining limits are recorded in `LOD-VALIDATION.md` at the repository root.

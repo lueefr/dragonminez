@@ -30,12 +30,13 @@ Logs: `/home/lucas/Dev/dragonminez-port-tools/lod-voxy-smoke/run.log` and `final
 
 ### Complete palace comparison
 
-The next run used the same packaged candidate, ordinary chunk generation and unmodified Voxy. It explicitly submitted the two fixtures plus all 80 palace-area chunks (`x=-4..3`, `z=-4..5`) to the current client world's Voxy engine. The test waited 20 seconds after submission, captured a near view at `(30,190,-50)` with yaw 0 / pitch 30, moved to `(80,210,-110)` with yaw 15 / pitch 18, then waited another 20 seconds before the far capture. Vanilla render distance was 4.
+The next run used the same packaged candidate, ordinary chunk generation and unmodified Voxy. It explicitly submitted the two fixtures plus all 80 palace-area chunks (`x=-4..3`, `z=-4..5`) to the current client world's Voxy engine. Submission was checked, but completion of every ingest/mesh job was not asserted. The test waited 20 seconds after submission, captured a near view at `(30,190,-50)` with yaw 0 / pitch 30, moved to `(80,210,-110)` with yaw 15 / pitch 18, then waited another 20 seconds before the far capture. Vanilla render distance was 4.
 
 - Near capture: the palace roofs, gates and paths are visible: `/home/lucas/Dev/dragonminez-port-tools/lod-voxy-smoke/game/screenshots/2026-10-25_16.55.04.png`.
 - Far capture: the palace is absent despite the explicit ingestion. This is a **failed distant visual comparison**, not a compatibility pass: `2026-10-25_16.55.24.png` in the same directory.
 - Voxy cache readback still passed for the ANDESITE fixture, both cloud decks and the empty gap.
-- Log: `/home/lucas/Dev/dragonminez-port-tools/lod-voxy-smoke/palace.log`.
+- Unlike the two smaller successful client runs, the palace run stalled during shutdown in vanilla chunk-unload future processing (`ChunkMap.processUnloads` / `CompletableFuture.postComplete`). The isolated disposable client was terminated after collecting thread dumps. This run is not recorded as a successful process-completion check.
+- Log: `/home/lucas/Dev/dragonminez-port-tools/lod-voxy-smoke/palace.log`; shutdown dump: `/tmp/dmz-lod-palace-shutdown.txt`.
 
 These results establish that fresh generation supplies the builds and the near view can render them. They do not establish why the distant render is missing. The next rendering investigation needs frame/viewport, mesh and culling diagnostics; the evidence does not yet identify the responsible component. No renderer workaround or third-party modification was shipped.
 
