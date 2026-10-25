@@ -306,6 +306,15 @@ public class Character {
 		return auraColor != null && !auraColor.isEmpty() ? auraColor : "#FFFFFF";
 	}
 
+    /** The form's outline remains authoritative during ki charging and surge bursts. */
+    public String getActiveOutlineColor() {
+        FormConfig.FormData stack = getActiveStackFormData();
+        if (stack != null && stack.getOutlineShader().isEnabled()) return stack.getOutlineShader().getPrimaryColor();
+        FormConfig.FormData form = getActiveFormData();
+        if (form != null && form.getOutlineShader().isEnabled()) return form.getOutlineShader().getPrimaryColor();
+        return getActiveAuraColor();
+    }
+
 	public float[] getActiveRgbAuraColor() {
 		return ColorUtils.hexToRgb(getActiveAuraColor());
 	}

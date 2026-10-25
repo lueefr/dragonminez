@@ -37,6 +37,49 @@ public final class DataRulesGameTests {
     private static void removeRace(String race){map("RACE_FORMS").remove(race);map("RACE_CHARACTER").remove(race);}
 
     @GameTest(template="port_empty")
+    public static void surgeBurstKeepsConfiguredFormOutline(GameTestHelper helper) {
+        String race=installRace();
+        var player=FakePlayerFactory.get(helper.getLevel(),new GameProfile(UUID.randomUUID(),"BurstColor"));
+        player.setPos(net.minecraft.world.phys.Vec3.atBottomCenterOf(helper.absolutePos(new net.minecraft.core.BlockPos(1,1,1))));
+        var area=player.getBoundingBox().inflate(30);
+        try {
+            ConfigManager.getAllFormsForRace(race).put("path",GSON.fromJson("""
+                {"groupName":"path","formType":"superforms","forms":{"stage":{"name":"stage",
+                  "auraColor":"#FFFFFF","outlineShader":{"enabled":true,"primaryColor":"#00AB34"}}}}
+                """,FormConfig.class));
+            var data=StatsProvider.get(StatsCapability.INSTANCE,player).orElseThrow(IllegalStateException::new);
+            data.getCharacter().setRace(race);data.getCharacter().setActiveForm("path","stage");
+            com.dragonminez.server.events.players.KiSurgeService.forceActivateSurge(player,data);
+            var bursts=helper.getLevel().getEntitiesOfClass(com.dragonminez.common.init.entities.ki.KiExplosionVisualEntity.class,area);
+            helper.assertTrue(data.getStatus().isSurgeActive() && bursts.stream().anyMatch(b->b.getColorOutline()==0x00AB34),"Native surge burst replaced the configured outline with white");
+            helper.succeed();
+        } finally {
+            helper.getLevel().getEntitiesOfClass(com.dragonminez.common.init.entities.ki.KiExplosionVisualEntity.class,area).forEach(net.minecraft.world.entity.Entity::discard);
+            removeRace(race);player.discard();
+        }
+    }
+
+    @GameTest(template="port_empty")
+    public static void purchaseRequirementNamesRemainTranslatable(GameTestHelper helper) {
+        String race=installRace();
+        var player=FakePlayerFactory.get(helper.getLevel(),new GameProfile(UUID.randomUUID(),"RuleNames"));
+        try {
+            var data=StatsProvider.get(StatsCapability.INSTANCE,player).orElseThrow(IllegalStateException::new);
+            data.getCharacter().setRace(race);
+            var conditions=JsonParser.parseString("{\"any\":[{\"mastery\":{\"form\":\"path.stage\",\"min\":50}},{\"content\":\"example:trial\"}]}").getAsJsonObject();
+            var missing=Conditions.missing(new Conditions.Context(data,null),conditions);
+            var text=missing.getFirst();
+            var mastery=(net.minecraft.network.chat.contents.TranslatableContents)text.getSiblings().getFirst().getContents();
+            helper.assertTrue(mastery.getArgs()[0] instanceof net.minecraft.network.chat.Component,"Form requirement was flattened to a raw string");
+            var form=(net.minecraft.network.chat.contents.TranslatableContents)((net.minecraft.network.chat.Component)mastery.getArgs()[0]).getContents();
+            helper.assertTrue(form.getKey().equals("race.dragonminez."+race+".form.path.stage"),"Form name lost race/group context");
+            var content=(net.minecraft.network.chat.contents.TranslatableContents)text.getSiblings().getLast().getContents();
+            helper.assertTrue(content.getArgs()[0] instanceof net.minecraft.network.chat.Component,"Content name bypassed client translation");
+            helper.succeed();
+        } finally { removeRace(race);player.discard(); }
+    }
+
+    @GameTest(template="port_empty")
     public static void completionRewardsOncePersistAndRollbackAsAChain(GameTestHelper helper)throws Exception{
         String race=installRace();Object previous=get("rulesConfig");var events=new AtomicInteger();
         var player=FakePlayerFactory.get(helper.getLevel(),new GameProfile(UUID.randomUUID(),"RuleRewards"));

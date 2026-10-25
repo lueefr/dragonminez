@@ -184,7 +184,7 @@ public final class KiSurgeService {
 
 			KiExplosionVisualEntity visual = new KiExplosionVisualEntity(MainEntities.KI_EXPLOSION_VISUAL.get(), level);
 			visual.setPos(center.x, center.y, center.z);
-			visual.setupExplosion(colorMain, colorBorder, 0xFFFFFF, (float) visualRadius / 2.0F);
+			visual.setupExplosion(colorMain, colorBorder, packColor(com.dragonminez.client.util.ColorUtils.hexToRgb(data.getCharacter().getActiveOutlineColor()), 1.0f), (float) visualRadius / 2.0F);
 			level.addFreshEntity(visual);
 		}
 

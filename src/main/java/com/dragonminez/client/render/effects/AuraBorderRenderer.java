@@ -84,8 +84,14 @@ public final class AuraBorderRenderer {
 
 	public static float[] playerColor(Player player, StatsData stats) {
 		if (stats == null || player.isSpectator() || player.isInvisible()) return null;
-		if (!stats.getStatus().isSurgeActive()) return null;
-		return ColorUtils.hexToRgb(HelmetFormLook.activeAuraColor(stats));
+		if (!AuraFxState.isSurging(stats)) return null;
+        var character = stats.getCharacter();
+        var form = character.getActiveFormData();
+        var stack = character.getActiveStackFormData();
+        var outline = stack != null && stack.getOutlineShader().isEnabled() ? stack.getOutlineShader()
+                : form != null && form.getOutlineShader().isEnabled() ? form.getOutlineShader() : null;
+        if (!com.dragonminez.api.forms.FormVisuals.flag(stats, "outline", true)) return null;
+        return ColorUtils.hexToRgb(outline != null ? outline.getPrimaryColor() : HelmetFormLook.activeAuraColor(stats));
 	}
 
 	public static void beginCapture() {

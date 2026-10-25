@@ -163,7 +163,7 @@ public class HairEditorScreen extends ScaledScreen {
 	}
 
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		panorama.render(graphics, Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight(), partialTick, 1.0f);
+		panorama.render(graphics, Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight(), 1.0f, partialTick);
 		renderCinematicBars(graphics);
 		int uiMouseX = (int) Math.round(toUiX(mouseX));
 		int uiMouseY = (int) Math.round(toUiY(mouseY));
