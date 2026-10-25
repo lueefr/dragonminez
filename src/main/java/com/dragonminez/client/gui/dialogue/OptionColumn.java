@@ -242,7 +242,7 @@ final class OptionColumn {
 
 	private static FormattedCharSequence fit(Font font, Component text, int maxWidth) {
 		if (font.width(text) <= maxWidth) return text.getVisualOrderText();
-		Component ellipsis = Component.literal("...").withStyle(Style.EMPTY.withFont(NpcDialogueScreen.FONT));
+		Component ellipsis = net.minecraft.network.chat.Component.translatable("text.dragonminez.optioncolumn.ab5df625bc").withStyle(Style.EMPTY.withFont(NpcDialogueScreen.FONT));
 		FormattedText cut = font.substrByWidth(text, Math.max(0, maxWidth - font.width(ellipsis)));
 		return Language.getInstance().getVisualOrder(FormattedText.composite(cut, ellipsis));
 	}

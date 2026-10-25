@@ -445,6 +445,16 @@ public abstract class AbstractKiProjectile extends Projectile {
         return Mth.clamp(owner.getBbWidth() / VANILLA_PLAYER_WIDTH, 1.0F, MAX_OWNER_SCALE);
     }
 
+    /** Held offsets are relative to the upright body, not the camera's pitch or the fired radius. */
+    protected Vec3 heldCastOffset(LivingEntity owner, float offsetX, float offsetY, float offsetZ) {
+        Vec3 forward = Vec3.directionFromRotation(0, owner.getYRot());
+        Vec3 up = new Vec3(0, 1, 0);
+        Vec3 right = forward.cross(up);
+        return right.scale(offsetX * ownerWidthScale(owner))
+                .add(up.scale(offsetY * ownerScaleOf(owner)))
+                .add(forward.scale(offsetZ * ownerWidthScale(owner)));
+    }
+
     /**
      * Places a cast offset on a caster of any size.
      *

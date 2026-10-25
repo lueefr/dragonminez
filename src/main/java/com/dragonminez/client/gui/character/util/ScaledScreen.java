@@ -265,6 +265,6 @@ public abstract class ScaledScreen extends Screen implements TutorialHost {
 	}
 
 	public MutableComponent txt(String text) {
-		return Component.literal(text).withStyle(Style.EMPTY.withFont(DMZ_FONT));
+		return com.dragonminez.api.lang.ConfigTranslations.text(text).withStyle(Style.EMPTY.withFont(DMZ_FONT));
 	}
 }

@@ -504,12 +504,12 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		Component formComponent;
 		if (!isBase) {
 			if (hasActiveStack) formComponent = baseFormComponent.copy()
-					.append(" ")
+					.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9"))
 					.append(tr("race.dragonminez.stack.form." + activeStackGroup + "." + stackForm));
 			else formComponent = baseFormComponent;
 		} else if (hasActiveStack) {
 			formComponent = tr("race.dragonminez.stack.group." + activeStackGroup)
-					.append(" ")
+					.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9"))
 					.append(tr("race.dragonminez.stack.form." + activeStackGroup + "." + stackForm));
 		} else {
 			formComponent = baseFormComponent;
@@ -536,9 +536,9 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 							double mastery = statsData.getCharacter().getFormMasteries().getMastery(currentFormGroup, form);
 							double maxMastery = formData.getMaxMastery();
 
-							tooltip.add(txt(" ")
+							tooltip.add(tr("text.dragonminez.characterstatsscreen.36a9e7f1c9")
 									.append(baseFormComponent.copy().withStyle(ChatFormatting.GRAY))
-									.append(txt(": " + String.format(Locale.US, "%.2f", mastery) + " / " + String.format(Locale.US, "%.0f", maxMastery)).withStyle(ChatFormatting.AQUA)));
+									.append(tr("text.dragonminez.characterstatsscreen.5a8df62c4c" , String.format(Locale.US, "%.2f", mastery), String.format(Locale.US, "%.0f", maxMastery)).withStyle(ChatFormatting.AQUA)));
 						}
 					}
 				}
@@ -560,12 +560,12 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 						double maxMastery = formData.getMaxMastery();
 
 						Component stackFormComponent = tr("race.dragonminez.stack.group." + currentStackGroup)
-								.append(" ")
+								.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9"))
 								.append(tr("race.dragonminez.stack.form." + currentStackGroup + "." + stackForm));
 
-						tooltip.add(txt(" ")
+						tooltip.add(tr("text.dragonminez.characterstatsscreen.36a9e7f1c9")
 								.append(stackFormComponent.copy().withStyle(ChatFormatting.GRAY))
-								.append(txt(": " + String.format(Locale.US, "%.2f", mastery) + " / " + String.format(Locale.US, "%.0f", maxMastery)).withStyle(ChatFormatting.AQUA)));
+								.append(tr("text.dragonminez.characterstatsscreen.5a8df62c4c" , String.format(Locale.US, "%.2f", mastery), String.format(Locale.US, "%.0f", maxMastery)).withStyle(ChatFormatting.AQUA)));
 					}
 				}
 			}
@@ -621,8 +621,8 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 
 				List<Component> extras = new ArrayList<>();
 				if (hasMult) {
-					extras.add(tr("gui.dragonminez.character_stats.base_value").append(": " + NumberFormattingUtil.formatNumber(baseValue)).withStyle(ChatFormatting.GRAY));
-					extras.add(tr("gui.dragonminez.character_stats.modified_value").append(": " + NumberFormattingUtil.formatNumber((int) modifiedValue)).withStyle(ChatFormatting.YELLOW));
+					extras.add(tr("gui.dragonminez.character_stats.base_value").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.554eb89451", NumberFormattingUtil.formatNumber(baseValue))).withStyle(ChatFormatting.GRAY));
+					extras.add(tr("gui.dragonminez.character_stats.modified_value").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.554eb89451", NumberFormattingUtil.formatNumber((int) modifiedValue))).withStyle(ChatFormatting.YELLOW));
 
 					if (statNamesUpper[i].equals("RES")) {
 						double formDef = statsData.getFormMultiplier("DEF");
@@ -642,29 +642,29 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 							extras.add(tr("gui.dragonminez.character_stats.multipliers").withStyle(ChatFormatting.AQUA));
 							if (hasForm) {
 								extras.add(tr("gui.dragonminez.character_stats.form_multiplier")
-										.append(txt(" ("))
-										.append(tr("gui.dragonminez.character_stats.def")).append(txt(": x" + String.format(Locale.US, "%.2f", formDef) + ", "))
-										.append(tr("gui.dragonminez.character_stats.stm")).append(txt(": x" + String.format(Locale.US, "%.2f", formStm) + ")"))
+										.append(tr("text.dragonminez.characterstatsscreen.4f5a2ada11"))
+										.append(tr("gui.dragonminez.character_stats.def")).append(tr("text.dragonminez.characterstatsscreen.e9632740fe" , String.format(Locale.US, "%.2f", formDef)))
+										.append(tr("gui.dragonminez.character_stats.stm")).append(tr("text.dragonminez.characterstatsscreen.cc0e6931b5" , String.format(Locale.US, "%.2f", formStm)))
 										.withStyle(ChatFormatting.GOLD));
 							}
 							if (hasStack) {
 								extras.add(tr("gui.dragonminez.character_stats.stack_multiplier")
-										.append(txt(" ("))
-										.append(tr("gui.dragonminez.character_stats.def")).append(txt(": x" + String.format(Locale.US, "%.2f", stackDef) + ", "))
-										.append(tr("gui.dragonminez.character_stats.stm")).append(txt(": x" + String.format(Locale.US, "%.2f", stackStm) + ")"))
+										.append(tr("text.dragonminez.characterstatsscreen.4f5a2ada11"))
+										.append(tr("gui.dragonminez.character_stats.def")).append(tr("text.dragonminez.characterstatsscreen.e9632740fe" , String.format(Locale.US, "%.2f", stackDef)))
+										.append(tr("gui.dragonminez.character_stats.stm")).append(tr("text.dragonminez.characterstatsscreen.cc0e6931b5" , String.format(Locale.US, "%.2f", stackStm)))
 										.withStyle(ChatFormatting.RED));
 							}
 							if (hasEffects) {
 								extras.add(tr("gui.dragonminez.character_stats.effects_multiplier")
-										.append(txt(" ("))
-										.append(tr("gui.dragonminez.character_stats.def")).append(txt(": x" + String.format(Locale.US, "%.2f", effectsDef) + ", "))
-										.append(tr("gui.dragonminez.character_stats.stm")).append(txt(": x" + String.format(Locale.US, "%.2f", effectsStm) + ")"))
+										.append(tr("text.dragonminez.characterstatsscreen.4f5a2ada11"))
+										.append(tr("gui.dragonminez.character_stats.def")).append(tr("text.dragonminez.characterstatsscreen.e9632740fe" , String.format(Locale.US, "%.2f", effectsDef)))
+										.append(tr("gui.dragonminez.character_stats.stm")).append(tr("text.dragonminez.characterstatsscreen.cc0e6931b5" , String.format(Locale.US, "%.2f", effectsStm)))
 										.withStyle(ChatFormatting.LIGHT_PURPLE));
 							}
 							if (hasSecondary) {
 								extras.add(tr("gui.dragonminez.character_stats.secondary_multiplier")
-										.append(txt(" ("))
-										.append(tr("gui.dragonminez.character_stats.def")).append(txt(": x" + String.format(Locale.US, "%.2f", secondaryDef) + ")"))
+										.append(tr("text.dragonminez.characterstatsscreen.4f5a2ada11"))
+										.append(tr("gui.dragonminez.character_stats.def")).append(tr("text.dragonminez.characterstatsscreen.cc0e6931b5" , String.format(Locale.US, "%.2f", secondaryDef)))
 										.withStyle(ChatFormatting.DARK_AQUA));
 							}
 						}
@@ -680,10 +680,10 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 
 						if (hasForm || hasStack || hasEffects || hasSecondary) {
 							extras.add(tr("gui.dragonminez.character_stats.multipliers").withStyle(ChatFormatting.AQUA));
-							if (hasForm) extras.add(tr("gui.dragonminez.character_stats.form_multiplier").append(" x" + String.format(Locale.US, "%.2f", formMultiplier)).withStyle(ChatFormatting.GOLD));
-							if (hasStack) extras.add(tr("gui.dragonminez.character_stats.stack_multiplier").append(" x" + String.format(Locale.US, "%.2f", stackMultiplier)).withStyle(ChatFormatting.RED));
-							if (hasEffects) extras.add(tr("gui.dragonminez.character_stats.effects_multiplier").append(" x" + String.format(Locale.US, "%.2f", effectsMultiplier)).withStyle(ChatFormatting.LIGHT_PURPLE));
-							if (hasSecondary) extras.add(tr("gui.dragonminez.character_stats.secondary_multiplier").append(" x" + String.format(Locale.US, "%.2f", secondaryMultiplier)).withStyle(ChatFormatting.DARK_AQUA));
+							if (hasForm) extras.add(tr("gui.dragonminez.character_stats.form_multiplier").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.32ee601f92", String.format(Locale.US, "%.2f", formMultiplier))).withStyle(ChatFormatting.GOLD));
+							if (hasStack) extras.add(tr("gui.dragonminez.character_stats.stack_multiplier").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.32ee601f92", String.format(Locale.US, "%.2f", stackMultiplier))).withStyle(ChatFormatting.RED));
+							if (hasEffects) extras.add(tr("gui.dragonminez.character_stats.effects_multiplier").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.32ee601f92", String.format(Locale.US, "%.2f", effectsMultiplier))).withStyle(ChatFormatting.LIGHT_PURPLE));
+							if (hasSecondary) extras.add(tr("gui.dragonminez.character_stats.secondary_multiplier").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.32ee601f92", String.format(Locale.US, "%.2f", secondaryMultiplier))).withStyle(ChatFormatting.DARK_AQUA));
 						}
 					}
 				}
@@ -705,7 +705,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 					for (var bonus : bonuses) {
 						String opDisplay = bonus.operation.equals("*") ? "x" : bonus.operation;
 						String bonusText = BonusNameFormatter.display(bonus.name) + ": " + opDisplay + (bonus.operation.equals("*") ? String.format(Locale.US, "%.2f", bonus.value) : String.format(Locale.US, "%.0f", bonus.value));
-						extras.add(txt("  " + bonusText).withStyle(ChatFormatting.GREEN));
+						extras.add(tr("text.dragonminez.characterstatsscreen.3ecfa9c461" , bonusText).withStyle(ChatFormatting.GREEN));
 					}
 				}
 
@@ -729,7 +729,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		Component bottomValue = showAP ? txt(NumberFormattingUtil.formatNumber(pendingAP)) : txt(NumberFormattingUtil.formatNumber(displayedTpCost));
 		int valueColor = showAP ? 0xFFFF00 : 0xFFCE41;
 		TextUtil.drawStringWithBorder(graphics, this.font, bottomValue, bottomValueX, bottomY, valueColor, 0x000000);
-		TextUtil.drawStringWithBorder(graphics, this.font, txt("x" + tpMultiplier), bottomValueX, bottomY + 10, 0x2BFFE2, 0x000000);
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("text.dragonminez.characterstatsscreen.f819e4bc8e" , tpMultiplier), bottomValueX, bottomY + 10, 0x2BFFE2, 0x000000);
 
 		if (mouseX >= 42 && mouseX <= bottomValueX + font.width(bottomValue) && mouseY >= bottomY && mouseY <= bottomY + font.lineHeight) {
 			List<Component> desc = new ArrayList<>();
@@ -770,7 +770,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 
 		extras.add(tr("dynamicgrowth.dragonminez.title").withStyle(ChatFormatting.AQUA));
 		if (statsData.getMaxAllowedIncreaseForStat(statName, 1) <= 0) {
-			extras.add(txt("  ").append(tr("dynamicgrowth.dragonminez.maxed")).withStyle(ChatFormatting.GREEN));
+			extras.add(tr("text.dragonminez.characterstatsscreen.6c179f21e6").append(tr("dynamicgrowth.dragonminez.maxed")).withStyle(ChatFormatting.GREEN));
 			return;
 		}
 
@@ -779,8 +779,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		double percent = requiredXp <= 0 ? 100.0 : currentXp / requiredXp * 100.0;
 		if (!Double.isFinite(percent)) percent = 0.0;
 		percent = Math.max(0.0, Math.min(100.0, percent));
-		extras.add(txt("  " + String.format(Locale.US, "%.1f", currentXp) + " / " + requiredXp + " XP ("
-				+ String.format(Locale.US, "%.1f", percent) + "%)").withStyle(ChatFormatting.GREEN));
+		extras.add(tr("text.dragonminez.characterstatsscreen.b081aa3d67" , String.format(Locale.US, "%.1f", currentXp), requiredXp, String.format(Locale.US, "%.1f", percent)).withStyle(ChatFormatting.GREEN));
 	}
 
 	private void renderStatisticsInfo(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -803,7 +802,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		String displayedBp = androidUpgraded ? "???" : NumberFormattingUtil.formatLargeNumber(bp);
 
 		Component label = tr("gui.dragonminez.character_stats.power_level");
-		Component separator = txt(": ");
+		Component separator = tr("text.dragonminez.characterstatsscreen.45822f54a0");
 		Component value = txt(displayedBp);
 
 		TextUtil.drawStringWithBorder(graphics, this.font, label, labelX, y, 0x7CFDD6, 0x000000);
@@ -882,26 +881,26 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 						desc.add(tr("gui.dragonminez.character_stats.melee_damage.tooltip2", NumberFormattingUtil.formatUpToOneDecimal(strScaling)).withStyle(ChatFormatting.YELLOW));
 						desc.add(tr("gui.dragonminez.character_stats.max_value", NumberFormattingUtil.formatUpToOneDecimal(maxMeleeDamage)).withStyle(ChatFormatting.GREEN));
 						double defensePen = getDefensePenetrationPercentage();
-						if (defensePen > 0) extras.add(tr("gui.dragonminez.character_stats.defense_penetration").append(txt(": " + NumberFormattingUtil.formatUpToOneDecimal(defensePen) + "%")).withStyle(ChatFormatting.RED));
+						if (defensePen > 0) extras.add(tr("gui.dragonminez.character_stats.defense_penetration").append(tr("text.dragonminez.characterstatsscreen.327bfa6e54" , NumberFormattingUtil.formatUpToOneDecimal(defensePen))).withStyle(ChatFormatting.RED));
 					}
 					case 1 -> {
 						desc.add(tr("gui.dragonminez.character_stats.strike_damage.tooltip1"));
 						desc.add(tr("gui.dragonminez.character_stats.strike_damage.tooltip2", NumberFormattingUtil.formatUpToOneDecimal(skpScaling)).withStyle(ChatFormatting.YELLOW));
 						desc.add(tr("gui.dragonminez.character_stats.max_value", NumberFormattingUtil.formatUpToOneDecimal(maxStrikeDamage)).withStyle(ChatFormatting.GREEN));
 						double defensePen = getDefensePenetrationPercentage();
-						if (defensePen > 0) extras.add(tr("gui.dragonminez.character_stats.defense_penetration").append(txt(": " + NumberFormattingUtil.formatUpToOneDecimal(defensePen) + "%")).withStyle(ChatFormatting.RED));
+						if (defensePen > 0) extras.add(tr("gui.dragonminez.character_stats.defense_penetration").append(tr("text.dragonminez.characterstatsscreen.327bfa6e54" , NumberFormattingUtil.formatUpToOneDecimal(defensePen))).withStyle(ChatFormatting.RED));
 					}
 					case 2 -> {
 						desc.add(tr("gui.dragonminez.character_stats.stamina.tooltip1"));
 						desc.add(tr("gui.dragonminez.character_stats.stamina.tooltip2", NumberFormattingUtil.formatUpToOneDecimal(stmScaling)).withStyle(ChatFormatting.YELLOW));
 						if (classStats != null) {
 							double currentRegenSec = statsData.getStaminaRegenPerSecond();
-							extras.add(Component.translatable("gui.dragonminez.customization.stat.regen.stm").append(": ")
-									.append(txt(String.format(Locale.US, "%.1f/s", currentRegenSec)))
+							extras.add(Component.translatable("gui.dragonminez.customization.stat.regen.stm").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
+									.append(txt(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.2a959b04d3", String.format(Locale.ROOT, "%.1f", currentRegenSec)).getString()))
 									.append(txt(RegenScalingFormat.stamina(classStats)).withStyle(ChatFormatting.DARK_GRAY))
 									.withStyle(ChatFormatting.AQUA));
 						}
-						extras.add(tr("gui.dragonminez.character_stats.stamina_per_hit").append(": ")
+						extras.add(tr("gui.dragonminez.character_stats.stamina_per_hit").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
 								.append(txt(NumberFormattingUtil.formatUpToOneDecimal(getDisplayedStaminaPerHit())))
 								.withStyle(ChatFormatting.GOLD));
 						if (isTransformed) {
@@ -923,19 +922,19 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 						desc.add(tr("gui.dragonminez.character_stats.max_value", NumberFormattingUtil.formatUpToOneDecimal(maxDefense)).withStyle(ChatFormatting.GREEN));
 
 						double flatMitigation = statsData.getFlatMitigation();
-						extras.add(tr("gui.dragonminez.character_stats.flat_mitigation").append(": ")
+						extras.add(tr("gui.dragonminez.character_stats.flat_mitigation").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
 								.append(txt(NumberFormattingUtil.formatUpToOneDecimal(flatMitigation)))
 								.withStyle(ChatFormatting.AQUA));
 
 						double[] pcts = getDamageReductionPercentages();
-						extras.add(tr("gui.dragonminez.character_stats.defense").append(": ")
-								.append(txt(NumberFormattingUtil.formatUpToTwoDecimals(pcts[0]) + "% "))
+						extras.add(tr("gui.dragonminez.character_stats.defense").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
+								.append(tr("text.dragonminez.characterstatsscreen.e1a44393b1" , NumberFormattingUtil.formatUpToTwoDecimals(pcts[0])))
 								.append(tr("gui.dragonminez.character_stats.dmg_reduction"))
 								.withStyle(ChatFormatting.AQUA));
 
 						if (pcts[1] > 0) {
-							extras.add(tr("gui.dragonminez.character_stats.protection").append(": ")
-									.append(txt(NumberFormattingUtil.formatUpToTwoDecimals(pcts[1]) + "% "))
+							extras.add(tr("gui.dragonminez.character_stats.protection").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
+									.append(tr("text.dragonminez.characterstatsscreen.e1a44393b1" , NumberFormattingUtil.formatUpToTwoDecimals(pcts[1])))
 									.append(tr("gui.dragonminez.character_stats.dmg_reduction"))
 									.withStyle(ChatFormatting.LIGHT_PURPLE));
 						}
@@ -946,8 +945,8 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 						appendVitalityCurveInfo(desc);
 						if (classStats != null) {
 							double currentRegenSec = (classStats.getBaseHp5() + (statsData.getStats().getVitality() * statsData.getTotalMultiplier("VIT") * classStats.getHp5VitScaling())) * 0.2;
-							extras.add(Component.translatable("gui.dragonminez.customization.stat.regen.hp").append(": ")
-									.append(txt(String.format(Locale.US, "%.1f/s", currentRegenSec)))
+							extras.add(Component.translatable("gui.dragonminez.customization.stat.regen.hp").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
+									.append(txt(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.2a959b04d3", String.format(Locale.ROOT, "%.1f", currentRegenSec)).getString()))
 									.withStyle(ChatFormatting.AQUA));
 						}
 						if (isTransformed) {
@@ -961,15 +960,15 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 						desc.add(tr("gui.dragonminez.character_stats.ki_damage.tooltip2", NumberFormattingUtil.formatUpToOneDecimal(pwrScaling)).withStyle(ChatFormatting.YELLOW));
 						desc.add(tr("gui.dragonminez.character_stats.max_value", NumberFormattingUtil.formatUpToOneDecimal(maxKiDamage)).withStyle(ChatFormatting.GREEN));
 						double defensePen = getDefensePenetrationPercentage();
-						if (defensePen > 0) extras.add(tr("gui.dragonminez.character_stats.ki_damage").append(txt(": ")).append(txt(NumberFormattingUtil.formatUpToOneDecimal(kiDamage))).withStyle(ChatFormatting.AQUA));
+						if (defensePen > 0) extras.add(tr("gui.dragonminez.character_stats.ki_damage").append(tr("text.dragonminez.characterstatsscreen.45822f54a0")).append(txt(NumberFormattingUtil.formatUpToOneDecimal(kiDamage))).withStyle(ChatFormatting.AQUA));
 					}
 					case 6 -> {
 						desc.add(tr("gui.dragonminez.character_stats.max_energy.tooltip1"));
 						desc.add(tr("gui.dragonminez.character_stats.max_energy.tooltip2", NumberFormattingUtil.formatUpToOneDecimal(eneScaling)).withStyle(ChatFormatting.YELLOW));
 						if (classStats != null) {
 							double currentRegenSec = (classStats.getBaseEp5() + (statsData.getStats().getEnergy() * statsData.getTotalMultiplier("ENE") * classStats.getEp5EneScaling())) * 0.2;
-							extras.add(Component.translatable("gui.dragonminez.customization.stat.regen.ki").append(": ")
-									.append(txt(String.format(Locale.US, "%.1f/s", currentRegenSec)))
+							extras.add(Component.translatable("gui.dragonminez.customization.stat.regen.ki").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
+									.append(txt(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.2a959b04d3", String.format(Locale.ROOT, "%.1f", currentRegenSec)).getString()))
 									.withStyle(ChatFormatting.AQUA));
 						}
 						if (isTransformed) {
@@ -1051,7 +1050,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		desc.add(tr("gui.dragonminez.character_stats.speed.tooltip2",
 				NumberFormattingUtil.formatLargeNumber(ConfigManager.getCombatConfig().getSpeedReferenceStat())).withStyle(ChatFormatting.YELLOW));
 
-		extras.add(tr("gui.dragonminez.character_stats.speed.movement").append(": ")
+		extras.add(tr("gui.dragonminez.character_stats.speed.movement").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
 				.append(txt(formatSpeedPercent(Math.min(movementCap, speed))))
 				.withStyle(ChatFormatting.AQUA));
 
@@ -1206,12 +1205,12 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 					NumberFormattingUtil.formatUpToOneDecimal(maxMeleeDamage)).withStyle(ChatFormatting.GREEN));
 
 			List<Component> extras = new ArrayList<>();
-			extras.add(tr("gui.dragonminez.character_stats.melee_damage").append(": ")
+			extras.add(tr("gui.dragonminez.character_stats.melee_damage").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
 					.append(txt(NumberFormattingUtil.formatUpToOneDecimal(meleeDamage)))
 					.withStyle(ChatFormatting.AQUA));
 			double defensePen = getDefensePenetrationPercentage();
 			if (defensePen > 0) {
-				extras.add(tr("gui.dragonminez.character_stats.defense_penetration").append(txt(": " + NumberFormattingUtil.formatUpToOneDecimal(defensePen) + "%"))
+				extras.add(tr("gui.dragonminez.character_stats.defense_penetration").append(tr("text.dragonminez.characterstatsscreen.327bfa6e54" , NumberFormattingUtil.formatUpToOneDecimal(defensePen)))
 						.withStyle(ChatFormatting.RED));
 			}
 			appendAttackSkillInfo(extras);
@@ -1229,12 +1228,12 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 					NumberFormattingUtil.formatUpToOneDecimal(maxStrikeDamage)).withStyle(ChatFormatting.GREEN));
 
 			List<Component> extras = new ArrayList<>();
-			extras.add(tr("gui.dragonminez.character_stats.strike_damage").append(": ")
+			extras.add(tr("gui.dragonminez.character_stats.strike_damage").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
 					.append(txt(NumberFormattingUtil.formatUpToOneDecimal(strikeDamage)))
 					.withStyle(ChatFormatting.AQUA));
 			double defensePen = getDefensePenetrationPercentage();
 			if (defensePen > 0) {
-				extras.add(tr("gui.dragonminez.character_stats.defense_penetration").append(txt(": " + NumberFormattingUtil.formatUpToOneDecimal(defensePen) + "%"))
+				extras.add(tr("gui.dragonminez.character_stats.defense_penetration").append(tr("text.dragonminez.characterstatsscreen.327bfa6e54" , NumberFormattingUtil.formatUpToOneDecimal(defensePen)))
 						.withStyle(ChatFormatting.RED));
 			}
 			appendAttackSkillInfo(extras);
@@ -1259,17 +1258,17 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 			List<Component> extras = new ArrayList<>();
 
 			double flatMitigation = statsData.getFlatMitigation();
-			extras.add(tr("gui.dragonminez.character_stats.flat_mitigation").append(": ")
+			extras.add(tr("gui.dragonminez.character_stats.flat_mitigation").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
 					.append(txt(NumberFormattingUtil.formatUpToOneDecimal(flatMitigation)))
 					.withStyle(ChatFormatting.AQUA));
 
-			extras.add(tr("gui.dragonminez.character_stats.defense").append(": ")
+			extras.add(tr("gui.dragonminez.character_stats.defense").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
 					.append(txt(NumberFormattingUtil.formatUpToOneDecimal(defense)))
 					.withStyle(ChatFormatting.AQUA));
-			extras.add(tr("gui.dragonminez.character_stats.stamina").append(": ")
+			extras.add(tr("gui.dragonminez.character_stats.stamina").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
 					.append(txt(NumberFormattingUtil.formatUpToOneDecimal(stamina)))
 					.withStyle(ChatFormatting.AQUA));
-			extras.add(tr("gui.dragonminez.character_stats.stamina_per_hit").append(": ")
+			extras.add(tr("gui.dragonminez.character_stats.stamina_per_hit").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
 					.append(txt(NumberFormattingUtil.formatUpToOneDecimal(getDisplayedStaminaPerHit())))
 					.withStyle(ChatFormatting.GOLD));
 
@@ -1288,14 +1287,14 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 			double[] pcts = getDamageReductionPercentages();
 			extras.add(txt(""));
 
-			extras.add(tr("gui.dragonminez.character_stats.defense").append(": ")
-					.append(txt(NumberFormattingUtil.formatUpToTwoDecimals(pcts[0]) + "% "))
+			extras.add(tr("gui.dragonminez.character_stats.defense").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
+					.append(tr("text.dragonminez.characterstatsscreen.e1a44393b1" , NumberFormattingUtil.formatUpToTwoDecimals(pcts[0])))
 					.append(tr("gui.dragonminez.character_stats.dmg_reduction"))
 					.withStyle(ChatFormatting.AQUA));
 
 			if (pcts[1] > 0) {
-				extras.add(tr("gui.dragonminez.character_stats.protection").append(": ")
-						.append(txt(NumberFormattingUtil.formatUpToTwoDecimals(pcts[1]) + "% "))
+				extras.add(tr("gui.dragonminez.character_stats.protection").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
+						.append(tr("text.dragonminez.characterstatsscreen.e1a44393b1" , NumberFormattingUtil.formatUpToTwoDecimals(pcts[1])))
 						.append(tr("gui.dragonminez.character_stats.dmg_reduction"))
 						.withStyle(ChatFormatting.LIGHT_PURPLE));
 			}
@@ -1315,12 +1314,12 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 					NumberFormattingUtil.formatUpToOneDecimal(maxKiDamage)).withStyle(ChatFormatting.GREEN));
 
 			List<Component> extras = new ArrayList<>();
-			extras.add(tr("gui.dragonminez.character_stats.ki_damage").append(": ")
+			extras.add(tr("gui.dragonminez.character_stats.ki_damage").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
 					.append(txt(NumberFormattingUtil.formatUpToOneDecimal(kiDamage)))
 					.withStyle(ChatFormatting.AQUA));
 			double defensePen = getDefensePenetrationPercentage();
 			if (defensePen > 0) {
-				extras.add(tr("gui.dragonminez.character_stats.defense_penetration").append(txt(": " + NumberFormattingUtil.formatUpToOneDecimal(defensePen) + "%"))
+				extras.add(tr("gui.dragonminez.character_stats.defense_penetration").append(tr("text.dragonminez.characterstatsscreen.327bfa6e54" , NumberFormattingUtil.formatUpToOneDecimal(defensePen)))
 						.withStyle(ChatFormatting.RED));
 			}
 			appendAdvancedHint(extras, false);
@@ -1335,7 +1334,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 					NumberFormattingUtil.formatUpToOneDecimal(eneScaling)).withStyle(ChatFormatting.YELLOW));
 
 			List<Component> extras = new ArrayList<>();
-			extras.add(tr("gui.dragonminez.character_stats.max_energy").append(": ")
+			extras.add(tr("gui.dragonminez.character_stats.max_energy").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
 					.append(txt(NumberFormattingUtil.formatUpToOneDecimal(energy)))
 					.withStyle(ChatFormatting.AQUA));
 
@@ -1359,7 +1358,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 			appendVitalityCurveInfo(desc);
 
 			List<Component> extras = new ArrayList<>();
-			extras.add(tr("gui.dragonminez.character_stats.health").append(": ")
+			extras.add(tr("gui.dragonminez.character_stats.health").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
 					.append(txt(NumberFormattingUtil.formatUpToOneDecimal(health)))
 					.withStyle(ChatFormatting.AQUA));
 
@@ -1375,7 +1374,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 
 		double speed = statsData.getSpeed();
 		int speedY = hexCenterY + (int) maxRadius + 26;
-		Component speedComponent = tr("gui.dragonminez.character_stats.speed").append(": ")
+		Component speedComponent = tr("gui.dragonminez.character_stats.speed").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
 				.append(txt(formatSpeedPercent(speed)));
 		int speedTextWidth = font.width(speedComponent);
 		int speedColor = Math.abs(speed - 1.0) > 0.01 ? 0xFFFF00 : 0xFFD7AB;
@@ -1474,8 +1473,8 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 				? " -" + NumberFormattingUtil.formatUpToOneDecimal((1.0 - gravityStatMult) * 100.0) + "%"
 				: "";
 		Component valueComp = hasGravity
-				? txt(NumberFormattingUtil.formatUpToOneDecimal(netGravity) + "g" + penStr)
-				: txt("--");
+				? tr("text.dragonminez.characterstatsscreen.dbdb38a438" , NumberFormattingUtil.formatUpToOneDecimal(netGravity), penStr)
+				: tr("text.dragonminez.characterstatsscreen.d8156bae0c");
 		int valueColor = hasGravity ? 0xFF9944 : 0xFFD7AB;
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, valueComp, valueX, y, valueColor, 0x000000);
 
@@ -1602,8 +1601,8 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		String totalMult = NumberFormattingUtil.formatUpToTwoDecimals(totalMultiplier);
 
 		Component label = tr("gui.dragonminez.character_stats.tp_multiplier");
-		Component separator = txt(": ");
-		Component value = txt("x" + totalMult);
+		Component separator = tr("text.dragonminez.characterstatsscreen.45822f54a0");
+		Component value = tr("text.dragonminez.characterstatsscreen.f819e4bc8e" , totalMult);
 
 		TextUtil.drawStringWithBorder(graphics, this.font, label, labelX, y, 0x7CFDD6, 0x000000);
 		int separatorX = labelX + font.width(label);
@@ -1648,7 +1647,7 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 	}
 
 	private MutableComponent skillBonusLine(String labelKey, String valuePart, boolean active) {
-		MutableComponent line = tr(labelKey).append(": ").append(txt(valuePart))
+		MutableComponent line = tr(labelKey).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(valuePart))
 				.withStyle(active ? ChatFormatting.AQUA : ChatFormatting.GRAY);
 		if (!active) line.append(tr("gui.dragonminez.character_stats.inactive_suffix").withStyle(ChatFormatting.DARK_GRAY));
 		return line;
@@ -1686,11 +1685,11 @@ public class CharacterStatsScreen extends BaseMenuScreen {
 		if (!skills.hasSkill("kiprotection") || level <= 0) return;
 		double pct = level * ConfigManager.getCombatConfig().getKiProtectionMitigationPerLevel() * 100.0;
 		boolean active = skills.isSkillActive("kiprotection");
-		MutableComponent line = tr("gui.dragonminez.character_stats.ki_protection").append(": ")
-				.append(txt(NumberFormattingUtil.formatUpToOneDecimal(pct) + "% "))
+		MutableComponent line = tr("gui.dragonminez.character_stats.ki_protection").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0"))
+				.append(tr("text.dragonminez.characterstatsscreen.e1a44393b1" , NumberFormattingUtil.formatUpToOneDecimal(pct)))
 				.append(tr("gui.dragonminez.character_stats.dmg_reduction"))
 				.withStyle(active ? ChatFormatting.AQUA : ChatFormatting.GRAY);
-		if (!active) line.append(" ").append(tr("gui.dragonminez.character_stats.inactive_suffix").withStyle(ChatFormatting.DARK_GRAY));
+		if (!active) line.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9")).append(tr("gui.dragonminez.character_stats.inactive_suffix").withStyle(ChatFormatting.DARK_GRAY));
 		extras.add(line);
 	}
 

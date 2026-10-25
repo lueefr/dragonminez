@@ -10,6 +10,7 @@ import com.google.gson.JsonPrimitive;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
@@ -41,7 +42,7 @@ public class DMZConfigEditScreen extends Screen {
 	private long feedbackUntil;
 
 	public DMZConfigEditScreen(Screen parent, String configPath) {
-		super(Component.literal(configPath));
+		super(com.dragonminez.api.lang.ConfigTranslations.text(configPath));
 		this.parent = parent;
 		this.configPath = configPath;
 	}
@@ -69,7 +70,7 @@ public class DMZConfigEditScreen extends Screen {
 		int boxX = this.width / 2 + 10;
 		int boxW = Math.min(160, this.width / 2 - 20);
 		for (Field field : fields) {
-			EditBox box = new EditBox(this.font, boxX, 0, boxW, 14, Component.literal(field.label));
+			EditBox box = new EditBox(this.font, boxX, 0, boxW, 14, com.dragonminez.api.lang.ConfigTranslations.text(field.label));
 			box.setMaxLength(256);
 			box.setValue(field.initialValue);
 			box.visible = false;
@@ -178,7 +179,7 @@ public class DMZConfigEditScreen extends Screen {
 				continue;
 			}
 			int y = rowY - scroll;
-			graphics.drawString(this.font, trim(field.label, this.width / 2 - 24), 14, y + 5, 0xFFFFFFFF);
+			graphics.drawString(this.font, this.font.split(fieldLabel(field.label), this.width / 2 - 24).getFirst(), 14, y + 5, 0xFFFFFFFF);
 			field.box.visible = true;
 			field.box.setY(y + 1);
 			field.box.render(graphics, mouseX, mouseY, partialTick);
@@ -196,8 +197,31 @@ public class DMZConfigEditScreen extends Screen {
 			graphics.drawCenteredString(this.font, feedback, this.width / 2, this.height - 38, feedbackColor);
 		}
 
-		super.render(graphics, mouseX, mouseY, partialTick);
+		// Screen.render also draws the background in 1.21.1; it would blur the list again.
+		for (Renderable renderable : this.renderables) {
+			renderable.render(graphics, mouseX, mouseY, partialTick);
+		}
 	}
+
+    private Component fieldLabel(String path){
+        var result=Component.empty();String[] parts=path.split("\\.");
+        for(int index=0;index<parts.length;index++){
+            if(!result.getSiblings().isEmpty())result.append(Component.translatable("config.dragonminez.path_separator"));
+            String field=parts[index].replaceAll("\\[[0-9]+\\]","");
+            String key="config.dragonminez.field."+field;
+            if(index==1&&parts[0].equals("forms")){
+                String[] file=configPath.split("/");
+                String owner=file.length>=4&&file[0].equals("races")?file[1]:"stack";
+                String group=root.has("identity")&&root.getAsJsonObject("identity").has("groupName")?
+                    root.getAsJsonObject("identity").get("groupName").getAsString():root.has("groupName")?root.get("groupName").getAsString():file[file.length-1];
+                key="race.dragonminez."+owner+".form."+group+"."+field;
+            }else if(index==1&&parts[0].equals("skills"))key="skill.dragonminez."+field;
+            else if(field.contains(":"))key=field;
+            result.append(Component.translatable(key));
+            if(!field.equals(parts[index]))result.append(com.dragonminez.api.lang.ConfigTranslations.text(parts[index].substring(field.length())));
+        }
+        return result;
+    }
 
 	private String trim(String text, int maxWidth) {
 		if (this.font.width(text) <= maxWidth) return text;

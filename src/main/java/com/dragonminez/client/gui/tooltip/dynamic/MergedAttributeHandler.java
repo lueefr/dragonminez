@@ -86,8 +86,8 @@ public class MergedAttributeHandler {
 			MutableComponent modLine = createModifierComponent(modifierValue, "attribute.name.generic.attack_range");
 
 			lines.add(targetIndex + 1, totalLine);
-			lines.add(targetIndex + 2, Component.literal(" ┠ ").withStyle(ChatFormatting.GRAY).append(baseLine));
-			lines.add(targetIndex + 3, Component.literal(" ┠ ").withStyle(ChatFormatting.GRAY).append(modLine));
+			lines.add(targetIndex + 2, net.minecraft.network.chat.Component.translatable("text.dragonminez.mergedattributehandler.0ed0e13903").withStyle(ChatFormatting.GRAY).append(baseLine));
+			lines.add(targetIndex + 3, net.minecraft.network.chat.Component.translatable("text.dragonminez.mergedattributehandler.0ed0e13903").withStyle(ChatFormatting.GRAY).append(modLine));
 		} else {
 			int color = hasModifier ? MERGE_BASE_COLOR : BASE_COLOR;
 			lines.add(targetIndex + 1, createRangeComponent(totalRange, "attribute.name.generic.attack_range", color));
@@ -128,7 +128,7 @@ public class MergedAttributeHandler {
 	}
 
 	private static MutableComponent createRangeComponent(double value, String translationKey, int colorCode) {
-		return Component.literal(" ")
+		return net.minecraft.network.chat.Component.translatable("text.dragonminez.mergedattributehandler.36a9e7f1c9")
 				.append(Component.translatable("attribute.modifier.equals.0", FORMAT.format(value), Component.translatable(translationKey)))
 				.withStyle(style -> style.withColor(colorCode));
 	}

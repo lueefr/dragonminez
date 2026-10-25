@@ -194,7 +194,7 @@ public class QuestEnemyPreview {
 				withAlpha(0xFFD9A441, alpha));
 
 		if (targets.size() > 1) {
-			Component counter = txt("‹ " + (currentIndex + 1) + "/" + targets.size() + " ›");
+			Component counter = tr("text.dragonminez.questenemypreview.82edef5a1b" , (currentIndex + 1), targets.size());
 			int counterColor = hovered ? 0xFFFFE08A : 0xFFBBBBBB;
 			TextUtil.drawStringWithBorder(graphics, font, counter,
 					regionX + regionW - font.width(counter) - 82, regionY + 18, withAlpha(counterColor, alpha));
@@ -315,7 +315,7 @@ public class QuestEnemyPreview {
 			if (type == null) continue;
 			String key = "gui.dragonminez.quest_tree.preview.skill." + type.name().toLowerCase();
 			if (seen.add(key)) {
-				out.add(txt("• ").append(tr(key)).withStyle(s -> s.withColor(0xFF8AB4F8)));
+				out.add(tr("text.dragonminez.questenemypreview.f11efe9e74").append(tr(key)).withStyle(s -> s.withColor(0xFF8AB4F8)));
 			}
 		}
 		int[] combos = dbz.getAllowedCombos();
@@ -325,7 +325,7 @@ public class QuestEnemyPreview {
 				if (type == null) continue;
 				String key = "gui.dragonminez.quest_tree.preview.combo." + type.name().toLowerCase();
 				if (seen.add(key)) {
-					out.add(txt("• ").append(tr(key)).withStyle(s -> s.withColor(0xFFF08A8A)));
+					out.add(tr("text.dragonminez.questenemypreview.f11efe9e74").append(tr(key)).withStyle(s -> s.withColor(0xFFF08A8A)));
 				}
 			}
 		}
@@ -423,7 +423,7 @@ public class QuestEnemyPreview {
 	}
 
 	private MutableComponent stat(String key, String value, int valueColor) {
-		return tr(key).append(txt(": ").withStyle(s -> s.withColor(0xFFAAAAAA)))
+		return tr(key).append(tr("text.dragonminez.questenemypreview.45822f54a0").withStyle(s -> s.withColor(0xFFAAAAAA)))
 				.append(txt(value).withStyle(s -> s.withColor(valueColor)));
 	}
 
@@ -467,6 +467,6 @@ public class QuestEnemyPreview {
 	}
 
 	private MutableComponent txt(String text) {
-		return Component.literal(text).withStyle(Style.EMPTY.withFont(DMZ_FONT));
+		return com.dragonminez.api.lang.ConfigTranslations.text(text).withStyle(Style.EMPTY.withFont(DMZ_FONT));
 	}
 }

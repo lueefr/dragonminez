@@ -31,6 +31,9 @@ public final class JsonSchema {
 			if (isComment(key)) continue;
 			Field field = fields.get(key);
 			if (field == null) {
+                if(type==com.dragonminez.common.config.FormConfig.FormData.class &&
+                        com.dragonminez.common.config.schema.ContentSchema.paths(com.dragonminez.common.config.schema.ContentSchema.Kind.FORM)
+                            .getOrDefault(key,"").startsWith("legacy."))continue;
 				if (!removed.contains(key)) JsonLoadReport.error(source, file, "unknown field '" + key + "'" + at(path) + " (ignored)");
 				continue;
 			}

@@ -202,7 +202,7 @@ public final class HudRender {
 	}
 
 	public static net.minecraft.network.chat.MutableComponent dmz(String text) {
-		return net.minecraft.network.chat.Component.literal(text).withStyle(net.minecraft.network.chat.Style.EMPTY.withFont(DMZ_FONT));
+		return com.dragonminez.api.lang.ConfigTranslations.text(text).withStyle(net.minecraft.network.chat.Style.EMPTY.withFont(DMZ_FONT));
 	}
 
 	public static net.minecraft.network.chat.MutableComponent dmz(net.minecraft.network.chat.Component text) {

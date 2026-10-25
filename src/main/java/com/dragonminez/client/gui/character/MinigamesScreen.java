@@ -52,7 +52,7 @@ public class MinigamesScreen extends BaseMenuScreen {
 	private CustomTextureButton shadowIncBtn;
 
 	public MinigamesScreen() {
-		super(Component.literal("hub"));
+		super(net.minecraft.network.chat.Component.translatable("text.dragonminez.minigamesscreen.08d33503ee"));
 	}
 
 	@Override
@@ -254,7 +254,7 @@ public class MinigamesScreen extends BaseMenuScreen {
 				renderDescription(graphics, rightPanelX, rightPanelY, 142, mouseX, mouseY);
 			} else {
 				TrainingConfig trainingConfig = ConfigManager.getTrainingConfig();
-				Component learnLine = tr("gui.dragonminez.minigames.learn").append(" ").append(tr("entity.dragonminez.questnpc." + master(selectedIndex)));
+				Component learnLine = tr("gui.dragonminez.minigames.learn").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9")).append(tr("entity.dragonminez.questnpc." + master(selectedIndex)));
 				Component progressLine = tr("gui.dragonminez.minigames.learn_progress", clientLearnRuns(MINIGAMES[selectedIndex]),
 						Math.max(1, trainingConfig.getLearnRequiredRuns()), Math.max(1, trainingConfig.getLearnRequiredLevel()));
 				int wrapWidth = (int) (118 / 0.75f);

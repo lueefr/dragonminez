@@ -124,7 +124,7 @@ public class GravityDeviceScreen extends AbstractContainerScreen<GravityDeviceMe
 		int y = (height - imageHeight) / 2;
 		if (pMouseX >= x + 154 && pMouseX <= x + 166 && pMouseY >= y + 16 && pMouseY <= y + 68) {
 			guiGraphics.renderTooltip(this.font,
-					Component.literal(menu.getEnergy() + " / " + menu.getMaxEnergy() + " Star Energy"),
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.gravitydevicescreen.ef8ae071ea" , menu.getEnergy(), menu.getMaxEnergy()),
 					pMouseX, pMouseY);
 		}
 	}

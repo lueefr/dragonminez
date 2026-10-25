@@ -27,17 +27,15 @@ public class DataReportEvents {
 		long errors = JsonLoadReport.count(JsonLoadReport.Kind.ERROR);
 		long updates = JsonLoadReport.count(JsonLoadReport.Kind.UPDATE);
 
-		player.sendSystemMessage(Component.literal("§6§l[DragonMineZ]§r §eJSON load report — §c"
-				+ errors + " problem(s)§e, " + updates + " auto-update(s):"));
+		player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.datareportevents.d6d74eb2bc" , errors, updates));
 
 		int shown = 0;
 		shown = appendLines(player, entries, JsonLoadReport.Kind.ERROR, "§c [!] §f", shown);
 		shown = appendLines(player, entries, JsonLoadReport.Kind.UPDATE, "§e [~] §f", shown);
 		if (entries.size() > shown) {
-			player.sendSystemMessage(Component.literal("§7 …and " + (entries.size() - shown) + " more — see the server log."));
+			player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.datareportevents.b664cc3f30" , (entries.size() - shown)));
 		}
-		player.sendSystemMessage(Component.literal(
-				"§7Fix the file(s) and run §f/dmzreload§7. Silence this with §fdeveloper.reportJsonProblemsInChat = false§7."));
+		player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.datareportevents.cf910ad0b5"));
 	}
 
 	private static int appendLines(ServerPlayer player, List<JsonLoadReport.Entry> entries,
@@ -45,7 +43,7 @@ public class DataReportEvents {
 		for (JsonLoadReport.Entry entry : entries) {
 			if (entry.kind() != kind) continue;
 			if (shown >= MAX_LINES) break;
-			player.sendSystemMessage(Component.literal(prefix + entry.file() + " §7— " + entry.message()));
+			player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.datareportevents.cb2a0af13a" , prefix + entry.file(), entry.message()));
 			shown++;
 		}
 		return shown;

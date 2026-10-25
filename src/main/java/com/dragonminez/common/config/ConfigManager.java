@@ -39,6 +39,9 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class ConfigManager {
+    private static volatile long formConfigGeneration;
+    public static long getFormConfigGeneration() { return formConfigGeneration; }
+
 	public static final String CONFIG_VERSION = "2.2.0";
 	public static final String CLIENT_ONLY_CONFIG = "general-user";
 
@@ -49,6 +52,7 @@ public class ConfigManager {
 	private static final double DEFENSE_SCALING_FOLD_VERSION = 21.2;
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().setLenient()
+            .registerTypeAdapterFactory(new com.dragonminez.common.config.schema.ContentAdapters())
 			.registerTypeAdapter(RaceCharacterConfig.FormSkillCost.class, new RaceCharacterConfig.FormSkillCost.Adapter())
 			.create();
 	private static final ConfigLoader LOADER = new ConfigLoader(GSON);
@@ -85,6 +89,8 @@ public class ConfigManager {
 		private Map<String, RaceCharacterConfig> character = new HashMap<>();
 		private Map<String, FormConfig> stackForms = new HashMap<>();
 		private EntitiesConfig entities;
+        private RuleConfig rules = new RuleConfig();
+        private Map<String, Map<String, String>> translations = new HashMap<>();
 	}
 
 	public record SyncPayload(String path, byte[] data) {}
@@ -103,11 +109,16 @@ public class ConfigManager {
 	private static SkillsConfig skillsConfig;
 	private static TechniqueConfig techniqueConfig;
 	private static EntitiesConfig entitiesConfig;
+    private static final Map<String,Map<String,FormConfig>> SAFE_DEFAULT_FORMS=new HashMap<>();
+    private static final Map<String,FormConfig> SAFE_DEFAULT_STACKS=new HashMap<>();
+    private static RuleConfig rulesConfig = new RuleConfig();
+    public static RuleConfig getRulesConfig() { return useServerSync() ? SYNCED.rules : rulesConfig; }
 
 	public static void initialize() {
 		LogUtil.info(Env.COMMON, "Initializing DragonMineZ configuration system...");
 		invalidateSyncPayloads();
 		JsonLoadReport.clear("config");
+        com.dragonminez.common.config.schema.ContentMigration.begin();
 
 		try {
 			Files.createDirectories(CONFIG_DIR);
@@ -118,6 +129,9 @@ public class ConfigManager {
 			createOrLoadStackForms(true);
 			loadRaids();
 			loadTournaments();
+            loadExtensionConfigs();
+            validateFormComposition();
+            if(com.dragonminez.api.rules.Conditions.ready())com.dragonminez.common.config.schema.ContentMigration.commitPending();
 
 			LogUtil.info(Env.COMMON, "Configuration system initialized successfully");
 			LogUtil.info(Env.COMMON, "Loaded races: {}", LOADED_RACES);
@@ -130,6 +144,7 @@ public class ConfigManager {
 		LogUtil.info(Env.COMMON, "Reloading DragonMineZ configuration system...");
 		invalidateSyncPayloads();
 		JsonLoadReport.clear("config");
+        com.dragonminez.common.config.schema.ContentMigration.begin();
 
 		try {
 			RACE_STATS.clear();
@@ -145,11 +160,66 @@ public class ConfigManager {
 			createOrLoadStackForms(true);
 			loadRaids();
 			loadTournaments();
+            loadExtensionConfigs();
+            validateFormComposition();
+            if(com.dragonminez.api.rules.Conditions.ready())com.dragonminez.common.config.schema.ContentMigration.commitPending();
 			LogUtil.info(Env.COMMON, "Configuration system reloaded successfully");
 		} catch (IOException e) {
 			LogUtil.error(Env.COMMON, "Error reloading configuration system: {}", e.getMessage());
 		}
 	}
+
+    private static void loadExtensionConfigs()throws IOException{
+        try{com.dragonminez.api.lang.ConfigTranslations.INSTANCE.reload(CONFIG_DIR.resolve("lang"));}
+        catch(RuntimeException ex){LogUtil.error(Env.COMMON,"Invalid config translations: {}. Originals left untouched.",ex.getMessage());}
+        try{com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.reload(CONFIG_DIR);}
+        catch(RuntimeException ex){com.dragonminez.common.config.schema.ContentMigration.begin();LogUtil.error(Env.COMMON,"Invalid custom NPC configuration: {}. Originals left untouched.",ex.getMessage());}
+        try{rulesConfig=RuleConfig.load(CONFIG_DIR.resolve("rules.json"));}
+        catch(RuntimeException ex){rulesConfig=new RuleConfig();com.dragonminez.common.config.schema.ContentMigration.begin();LogUtil.error(Env.COMMON,"Invalid rules configuration: {}. Using defaults; original left untouched.",ex.getMessage());}
+    }
+
+    public static void validateExtensionRules() {
+        com.dragonminez.api.rules.Conditions.finishRegistration();
+        try{RuleConfig.parse(GSON.toJson(rulesConfig));}
+        catch(RuntimeException ex){
+            rulesConfig=new RuleConfig();com.dragonminez.common.config.schema.ContentMigration.begin();
+            LogUtil.error(Env.COMMON,"Invalid extension rules: {}. Using defaults; original left untouched.",ex.getMessage());
+        }
+        validateFormComposition();
+        try{com.dragonminez.common.config.schema.ContentMigration.commitPending();}
+        catch(IOException ex){throw new IllegalStateException("Content migration failed; original backups retained",ex);}
+    }
+
+    private static void validateFormComposition() {
+        boolean[] invalid={false};
+        RACE_FORMS.forEach((race, groups) -> {
+            try {
+            var definitions = new ArrayList<com.dragonminez.api.forms.FormCompositionResolver.Definition>();
+            java.util.function.BiConsumer<String, FormConfig> collect = (groupId, config) -> config.getForms().values().forEach(form -> {
+                com.dragonminez.api.rules.Conditions.validate(form.getBuy());
+                com.dragonminez.api.rules.Conditions.validate(form.getUse());
+                com.dragonminez.api.forms.FormVisuals.validate(form.getVisual());
+                if(Boolean.FALSE.equals(form.getEditHair()) && !form.hasHairCodeOverride() && !"none".equals(form.getHairType()))throw new IllegalArgumentException("editHair:false requires forcedHairCode or hairType:none for "+groupId+"."+form.getName());
+                if (form.getCompletedContentRequisites() != null) form.getCompletedContentRequisites().forEach(com.dragonminez.api.content.ContentProgress::requireId);
+                definitions.add(com.dragonminez.api.forms.FormCompositionRuntime.definition(groupId, form));
+            });
+            groups.forEach(collect);
+            STACK_FORMS.forEach(collect);
+            try { new com.dragonminez.api.forms.FormCompositionResolver().reload(definitions); }
+            catch (IllegalArgumentException ex) { throw new IllegalArgumentException("Invalid forms for race " + race + ": " + ex.getMessage(), ex); }
+            }catch(RuntimeException ex){
+                LogUtil.error(Env.COMMON,"Invalid form configuration for '{}': {}. Using bundled defaults; originals left untouched.",race,ex.getMessage());
+                JsonLoadReport.error("config","races/"+race+"/forms",ex.getMessage());
+                invalid[0]=true;
+            }
+        });
+        if(invalid[0]){
+            com.dragonminez.common.config.schema.ContentMigration.begin();
+            STACK_FORMS.clear();STACK_FORMS.putAll(SAFE_DEFAULT_STACKS);
+            RACE_FORMS.replaceAll((race,groups)->new LinkedHashMap<>(SAFE_DEFAULT_FORMS.getOrDefault(race,Map.of())));
+            LogUtil.error(Env.COMMON,"Form graph validation failed: all form groups use bundled defaults this session; no pending content migrations were written.");
+        }
+    }
 
 	private static void loadRaids() throws IOException {
 		RAIDS.clear();
@@ -401,7 +471,7 @@ public class ConfigManager {
 				try {
 					LOADER.saveDefaultFromTemplate(path, templateName);
 					config = LOADER.loadConfig(path, clazz);
-					if (isOutdated(versionGetter.apply(config))) overwrite = true;
+					overwrite = isOutdated(versionGetter.apply(config));
 				} catch (Exception e) {
 					reason = "Template loading failed: " + e.getMessage();
 				}
@@ -715,7 +785,13 @@ public class ConfigManager {
 
 	private static void saveWithAddedDefaults(Path path, Object config) {
 		LogUtil.warn(Env.COMMON, "Added missing default entries to {}", path.getFileName());
-		try { LOADER.saveConfig(path, config); } catch (Exception e) {
+        try {
+            var kind=com.dragonminez.common.config.schema.ContentAdapters.kind(config.getClass());
+            if(kind!=null && Files.exists(path)) {
+                com.dragonminez.common.config.schema.ContentMigration.update(path,kind,
+                        com.dragonminez.common.config.schema.ContentSchema.decode(kind,GSON.toJsonTree(config).getAsJsonObject()));
+            } else LOADER.saveConfig(path, config);
+        } catch (Exception e) {
 			LogUtil.error(Env.COMMON, "Failed to save {} after adding missing defaults: {}", path.getFileName(), e.getMessage());
 		}
 	}
@@ -730,7 +806,7 @@ public class ConfigManager {
 
 		if (skillsConfig != null && characterConfig.normalizeFormSkillKeys(skillsConfig.getFormSkills())) {
 			LogUtil.warn(Env.COMMON, "Normalized legacy form-skill keys in character.json for race '{}'", raceName);
-			try { LOADER.saveConfig(racePath.resolve("character.json"), characterConfig); } catch (Exception e) {
+			try { saveWithAddedDefaults(racePath.resolve("character.json"), characterConfig); } catch (Exception e) {
 				LogUtil.error(Env.COMMON, "Failed to save normalized character.json for race '{}': {}", raceName, e.getMessage());
 			}
 		}
@@ -749,7 +825,7 @@ public class ConfigManager {
 				folded = true;
 			}
 			if (folded) {
-				try { LOADER.saveConfig(statsPath, statsConfig); } catch (Exception e) {
+				try { saveWithAddedDefaults(statsPath, statsConfig); } catch (Exception e) {
 					LogUtil.error(Env.COMMON, "Failed to save migrated stats.json for race '{}': {}", raceName, e.getMessage());
 				}
 				LogUtil.warn(Env.COMMON, "Migrated user-modified DEF_scaling to flat-defense units for race '{}'", raceName);
@@ -757,7 +833,10 @@ public class ConfigManager {
 		}
 
 		Map<String, FormConfig> raceForms = new HashMap<>();
-		if (isDefault) FORMS_FACTORY.createDefaultFormsForRace(raceName, formsPath, raceForms);
+		if (isDefault) {
+            FORMS_FACTORY.createDefaultFormsForRace(raceName, formsPath, raceForms);
+            SAFE_DEFAULT_FORMS.put(raceName,new LinkedHashMap<>(raceForms));
+        }
 		if (isDefault) backupRenamedDefaultForms(formsPath, raceForms);
 		upgradeUserFormFiles(formsPath, raceForms);
 		Map<String, FormConfig> userDiskForms = LOADER.loadRaceForms(raceName, formsPath);
@@ -797,7 +876,10 @@ public class ConfigManager {
 	private static void createOrLoadStackForms(boolean isDefault) throws IOException {
 		Files.createDirectories(STACK_FORMS_DIR);
 		Map<String, FormConfig> finalStackForms = new HashMap<>();
-		if (isDefault) FORMS_FACTORY.createDefaultStackForms(STACK_FORMS_DIR, finalStackForms);
+		if (isDefault) {
+            FORMS_FACTORY.createDefaultStackForms(STACK_FORMS_DIR, finalStackForms);
+            SAFE_DEFAULT_STACKS.clear();SAFE_DEFAULT_STACKS.putAll(finalStackForms);
+        }
 		if (isDefault) backupRenamedDefaultForms(STACK_FORMS_DIR, finalStackForms);
 		upgradeUserFormFiles(STACK_FORMS_DIR, finalStackForms);
 		Map<String, FormConfig> userDiskForms = LOADER.loadStackForms(STACK_FORMS_DIR);
@@ -1515,8 +1597,16 @@ public class ConfigManager {
 		} else if (configFilePath.startsWith("forms/")) {
 			FormConfig formConfig = LOADER.loadConfig(path, FormConfig.class);
 			STACK_FORMS.put(formGroupKey(formConfig, configFilePath.split("/")[1]), formConfig);
-		}
-	}
+        } else if (configFilePath.equals("rules")) {
+            rulesConfig = RuleConfig.load(CONFIG_DIR.resolve("rules.json"));
+        } else if (configFilePath.startsWith("lang/")) {
+            com.dragonminez.api.lang.ConfigTranslations.INSTANCE.reload(CONFIG_DIR.resolve("lang"));
+        } else if (configFilePath.startsWith("custom_npcs/") || configFilePath.startsWith("custom_npc_placements/")) {
+            com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.reload(CONFIG_DIR);
+            rulesConfig = RuleConfig.load(CONFIG_DIR.resolve("rules.json"));
+        }
+        validateFormComposition();
+    }
 
 	public static boolean saveRawConfig(String configFilePath, String json) {
 		try {
@@ -1557,7 +1647,7 @@ public class ConfigManager {
 	public static List<String> getEditorConfigFiles() {
 		if (!isViewingRemoteServerConfig()) return new ArrayList<>(getAvailableConfigFiles());
 		SyncedConfigs synced = SYNCED;
-		List<String> files = new ArrayList<>(List.of("general-server", "combat", "training", "skills", "techniques", "entities", CLIENT_ONLY_CONFIG, HudLayoutConfig.FILE_NAME));
+		List<String> files = new ArrayList<>(List.of("general-server", "combat", "training", "skills", "techniques", "entities", "rules", CLIENT_ONLY_CONFIG, HudLayoutConfig.FILE_NAME));
 		synced.character.keySet().forEach(race -> files.add("races/" + race + "/character"));
 		synced.stats.keySet().forEach(race -> files.add("races/" + race + "/stats"));
 		synced.forms.forEach((race, groups) -> groups.keySet().forEach(group -> files.add("races/" + race + "/forms/" + group)));
@@ -1575,6 +1665,7 @@ public class ConfigManager {
 			case "skills" -> synced.skills;
 			case "techniques" -> synced.techniques;
 			case "entities" -> synced.entities;
+            case "rules" -> synced.rules;
 			default -> null;
 		};
 		String[] parts = configFilePath.split("/");
@@ -1597,6 +1688,7 @@ public class ConfigManager {
 	}
 
 	private static void invalidateSyncPayloads() {
+        formConfigGeneration++;
 		cachedSyncPayloads = null;
 	}
 
@@ -1609,6 +1701,7 @@ public class ConfigManager {
 		addSyncPayload(payloads, "general-server", GSON.toJson(server));
 		addSyncPayload(payloads, "combat", GSON.toJson(combatConfig != null ? combatConfig : DefaultConfigs.COMBAT));
 		addSyncPayload(payloads, "training", GSON.toJson(trainingConfig != null ? trainingConfig : DefaultConfigs.TRAINING));
+		addSyncPayload(payloads, "rules", GSON.toJson(rulesConfig));
 		addSyncPayload(payloads, "skills", GSON.toJson(skillsConfig != null ? skillsConfig : DefaultConfigs.SKILLS));
 		addSyncPayload(payloads, "techniques", GSON.toJson(techniqueConfig != null ? techniqueConfig : DefaultConfigs.TECHNIQUES));
 		addSyncPayload(payloads, "entities", GSON.toJson(entitiesConfig != null ? entitiesConfig : DefaultConfigs.ENTITIES));
@@ -1627,6 +1720,8 @@ public class ConfigManager {
 		for (Map.Entry<String, FormConfig> entry : STACK_FORMS.entrySet()) {
 			if (entry.getValue() != null) addSyncPayload(payloads, "forms/" + entry.getKey(), GSON.toJson(entry.getValue()));
 		}
+        com.dragonminez.api.lang.ConfigTranslations.INSTANCE.localSnapshot().forEach((locale, values) ->
+                addSyncPayload(payloads, "lang/" + locale, GSON.toJson(values)));
 		List<SyncPayload> result = List.copyOf(payloads);
 		cachedSyncPayloads = result;
 		return result;
@@ -1657,6 +1752,7 @@ public class ConfigManager {
 			if (configFilePath.equals("general-server")) target.generalServer = GSON.fromJson(json, GeneralServerConfig.class);
 			else if (configFilePath.equals("combat")) target.combat = GSON.fromJson(json, CombatConfig.class);
 			else if (configFilePath.equals("training")) target.training = GSON.fromJson(json, TrainingConfig.class);
+			else if (configFilePath.equals("rules")) target.rules = RuleConfig.parse(json);
 			else if (configFilePath.equals("skills")) target.skills = GSON.fromJson(json, SkillsConfig.class);
 			else if (configFilePath.equals("techniques")) target.techniques = GSON.fromJson(json, TechniqueConfig.class);
 			else if (configFilePath.equals("entities")) target.entities = GSON.fromJson(json, EntitiesConfig.class);
@@ -1672,6 +1768,9 @@ public class ConfigManager {
 					FormConfig formConfig = GSON.fromJson(json, FormConfig.class);
 					target.forms.computeIfAbsent(raceName, k -> new HashMap<>()).put(formGroupKey(formConfig, parts[3]), formConfig);
 				}
+            } else if (configFilePath.startsWith("lang/")) {
+                String locale = com.dragonminez.api.lang.ConfigTranslations.requireLocale(configFilePath.substring(5));
+                target.translations.put(locale, com.dragonminez.api.lang.ConfigTranslations.parse(json));
 			} else if (configFilePath.startsWith("forms/")) {
 				FormConfig formConfig = GSON.fromJson(json, FormConfig.class);
 				target.stackForms.put(formGroupKey(formConfig, configFilePath.split("/")[1]), formConfig);
@@ -1688,13 +1787,17 @@ public class ConfigManager {
 
 	private static void commitServerSyncBatch() {
 		if (pendingSync == null) return;
+        formConfigGeneration++;
 		SYNCED = pendingSync;
+        com.dragonminez.api.lang.ConfigTranslations.INSTANCE.replaceRemote(SYNCED.translations);
 		pendingSync = null;
 		syncClientThread = Thread.currentThread();
 		serverSyncActive = true;
 	}
 
 	public static void clearServerSync() {
+        com.dragonminez.api.lang.ConfigTranslations.INSTANCE.clearRemote();
+        formConfigGeneration++;
 		pendingSync = null;
 		SYNCED = new SyncedConfigs();
 		serverSyncActive = false;

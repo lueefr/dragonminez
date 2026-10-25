@@ -619,8 +619,8 @@ public class SkillsConfig {
 		boolean first = true;
 		for (String race : races) {
 			if (race == null || race.isBlank()) continue;
-			if (!first) out.append(", ");
-			out.append(Component.translatableWithFallback("race.dragonminez." + race.toLowerCase(Locale.ROOT), race));
+			if (!first) out.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.0a07f65946"));
+			out.append(Component.translatable("race.dragonminez." + race.toLowerCase(Locale.ROOT)));
 			first = false;
 		}
 		return out;

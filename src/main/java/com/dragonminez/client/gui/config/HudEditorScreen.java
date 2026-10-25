@@ -348,10 +348,10 @@ public class HudEditorScreen extends Screen {
 
 		if (isSelected || hovered) {
 			String label = Component.translatable(element.translationKey()).getString()
-					+ (box.hotbar() ? "" : String.format(Locale.ROOT, "  x%.2f", box.scale() / HudLayout.unit(element, this.height)))
+					+ (box.hotbar() ? "" : net.minecraft.network.chat.Component.translatable("text.dragonminez.format.0d1a581f8b", String.format(Locale.ROOT, "%.2f", box.scale() / HudLayout.unit(element, this.height))).getString())
 					+ (box.visible() ? "" : "  -");
 			int labelY = y0 - 10 >= 0 ? y0 - 10 : y1 + 2;
-			MutableComponent labelText = Component.literal(label).withStyle(Style.EMPTY.withFont(DMZ_FONT));
+			MutableComponent labelText = com.dragonminez.api.lang.ConfigTranslations.text(label).withStyle(Style.EMPTY.withFont(DMZ_FONT));
 			TextUtil.drawStringWithBorder(graphics, this.font, labelText, Mth.clamp(x0, 0, Math.max(0, this.width - this.font.width(labelText))), labelY, color);
 		}
 		if (isSelected) {

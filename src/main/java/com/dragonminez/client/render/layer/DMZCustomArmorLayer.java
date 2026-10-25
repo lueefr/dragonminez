@@ -360,7 +360,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
             if (itemRegistryName != null) domain = itemRegistryName.getNamespace();
         }
         String typeSuffix = (type == null || type.isEmpty()) ? "" : "_" + type;
-        String textureLocation = String.format("%s:textures/models/armor/%s_layer_1%s.png", domain, materialName, typeSuffix);
+        String textureLocation = net.minecraft.network.chat.Component.translatable("text.dragonminez.format.6e0f4b1387", domain, materialName, typeSuffix).getString();
         return ResourceLocation.parse(textureLocation);
     }
 

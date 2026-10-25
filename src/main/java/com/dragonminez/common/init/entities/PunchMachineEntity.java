@@ -7,6 +7,10 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.Holder;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -33,6 +37,7 @@ public class PunchMachineEntity extends Mob implements GeoEntity {
         super(pEntityType, pLevel);
         this.setNoAi(true);
         this.setPersistenceRequired();
+        if (!pLevel.isClientSide) maintainProtection();
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -64,6 +69,33 @@ public class PunchMachineEntity extends Mob implements GeoEntity {
 		return super.hurt(source, amount);
     }
 
+    @Override
+    protected void actuallyHurt(DamageSource source, float amount) {
+        // Keep LivingIncomingDamageEvent (damage readings and training rewards),
+        // but never commit damage, including sources that bypass resistance.
+    }
+
+    @Override
+    public void tick() {
+        if (!this.level().isClientSide) maintainProtection();
+        super.tick();
+    }
+
+    private void maintainProtection() {
+        ensureProtection(MobEffects.DAMAGE_RESISTANCE);
+        ensureProtection(MobEffects.REGENERATION);
+        if (this.isAlive() && this.getHealth() < this.getMaxHealth()) this.setHealth(this.getMaxHealth());
+    }
+
+    private void ensureProtection(Holder<MobEffect> effect) {
+        MobEffectInstance current = this.getEffect(effect);
+        if (current == null || current.getAmplifier() != 254 || !current.isInfiniteDuration()
+                || current.isVisible() || current.showIcon()) {
+            this.removeEffect(effect);
+            this.addEffect(new MobEffectInstance(effect, MobEffectInstance.INFINITE_DURATION, 254, false, false, false));
+        }
+    }
+
 	public void processHit(float damage, Player attacker) {
 		long currentTime = System.currentTimeMillis();
 
@@ -86,8 +118,9 @@ public class PunchMachineEntity extends Mob implements GeoEntity {
 
 		spawnDamageIndicator(damage);
 
-		String msg = String.format("DMG: %.1f | DPS: %.1f", damage, dps);
-		attacker.displayClientMessage(Component.literal(msg).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), true);
+		attacker.displayClientMessage(Component.translatable("message.dragonminez.training.damage",
+                String.format(java.util.Locale.ROOT,"%.1f",damage),String.format(java.util.Locale.ROOT,"%.1f",dps))
+                .withStyle(ChatFormatting.GOLD,ChatFormatting.BOLD),true);
 	}
 
 	private void spawnDamageIndicator(float damage) {
@@ -98,7 +131,7 @@ public class PunchMachineEntity extends Mob implements GeoEntity {
 		indicator.setWaitTime(0);
 
 		String dmgText = String.format("%.0f", damage);
-		indicator.setCustomName(Component.literal(dmgText).withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
+		indicator.setCustomName(com.dragonminez.api.lang.ConfigTranslations.text(dmgText).withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
 		indicator.setCustomNameVisible(true);
 
 		this.level().addFreshEntity(indicator);

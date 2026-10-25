@@ -37,10 +37,35 @@ public class LocateCommand {
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(Commands.literal("dmzlocate")
 				.requires(source -> DMZPermissions.hasPermission(source, DMZPermissions.LOCATE))
+                .then(Commands.literal("npc").then(Commands.argument("id", net.minecraft.commands.arguments.ResourceLocationArgument.id())
+                    .suggests((context,builder) -> SharedSuggestionProvider.suggest(com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.definitions().keySet(),builder))
+                    .executes(context -> locateNpc(context.getSource(),net.minecraft.commands.arguments.ResourceLocationArgument.getId(context,"id").toString()))))
 				.then(Commands.argument("structure", StringArgumentType.string())
 						.suggests(SUGGESTIONS)
 						.executes(context -> locateByName(context.getSource(), StringArgumentType.getString(context, "structure")))));
 	}
+
+    /** Checks loaded entities, then configured placements; never forces chunks to load. */
+    public static int locateNpc(CommandSourceStack source,String id) {
+        var registry=com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE;
+        if(registry.get(id).isEmpty()) {source.sendFailure(Component.translatable("command.dragonminez.locate.invalid",id));return 0;}
+        record Found(ServerLevel level,BlockPos position) {}
+        java.util.List<Found> loaded=new java.util.ArrayList<>(),placed=new java.util.ArrayList<>();
+        for(var level:source.getServer().getAllLevels()) for(var entity:level.getAllEntities()) {
+            if(entity instanceof com.dragonminez.common.init.entities.questnpc.CustomNpcEntity npc && npc.isAlive() && npc.getNpcId().equals(id)) loaded.add(new Found(level,npc.blockPosition()));
+        }
+        for(var placement:registry.placements().values()) if(placement.npc().equals(id)) {
+            var key=ResourceKey.create(Registries.DIMENSION,ResourceLocation.parse(placement.dimension()));
+            var level=source.getServer().getLevel(key);
+            if(level!=null)placed.add(new Found(level,BlockPos.containing(placement.x(),placement.y(),placement.z())));
+        }
+        var sameLoaded=loaded.stream().filter(f->f.level()==source.getLevel()).toList();
+        var samePlaced=placed.stream().filter(f->f.level()==source.getLevel()).toList();
+        var candidates=!sameLoaded.isEmpty()?sameLoaded:!samePlaced.isEmpty()?samePlaced:!loaded.isEmpty()?loaded:placed;
+        var found=candidates.stream().min(java.util.Comparator.comparingDouble(f->f.position().distToCenterSqr(source.getPosition()))).orElse(null);
+        if(found==null){source.sendFailure(Component.translatable("command.dragonminez.locate.not_found",id));return 0;}
+        return sendFound(source,found.level(),BlockPos.containing(source.getPosition()),found.position(),id+" ("+found.level().dimension().location()+")",found.position().getY());
+    }
 
 	private static int locateByName(CommandSourceStack source, String name) {
 		ResourceLocation id = name.indexOf(':') >= 0
@@ -87,16 +112,16 @@ public class LocateCommand {
 								 String structName, int tpY) {
 		int distance = StructureLocator.getDistanceTo(from, foundPos);
 		Component coordComponent = ComponentUtils.wrapInSquareBrackets(
-				Component.literal(foundPos.getX() + ", ~, " + foundPos.getZ())
+				net.minecraft.network.chat.Component.translatable("text.dragonminez.locatecommand.308ce7a605" , foundPos.getX(), foundPos.getZ())
 		).withStyle(style -> style
 				.withColor(ChatFormatting.GREEN)
 				.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/execute in " + level.dimension().location() + " run tp @s " + foundPos.getX() + " " + tpY + " " + foundPos.getZ()))
-				.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click -> TP")))
+				.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, net.minecraft.network.chat.Component.translatable("text.dragonminez.locatecommand.d88fc33a08")))
 		);
 
 		source.sendSuccess(() -> Component.translatable(
 				"command.dragonminez.locate.success",
-				Component.literal(structName).withStyle(ChatFormatting.YELLOW),
+				com.dragonminez.api.lang.ConfigTranslations.text(structName).withStyle(ChatFormatting.YELLOW),
 				coordComponent,
 				distance), false);
 

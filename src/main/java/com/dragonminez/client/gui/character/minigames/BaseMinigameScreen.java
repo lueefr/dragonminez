@@ -898,7 +898,7 @@ public abstract class BaseMinigameScreen extends Screen {
 	}
 
 	protected static MutableComponent dmz(String text) {
-		return Component.literal(text).withStyle(Style.EMPTY.withFont(DMZ_FONT));
+		return com.dragonminez.api.lang.ConfigTranslations.text(text).withStyle(Style.EMPTY.withFont(DMZ_FONT));
 	}
 
 	protected MutableComponent tr(String key, Object... args) {

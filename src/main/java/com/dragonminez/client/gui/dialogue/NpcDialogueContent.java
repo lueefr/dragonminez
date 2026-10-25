@@ -375,7 +375,7 @@ final class NpcDialogueContent {
 			if (!builder.isEmpty()) builder.append(' ');
 			builder.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
 		}
-		return Component.literal(builder.toString()).withStyle(Style.EMPTY.withFont(NpcDialogueScreen.FONT));
+		return com.dragonminez.api.lang.ConfigTranslations.text(builder.toString()).withStyle(Style.EMPTY.withFont(NpcDialogueScreen.FONT));
 	}
 
 	private MutableComponent enmaLine(StatsData stats) {

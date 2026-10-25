@@ -399,7 +399,8 @@ public final class TransformationPostShaderManager {
 			}
 		}
 
-		if (selectedConfig == null) return null;
+		if (!com.dragonminez.api.forms.FormVisuals.flag(data,"outline",selectedConfig!=null)) return null;
+        if (selectedConfig == null) selectedConfig = new FormConfig.FormData.OutlineShaderConfig();
 
 		String signature = character.getRaceName()
 				+ "|" + safe(character.getActiveFormGroup()) + ":" + safe(character.getActiveForm())

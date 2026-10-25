@@ -318,11 +318,11 @@ public class TechniqueStyleScreen extends ScaledScreen {
 		int castTicks = draft.getCast();
 		MutableComponent castValue = castTicks <= 0
 				? tr("gui.dragonminez.skills.creator.instant")
-				: txt(String.format(Locale.ROOT, "%.1fs", castTicks / 20.0f));
+				: txt(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.c142d89262", String.format(Locale.ROOT, "%.1f", castTicks / 20.0f)).getString());
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.cast_time").append(": ").append(castValue), cx, this.panelY + CAST_Y, CAST_COLOR);
+				tr("gui.dragonminez.technique.cast_time").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(castValue), cx, this.panelY + CAST_Y, CAST_COLOR);
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.skills.creator.tp_cost_label").append(" ").append(txt(COST_FORMAT.format(draft.getTpCost()))),
+				tr("gui.dragonminez.skills.creator.tp_cost_label").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9")).append(txt(COST_FORMAT.format(draft.getTpCost()))),
 				cx, this.panelY + COST_Y, draft.canAfford() ? MUTED : DENIED);
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.skills.creator.colors"), cx, this.panelY + COLORS_LABEL_Y, GOLD);

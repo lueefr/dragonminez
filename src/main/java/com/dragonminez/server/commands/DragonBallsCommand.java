@@ -74,7 +74,7 @@ public class DragonBallsCommand {
 					setLink(definition.getId()),
 					finalPlaced,
 					finalPending,
-					Component.literal((finalPlaced + finalPending) + "/" + expected).withStyle(color),
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.dragonballscommand.0afb6c2f70" , (finalPlaced + finalPending), expected).withStyle(color),
 					copies,
 					finalDragons), false);
 			shown++;
@@ -98,8 +98,8 @@ public class DragonBallsCommand {
 		for (ServerLevel level : levels) {
 			DragonBallSavedData data = DragonBallSavedData.get(level);
 			source.sendSuccess(() -> Component.translatable("command.dragonminez.dragonballs.header",
-					Component.literal(definition.getId()).withStyle(ChatFormatting.YELLOW),
-					Component.literal(level.dimension().location().toString()).withStyle(ChatFormatting.AQUA),
+					com.dragonminez.api.lang.ConfigTranslations.text(definition.getId()).withStyle(ChatFormatting.YELLOW),
+					com.dragonminez.api.lang.ConfigTranslations.text(level.dimension().location().toString()).withStyle(ChatFormatting.AQUA),
 					copies), false);
 
 			for (int star : definition.getStars().stream().sorted().toList()) {
@@ -109,17 +109,17 @@ public class DragonBallsCommand {
 				int listed = 0;
 				for (BlockPos pos : active) {
 					if (listed++ >= MAX_LISTED_POSITIONS) break;
-					positions.append(" ").append(positionLink(source, level, pos, true));
+					positions.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9")).append(positionLink(source, level, pos, true));
 				}
 				for (BlockPos pos : pending) {
 					if (listed++ >= MAX_LISTED_POSITIONS) break;
-					positions.append(" ").append(positionLink(source, level, pos, false));
+					positions.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9")).append(positionLink(source, level, pos, false));
 				}
 				int hidden = active.size() + pending.size() - MAX_LISTED_POSITIONS;
-				if (hidden > 0) positions.append(Component.literal(" +" + hidden).withStyle(ChatFormatting.DARK_GRAY));
+				if (hidden > 0) positions.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.dragonballscommand.d7c42231d7" , hidden).withStyle(ChatFormatting.DARK_GRAY));
 				ChatFormatting color = active.size() + pending.size() >= copies ? ChatFormatting.GREEN : ChatFormatting.RED;
 				source.sendSuccess(() -> Component.translatable("command.dragonminez.dragonballs.star",
-						Component.literal(String.valueOf(star)).withStyle(color),
+						com.dragonminez.api.lang.ConfigTranslations.text(String.valueOf(star)).withStyle(color),
 						active.size(),
 						pending.size(),
 						positions), false);
@@ -132,7 +132,7 @@ public class DragonBallsCommand {
 				source.sendSuccess(() -> Component.translatable(loaded
 								? "command.dragonminez.dragonballs.dragon"
 								: "command.dragonminez.dragonballs.dragon_unloaded",
-						Component.literal(String.format("%d:%02d", secondsLeft / 60, secondsLeft % 60)).withStyle(ChatFormatting.YELLOW)), false);
+						com.dragonminez.api.lang.ConfigTranslations.text(String.format("%d:%02d", secondsLeft / 60, secondsLeft % 60)).withStyle(ChatFormatting.YELLOW)), false);
 			}
 		}
 		return 1;
@@ -153,11 +153,11 @@ public class DragonBallsCommand {
 		int added = DragonBallsHandler.regenerateSet(level, setId);
 		if (added == 0) {
 			source.sendSuccess(() -> Component.translatable("command.dragonminez.dragonballs.complete",
-					Component.literal(setId).withStyle(ChatFormatting.YELLOW), definition.getCopies()), true);
+					com.dragonminez.api.lang.ConfigTranslations.text(setId).withStyle(ChatFormatting.YELLOW), definition.getCopies()), true);
 			return 0;
 		}
 		source.sendSuccess(() -> Component.translatable("command.dragonminez.dragonballs.regenerated",
-				added, Component.literal(setId).withStyle(ChatFormatting.YELLOW), definition.getCopies()), true);
+				added, com.dragonminez.api.lang.ConfigTranslations.text(setId).withStyle(ChatFormatting.YELLOW), definition.getCopies()), true);
 		return added;
 	}
 
@@ -175,7 +175,7 @@ public class DragonBallsCommand {
 	}
 
 	private static Component setLink(String setId) {
-		return ComponentUtils.wrapInSquareBrackets(Component.literal(setId)).withStyle(style -> style
+		return ComponentUtils.wrapInSquareBrackets(com.dragonminez.api.lang.ConfigTranslations.text(setId)).withStyle(style -> style
 				.withColor(ChatFormatting.YELLOW)
 				.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/dmzdragonballs status " + setId))
 				.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("command.dragonminez.dragonballs.details_hover"))));
@@ -184,7 +184,7 @@ public class DragonBallsCommand {
 	private static Component positionLink(CommandSourceStack source, ServerLevel level, BlockPos pos, boolean placed) {
 		int tpY = placed ? pos.getY() + 1 : (int) source.getPosition().y;
 		String text = placed ? pos.getX() + ", " + pos.getY() + ", " + pos.getZ() : pos.getX() + ", ?, " + pos.getZ();
-		return ComponentUtils.wrapInSquareBrackets(Component.literal(text)).withStyle(style -> style
+		return ComponentUtils.wrapInSquareBrackets(com.dragonminez.api.lang.ConfigTranslations.text(text)).withStyle(style -> style
 				.withColor(placed ? ChatFormatting.GREEN : ChatFormatting.GRAY)
 				.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/execute in " + level.dimension().location() + " run tp @s " + pos.getX() + " " + tpY + " " + pos.getZ()))
 				.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(placed

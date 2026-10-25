@@ -174,7 +174,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		super.init();
 		activeTabs.clear();
 		activeTabs.add(TabId.PRESET);
-		if (getMaxHairForCurrentState() > 0) activeTabs.add(TabId.HAIR);
+		if (getMaxHairForCurrentState() > 0 || !com.dragonminez.api.forms.FormHair.editable(character.getRaceName()).isEmpty()) activeTabs.add(TabId.HAIR);
 		activeTabs.add(TabId.EYES);
 		activeTabs.add(TabId.FACE);
 		activeTabs.add(TabId.BODY);
@@ -264,7 +264,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 					.size(100, 8)
 					.range(15, 25)
 					.value(Math.round(Math.max(0.75f, Math.min(1.25f, character.getBoobScale())) * 20f))
-					.message(txt("BoobScale"))
+					.message(tr("text.dragonminez.charactercustomizationscreen.fef1744675"))
 					.onValueChange(v -> {
 						float newScale = v / 20f;
 						if (character.getBoobScale() == newScale) return;
@@ -284,7 +284,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		addRenderableWidget(createColorButton(LEFT_PANEL_X + 60, y - 18, "hairColor"));
 		boolean skinPixels = SkinGathererProvider.rendersPlayerSkin(character);
 		if (skinPixels) addRenderableWidget(createPixelEditIcon(LEFT_PANEL_X + LEFT_PANEL_WIDTH - 32, getUiHeight() - 40, PixelEditorScreen.Mode.HAIR));
-		if (HairManager.canUseHair(character)) {
+		if (HairManager.canUseHair(character) || !com.dragonminez.api.forms.FormHair.editable(character.getRaceName()).isEmpty()) {
 			addRenderableWidget(new TexturedTextButton.Builder()
 					.position(skinPixels ? LEFT_PANEL_X + 22 : LEFT_PANEL_X + 33, getUiHeight() - 40)
 					.size(74, 20)
@@ -294,7 +294,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 					.message(tr("gui.dragonminez.customization.edit"))
 					.onPress(btn -> {
 						if (this.minecraft != null) {
-							this.minecraft.setScreen(new HairEditorScreen(this, character));
+							this.minecraft.setScreen(com.dragonminez.client.gui.hair.FormHairScreen.open(this,character));
 						}
 					})
 					.build());
@@ -561,7 +561,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		addRenderableWidget(saturationSlider);
 		addRenderableWidget(valueSlider);
 
-		hexColorField = new EditBox(this.font, sliderX, sliderY + 36, sliderWidth, 12, txt("Hex"));
+		hexColorField = new EditBox(this.font, sliderX, sliderY + 36, sliderWidth, 12, tr("text.dragonminez.charactercustomizationscreen.69493e6f1a"));
 		hexColorField.setMaxLength(7);
 		hexColorField.setResponder(this::onHexFieldChange);
 		addRenderableWidget(hexColorField);
@@ -667,7 +667,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.customization.body_type"), centerX, top + 2, 0xFF9B9B);
 		renderPreviewGrid(graphics, bodyTypeBar, top + 40, character.getMinBodyType(), getCombinedBodyTypeCount(), getCurrentCombinedBodyTypeValue(), PreviewRenderMode.FULL_BODY, false, presetGridRows());
 		if (Character.GENDER_FEMALE.equalsIgnoreCase(character.getGender())) {
-			TextUtil.drawCenteredStringWithBorder(graphics, this.font, txt(tr("gui.dragonminez.customization.chest_size").getString() + " x" + String.format("%.2f", character.getBoobScale())), centerX, top + 150, 0xFF9B9B);
+			TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("text.dragonminez.charactercustomizationscreen.24115e5dc1" , tr("gui.dragonminez.customization.chest_size").getString(), String.format("%.2f", character.getBoobScale())), centerX, top + 150, 0xFF9B9B);
 		}
 		if (shouldRenderFormPreviewInPreset()) {
 			TextUtil.drawCenteredStringWithBorder(graphics, this.font, txt(getCurrentPreviewTransformationName()), centerX, top + 178, 0xFFFFFF);
@@ -788,13 +788,13 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 
 		Component tpGainComp = txt("")
 				.append(Component.translatable("gui.dragonminez.character_stats.tp_multiplier").withStyle(ChatFormatting.AQUA))
-				.append(Component.literal(": ").withStyle(ChatFormatting.AQUA))
-				.append(Component.literal("x" + String.format(Locale.US, "%.2f", tpGain)).withStyle(ChatFormatting.YELLOW));
+				.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.AQUA))
+				.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.f819e4bc8e" , String.format(Locale.US, "%.2f", tpGain)).withStyle(ChatFormatting.YELLOW));
 
 		Component tpCostComp = txt("")
 				.append(Component.translatable("gui.dragonminez.character_stats.tpc_multiplier").withStyle(ChatFormatting.AQUA))
-				.append(Component.literal(": ").withStyle(ChatFormatting.AQUA))
-				.append(Component.literal("x" + String.format(Locale.US, "%.2f", tpCost)).withStyle(ChatFormatting.YELLOW));
+				.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.AQUA))
+				.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.f819e4bc8e" , String.format(Locale.US, "%.2f", tpCost)).withStyle(ChatFormatting.YELLOW));
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tpGainComp, centerX, tpY, 0xFFFFFF);
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tpCostComp, centerX, tpY + 12, 0xFFFFFF);
@@ -809,14 +809,14 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 				title = tr("gui.dragonminez.character_stats.str").withStyle(ChatFormatting.BOLD);
 				desc.add(tr("gui.dragonminez.character_stats.str.desc"));
 				extras.add(tr("gui.dragonminez.customization.stat.scaling").withStyle(ChatFormatting.GRAY)
-						.append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
-						.append(Component.literal(String.format(Locale.US, "%.2f", scaling.getStrengthScaling())).withStyle(ChatFormatting.GREEN)));
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(String.format(Locale.US, "%.2f", scaling.getStrengthScaling())).withStyle(ChatFormatting.GREEN)));
 			} else if (mouseX >= centerX - 15 && mouseX <= centerX + 15) {
 				title = tr("gui.dragonminez.character_stats.skp").withStyle(ChatFormatting.BOLD);
 				desc.add(tr("gui.dragonminez.character_stats.skp.desc"));
 				extras.add(tr("gui.dragonminez.customization.stat.scaling").withStyle(ChatFormatting.GRAY)
-						.append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
-						.append(Component.literal(String.format(Locale.US, "%.2f", scaling.getStrikePowerScaling())).withStyle(ChatFormatting.GREEN)));
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(String.format(Locale.US, "%.2f", scaling.getStrikePowerScaling())).withStyle(ChatFormatting.GREEN)));
 			} else if (mouseX >= centerX + 25 && mouseX <= centerX + 55) {
 				title = tr("gui.dragonminez.character_stats.res").withStyle(ChatFormatting.BOLD);
 				desc.add(tr("gui.dragonminez.character_stats.res.desc"));
@@ -824,15 +824,15 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 				String defScalingText = String.format(Locale.US, "%.2f", scaling.getDefenseScaling())
 						+ (defScalingMax != null ? String.format(Locale.US, " \u2192 %.2f", defScalingMax) : "");
 				extras.add(tr("gui.dragonminez.customization.stat.scaling.def").withStyle(ChatFormatting.GRAY)
-						.append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
-						.append(Component.literal(defScalingText).withStyle(ChatFormatting.GREEN)));
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(defScalingText).withStyle(ChatFormatting.GREEN)));
 				extras.add(tr("gui.dragonminez.customization.stat.scaling.stm").withStyle(ChatFormatting.GRAY)
-						.append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
-						.append(Component.literal(String.format(Locale.US, "%.2f", scaling.getStaminaScaling())).withStyle(ChatFormatting.GREEN)));
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(String.format(Locale.US, "%.2f", scaling.getStaminaScaling())).withStyle(ChatFormatting.GREEN)));
 				extras.add(tr("gui.dragonminez.customization.stat.regen.stm").withStyle(ChatFormatting.GRAY)
-						.append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
-						.append(Component.literal(String.format(Locale.US, "%.1f/s", classStats.getBaseSp5() * 0.2)).withStyle(ChatFormatting.YELLOW))
-						.append(Component.literal(RegenScalingFormat.stamina(classStats)).withStyle(ChatFormatting.DARK_GRAY)));
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.2a959b04d3", String.format(Locale.ROOT, "%.1f", classStats.getBaseSp5() * 0.2)).getString()).withStyle(ChatFormatting.YELLOW))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(RegenScalingFormat.stamina(classStats)).withStyle(ChatFormatting.DARK_GRAY)));
 			}
 		}
 		else if (mouseY >= row2Y && mouseY <= row2Y + 22) {
@@ -843,32 +843,32 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 				String vitScalingText = String.format(Locale.US, "%.2f", scaling.getVitalityScaling())
 						+ (vitScalingMax != null ? String.format(Locale.US, " → %.2f", vitScalingMax) : "");
 				extras.add(tr("gui.dragonminez.customization.stat.scaling.hp").withStyle(ChatFormatting.GRAY)
-						.append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
-						.append(Component.literal(vitScalingText).withStyle(ChatFormatting.GREEN)));
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(vitScalingText).withStyle(ChatFormatting.GREEN)));
 				extras.add(tr("gui.dragonminez.customization.stat.regen.hp").withStyle(ChatFormatting.GRAY)
-						.append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
-						.append(Component.literal(String.format(Locale.US, "%.1f/s", classStats.getBaseHp5() * 0.2)).withStyle(ChatFormatting.YELLOW))
-						.append(Component.literal(" (+" + String.format(Locale.US, "%.2f", classStats.getHp5VitScaling() * 0.2) + "/VIT)").withStyle(ChatFormatting.DARK_GRAY)));
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.2a959b04d3", String.format(Locale.ROOT, "%.1f", classStats.getBaseHp5() * 0.2)).getString()).withStyle(ChatFormatting.YELLOW))
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.6eccfc6258" , String.format(Locale.US, "%.2f", classStats.getHp5VitScaling() * 0.2)).withStyle(ChatFormatting.DARK_GRAY)));
 				extras.add(tr("gui.dragonminez.customization.stat.regen.stm").withStyle(ChatFormatting.GRAY)
-						.append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
-						.append(Component.literal(String.format(Locale.US, "%.1f/s", classStats.getBaseSp5() * 0.2)).withStyle(ChatFormatting.YELLOW))
-						.append(Component.literal(RegenScalingFormat.stamina(classStats)).withStyle(ChatFormatting.DARK_GRAY)));
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.2a959b04d3", String.format(Locale.ROOT, "%.1f", classStats.getBaseSp5() * 0.2)).getString()).withStyle(ChatFormatting.YELLOW))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(RegenScalingFormat.stamina(classStats)).withStyle(ChatFormatting.DARK_GRAY)));
 			} else if (mouseX >= centerX - 15 && mouseX <= centerX + 15) {
 				title = tr("gui.dragonminez.character_stats.pwr").withStyle(ChatFormatting.BOLD);
 				desc.add(tr("gui.dragonminez.character_stats.pwr.desc"));
 				extras.add(tr("gui.dragonminez.customization.stat.scaling").withStyle(ChatFormatting.GRAY)
-						.append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
-						.append(Component.literal(String.format(Locale.US, "%.2f", scaling.getKiPowerScaling())).withStyle(ChatFormatting.GREEN)));
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(String.format(Locale.US, "%.2f", scaling.getKiPowerScaling())).withStyle(ChatFormatting.GREEN)));
 			} else if (mouseX >= centerX + 25 && mouseX <= centerX + 55) {
 				title = tr("gui.dragonminez.character_stats.ene").withStyle(ChatFormatting.BOLD);
 				desc.add(tr("gui.dragonminez.character_stats.ene.desc"));
 				extras.add(tr("gui.dragonminez.customization.stat.scaling.ki").withStyle(ChatFormatting.GRAY)
-						.append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
-						.append(Component.literal(String.format(Locale.US, "%.2f", scaling.getEnergyScaling())).withStyle(ChatFormatting.GREEN)));
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(String.format(Locale.US, "%.2f", scaling.getEnergyScaling())).withStyle(ChatFormatting.GREEN)));
 				extras.add(tr("gui.dragonminez.customization.stat.regen.ki").withStyle(ChatFormatting.GRAY)
-						.append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
-						.append(Component.literal(String.format(Locale.US, "%.1f/s", classStats.getBaseEp5() * 0.2)).withStyle(ChatFormatting.YELLOW))
-						.append(Component.literal(" (+" + String.format(Locale.US, "%.2f", classStats.getEp5EneScaling() * 0.2) + "/ENE)").withStyle(ChatFormatting.DARK_GRAY)));
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.2a959b04d3", String.format(Locale.ROOT, "%.1f", classStats.getBaseEp5() * 0.2)).getString()).withStyle(ChatFormatting.YELLOW))
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.4e0d0fdcbc" , String.format(Locale.US, "%.2f", classStats.getEp5EneScaling() * 0.2)).withStyle(ChatFormatting.DARK_GRAY)));
 			}
 		}
 

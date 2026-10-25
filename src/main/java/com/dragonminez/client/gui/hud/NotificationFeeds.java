@@ -65,7 +65,7 @@ public final class NotificationFeeds {
 		if (quest == null) return null;
 
 		Component title = LocalizationUtil.localizedOrReadable(quest.getTitle());
-		if (title.getString().isBlank()) title = Component.literal(trackedQuestId);
+		if (title.getString().isBlank()) title = com.dragonminez.api.lang.ConfigTranslations.text(trackedQuestId);
 		int timeLeft = remainingTimeSeconds(pqd, trackedQuestId, quest);
 		Component extra = timeLeft >= 0
 				? Component.translatable("gui.dragonminez.story.hud.time_left", formatSeconds(timeLeft))
@@ -104,12 +104,12 @@ public final class NotificationFeeds {
 			int progress = pqd.getObjectiveProgress(questId, i);
 			int required = quest.getObjectiveRequired(pqd, questId, i);
 			if (progress >= required) continue;
-			if (any) text.append("\n");
-			text.append(Component.literal("- "))
+			if (any) text.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.01ba4719c8"));
+			text.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.notificationfeeds.e86dd77a7e"))
 					.append(QuestTextFormatter.describeObjective(objective))
-					.append(Component.literal(" (" + progress + "/" + required + ")"));
+					.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.notificationfeeds.e3556b02d4" , progress, required));
 			Component waypoint = waypointLine(objective, progress);
-			if (waypoint != null) text.append("\n").append(waypoint);
+			if (waypoint != null) text.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.01ba4719c8")).append(waypoint);
 			any = true;
 			if (!quest.isParallelObjectives()) break;
 		}
@@ -135,7 +135,7 @@ public final class NotificationFeeds {
 		double targetYaw = Math.toDegrees(Math.atan2(-dx, dz));
 		double relative = Mth.wrapDegrees(targetYaw - mc.player.getYRot());
 
-		return Component.literal("   " + directionGlyph(relative, ARROWS) + " ")
+		return net.minecraft.network.chat.Component.translatable("text.dragonminez.notificationfeeds.799f605f71" , directionGlyph(relative, ARROWS))
 				.append(Component.translatable("gui.dragonminez.story.hud.waypoint", distance, directionGlyph(targetYaw, CARDINALS)));
 	}
 

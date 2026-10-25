@@ -24,7 +24,7 @@ public final class DebugFileWriter {
 		Minecraft minecraft = Minecraft.getInstance();
 		if (minecraft.player == null) return;
 		if (text == null) {
-			minecraft.player.displayClientMessage(Component.translatable("command.dragonminez.debug.error", "invalid data"), false);
+			minecraft.player.displayClientMessage(Component.translatable("command.dragonminez.debug.error", Component.translatable("text.dragonminez.debug.invalid")), false);
 			return;
 		}
 
@@ -42,7 +42,7 @@ public final class DebugFileWriter {
 		}
 
 		String folder = debugDir.toAbsolutePath().normalize().toString();
-		Component clickablePath = Component.literal(folder)
+		Component clickablePath = com.dragonminez.api.lang.ConfigTranslations.text(folder)
 				.withStyle(style -> style
 						.withColor(ChatFormatting.AQUA)
 						.withUnderlined(true)

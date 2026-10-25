@@ -1533,7 +1533,14 @@ public class GeneralServerConfig {
 		private Double masteryGainMultiplier = 1.50;
 		private Double powerBonusBoostWithSkill = 0.33;
 		private Double rageBorrowedFormBonus = 0.5;
-		private Boolean keepMutantOnDeath = false;
+		private Boolean keepMutantOnDeath = true;
+        private Boolean retryEnabled = false;
+        private Double initialChance = null;
+        private Double retryChance = null;
+        public boolean getRetryEnabled(){return Boolean.TRUE.equals(retryEnabled);}
+        public double getInitialChance(){return probability(initialChance);}
+        public double getRetryChance(){return probability(retryChance);}
+        private double probability(Double value){return value!=null && Double.isFinite(value)?Math.max(0,Math.min(1,value)):getChance();}
 		private RageConfig rage = new RageConfig();
 
 		public Boolean getEnabled() {
@@ -1579,7 +1586,7 @@ public class GeneralServerConfig {
 		}
 
 		public Boolean getKeepMutantOnDeath() {
-			return keepMutantOnDeath != null && keepMutantOnDeath;
+			return true; // Permanent ownership is authoritative in world saved data.
 		}
 
 		public RageConfig getRage() {
@@ -1681,6 +1688,12 @@ public class GeneralServerConfig {
 
 	@NoArgsConstructor
 	public static class GodRitualConfig {
+        private String completionId = "dragonminez:ritual/god_ritual";
+
+        public String getCompletionId() {
+            return com.dragonminez.api.content.ContentProgress.requireId(completionId);
+        }
+
 		private Boolean enabled = true;
 		private String groupName = "godritual";
 		private String formName = "supersaiyangodritual";

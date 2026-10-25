@@ -79,10 +79,10 @@ public class StructureCommand {
 			MutableComponent copy = ComponentUtils.wrapInSquareBrackets(Component.translatable("command.dragonminez.structure.copy"))
 					.withStyle(style -> style.withColor(ChatFormatting.GREEN)
 							.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, snippet))
-							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(snippet))));
+							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, com.dragonminez.api.lang.ConfigTranslations.text(snippet))));
 			source.sendSuccess(() -> Component.translatable("command.dragonminez.structure.here",
-					Component.literal(entry.id().toString()).withStyle(ChatFormatting.YELLOW),
-					template, coords, String.format(Locale.ROOT, "%.0f", yaw)).append(" ").append(copy), false);
+					com.dragonminez.api.lang.ConfigTranslations.text(entry.id().toString()).withStyle(ChatFormatting.YELLOW),
+					template, coords, String.format(Locale.ROOT, "%.0f", yaw)).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9")).append(copy), false);
 		}
 		return found.size();
 	}
@@ -107,7 +107,7 @@ public class StructureCommand {
 				Vec3 pos = StructureNpcs.resolve(entry.start(), definition).orElse(null);
 				if (pos == null) continue;
 				String coords = String.format(Locale.ROOT, "%.1f %.1f %.1f", pos.x, pos.y, pos.z);
-				MutableComponent location = ComponentUtils.wrapInSquareBrackets(Component.literal(coords))
+				MutableComponent location = ComponentUtils.wrapInSquareBrackets(com.dragonminez.api.lang.ConfigTranslations.text(coords))
 						.withStyle(style -> style.withColor(ChatFormatting.GREEN)
 								.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND,
 										"/execute in " + level.dimension().location() + " run tp @s " + coords)));

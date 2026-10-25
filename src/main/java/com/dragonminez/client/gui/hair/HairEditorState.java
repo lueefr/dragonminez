@@ -34,6 +34,8 @@ final class HairEditorState implements HairRenderContext.Preview {
 	private final String initialGlobalColor;
 
 	private HairStyleSlot slot = HairStyleSlot.BASE;
+    String formId;
+    int slotCount() { return formId==null?HairStyleSlot.count():1; }
 	private CustomHair.HairFace face = CustomHair.HairFace.FRONT;
 	private CustomHair.HairFace selectedFace;
 	private int selectedIndex = -1;
@@ -117,7 +119,7 @@ final class HairEditorState implements HairRenderContext.Preview {
 	}
 
 	void setSlot(HairStyleSlot newSlot) {
-		if (newSlot == slot) return;
+		if (newSlot == slot || (formId!=null && newSlot!=HairStyleSlot.BASE)) return;
 		slot = newSlot;
 		clampSegmentSelection();
 		restartPulse();

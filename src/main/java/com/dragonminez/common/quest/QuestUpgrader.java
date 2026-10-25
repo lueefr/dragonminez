@@ -16,10 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +30,12 @@ public final class QuestUpgrader {
 
 	private static final String PREVIOUS_QUESTS_ROOT = "/data/dragonminez/previousQuests/";
 	private static final String OLD_BACKUP_DIR = "oldBackup";
+	private static final java.util.Map<Path, JsonObject> DEFAULTS = new java.util.HashMap<>();
+    public static void clearDefaults() { DEFAULTS.clear(); }
+    public static JsonObject defaultFor(Path file) {
+        var value=DEFAULTS.get(file.toAbsolutePath().normalize());
+        return value==null?null:value.deepCopy();
+    }
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
 	private static final List<String> RETIRED_SAGA_DEFAULTS = List.of(
@@ -65,6 +69,8 @@ public final class QuestUpgrader {
 			Path file = dmzBase.resolve(relative);
 			if (!Files.isRegularFile(file)) continue;
 
+            JsonObject retired=readJson(file);
+            if(retired==null||QuestParser.parseQuest(retired)==null){LogUtil.warn(Env.COMMON,"Malformed retired quest '{}' left untouched",file);continue;}
 			String stamp = readStamp(file);
 			if (stamp != null && compareVersions(stamp, DEFAULTS_VERSION) > 0) continue;
 
@@ -105,8 +111,13 @@ public final class QuestUpgrader {
 		return stamp.isBlank() ? null : stamp;
 	}
 
-	public static void upgradeOrWrite(Path dmzBase, Path file, JsonObject newDefault) {
-		newDefault.addProperty(VERSION_KEY, DEFAULTS_VERSION);
+	public static void registerDefault(Path file,JsonObject definition){
+        var copy=definition.deepCopy();copy.addProperty(VERSION_KEY,DEFAULTS_VERSION);
+        DEFAULTS.put(file.toAbsolutePath().normalize(),copy);
+    }
+    public static void upgradeOrWrite(Path dmzBase, Path file, JsonObject newDefault) {
+        registerDefault(file,newDefault);
+        newDefault.addProperty(VERSION_KEY,DEFAULTS_VERSION);
 		try {
 			String relative = relativeKey(dmzBase, file);
 			if (!Files.exists(file)) {
@@ -114,19 +125,17 @@ public final class QuestUpgrader {
 				return;
 			}
 
-			if (isBlank(file)) {
-				writeJson(file, newDefault);
-				QuestUpdateReport.forFile(relative, "empty file", DEFAULTS_VERSION).notes
-						.add("the file was empty and was regenerated from the defaults");
-				LogUtil.warn(Env.COMMON, "Quest file '{}' was empty; regenerated it from the defaults", relative);
-				JsonLoadReport.update("quests", relative, "the file was empty, regenerated from the defaults");
-				return;
-			}
+            if (isBlank(file)) {
+                LogUtil.warn(Env.COMMON,"Quest file '{}' is empty; original left untouched",relative);
+                return;
+            }
 
 			if (!autoUpdateEnabled) return;
 
+			String original=Files.readString(file,StandardCharsets.UTF_8);
 			JsonObject userObj = readJson(file);
 			if (userObj == null) return;
+            QuestRegistry.validateContent(file,contentKind(file),userObj);
 
 			String userVersion = userObj.has(VERSION_KEY) && userObj.get(VERSION_KEY).isJsonPrimitive()
 					? userObj.get(VERSION_KEY).getAsString() : null;
@@ -140,13 +149,11 @@ public final class QuestUpgrader {
 			mergeInto(userObj, baseline, merged, "", report);
 			merged.addProperty(VERSION_KEY, DEFAULTS_VERSION);
 
-			if (report.hasChanges()) {
-				backup(dmzBase, file);
-				LogUtil.info(Env.COMMON, "Upgraded quest file '{}' ({} → {}): {} update(s), {} conflict(s), {} deletion(s) kept",
-						relative, report.fromVersion, report.toVersion, report.appliedCount, report.conflicts.size(),
-						report.keptDeletions.size());
-			}
-			writeJson(file, merged);
+            if(!Files.readString(file,StandardCharsets.UTF_8).equals(original))
+                throw new IOException("Quest changed during upgrade; original preserved: "+file);
+            com.dragonminez.common.config.schema.ContentMigration.update(file,contentKind(file),merged);
+            LogUtil.info(Env.COMMON,"Queued quest default upgrade '{}'; disk replacement waits for registry validation",file);
+
 		} catch (Exception e) {
 			LogUtil.error(Env.COMMON, "Failed to upgrade quest file '{}': {}", file.getFileName(), e.toString());
 		}
@@ -358,30 +365,26 @@ public final class QuestUpgrader {
 		try (InputStream in = QuestUpgrader.class.getResourceAsStream(resource)) {
 			if (in == null) return null;
 			JsonElement parsed = JsonParser.parseString(new String(in.readAllBytes(), StandardCharsets.UTF_8));
-			return parsed != null && parsed.isJsonObject() ? parsed.getAsJsonObject() : null;
+			return parsed != null && parsed.isJsonObject() ? com.dragonminez.common.config.schema.ContentSchema.decode(contentKind(Path.of(relativeKey)),parsed.getAsJsonObject()) : null;
 		} catch (Exception e) {
 			return null;
 		}
 	}
 
-	private static void backup(Path dmzBase, Path file) {
-		try {
-			Path backup = dmzBase.resolve(OLD_BACKUP_DIR).resolve(dmzBase.relativize(file));
-			Files.createDirectories(backup.getParent());
-			Files.copy(file, backup, StandardCopyOption.REPLACE_EXISTING);
-		} catch (Exception e) {
-			LogUtil.error(Env.COMMON, "Failed to back up quest file '{}': {}", file.getFileName(), e.getMessage());
-		}
-	}
 
 	private static boolean isBlank(Path file) throws IOException {
 		return Files.size(file) == 0 || Files.readString(file, StandardCharsets.UTF_8).isBlank();
 	}
 
+    private static com.dragonminez.common.config.schema.ContentSchema.Kind contentKind(Path file){
+        return ("/"+file.toString().replace('\\','/')).contains("/sagas/")?
+            com.dragonminez.common.config.schema.ContentSchema.Kind.SAGA:com.dragonminez.common.config.schema.ContentSchema.Kind.QUEST;
+    }
+
 	private static JsonObject readJson(Path file) {
 		try {
 			JsonElement parsed = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8));
-			return parsed != null && parsed.isJsonObject() ? parsed.getAsJsonObject() : null;
+			return parsed != null && parsed.isJsonObject() ? com.dragonminez.common.config.schema.ContentSchema.decode(contentKind(file),parsed.getAsJsonObject()) : null;
 		} catch (Exception e) {
 			LogUtil.warn(Env.COMMON, "Could not read quest file '{}' for upgrade: {}", file.getFileName(), e.getMessage());
 			return null;
@@ -394,13 +397,10 @@ public final class QuestUpgrader {
 		Path temp = Files.createTempFile(dir, file.getFileName().toString() + ".", ".tmp");
 		try {
 			try (Writer w = Files.newBufferedWriter(temp, StandardCharsets.UTF_8)) {
-				GSON.toJson(obj, w);
+				GSON.toJson(com.dragonminez.common.config.schema.ContentSchema.encode(contentKind(file),obj), w);
 			}
-			try {
-				Files.move(temp, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-			} catch (AtomicMoveNotSupportedException e) {
-				Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING);
-			}
+            // Only used for missing defaults. CREATE_NEW semantics preserve concurrent user files.
+            Files.copy(temp,file);
 		} finally {
 			Files.deleteIfExists(temp);
 		}

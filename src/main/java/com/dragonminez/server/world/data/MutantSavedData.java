@@ -17,6 +17,8 @@ import java.util.UUID;
 public class MutantSavedData extends SavedData {
 	private static final String FILE_NAME = "dragonminez_mutants";
 	private final Set<UUID> holders = new HashSet<>();
+    private final Set<UUID> attempted = new HashSet<>();
+    private final Set<UUID> revoked = new HashSet<>();
 @Getter
 	private long nextRollTick = -1L;
 
@@ -35,7 +37,12 @@ public class MutantSavedData extends SavedData {
 			CompoundTag holderTag = holdersList.getCompound(i);
 			if (holderTag.hasUUID("Id")) data.holders.add(holderTag.getUUID("Id"));
 		}
-		data.nextRollTick = tag.contains("NextRollTick") ? tag.getLong("NextRollTick") : -1L;
+		for (String key : java.util.List.of("Attempted", "Revoked")) {
+            ListTag list=tag.getList(key,Tag.TAG_COMPOUND);
+            for(int i=0;i<list.size();i++)if(list.getCompound(i).hasUUID("Id"))
+                (key.equals("Attempted")?data.attempted:data.revoked).add(list.getCompound(i).getUUID("Id"));
+        }
+        data.nextRollTick = tag.contains("NextRollTick") ? tag.getLong("NextRollTick") : -1L;
 		return data;
 	}
 
@@ -48,6 +55,11 @@ public class MutantSavedData extends SavedData {
 			holdersList.add(holderTag);
 		}
 		tag.put("Holders", holdersList);
+        for(String key:java.util.List.of("Attempted","Revoked")) {
+            ListTag list=new ListTag();
+            for(UUID id:key.equals("Attempted")?attempted:revoked){CompoundTag entry=new CompoundTag();entry.putUUID("Id",id);list.add(entry);}
+            tag.put(key,list);
+        }
 		tag.putLong("NextRollTick", nextRollTick);
 		return tag;
 	}
@@ -65,12 +77,18 @@ public class MutantSavedData extends SavedData {
 	}
 
 	public void addHolder(UUID playerId) {
-		if (holders.add(playerId)) setDirty();
+		revoked.remove(playerId);
+        attempted.add(playerId);
+        holders.add(playerId);setDirty();
 	}
 
 	public void removeHolder(UUID playerId) {
-		if (holders.remove(playerId)) setDirty();
+		holders.remove(playerId);attempted.add(playerId);revoked.add(playerId);setDirty();
 	}
+
+    public boolean hasAttempted(UUID id){return attempted.contains(id);}
+    public boolean wasRevoked(UUID id){return revoked.contains(id);}
+    public void markAttempted(UUID id){if(attempted.add(id))setDirty();}
 
 	public void setNextRollTick(long tick) {
 		this.nextRollTick = tick;

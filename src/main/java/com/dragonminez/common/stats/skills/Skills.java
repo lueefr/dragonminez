@@ -16,6 +16,14 @@ import java.util.Map;
 import java.util.Set;
 
 public class Skills {
+    private long progressionRevision;
+    public long getProgressionRevision() { return progressionRevision; }
+    private Skill putSkill(String key, Skill skill) {
+        skill.setProgressionListener(() -> progressionRevision++);
+        progressionRevision++;
+        return skillMap.put(key, skill);
+    }
+
 	private static final double NAME_SIMILARITY_THRESHOLD = 0.8;
 
 	private final Map<String, Skill> skillMap = new HashMap<>();
@@ -26,7 +34,7 @@ public class Skills {
 	public void registerDefaultSkill(String skillName, int maxLevel) {
 		String lowerName = skillName.toLowerCase();
 		if (skillMap.containsKey(lowerName)) skillMap.get(lowerName).setMaxLevel(maxLevel);
-		else skillMap.put(lowerName, new Skill(skillName, maxLevel));
+		else putSkill(lowerName, new Skill(skillName, maxLevel));
 	}
 
 	public Skill getSkill(String name) {
@@ -80,17 +88,17 @@ public class Skills {
 		String lowerName = name.toLowerCase();
 		if (!skillMap.containsKey(lowerName)) {
 			int finalMaxLevel = calculateMaxLevel(lowerName);
-			skillMap.put(lowerName, new Skill(name, 0, false, finalMaxLevel));
+			putSkill(lowerName, new Skill(name, 0, false, finalMaxLevel));
 		}
 		skillMap.get(lowerName).setLevel(level);
 	}
 
 	public void removeSkill(String name) {
-		skillMap.remove(name.toLowerCase());
+		skillMap.remove(name.toLowerCase()); progressionRevision++;
 	}
 
 	public void removeAllSkills() {
-		skillMap.clear();
+		skillMap.clear(); progressionRevision++;
 	}
 
 	public Map<String, String> repairSkillNames() {
@@ -115,7 +123,7 @@ public class Skills {
 			if (canonical == null) canonical = findClosestSkill(badKey, validNames);
 			if (canonical == null || canonical.equals(badKey)) continue;
 
-			Skill legacy = skillMap.remove(badKey);
+			Skill legacy = skillMap.remove(badKey); progressionRevision++;
 			if (legacy == null) continue;
 
 			int maxLevel = config.getFormSkills().contains(canonical) ? legacy.getMaxLevel() : calculateMaxLevel(canonical);
@@ -129,7 +137,7 @@ public class Skills {
 				Skill migrated = new Skill(canonical, maxLevel);
 				migrated.setLevel(legacy.getLevel());
 				migrated.setActive(legacy.isActive());
-				skillMap.put(canonical, migrated);
+				putSkill(canonical, migrated);
 			}
 			renamed.put(badKey, canonical);
 		}
@@ -199,7 +207,7 @@ public class Skills {
 		String key = other.getName().toLowerCase();
 		Skill mine = skillMap.get(key);
 		if (mine == null) {
-			skillMap.put(key, new Skill(other.getName(), other.getLevel(), other.isActive(), other.getMaxLevel()));
+			putSkill(key, new Skill(other.getName(), other.getLevel(), other.isActive(), other.getMaxLevel()));
 			return;
 		}
 		if (mine.getLevel() <= 0) mine.setActive(other.isActive());
@@ -222,7 +230,7 @@ public class Skills {
 	public void load(CompoundTag nbt) {
 		if (nbt.contains("SkillsList", Tag.TAG_LIST)) {
 			ListTag skillsList = nbt.getList("SkillsList", Tag.TAG_COMPOUND);
-			skillMap.clear();
+			skillMap.clear(); progressionRevision++;
 			for (int i = 0; i < skillsList.size(); i++) {
 				CompoundTag skillTag = skillsList.getCompound(i);
 				Skill skill = Skill.load(skillTag);
@@ -232,7 +240,7 @@ public class Skills {
 					int newMax = calculateMaxLevel(skillName);
 					if (newMax > 0) skill.setMaxLevel(newMax);
 				}
-				skillMap.put(skillName, skill);
+				putSkill(skillName, skill);
 			}
 		}
 	}
@@ -244,15 +252,15 @@ public class Skills {
 
 	public void fromBytes(FriendlyByteBuf buf) {
 		int size = buf.readInt();
-		skillMap.clear();
+		skillMap.clear(); progressionRevision++;
 		for (int i = 0; i < size; i++) {
 			Skill skill = Skill.fromBytes(buf);
-			skillMap.put(skill.getName().toLowerCase(), skill);
+			putSkill(skill.getName().toLowerCase(), skill);
 		}
 	}
 
 	public void copyFrom(Skills other) {
-		this.skillMap.clear();
+		this.skillMap.clear(); progressionRevision++;
 		for (Map.Entry<String, Skill> entry : other.skillMap.entrySet()) {
 			Skill newSkill = new Skill(
 					entry.getValue().getName(),
@@ -260,7 +268,7 @@ public class Skills {
 					entry.getValue().isActive(),
 					entry.getValue().getMaxLevel()
 			);
-			this.skillMap.put(entry.getKey(), newSkill);
+			putSkill(entry.getKey(), newSkill);
 		}
 	}
 }

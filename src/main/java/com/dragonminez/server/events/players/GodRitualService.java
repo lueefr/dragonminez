@@ -393,6 +393,7 @@ public final class GodRitualService {
 			cancel(server, ritual, cfg, "message.dragonminez.godritual.interrupted");
 			return;
 		}
+        String completionId = cfg.getCompletionId();
 		finish(server, ritual);
 
 		var character = data.getCharacter();
@@ -401,7 +402,7 @@ public final class GodRitualService {
 		}
 		float[] resourceSnapshot = data.snapshotMultiplierResources();
 		character.clearPreviousFormRecord();
-		character.setActiveForm(cfg.getGroupName(), form.getName());
+		character.forceSetActiveForm(cfg.getGroupName(), form.getName());
 		data.restoreMultiplierGains(recipient, resourceSnapshot);
 		data.getStatus().setGodRitualTicks(cfg.getDurationTicks());
 		data.getResources().setActionCharge(0);
@@ -421,6 +422,7 @@ public final class GodRitualService {
 		recipient.level().playSound(null, recipient.getX(), recipient.getY(), recipient.getZ(), MainSounds.TRANSFORM_ON.get(), SoundSource.PLAYERS, 1.0f, 0.9f);
 		recipient.sendSystemMessage(Component.translatable("message.dragonminez.godritual.transformed"), true);
 		broadcastDonors(server, ritual, Component.translatable("message.dragonminez.godritual.completed", recipient.getDisplayName()));
+        com.dragonminez.api.content.ContentCompletionApi.complete(recipient, completionId, "ritual");
 		sync(recipient);
 
 		FormConfig.FormData reference = data.getGodRitualReferenceForm();

@@ -56,7 +56,7 @@ public class InstantTransmissionScreen extends ScaledScreen {
 	private CustomTextureButton deleteButton;
 
 	public InstantTransmissionScreen(List<ITTargetEntry> entries, int skillLevel) {
-		super(Component.literal("Instant Transmission").withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
+		super(net.minecraft.network.chat.Component.translatable("text.dragonminez.instanttransmissionscreen.3f002fb5a6").withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
 		this.skillLevel = skillLevel;
 		loadDestinations(entries);
 	}
@@ -190,7 +190,7 @@ public class InstantTransmissionScreen extends ScaledScreen {
 
 	private Component fitName(String name, int maxWidth) {
 		if (font.width(name) <= maxWidth) return txt(name);
-		return txt(font.plainSubstrByWidth(name, Math.max(0, maxWidth - font.width("…"))) + "…");
+		return tr("text.dragonminez.instanttransmissionscreen.f08afa6edb" , font.plainSubstrByWidth(name, Math.max(0, maxWidth - font.width("…"))));
 	}
 
 	private void renderKiRequired(GuiGraphics graphics) {

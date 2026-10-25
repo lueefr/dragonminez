@@ -56,22 +56,22 @@ public final class QuestTextFormatter {
 	private static final Pattern NPC_VARIANT_SUFFIX = Pattern.compile("^(.+?)_\\d+$");
 
 	private static final Map<String, String> STRUCTURE_NAMES = Map.ofEntries(
-			Map.entry("dragonminez:goku_house", "Goku's House"),
-			Map.entry("dragonminez:roshi_house", "Kame House"),
-			Map.entry("dragonminez:elder_guru", "Guru's House"),
-			Map.entry("dragonminez:timechamber", "Hyperbolic Time Chamber"),
-			Map.entry("dragonminez:kamilookout", "Kami's Lookout"),
-			Map.entry("dragonminez:gero_lab", "Dr. Gero's Laboratory"),
-			Map.entry("dragonminez:village_ajissa", "Ajissa Village"),
-			Map.entry("dragonminez:village_sacred", "Sacred Village")
+			Map.entry("dragonminez:goku_house", "structure.dragonminez.goku_house"),
+			Map.entry("dragonminez:roshi_house", "structure.dragonminez.roshi_house"),
+			Map.entry("dragonminez:elder_guru", "structure.dragonminez.elder_guru"),
+			Map.entry("dragonminez:timechamber", "structure.dragonminez.timechamber"),
+			Map.entry("dragonminez:kamilookout", "structure.dragonminez.kamilookout"),
+			Map.entry("dragonminez:gero_lab", "structure.dragonminez.gero_lab"),
+			Map.entry("dragonminez:village_ajissa", "structure.dragonminez.village_ajissa"),
+			Map.entry("dragonminez:village_sacred", "structure.dragonminez.village_sacred")
 	);
 
 	private static final Map<String, String> DIMENSION_NAMES = Map.ofEntries(
-			Map.entry("minecraft:overworld", "Earth"),
-			Map.entry("minecraft:the_nether", "Nether"),
-			Map.entry("minecraft:the_end", "The End"),
-			Map.entry("dragonminez:namek", "Namek"),
-			Map.entry("dragonminez:time_chamber", "Hyperbolic Time Chamber")
+			Map.entry("minecraft:overworld", "dimension.minecraft.overworld"),
+			Map.entry("minecraft:the_nether", "dimension.minecraft.the_nether"),
+			Map.entry("minecraft:the_end", "dimension.minecraft.the_end"),
+			Map.entry("dragonminez:namek", "dimension.dragonminez.namek"),
+			Map.entry("dragonminez:time_chamber", "dimension.dragonminez.time_chamber")
 	);
 
 	private QuestTextFormatter() {
@@ -122,9 +122,7 @@ public final class QuestTextFormatter {
 			return Component.translatable(OBJECTIVE_GO_TO, resolveDimensionName(dimension.getDimensionId()));
 		}
 		if (objective instanceof CoordsObjective coords) {
-			return Component.translatable(OBJECTIVE_GO_TO, Component.literal(
-					coords.getTargetPos().getX() + ", " + coords.getTargetPos().getY() + ", " + coords.getTargetPos().getZ()
-			));
+			return Component.translatable(OBJECTIVE_GO_TO, net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.a05993dd12" , coords.getTargetPos().getX(), coords.getTargetPos().getY(), coords.getTargetPos().getZ()));
 		}
 		if (objective instanceof DeliverObjective deliver) {
 			return Component.translatable(OBJECTIVE_DELIVER,
@@ -134,7 +132,7 @@ public final class QuestTextFormatter {
 		if (registered != null) {
 			return registered;
 		}
-		return Component.literal(objective.getType() != null ? humanizeIdentifier(objective.getTypeKey()) : "?");
+		return com.dragonminez.api.lang.ConfigTranslations.text(objective.getType() != null ? objective.getTypeKey() : "?");
 	}
 
 	public static Component describeRequirement(QuestPrerequisites.Condition condition, RequirementContext context) {
@@ -178,23 +176,23 @@ public final class QuestTextFormatter {
 			);
 			case RACE -> Component.translatable(
 					"gui.dragonminez.quests.requirement.race",
-					Component.literal(humanizeIdentifier(condition.getRace()))
+					Component.translatable("race.dragonminez."+condition.getRace())
 			);
 			case CLASS -> Component.translatable(
 					"gui.dragonminez.quests.requirement.class",
-					Component.literal(humanizeIdentifier(condition.getCharacterClass()))
+					Component.translatable("class.dragonminez."+condition.getCharacterClass())
 			);
 		};
 	}
 
 	public static Component displayText(String raw) {
 		if (raw == null || raw.isBlank()) {
-			return Component.literal("?");
+			return net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.8a8de823d5");
 		}
 		if (!raw.contains(" ") && raw.contains(".")) {
 			return Component.translatable(raw);
 		}
-		return Component.literal(raw);
+		return com.dragonminez.api.lang.ConfigTranslations.text(raw);
 	}
 
 	public static String humanizeResourceIdentifier(String raw) {
@@ -239,17 +237,17 @@ public final class QuestTextFormatter {
 
 	private static Component resolveInteractTarget(InteractObjective interact) {
 		if (interact.getEntityName() != null && !interact.getEntityName().isBlank()) {
-			return Component.literal(interact.getEntityName());
+			return com.dragonminez.api.lang.ConfigTranslations.text(interact.getEntityName());
 		}
 		if (interact.getEntityTypeId() != null && !interact.getEntityTypeId().isBlank()) {
 			return resolveEntityName(interact.getEntityTypeId());
 		}
-		return Component.literal("?");
+		return net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.8a8de823d5");
 	}
 
 	private static Component resolveDragonName(String dragonId) {
 		if (dragonId == null || dragonId.isBlank()) {
-			return Component.literal("the dragon");
+			return net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.7435e4969a");
 		}
 		String entityId = dragonId.contains(":") ? dragonId : "dragonminez:" + dragonId;
 		return resolveEntityName(entityId);
@@ -261,38 +259,38 @@ public final class QuestTextFormatter {
 			int colon = path.indexOf(':');
 			String key = "entity.dragonminez.tag." + (colon >= 0 ? path.substring(colon + 1) : path);
 			Component translated = Component.translatable(key);
-			return translated.getString().equals(key)
-					? Component.literal(humanizeResourceIdentifier(entityId))
-					: translated;
+			return translated;
 		}
 
 		ResourceLocation id = safeParse(entityId);
 		if (id == null || !BuiltInRegistries.ENTITY_TYPE.containsKey(id)) {
-			return Component.literal(humanizeResourceIdentifier(entityId));
+			return com.dragonminez.api.lang.ConfigTranslations.text(entityId);
 		}
 
 		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(id);
-		return type != null ? type.getDescription() : Component.literal(humanizeResourceIdentifier(entityId));
+		return type != null ? type.getDescription() : com.dragonminez.api.lang.ConfigTranslations.text(entityId);
 	}
 
 	private static Component resolveItemName(String itemId) {
 		ResourceLocation id = safeParse(itemId);
 		if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) {
-			return Component.literal(humanizeResourceIdentifier(itemId));
+			return com.dragonminez.api.lang.ConfigTranslations.text(itemId);
 		}
 
 		Item item = BuiltInRegistries.ITEM.get(id);
 		if (item == null || item == Items.AIR) {
-			return Component.literal(humanizeResourceIdentifier(itemId));
+			return com.dragonminez.api.lang.ConfigTranslations.text(itemId);
 		}
 		return new ItemStack(item).getHoverName();
 	}
 
 	private static Component resolveNpcName(String npcId) {
 		if (npcId == null || npcId.isBlank()) {
-			return Component.literal("?");
+			return net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.8a8de823d5");
 		}
 
+        var custom=com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.get(npcId);
+        if(custom.isPresent())return Component.translatable(custom.get().name());
 		String normalized = npcId.contains(":") ? npcId.substring(npcId.indexOf(':') + 1) : npcId;
 		Component exact = resolveNpcTranslation(normalized);
 		if (exact != null) {
@@ -307,7 +305,7 @@ public final class QuestTextFormatter {
 			}
 		}
 
-		return Component.literal(humanizeIdentifier(normalized));
+		return com.dragonminez.api.lang.ConfigTranslations.text(normalized);
 	}
 
 	private static Component resolveNpcTranslation(String npcId) {
@@ -324,21 +322,19 @@ public final class QuestTextFormatter {
 
 	private static Component resolveSkillName(String skill) {
 		if (skill == null || skill.isBlank()) {
-			return Component.literal("?");
+			return net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.8a8de823d5");
 		}
 		String normalized = skill.contains(":") ? skill.substring(skill.indexOf(':') + 1) : skill;
 		String key = normalized.contains(".") ? normalized : "skill.dragonminez." + normalized.toLowerCase(Locale.ROOT);
 		Component translated = Component.translatable(key);
-		return translated.getString().equals(key)
-				? Component.literal(humanizeIdentifier(normalized))
-				: translated;
+		return translated;
 	}
 
 	private static Component resolveStructureName(String structureId) {
 		String display = STRUCTURE_NAMES.get(structureId);
 		return display != null
-				? Component.literal(display)
-				: Component.literal(humanizeResourceIdentifier(structureId));
+				? com.dragonminez.api.lang.ConfigTranslations.text(display)
+				: com.dragonminez.api.lang.ConfigTranslations.text(structureId);
 	}
 
 	public static Component resolveBiomeName(String biomeId) {
@@ -347,19 +343,19 @@ public final class QuestTextFormatter {
 			return Component.translatable("gui.dragonminez.quests.biome.any_plains");
 		}
 		if (biomeId != null && biomeId.startsWith("#")) {
-			return Component.literal(humanizeResourceIdentifier(biomeId));
+			return com.dragonminez.api.lang.ConfigTranslations.text(biomeId);
 		}
 		if (id != null && "minecraft".equals(id.getNamespace())) {
 			return Component.translatable("biome.minecraft." + id.getPath());
 		}
-		return Component.literal(humanizeResourceIdentifier(biomeId));
+		return com.dragonminez.api.lang.ConfigTranslations.text(biomeId);
 	}
 
 	public static Component resolveDimensionName(String dimensionId) {
 		String display = DIMENSION_NAMES.get(dimensionId);
 		return display != null
-				? Component.literal(display)
-				: Component.literal(humanizeResourceIdentifier(dimensionId));
+				? com.dragonminez.api.lang.ConfigTranslations.text(display)
+				: com.dragonminez.api.lang.ConfigTranslations.text(dimensionId);
 	}
 
 	private static Component buildStructureRequirement(QuestPrerequisites.Condition condition) {
@@ -374,13 +370,13 @@ public final class QuestTextFormatter {
 		}
 
 		if (hint.dimensionId() != null) {
-			base.append(Component.literal(" ("))
+			base.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.4f5a2ada11"))
 					.append(Component.translatable("gui.dragonminez.quests.requirement.dimension", resolveDimensionName(hint.dimensionId())))
-					.append(Component.literal(")"));
+					.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.ba5ec51d07"));
 		}
 
 		if (hint.hasCoordinates()) {
-			base.append(Component.literal(" - "))
+			base.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.d3150495ce"))
 					.append(Component.translatable("gui.dragonminez.quests.requirement.coords", hint.x(), hint.y(), hint.z()));
 		}
 
@@ -407,25 +403,25 @@ public final class QuestTextFormatter {
 			long elapsed = Math.max(0L, context.realTimeMs() - timing.getRealTimeStartedMs());
 			remaining = Math.max(0L, duration - elapsed);
 			if (remaining > 0L) {
-				return base.append(Component.literal(" ("))
+				return base.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.4f5a2ada11"))
 						.append(Component.translatable("gui.dragonminez.quests.requirement.remaining", formatRealTimeDuration(remaining)))
-						.append(Component.literal(")"));
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.ba5ec51d07"));
 			}
-			return base.append(Component.literal(" ("))
+			return base.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.4f5a2ada11"))
 					.append(Component.translatable("gui.dragonminez.quests.requirement.ready"))
-					.append(Component.literal(")"));
+					.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.ba5ec51d07"));
 		}
 
 		long elapsed = Math.max(0L, context.gameTime() - timing.getGameTimeStarted());
 		remaining = Math.max(0L, duration - elapsed);
 		if (remaining > 0L) {
-			return base.append(Component.literal(" ("))
+			return base.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.4f5a2ada11"))
 					.append(Component.translatable("gui.dragonminez.quests.requirement.remaining", formatGameTimeDuration(remaining)))
-					.append(Component.literal(")"));
+					.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.ba5ec51d07"));
 		}
-		return base.append(Component.literal(" ("))
+		return base.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.4f5a2ada11"))
 				.append(Component.translatable("gui.dragonminez.quests.requirement.ready"))
-				.append(Component.literal(")"));
+				.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.ba5ec51d07"));
 	}
 
 	private static Component buildAlignmentRequirement(QuestPrerequisites.Condition condition) {
@@ -449,7 +445,7 @@ public final class QuestTextFormatter {
 
 	private static Component resolveSagaQuestName(String sagaId, Integer questId, boolean clientSide) {
 		if (sagaId == null || questId == null) {
-			return Component.literal("?");
+			return net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.8a8de823d5");
 		}
 
 		Saga saga = clientSide ? QuestRegistry.getClientSaga(sagaId) : QuestRegistry.getSaga(sagaId);
@@ -459,19 +455,19 @@ public final class QuestTextFormatter {
 				return displayText(quest.getTitle());
 			}
 		}
-		return Component.literal(humanizeIdentifier(sagaId) + " " + questId);
+		return net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.8a977da5cd" , humanizeIdentifier(sagaId), questId);
 	}
 
 	private static Component resolveQuestName(String questId, boolean clientSide) {
 		if (questId == null || questId.isBlank()) {
-			return Component.literal("?");
+			return net.minecraft.network.chat.Component.translatable("text.dragonminez.questtextformatter.8a8de823d5");
 		}
 
 		Quest quest = clientSide ? QuestRegistry.getClientQuest(questId) : QuestRegistry.getQuest(questId);
 		if (quest != null) {
 			return displayText(quest.getTitle());
 		}
-		return Component.literal(humanizeResourceIdentifier(questId));
+		return com.dragonminez.api.lang.ConfigTranslations.text(questId);
 	}
 
 	private static String formatSeconds(long totalSeconds) {
@@ -563,7 +559,7 @@ public final class QuestTextFormatter {
 		boolean first = true;
 		for (Difficulty difficulty : Difficulty.values()) {
 			if (!difficulties.contains(difficulty)) continue;
-			if (!first) joined.append(", ");
+			if (!first) joined.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.0a07f65946"));
 			joined.append(Component.translatable("gui.dragonminez.quest_tree.difficulty." + difficulty.name().toLowerCase(Locale.ROOT)));
 			first = false;
 		}

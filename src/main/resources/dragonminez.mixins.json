@@ -8,6 +8,7 @@
     "common.DistantHorizonsCloudMixin",
     "common.DistantHorizonsOtherworldGeneratorMixin",
     "common.DhSeedGenOtherworldMixin",
+    "common.ConfigTranslationCacheMixin",
     "common.ChunkSerializerMixin",
     "common.EnchantmentMixin",
     "common.EntityMixin",
@@ -24,6 +25,7 @@
     "common.StructureTemplatePoolAccessor"
   ],
   "client": [
+    "client.ConfigLanguageMixin",
     "client.AbstractSoundInstanceAccessor",
     "client.BundleTooltipComponentAccessor",
     "client.BrandingControlMixin",

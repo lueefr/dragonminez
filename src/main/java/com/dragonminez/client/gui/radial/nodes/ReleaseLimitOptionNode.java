@@ -17,7 +17,7 @@ public class ReleaseLimitOptionNode extends AbstractRadialNode {
 
 	@Override
 	public Component label(StatsData stats) {
-		return Component.literal(value + "%");
+		return net.minecraft.network.chat.Component.translatable("text.dragonminez.releaselimitoptionnode.eaf8695fa7" , value);
 	}
 
 	@Override

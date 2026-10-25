@@ -44,6 +44,7 @@ import java.util.Optional;
 @EventBusSubscriber(modid = Reference.MOD_ID, value = Dist.CLIENT)
 public class LockOnEvent {
 	private static final ResourceLocation LOCK_ICON = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/lock_on.png");
+	private static VertexBuffer iconMesh;
 	private static final double NEAR_FOLLOW_BLEND = 1.0;
 	@Getter
 	private static LivingEntity lockedTarget = null;
@@ -186,7 +187,8 @@ public class LockOnEvent {
 	public static void onRenderWorldLast(RenderLevelStageEvent event) {
 		if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
 		if (lockedTarget == null || !lockedTarget.isAlive()) return;
-		PoseStack poseStack = event.getPoseStack();
+		PoseStack poseStack = new PoseStack();
+        poseStack.mulPose(event.getModelViewMatrix());
 		float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
 		double lerpX = Mth.lerp(partialTick, lockedTarget.xo, lockedTarget.getX());
 		double lerpY = Mth.lerp(partialTick, lockedTarget.yo, lockedTarget.getY());
@@ -201,6 +203,8 @@ public class LockOnEvent {
 		RenderSystem.setShaderTexture(0, LOCK_ICON);
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
+        boolean cull = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+        RenderSystem.disableCull();
 		RenderSystem.disableDepthTest();
 		RenderSystem.depthMask(false);
 		RenderSystem.depthFunc(GL11.GL_ALWAYS);
@@ -211,26 +215,43 @@ public class LockOnEvent {
 		float size = 16.0F;
 		poseStack.pushPose();
 		poseStack.mulPose(Axis.ZP.rotationDegrees(angle1));
-		drawTextureQuad(poseStack, size, 0.0F, 1.0F, 1.0F, 0.9F);
+		drawTextureQuad(poseStack, event.getProjectionMatrix(), size, 0.0F, 1.0F, 1.0F, 0.9F);
 		poseStack.popPose();
 		poseStack.pushPose();
 		poseStack.mulPose(Axis.ZP.rotationDegrees(angle2));
 		poseStack.scale(1.5F, 1.5F, 1.5F);
 		poseStack.translate(0, 0, 0.05F);
-		drawTextureQuad(poseStack, size, 0.0F, 1.0F, 1.0F, 0.5F);
+		drawTextureQuad(poseStack, event.getProjectionMatrix(), size, 0.0F, 1.0F, 1.0F, 0.5F);
 		poseStack.popPose();
 		RenderSystem.depthFunc(GL11.GL_LEQUAL);
 		RenderSystem.depthMask(true);
 		RenderSystem.enableDepthTest();
+        if (cull) RenderSystem.enableCull();
 		RenderSystem.disableBlend();
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		poseStack.popPose();
 	}
 
-	private static void drawTextureQuad(PoseStack poseStack, float size, float r, float g, float b, float a) {
-		RenderSystem.setShaderColor(r, g, b, a);
-		com.dragonminez.client.render.util.RenderBufferUtil.drawTexturedQuadCentered(poseStack.last().pose(), size, 0, 0, 1, 1);
-	}
+	private static void drawTextureQuad(PoseStack poseStack, Matrix4f projection, float size, float r, float g, float b, float a) {
+        if (iconMesh == null) {
+            var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            builder.addVertex(-1, 1, 0).setUv(0, 1);
+            builder.addVertex(1, 1, 0).setUv(1, 1);
+            builder.addVertex(1, -1, 0).setUv(1, 0);
+            builder.addVertex(-1, -1, 0).setUv(0, 0);
+            iconMesh = new VertexBuffer(VertexBuffer.Usage.STATIC);
+            iconMesh.bind();
+            iconMesh.upload(builder.buildOrThrow());
+            VertexBuffer.unbind();
+        }
+        RenderSystem.setShaderColor(r, g, b, a);
+        // The stage's view transform is already in this matrix. Immediate BufferUploader
+        // drawing would apply RenderSystem's global model-view a second time.
+        Matrix4f transform = new Matrix4f(poseStack.last().pose()).scale(size, size, 1);
+        iconMesh.bind();
+        iconMesh.drawWithShader(transform, projection, GameRenderer.getPositionTexShader());
+        VertexBuffer.unbind();
+    }
 
 	private static Optional<LivingEntity> findTargetInFront(Player player, double range, StatsData data) {
 		Vec3 eyePos = player.getEyePosition();

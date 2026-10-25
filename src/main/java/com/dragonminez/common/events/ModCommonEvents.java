@@ -65,7 +65,7 @@ public class ModCommonEvents {
 		if (event.getPackType() == PackType.SERVER_DATA) {
 			event.addRepositorySource((packConsumer) -> {
 				Pack dragonballPack = Pack.readMetaAndCreate(
-					new net.minecraft.server.packs.PackLocationInfo("dmz_dragonballs_runtime_data", Component.literal("DMZ Dragonballs Runtime Data"), PackSource.BUILT_IN, java.util.Optional.empty()),
+					new net.minecraft.server.packs.PackLocationInfo("dmz_dragonballs_runtime_data", net.minecraft.network.chat.Component.translatable("text.dragonminez.modcommonevents.211d3220b0"), PackSource.BUILT_IN, java.util.Optional.empty()),
 					new Pack.ResourcesSupplier() {
 						@Override public net.minecraft.server.packs.PackResources openPrimary(net.minecraft.server.packs.PackLocationInfo location) { return new DragonBallDataPackResources(location); }
 						@Override public net.minecraft.server.packs.PackResources openFull(net.minecraft.server.packs.PackLocationInfo location, Pack.Metadata metadata) { return openPrimary(location); }
@@ -87,6 +87,7 @@ public class ModCommonEvents {
 
         // Quest NPC — single entity type for all data-driven quest NPCs | Usa un solo tipo de entidad para todos los NPCs de misiones basados en datos
         event.put(MainEntities.QUEST_NPC.get(), MastersEntity.createAttributes().build());
+        event.put(MainEntities.CUSTOM_NPC.get(), MastersEntity.createAttributes().build());
 
 		for (var entity : MainEntities.getDragonWishEntities().values()) {
 			event.put(entity.get(), DragonWishEntity.createAttributes().build());
@@ -161,6 +162,7 @@ public class ModCommonEvents {
     }
 
 	public static void commonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(com.dragonminez.common.config.ConfigManager::validateExtensionRules);
 		new PredefinedTechniques().init();
 
 		event.enqueueWork(() -> {

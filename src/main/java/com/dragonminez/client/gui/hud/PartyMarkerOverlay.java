@@ -186,7 +186,7 @@ public class PartyMarkerOverlay {
 				float distanceY = FRAME_TOP * scale * unit - 2.0f * unit - lineHeight + rise;
 				float nameY = distanceY - lineHeight - 1.0f * unit;
 				HudRender.dmzText(guiGraphics, member.name(), 0.0f, nameY, textScale, 0.5f, down ? DOWN_COLOR : NAME_COLOR, focus);
-				HudRender.dmzText(guiGraphics, Math.round(view.distance) + "m", 0.0f, distanceY, textScale, 0.5f, DISTANCE_COLOR, focus);
+				HudRender.dmzText(guiGraphics, net.minecraft.network.chat.Component.translatable("text.dragonminez.distance.metres",Math.round(view.distance)).getString(), 0.0f, distanceY, textScale, 0.5f, DISTANCE_COLOR, focus);
 			}
 		} finally {
 			HudRender.setAlphaScale(1.0f);

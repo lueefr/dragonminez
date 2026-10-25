@@ -85,8 +85,20 @@ public class TransformationReward extends QuestReward {
 		}
 	}
 
-	@Override
-	public Component getDescription() {
-		return Component.translatable("gui.dragonminez.quests.rewards.transformation", Component.literal(formName.replace('_', ' ')));
-	}
+    public Component displayName(String race) {
+        return com.dragonminez.api.forms.FormHair.name(race, formGroup + "." + formName);
+    }
+
+    @Override
+    public Component getDescription() {
+        return getDescription(1.0, null);
+    }
+
+    @Override
+    public Component getDescription(double multiplier, com.dragonminez.common.stats.StatsData data) {
+        Component name = data != null || stack || com.dragonminez.common.util.FusionForms.isQualified(formGroup)
+                ? displayName(data == null ? "" : data.getCharacter().getRaceName())
+                : com.dragonminez.api.lang.ConfigTranslations.text(formGroup + "." + formName);
+        return Component.translatable("gui.dragonminez.quests.rewards.transformation", name);
+    }
 }

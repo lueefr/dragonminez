@@ -17,7 +17,10 @@ import java.util.Locale;
 
 public final class FormRequisites {
 
-	public record Lock(int level, String sagaId, int questId) {
+	public record Lock(int level, String sagaId, int questId, List<String> completedContent, List<Component> rules) {
+        public Lock(int level, String sagaId, int questId) { this(level, sagaId, questId, List.of(), List.of()); }
+        public Lock(int level, String sagaId, int questId, List<String> content) { this(level, sagaId, questId, content, List.of()); }
+        public Lock { completedContent = List.copyOf(completedContent); rules = List.copyOf(rules); }
 		public static final Lock NONE = new Lock(0, null, -1);
 
 		public boolean levelLocked() {
@@ -29,7 +32,7 @@ public final class FormRequisites {
 		}
 
 		public boolean isLocked() {
-			return levelLocked() || sagaLocked();
+			return levelLocked() || sagaLocked() || !completedContent.isEmpty() || !rules.isEmpty();
 		}
 	}
 
@@ -55,7 +58,9 @@ public final class FormRequisites {
 			}
 		}
 
-		return level == 0 && sagaId == null ? Lock.NONE : new Lock(level, sagaId, questId);
+        List<String> missing = form.getCompletedContentRequisites() == null ? List.of()
+                : form.getCompletedContentRequisites().stream().filter(id -> !data.getContentProgress().hasCompleted(id)).distinct().toList();
+        return level == 0 && sagaId == null && missing.isEmpty() ? Lock.NONE : new Lock(level, sagaId, questId, missing);
 	}
 
 	public static Lock checkSkillLevel(StatsData data, String skillName, int targetLevel, boolean clientSide) {
@@ -63,15 +68,28 @@ public final class FormRequisites {
 		int level = 0;
 		String sagaId = null;
 		int questId = -1;
+        var missing = new java.util.LinkedHashSet<String>();
+        var rules = new ArrayList<Component>();
+        var context = new com.dragonminez.api.rules.Conditions.Context(data,null);
+        for (var condition : ConfigManager.getRulesConfig().requirements(skillName,targetLevel)) rules.addAll(com.dragonminez.api.rules.Conditions.missing(context,condition));
 		for (FormConfig.FormData form : formsAtSkillLevel(data, skillName, targetLevel)) {
 			Lock lock = check(data, form, clientSide);
+            rules.addAll(com.dragonminez.api.rules.Conditions.missing(context,form.getBuy()));
+            var mastery = new com.google.gson.JsonArray();
+            if (form.getFormRequisite()!=null && form.getUnlockOnMastery()>0) for(String ref:form.getFormRequisite().split(",")) {
+                if(ref.isBlank())continue;
+                var value=new com.google.gson.JsonObject();value.addProperty("form",ref.trim());value.addProperty("min",form.getUnlockOnMastery());
+                var condition=new com.google.gson.JsonObject();condition.add("mastery",value);mastery.add(condition);
+            }
+            if(!mastery.isEmpty()) {var condition=new com.google.gson.JsonObject();condition.add("any".equalsIgnoreCase(form.getFormRequisiteType())?"any":"all",mastery);rules.addAll(com.dragonminez.api.rules.Conditions.missing(context,condition));}
+            missing.addAll(lock.completedContent());
 			level = Math.max(level, lock.level());
 			if (sagaId == null && lock.sagaLocked()) {
 				sagaId = lock.sagaId();
 				questId = lock.questId();
 			}
 		}
-		return level == 0 && sagaId == null ? Lock.NONE : new Lock(level, sagaId, questId);
+        return level == 0 && sagaId == null && missing.isEmpty() && rules.isEmpty() ? Lock.NONE : new Lock(level, sagaId, questId, new ArrayList<>(missing), rules);
 	}
 
 	public static List<Component> describe(Lock lock, boolean clientSide) {
@@ -79,6 +97,8 @@ public final class FormRequisites {
 		if (lock == null) return lines;
 		if (lock.sagaLocked()) lines.add(Component.translatable("gui.dragonminez.skills.locked_until", sagaQuestReference(lock.sagaId(), lock.questId(), clientSide)));
 		if (lock.levelLocked()) lines.add(Component.translatable("gui.dragonminez.skills.locked_until", Component.translatable("gui.dragonminez.skills.locked_level", lock.level())));
+        for (String id : lock.completedContent()) lines.add(Component.translatable("gui.dragonminez.skills.locked_content", Component.translatable(id)));
+        lines.addAll(lock.rules());
 		return lines;
 	}
 
@@ -86,15 +106,22 @@ public final class FormRequisites {
 		MutableComponent requirements = Component.empty();
 		if (lock.sagaLocked()) requirements.append(sagaQuestReference(lock.sagaId(), lock.questId(), clientSide));
 		if (lock.levelLocked()) {
-			if (lock.sagaLocked()) requirements.append(" / ");
+			if (lock.sagaLocked()) requirements.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.005e1574a2"));
 			requirements.append(Component.translatable("gui.dragonminez.skills.locked_level", lock.level()));
 		}
-		return Component.translatable("gui.dragonminez.skills.locked_until", requirements);
+        for (String id : lock.completedContent()) {
+            if (!requirements.getString().isEmpty()) requirements.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.005e1574a2"));
+            requirements.append(Component.translatable("gui.dragonminez.skills.locked_content", Component.translatable(id)));
+        }
+		for (Component rule : lock.rules()) {
+            if (!requirements.getString().isEmpty()) requirements.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.005e1574a2"));requirements.append(rule);
+        }
+        return Component.translatable("gui.dragonminez.skills.locked_until", requirements);
 	}
 
 	private static Component sagaQuestReference(String sagaId, int questId, boolean clientSide) {
 		Saga saga = findSaga(sagaId, clientSide);
-		Component sagaName = saga != null && saga.getName() != null ? Component.translatable(saga.getName()) : Component.literal(sagaId);
+		Component sagaName = saga != null && saga.getName() != null ? Component.translatable(saga.getName()) : com.dragonminez.api.lang.ConfigTranslations.text(sagaId);
 		Quest quest = saga != null ? saga.getQuestById(questId) : null;
 		int questNumber = quest != null ? saga.getQuests().indexOf(quest) + 1 : questId;
 		return Component.translatable("gui.dragonminez.skills.quest_ref", sagaName, questNumber);

@@ -425,7 +425,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.setFiring(false);
         this.setMaxLife(99999);
         this.setCastTime(40);
-        this.setCastOffsets(0.0F, calcOverheadOffsetY(owner, size), -this.castClearanceRadius() / ownerWidthScale(owner));
+        this.setCastOffsets(0.0F, calcOverheadOffsetY(owner, size), 0.0F);
         updatePositionRelativeToOwner(owner);
         if (!this.level().isClientSide) { this.level().addFreshEntity(this); }
 
@@ -1648,9 +1648,10 @@ public class KiBlastEntity extends AbstractKiProjectile {
         Vec3 worldUp = new Vec3(0, 1, 0);
         Vec3 right = look.cross(worldUp).normalize();
 
-        // Usar worldUp directamente en vez de right.cross(look)
-        Vec3 offset = castOffset(owner, right, worldUp, look,
-                this.entityData.get(OFFSET_X), this.entityData.get(OFFSET_Y), this.entityData.get(OFFSET_Z));  // <-- cambio aquí
+        Vec3 offset = !this.isFiring()
+                ? heldCastOffset(owner, this.entityData.get(OFFSET_X), this.entityData.get(OFFSET_Y), this.entityData.get(OFFSET_Z))
+                : castOffset(owner, right, worldUp, look,
+                        this.entityData.get(OFFSET_X), this.entityData.get(OFFSET_Y), this.entityData.get(OFFSET_Z));
 
         double centerX = owner.getX();
         double centerY = this.getKiRenderType() == RENDER_BLASTER_METEOR

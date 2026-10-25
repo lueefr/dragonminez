@@ -1,166 +1,24 @@
+# DragonMineZ — unofficial NeoForge fork
 
-> Port 2.2 / Minecraft 1.21.1: [build, dependencies and validation](PORTING-1.21.1.md).
-<div align="center">
-  <img src=".github/docs/img/dragonminez_big_logo.png" alt="DragonMine Z Banner" width="70%" />
-</div>
+An unofficial fork of [DragonMineZ](https://github.com/DragonMineZ/dragonminez), the Dragon Ball-inspired Minecraft mod created by the DragonMineZ team. This repository maintains ports and additional fixes; it is not the original project or an official release channel.
 
-<div align="center">
+See the [Wiki guide](https://github.com/lueefr/dragonminez/wiki), [API documentation and JSON examples](API-EXTENSIONS.md), [content schemas and migration](docs/wiki/Content-configuration.md), [porting notes and dependencies](PORTING-1.21.1.md), and [API validation results](API-VALIDATION.md), and [configuration/audit validation](CONTENT-COMPLETENESS-VALIDATION.md).
 
-[![Discord](https://img.shields.io/discord/1216429657273012415?style=for-the-badge&logo=Discord&logoColor=white&label=Discord&color=orange)](https://discord.gg/b5MgRNb3D7)
-[![Patreon](https://img.shields.io/badge/Patreon-Join%20Us-yellow?style=for-the-badge&logo=Patreon)](https://patreon.com/DragonMineZ)
-[![Progress Board](https://img.shields.io/badge/GitHub-Progress%20Board-red?style=for-the-badge&logo=GitHub)](https://github.com/orgs/DragonMineZ/projects/4)
-[![CurseForge](https://img.shields.io/badge/CurseForge-Download-orange?style=for-the-badge)](https://www.curseforge.com/minecraft/mc-mods/dragonminez)
-[![Modrinth](https://img.shields.io/badge/Modrinth-Download-green?style=for-the-badge)](https://modrinth.com/mod/dragonminez)
+## Downloads
 
-</div>
+- **Fork builds:** [GitHub Releases](https://github.com/lueefr/dragonminez/releases).
+- **Original mod:** [CurseForge](https://www.curseforge.com/minecraft/mc-mods/dragonminez) · [Modrinth](https://modrinth.com/mod/dragonminez).
 
-<div align="center">
+## Original project and credits
 
-**English** · [Español](README_ES.md) · [Português](README_PT.md)
+Support and follow the **original DragonMineZ team**: [Patreon](https://patreon.com/DragonMineZ) · [Discord](https://discord.gg/b5MgRNb3D7) · [Upstream repository](https://github.com/DragonMineZ/dragonminez).
 
-</div>
+Original developers: [Yuseix](https://github.com/yuseix300), [ezShokkoh](https://github.com/Shokkoh) and [Bruno](https://github.com/Bruneitor123).
 
----
+Original contributors: [Bati2ra](https://github.com/Bati2ra), [KyoSleep](https://github.com/KyoSleep1), JotaJoestar (models/animation), Toji71_ (builds), ZoneMC and Darkeryr (textures). Dragon Ball was created by Akira Toriyama.
 
-## About
-
-**DragonMine Z** is an immersive **Work-In-Progress Minecraft NeoForge 1.21.1 mod** inspired by Akira Toriyama's most-famous work, [Dragon Ball](https://en.dragon-ball-official.com/).
-
-Our goal is to bring the full Dragon Ball experience into Minecraft: custom characters, races, transformations, skills, stats, story content, dimensions, NPCs, structures, and a revamped survival experience.
-
-The project is still in active development, so features may change as we keep improving the mod.
-
----
-
-## ✨ Features
-
-- Create your own Dragon Ball-inspired character.
-- Choose from multiple races, including Saiyan, Human, Namekian, Frost Demon, Bio-Android, and Majin.
-- Customize your appearance with hair, eyes, skin, aura colors, and more.
-- Progress through stats such as Strength, Strike Power, Resistance, Vitality, Ki Power, and Energy.
-- Unlock skills, transformations, combat abilities, and new ways to grow stronger.
-- Explore new locations, dimensions, NPC encounters, structures, and story content.
-- Experience Minecraft survival with a Dragon Ball progression system layered on top.
-
----
-
-## 🖼️ Showcase
-
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <img src=".github/docs/img/red-ribbon-robots.png" alt="Red Ribbon robot enemies showcase" width="100%" />
-      <br />
-      <strong>Red Ribbon Robots</strong>
-      <br />
-      Preview of two Red Ribbon robot enemies being in DragonMine Z as part of the enemy roster.
-    </td>
-    <td align="center" width="50%">
-      <img src=".github/docs/img/namek-background.png" alt="Namek background showcase" width="100%" />
-      <br />
-      <strong>Namek Environment Preview</strong>
-      <br />
-      Background showcase inspired by Namek, presenting the atmosphere and visual direction of the mod.
-    </td>
-  </tr>
-</table>
-
----
-
-## 🚀 Download
-
-The original DragonMine Z from the mod pages:
-
-- [CurseForge](https://www.curseforge.com/minecraft/mc-mods/dragonminez)
-- [Modrinth](https://modrinth.com/mod/dragonminez)
-
-You can only download the port from GitHub:
-- [GitHub Releases](https://github.com/lueefr/dragonminez/releases/latest)
-Release notes are available in the [changelog](CHANGELOG.md) and are included with each GitHub release.
-
-Hotfix 7 fixes player aura positioning, improves muscle overlay rendering with shaders, and moves Otherworld landmarks into the normal per-chunk feature pipeline. In a server-only Distant Horizons 3.3.1 native-generation check, decoded FullData coordinates align with the Otherworld landmark after accounting for the dimension's `minY=-64`. No visual LOD overlay was captured, and the DH SeedGen data is still being checked with the same coordinate normalization. Other LOD addons remain untested. See the [Hotfix 7 notes](release-notes/2.2-hotfix-7.md) for details and limits.
-
----
-
-## 🫴 Support the Project
-
-Want early previews and extra behind-the-scenes updates?
-
-Join the [Patreon](https://patreon.com/DragonMineZ) to support the original mod development and get access to previews and similar perks. Your support helps us keep improving DragonMine Z and creating more content for the community.
-
-You can also join their [Discord server](https://discord.gg/b5MgRNb3D7) to follow development, report bugs, suggest ideas, and talk with the community.
-
----
-
-## 🗺️ Roadmap
-
-<div align="center">
-  <img src=".github/docs/img/roadmap.png" alt="DragonMine Z Roadmap" />
-</div>
-
-You can also follow their public [GitHub Progress Board](https://github.com/orgs/DragonMineZ/projects/4).
-
----
-
-## 🤝 Contributing
-
-Would you like to help? Cool! Check out the [contribution guide](.github/CONTRIBUTING.md) to get started.
-
-You can help with:
-
-- Code contributions
-- Bug reports
-- Feature suggestions
-- Translations
-- Documentation
-- Models, animations, builds, and other creative work
-
----
-
-## 🎯 Use of Third Parties
-
-### Sounds
-
-Some sounds are used from [Zapsplat](https://www.zapsplat.com/) and [Freesound](https://freesound.org/):
-
-- [Dragon Ball Scouter/Tracker Remade.wav](https://freesound.org/s/518004/) by Pablobd | License: Attribution 3.0
-- [A Symphony for Akira Toriyama](https://www.youtube.com/watch?v=xNVEkSerkU0) by GLADIUS | License: CC-BY License
-
-### Acknowledgments
-
-This project includes code from [GeckoLib](https://github.com/bernie-g/geckolib), which is licensed under the MIT License.
-
-Copyright © 2025 GeckoThePecko. See the [`THIRD_PARTY_LICENSES`](THIRD_PARTY_LICENSES) file for details.
-
----
-
-## ✨ Authors
-
-### Developers
-
-- [Yuseix](https://github.com/yuseix300) | *Co-Founder & Programmer*
-- [ezShokkoh](https://github.com/Shokkoh) | *Co-Founder & Programmer*
-- [Bruno](https://github.com/Bruneitor123) | *Co-Founder, Programmer & Community Admin*
-
-### Contributors
-
-- [Bati2ra](https://github.com/Bati2ra) | *Programmer*
-- [KyoSleep](https://github.com/KyoSleep1) | *Programmer*
-- JotaJoestar | *Modeler and Animator*
-- Toji71_ | *Builder*
-- ZoneMC | *Textures*
-- Darkeryr | *Textures*
-
----
+Third-party credits: [GeckoLib](https://github.com/bernie-g/geckolib) (MIT, © 2025 GeckoThePecko; see [third-party licenses](THIRD_PARTY_LICENSES)); audio from [Zapsplat](https://www.zapsplat.com/) and [Freesound](https://freesound.org/), including [Pablobd's scouter sound](https://freesound.org/s/518004/) (CC BY 3.0) and [GLADIUS's music tribute](https://www.youtube.com/watch?v=xNVEkSerkU0) (CC BY).
 
 ## License
 
-2026, DragonMine Z.
-
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License or, at your option, any later version.
-
-[GNU General Public License v3.0](https://github.com/DragonMineZ/dragonminez/blob/main/LICENSE)
-
-The configurable extension APIs are maintained separately on [`feature/2.2-neoforge-1.21.1-api`](https://github.com/lueefr/dragonminez/tree/feature/2.2-neoforge-1.21.1-api).
-
-Player aura/lightning alignment and shader skin-overlay fixes are maintained with the extension APIs in [PR #6](https://github.com/lueefr/dragonminez/pull/6). This branch is reserved for Otherworld worldgen and LOD compatibility.
+© 2026 DragonMine Z. Licensed under [GNU GPL v3.0 or later](LICENSE). Original authorship and third-party credits remain with their respective creators.

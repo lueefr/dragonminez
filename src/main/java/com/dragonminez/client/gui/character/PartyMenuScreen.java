@@ -594,7 +594,7 @@ public class PartyMenuScreen extends BaseMenuScreen {
 
 	private void renderRightPanelDetails(GuiGraphics graphics, int panelX, int panelY) {
 		if (selectedIndex < 0 || selectedIndex >= displayList.size()) {
-			TextUtil.drawCenteredStringWithBorder(graphics, this.font, txt("???").withStyle(ChatFormatting.BOLD), panelX + 70, panelY + 16, 0xFFFFD700, 0x000000);
+			TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("text.dragonminez.partymenuscreen.a03b221c6c").withStyle(ChatFormatting.BOLD), panelX + 70, panelY + 16, 0xFFFFD700, 0x000000);
 			if (currentView != View.JOIN) {
 				TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.character_stats.stats").withStyle(ChatFormatting.BOLD), panelX + 70, panelY + 84, 0x68CCFF, 0x000000);
 			}
@@ -656,7 +656,7 @@ public class PartyMenuScreen extends BaseMenuScreen {
 		y = inviteRow(graphics, centreX, y, tr("gui.dragonminez.party.invite.difficulty"),
 				difficultyLabel(invite.getPartyDifficulty()), 0xFFFFFF);
 		y = inviteRow(graphics, centreX, y, tr("gui.dragonminez.party.invite.expires"),
-				txt(secondsLeft + "s"), secondsLeft <= 10 ? 0xFFFF5555 : 0xFFFFFF);
+				tr("text.dragonminez.partymenuscreen.c142d89262" , secondsLeft), secondsLeft <= 10 ? 0xFFFF5555 : 0xFFFFFF);
 
 		Difficulty own = ownDifficulty();
 		if (invite.getPartyDifficulty().ordinal() < own.ordinal()) {

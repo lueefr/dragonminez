@@ -193,22 +193,29 @@ public final class HairStyleResolver {
 	private static StyleChoice styleForForm(Player player, Character character, String group, String formName) {
 		FormConfig config = ConfigManager.getFormGroup(character.getRaceName(), group);
 		FormConfig.FormData formData = config != null ? config.getForm(formName) : null;
-		return styleForFormData(player, character, formData, new StyleChoice(style(player, character, HairStyleSlot.BASE), HairStyleSlot.BASE));
+		return styleForFormData(player, character, group+"."+formName, formData, new StyleChoice(style(player, character, HairStyleSlot.BASE), HairStyleSlot.BASE));
 	}
 
 	private static StyleChoice styleForStackForm(Player player, Character character, String group, String formName, StyleChoice fallback) {
 		FormConfig config = ConfigManager.getStackFormGroup(group);
 		FormConfig.FormData formData = config != null ? config.getForm(formName) : null;
-		return styleForFormData(player, character, formData, fallback);
+		return styleForFormData(player, character, group+"."+formName, formData, fallback);
 	}
 
-	private static StyleChoice styleForFormData(Player player, Character character, FormConfig.FormData formData, StyleChoice fallback) {
+	private static StyleChoice styleForFormData(Player player, Character character, String id, FormConfig.FormData formData, StyleChoice fallback) {
 		if (formData == null) return fallback;
+        if(Boolean.TRUE.equals(formData.getEditHair())) {
+            CustomHair own=character.getFormHair(id);
+            if(HairEditSession.isActiveFor(player.getUUID()))own=HairEditSession.resolve(player.getUUID(),HairStyleSlot.BASE);
+            return new StyleChoice(own!=null?own:character.getHairStyle(HairStyleSlot.BASE),HairStyleSlot.BASE);
+        }
+
 		HairStyleSlot typedSlot = formData.hasDefinedHairType() ? HairStyleSlot.byHairType(formData.getHairType()) : null;
 		if (formData.hasHairCodeOverride()) {
 			CustomHair forced = decodeForced(formData.getForcedHairCode());
 			if (forced != null) return new StyleChoice(forced, typedSlot != null ? typedSlot : HairStyleSlot.BASE);
 		}
+		if (Boolean.FALSE.equals(formData.getEditHair())) return new StyleChoice(character.emptyHair(), HairStyleSlot.BASE);
 		if (formData.hasDefinedHairType()) {
 			if (typedSlot == null) return new StyleChoice(character.emptyHair(), HairStyleSlot.BASE);
 			return new StyleChoice(style(player, character, typedSlot), typedSlot);

@@ -65,10 +65,13 @@ public class StatsData {
 	private final Effects effects;
 	private final SecondaryStatEffects secondaryStatEffects;
 	private final PlayerQuestData playerQuestData;
+	private final com.dragonminez.api.forms.FormHistory formHistory = new com.dragonminez.api.forms.FormHistory();
+	private final com.dragonminez.api.content.ContentProgress contentProgress = new com.dragonminez.api.content.ContentProgress();
 	private final BonusStats bonusStats;
 	private final Techniques techniques;
 	private final DynamicGrowthData dynamicGrowth;
 	private final RacialData racialData;
+	private final transient com.dragonminez.api.forms.FormCompositionRuntime formComposition = new com.dragonminez.api.forms.FormCompositionRuntime();
 	private final transient FormTransition formTransition = new FormTransition();
 	private FusedData fusedData;
 
@@ -90,6 +93,11 @@ public class StatsData {
 		this.effects = new Effects();
 		this.secondaryStatEffects = new SecondaryStatEffects();
 		this.playerQuestData = new PlayerQuestData();
+        this.playerQuestData.setCompletionListener(questKey -> {
+            if (player instanceof ServerPlayer serverPlayer) {
+                com.dragonminez.api.content.ContentCompletionApi.questCompleted(serverPlayer, questKey);
+            }
+        });
 		this.bonusStats = new BonusStats();
 		this.techniques = new Techniques();
 		this.dynamicGrowth = new DynamicGrowthData();
@@ -840,6 +848,9 @@ public class StatsData {
 		if (formConfig == null) return 1.0;
 		var formData = formConfig.getForm(currentForm);
 		if (formData == null) return 1.0;
+        if (com.dragonminez.api.forms.FormCompositionRuntime.isComposed(formData)) {
+            return applyRacialFormPowerModifier(currentFormGroup, formComposition.multiplier(this, currentFormGroup, formData, statName));
+        }
 		double baseMult = switch (statName.toUpperCase()) {
 			case "STR" -> formData.getStrMultiplier();
 			case "SKP" -> formData.getSkpMultiplier();
@@ -1053,6 +1064,9 @@ public class StatsData {
 		if (formConfig == null) return 1.0;
 		var formData = formConfig.getForm(currentForm);
 		if (formData == null) return 1.0;
+        if (com.dragonminez.api.forms.FormCompositionRuntime.isComposed(formData)) {
+            return formComposition.multiplier(this, currentFormGroup, formData, statName);
+        }
 		if (StackForms.GROUP_ULTIMATE.equalsIgnoreCase(currentFormGroup) && !ConfigManager.getServerConfig().getGameplay().getUltimateFormFixedValue()) {
 			Object[] bestResult = getBestUltimateBaseFormWithGroup();
 			String bestGroup = (String) bestResult[0];
@@ -1745,6 +1759,7 @@ public class StatsData {
 			getDynamicGrowth().clearGrowthStats();
 		}
 		if (getStatus().isFused()) FusionLogic.endFusion(player, this, false);
+        com.dragonminez.server.util.MutantManager.reconcileHolder(player,this);
 		getCharacter().clearActiveForm(player);
 		getCharacter().clearActiveStackForm(player);
 		TransformStatusHandler.clearAllPersistentFormEffects(player);
@@ -1784,6 +1799,8 @@ public class StatsData {
 		nbt.put("Effects", effects.save());
 		nbt.put("SecondaryStatEffects", secondaryStatEffects.save());
 		nbt.put("PlayerQuestData", playerQuestData.serializeNBT());
+		nbt.put("CompletedContent", contentProgress.save());
+        nbt.put("FormHistory", formHistory.save());
 		nbt.put("BonusStats", bonusStats.save());
 		nbt.put("Techniques", techniques.save());
 		nbt.put("DynamicGrowth", dynamicGrowth.save());
@@ -1795,10 +1812,18 @@ public class StatsData {
 
 	public void load(CompoundTag nbt) throws ClassNotFoundException {
 		boolean fullPayload = nbt.contains("Character") && nbt.contains("Stats");
+        if (nbt.contains("FormHistory")) formHistory.load(nbt.getCompound("FormHistory"));
+        else if (fullPayload) formHistory.load(new CompoundTag());
+        if (nbt.contains("CompletedContent")) contentProgress.load(nbt.getCompound("CompletedContent"));
+        else if (fullPayload) contentProgress.load(new CompoundTag());
 		if (nbt.contains("Stats")) stats.load(nbt.getCompound("Stats"));
 		if (nbt.contains("Status")) status.load(nbt.getCompound("Status"));
 		if (nbt.contains("Cooldowns")) cooldowns.load(nbt.getCompound("Cooldowns"));
 		if (nbt.contains("Character")) character.load(nbt.getCompound("Character"));
+        if(fullPayload && !nbt.contains("FormHistory")) {
+            if(character.hasActiveForm())formHistory.resume("base",character.getRaceName(),character.getActiveFormGroup()+"."+character.getActiveForm());
+            if(character.hasActiveStackForm())formHistory.resume("stack",character.getRaceName(),character.getActiveStackFormGroup()+"."+character.getActiveStackForm());
+        }
 		if (nbt.contains("Resources")) resources.load(nbt.getCompound("Resources"));
 		if (nbt.contains("Skills")) skills.load(nbt.getCompound("Skills"));
 		if (nbt.contains("Effects")) effects.load(nbt.getCompound("Effects"));
@@ -1807,6 +1832,21 @@ public class StatsData {
 		if (nbt.contains("PlayerQuestData")) playerQuestData.deserializeNBT(nbt.getCompound("PlayerQuestData"));
 		else if (fullPayload) throw new ClassNotFoundException("PlayerQuestData not found in NBT. This is required for quest progression to work correctly. " +
 				"Please update the mod or re-generate your config files.");
+        if (fullPayload && !nbt.contains("CompletedContent") && nbt.contains("PlayerQuestData")) {
+            CompoundTag migrated = new CompoundTag();
+            for (String questId : playerQuestData.getKnownQuestIds()) {
+                int count = Math.max(playerQuestData.getTimesCompleted(questId), playerQuestData.isQuestCompleted(questId) ? 1 : 0);
+                if (count <= 0) continue;
+                String id = com.dragonminez.api.content.ContentCompletionApi.questContentId(questId);
+                migrated.putInt(id, count);
+                var quest = com.dragonminez.common.quest.QuestRegistry.getQuest(questId);
+                if (quest != null && quest.getCompletionId() != null && !quest.getCompletionId().equals(id)) {
+                    String alias = quest.getCompletionId();
+                    migrated.putInt(alias, (int) Math.min(Integer.MAX_VALUE, (long) migrated.getInt(alias) + count));
+                }
+            }
+            contentProgress.load(migrated);
+        }
 		if (nbt.contains("BonusStats")) bonusStats.load(nbt.getCompound("BonusStats"));
 		if (nbt.contains("Techniques")) techniques.load(nbt.getCompound("Techniques"));
 		if (nbt.contains("DynamicGrowth")) dynamicGrowth.load(nbt.getCompound("DynamicGrowth"));
@@ -1820,6 +1860,8 @@ public class StatsData {
 	}
 
 	public void copyFrom(StatsData other) {
+		this.contentProgress.copyFrom(other.contentProgress);
+        this.formHistory.copyFrom(other.formHistory);
 		this.stats.copyFrom(other.stats);
 		this.status.copyFrom(other.status);
 		this.cooldowns.copyFrom(other.cooldowns);

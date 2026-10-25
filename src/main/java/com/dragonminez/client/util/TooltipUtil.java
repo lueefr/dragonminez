@@ -52,7 +52,7 @@ public class TooltipUtil {
             Style currentStyle = Style.EMPTY;
             void flush() {
                 if (sb.length() > 0) {
-                    result.append(Component.literal(sb.toString()).withStyle(currentStyle));
+                    result.append(com.dragonminez.api.lang.ConfigTranslations.text(sb.toString()).withStyle(currentStyle));
                     sb.setLength(0);
                 }
             }

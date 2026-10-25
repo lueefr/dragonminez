@@ -298,8 +298,8 @@ public class GumBindEntity extends Entity implements GeoEntity {
 
 	private Component meter() {
 		int freed = Math.min(METER_BARS, Math.round(METER_BARS * (1.0F - this.ticksLeft / (float) Math.max(1, this.totalTicks))));
-		return Component.literal("|".repeat(freed)).withStyle(ChatFormatting.GREEN)
-				.append(Component.literal("|".repeat(METER_BARS - freed)).withStyle(ChatFormatting.DARK_GRAY));
+		return com.dragonminez.api.lang.ConfigTranslations.text("|".repeat(freed)).withStyle(ChatFormatting.GREEN)
+				.append(com.dragonminez.api.lang.ConfigTranslations.text("|".repeat(METER_BARS - freed)).withStyle(ChatFormatting.DARK_GRAY));
 	}
 
 	private void pulse() {

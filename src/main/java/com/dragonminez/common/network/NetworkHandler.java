@@ -926,6 +926,12 @@ public class NetworkHandler {
 				.encoder(StrikeCinematicS2C::encode)
 				.consumerMainThread(StrikeCinematicS2C::handle)
 				.add();
+        net.messageBuilder(OpenCustomNpcS2C.class,id(),NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(OpenCustomNpcS2C::new).encoder(OpenCustomNpcS2C::encode).consumerMainThread(OpenCustomNpcS2C::handle).add();
+        net.messageBuilder(CustomNpcShopC2S.class,id(),NetworkDirection.PLAY_TO_SERVER)
+                .decoder(CustomNpcShopC2S::new).encoder(CustomNpcShopC2S::encode).consumerMainThread(CustomNpcShopC2S::handle).add();
+        net.messageBuilder(RuleNoticeS2C.class,id(),NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(RuleNoticeS2C::new).encoder(RuleNoticeS2C::encode).consumerMainThread(RuleNoticeS2C::handle).add();
 	}
 
 	public static <MSG> void sendToServer(MSG message) {

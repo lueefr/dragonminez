@@ -47,21 +47,27 @@ public class Character {
 
 	private String selectedMaster = "";
 	private String selectedFormGroup = "";
-	private String activeFormGroup = "";
+	@Setter(AccessLevel.NONE)
+    private String activeFormGroup = "";
 	private String selectedForm = "";
-	private String activeForm = "";
+	@Setter(AccessLevel.NONE)
+    private String activeForm = "";
 	private final FormMasteries formMasteries = new FormMasteries();
 	private UsedForms formsUsedBefore = new UsedForms();
 	private int activeFormItemDurationTicks = 0;
 
-	private String previousFormGroup = "";
+	private String compositionBaseFormGroup = "";
+    private String compositionBaseForm = "";
+    private String previousFormGroup = "";
 	private String previousForm = "";
 	private boolean hasPreviousFormRecord = false;
 
 	private String selectedStackFormGroup = "";
-	private String activeStackFormGroup = "";
+	@Setter(AccessLevel.NONE)
+    private String activeStackFormGroup = "";
 	private String selectedStackForm = "";
-	private String activeStackForm = "";
+	@Setter(AccessLevel.NONE)
+    private String activeStackForm = "";
 	private final FormMasteries stackFormMasteries = new FormMasteries();
 	private UsedForms stackFormsUsedBefore = new UsedForms();
 	private int activeStackFormItemDurationTicks = 0;
@@ -132,6 +138,11 @@ public class Character {
 
 	private int hairId;
 	private final EnumMap<HairStyleSlot, CustomHair> hairStyles = createEmptyHairStyles();
+    private final java.util.Map<String,CustomHair> formHair = new java.util.HashMap<>();
+    public CustomHair getFormHair(String id) { return formHair.get(getRaceName()+":"+id); }
+    public void setFormHair(String id,CustomHair hair) { setFormHairKey(getRaceName()+":"+id,hair); }
+    public void setFormHairKey(String key,CustomHair hair) { formHair.put(key,hair.copy()); }
+
 	private String activeHeadBone = "";
 	private int bodyType;
 	private int eyesType;
@@ -298,6 +309,15 @@ public class Character {
 		}
 		return auraColor != null && !auraColor.isEmpty() ? auraColor : "#FFFFFF";
 	}
+
+    /** The form's outline remains authoritative during ki charging and surge bursts. */
+    public String getActiveOutlineColor() {
+        FormConfig.FormData stack = getActiveStackFormData();
+        if (stack != null && stack.getOutlineShader().isEnabled()) return stack.getOutlineShader().getPrimaryColor();
+        FormConfig.FormData form = getActiveFormData();
+        if (form != null && form.getOutlineShader().isEnabled()) return form.getOutlineShader().getPrimaryColor();
+        return getActiveAuraColor();
+    }
 
 	public float[] getActiveRgbAuraColor() {
 		return ColorUtils.hexToRgb(getActiveAuraColor());
@@ -507,6 +527,7 @@ public class Character {
 		tag.putString("Class", safeString(characterClass));
 		tag.putInt("HairId", hairId);
 		for (HairStyleSlot slot : HairStyleSlot.values()) tag.put(slot.getNbtKey(), hairStyles.get(slot).save());
+        var formStyles=new CompoundTag();formHair.forEach((key,hair)->formStyles.put(key,hair.save()));tag.put("FormHair",formStyles);
 		tag.putString("ActiveHeadBone", activeHeadBone != null ? activeHeadBone : "");
 		tag.putInt("BodyType", bodyType);
 		tag.putInt("EyesType", eyesType);
@@ -522,7 +543,9 @@ public class Character {
 		tag.putString("SelectedForm", safeString(selectedForm));
 		tag.putString("CurrentForm", safeString(activeForm));
 		tag.putInt("ActiveFormItemDurationTicks", activeFormItemDurationTicks);
-		tag.putString("PreviousFormGroup", safeString(previousFormGroup));
+		tag.putString("CompositionBaseFormGroup", safeString(compositionBaseFormGroup));
+        tag.putString("CompositionBaseForm", safeString(compositionBaseForm));
+        tag.putString("PreviousFormGroup", safeString(previousFormGroup));
 		tag.putString("PreviousForm", safeString(previousForm));
 		tag.putBoolean("HasPreviousFormRecord", hasPreviousFormRecord);
 		tag.put("FormMasteries", formMasteries.save());
@@ -583,6 +606,7 @@ public class Character {
 		this.gender = tag.getString("Gender");
 		this.characterClass = tag.getString("Class");
 		this.hairId = tag.getInt("HairId");
+        formHair.clear();var formStyles=tag.getCompound("FormHair");for(String key:formStyles.getAllKeys())formHair.put(key,CustomHair.fromTag(formStyles.getCompound(key)));
 		for (HairStyleSlot slot : HairStyleSlot.values()) {
 			if (!tag.contains(slot.getNbtKey())) {
 				hairStyles.put(slot, new CustomHair());
@@ -613,7 +637,9 @@ public class Character {
 		this.selectedForm = tag.getString("SelectedForm");
 		this.activeForm = tag.getString("CurrentForm");
 		this.activeFormItemDurationTicks = tag.getInt("ActiveFormItemDurationTicks");
-		this.previousFormGroup = tag.getString("PreviousFormGroup");
+		this.compositionBaseFormGroup = tag.getString("CompositionBaseFormGroup");
+        this.compositionBaseForm = tag.getString("CompositionBaseForm");
+        this.previousFormGroup = tag.getString("PreviousFormGroup");
 		this.previousForm = tag.getString("PreviousForm");
 		this.hasPreviousFormRecord = tag.getBoolean("HasPreviousFormRecord");
 		if (tag.contains("FormMasteries")) formMasteries.load(tag.getCompound("FormMasteries"));
@@ -674,7 +700,39 @@ public class Character {
 		return !activeFormGroup.isEmpty() && !activeForm.isEmpty();
 	}
 
+    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) private transient String pendingFormGroup;
+    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) private transient String pendingStackGroup;
+    /** Compatibility for scripts assigning group then form; commit the pair atomically. */
+    public void setActiveFormGroup(String group){pendingFormGroup=group==null?"":group;}
+    public void setActiveForm(String form){
+        String group=pendingFormGroup!=null?pendingFormGroup:activeFormGroup;
+        pendingFormGroup=null;setActiveForm(group,form);
+    }
+    public void setActiveStackFormGroup(String group){pendingStackGroup=group==null?"":group;}
+    public void setActiveStackForm(String form){
+        String group=pendingStackGroup!=null?pendingStackGroup:activeStackFormGroup;
+        pendingStackGroup=null;setActiveStackForm(group,form);
+    }
+
 	public void setActiveForm(String groupName, String formName) {
+        pendingFormGroup=null;
+        if (!com.dragonminez.api.forms.FormAccess.allow(statsData,groupName,formName,false,false)) return;
+        setActiveFormUnchecked(groupName,formName);
+    }
+
+    public void forceSetActiveForm(String groupName,String formName) {
+        pendingFormGroup=null;
+        com.dragonminez.api.forms.FormAccess.allow(statsData,groupName,formName,false,true);
+        setActiveFormUnchecked(groupName,formName);
+    }
+
+    private void setActiveFormUnchecked(String groupName,String formName) {
+        if (statsData != null && (!java.util.Objects.equals(activeFormGroup, groupName)
+                || !java.util.Objects.equals(activeForm, formName))
+                && !com.dragonminez.api.forms.FormCompositionRuntime.usesCurrent(statsData, activeFormGroup, activeForm)) {
+            this.compositionBaseFormGroup = activeFormGroup;
+            this.compositionBaseForm = activeForm;
+        }
 		this.activeFormGroup = groupName != null ? groupName : "";
 		this.activeForm = formName != null ? formName : "";
 		this.activeFormItemDurationTicks = 0;
@@ -706,6 +764,7 @@ public class Character {
 	}
 
 	public void clearActiveForm() {
+        pendingFormGroup=null;
 		this.activeFormGroup = "";
 		this.activeForm = "";
 		this.activeFormItemDurationTicks = 0;
@@ -807,6 +866,18 @@ public class Character {
 	}
 
 	public void setActiveStackForm(String groupName, String formName) {
+        pendingStackGroup=null;
+        if (!com.dragonminez.api.forms.FormAccess.allow(statsData,groupName,formName,true,false)) return;
+        setActiveStackFormUnchecked(groupName,formName);
+    }
+
+    public void forceSetActiveStackForm(String groupName,String formName) {
+        pendingStackGroup=null;
+        com.dragonminez.api.forms.FormAccess.allow(statsData,groupName,formName,true,true);
+        setActiveStackFormUnchecked(groupName,formName);
+    }
+
+    private void setActiveStackFormUnchecked(String groupName,String formName) {
 		this.activeStackFormGroup = groupName != null ? groupName : "";
 		this.activeStackForm = formName != null ? formName : "";
 		this.activeStackFormItemDurationTicks = 0;
@@ -814,6 +885,7 @@ public class Character {
 	}
 
 	public void clearActiveStackForm() {
+        pendingStackGroup=null;
 		this.activeStackFormGroup = "";
 		this.activeStackForm = "";
 		this.activeStackFormItemDurationTicks = 0;
@@ -889,6 +961,7 @@ public class Character {
 		this.characterClass = other.characterClass;
 		this.hairId = other.hairId;
 		for (HairStyleSlot slot : HairStyleSlot.values()) hairStyles.put(slot, other.hairStyles.get(slot).copy());
+        formHair.clear();other.formHair.forEach((key,hair)->formHair.put(key,hair.copy()));
 		this.activeHeadBone = other.activeHeadBone;
 		this.bodyType = other.bodyType;
 		this.eyesType = other.eyesType;
@@ -910,7 +983,9 @@ public class Character {
 		this.selectedForm = safeString(other.selectedForm);
 		this.activeForm = safeString(other.activeForm);
 		this.activeFormItemDurationTicks = other.activeFormItemDurationTicks;
-		this.previousFormGroup = safeString(other.previousFormGroup);
+		this.compositionBaseFormGroup = safeString(other.compositionBaseFormGroup);
+        this.compositionBaseForm = safeString(other.compositionBaseForm);
+        this.previousFormGroup = safeString(other.previousFormGroup);
 		this.previousForm = safeString(other.previousForm);
 		this.hasPreviousFormRecord = other.hasPreviousFormRecord;
 		this.formMasteries.copyFrom(other.formMasteries);

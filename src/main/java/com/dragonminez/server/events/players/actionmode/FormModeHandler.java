@@ -47,11 +47,12 @@ public class FormModeHandler implements IActionModeHandler {
 		if (nextForm == null) return;
 
 		String targetGroup = TransformationsHelper.getTransformTargetGroup(data);
+        if (!com.dragonminez.api.forms.FormAccess.allow(data,targetGroup,nextForm.getName(),false,false)) return;
 
 		if (TransformationsHelper.needsFreeTransformMastery(data) && !TransformationsHelper.meetsFreeTransformMastery(data)) {
 			Component targetName = Component.translatable(FusionForms.formTranslationKey(data.getCharacter().getRaceName(), targetGroup, nextForm.getName()));
-			player.displayClientMessage(Component.translatable("message.dragonminez.form.free_transform_mastery",
-					(int) Math.round(nextForm.getAllowFreeTransformOnMastery()), targetName), true);
+			com.dragonminez.api.forms.FormAccess.notice(player,Component.translatable("message.dragonminez.form.free_transform_mastery",
+					(int) Math.round(nextForm.getAllowFreeTransformOnMastery()), targetName),null);
 			return;
 		}
 
@@ -85,20 +86,20 @@ public class FormModeHandler implements IActionModeHandler {
 		boolean hasEnoughHealth = data.getPlayer().getHealth() >= healthCost;
 
 		if (!hasEnoughEnergy) {
-			player.displayClientMessage(Component.translatable("message.dragonminez.form.no_ki", energyCost), true);
+			com.dragonminez.api.forms.FormAccess.notice(player,Component.translatable("message.dragonminez.form.no_ki", energyCost),null);
 		}
 
 		if (!hasEnoughStamina) {
-			player.displayClientMessage(Component.translatable("message.dragonminez.form.no_stamina", staminaCost), true);
+			com.dragonminez.api.forms.FormAccess.notice(player,Component.translatable("message.dragonminez.form.no_stamina", staminaCost),null);
 		}
 
 		if (!hasEnoughHealth) {
-			player.displayClientMessage(Component.translatable("message.dragonminez.form.no_health", healthCost), true);
+			com.dragonminez.api.forms.FormAccess.notice(player,Component.translatable("message.dragonminez.form.no_health", healthCost),null);
 		}
 
 		if (hasEnoughEnergy && hasEnoughStamina && hasEnoughHealth) {
 			if (!TransformationItemCostHelper.canAffordAndHandleTriggerCost(player, nextForm)) {
-				player.displayClientMessage(Component.translatable("message.dragonminez.form.no_trigger_item"), true);
+				com.dragonminez.api.forms.FormAccess.notice(player,Component.translatable("message.dragonminez.form.no_trigger_item"),null);
 				return;
 			}
 			String group = targetGroup;
@@ -122,9 +123,9 @@ public class FormModeHandler implements IActionModeHandler {
 
 				translatedFormName = Component.empty()
 						.append(translatedFormName)
-						.append(Component.literal(" x "))
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.formmodehandler.fc191eafd9"))
 						.append(translatedStackFormGroup)
-						.append(Component.literal(" "))
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.formmodehandler.36a9e7f1c9"))
 						.append(translatedStackFormName);
 			}
 

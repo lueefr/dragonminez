@@ -45,7 +45,7 @@ public class ReloadCommand {
 	public static int executeReload(CommandSourceStack source, String rawScope) {
 		ReloadScope scope = ReloadScope.from(rawScope);
 		if (scope == null) {
-			source.sendFailure(Component.literal("Invalid reload section: " + rawScope));
+			source.sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.reloadcommand.cffd4e6717" , rawScope));
 			return 0;
 		}
 

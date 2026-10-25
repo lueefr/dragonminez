@@ -20,6 +20,11 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 public class MutantEvents {
 
 	private static final int CHECK_INTERVAL_TICKS = 100;
+    @SubscribeEvent public static void onLogin(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event){
+        if(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)
+            com.dragonminez.common.stats.StatsProvider.get(com.dragonminez.common.stats.StatsCapability.INSTANCE,player)
+                    .ifPresent(data->{MutantManager.reconcileHolder(player,data);MutantManager.rollForPlayer(player,data);});
+    }
 
 	@SubscribeEvent
 	public static void onServerTick(ServerTickEvent.Post event) {
@@ -30,7 +35,9 @@ public class MutantEvents {
 
 		GeneralServerConfig.MutantConfig cfg = ConfigManager.getServerConfig() != null
 				? ConfigManager.getServerConfig().getMutant() : null;
-		if (cfg == null || !cfg.getEnabled()) return;
+		for(var player:server.getPlayerList().getPlayers())com.dragonminez.common.stats.StatsProvider.get(
+                com.dragonminez.common.stats.StatsCapability.INSTANCE,player).ifPresent(data->{MutantManager.reconcileHolder(player,data);MutantManager.rollForPlayer(player,data);});
+        if (cfg == null || !cfg.getEnabled() || !cfg.getRetryEnabled()) return;
 
 		var overworld = server.getLevel(Level.OVERWORLD);
 		if (overworld == null) return;

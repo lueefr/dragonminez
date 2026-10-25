@@ -15,7 +15,9 @@ public final class WorldBossRewardText {
 
 	private WorldBossRewardText() {}
 
-	public static MutableComponent name(QuestReward reward) {
+	public static MutableComponent name(QuestReward reward) { return name(reward, null); }
+
+    public static MutableComponent name(QuestReward reward, com.dragonminez.common.stats.StatsData data) {
 		if (reward instanceof ItemReward item) {
 			return item.itemName();
 		}
@@ -30,15 +32,17 @@ public final class WorldBossRewardText {
 		}
 		if (reward instanceof KiTechniqueReward technique) {
 			String techniqueName = technique.getTemplate().getName();
-			return techniqueName != null && techniqueName.contains(".") ? Component.translatable(techniqueName) : Component.literal(techniqueName == null ? "" : techniqueName);
+			return techniqueName != null && techniqueName.contains(".") ? Component.translatable(techniqueName) : com.dragonminez.api.lang.ConfigTranslations.text(techniqueName == null ? "" : techniqueName);
 		}
 		if (reward instanceof TransformationReward) {
-			return reward.getDescription().copy();
+			return reward.getDescription(1.0, data).copy();
 		}
-		return reward.getDescription().copy();
+		return reward.getDescription(1.0, data).copy();
 	}
 
-	public static MutableComponent describe(QuestReward reward, float amount) {
+	public static MutableComponent describe(QuestReward reward, float amount) { return describe(reward, amount, null); }
+
+    public static MutableComponent describe(QuestReward reward, float amount, com.dragonminez.common.stats.StatsData data) {
 		if (reward instanceof ItemReward item) {
 			return Component.translatable("worldboss.dragonminez.results.item", Math.max(1, Math.round(amount)), item.itemName());
 		}
@@ -49,6 +53,6 @@ public final class WorldBossRewardText {
 		if (reward instanceof AttributesReward && amount > 0.0f) {
 			return Component.translatable("worldboss.dragonminez.results.attributes", Math.round(amount));
 		}
-		return name(reward);
+		return name(reward, data);
 	}
 }

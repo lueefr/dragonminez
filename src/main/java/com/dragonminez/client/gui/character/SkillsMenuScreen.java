@@ -139,7 +139,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 	}
 
 	public SkillsMenuScreen() {
-		super(Component.literal("Skills"));
+		super(net.minecraft.network.chat.Component.translatable("text.dragonminez.skillsmenuscreen.66d0f523a3"));
 	}
 
 	@Override
@@ -751,7 +751,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 						.texture(BUTTONS_TEXTURE)
 						.textureCoords(152, 0, 152, 10)
 						.textureSize(10, 10)
-						.message(Component.literal(String.valueOf(i + 1)))
+						.message(com.dragonminez.api.lang.ConfigTranslations.text(String.valueOf(i + 1)))
 						.onPress(btn -> {
 							NetworkHandler.INSTANCE.sendToServer(new EquipTechniqueC2S(slotIndex, selectedSkill));
 							isBinding = false;
@@ -795,6 +795,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 
 		int cost = getUpgradeCost(selectedSkill, skill.getLevel());
 		double currentTPS = statsData.getResources().getTrainingPointsExact();
+		var purchaseLock = FormRequisites.checkSkillLevel(statsData,selectedSkill,skill.getLevel()+1,true);
 		boolean canUpgrade = !skill.isMaxLevel() && currentTPS >= cost;
 		if (cost == -1 || cost == Integer.MAX_VALUE) return;
 
@@ -815,6 +816,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 					.build();
 
 			upgradeButton.active = canUpgrade;
+            if(purchaseLock.isLocked())upgradeButton.setTooltip(net.minecraft.client.gui.components.Tooltip.create(FormRequisites.describeInline(purchaseLock,true)));
 			this.addRenderableWidget(upgradeButton);
 		}
 	}
@@ -1078,7 +1080,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 			boolean unlocked = skill != null && skill.isUnlockedAt(requiredLevel);
 			boolean canPurchaseLevel = requiredLevel == currentLevel + 1;
 
-			lines.add(Component.translatable("skill.dragonminez." + hovered.formType).withStyle(ChatFormatting.GRAY).append(": " + requiredLevel).withStyle(ChatFormatting.GRAY));
+			lines.add(Component.translatable("skill.dragonminez." + hovered.formType).withStyle(ChatFormatting.GRAY).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.554eb89451", requiredLevel)).withStyle(ChatFormatting.GRAY));
 
 			int targetLevel = Math.max(0, requiredLevel - 1);
 			int cost = getUpgradeCostForTargetLevel(hovered.formType, targetLevel);
@@ -1323,42 +1325,42 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 			cooldownTicks = ki.getActualCooldown();
 			int scaledKiDamage = (int) (statsData.getKiDamage() * ki.getActualDamageMultiplier() * ki.getConfiguredDamageMultiplier() * ki.getOutputMultiplier());
 
-			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.type").append(": ").append(tr("technique.type." + ki.getKiType().name().toLowerCase())), panelX + 15, yOffset, 0xDDDDDD);
+			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.type").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr("technique.type." + ki.getKiType().name().toLowerCase())), panelX + 15, yOffset, 0xDDDDDD);
 			yOffset += 12;
 			yOffset = renderAllowedRaces(graphics, panelX, yOffset);
 
 			String utilKey = ki.getEffectiveUtility() == KiAttackData.Utility.HEAL ? "gui.dragonminez.technique.heal" : "gui.dragonminez.technique.damage";
-			TextUtil.drawStringWithBorder(graphics, this.font, tr(utilKey).append(": ").append(txt(String.valueOf(scaledKiDamage))), panelX + 15, yOffset, 0xFFFFFF);
+			TextUtil.drawStringWithBorder(graphics, this.font, tr(utilKey).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.valueOf(scaledKiDamage))), panelX + 15, yOffset, 0xFFFFFF);
 			yOffset += 12;
 
-			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.size").append(": ").append(txt(String.format(Locale.US, "%.1f", ki.getSize()))), panelX + 15, yOffset, 0xFFFFFF);
+			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.size").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.format(Locale.US, "%.1f", ki.getSize()))), panelX + 15, yOffset, 0xFFFFFF);
 			yOffset += 12;
-			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.speed").append(": ").append(txt(String.format(Locale.US, "%.1f", ki.getSpeed()))), panelX + 15, yOffset, 0xFFFFFF);
+			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.speed").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.format(Locale.US, "%.1f", ki.getSpeed()))), panelX + 15, yOffset, 0xFFFFFF);
 			yOffset += 12;
-			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.armor_pen").append(": ").append(txt(String.valueOf(ki.getArmorPenetration()))), panelX + 15, yOffset, 0xFFFFFF);
+			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.armor_pen").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.valueOf(ki.getArmorPenetration()))), panelX + 15, yOffset, 0xFFFFFF);
 			yOffset += 12;
 		} else if (tech instanceof StrikeAttackData st) {
 			cooldownTicks = st.getActualCooldown();
 			int scaledStrikeDamage = (int) (statsData.getStrikeDamage() * st.getDamageMultiplier());
-			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.type").append(": ").append(tr("technique.type.strike")), panelX + 15, yOffset, 0xDDDDDD);
+			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.type").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr("technique.type.strike")), panelX + 15, yOffset, 0xDDDDDD);
 			yOffset += 12;
 			yOffset = renderAllowedRaces(graphics, panelX, yOffset);
-			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.damage").append(": ").append(txt(String.valueOf(scaledStrikeDamage))), panelX + 15, yOffset, 0xFFFFFF);
+			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.damage").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.valueOf(scaledStrikeDamage))), panelX + 15, yOffset, 0xFFFFFF);
 			yOffset += 12;
 		} else if (tech instanceof EvasionAttackData ev) {
 			xpReq = ev.getUpgradeXpCost("duration");
 			cooldownTicks = ev.getActualCooldown();
-			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.type").append(": ").append(tr("technique.type.evasion")), panelX + 15, yOffset, 0xDDDDDD);
+			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.type").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr("technique.type.evasion")), panelX + 15, yOffset, 0xDDDDDD);
 			yOffset += 12;
 			yOffset = renderAllowedRaces(graphics, panelX, yOffset);
-			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.duration").append(": ").append(txt(String.format(Locale.US, "%.1fs", ev.getActualDurationTicks() / 20.0f))), panelX + 15, yOffset, 0xFFFFFF);
+			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.duration").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.c142d89262", String.format(Locale.ROOT, "%.1f", ev.getActualDurationTicks() / 20.0f)).getString())), panelX + 15, yOffset, 0xFFFFFF);
 			yOffset += 12;
 		}
 
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.cooldown").append(": ").append(txt(String.format(Locale.US, "%.1fs", cooldownTicks / 20.0f))), panelX + 15, yOffset, 0xFFFFFF);
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.cooldown").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.c142d89262", String.format(Locale.ROOT, "%.1f", cooldownTicks / 20.0f)).getString())), panelX + 15, yOffset, 0xFFFFFF);
 		yOffset += 12;
 
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.energy_cost").append(": ").append(txt(String.format(Locale.US, "%.1f", tech.getCalculatedCost(statsData)))), panelX + 15, yOffset, 0xFFAAAA);
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.energy_cost").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.format(Locale.US, "%.1f", tech.getCalculatedCost(statsData)))), panelX + 15, yOffset, 0xFFAAAA);
 		yOffset += 12;
 
 		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.req_xp", xpReq), panelX + 15, yOffset, 0xFFAAAAAA);
@@ -1374,7 +1376,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 
 	private int renderAllowedRaces(GuiGraphics graphics, int panelX, int yOffset) {
 		int labelColor = isTechniqueRaceAllowed(selectedSkill) ? 0xDDDDDD : 0xFF5555;
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.races").append(": ").append(ConfigManager.getSkillsConfig().describeAllowedRaces(selectedSkill)), panelX + 15, yOffset, labelColor);
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.races").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(ConfigManager.getSkillsConfig().describeAllowedRaces(selectedSkill)), panelX + 15, yOffset, labelColor);
 		return yOffset + 12;
 	}
 
@@ -1460,7 +1462,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 			TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.skills.level", skill.getLevel(), skill.getMaxLevel()), panelX + 72, startY + 12, 0xFFAAAAAA);
 			int upgradeCost = getUpgradeCost(selectedSkill, skill.getLevel());
 			if (upgradeCost != Integer.MAX_VALUE && upgradeCost > 0) {
-				TextUtil.drawCenteredStringWithBorder(graphics, this.font, txt("%d TPS".formatted(getUpgradeCost(selectedSkill, skill.getLevel()))), panelX + 72, startY + 24, 0xFFAAAAAA);
+				TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.cost.tp",getUpgradeCost(selectedSkill,skill.getLevel())), panelX + 72, startY + 24, 0xFFAAAAAA);
 			}
 		} else if (isClassPassive) {
 			TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("class.dragonminez.passive"), panelX + 72, startY + 12, 0xFFFFD200);
@@ -1593,7 +1595,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 
 					boolean requisiteLocked = FormRequisites.check(statsData, clicked.data, true).isLocked();
 
-					if (canPurchaseLevel && !isFirstStackLevel && !requisiteLocked && !isMasterOnlyFirstFormLevel(clicked.formType, targetLevel) && cost != -1 && cost != Integer.MAX_VALUE && statsData.getResources().getTrainingPointsExact() >= cost) {
+					if (canPurchaseLevel && !isFirstStackLevel && !isMasterOnlyFirstFormLevel(clicked.formType, targetLevel) && cost != -1 && cost != Integer.MAX_VALUE && statsData.getResources().getTrainingPointsExact() >= cost) {
 						NetworkHandler.INSTANCE.sendToServer(new UpdateSkillC2S(UpdateSkillC2S.SkillAction.UPGRADE, clicked.formType, cost));
 						updateStatsData();
 					}
