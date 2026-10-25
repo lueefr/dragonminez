@@ -24,6 +24,7 @@ public final class ConfigTranslations {
             }
         }
         local = Map.copyOf(next);
+        missing.clear();
         revision++;
     }
     public static String requireLocale(String locale) {
@@ -46,9 +47,23 @@ public final class ConfigTranslations {
         Map<String, Map<String, String>> next = new TreeMap<>();
         translations.forEach((locale, values) -> next.put(requireLocale(locale), Map.copyOf(values)));
         remote = Map.copyOf(next);
+        missing.clear();
         revision++;
     }
     public void clearRemote() { replaceRemote(Map.of()); }
+    private final Map<String,Set<String>> missing = new java.util.concurrent.ConcurrentHashMap<>();
+    /** Runtime audit for dynamic mod/content keys after all fallbacks have failed. */
+    public void recordMissing(String locale,String key) {
+        if(key==null||key.length()>256||!key.matches("[a-z][a-z0-9_.:/-]+")
+                ||(!key.contains(".")&&!key.contains(":")))return;
+        Set<String> keys=missing.computeIfAbsent(locale,id->java.util.concurrent.ConcurrentHashMap.newKeySet());
+        if(keys.size()<2048&&keys.add(key))System.getLogger("DragonMineZ").log(System.Logger.Level.DEBUG,
+                "Untranslated player text in {0}: {1}",locale,key);
+    }
+    public Map<String,Set<String>> missingSnapshot() {
+        Map<String,Set<String>> copy=new TreeMap<>();missing.forEach((locale,keys)->copy.put(locale,Set.copyOf(keys)));
+        return Map.copyOf(copy);
+    }
     public long revision() { return revision; }
     public Map<String, Map<String, String>> localSnapshot() { return local; }
 

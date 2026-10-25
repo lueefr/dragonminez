@@ -114,7 +114,7 @@ public class DebugCommand {
 					if (requester != null) {
 						DebugFileS2C packet = new DebugFileS2C(target.getGameProfile().getName(), json);
 						if (!packet.fitsInPacket()) {
-							source.sendFailure(Component.translatable("command.dragonminez.debug.error", "dump too large to send"));
+							source.sendFailure(Component.translatable("command.dragonminez.debug.error", Component.translatable("text.dragonminez.debug.too_large")));
 							return 0;
 						}
 						NetworkHandler.sendToPlayer(packet, requester);

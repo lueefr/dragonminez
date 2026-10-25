@@ -150,7 +150,7 @@ public class TechniqueHotbarHUD {
 		String keyLabel = KeyBinds.TECHNIQUE_SLOTS[slot].getKey().getDisplayName().getString();
 		MutableComponent name = view.tech != null ? techniqueName(view.tech.getName())
 				: preview ? Component.translatable("gui.dragonminez.hud_editor.skill_sample", slot % BAR_SLOTS + 1).withStyle(Style.EMPTY.withFont(DMZ_FONT)) : null;
-		MutableComponent cd = (view.cooling && view.seconds > 0.05f) ? styled(String.format(Locale.US, "%.1fs", view.seconds)) : null;
+		MutableComponent cd = (view.cooling && view.seconds > 0.05f) ? styled(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.c142d89262", String.format(Locale.ROOT, "%.1f", view.seconds)).getString()) : null;
 		int nameColor = view.cooling ? COLOR_NAME_CD : COLOR_NAME;
 
 		guiGraphics.pose().pushPose();

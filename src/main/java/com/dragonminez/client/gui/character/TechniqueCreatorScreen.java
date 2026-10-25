@@ -255,20 +255,20 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 		int rightCx = panelX + 274;
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.skills.creator.type").append(": ").append(tr(draft.typeKey())),
+				tr("gui.dragonminez.skills.creator.type").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr(draft.typeKey())),
 				leftCx, r1, 0xFFFFFFFF);
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.skills.creator.utility").append(": ").append(tr("technique.utility." + draft.getEffectiveUtility().name().toLowerCase(Locale.ROOT))),
+				tr("gui.dragonminez.skills.creator.utility").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr("technique.utility." + draft.getEffectiveUtility().name().toLowerCase(Locale.ROOT))),
 				leftCx, r2, draft.allowsUtility() ? 0xFFFFFFFF : 0xFF777777);
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.skills.creator.ki_cost_label").append(" ").append(txt(COST_NUMBER_FORMAT.format(draft.getKiCost()))),
+				tr("gui.dragonminez.skills.creator.ki_cost_label").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9")).append(txt(COST_NUMBER_FORMAT.format(draft.getKiCost()))),
 				centerCx, r2, 0xFFDDDDDD);
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.cooldown").append(": ").append(txt(String.valueOf(draft.getCooldown()))),
+				tr("gui.dragonminez.technique.cooldown").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.valueOf(draft.getCooldown()))),
 				centerCx, r3, 0xFFDDDDDD);
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.skills.creator.tp_cost_label").append(" ").append(txt(COST_NUMBER_FORMAT.format(draft.getTpCost()))),
+				tr("gui.dragonminez.skills.creator.tp_cost_label").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9")).append(txt(COST_NUMBER_FORMAT.format(draft.getTpCost()))),
 				centerCx, r4, draft.canAfford() ? 0xFFDDDDDD : DENIED);
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.skills.creator.available_tp"), rightCx, r1, 0xFFCCCCCC);
@@ -295,26 +295,26 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 
 		int damagePercent = Math.round(draft.getDamage() * 100.0f);
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.damage").append(": ").append(tr("text.dragonminez.techniquecreatorscreen.eaf8695fa7" , damagePercent)),
+				tr("gui.dragonminez.technique.damage").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr("text.dragonminez.techniquecreatorscreen.eaf8695fa7" , damagePercent)),
 				cx, panelY + 128, 0xFFFFFFFF);
 
 		int sizeColor = KiAttackData.usesCustomSize(type) ? 0xFFFFFFFF : 0xFF777777;
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.size").append(": ").append(txt(String.format(Locale.US, "%.1f", draft.getSize()))),
+				tr("gui.dragonminez.technique.size").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.format(Locale.US, "%.1f", draft.getSize()))),
 				cx, panelY + 148, sizeColor);
 
 		int speedColor = KiAttackData.usesCustomSpeed(type) ? 0xFFFFFFFF : 0xFF777777;
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.speed").append(": ").append(txt(String.format(Locale.US, "%.1f", draft.getSpeed()))),
+				tr("gui.dragonminez.technique.speed").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.format(Locale.US, "%.1f", draft.getSpeed()))),
 				cx, panelY + 168, speedColor);
 
 		int armorColor = KiAttackData.usesCustomArmorPen(type) ? 0xFFFFFFFF : 0xFF777777;
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.armor_pen").append(": ").append(tr("text.dragonminez.techniquecreatorscreen.eaf8695fa7" , draft.getArmorPen())),
+				tr("gui.dragonminez.technique.armor_pen").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr("text.dragonminez.techniquecreatorscreen.eaf8695fa7" , draft.getArmorPen())),
 				cx, panelY + 188, armorColor);
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.cast_time").append(": ").append(txt(String.valueOf(draft.getCast() / 20)).append("s")),
+				tr("gui.dragonminez.technique.cast_time").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.valueOf(draft.getCast() / 20)).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.043a718774"))),
 				cx, panelY + 208, 0xFFAACCFF);
 	}
 
@@ -327,19 +327,19 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.secondary_effects"), cx, panelY + 108, GOLD);
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.effect_type").append(": ").append(tr("gui.dragonminez.technique.effect_type." + draft.getSecondaryType().name().toLowerCase(Locale.ROOT))),
+				tr("gui.dragonminez.technique.effect_type").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr("gui.dragonminez.technique.effect_type." + draft.getSecondaryType().name().toLowerCase(Locale.ROOT))),
 				cx, panelY + 128, active);
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.affected_stat").append(": ").append(tr("gui.dragonminez.technique.affected_stat." + draft.getAffectedStat().name().toLowerCase(Locale.ROOT))),
+				tr("gui.dragonminez.technique.affected_stat").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr("gui.dragonminez.technique.affected_stat." + draft.getAffectedStat().name().toLowerCase(Locale.ROOT))),
 				cx, panelY + 148, hasSecondary ? active : inactive);
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.intensity").append(": ").append(tr("text.dragonminez.techniquecreatorscreen.eaf8695fa7" , draft.getSecondaryIntensity())),
+				tr("gui.dragonminez.technique.intensity").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr("text.dragonminez.techniquecreatorscreen.eaf8695fa7" , draft.getSecondaryIntensity())),
 				cx, panelY + 168, hasSecondary ? active : inactive);
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.duration").append(": ").append(tr("text.dragonminez.techniquecreatorscreen.c142d89262" , draft.getSecondaryDuration())),
+				tr("gui.dragonminez.technique.duration").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr("text.dragonminez.techniquecreatorscreen.c142d89262" , draft.getSecondaryDuration())),
 				cx, panelY + 188, hasSecondary ? active : inactive);
 	}
 

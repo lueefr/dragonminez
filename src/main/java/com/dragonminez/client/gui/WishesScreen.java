@@ -288,7 +288,7 @@ public class WishesScreen extends ScaledScreen {
 		StringBuilder badge = new StringBuilder();
 		for (int slot = 0; slot < selectedIndices.size(); slot++) {
 			if (selectedIndices.get(slot) != wishIndex) continue;
-			if (badge.length() > 0) badge.append(" - ");
+			if (badge.length() > 0) badge.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.d3150495ce").getString());
 			badge.append(slot + 1);
 		}
 		return badge.toString();

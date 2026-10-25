@@ -82,7 +82,7 @@ public class StructureCommand {
 							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, com.dragonminez.api.lang.ConfigTranslations.text(snippet))));
 			source.sendSuccess(() -> Component.translatable("command.dragonminez.structure.here",
 					com.dragonminez.api.lang.ConfigTranslations.text(entry.id().toString()).withStyle(ChatFormatting.YELLOW),
-					template, coords, String.format(Locale.ROOT, "%.0f", yaw)).append(" ").append(copy), false);
+					template, coords, String.format(Locale.ROOT, "%.0f", yaw)).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9")).append(copy), false);
 		}
 		return found.size();
 	}

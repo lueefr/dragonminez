@@ -104,12 +104,12 @@ public final class NotificationFeeds {
 			int progress = pqd.getObjectiveProgress(questId, i);
 			int required = quest.getObjectiveRequired(pqd, questId, i);
 			if (progress >= required) continue;
-			if (any) text.append("\n");
+			if (any) text.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.01ba4719c8"));
 			text.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.notificationfeeds.e86dd77a7e"))
 					.append(QuestTextFormatter.describeObjective(objective))
 					.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.notificationfeeds.e3556b02d4" , progress, required));
 			Component waypoint = waypointLine(objective, progress);
-			if (waypoint != null) text.append("\n").append(waypoint);
+			if (waypoint != null) text.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.01ba4719c8")).append(waypoint);
 			any = true;
 			if (!quest.isParallelObjectives()) break;
 		}

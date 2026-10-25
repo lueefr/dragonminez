@@ -391,7 +391,7 @@ public class FlySkillEvent {
 				}
 				Component switchHint = Component.empty()
 						.append(KeyBinds.SECOND_FUNCTION_KEY.getTranslatedKeyMessage())
-						.append(" + ")
+						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.46209f696e"))
 						.append(KeyBinds.FLY_KEY.getTranslatedKeyMessage());
 				player.displayClientMessage(Component.translatable(
 						isCombatFly ? "dragonminez.flight.mode.switched.combat" : "dragonminez.flight.mode.switched.search",

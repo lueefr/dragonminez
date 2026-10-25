@@ -3803,7 +3803,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		}
 		StringBuilder last = new StringBuilder(lines.get(maxLines - 1));
 		for (int i = maxLines; i < lines.size(); i++) {
-			last.append(" ").append(lines.get(i));
+			last.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9")).append(lines.get(i));
 		}
 		limited.add(fitSingleLineEllipsis(last.toString(), maxWidth));
 		return limited;

@@ -831,7 +831,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 						.append(com.dragonminez.api.lang.ConfigTranslations.text(String.format(Locale.US, "%.2f", scaling.getStaminaScaling())).withStyle(ChatFormatting.GREEN)));
 				extras.add(tr("gui.dragonminez.customization.stat.regen.stm").withStyle(ChatFormatting.GRAY)
 						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
-						.append(com.dragonminez.api.lang.ConfigTranslations.text(String.format(Locale.US, "%.1f/s", classStats.getBaseSp5() * 0.2)).withStyle(ChatFormatting.YELLOW))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.2a959b04d3", String.format(Locale.ROOT, "%.1f", classStats.getBaseSp5() * 0.2)).getString()).withStyle(ChatFormatting.YELLOW))
 						.append(com.dragonminez.api.lang.ConfigTranslations.text(RegenScalingFormat.stamina(classStats)).withStyle(ChatFormatting.DARK_GRAY)));
 			}
 		}
@@ -847,11 +847,11 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 						.append(com.dragonminez.api.lang.ConfigTranslations.text(vitScalingText).withStyle(ChatFormatting.GREEN)));
 				extras.add(tr("gui.dragonminez.customization.stat.regen.hp").withStyle(ChatFormatting.GRAY)
 						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
-						.append(com.dragonminez.api.lang.ConfigTranslations.text(String.format(Locale.US, "%.1f/s", classStats.getBaseHp5() * 0.2)).withStyle(ChatFormatting.YELLOW))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.2a959b04d3", String.format(Locale.ROOT, "%.1f", classStats.getBaseHp5() * 0.2)).getString()).withStyle(ChatFormatting.YELLOW))
 						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.6eccfc6258" , String.format(Locale.US, "%.2f", classStats.getHp5VitScaling() * 0.2)).withStyle(ChatFormatting.DARK_GRAY)));
 				extras.add(tr("gui.dragonminez.customization.stat.regen.stm").withStyle(ChatFormatting.GRAY)
 						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
-						.append(com.dragonminez.api.lang.ConfigTranslations.text(String.format(Locale.US, "%.1f/s", classStats.getBaseSp5() * 0.2)).withStyle(ChatFormatting.YELLOW))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.2a959b04d3", String.format(Locale.ROOT, "%.1f", classStats.getBaseSp5() * 0.2)).getString()).withStyle(ChatFormatting.YELLOW))
 						.append(com.dragonminez.api.lang.ConfigTranslations.text(RegenScalingFormat.stamina(classStats)).withStyle(ChatFormatting.DARK_GRAY)));
 			} else if (mouseX >= centerX - 15 && mouseX <= centerX + 15) {
 				title = tr("gui.dragonminez.character_stats.pwr").withStyle(ChatFormatting.BOLD);
@@ -867,7 +867,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 						.append(com.dragonminez.api.lang.ConfigTranslations.text(String.format(Locale.US, "%.2f", scaling.getEnergyScaling())).withStyle(ChatFormatting.GREEN)));
 				extras.add(tr("gui.dragonminez.customization.stat.regen.ki").withStyle(ChatFormatting.GRAY)
 						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.45822f54a0").withStyle(ChatFormatting.GRAY))
-						.append(com.dragonminez.api.lang.ConfigTranslations.text(String.format(Locale.US, "%.1f/s", classStats.getBaseEp5() * 0.2)).withStyle(ChatFormatting.YELLOW))
+						.append(com.dragonminez.api.lang.ConfigTranslations.text(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.2a959b04d3", String.format(Locale.ROOT, "%.1f", classStats.getBaseEp5() * 0.2)).getString()).withStyle(ChatFormatting.YELLOW))
 						.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.charactercustomizationscreen.4e0d0fdcbc" , String.format(Locale.US, "%.2f", classStats.getEp5EneScaling() * 0.2)).withStyle(ChatFormatting.DARK_GRAY)));
 			}
 		}

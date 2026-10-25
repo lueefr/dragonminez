@@ -106,15 +106,15 @@ public final class FormRequisites {
 		MutableComponent requirements = Component.empty();
 		if (lock.sagaLocked()) requirements.append(sagaQuestReference(lock.sagaId(), lock.questId(), clientSide));
 		if (lock.levelLocked()) {
-			if (lock.sagaLocked()) requirements.append(" / ");
+			if (lock.sagaLocked()) requirements.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.005e1574a2"));
 			requirements.append(Component.translatable("gui.dragonminez.skills.locked_level", lock.level()));
 		}
         for (String id : lock.completedContent()) {
-            if (!requirements.getString().isEmpty()) requirements.append(" / ");
+            if (!requirements.getString().isEmpty()) requirements.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.005e1574a2"));
             requirements.append(Component.translatable("gui.dragonminez.skills.locked_content", Component.translatable(id)));
         }
 		for (Component rule : lock.rules()) {
-            if (!requirements.getString().isEmpty()) requirements.append(" / ");requirements.append(rule);
+            if (!requirements.getString().isEmpty()) requirements.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.005e1574a2"));requirements.append(rule);
         }
         return Component.translatable("gui.dragonminez.skills.locked_until", requirements);
 	}

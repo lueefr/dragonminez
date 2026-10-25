@@ -48,18 +48,26 @@ public final class DialogueRegistry {
 			LogUtil.error(Env.SERVER, "Could not list dialogue folder '{}'", dialogueDir, e);
 		}
 
-		LogUtil.info(Env.SERVER, "Loaded {} NPC dialogue tree(s)", TREES.size());
+		try{com.dragonminez.common.config.schema.ContentMigration.commitPending();}
+        catch(IOException ex){LogUtil.error(Env.SERVER,"Dialogue migration aborted; originals retained: {}",ex.getMessage());}
+        LogUtil.info(Env.SERVER, "Loaded {} NPC dialogue tree(s)", TREES.size());
 	}
 
 	private static void loadFile(Path path) {
 		String fileName = path.getFileName().toString();
 		try (Reader reader = Files.newBufferedReader(path)) {
-			JsonObject json = GSON.fromJson(reader, JsonObject.class);
+			JsonObject json = com.dragonminez.common.config.schema.ContentMigration.load(path,
+                    com.dragonminez.common.config.schema.ContentSchema.Kind.DIALOGUE,flat->{
+                        DialogueTree parsed=DialogueParser.parse(flat,fileName);
+                        if(parsed==null)throw new IllegalArgumentException("Invalid dialogue tree");
+                        if(TREES.containsKey(parsed.getNpcId()))throw new IllegalArgumentException("Duplicate dialogue NPC: "+parsed.getNpcId());
+                    });
 			DialogueTree tree = DialogueParser.parse(json, fileName);
 			if (tree != null && !tree.getNpcId().startsWith("_")) {
 				TREES.put(tree.getNpcId(), tree);
 			}
 		} catch (Exception e) {
+            com.dragonminez.common.config.schema.ContentMigration.discard(path);
 			LogUtil.error(Env.SERVER, "Failed to load dialogue file '{}': {}", fileName, e.toString());
 		}
 	}

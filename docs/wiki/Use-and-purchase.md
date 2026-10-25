@@ -124,3 +124,6 @@ Text is not translated into the server's language before transmission. Each rece
 Legacy scripts assigning the group and form separately keep their method signatures: the group is staged until the form is supplied, then the pair is checked atomically. Prefer the two-argument setter for new integrations.
 
 Custom Java integrations should check `FormAccess.allow` before charging their own external costs. Do not directly mutate form fields or load fabricated NBT to implement a transformation.
+
+
+All native skill purchase/upgrade refusals now use the modal path: missing or unavailable skill, race restriction, fusion, missing offering within 10 blocks, alignment, existing ownership, maximum level, grant-only level, insufficient TP and configured requirements. The server returns a translatable reason before debiting TP or granting progression. It never trusts the cost sent by the client.

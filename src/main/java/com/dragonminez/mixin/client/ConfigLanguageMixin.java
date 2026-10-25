@@ -18,6 +18,11 @@ public abstract class ConfigLanguageMixin {
         String value = dragonminez$custom(key);
         if (value != null) cir.setReturnValue(value);
     }
+    @Inject(method = "getOrDefault", at = @At("RETURN"))
+    private void dragonminez$auditMissing(String key,String fallback,CallbackInfoReturnable<String> cir) {
+        if(key.equals(cir.getReturnValue())&&!((ClientLanguage)(Object)this).has(key))
+            ConfigTranslations.INSTANCE.recordMissing(Minecraft.getInstance().options.languageCode,key);
+    }
     @Inject(method = "has", at = @At("HEAD"), cancellable = true)
     private void dragonminez$hasConfigName(String key, CallbackInfoReturnable<Boolean> cir) {
         if (dragonminez$custom(key) != null) cir.setReturnValue(true);

@@ -29,7 +29,6 @@ final class SagaDefaults {
 	 */
 	static void createDefaultSagaFiles(Path sagaDir) {
 		if (!ConfigManager.getServerConfig().getGameplay().getStoryModeEnabled()) return;
-		if (!ConfigManager.getServerConfig().getGameplay().getCreateDefaultSagas()) return;
 
 		Path dmzBase = sagaDir.getParent(); // <world>/dragonminez
 
@@ -49,7 +48,7 @@ final class SagaDefaults {
 	 */
 	private static void writeSagaManifest(Path dmzBase, Path sagaDir, String filename, String sagaId, String name, String previousSaga, String questFolder) {
 		try {
-			Files.createDirectories(sagaDir);
+
 
 			JsonObject root = new JsonObject();
 			root.addProperty("id", sagaId);
@@ -61,7 +60,11 @@ final class SagaDefaults {
 
 			root.addProperty("questFolder", questFolder);
 
-			QuestUpgrader.upgradeOrWrite(dmzBase, sagaDir.resolve(filename), root);
+			if(!ConfigManager.getServerConfig().getGameplay().getCreateDefaultSagas()){
+                QuestUpgrader.registerDefault(sagaDir.resolve(filename),root);return;
+            }
+            Files.createDirectories(sagaDir);
+            QuestUpgrader.upgradeOrWrite(dmzBase, sagaDir.resolve(filename), root);
 		} catch (IOException e) {
 			LogUtil.error(Env.COMMON, "Failed to create saga manifest: {}", filename, e);
 		}

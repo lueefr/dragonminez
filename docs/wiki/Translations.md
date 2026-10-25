@@ -43,3 +43,12 @@ A key displayed literally indicates an exhausted fallback chain. Add it to the d
 - Condition extensions should return translatable components from `Conditions.Type.describe`; override its context-aware variant when names require race/form context.
 
 Renderer internals that draw individual already-resolved glyphs do not translate those glyphs a second time. This preserves the color and outline of each form-name span.
+
+
+## Auditing player text
+
+Run `python3 scripts/audit-player-text.py`. It checks bundled keys, component entry points, literal message arguments, appended text, formatted labels/units and local text initializers reaching rendering helpers. Pure numeric values remain data. The local quest update report is a diagnostic file and is excluded from the appended-UI-text rule.
+
+The client language hook also records exhausted dynamic lookups. Inspect `ConfigTranslations.INSTANCE.missingSnapshot()` or the debug log for locale/key pairs. Entries are deduplicated and bounded; config translation reload clears them. This keeps the raw-key fallback intact while making missing dynamic translations observable. `recordMissing` is an audit hook, not a replacement for translation.
+
+The auditor's own regression tests run with `python3 -m unittest discover -s scripts/tests -v`. CI runs both commands. Numeric formatting, player-provided values and IDs used as data are distinct from built-in sentence/label templates; new templates must go in the catalog.

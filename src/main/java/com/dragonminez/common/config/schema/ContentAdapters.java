@@ -8,10 +8,20 @@ import java.io.IOException;
 /** Retains Java APIs while replacing the JSON layout at the serialization boundary. */
 public final class ContentAdapters implements TypeAdapterFactory {
     public static ContentSchema.Kind kind(Class<?> type){return switch(type.getName()){
+        case "com.dragonminez.common.config.TechniqueConfig"->ContentSchema.Kind.TECHNIQUES;
+        case "com.dragonminez.common.config.TechniqueConfig$TechniqueTypeConfig", "com.dragonminez.common.config.TechniqueConfig$StrikeAttackConfig", "com.dragonminez.common.config.TechniqueConfig$EvasionAttackConfig"->ContentSchema.Kind.TECHNIQUE;
+        case "com.dragonminez.common.config.EntitiesConfig"->ContentSchema.Kind.ENTITIES;
+        case "com.dragonminez.common.config.RaidDefinition"->ContentSchema.Kind.RAID;
+        case "com.dragonminez.common.config.TournamentDefinition"->ContentSchema.Kind.TOURNAMENT;
+        case "com.dragonminez.common.config.RaidDefinition$Trigger", "com.dragonminez.common.config.RaidDefinition$Spawn", "com.dragonminez.common.config.TournamentDefinition$Fighter"->ContentSchema.Kind.FIGHTER;
+        case "com.dragonminez.common.config.RaceCharacterConfig"->ContentSchema.Kind.RACE_CHARACTER;
+        case "com.dragonminez.common.config.RaceStatsConfig"->ContentSchema.Kind.RACE_STATS;
+        case "com.dragonminez.common.config.RaceStatsConfig$ClassStats"->ContentSchema.Kind.CLASS_STATS;
         case "com.dragonminez.common.config.FormConfig"->ContentSchema.Kind.FORMS;
         case "com.dragonminez.common.config.FormConfig$FormData"->ContentSchema.Kind.FORM;
         case "com.dragonminez.common.config.SkillsConfig"->ContentSchema.Kind.SKILLS;
         case "com.dragonminez.common.config.SkillsConfig$SkillCosts"->ContentSchema.Kind.SKILL;
+        case "com.dragonminez.api.npc.CustomNpcRegistry$Placement"->ContentSchema.Kind.NPC_PLACEMENT;
         case "com.dragonminez.api.npc.CustomNpcRegistry$Definition"->ContentSchema.Kind.NPC;
         case "com.dragonminez.common.config.RuleConfig"->ContentSchema.Kind.RULES;
         default->null;

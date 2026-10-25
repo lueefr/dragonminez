@@ -7,6 +7,15 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConfigTranslationsTest {
+    @Test void runtimeAuditDeduplicatesDynamicKeysAndClearsAfterReload()throws Exception{
+        var t=new ConfigTranslations();
+        t.recordMissing("pt_br","example:trial");t.recordMissing("pt_br","example:trial");
+        t.recordMissing("pt_br","12.5");t.recordMissing("pt_br","/private/path");
+        assertEquals(java.util.Set.of("example:trial"),t.missingSnapshot().get("pt_br"));
+        t.replaceRemote(Map.of("pt_br",Map.of("example:trial","Teste")));
+        assertTrue(t.missingSnapshot().isEmpty());
+    }
+
     @TempDir Path dir;
     @Test void configNamesFallBackToEnglishThenRawAndReloadAtomically() throws Exception {
         Files.writeString(dir.resolve("en_us.json"),"{\"example.name\":\"Example\",\"example.only_english\":\"Fallback\"}");

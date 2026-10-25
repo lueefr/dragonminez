@@ -1135,7 +1135,7 @@ public class RythmGameScreen extends BaseMinigameScreen {
 			graphics.pose().pushPose();
 			graphics.pose().translate(cx, midY + 2, 0);
 			graphics.pose().scale(comboScale, comboScale, 1f);
-			TextUtil.drawCenteredStringWithBorder(graphics, this.font, dmz("x" + r.combo()), 0, -4, r.combo() >= 20 ? 0xFFFFD700 : 0xFFFFFFFF);
+			TextUtil.drawCenteredStringWithBorder(graphics, this.font, dmz(net.minecraft.network.chat.Component.translatable("text.dragonminez.combo.multiplier",r.combo()).getString()), 0, -4, r.combo() >= 20 ? 0xFFFFD700 : 0xFFFFFFFF);
 			graphics.pose().popPose();
 			TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.minigame.rhythm.combo"), (int) cx, (int) midY + 16, 0xFFAAAAAA);
 		}

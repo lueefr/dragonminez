@@ -63,62 +63,8 @@ public class UpdateSkillC2S {
 			ServerPlayer player = ctx.get().getSender();
 			if (player != null && !StorageManager.isLoadPending(player)) {
 				StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
-					if (skillName == null || skillName.isBlank()) return;
-					String skillName = this.skillName.toLowerCase(Locale.ROOT);
-					if (action != SkillAction.TOGGLE && (data.getStatus().isFused() || data.getStatus().getFusionPartnerUUID() != null)) {
-						player.displayClientMessage(Component.translatable("message.dragonminez.fusion.action_blocked"), true);
-						return;
-					}
-					Skill skill = data.getSkills().getSkill(skillName);
-					boolean raceAllowed = isSkillAllowedForPlayerRace(data, skillName);
-					switch (action) {
-						case TOGGLE:
-							if (!TOGGLEABLE_SKILLS.contains(skillName) || data.getStatus().isStunned()) break;
-							if (skill != null && skill.getLevel() > 0) skill.setActive(!skill.isActive());
-							break;
-						case UPGRADE:
-							if (skill == null) break;
-							if (skill.getLevel() <= 0 && !raceAllowed) break;
-							boolean isStackSkill = ConfigManager.getSkillsConfig().getStackSkills().contains(skillName.toLowerCase());
-							if (isStackSkill && skill.getLevel() <= 0) break;
-							if (skill.getLevel() <= 0 && isMasterOnlyFormSkill(data, skillName)) break;
-							if (isFormLocked(player, data, skillName, skill.getLevel() + 1)) break;
-							refreshRuntimeMaxLevel(data, skillName, skill);
-							int upgradeCost = computeTpCost(data, skillName, skill.getLevel());
-							if (!skill.isMaxLevel() && upgradeCost >= 0 && data.getResources().getTrainingPointsExact() >= upgradeCost && !(skillName.equals("potentialunlock") && skill.getLevel() == 10)) {
-								data.getResources().removeTrainingPoints(upgradeCost);
-								boolean wasLevelZero = skill.getLevel() == 0;
-								skill.addLevel(1);
-
-								if (wasLevelZero) unlockTechniqueIfPresent(data, skillName);
-							}
-							break;
-
-						case PURCHASE:
-							if (!raceAllowed && !ConfigManager.getSkillsConfig().isTechniqueSkill(skillName)) break;
-							if (!isOfferedByNearbyMaster(player, skillName)) break;
-							boolean isFormSkillPurchase = ConfigManager.getSkillsConfig().getFormSkills().contains(skillName.toLowerCase());
-							int effectiveCost;
-							if (isFormSkillPurchase) {
-								var charConfig = ConfigManager.getRaceCharacter(data.getCharacter().getRaceName());
-								if (charConfig == null || !charConfig.hasFormSkill(skillName)) break;
-								Integer[] prices = charConfig.getFormSkillTpCosts(skillName);
-								effectiveCost = (prices.length > 0 && prices[0] != null) ? prices[0] : -1;
-							} else {
-								effectiveCost = computeTpCost(data, skillName, 0);
-							}
-							boolean notOwned = !data.getSkills().hasSkill(skillName)
-									|| (isFormSkillPurchase && data.getSkills().getSkillLevel(skillName) == 0);
-							if (notOwned && isFormLocked(player, data, skillName, 1)) break;
-							if (notOwned && effectiveCost >= 0 && data.getResources().getTrainingPointsExact() >= effectiveCost) {
-								data.getResources().removeTrainingPoints(effectiveCost);
-								data.getSkills().setSkillLevel(skillName, 1);
-								Skill purchased = data.getSkills().getSkill(skillName);
-								if (purchased != null) refreshRuntimeMaxLevel(data, skillName, purchased);
-								unlockTechniqueIfPresent(data, skillName);
-							}
-							break;
-					}
+                    Component failure=apply(player,data);
+                    if(failure!=null)com.dragonminez.api.forms.FormAccess.notice(player,failure,null);
 					StatsSyncS2C.sendRequested(player);
 				});
 			}
@@ -126,12 +72,72 @@ public class UpdateSkillC2S {
 		ctx.get().setPacketHandled(true);
 	}
 
-	private static boolean isFormLocked(ServerPlayer player, StatsData data, String skillName, int targetLevel) {
-		FormRequisites.Lock lock = FormRequisites.checkSkillLevel(data, skillName, targetLevel, false);
-		if (!lock.isLocked()) return false;
-		com.dragonminez.api.forms.FormAccess.notice(player,FormRequisites.describeInline(lock,false),null);
-		return true;
-	}
+    /** Server-authoritative transaction; a failure never debits TP or grants a level. */
+    public Component apply(ServerPlayer player,StatsData data) {
+        if(skillName==null||skillName.isBlank())return failure("unavailable");
+        String id=skillName.toLowerCase(Locale.ROOT);
+        Skill skill=data.getSkills().getSkill(id);
+        if(action==SkillAction.TOGGLE){
+            if(TOGGLEABLE_SKILLS.contains(id)&&!data.getStatus().isStunned()&&skill!=null&&skill.getLevel()>0)skill.setActive(!skill.isActive());
+            return null;
+        }
+        if(data.getStatus().isFused()||data.getStatus().getFusionPartnerUUID()!=null)
+            return Component.translatable("message.dragonminez.fusion.action_blocked");
+        boolean form=ConfigManager.getSkillsConfig().getFormSkills().contains(id);
+        boolean owned=skill!=null&&skill.getLevel()>0;
+        if(!owned&&!isSkillAllowedForPlayerRace(data,id)&&!ConfigManager.getSkillsConfig().isTechniqueSkill(id))return failure("race");
+        int current=action==SkillAction.PURCHASE?0:skill==null?0:skill.getLevel();
+        if(action==SkillAction.PURCHASE){
+            if(owned)return failure("owned");
+            Component master=nearbyMasterFailure(player,id);
+            if(master!=null)return master;
+        }else{
+            if(skill==null)return failure("unavailable");
+            if(current<=0&&(ConfigManager.getSkillsConfig().getStackSkills().contains(id)||isMasterOnlyFormSkill(data,id)))return failure("master");
+            refreshRuntimeMaxLevel(data,id,skill);
+            if(skill.isMaxLevel())return failure("maximum");
+            if(id.equals("potentialunlock")&&current==10)return failure("grant_only");
+        }
+        FormRequisites.Lock lock=FormRequisites.checkSkillLevel(data,id,current+1,false);
+        if(lock.isLocked())return FormRequisites.describeInline(lock,false);
+        int price=computeTpCost(data,id,current);
+        if(price<0)return failure("grant_only");
+        if(data.getResources().getTrainingPointsExact()<price)
+            return Component.translatable("rules.dragonminez.purchase.tp",price,data.getResources().getTrainingPointsExact());
+        data.getResources().removeTrainingPoints(price);
+        if(action==SkillAction.PURCHASE){
+            data.getSkills().setSkillLevel(id,1);
+            Skill purchased=data.getSkills().getSkill(id);
+            if(purchased!=null)refreshRuntimeMaxLevel(data,id,purchased);
+        }else skill.addLevel(1);
+        if(current==0)unlockTechniqueIfPresent(data,id);
+        return null;
+    }
+    private static Component failure(String reason){return Component.translatable("rules.dragonminez.purchase."+reason);}
+
+    private static Component nearbyMasterFailure(ServerPlayer player,String skillName){
+        AABB range=player.getBoundingBox().inflate(MASTER_SHOP_RANGE);
+        Component blocker=null;
+        for(MastersEntity master:player.serverLevel().getEntitiesOfClass(MastersEntity.class,range)){
+            if(master instanceof com.dragonminez.common.init.entities.questnpc.CustomNpcEntity
+                    ||!master.isAlive()||master.distanceToSqr(player)>MASTER_SHOP_RANGE*MASTER_SHOP_RANGE)continue;
+            String npc=master.getMasterName();
+            if(!declaresSkill(npc,skillName))continue;
+            Component reason=NpcDispositionService.getServiceBlocker(player,npc);
+            if(reason==null)return null;
+            if(blocker==null)blocker=reason;
+        }
+        for(QuestNPCEntity npc:player.serverLevel().getEntitiesOfClass(QuestNPCEntity.class,range)){
+            if(!npc.isAlive()||npc.distanceToSqr(player)>MASTER_SHOP_RANGE*MASTER_SHOP_RANGE)continue;
+            if(npc instanceof com.dragonminez.common.init.entities.questnpc.CustomNpcEntity
+                    &&com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.get(npc.getNpcId()).isEmpty())continue;
+            if(!declaresSkill(npc.getNpcId(),skillName))continue;
+            Component reason=NpcDispositionService.getServiceBlocker(player,npc.getNpcId());
+            if(reason==null)return null;
+            if(blocker==null)blocker=reason;
+        }
+        return blocker==null?failure("master"):blocker;
+    }
 
 	private static int computeTpCost(StatsData data, String skillName, int currentLevel) {
 		if (skillName == null || currentLevel < 0) return -1;
@@ -151,31 +157,14 @@ public class UpdateSkillC2S {
 		return costs.get(currentLevel) < 0 ? -1 : costs.get(currentLevel);
 	}
 
-	private static boolean isOfferedByNearbyMaster(ServerPlayer player, String skillName) {
-		AABB range = player.getBoundingBox().inflate(MASTER_SHOP_RANGE);
-		for (MastersEntity master : player.serverLevel().getEntitiesOfClass(MastersEntity.class, range)) {
-            // Custom NPCs inherit MastersEntity, but must use the isolated validation below.
-            if (master instanceof com.dragonminez.common.init.entities.questnpc.CustomNpcEntity) continue;
-			if (offersSkill(player, master.getMasterName(), skillName)) return true;
-		}
-		for (QuestNPCEntity npc : player.serverLevel().getEntitiesOfClass(QuestNPCEntity.class, range)) {
-			if (npc instanceof com.dragonminez.common.init.entities.questnpc.CustomNpcEntity
-                    && (!npc.isAlive() || npc.distanceToSqr(player) > MASTER_SHOP_RANGE * MASTER_SHOP_RANGE
-                    || com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.get(npc.getNpcId()).isEmpty())) continue;
-            if (offersSkill(player, npc.getNpcId(), skillName)) return true;
-		}
-		return false;
-	}
-
-	private static boolean offersSkill(ServerPlayer player, String npcName, String skillName) {
-		if (npcName == null || npcName.isBlank()) return false;
-		if (NpcDispositionService.getServiceBlocker(player, npcName) != null) return false;
-        var custom = com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.get(npcName);
-        if (custom.isPresent()) return custom.get().offers().skills().contains(skillName.toLowerCase(Locale.ROOT));
-		Map<String, List<String>> offerings = ConfigManager.getSkillsConfig().getSkillOfferings();
-		List<String> offered = offerings.getOrDefault(npcName.toLowerCase(), offerings.get("default"));
-		return offered != null && (offered.contains(skillName) || offered.contains(skillName.toLowerCase()));
-	}
+    private static boolean declaresSkill(String npcName,String skillName){
+        if(npcName==null||npcName.isBlank())return false;
+        var custom=com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.get(npcName);
+        if(custom.isPresent())return custom.get().offers().skills().contains(skillName.toLowerCase(Locale.ROOT));
+        Map<String,List<String>> offerings=ConfigManager.getSkillsConfig().getSkillOfferings();
+        List<String> offered=offerings.getOrDefault(npcName.toLowerCase(Locale.ROOT),offerings.get("default"));
+        return offered!=null&&(offered.contains(skillName)||offered.contains(skillName.toLowerCase(Locale.ROOT)));
+    }
 
 	private static boolean isMasterOnlyFormSkill(StatsData data, String skillName) {
 		if (data == null || skillName == null) return false;

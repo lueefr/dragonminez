@@ -559,7 +559,7 @@ public final class QuestTextFormatter {
 		boolean first = true;
 		for (Difficulty difficulty : Difficulty.values()) {
 			if (!difficulties.contains(difficulty)) continue;
-			if (!first) joined.append(", ");
+			if (!first) joined.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.0a07f65946"));
 			joined.append(Component.translatable("gui.dragonminez.quest_tree.difficulty." + difficulty.name().toLowerCase(Locale.ROOT)));
 			first = false;
 		}

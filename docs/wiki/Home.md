@@ -4,6 +4,8 @@ Start with [Content layout and migration](Content-configuration), [purchase and 
 
 Use the API to add completion requirements to forms, define custom NPCs, compose form multipliers and translate custom text. JSON configuration covers these features without an addon. Java entry points are available for integrations.
 
+See [Historical compatibility and text auditing](History-and-audit) for migration fixtures, backup guarantees and translation auditing.
+
 ## Rules and visual extensions
 
 See [Rules, rewards and form visuals](Rules) for first-completion rewards, purchase conditions, body-part scaling, fur/tail/eye-marking colors, conditional aura/lightning/outlines, first-use history, editable form hairstyles and `/dmzlocate npc`.
