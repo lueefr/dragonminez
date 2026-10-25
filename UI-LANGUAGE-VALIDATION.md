@@ -22,11 +22,11 @@ The hair editor called `PanoramaRenderer.render` with the final arguments revers
 
 Corrected argument order in the hair editor and the pixel editor, which had the same error. Full-opacity panoramas retain normal animation timing. Screen render captures confirm that the varying-opacity flicker is removed; the background still moves with the panorama.
 
-## Sinking after changing language — not reproduced
+## Sinking after changing language — deferred until reproducible
 
 No position/height workaround has been added. Initial reproduction with packaged Hotfix 9 did not reproduce sinking: English → Portuguese → English preserved `(0.5, 81, 0.5)`, standing dimensions and root/body/head transforms. Runs cover the default Saiyan and Frost Demon bodies, a female Saiyan, Iris/Sodium with Complementary Unbound, and GeckoLib 4.9.3 with EMF/ETF, ImmediatelyFast, 3D skin layers and RRLS.
 
-The installed mod set also ran on NeoForge 21.1.264 with rendering configuration copies and the saved character attachment in an isolated disposable world. Position, dimensions and bone transforms remained stable through both language reloads. The original-world copy also preserved Y=73 and standing dimensions across English/Portuguese switches, walking and form changes. Camera collision against the surrounding construction limits the visual assessment at the saved position; bone transforms and collision dimensions were sampled separately. There is no confirmed root cause or fix for this fourth report yet. Original saves, mod JARs and configs are not modified.
+The installed mod set also ran on NeoForge 21.1.264 with rendering configuration copies and the saved character attachment in an isolated disposable world. Position, dimensions and bone transforms remained stable through both language reloads. The original-world copy also preserved Y=73 and standing dimensions across English/Portuguese switches, walking and form changes. Camera collision against the surrounding construction limits the visual assessment at the saved position; bone transforms and collision dimensions were sampled separately. There is no confirmed root cause or fix for this fourth report. Investigation is deferred at the reporter's request until it can be reproduced. Original saves, mod JARs and configs are not modified.
 
 ## Checks and local evidence
 
