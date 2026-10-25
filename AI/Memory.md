@@ -113,6 +113,17 @@ Use this schema for each memory entry:
 
 Add durable memories below this line, newest first.
 
+### 2026-10-25 - Wiki Is For User Customization
+
+- Type: prohibition
+- Status: active
+- Source: user
+- Scope: wiki and `docs/wiki`
+- Summary: The wiki exclusively documents changes users can make through configuration, content and APIs.
+- Guidance: Keep implementation status, changelogs, diagnostics and test evidence in repository development documents or PRs.
+- Do Not: Do not publish development progress or validation logs to the wiki.
+
+
 ### 2026-10-23 - Repo Has Two Active Branches With Different Rules
 
 - Type: durable-fact
