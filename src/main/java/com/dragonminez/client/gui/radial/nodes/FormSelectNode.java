@@ -43,10 +43,14 @@ public class FormSelectNode extends AbstractRadialNode {
 
 	@Override
 	public Component label(StatsData stats) {
-		return stack
-				? Component.translatable("race.dragonminez.stack.form." + group + "." + form)
-				: Component.translatable(FusionForms.formTranslationKey(race, group, form));
+        Component name=com.dragonminez.api.forms.FormAccess.name(stats,group+"."+form);
+        var missing=com.dragonminez.api.forms.FormAccess.missing(stats,group,form,stack);
+        return missing.isEmpty()?name:Component.translatable("rules.dragonminez.use_locked_short",name);
 	}
+
+    @Override public java.util.List<Component> useLocks(StatsData stats){
+        return com.dragonminez.api.forms.FormAccess.missing(stats,group,form,stack);
+    }
 
 	@Override
 	public ResourceLocation icon(StatsData stats) {

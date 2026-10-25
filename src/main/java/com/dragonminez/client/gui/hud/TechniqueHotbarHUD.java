@@ -202,12 +202,12 @@ public class TechniqueHotbarHUD {
 	}
 
 	private static MutableComponent styled(String text) {
-		return Component.literal(text).withStyle(Style.EMPTY.withFont(DMZ_FONT));
+		return com.dragonminez.api.lang.ConfigTranslations.text(text).withStyle(Style.EMPTY.withFont(DMZ_FONT));
 	}
 
 	private static MutableComponent techniqueName(String name) {
 		if (name == null || name.isEmpty()) return styled("");
-		MutableComponent base = name.contains(".") ? Component.translatable(name) : Component.literal(name);
+		MutableComponent base = name.contains(".") ? Component.translatable(name) : com.dragonminez.api.lang.ConfigTranslations.text(name);
 		return base.withStyle(Style.EMPTY.withFont(DMZ_FONT));
 	}
 

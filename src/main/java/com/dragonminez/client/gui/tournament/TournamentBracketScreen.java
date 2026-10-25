@@ -433,7 +433,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 	private List<Component> fighterNames() {
 		List<Component> fighters = new ArrayList<>();
 		for (TournamentPackets.OpenBracketS2C.Member member : data.getMembers()) {
-			if (member.active()) fighters.add(Component.literal(member.name()));
+			if (member.active()) fighters.add(com.dragonminez.api.lang.ConfigTranslations.text(member.name()));
 		}
 		if (fighters.size() == 1) {
 			Component opponent = data.getRivalSlot().isEmpty() ? null : slotName(data.getRivalSlot());
@@ -524,7 +524,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 		TextUtil.drawStringWithBorder(graphics, font, tr("tournament.dragonminez.rules.title"), contentX + 4, y, TITLE_COLOR);
 		y += font.lineHeight + 6;
 		for (RuleLine rule : rules) {
-			TextUtil.drawStringWithBorder(graphics, font, txt(rule.number() + "."), contentX + 4, y, ACCENT_COLOR);
+			TextUtil.drawStringWithBorder(graphics, font, tr("text.dragonminez.tournamentbracketscreen.3ffc64bb85" , rule.number()), contentX + 4, y, ACCENT_COLOR);
 			for (FormattedCharSequence line : rule.lines()) {
 				TextUtil.drawStringWithBorder(graphics, font, line, contentX + 20, y, rule.color());
 				y += lineHeight;
@@ -707,7 +707,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 
 		String crown = data.isCompleted() ? survivor : "";
 		drawSlot(graphics, trunkCx - SLOT / 2.0f, topY, crown, crown.isEmpty() ? SlotState.CROWN : SlotState.PLAYER);
-		TextUtil.drawCenteredStringWithBorder(graphics, font, txt("★"), Math.round(trunkCx), Math.round(topY) - 11, TITLE_COLOR);
+		TextUtil.drawCenteredStringWithBorder(graphics, font, tr("text.dragonminez.tournamentbracketscreen.26c57b0854"), Math.round(trunkCx), Math.round(topY) - 11, TITLE_COLOR);
 		drawRowLabel(graphics, tr("tournament.dragonminez.round.champion"), topY, data.isCompleted());
 	}
 
@@ -1085,7 +1085,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 			DBSagasEntity.KiSkillType type = DBSagasEntity.KiSkillType.fromId(skill.id);
 			if (type == null) continue;
 			String key = "gui.dragonminez.quest_tree.preview.skill." + type.name().toLowerCase(Locale.ROOT);
-			if (seen.add(key)) out.add(txt("• ").append(tr(key)).withStyle(s -> s.withColor(0xFF8AB4F8)));
+			if (seen.add(key)) out.add(tr("text.dragonminez.tournamentbracketscreen.f11efe9e74").append(tr(key)).withStyle(s -> s.withColor(0xFF8AB4F8)));
 		}
 		int[] combos = dbz.getAllowedCombos();
 		if (combos != null) {
@@ -1093,7 +1093,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 				DBSagasEntity.ComboType type = DBSagasEntity.ComboType.fromId(id);
 				if (type == null) continue;
 				String key = "gui.dragonminez.quest_tree.preview.combo." + type.name().toLowerCase(Locale.ROOT);
-				if (seen.add(key)) out.add(txt("• ").append(tr(key)).withStyle(s -> s.withColor(0xFFF08A8A)));
+				if (seen.add(key)) out.add(tr("text.dragonminez.tournamentbracketscreen.f11efe9e74").append(tr(key)).withStyle(s -> s.withColor(0xFFF08A8A)));
 			}
 		}
 		return out;
@@ -1118,7 +1118,7 @@ public class TournamentBracketScreen extends ScaledScreen {
 			return name != null ? txt(name) : tr("tournament.dragonminez.you");
 		}
 		if (Tournament.Bracket.HIDDEN_SLOT.equals(id)) return tr("tournament.dragonminez.slot.hidden");
-		if (id == null || id.isEmpty()) return txt("-");
+		if (id == null || id.isEmpty()) return tr("text.dragonminez.tournamentbracketscreen.3973e022e9");
 
 		ResourceLocation location = ResourceLocation.tryParse(id);
 		if (location == null) return txt(id);

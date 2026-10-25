@@ -47,9 +47,11 @@ public class Character {
 
 	private String selectedMaster = "";
 	private String selectedFormGroup = "";
-	private String activeFormGroup = "";
+	@Setter(AccessLevel.NONE)
+    private String activeFormGroup = "";
 	private String selectedForm = "";
-	private String activeForm = "";
+	@Setter(AccessLevel.NONE)
+    private String activeForm = "";
 	private final FormMasteries formMasteries = new FormMasteries();
 	private UsedForms formsUsedBefore = new UsedForms();
 	private int activeFormItemDurationTicks = 0;
@@ -61,9 +63,11 @@ public class Character {
 	private boolean hasPreviousFormRecord = false;
 
 	private String selectedStackFormGroup = "";
-	private String activeStackFormGroup = "";
+	@Setter(AccessLevel.NONE)
+    private String activeStackFormGroup = "";
 	private String selectedStackForm = "";
-	private String activeStackForm = "";
+	@Setter(AccessLevel.NONE)
+    private String activeStackForm = "";
 	private final FormMasteries stackFormMasteries = new FormMasteries();
 	private UsedForms stackFormsUsedBefore = new UsedForms();
 	private int activeStackFormItemDurationTicks = 0;
@@ -696,7 +700,33 @@ public class Character {
 		return !activeFormGroup.isEmpty() && !activeForm.isEmpty();
 	}
 
+    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) private transient String pendingFormGroup;
+    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) private transient String pendingStackGroup;
+    /** Compatibility for scripts assigning group then form; commit the pair atomically. */
+    public void setActiveFormGroup(String group){pendingFormGroup=group==null?"":group;}
+    public void setActiveForm(String form){
+        String group=pendingFormGroup!=null?pendingFormGroup:activeFormGroup;
+        pendingFormGroup=null;setActiveForm(group,form);
+    }
+    public void setActiveStackFormGroup(String group){pendingStackGroup=group==null?"":group;}
+    public void setActiveStackForm(String form){
+        String group=pendingStackGroup!=null?pendingStackGroup:activeStackFormGroup;
+        pendingStackGroup=null;setActiveStackForm(group,form);
+    }
+
 	public void setActiveForm(String groupName, String formName) {
+        pendingFormGroup=null;
+        if (!com.dragonminez.api.forms.FormAccess.allow(statsData,groupName,formName,false,false)) return;
+        setActiveFormUnchecked(groupName,formName);
+    }
+
+    public void forceSetActiveForm(String groupName,String formName) {
+        pendingFormGroup=null;
+        com.dragonminez.api.forms.FormAccess.allow(statsData,groupName,formName,false,true);
+        setActiveFormUnchecked(groupName,formName);
+    }
+
+    private void setActiveFormUnchecked(String groupName,String formName) {
         if (statsData != null && (!java.util.Objects.equals(activeFormGroup, groupName)
                 || !java.util.Objects.equals(activeForm, formName))
                 && !com.dragonminez.api.forms.FormCompositionRuntime.usesCurrent(statsData, activeFormGroup, activeForm)) {
@@ -734,6 +764,7 @@ public class Character {
 	}
 
 	public void clearActiveForm() {
+        pendingFormGroup=null;
 		this.activeFormGroup = "";
 		this.activeForm = "";
 		this.activeFormItemDurationTicks = 0;
@@ -835,6 +866,18 @@ public class Character {
 	}
 
 	public void setActiveStackForm(String groupName, String formName) {
+        pendingStackGroup=null;
+        if (!com.dragonminez.api.forms.FormAccess.allow(statsData,groupName,formName,true,false)) return;
+        setActiveStackFormUnchecked(groupName,formName);
+    }
+
+    public void forceSetActiveStackForm(String groupName,String formName) {
+        pendingStackGroup=null;
+        com.dragonminez.api.forms.FormAccess.allow(statsData,groupName,formName,true,true);
+        setActiveStackFormUnchecked(groupName,formName);
+    }
+
+    private void setActiveStackFormUnchecked(String groupName,String formName) {
 		this.activeStackFormGroup = groupName != null ? groupName : "";
 		this.activeStackForm = formName != null ? formName : "";
 		this.activeStackFormItemDurationTicks = 0;
@@ -842,6 +885,7 @@ public class Character {
 	}
 
 	public void clearActiveStackForm() {
+        pendingStackGroup=null;
 		this.activeStackFormGroup = "";
 		this.activeStackForm = "";
 		this.activeStackFormItemDurationTicks = 0;

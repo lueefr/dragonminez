@@ -184,20 +184,20 @@ public class StructureLocator {
 			List<Holder<Biome>> matching = candidates.stream().filter(possible::contains).toList();
 			if (matching.isEmpty()) continue;
 			ResourceLocation dim = level.dimension().location();
-			dimensions.add(Component.translatableWithFallback("dimension." + dim.getNamespace() + "." + dim.getPath(), dim.toString()));
+			dimensions.add(Component.translatable("dimension." + dim.getNamespace() + "." + dim.getPath()));
 			biomes.addAll(matching);
 		}
 		if (dimensions.isEmpty() || biomes.isEmpty()) return null;
 
 		List<Component> biomeNames = new ArrayList<>();
 		for (Holder<Biome> biome : biomes) {
-			biome.unwrapKey().ifPresent(key -> biomeNames.add(Component.translatableWithFallback(
-					"biome." + key.location().getNamespace() + "." + key.location().getPath(), key.location().toString())));
+			biome.unwrapKey().ifPresent(key -> biomeNames.add(Component.translatable(
+					"biome." + key.location().getNamespace() + "." + key.location().getPath())));
 			if (biomeNames.size() >= MAX_HINT_BIOMES) break;
 		}
-		MutableComponent biomeList = ComponentUtils.formatList(biomeNames, Component.literal(", ")).copy();
-		if (biomes.size() > biomeNames.size()) biomeList.append(Component.literal(", ..."));
-		return new SpawnHint(ComponentUtils.formatList(dimensions, Component.literal(", ")), biomeList);
+		MutableComponent biomeList = ComponentUtils.formatList(biomeNames, net.minecraft.network.chat.Component.translatable("text.dragonminez.structurelocator.0a07f65946")).copy();
+		if (biomes.size() > biomeNames.size()) biomeList.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.structurelocator.42ffa56027"));
+		return new SpawnHint(ComponentUtils.formatList(dimensions, net.minecraft.network.chat.Component.translatable("text.dragonminez.structurelocator.0a07f65946")), biomeList);
 	}
 
 	public static boolean usesCustomPlacement(ServerLevel level, ResourceKey<Structure> structureKey) {

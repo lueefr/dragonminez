@@ -32,7 +32,7 @@ public class EnchantmentTooltipHandler {
 		if (description != null) {
 			Style descriptionStyle = Style.EMPTY.withColor(ENCHANT_DESC_COLOR).withItalic(true);
 			MutableComponent styledDescription = description.copy().withStyle(descriptionStyle);
-			lines.accept(Component.literal(" ").append(styledDescription));
+			lines.accept(net.minecraft.network.chat.Component.translatable("text.dragonminez.enchantmenttooltiphandler.36a9e7f1c9").append(styledDescription));
 		}
 	}
 

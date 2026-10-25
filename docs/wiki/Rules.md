@@ -18,13 +18,27 @@ Create `config/dragonminez/rules.json`. Each content ID maps to a list of action
 
 ```json
 {
-  "content": {
-    "example:trial": [
-      {"form": "path.stage"},
-      {"mastery": {"form": "path.stage", "add": 25}},
-      {"content": "example:follow_up"},
-      {"tp": 100}
-    ]
+  "schema": 1,
+  "completion": {
+    "rewards": {
+      "example:trial": [
+        {
+          "form": "path.stage"
+        },
+        {
+          "mastery": {
+            "form": "path.stage",
+            "add": 25
+          }
+        },
+        {
+          "content": "example:follow_up"
+        },
+        {
+          "tp": 100
+        }
+      ]
+    }
   }
 }
 ```
@@ -33,7 +47,7 @@ The existing completion API, native quest hooks and configurable ritual completi
 
 | Action | Behavior |
 | --- | --- |
-| `form` | Permanently raises the player's skill to at least the referenced form's `unlockOnSkillLevel`. The skill is determined from that group's `formType`. Requires a skill-backed form in the player's race or stack configuration; scripted forms are not permanent skill unlocks. |
+| `form` | Permanently raises the player's skill to at least the referenced form's `requirements.unlock.skillLevel`. The skill is determined from that group's `formType`. Requires a skill-backed form in the player's race or stack configuration; scripted forms are not permanent skill unlocks. |
 | `skill` | `{"skill":{"id":"custom_training","level":2}}` raises a configured skill to at least level 2. It never lowers an existing level. |
 | `mastery` | Adds the specified mastery points to the referenced form, capped by its configured maximum. This is an exact grant, without racial mastery multipliers. |
 | `content` | Completes another content ID through the same API, including that ID's own first-completion rewards. |
@@ -51,10 +65,20 @@ The same `rules.json` can require conditions for a specific skill level. Keys ar
 
 ```json
 {
-  "buy": {
-    "custom_training": {
-      "*": {"content": "example:trial"},
-      "2": {"mastery": {"form": "path.stage", "min": 40}}
+  "schema": 1,
+  "purchase": {
+    "conditions": {
+      "custom_training": {
+        "*": {
+          "content": "example:trial"
+        },
+        "2": {
+          "mastery": {
+            "form": "path.stage",
+            "min": 40
+          }
+        }
+      }
     }
   }
 }
@@ -67,21 +91,28 @@ A form can also add a requirement directly to its own JSON entry:
 ```json
 {
   "name": "stage",
-  "unlockOnSkillLevel": 2,
-  "buy": {
-    "content": "example:trial",
-    "mastery": {"form": "path.foundation", "min": 50}
+  "requirements": {
+    "unlock": {
+      "skillLevel": 2
+    },
+    "buy": {
+      "content": "example:trial",
+      "mastery": {
+        "form": "path.foundation",
+        "min": 50
+      }
+    }
   }
 }
 ```
 
-Global skill rules and form rules are cumulative. The form's existing level, saga, completed-content and mastery prerequisites also gate the skill level that unlocks it. Existing `formRequisiteType` controls whether referenced masteries require all or any. When several forms share a skill level, their requirements are checked together, as with the existing level/content gates.
+Global skill rules and form rules are cumulative. The form's existing level, saga, completed-content and mastery prerequisites also gate the skill level that unlocks it. Existing `requirements.unlock.masteryMode` controls whether referenced masteries require all or any. When several forms share a skill level, their requirements are checked together, as with the existing level/content gates.
 
 Checks run on the server for both master purchases and menu upgrades, before TP is removed or the skill changes. Refusals identify missing content, mastery, skill or level requirements. The client uses the server-synced rules for the existing lock descriptions. Prices, master range, alignment and other existing purchase checks still apply. Java/completion rewards intentionally bypass purchase gates.
 
 ## Conditions
 
-Condition objects are shared by `buy` and visual rules. All keys in an object must match. Use `all`, `any` and `not` for composition:
+Condition objects are shared by purchase conditions, use conditions and visual rules. See [purchase and transformation conditions](Use-and-purchase) for the independent use gate and refusal dialogs. All keys in an object must match. Use `all`, `any` and `not` for composition:
 
 ```json
 {
@@ -121,21 +152,65 @@ Add `visual` inside a form entry. This example uses one optional object and an o
 ```json
 {
   "name": "stage",
-  "unlockOnSkillLevel": 2,
-  "visual": {
+  "requirements": {
+    "unlock": {
+      "skillLevel": 2
+    }
+  },
+  "aura": {
+    "state": false
+  },
+  "appearance": {
     "parts": {
-      "left_forearm": [1.5, 1, 1.5],
-      "right_forearm": [1.5, 1, 1.5]
+      "left_forearm": [
+        1.5,
+        1,
+        1.5
+      ],
+      "right_forearm": [
+        1.5,
+        1,
+        1.5
+      ]
     },
-    "fur": {"texture": "file:coat", "color": "#AABBCC"},
-    "tail": "#886644",
-    "eyes": "#663399",
-    "aura": false,
-    "lightning": false,
-    "outline": false,
+    "fur": {
+      "override": {
+        "texture": "file:coat",
+        "color": "#AABBCC"
+      }
+    },
+    "tail": {
+      "override": "#886644"
+    },
+    "eyes": {
+      "outline": "#663399"
+    }
+  },
+  "effects": {
+    "lightning": {
+      "visible": false
+    },
+    "outline": {
+      "visible": false
+    },
     "rules": [
-      {"if": {"first": true}, "set": {"lightning": true, "outline": true}},
-      {"if": {"flying": true}, "set": {"aura": true}}
+      {
+        "if": {
+          "first": true
+        },
+        "set": {
+          "lightning": true,
+          "outline": true
+        }
+      },
+      {
+        "if": {
+          "flying": true
+        },
+        "set": {
+          "aura": true
+        }
+      }
     ]
   }
 }
@@ -143,7 +218,7 @@ Add `visual` inside a form entry. This example uses one optional object and an o
 
 On the first activation session, lightning and the energy outline are enabled. On subsequent activations they remain disabled. The aura is visible while flying. Conditions do not change the player's flight, aura toggle, stats, or other gameplay state.
 
-Outline colors come from the form's existing `outlineShader` settings. Charging/surge borders and ki burst explosions use the enabled stack form's `primaryColor`, then the enabled racial form's `primaryColor`, with aura color as the fallback. Java integrations can read this selection through `character.getActiveOutlineColor()`.
+Outline colors come from the form's existing `effects.outline` settings. Charging/surge borders and ki burst explosions use the enabled stack form's `primaryColor`, then the enabled racial form's `primaryColor`, with aura color as the fallback. Java integrations can read this selection through `character.getActiveOutlineColor()`.
 
 Rules run in array order; later matching `set` objects override earlier values. `set` uses the same visual fields as `visual` but cannot contain another `rules` list. Base-form visuals are resolved first and stack-form overrides afterward. Omitted values keep the existing renderer's result. Visual evaluation is cached per player/tick and invalidated by form, history and config changes.
 
@@ -156,7 +231,7 @@ Rules run in array order; later matching `set` objects override earlier values. 
 | `tail` | `#RRGGBB` tint for the existing tail, or `false` to hide it. Does not grant a tail to a race without one. |
 | `eyes` | `#RRGGBB` for the colored marking around the eyes on the supported fur face layouts, independent of iris and fur color; `false` hides the marking. |
 | `hair` | Boolean: show/hide rendered hair. |
-| `aura` | Boolean override for aura visibility. |
+| `aura` | Boolean visibility override, `"visible"`, or `"sealed"` for absorption into the body. See [aura behavior](Aura-and-composition). |
 | `lightning` | Boolean override for lightning visibility. Existing lightning color/style settings continue to apply. |
 | `outline` | Boolean override for the transformation energy outline. Existing outline shader settings continue to supply its style. |
 
@@ -185,27 +260,43 @@ For saves created before this feature, currently active forms are treated as pre
 
 ## Player-owned form hairstyles
 
-The optional `editHair` flag controls who supplies the hairstyle's shape:
+The optional `appearance.hair.editable` flag controls who supplies the hairstyle's shape:
 
 ```json
 {
   "name": "stage",
-  "unlockOnSkillLevel": 2,
-  "editHair": true
+  "appearance": {
+    "hair": {
+      "editable": true
+    }
+  },
+  "requirements": {
+    "unlock": {
+      "skillLevel": 2
+    }
+  }
 }
 ```
 
-- `true`: the form appears in **Edit hair** in character customization. The player gets a separate saved hairstyle for this form. Its shape overrides `hairType` and `forcedHairCode` in the form JSON. Until a personal style is saved, the ordinary base hairstyle is used. Existing form hair-color settings still control transformation color.
-- `false`: no editor entry is shown. Declare `forcedHairCode` in JSON, or `hairType: "none"` for no hair. Player-owned form styles are ignored, including styles saved before the flag was turned off.
+- `true`: the form appears in **Edit hair** in character customization. The player gets a separate saved hairstyle for this form. Its shape overrides `appearance.hair.slot` and `appearance.hair.code` in the form JSON. Until a personal style is saved, the ordinary base hairstyle is used. Existing form hair-color settings still control transformation color.
+- `false`: no editor entry is shown. Declare `appearance.hair.code` in JSON, or `hairType: "none"` for no hair. Player-owned form styles are ignored, including styles saved before the flag was turned off.
 - Omitted: the existing hairstyle-resolution behavior is preserved.
 
 Example of a JSON-owned hairstyle with no hair:
 
 ```json
-{"name":"stage","editHair":false,"hairType":"none"}
+{
+  "name": "stage",
+  "appearance": {
+    "hair": {
+      "slot": "none",
+      "editable": false
+    }
+  }
+}
 ```
 
-For a fixed visible hairstyle, set `editHair: false` and paste a complete valid Hair Salon export into `forcedHairCode`. Do not abbreviate its code. The player-owned form editor uses the existing strand editor; ordinary hairstyle slots remain available separately. Creation, recustomization and the existing nearby appearance-service permission checks still apply on the server.
+For a fixed visible hairstyle, set `editHair: false` and paste a complete valid Hair Salon export into `appearance.hair.code`. Do not abbreviate its code. The player-owned form editor uses the existing strand editor; ordinary hairstyle slots remain available separately. Creation, recustomization and the existing nearby appearance-service permission checks still apply on the server.
 
 ## Java extension API
 

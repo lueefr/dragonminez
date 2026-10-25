@@ -63,7 +63,7 @@ public class MainDamageTypes {
 		StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(stats -> {
 			TechniqueData tech = stats.getTechniques().getUnlockedTechniques().get(techId);
 			if (tech != null && tech.getName() != null && !tech.getName().isEmpty()) {
-				result[0] = Component.literal(tech.getName());
+				result[0] = com.dragonminez.api.lang.ConfigTranslations.text(tech.getName());
 			}
 		});
 		return result[0];

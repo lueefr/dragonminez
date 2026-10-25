@@ -31,7 +31,7 @@ public class AbsorptionEjectNode extends AbstractRadialNode {
 		String sourceName = slot.sourceName();
 		return (sourceName == null || sourceName.isEmpty())
 				? Component.translatable("gui.dragonminez.racial.majin.eject_slot", index + 1)
-				: Component.literal(sourceName);
+				: com.dragonminez.api.lang.ConfigTranslations.text(sourceName);
 	}
 
 	@Override

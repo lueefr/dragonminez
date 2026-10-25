@@ -729,7 +729,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 				}
 			}
 		}
-		Component iconComp = bold ? Component.literal(icon).withStyle(ChatFormatting.BOLD) : Component.literal(icon);
+		Component iconComp = bold ? com.dragonminez.api.lang.ConfigTranslations.text(icon).withStyle(ChatFormatting.BOLD) : com.dragonminez.api.lang.ConfigTranslations.text(icon);
 		int iconOffsetX = (NODE_SIZE - this.font.width(icon)) / 2;
 
 		Component bottomLabel;
@@ -1889,7 +1889,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		if (hoveredEntry != null) {
 			if (hoveredEntry.comingSoon()) {
 				renderSimpleTooltip(graphics,
-						List.of(txt("Coming soon... Follow development in Discord!")),
+						List.of(tr("text.dragonminez.questtreescreen.48b982f222")),
 						mouseX,
 						mouseY);
 			} else if (hoveredEntry.type() == NavEntryType.SAGA && !hoveredEntry.isPlaceholderSaga()) {
@@ -2198,7 +2198,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		List<RewardBlock> blocks = buildRewardBlocks(width);
 		if (blocks.isEmpty()) {
 			rewardsBar.clear();
-			TextUtil.drawStringWithBorder(graphics, this.font, txt("-"), x + 8, y + 18, 0xFF999999);
+			TextUtil.drawStringWithBorder(graphics, this.font, tr("text.dragonminez.questtreescreen.3973e022e9"), x + 8, y + 18, 0xFF999999);
 			return;
 		}
 
@@ -2320,20 +2320,12 @@ public class QuestTreeScreen extends BaseMenuScreen {
 
 	private Component rewardDescription(QuestReward reward) {
 		if (reward instanceof TransformationReward transformation) {
-			String group = transformation.getFormGroup();
-			String form = transformation.getFormName();
-			if (isStackFormGroup(group)) {
-				return Component.translatable("race.dragonminez.stack.group." + group)
-						.append(": ")
-						.append(Component.translatable("race.dragonminez.stack.form." + group + "." + form));
-			}
-			String race = statsData != null ? statsData.getCharacter().getRaceName() : "";
-			return Component.translatable("race.dragonminez." + race + ".form." + group + "." + form);
+            return transformation.displayName(statsData == null ? "" : statsData.getCharacter().getRaceName());
 		}
 		double rewardMultiplier = statsData != null
 				? statsData.getPlayerQuestData().rewardMultiplierFor(reward)
 				: 1.0;
-		return reward.getDescription(rewardMultiplier);
+		return reward.getDescription(rewardMultiplier, statsData);
 	}
 
 	private List<Component> rewardTooltip(QuestReward reward) {
@@ -2425,7 +2417,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		List<String> lines = objectiveRenderLines(saga, width - 30);
 		if (lines.isEmpty()) {
 			objBar.clear();
-			TextUtil.drawStringWithBorder(graphics, this.font, txt("-"), x + 8, y + 18, 0xFF999999);
+			TextUtil.drawStringWithBorder(graphics, this.font, tr("text.dragonminez.questtreescreen.3973e022e9"), x + 8, y + 18, 0xFF999999);
 			return;
 		}
 
@@ -2789,7 +2781,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 			int badgeX = x - 4;
 			int badgeY = y - 4;
 			graphics.fill(badgeX, badgeY, badgeX + 8, badgeY + 8, 0xFF6644AA);
-			graphics.drawString(this.font, "S", badgeX + 1, badgeY, 0xFFFFFFFF, false);
+			graphics.drawString(this.font, Component.translatable("gui.dragonminez.quest.secret_badge"), badgeX + 1, badgeY, 0xFFFFFFFF, false);
 		} else if (node.bottomLabel() != null) {
 			TextUtil.drawStringWithBorder(graphics, this.font, node.bottomLabel(),
 					x + node.bottomLabelOffsetX(), y + NODE_SIZE + 2, node.bottomLabelColor());
@@ -2818,7 +2810,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 		int color;
 
 		if (vis == NodeVisibility.BLURRED) {
-			title = txt("Unknown Quest").withStyle(ChatFormatting.OBFUSCATED);
+			title = tr("text.dragonminez.questtreescreen.819395b6c1").withStyle(ChatFormatting.OBFUSCATED);
 			desc.add(tr("gui.dragonminez.quest_tree.status.locked"));
 			color = 0xFF888888;
 		} else {
@@ -4034,7 +4026,7 @@ public class QuestTreeScreen extends BaseMenuScreen {
 
 	private void drawPlainBoldStringWithBorder(GuiGraphics graphics, String text, int x, int y, int textColor) {
 		int borderColor = 0xFF000000;
-		Component marker = Component.literal(text).withStyle(ChatFormatting.BOLD);
+		Component marker = com.dragonminez.api.lang.ConfigTranslations.text(text).withStyle(ChatFormatting.BOLD);
 		graphics.drawString(this.font, marker, x + 1, y, borderColor, false);
 		graphics.drawString(this.font, marker, x - 1, y, borderColor, false);
 		graphics.drawString(this.font, marker, x, y + 1, borderColor, false);

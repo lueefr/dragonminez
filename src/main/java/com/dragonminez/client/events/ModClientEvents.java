@@ -149,7 +149,7 @@ public class ModClientEvents {
 			}
 
 			event.addRepositorySource((packConsumer) -> {
-				PackLocationInfo crowdinInfo = new PackLocationInfo("dmz_crowdin_ota", Component.literal("DMZ Live Translations"), PackSource.BUILT_IN, java.util.Optional.empty());
+				PackLocationInfo crowdinInfo = new PackLocationInfo("dmz_crowdin_ota", net.minecraft.network.chat.Component.translatable("text.dragonminez.modclientevents.9ccf2ece31"), PackSource.BUILT_IN, java.util.Optional.empty());
 				Pack.ResourcesSupplier crowdinSupplier = new Pack.ResourcesSupplier() {
 					@Override public net.minecraft.server.packs.PackResources openPrimary(PackLocationInfo location) { return new CrowdinPackResources(location); }
 					@Override public net.minecraft.server.packs.PackResources openFull(PackLocationInfo location, Pack.Metadata metadata) { return openPrimary(location); }
@@ -158,7 +158,7 @@ public class ModClientEvents {
 						new PackSelectionConfig(true, Pack.Position.TOP, false));
 				if (crowdinPack != null) packConsumer.accept(crowdinPack);
 
-				PackLocationInfo dragonballInfo = new PackLocationInfo("dmz_dragonballs_runtime", Component.literal("DMZ Dragonballs Runtime Resources"), PackSource.BUILT_IN, java.util.Optional.empty());
+				PackLocationInfo dragonballInfo = new PackLocationInfo("dmz_dragonballs_runtime", net.minecraft.network.chat.Component.translatable("text.dragonminez.modclientevents.99249d002f"), PackSource.BUILT_IN, java.util.Optional.empty());
 				Pack.ResourcesSupplier dragonballSupplier = new Pack.ResourcesSupplier() {
 					@Override public net.minecraft.server.packs.PackResources openPrimary(PackLocationInfo location) { return new DragonBallPackResources(location); }
 					@Override public net.minecraft.server.packs.PackResources openFull(PackLocationInfo location, Pack.Metadata metadata) { return openPrimary(location); }

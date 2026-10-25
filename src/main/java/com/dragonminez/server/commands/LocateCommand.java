@@ -112,16 +112,16 @@ public class LocateCommand {
 								 String structName, int tpY) {
 		int distance = StructureLocator.getDistanceTo(from, foundPos);
 		Component coordComponent = ComponentUtils.wrapInSquareBrackets(
-				Component.literal(foundPos.getX() + ", ~, " + foundPos.getZ())
+				net.minecraft.network.chat.Component.translatable("text.dragonminez.locatecommand.308ce7a605" , foundPos.getX(), foundPos.getZ())
 		).withStyle(style -> style
 				.withColor(ChatFormatting.GREEN)
 				.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/execute in " + level.dimension().location() + " run tp @s " + foundPos.getX() + " " + tpY + " " + foundPos.getZ()))
-				.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click -> TP")))
+				.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, net.minecraft.network.chat.Component.translatable("text.dragonminez.locatecommand.d88fc33a08")))
 		);
 
 		source.sendSuccess(() -> Component.translatable(
 				"command.dragonminez.locate.success",
-				Component.literal(structName).withStyle(ChatFormatting.YELLOW),
+				com.dragonminez.api.lang.ConfigTranslations.text(structName).withStyle(ChatFormatting.YELLOW),
 				coordComponent,
 				distance), false);
 

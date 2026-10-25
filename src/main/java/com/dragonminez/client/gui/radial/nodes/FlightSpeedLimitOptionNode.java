@@ -17,7 +17,7 @@ public class FlightSpeedLimitOptionNode extends AbstractRadialNode {
 
 	@Override
 	public Component label(StatsData stats) {
-		return Component.literal(value + "%");
+		return net.minecraft.network.chat.Component.translatable("text.dragonminez.flightspeedlimitoptionnode.eaf8695fa7" , value);
 	}
 
 	@Override

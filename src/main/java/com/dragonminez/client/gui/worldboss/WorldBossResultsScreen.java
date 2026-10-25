@@ -230,7 +230,7 @@ public class WorldBossResultsScreen extends ScaledScreen {
 		MutableComponent name = txt(entry.name());
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.player != null && entry.id().equals(mc.player.getUUID())) {
-			name.append(Component.literal(" ")).append(tr("gui.dragonminez.worldboss.results.you").withStyle(ChatFormatting.GRAY));
+			name.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.worldbossresultsscreen.36a9e7f1c9")).append(tr("gui.dragonminez.worldboss.results.you").withStyle(ChatFormatting.GRAY));
 		}
 		TextUtil.drawStringWithBorder(graphics, font, name, nameX, rowY + 1, NAME_COLOR);
 
@@ -255,7 +255,7 @@ public class WorldBossResultsScreen extends ScaledScreen {
 			cursor += segmentWidth;
 		}
 
-		MutableComponent percent = txt(NumberFormattingUtil.formatUpToOneDecimal(entry.share() * 100.0f) + "%");
+		MutableComponent percent = tr("text.dragonminez.worldbossresultsscreen.eaf8695fa7" , NumberFormattingUtil.formatUpToOneDecimal(entry.share() * 100.0f));
 		TextUtil.drawStringWithBorder(graphics, font, percent, left + width - font.width(percent), barY - 1, TEXT_COLOR);
 	}
 
@@ -329,8 +329,8 @@ public class WorldBossResultsScreen extends ScaledScreen {
 			boolean received = amount > 0.0f;
 
 			MutableComponent name = received
-					? WorldBossRewardText.describe(reward, amount).copy().withStyle(Style.EMPTY.withFont(DMZ_FONT))
-					: WorldBossRewardText.name(reward).copy().withStyle(Style.EMPTY.withFont(DMZ_FONT));
+					? WorldBossRewardText.describe(reward, amount, rewardStats()).copy().withStyle(Style.EMPTY.withFont(DMZ_FONT))
+					: WorldBossRewardText.name(reward, rewardStats()).copy().withStyle(Style.EMPTY.withFont(DMZ_FONT));
 			List<FormattedCharSequence> nameLines = wrap(name, textWidth);
 			List<FormattedCharSequence> chanceLines = wrap(chanceLine(baseChance, chance, received), textWidth);
 			int height = Math.max(16, (nameLines.size() + chanceLines.size()) * LINE_HEIGHT) + 4;
@@ -352,15 +352,20 @@ public class WorldBossResultsScreen extends ScaledScreen {
 			line = txt(percentText(baseChance));
 		} else {
 			line = txt("").append(txt(percentText(baseChance)).withStyle(ChatFormatting.STRIKETHROUGH))
-					.append(txt(" -> " + percentText(chance)));
+					.append(tr("text.dragonminez.worldbossresultsscreen.8f67d2668c" , percentText(chance)));
 		}
-		if (received) line.append(txt(" ")).append(tr("gui.dragonminez.worldboss.results.received"));
+		if (received) line.append(tr("text.dragonminez.worldbossresultsscreen.36a9e7f1c9")).append(tr("gui.dragonminez.worldboss.results.received"));
 		return line;
 	}
 
 	private static String percentText(float chance) {
 		return NumberFormattingUtil.formatUpToOneDecimal(chance * 100.0f) + "%";
 	}
+
+    private com.dragonminez.common.stats.StatsData rewardStats() {
+        return minecraft.player == null ? null : com.dragonminez.common.stats.StatsProvider.get(
+                com.dragonminez.common.stats.StatsCapability.INSTANCE, minecraft.player).orElse(null);
+    }
 
 	private void renderTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
 		for (SegmentHit hit : segmentHits) {
@@ -374,9 +379,9 @@ public class WorldBossResultsScreen extends ScaledScreen {
 			QuestReward reward = rewards.get(hit.index());
 			if (reward == null) return;
 			List<Component> lines = new ArrayList<>();
-			lines.add(reward.getDescription().copy().withStyle(Style.EMPTY.withFont(DMZ_FONT)));
+			lines.add(reward.getDescription(1.0, rewardStats()).copy().withStyle(Style.EMPTY.withFont(DMZ_FONT)));
 			TextUtil.renderAdvancedTooltip(graphics, font, mouseX, mouseY, getUiWidth(), getUiHeight(),
-					WorldBossRewardText.name(reward).copy().withStyle(Style.EMPTY.withFont(DMZ_FONT)), lines, null, 0xFFFFFF);
+					WorldBossRewardText.name(reward, rewardStats()).copy().withStyle(Style.EMPTY.withFont(DMZ_FONT)), lines, null, 0xFFFFFF);
 			return;
 		}
 	}
@@ -409,7 +414,7 @@ public class WorldBossResultsScreen extends ScaledScreen {
 					if (amount.amount() <= 0.0f) continue;
 					Component source = amount.nameKey().isEmpty() ? tr("gui.dragonminez.worldboss.results.unknown_source") : Component.translatable(amount.nameKey());
 					lines.add(txt("").append(source.copy().withStyle(Style.EMPTY.withFont(DMZ_FONT)))
-							.append(txt(": " + NumberFormattingUtil.formatLargeNumber(amount.amount()))));
+							.append(tr("text.dragonminez.worldbossresultsscreen.554eb89451" , NumberFormattingUtil.formatLargeNumber(amount.amount()))));
 				}
 			}
 			case HEALED -> {
@@ -423,7 +428,7 @@ public class WorldBossResultsScreen extends ScaledScreen {
 
 	private void addLine(List<Component> lines, String key, float amount) {
 		if (amount <= 0.0f) return;
-		lines.add(tr(key).append(txt(": " + NumberFormattingUtil.formatLargeNumber(amount))));
+		lines.add(tr(key).append(tr("text.dragonminez.worldbossresultsscreen.554eb89451" , NumberFormattingUtil.formatLargeNumber(amount))));
 	}
 
 	private MutableComponent rankLabel(int rank) {

@@ -42,7 +42,7 @@ public final class DebugFileWriter {
 		}
 
 		String folder = debugDir.toAbsolutePath().normalize().toString();
-		Component clickablePath = Component.literal(folder)
+		Component clickablePath = com.dragonminez.api.lang.ConfigTranslations.text(folder)
 				.withStyle(style -> style
 						.withColor(ChatFormatting.AQUA)
 						.withUnderlined(true)

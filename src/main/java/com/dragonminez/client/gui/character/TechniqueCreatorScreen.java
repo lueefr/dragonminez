@@ -295,7 +295,7 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 
 		int damagePercent = Math.round(draft.getDamage() * 100.0f);
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.damage").append(": ").append(txt(damagePercent + "%")),
+				tr("gui.dragonminez.technique.damage").append(": ").append(tr("text.dragonminez.techniquecreatorscreen.eaf8695fa7" , damagePercent)),
 				cx, panelY + 128, 0xFFFFFFFF);
 
 		int sizeColor = KiAttackData.usesCustomSize(type) ? 0xFFFFFFFF : 0xFF777777;
@@ -310,7 +310,7 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 
 		int armorColor = KiAttackData.usesCustomArmorPen(type) ? 0xFFFFFFFF : 0xFF777777;
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.armor_pen").append(": ").append(txt(draft.getArmorPen() + "%")),
+				tr("gui.dragonminez.technique.armor_pen").append(": ").append(tr("text.dragonminez.techniquecreatorscreen.eaf8695fa7" , draft.getArmorPen())),
 				cx, panelY + 188, armorColor);
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
@@ -335,11 +335,11 @@ public class TechniqueCreatorScreen extends ScaledScreen {
 				cx, panelY + 148, hasSecondary ? active : inactive);
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.intensity").append(": ").append(txt(draft.getSecondaryIntensity() + "%")),
+				tr("gui.dragonminez.technique.intensity").append(": ").append(tr("text.dragonminez.techniquecreatorscreen.eaf8695fa7" , draft.getSecondaryIntensity())),
 				cx, panelY + 168, hasSecondary ? active : inactive);
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font,
-				tr("gui.dragonminez.technique.duration").append(": ").append(txt(draft.getSecondaryDuration() + "s")),
+				tr("gui.dragonminez.technique.duration").append(": ").append(tr("text.dragonminez.techniquecreatorscreen.c142d89262" , draft.getSecondaryDuration())),
 				cx, panelY + 188, hasSecondary ? active : inactive);
 	}
 

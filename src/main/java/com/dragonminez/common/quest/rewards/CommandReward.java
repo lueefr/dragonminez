@@ -51,7 +51,7 @@ public class CommandReward extends QuestReward {
 			return Component.translatable(translationKey);
 		} else {
 			String display = command.startsWith("/") ? command : "/" + command;
-			return Component.literal(display);
+			return com.dragonminez.api.lang.ConfigTranslations.text(display);
 		}
 	}
 }

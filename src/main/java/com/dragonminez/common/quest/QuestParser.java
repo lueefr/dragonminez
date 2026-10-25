@@ -57,6 +57,7 @@ public class QuestParser {
 	 * Parses a quest from the unified quest JSON format.
 	 */
 	public static Quest parseQuest(JsonObject json) {
+        if(json!=null)json=com.dragonminez.common.config.schema.ContentSchema.decode(com.dragonminez.common.config.schema.ContentSchema.Kind.QUEST,json);
 		if (rejectionReason(json) != null) {
 			return null;
 		}

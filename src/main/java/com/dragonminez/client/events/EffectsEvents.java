@@ -49,7 +49,7 @@ public class EffectsEvents {
 		} else isBioAndroidDrainingCache = false;
 
 		isChargingFormCache = StatsProvider.get(StatsCapability.INSTANCE, player)
-				.map(data -> (data.getStatus().isAuraActive() && !data.getStatus().isPermanentAura() && !data.getStatus().isForcedAura())).orElse(false);
+				.map(data -> (data.getStatus().isAuraActive() && com.dragonminez.api.forms.FormVisuals.flag(data,"aura",true) && !data.getStatus().isPermanentAura() && !data.getStatus().isForcedAura())).orElse(false);
 		isOverchargingCache = StatsProvider.get(StatsCapability.INSTANCE, player)
 				.map(data -> data.getStatus().isChargingKi() && (data.getStatus().isKiBurstArmed() || data.getStatus().isSurgeActive())).orElse(false);
 	}

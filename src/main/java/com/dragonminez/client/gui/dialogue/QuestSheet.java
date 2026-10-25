@@ -126,7 +126,7 @@ final class QuestSheet {
 				int required = entry.quest.getObjectiveRequired(questData, entry.id, i);
 				int progress = Math.min(required, questData.getObjectiveProgress(entry.id, i));
 				done = progress >= required;
-				description.append(Component.literal("  " + progress + "/" + required)
+				description.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.questsheet.36269db456" , progress, required)
 						.withStyle(Style.EMPTY.withFont(NpcDialogueScreen.FONT).withColor(done ? DialogueSkin.OFFER : DialogueSkin.METAL)));
 			}
 			List<FormattedCharSequence> wrapped = font.split(description, width - GLYPH_GAP);
@@ -160,7 +160,7 @@ final class QuestSheet {
 			}
 			for (QuestReward reward : group.rewards()) {
 				double multiplier = questData != null ? questData.rewardMultiplierFor(reward, difficulty) : difficulty.questRewardMultiplier();
-				Component description = Component.empty().append(reward.getDescription(multiplier))
+				Component description = Component.empty().append(reward.getDescription(multiplier, statsData()))
 						.withStyle(Style.EMPTY.withFont(NpcDialogueScreen.FONT));
 				ItemStack icon = QuestTreeScreen.rewardIconStack(reward);
 				int color = tierLocked ? LOCKED_TIER_COLOR : DialogueSkin.OFFER;

@@ -23,7 +23,10 @@ public final class FormVisuals {
     private static void validate(JsonObject visual,boolean rules){
         if(visual==null)return;
         for(var e:visual.entrySet())switch(e.getKey()){
-            case "aura","lightning","outline","hair" -> bool(e.getValue());
+            case "aura" -> {var v=e.getValue();if(v.isJsonPrimitive()&&v.getAsJsonPrimitive().isString()){
+                if(!Set.of("sealed","visible").contains(v.getAsString()))throw new IllegalArgumentException("Aura must be boolean, sealed or visible");
+            }else bool(v);}
+            case "lightning","outline","hair" -> bool(e.getValue());
             case "tail","eyes" -> {if(e.getValue().isJsonPrimitive()&&e.getValue().getAsJsonPrimitive().isBoolean())bool(e.getValue());else color(e.getValue());}
             case "fur" -> {
                 if(e.getValue().isJsonPrimitive()){bool(e.getValue());break;}
@@ -73,7 +76,8 @@ public final class FormVisuals {
         if(e.getValue().isJsonObject()&&target.has(e.getKey())&&target.get(e.getKey()).isJsonObject())merge(target.getAsJsonObject(e.getKey()),e.getValue().getAsJsonObject());
         else target.add(e.getKey(),e.getValue().deepCopy());
     });}
-    public static boolean flag(StatsData data,String name,boolean fallback){var value=resolve(data).get(name);return value!=null&&value.isJsonPrimitive()&&value.getAsJsonPrimitive().isBoolean()?value.getAsBoolean():fallback;}
+    public static boolean flag(StatsData data,String name,boolean fallback){var value=resolve(data).get(name);if(name.equals("aura")&&value!=null&&value.isJsonPrimitive()&&value.getAsJsonPrimitive().isString())return value.getAsString().equals("visible");return value!=null&&value.isJsonPrimitive()&&value.getAsJsonPrimitive().isBoolean()?value.getAsBoolean():fallback;}
+    public static boolean sealed(StatsData data){var value=resolve(data).get("aura");return value!=null&&value.isJsonPrimitive()&&value.getAsJsonPrimitive().isString()&&value.getAsString().equals("sealed");}
     public static float[] color(StatsData data,String name,float[] fallback){
         var value=resolve(data).get(name);if(value==null||!value.isJsonPrimitive()||!value.getAsJsonPrimitive().isString())return fallback;
         return rgb(value.getAsString());

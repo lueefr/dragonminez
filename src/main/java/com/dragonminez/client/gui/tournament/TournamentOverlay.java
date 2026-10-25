@@ -143,7 +143,7 @@ public final class TournamentOverlay {
 
 		int seconds = Math.max(1, secondsLeft());
 		switch (phase) {
-			case COUNTDOWN -> drawTitle(graphics, Component.literal(Integer.toString(seconds)), centreX, baseY, 5.0F, GOLD);
+			case COUNTDOWN -> drawTitle(graphics, com.dragonminez.api.lang.ConfigTranslations.text(Integer.toString(seconds)), centreX, baseY, 5.0F, GOLD);
 			case PREVIEW -> drawTitle(graphics, Component.translatable("tournament.dragonminez.title.preview", seconds),
 					centreX, baseY, 2.0F, GOLD);
 			default -> {

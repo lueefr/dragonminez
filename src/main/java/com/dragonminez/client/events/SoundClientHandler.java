@@ -55,7 +55,7 @@ public class SoundClientHandler {
 
         if (stats == null) return;
 
-        boolean hasAura = stats.getStatus().isAuraActive() || stats.getStatus().isPermanentAura() || stats.getStatus().isForcedAura();
+        boolean hasAura = com.dragonminez.api.forms.FormVisuals.flag(stats,"aura",stats.getStatus().isAuraActive() || stats.getStatus().isPermanentAura() || stats.getStatus().isForcedAura());
 
         AuraLoopSound existing = ACTIVE_AURA_SOUNDS.get(playerId);
         boolean isPlaying = existing != null && !existing.isStopped() && mc.getSoundManager().isActive(existing);

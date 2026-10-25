@@ -22,4 +22,12 @@ class ConfigTranslationsTest {
         assertThrows(IllegalArgumentException.class,()->t.reload(dir));
         assertEquals("Exemplo",t.translate("pt_br","example.name"));
     }
+    @Test void configEnglishOverridesBundledSelectedAndBundledEnglishRemainsAvailable()throws Exception{
+        var translations=new ConfigTranslations();
+        assertEquals("%s TP",translations.translate("pt_br","gui.dragonminez.cost.tp"));
+        Files.writeString(dir.resolve("en_us.json"),"{\"gui.dragonminez.cost.tp\":\"Custom %s\"}");
+        translations.reload(dir);
+        assertEquals("Custom %s",translations.translate("pt_br","gui.dragonminez.cost.tp"));
+        assertEquals("example.missing",translations.translate("pt_br","example.missing"));
+    }
 }

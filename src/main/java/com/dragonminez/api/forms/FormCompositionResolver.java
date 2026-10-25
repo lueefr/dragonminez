@@ -10,20 +10,38 @@ public final class FormCompositionResolver {
         public static final Multipliers IDENTITY = new Multipliers(1, 1, 1, 1, 1, 1, 1, 1);
         public Multipliers {
             for (double value : new double[]{str, skp, stm, def, vit, pwr, ene, speed}) {
-                if (!Double.isFinite(value) || value <= 0) throw new IllegalArgumentException("Form multipliers must be finite and positive");
+                if (!Double.isFinite(value)) throw new IllegalArgumentException("Form values must be finite");
             }
         }
         public Multipliers multiply(Multipliers b) {
             return new Multipliers(str*b.str, skp*b.skp, stm*b.stm, def*b.def,
                     vit*b.vit, pwr*b.pwr, ene*b.ene, speed*b.speed);
         }
+        public Multipliers add(Multipliers b) {
+            return new Multipliers(str+b.str, skp+b.skp, stm+b.stm, def+b.def,
+                    vit+b.vit, pwr+b.pwr, ene+b.ene, speed+b.speed);
+        }
+        public Multipliers requirePositive() { return requireMinimum(false); }
+        public Multipliers requireNonnegative() { return requireMinimum(true); }
+        private Multipliers requireMinimum(boolean zeroAllowed) {
+            for (double value : new double[]{str, skp, stm, def, vit, pwr, ene, speed})
+                if (zeroAllowed?value<0:value<=0)throw new IllegalArgumentException(zeroAllowed?
+                        "Additive deltas must be nonnegative":"Form multipliers must be positive");
+            return this;
+        }
         public double score() { return (str + skp + def + vit + pwr + ene) / 6; }
     }
 
-    public record Definition(String id, String baseForm, String inheritsMultipliersFrom, Multipliers multipliers) {
+    public record Definition(String id, String baseForm, String inheritsMultipliersFrom, Multipliers multipliers, String mode) {
+        public Definition(String id, String baseForm, String inheritsMultipliersFrom, Multipliers multipliers) {
+            this(id, baseForm, inheritsMultipliersFrom, multipliers, "multiply");
+        }
         public Definition {
             Objects.requireNonNull(id, "id");
             Objects.requireNonNull(multipliers, "multipliers");
+            mode = mode == null ? "multiply" : mode;
+            if (!mode.equals("multiply") && !mode.equals("add")) throw new IllegalArgumentException(id + ": mode must be multiply or add");
+            if (mode.equals("multiply")) multipliers.requirePositive();else multipliers.requireNonnegative();
             baseForm = blankToNull(baseForm);
             inheritsMultipliersFrom = blankToNull(inheritsMultipliersFrom);
             if (baseForm != null && inheritsMultipliersFrom != null) {
@@ -127,7 +145,8 @@ public final class FormCompositionResolver {
             } else if (reference != null) {
                 parent = resolve(reference, definitions, state, path);
             }
-            return parent.multiply(state.masteryAdjustedLocalMultipliers.getOrDefault(id, definition.multipliers));
+            Multipliers local = state.masteryAdjustedLocalMultipliers.getOrDefault(id, definition.multipliers);
+            return (definition.mode.equals("add") ? parent.add(local) : parent.multiply(local)).requirePositive();
         } finally { path.remove(id); }
     }
 

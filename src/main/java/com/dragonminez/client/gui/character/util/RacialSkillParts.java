@@ -142,9 +142,9 @@ public final class RacialSkillParts {
 		MutableComponent out = Component.empty();
 		if (codes == null) return out;
 		for (int i = 0; i < codes.length; i++) {
-			if (i > 0) out.append(Component.literal(", "));
+			if (i > 0) out.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.racialskillparts.0a07f65946"));
 			String code = codes[i].toLowerCase(Locale.ROOT);
-			out.append(Component.translatableWithFallback("gui.dragonminez.customization.stat." + code + ".title", codes[i]));
+			out.append(Component.translatable("gui.dragonminez.customization.stat." + code + ".title"));
 		}
 		return out;
 	}
@@ -153,8 +153,8 @@ public final class RacialSkillParts {
 		MutableComponent out = Component.empty();
 		if (forms == null) return out;
 		for (int i = 0; i < forms.length; i++) {
-			if (i > 0) out.append(Component.literal(", "));
-			out.append(Component.translatableWithFallback("race.dragonminez.frostdemon.form." + FrostDemonForms.GROUP_EVOLUTIONFORMS + "." + forms[i], forms[i]));
+			if (i > 0) out.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.racialskillparts.0a07f65946"));
+			out.append(Component.translatable("race.dragonminez.frostdemon.form." + FrostDemonForms.GROUP_EVOLUTIONFORMS + "." + forms[i]));
 		}
 		return out;
 	}

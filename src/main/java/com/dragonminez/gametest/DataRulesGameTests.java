@@ -59,6 +59,14 @@ public final class DataRulesGameTests {
         }
     }
 
+    private static void collectTranslationKeys(net.minecraft.network.chat.Component component,Set<String> keys){
+        if(component.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents translated){
+            keys.add(translated.getKey());
+            for(Object argument:translated.getArgs())if(argument instanceof net.minecraft.network.chat.Component child)collectTranslationKeys(child,keys);
+        }
+        for(var child:component.getSiblings())collectTranslationKeys(child,keys);
+    }
+
     @GameTest(template="port_empty")
     public static void purchaseRequirementNamesRemainTranslatable(GameTestHelper helper) {
         String race=installRace();
@@ -68,13 +76,10 @@ public final class DataRulesGameTests {
             data.getCharacter().setRace(race);
             var conditions=JsonParser.parseString("{\"any\":[{\"mastery\":{\"form\":\"path.stage\",\"min\":50}},{\"content\":\"example:trial\"}]}").getAsJsonObject();
             var missing=Conditions.missing(new Conditions.Context(data,null),conditions);
-            var text=missing.getFirst();
-            var mastery=(net.minecraft.network.chat.contents.TranslatableContents)text.getSiblings().getFirst().getContents();
-            helper.assertTrue(mastery.getArgs()[0] instanceof net.minecraft.network.chat.Component,"Form requirement was flattened to a raw string");
-            var form=(net.minecraft.network.chat.contents.TranslatableContents)((net.minecraft.network.chat.Component)mastery.getArgs()[0]).getContents();
-            helper.assertTrue(form.getKey().equals("race.dragonminez."+race+".form.path.stage"),"Form name lost race/group context");
-            var content=(net.minecraft.network.chat.contents.TranslatableContents)text.getSiblings().getLast().getContents();
-            helper.assertTrue(content.getArgs()[0] instanceof net.minecraft.network.chat.Component,"Content name bypassed client translation");
+            var keys=new HashSet<String>();collectTranslationKeys(missing.getFirst(),keys);
+            helper.assertTrue(keys.contains("rules.dragonminez.mastery"),"Mastery description was flattened");
+            helper.assertTrue(keys.contains("race.dragonminez."+race+".form.path.stage"),"Form name lost race/group context");
+            helper.assertTrue(keys.contains("example:trial"),"Content name bypassed client translation");
             helper.succeed();
         } finally { removeRace(race);player.discard(); }
     }

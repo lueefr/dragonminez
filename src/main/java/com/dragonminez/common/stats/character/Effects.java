@@ -15,24 +15,19 @@ public class Effects {
     public Effects() {}
 
     public void addEffect(String name, double power, int duration) {
-        effectMap.put(name.toLowerCase(), new Effect(name.toLowerCase(), power, duration));
+        effectMap.put(name.toLowerCase(), new Effect(name.toLowerCase(), power, name.equalsIgnoreCase("mutant")?-1:duration));
     }
 
     public void removeEffect(String name) {
-        effectMap.remove(name.toLowerCase());
+        if(!name.equalsIgnoreCase("mutant"))effectMap.remove(name.toLowerCase());
     }
+    /** Explicit administrative revocation; ordinary removal/reset cannot revoke ownership. */
+    public void revokeMutant(){effectMap.remove("mutant");}
 
-	public void removeAllEffects() {
-		Effect mutant = null;
-		if (effectMap.containsKey("mutant")) {
-			var serverConfig = ConfigManager.getServerConfig();
-			if (serverConfig != null && serverConfig.getMutant().getKeepMutantOnDeath()) {
-				mutant = effectMap.get("mutant");
-			}
-		}
-		effectMap.clear();
-		if (mutant != null) effectMap.put("mutant", mutant);
-	}
+    public void removeAllEffects() {
+        Effect mutant=effectMap.get("mutant");effectMap.clear();
+        if(mutant!=null)effectMap.put("mutant",new Effect("mutant",mutant.getPower(),-1));
+    }
 
     public boolean hasEffect(String name) {
         return effectMap.containsKey(name.toLowerCase());
@@ -78,7 +73,7 @@ public class Effects {
         List<String> toRemove = new ArrayList<>();
         for (Map.Entry<String, Effect> entry : effectMap.entrySet()) {
             Effect effect = entry.getValue();
-            if (!effect.isPermanent()) {
+            if (!entry.getKey().equals("mutant") && !effect.isPermanent()) {
                 effect.tick();
                 if (effect.isExpired()) {
                     toRemove.add(entry.getKey());
@@ -90,9 +85,7 @@ public class Effects {
         }
     }
 
-    public void clear() {
-        effectMap.clear();
-    }
+    public void clear() { removeAllEffects(); }
 
     public CompoundTag save() {
         CompoundTag nbt = new CompoundTag();
@@ -114,7 +107,7 @@ public class Effects {
             for (int i = 0; i < effectsList.size(); i++) {
                 CompoundTag effectTag = effectsList.getCompound(i);
                 Effect effect = Effect.load(effectTag);
-                effectMap.put(effect.getName().toLowerCase(), effect);
+                effectMap.put(effect.getName().toLowerCase(),effect.getName().equalsIgnoreCase("mutant")?new Effect("mutant",effect.getPower(),-1):effect);
             }
         }
     }
@@ -131,7 +124,7 @@ public class Effects {
         int size = buf.readInt();
         for (int i = 0; i < size; i++) {
             Effect effect = Effect.fromBytes(buf);
-            effectMap.put(effect.getName().toLowerCase(), effect);
+            effectMap.put(effect.getName().toLowerCase(),effect.getName().equalsIgnoreCase("mutant")?new Effect("mutant",effect.getPower(),-1):effect);
         }
     }
 

@@ -48,9 +48,9 @@ public class RacialRequestS2C {
 						.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/dmzracial reply reject")));
 
 		player.displayClientMessage(Component.translatable("message.dragonminez.racial.namek.request_received", requesterName, timeoutSeconds)
-				.append(Component.literal(" "))
+				.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.racialrequests2c.36a9e7f1c9"))
 				.append(accept)
-				.append(Component.literal(" / "))
+				.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.racialrequests2c.005e1574a2"))
 				.append(reject), false);
 	}
 }

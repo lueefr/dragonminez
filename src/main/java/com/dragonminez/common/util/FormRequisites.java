@@ -121,7 +121,7 @@ public final class FormRequisites {
 
 	private static Component sagaQuestReference(String sagaId, int questId, boolean clientSide) {
 		Saga saga = findSaga(sagaId, clientSide);
-		Component sagaName = saga != null && saga.getName() != null ? Component.translatable(saga.getName()) : Component.literal(sagaId);
+		Component sagaName = saga != null && saga.getName() != null ? Component.translatable(saga.getName()) : com.dragonminez.api.lang.ConfigTranslations.text(sagaId);
 		Quest quest = saga != null ? saga.getQuestById(questId) : null;
 		int questNumber = quest != null ? saga.getQuests().indexOf(quest) + 1 : questId;
 		return Component.translatable("gui.dragonminez.skills.quest_ref", sagaName, questNumber);

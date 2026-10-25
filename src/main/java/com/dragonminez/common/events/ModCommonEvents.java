@@ -65,7 +65,7 @@ public class ModCommonEvents {
 		if (event.getPackType() == PackType.SERVER_DATA) {
 			event.addRepositorySource((packConsumer) -> {
 				Pack dragonballPack = Pack.readMetaAndCreate(
-					new net.minecraft.server.packs.PackLocationInfo("dmz_dragonballs_runtime_data", Component.literal("DMZ Dragonballs Runtime Data"), PackSource.BUILT_IN, java.util.Optional.empty()),
+					new net.minecraft.server.packs.PackLocationInfo("dmz_dragonballs_runtime_data", net.minecraft.network.chat.Component.translatable("text.dragonminez.modcommonevents.211d3220b0"), PackSource.BUILT_IN, java.util.Optional.empty()),
 					new Pack.ResourcesSupplier() {
 						@Override public net.minecraft.server.packs.PackResources openPrimary(net.minecraft.server.packs.PackLocationInfo location) { return new DragonBallDataPackResources(location); }
 						@Override public net.minecraft.server.packs.PackResources openFull(net.minecraft.server.packs.PackLocationInfo location, Pack.Metadata metadata) { return openPrimary(location); }

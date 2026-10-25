@@ -277,7 +277,7 @@ public final class PartyManager {
             ServerPlayer leader = getPartyLeader(inviter);
             if (leader != null) {
                 Component acceptBtn = Component.translatable("quest.dmz.party.invite.button").withStyle(style -> style.withColor(ChatFormatting.GREEN).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/dmzparty invite " + invitee.getGameProfile().getName())));
-                leader.sendSystemMessage(Component.translatable("quest.dmz.party.invite.suggest", inviter.getGameProfile().getName(), invitee.getGameProfile().getName()).append(Component.literal(" ")).append(acceptBtn));
+                leader.sendSystemMessage(Component.translatable("quest.dmz.party.invite.suggest", inviter.getGameProfile().getName(), invitee.getGameProfile().getName()).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.partymanager.36a9e7f1c9")).append(acceptBtn));
                 return InviteRequestResult.SUGGESTED;
             }
             return InviteRequestResult.NO_PERMISSION;

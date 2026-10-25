@@ -189,6 +189,8 @@ public class QuestRegistry {
 		LogUtil.info(Env.COMMON, "QuestRegistry: loaded {} quest(s) ({} saga quests across {} sagas, {} sidequests)",
 				LOADED_QUESTS.size(), sagaQuestCount, LOADED_SAGAS.size(), sideCount);
 
+        try{com.dragonminez.common.config.schema.ContentMigration.commitPending();}
+        catch(IOException ex){LogUtil.error(Env.COMMON,"Quest schema migration aborted: {}",ex.getMessage());}
 		emitUpgradeReport(worldFolder);
 	}
 
@@ -290,10 +292,20 @@ public class QuestRegistry {
 	/**
 	 * Loads a Single Default Saga File, used in loadSagaFiles.
 	 */
+    private static JsonObject loadContent(Path file,com.dragonminez.common.config.schema.ContentSchema.Kind kind)throws IOException{
+        return com.dragonminez.common.config.schema.ContentMigration.load(file,kind,flat->{
+            if(kind==com.dragonminez.common.config.schema.ContentSchema.Kind.QUEST){
+                if(QuestParser.parseQuest(flat)==null)throw new IllegalArgumentException("Invalid quest: "+file);
+            }else for(String key:List.of("id","name","questFolder"))
+                if(!flat.has(key)||!flat.get(key).isJsonPrimitive()||flat.get(key).getAsString().isBlank())
+                    throw new IllegalArgumentException("Missing saga field: "+key);
+        });
+    }
+
 	private static void loadSingleSagaFile(Path sagaDir, Path file, Map<String, String> sagaSources) {
 		String display = "sagas/" + relativeName(sagaDir, file);
 		try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-			JsonObject root = GSON.fromJson(reader, JsonObject.class);
+			JsonObject root = loadContent(file,com.dragonminez.common.config.schema.ContentSchema.Kind.SAGA);
 			if (root == null) {
 				reportError(display, "the file is empty, saga skipped");
 				return;
@@ -391,7 +403,7 @@ public class QuestRegistry {
 			for (Path file : files) {
 				String display = "quests/" + folder.getFileName() + "/" + file.getFileName();
 				try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-					JsonObject root = GSON.fromJson(reader, JsonObject.class);
+					JsonObject root = loadContent(file,com.dragonminez.common.config.schema.ContentSchema.Kind.QUEST);
 					QuestParser.validate("quests", display, root);
 					Quest quest = parseQuestOrReport(display, root);
 					if (quest == null) continue;
@@ -484,7 +496,7 @@ public class QuestRegistry {
 	private static void loadSingleSideQuestFile(Path sideQuestDir, Path file, Map<String, String> idSources) {
 		String display = "sidequests/" + relativeName(sideQuestDir, file);
 		try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-			JsonObject root = GSON.fromJson(reader, JsonObject.class);
+			JsonObject root = loadContent(file,com.dragonminez.common.config.schema.ContentSchema.Kind.QUEST);
 			QuestParser.validate("quests", display, root);
 			Quest quest = parseQuestOrReport(display, root);
 			if (quest == null) return;

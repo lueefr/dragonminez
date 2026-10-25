@@ -88,7 +88,7 @@ public final class IconUtil {
 		if (span[0] >= 0) {
 			String icon = raw.substring(span[0], span[1]);
 
-			return Component.empty().append(Component.literal(icon).withStyle(style -> style.withColor(0xFFFFFF))).append(Component.literal(" ")).append(translatedStat);
+			return Component.empty().append(com.dragonminez.api.lang.ConfigTranslations.text(icon).withStyle(style -> style.withColor(0xFFFFFF))).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.iconutil.36a9e7f1c9")).append(translatedStat);
 		}
 		return translatedStat;
 	}
@@ -99,7 +99,7 @@ public final class IconUtil {
 		if (span[0] >= 0) {
 			String restRaw = raw.substring(0, span[0]) + raw.substring(span[1]);
 			String rest = stripSectionCodes(restRaw).replaceFirst("^\\s+", "");
-			return Component.literal(rest);
+			return com.dragonminez.api.lang.ConfigTranslations.text(rest);
 		}
 		return attributeComponent;
 	}

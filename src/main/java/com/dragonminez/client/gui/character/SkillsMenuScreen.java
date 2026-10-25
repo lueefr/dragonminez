@@ -139,7 +139,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 	}
 
 	public SkillsMenuScreen() {
-		super(Component.literal("Skills"));
+		super(net.minecraft.network.chat.Component.translatable("text.dragonminez.skillsmenuscreen.66d0f523a3"));
 	}
 
 	@Override
@@ -751,7 +751,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 						.texture(BUTTONS_TEXTURE)
 						.textureCoords(152, 0, 152, 10)
 						.textureSize(10, 10)
-						.message(Component.literal(String.valueOf(i + 1)))
+						.message(com.dragonminez.api.lang.ConfigTranslations.text(String.valueOf(i + 1)))
 						.onPress(btn -> {
 							NetworkHandler.INSTANCE.sendToServer(new EquipTechniqueC2S(slotIndex, selectedSkill));
 							isBinding = false;
@@ -796,7 +796,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 		int cost = getUpgradeCost(selectedSkill, skill.getLevel());
 		double currentTPS = statsData.getResources().getTrainingPointsExact();
 		var purchaseLock = FormRequisites.checkSkillLevel(statsData,selectedSkill,skill.getLevel()+1,true);
-		boolean canUpgrade = !skill.isMaxLevel() && currentTPS >= cost && !purchaseLock.isLocked();
+		boolean canUpgrade = !skill.isMaxLevel() && currentTPS >= cost;
 		if (cost == -1 || cost == Integer.MAX_VALUE) return;
 
 		if (!skill.isMaxLevel()) {
@@ -1462,7 +1462,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 			TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.skills.level", skill.getLevel(), skill.getMaxLevel()), panelX + 72, startY + 12, 0xFFAAAAAA);
 			int upgradeCost = getUpgradeCost(selectedSkill, skill.getLevel());
 			if (upgradeCost != Integer.MAX_VALUE && upgradeCost > 0) {
-				TextUtil.drawCenteredStringWithBorder(graphics, this.font, txt("%d TPS".formatted(getUpgradeCost(selectedSkill, skill.getLevel()))), panelX + 72, startY + 24, 0xFFAAAAAA);
+				TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.cost.tp",getUpgradeCost(selectedSkill,skill.getLevel())), panelX + 72, startY + 24, 0xFFAAAAAA);
 			}
 		} else if (isClassPassive) {
 			TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("class.dragonminez.passive"), panelX + 72, startY + 12, 0xFFFFD200);
@@ -1595,7 +1595,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 
 					boolean requisiteLocked = FormRequisites.check(statsData, clicked.data, true).isLocked();
 
-					if (canPurchaseLevel && !isFirstStackLevel && !requisiteLocked && !isMasterOnlyFirstFormLevel(clicked.formType, targetLevel) && cost != -1 && cost != Integer.MAX_VALUE && statsData.getResources().getTrainingPointsExact() >= cost) {
+					if (canPurchaseLevel && !isFirstStackLevel && !isMasterOnlyFirstFormLevel(clicked.formType, targetLevel) && cost != -1 && cost != Integer.MAX_VALUE && statsData.getResources().getTrainingPointsExact() >= cost) {
 						NetworkHandler.INSTANCE.sendToServer(new UpdateSkillC2S(UpdateSkillC2S.SkillAction.UPGRADE, clicked.formType, cost));
 						updateStatsData();
 					}

@@ -51,8 +51,13 @@ public abstract class QuestReward {
 		return getDescription();
 	}
 
+    /** Keeps player-dependent names translatable without resolving a server locale. */
+    public Component getDescription(double rewardMultiplier, StatsData data) {
+        return getDescription(rewardMultiplier);
+    }
+
 	public List<Component> getTooltipLines(double rewardMultiplier, StatsData data) {
-		return List.of(getDescription(rewardMultiplier));
+		return List.of(getDescription(rewardMultiplier, data));
 	}
 
 	public boolean isUnlockedFor(Difficulty difficulty) {

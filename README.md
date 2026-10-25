@@ -2,7 +2,7 @@
 
 An unofficial fork of [DragonMineZ](https://github.com/DragonMineZ/dragonminez), the Dragon Ball-inspired Minecraft mod created by the DragonMineZ team. This repository maintains ports and additional fixes; it is not the original project or an official release channel.
 
-See the [Wiki guide](https://github.com/lueefr/dragonminez/wiki), [API documentation and JSON examples](API-EXTENSIONS.md), [porting notes and dependencies](PORTING-1.21.1.md), and [API validation results](API-VALIDATION.md).
+See the [Wiki guide](https://github.com/lueefr/dragonminez/wiki), [API documentation and JSON examples](API-EXTENSIONS.md), [content schemas and migration](docs/wiki/Content-configuration.md), [porting notes and dependencies](PORTING-1.21.1.md), and [API validation results](API-VALIDATION.md).
 
 ## Downloads
 

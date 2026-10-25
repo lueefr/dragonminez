@@ -231,7 +231,7 @@ public class ClientPacketHandler {
 		Minecraft mc = Minecraft.getInstance();
 		NotificationHUD.push(
 				Component.translatable("toast.dragonminez.party.invite.title"),
-				Component.literal(inviterName),
+				com.dragonminez.api.lang.ConfigTranslations.text(inviterName),
 				Component.translatable("toast.dragonminez.party.invite.hint"),
 				null,
 				NotificationHUD.PRIORITY_NORMAL

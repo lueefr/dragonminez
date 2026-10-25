@@ -2283,7 +2283,7 @@ public final class Tournament {
 		private static Component nameOf(ServerLevel level, Run run, @Nullable UUID id) {
 			if (id == null) return Component.empty();
 			ServerPlayer player = level.getServer().getPlayerList().getPlayer(id);
-			return player != null ? player.getName().copy() : Component.literal("???");
+			return player != null ? player.getName().copy() : net.minecraft.network.chat.Component.translatable("text.dragonminez.tournament.a03b221c6c");
 		}
 
 		private static Component opponentName(Run run) {
@@ -2299,7 +2299,7 @@ public final class Tournament {
 
 			ResourceLocation location = ResourceLocation.tryParse(slot);
 			EntityType<?> type = location != null ? BuiltInRegistries.ENTITY_TYPE.get(location) : null;
-			return type != null ? type.getDescription().copy() : Component.literal(slot);
+			return type != null ? type.getDescription().copy() : com.dragonminez.api.lang.ConfigTranslations.text(slot);
 		}
 
 		private static void sendBracket(ServerPlayer player, String tournamentId, int npcEntityId, boolean push) {

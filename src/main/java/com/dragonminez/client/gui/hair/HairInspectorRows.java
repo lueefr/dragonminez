@@ -295,8 +295,8 @@ final class HairInspectorRows {
 			TextUtil.drawStringWithBorder(graphics, font, HairEditorUi.txt(HairEditorUi.trimToWidth(font, label.getString(), LABEL_WIDTH - 8)), x + 6, y + 3, HairEditorUi.MUTED);
 			int prevX = prevX(x);
 			int nextX = nextX(x, width);
-			HairEditorUi.button(graphics, font, HairEditorUi.txt("<"), prevX, y + 1, ARROW_WIDTH, ROW_HEIGHT - 2, HairEditorUi.inside(mouseX, mouseY, prevX, y + 1, ARROW_WIDTH, ROW_HEIGHT - 2), false, true);
-			HairEditorUi.button(graphics, font, HairEditorUi.txt(">"), nextX, y + 1, ARROW_WIDTH, ROW_HEIGHT - 2, HairEditorUi.inside(mouseX, mouseY, nextX, y + 1, ARROW_WIDTH, ROW_HEIGHT - 2), false, true);
+			HairEditorUi.button(graphics, font, HairEditorUi.tr("text.dragonminez.hairinspectorrows.dabd3aff76"), prevX, y + 1, ARROW_WIDTH, ROW_HEIGHT - 2, HairEditorUi.inside(mouseX, mouseY, prevX, y + 1, ARROW_WIDTH, ROW_HEIGHT - 2), false, true);
+			HairEditorUi.button(graphics, font, HairEditorUi.tr("text.dragonminez.hairinspectorrows.62b67e1f68"), nextX, y + 1, ARROW_WIDTH, ROW_HEIGHT - 2, HairEditorUi.inside(mouseX, mouseY, nextX, y + 1, ARROW_WIDTH, ROW_HEIGHT - 2), false, true);
 			int textAreaX = prevX + ARROW_WIDTH;
 			int textAreaWidth = nextX - textAreaX;
 			String text = HairEditorUi.trimToWidth(font, value.get().getString(), textAreaWidth - 4);

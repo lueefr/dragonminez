@@ -118,8 +118,9 @@ public class PunchMachineEntity extends Mob implements GeoEntity {
 
 		spawnDamageIndicator(damage);
 
-		String msg = String.format("DMG: %.1f | DPS: %.1f", damage, dps);
-		attacker.displayClientMessage(Component.literal(msg).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), true);
+		attacker.displayClientMessage(Component.translatable("message.dragonminez.training.damage",
+                String.format(java.util.Locale.ROOT,"%.1f",damage),String.format(java.util.Locale.ROOT,"%.1f",dps))
+                .withStyle(ChatFormatting.GOLD,ChatFormatting.BOLD),true);
 	}
 
 	private void spawnDamageIndicator(float damage) {
@@ -130,7 +131,7 @@ public class PunchMachineEntity extends Mob implements GeoEntity {
 		indicator.setWaitTime(0);
 
 		String dmgText = String.format("%.0f", damage);
-		indicator.setCustomName(Component.literal(dmgText).withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
+		indicator.setCustomName(com.dragonminez.api.lang.ConfigTranslations.text(dmgText).withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
 		indicator.setCustomNameVisible(true);
 
 		this.level().addFreshEntity(indicator);

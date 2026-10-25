@@ -45,9 +45,9 @@ public class CapsuleItem extends Item {
 	public @NotNull Component getName(@NotNull ItemStack pStack) {
 		CapsuleValues values = ConfigManager.getServerConfig().getGameplay().getCapsules().getCapsuleValues(type);
 		return Component.translatable("item.dragonminez.capsule")
-				.append(Component.literal(" "))
+				.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.capsuleitem.36a9e7f1c9"))
 				.append(tierLabel != null
-						? Component.translatable("item.dragonminez.capsule.tier", tierLabel).withStyle(tierColor).append(Component.literal(" "))
+						? Component.translatable("item.dragonminez.capsule.tier", tierLabel).withStyle(tierColor).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.capsuleitem.36a9e7f1c9"))
 						: Component.empty())
 				.append(Component.translatable("item.dragonminez.capsule.stat", values.getStats()).withStyle(ChatFormatting.GREEN))
 				;
@@ -79,7 +79,7 @@ public class CapsuleItem extends Item {
 						String statName = split[i];
 						capsuleComponent.append(applyCapsuleStats(data, statName, anyApplied));
 						if (i < split.length - 1) {
-							capsuleComponent.append(Component.literal(statSeparator).withStyle(ChatFormatting.GRAY));
+							capsuleComponent.append(com.dragonminez.api.lang.ConfigTranslations.text(statSeparator).withStyle(ChatFormatting.GRAY));
 						}
 					}
 					if (anyApplied[0]) capsule.shrink(1);

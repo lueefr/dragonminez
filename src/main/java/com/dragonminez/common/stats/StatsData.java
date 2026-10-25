@@ -1759,6 +1759,7 @@ public class StatsData {
 			getDynamicGrowth().clearGrowthStats();
 		}
 		if (getStatus().isFused()) FusionLogic.endFusion(player, this, false);
+        com.dragonminez.server.util.MutantManager.reconcileHolder(player,this);
 		getCharacter().clearActiveForm(player);
 		getCharacter().clearActiveStackForm(player);
 		TransformStatusHandler.clearAllPersistentFormEffects(player);

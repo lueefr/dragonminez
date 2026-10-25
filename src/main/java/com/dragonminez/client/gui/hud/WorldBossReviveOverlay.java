@@ -71,7 +71,7 @@ public class WorldBossReviveOverlay {
 		int color = (alphaChannel << 24) | (TEXT_COLOR & 0xFFFFFF);
 		MutableComponent label = Component.translatable("gui.dragonminez.worldboss.revive.casting", ClientWorldBossState.Player.castTargetName())
 				.withStyle(Style.EMPTY.withFont(DMZ_FONT));
-		MutableComponent percent = Component.literal(Math.round(progress * 100.0f) + "%").withStyle(Style.EMPTY.withFont(DMZ_FONT));
+		MutableComponent percent = net.minecraft.network.chat.Component.translatable("text.dragonminez.worldbossreviveoverlay.eaf8695fa7" , Math.round(progress * 100.0f)).withStyle(Style.EMPTY.withFont(DMZ_FONT));
 		int percentY = Math.round(y) - 4 - font.lineHeight;
 		int labelY = percentY - 2 - font.lineHeight;
 		guiGraphics.drawString(font, label, (width - font.width(label)) / 2, labelY, color, true);

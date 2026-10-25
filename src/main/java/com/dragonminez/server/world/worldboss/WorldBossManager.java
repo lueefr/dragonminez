@@ -1,5 +1,7 @@
 package com.dragonminez.server.world.worldboss;
 
+import net.minecraft.network.chat.Component;
+
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import com.dragonminez.common.init.entities.worldboss.WorldBossEntity;
@@ -176,19 +178,21 @@ public final class WorldBossManager {
         boss.fallDistance = 0.0F;
     }
 
-    public static String restoreLairStructure(ServerLevel level, WorldBossLair lair, BlockPos knownLair) {
-        if (level == null) return "";
+    public static String restoreLairStructure(ServerLevel level,WorldBossLair lair,BlockPos knownLair){
+        return restoreLairStructureText(level,lair,knownLair).getString();
+    }
+    public static Component restoreLairStructureText(ServerLevel level, WorldBossLair lair, BlockPos knownLair) {
+        if (level == null) return Component.empty();
         ResourceKey<Structure> key = lair.structure();
-        if (key == null) return " Its arena is rebuilt when a player gets close.";
+        if (key == null) return Component.translatable("message.dragonminez.worldboss.repair.arena_nearby");
         Structure structure = level.registryAccess().registryOrThrow(Registries.STRUCTURE).get(key);
         BlockPos at = knownLair != null ? knownLair : lair.pickColumn(level);
-        if (structure == null || at == null) return " Its structure has not been planned yet, nothing to restore.";
+        if (structure == null || at == null) return Component.translatable("message.dragonminez.worldboss.repair.not_planned");
         StructureStart start = level.structureManager().getStructureAt(at, structure);
-        if (!start.isValid()) return " Its structure has not generated yet, nothing to restore.";
+        if (!start.isValid()) return Component.translatable("message.dragonminez.worldboss.repair.not_generated");
         int unloaded = StructureRepairManager.restore(level, start);
-        if (unloaded == 0) return " Restoring its structure over the next few seconds.";
-        return " Restoring the loaded part of its structure; " + unloaded
-                + " chunks are not loaded, stand next to it and run the reset again to restore the rest.";
+        if (unloaded == 0) return Component.translatable("message.dragonminez.worldboss.repair.restoring");
+        return Component.translatable("message.dragonminez.worldboss.repair.partial",unloaded);
     }
 
     public static boolean areTruceAllies(UUID a, UUID b, long gameTime) {

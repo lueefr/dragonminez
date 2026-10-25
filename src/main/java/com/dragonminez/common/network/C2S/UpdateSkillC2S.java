@@ -129,7 +129,7 @@ public class UpdateSkillC2S {
 	private static boolean isFormLocked(ServerPlayer player, StatsData data, String skillName, int targetLevel) {
 		FormRequisites.Lock lock = FormRequisites.checkSkillLevel(data, skillName, targetLevel, false);
 		if (!lock.isLocked()) return false;
-		player.displayClientMessage(FormRequisites.describeInline(lock, false), true);
+		com.dragonminez.api.forms.FormAccess.notice(player,FormRequisites.describeInline(lock,false),null);
 		return true;
 	}
 

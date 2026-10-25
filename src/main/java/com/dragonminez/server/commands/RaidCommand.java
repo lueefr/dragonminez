@@ -72,11 +72,7 @@ public class RaidCommand {
 			ctx.getSource().sendFailure(Component.translatable("command.dragonminez.raid.none"));
 			return 0;
 		}
-		ctx.getSource().sendSuccess(() -> Component.literal(
-				"Raid " + raid.getRaidId() + " | status=" + raid.getStatus()
-						+ " | wave=" + raid.getCurrentWave()
-						+ " | participants=" + raid.getParticipants().size()
-						+ " | center=" + raid.getCenter().toShortString()), false);
+		ctx.getSource().sendSuccess(() -> net.minecraft.network.chat.Component.translatable("text.dragonminez.raidcommand.7c67dea3ab" , raid.getRaidId(), raid.getStatus(), raid.getCurrentWave(), raid.getParticipants().size(), raid.getCenter().toShortString()), false);
 		return 1;
 	}
 }
