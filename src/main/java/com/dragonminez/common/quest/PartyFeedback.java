@@ -153,7 +153,7 @@ public final class PartyFeedback {
 										Component.translatable("quest.dmz.party.invite.difficulty_confirm.hover"))));
 				invitee.sendSystemMessage(Component.translatable("quest.dmz.party.invite.difficulty_confirm.detail", partyDifficulty, ownDifficulty)
 						.withStyle(ChatFormatting.YELLOW));
-				invitee.sendSystemMessage(Component.literal("[").append(confirmButton).append(Component.literal("]")));
+				invitee.sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.partyfeedback.245843abef").append(confirmButton).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.partyfeedback.cfae0d4248")));
 			}
 			case INVALID -> invitee.sendSystemMessage(red("quest.dmz.party.invite.invalid"));
 		}
@@ -186,8 +186,8 @@ public final class PartyFeedback {
 						.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/dmzparty reject" + suffix))
 						.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
 								Component.translatable("quest.dmz.party.invite.reject.hover"))));
-		invitee.sendSystemMessage(Component.literal("[").append(acceptButton).append(Component.literal("] ["))
-				.append(rejectButton).append(Component.literal("]")));
+		invitee.sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.partyfeedback.245843abef").append(acceptButton).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.partyfeedback.69476ffbe2"))
+				.append(rejectButton).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.partyfeedback.cfae0d4248")));
 	}
 
 	private static ServerPlayer resolvedLeader(ServerPlayer inviter) {

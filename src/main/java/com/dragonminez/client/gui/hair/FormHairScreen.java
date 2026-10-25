@@ -25,9 +25,9 @@ public final class FormHairScreen extends Screen {
             var label=FormHair.name(character.getRaceName(),id);
             addRenderableWidget(Button.builder(label,b->minecraft.setScreen(new HairEditorScreen(this,character,id))).bounds(x,85+(i-page*count)*24,220,20).build());
         }
-        addRenderableWidget(Button.builder(Component.literal("<"),b->{if(page>0){page--;rebuildWidgets();}}).bounds(x,height-55,35,20).build());
+        addRenderableWidget(Button.builder(net.minecraft.network.chat.Component.translatable("text.dragonminez.formhairscreen.dabd3aff76"),b->{if(page>0){page--;rebuildWidgets();}}).bounds(x,height-55,35,20).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.back"),b->onClose()).bounds(x+40,height-55,140,20).build());
-        addRenderableWidget(Button.builder(Component.literal(">"),b->{if((page+1)*count<forms.size()){page++;rebuildWidgets();}}).bounds(x+185,height-55,35,20).build());
+        addRenderableWidget(Button.builder(net.minecraft.network.chat.Component.translatable("text.dragonminez.formhairscreen.62b67e1f68"),b->{if((page+1)*count<forms.size()){page++;rebuildWidgets();}}).bounds(x+185,height-55,35,20).build());
     }
     @Override public void render(GuiGraphics graphics,int mouseX,int mouseY,float partialTick){super.render(graphics,mouseX,mouseY,partialTick);graphics.drawCenteredString(font,title,width/2,25,0xffffff);}
     @Override public void onClose(){minecraft.setScreen(previous);}

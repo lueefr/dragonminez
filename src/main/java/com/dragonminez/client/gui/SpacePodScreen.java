@@ -54,7 +54,7 @@ public class SpacePodScreen extends ScaledScreen {
 	private TexturedTextButton travelButton;
 
 	public SpacePodScreen() {
-		super(Component.literal("Space Pod").withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
+		super(net.minecraft.network.chat.Component.translatable("text.dragonminez.spacepodscreen.9757a79b6b").withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
 	}
 
 	@Override
@@ -181,7 +181,7 @@ public class SpacePodScreen extends ScaledScreen {
 					textToDraw = destinationName(dest).copy().withStyle(ChatFormatting.BOLD);
 					textColor = 0x20E0FF;
 				} else {
-					textToDraw = txt("???").withStyle(ChatFormatting.BOLD);
+					textToDraw = tr("text.dragonminez.spacepodscreen.a03b221c6c").withStyle(ChatFormatting.BOLD);
 					textColor = 0x747678;
 				}
 

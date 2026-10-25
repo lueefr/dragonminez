@@ -38,6 +38,6 @@ public class KiTechniqueReward extends QuestReward {
 
 	@Override
 	public Component getDescription() {
-		return Component.translatable("gui.dragonminez.quests.rewards.ki_technique", Component.literal(template.getName()));
+		return Component.translatable("gui.dragonminez.quests.rewards.ki_technique", com.dragonminez.api.lang.ConfigTranslations.text(template.getName()));
 	}
 }

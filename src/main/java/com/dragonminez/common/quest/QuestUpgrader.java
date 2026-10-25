@@ -65,6 +65,7 @@ public final class QuestUpgrader {
 			Path file = dmzBase.resolve(relative);
 			if (!Files.isRegularFile(file)) continue;
 
+            if(readJson(file)==null){LogUtil.warn(Env.COMMON,"Malformed retired quest '{}' left untouched",file);continue;}
 			String stamp = readStamp(file);
 			if (stamp != null && compareVersions(stamp, DEFAULTS_VERSION) > 0) continue;
 
@@ -114,19 +115,18 @@ public final class QuestUpgrader {
 				return;
 			}
 
-			if (isBlank(file)) {
-				writeJson(file, newDefault);
-				QuestUpdateReport.forFile(relative, "empty file", DEFAULTS_VERSION).notes
-						.add("the file was empty and was regenerated from the defaults");
-				LogUtil.warn(Env.COMMON, "Quest file '{}' was empty; regenerated it from the defaults", relative);
-				JsonLoadReport.update("quests", relative, "the file was empty, regenerated from the defaults");
-				return;
-			}
+            if (isBlank(file)) {
+                LogUtil.warn(Env.COMMON,"Quest file '{}' is empty; original left untouched",relative);
+                return;
+            }
 
 			if (!autoUpdateEnabled) return;
 
 			JsonObject userObj = readJson(file);
 			if (userObj == null) return;
+            if(contentKind(file)==com.dragonminez.common.config.schema.ContentSchema.Kind.QUEST && QuestParser.parseQuest(userObj)==null){
+                LogUtil.warn(Env.COMMON,"Invalid quest '{}' left untouched",file);return;
+            }
 
 			String userVersion = userObj.has(VERSION_KEY) && userObj.get(VERSION_KEY).isJsonPrimitive()
 					? userObj.get(VERSION_KEY).getAsString() : null;
@@ -140,8 +140,8 @@ public final class QuestUpgrader {
 			mergeInto(userObj, baseline, merged, "", report);
 			merged.addProperty(VERSION_KEY, DEFAULTS_VERSION);
 
+            backup(dmzBase,file);
 			if (report.hasChanges()) {
-				backup(dmzBase, file);
 				LogUtil.info(Env.COMMON, "Upgraded quest file '{}' ({} → {}): {} update(s), {} conflict(s), {} deletion(s) kept",
 						relative, report.fromVersion, report.toVersion, report.appliedCount, report.conflicts.size(),
 						report.keptDeletions.size());
@@ -358,7 +358,7 @@ public final class QuestUpgrader {
 		try (InputStream in = QuestUpgrader.class.getResourceAsStream(resource)) {
 			if (in == null) return null;
 			JsonElement parsed = JsonParser.parseString(new String(in.readAllBytes(), StandardCharsets.UTF_8));
-			return parsed != null && parsed.isJsonObject() ? parsed.getAsJsonObject() : null;
+			return parsed != null && parsed.isJsonObject() ? com.dragonminez.common.config.schema.ContentSchema.decode(contentKind(Path.of(relativeKey)),parsed.getAsJsonObject()) : null;
 		} catch (Exception e) {
 			return null;
 		}
@@ -378,10 +378,15 @@ public final class QuestUpgrader {
 		return Files.size(file) == 0 || Files.readString(file, StandardCharsets.UTF_8).isBlank();
 	}
 
+    private static com.dragonminez.common.config.schema.ContentSchema.Kind contentKind(Path file){
+        return file.toString().replace('\\','/').contains("/sagas/")?
+            com.dragonminez.common.config.schema.ContentSchema.Kind.SAGA:com.dragonminez.common.config.schema.ContentSchema.Kind.QUEST;
+    }
+
 	private static JsonObject readJson(Path file) {
 		try {
 			JsonElement parsed = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8));
-			return parsed != null && parsed.isJsonObject() ? parsed.getAsJsonObject() : null;
+			return parsed != null && parsed.isJsonObject() ? com.dragonminez.common.config.schema.ContentSchema.decode(contentKind(file),parsed.getAsJsonObject()) : null;
 		} catch (Exception e) {
 			LogUtil.warn(Env.COMMON, "Could not read quest file '{}' for upgrade: {}", file.getFileName(), e.getMessage());
 			return null;
@@ -394,7 +399,7 @@ public final class QuestUpgrader {
 		Path temp = Files.createTempFile(dir, file.getFileName().toString() + ".", ".tmp");
 		try {
 			try (Writer w = Files.newBufferedWriter(temp, StandardCharsets.UTF_8)) {
-				GSON.toJson(obj, w);
+				GSON.toJson(com.dragonminez.common.config.schema.ContentSchema.encode(contentKind(file),obj), w);
 			}
 			try {
 				Files.move(temp, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);

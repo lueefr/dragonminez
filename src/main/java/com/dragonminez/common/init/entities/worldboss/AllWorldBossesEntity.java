@@ -5689,12 +5689,12 @@ public class AllWorldBossesEntity {
         @Override
         protected Component getBossBarName() {
             int stacks = this.getEyeStacks();
-            MutableComponent name = this.getDisplayName().copy().append(Component.literal("  "))
-                    .append(Component.literal("◉".repeat(stacks)).withStyle(ChatFormatting.DARK_RED));
+            MutableComponent name = this.getDisplayName().copy().append(net.minecraft.network.chat.Component.translatable("text.dragonminez.allworldbossesentity.6c179f21e6"))
+                    .append(com.dragonminez.api.lang.ConfigTranslations.text("◉".repeat(stacks)).withStyle(ChatFormatting.DARK_RED));
             if (stacks < MAX_STACKS) {
                 String next = this.stackProgress >= 0.75F ? "◕" : this.stackProgress >= 0.5F ? "◑" : this.stackProgress >= 0.25F ? "◔" : "○";
-                name.append(Component.literal(next).withStyle(ChatFormatting.RED))
-                        .append(Component.literal("○".repeat(MAX_STACKS - stacks - 1)).withStyle(ChatFormatting.DARK_GRAY));
+                name.append(com.dragonminez.api.lang.ConfigTranslations.text(next).withStyle(ChatFormatting.RED))
+                        .append(com.dragonminez.api.lang.ConfigTranslations.text("○".repeat(MAX_STACKS - stacks - 1)).withStyle(ChatFormatting.DARK_GRAY));
             }
             return name;
         }
@@ -6661,7 +6661,7 @@ public class AllWorldBossesEntity {
                 if (pressed) {
                     String bar = "|".repeat(this.grabPresses);
                     String empty = "|".repeat(Math.max(0, GRAB_ESCAPE_PRESSES - this.grabPresses));
-                    Component meter = Component.literal(bar).withStyle(ChatFormatting.GREEN).append(Component.literal(empty).withStyle(ChatFormatting.DARK_GRAY));
+                    Component meter = com.dragonminez.api.lang.ConfigTranslations.text(bar).withStyle(ChatFormatting.GREEN).append(com.dragonminez.api.lang.ConfigTranslations.text(empty).withStyle(ChatFormatting.DARK_GRAY));
                     player.displayClientMessage(Component.translatable("worldboss.dragonminez.metal_cooler_core.bind.progress", meter), true);
                     level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.CHAIN_HIT, SoundSource.PLAYERS, 1.0F,
                             0.8F + this.grabPresses * 0.05F);

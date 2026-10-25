@@ -57,4 +57,17 @@ class FormCompositionResolverTest {
         assertThrows(IllegalArgumentException.class,()->m(Double.NaN));
         assertThrows(IllegalArgumentException.class,()->m(Double.POSITIVE_INFINITY));
     }
+    @Test void additiveChainUsesResolvedDynamicRootAndZeroDeltas() {
+        var resolver=new FormCompositionResolver();var player=UUID.randomUUID();
+        resolver.reload(List.of(d("base.first",null,null,16),d("base.second",null,null,32),
+            new Definition("custom.first","best",null,m(5),"add"),
+            new Definition("custom.second",null,"custom.first",m(5),"add"),
+            new Definition("custom.same",null,"custom.second",m(0),"add")));
+        resolver.updatePlayer(player,new PlayerState(1,null,null,Set.of("base.first","custom.first","custom.second"),Map.of()));
+        assertEquals(21,resolver.resolve(player,"custom.first").str());
+        assertEquals(26,resolver.resolve(player,"custom.same").str());
+        resolver.updatePlayer(player,new PlayerState(2,null,null,Set.of("base.first","base.second","custom.first","custom.second"),Map.of()));
+        assertEquals(42,resolver.resolve(player,"custom.same").str());
+        assertThrows(IllegalArgumentException.class,()->new Definition("bad.one",null,null,m(0),"multiply"));
+    }
 }

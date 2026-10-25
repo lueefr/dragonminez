@@ -301,8 +301,8 @@ public class StatsEvents {
 				else removeAlignment[0] = true;
 				if (victimData.getStatus().isHasCreatedCharacter()) {
 					boolean wasMutant = victimData.getEffects().hasEffect(MutantManager.EFFECT_NAME);
-					boolean keepMutant = ConfigManager.getServerConfig().getMutant().getKeepMutantOnDeath();
-					if (wasMutant && !keepMutant && victim instanceof ServerPlayer mutantVictim) MutantManager.revoke(mutantVictim, victimData);
+					boolean keepMutant = true;
+					if (wasMutant && victim instanceof ServerPlayer mutantVictim) MutantManager.reconcileHolder(mutantVictim, victimData);
 					victimData.getEffects().removeAllEffects();
 					if (wasMutant && keepMutant) {
 						victimData.getEffects().addEffect(MutantManager.EFFECT_NAME, 1.0, -1);

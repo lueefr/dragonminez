@@ -241,7 +241,7 @@ public final class GeteStarEntities {
         private Component progressBar() {
             String filled = "|".repeat(this.presses);
             String empty = "|".repeat(Math.max(0, ESCAPE_PRESSES - this.presses));
-            return Component.literal(filled).withStyle(ChatFormatting.GREEN).append(Component.literal(empty).withStyle(ChatFormatting.DARK_GRAY));
+            return com.dragonminez.api.lang.ConfigTranslations.text(filled).withStyle(ChatFormatting.GREEN).append(com.dragonminez.api.lang.ConfigTranslations.text(empty).withStyle(ChatFormatting.DARK_GRAY));
         }
 
         private void tickEnergy(ServerLevel level, AllWorldBossesEntity.MetalCoolerCore core, ServerPlayer victim) {

@@ -31,7 +31,7 @@ public final class CustomNpcScreen extends Screen {
                 () -> NetworkHandler.sendToServer(new UpdateSkillC2S(UpdateSkillC2S.SkillAction.PURCHASE,skill,0))));
         for (String id:definition.offers().quests()) {
             var quest=QuestRegistry.getClientQuest(id);
-            Component name=quest==null?Component.literal(id):Component.translatable(quest.getTitle());
+            Component name=quest==null?com.dragonminez.api.lang.ConfigTranslations.text(id):Component.translatable(quest.getTitle());
             offers.add(new Offer(Component.translatable("gui.dragonminez.custom_npc.quest_start",name),
                     () -> NetworkHandler.sendToServer(new QuestActionC2S(QuestActionC2S.ActionType.START,id,definition.id()))));
             offers.add(new Offer(Component.translatable("gui.dragonminez.custom_npc.quest_turn_in",name),
@@ -49,9 +49,9 @@ public final class CustomNpcScreen extends Screen {
             Offer offer=offers.get(i);
             addRenderableWidget(Button.builder(offer.label(),button -> offer.action().run()).bounds(width/2-150,110+(i%pageSize)*24,300,20).build());
         }
-        addRenderableWidget(Button.builder(Component.literal("<"),button -> { page=Math.max(0,page-1);rebuildWidgets(); }).bounds(width/2-150,height-35,40,20).build());
+        addRenderableWidget(Button.builder(net.minecraft.network.chat.Component.translatable("text.dragonminez.customnpcscreen.dabd3aff76"),button -> { page=Math.max(0,page-1);rebuildWidgets(); }).bounds(width/2-150,height-35,40,20).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.done"),button -> onClose()).bounds(width/2-100,height-35,200,20).build());
-        addRenderableWidget(Button.builder(Component.literal(">"),button -> { page=Math.min(pages-1,page+1);rebuildWidgets(); }).bounds(width/2+110,height-35,40,20).build());
+        addRenderableWidget(Button.builder(net.minecraft.network.chat.Component.translatable("text.dragonminez.customnpcscreen.62b67e1f68"),button -> { page=Math.min(pages-1,page+1);rebuildWidgets(); }).bounds(width/2+110,height-35,40,20).build());
     }
     @Override public void tick() {
         if (minecraft.player==null || !npc.isAlive() || minecraft.player.distanceToSqr(npc)>100) onClose();

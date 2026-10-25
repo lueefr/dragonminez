@@ -57,7 +57,7 @@ public class KikonoStationScreen extends AbstractContainerScreen<KikonoStationMe
 
 		if(pMouseX >= x + 10 && pMouseX <= x + 18 && pMouseY >= y + 16 && pMouseY <= y + 68) {
 			guiGraphics.renderTooltip(this.font,
-					Component.literal(menu.getEnergy() + " / " + menu.getMaxEnergy() + " Star Energy"),
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.kikonostationscreen.ef8ae071ea" , menu.getEnergy(), menu.getMaxEnergy()),
 					pMouseX, pMouseY);
 		}
 	}

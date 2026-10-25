@@ -10,8 +10,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 public class MutantStatusHandler implements IStatusEffectHandler {
 	@Override
 	public void handleStatusEffects(ServerPlayer player, StatsData data) {
-		if (data.getEffects().hasEffect(MutantManager.EFFECT_NAME)) {
-			MutantManager.reconcileHolder(player, data);
+		MutantManager.reconcileHolder(player,data);
+        if (data.getEffects().hasEffect(MutantManager.EFFECT_NAME)) {
 			if (!player.hasEffect(MainEffects.MUTANT)) {
 				player.addEffect(new MobEffectInstance(MainEffects.MUTANT, data.getEffects().getEffectDuration(MutantManager.EFFECT_NAME), 0, false, false, true));
 			}

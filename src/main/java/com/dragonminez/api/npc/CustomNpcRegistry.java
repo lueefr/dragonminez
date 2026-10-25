@@ -9,7 +9,7 @@ import java.util.*;
 /** Isolated custom definition registry. Never reads or writes built-in NPC definitions. */
 public final class CustomNpcRegistry {
     public static final CustomNpcRegistry INSTANCE = new CustomNpcRegistry();
-    private static final Gson GSON = new Gson();
+    private static final Gson GSON = new GsonBuilder().registerTypeAdapterFactory(new com.dragonminez.common.config.schema.ContentAdapters()).create();
     public record Trade(String item, int count, int price) {
         public Trade { requireId(item); if (count < 1 || count > 64 || price < 0) throw new IllegalArgumentException("Invalid shop trade"); }
     }
@@ -114,7 +114,15 @@ public final class CustomNpcRegistry {
     }
     private static <T> T read(Path path, Class<T> type) throws IOException {
         if (Files.size(path) > 65536) throw new IllegalArgumentException(path + ": NPC JSON exceeds 64 KiB");
-        try { return Objects.requireNonNull(GSON.fromJson(Files.readString(path, StandardCharsets.UTF_8), type)); }
+        try {
+            if(type==Definition.class){var flat=com.dragonminez.common.config.schema.ContentMigration.load(path,
+                com.dragonminez.common.config.schema.ContentSchema.Kind.NPC,tree->{
+                    Definition parsed=(Definition)Objects.requireNonNull(GSON.fromJson(tree,type));
+                    tree.addProperty("baseTexture",parsed.baseTexture());tree.addProperty("baseModel",parsed.baseModel());
+                });
+                return Objects.requireNonNull(GSON.fromJson(flat,type));}
+            return Objects.requireNonNull(GSON.fromJson(Files.readString(path,StandardCharsets.UTF_8),type));
+        }
         catch (RuntimeException ex) { throw new IllegalArgumentException(path + ": " + ex.getMessage(), ex); }
     }
     private static void requireId(String id) {

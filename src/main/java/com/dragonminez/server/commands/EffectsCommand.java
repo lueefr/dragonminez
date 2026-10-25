@@ -28,7 +28,24 @@ import java.util.List;
 import java.util.UUID;
 
 public class EffectsCommand {
-	private static final String KNOCKOUT_EFFECT = "knockout";
+	private record Pending(java.util.Set<UUID> targets,long expires) {}
+    private static final java.util.Map<String,Pending> PENDING=new java.util.HashMap<>();
+    private static String sourceKey(CommandSourceStack source){return source.getEntity()==null?"console":source.getEntity().getUUID().toString();}
+    private static int confirmMutant(CommandSourceStack source){
+        Pending pending=PENDING.remove(sourceKey(source));
+        if(pending==null||source.getServer().overworld().getGameTime()>pending.expires()){
+            source.sendFailure(Component.translatable("command.dragonminez.mutant.confirm_expired"));return 0;
+        }
+        int count=0;
+        for(UUID id:pending.targets()){
+            ServerPlayer player=source.getServer().getPlayerList().getPlayer(id);
+            if(player!=null)StatsProvider.get(StatsCapability.INSTANCE,player).ifPresent(data->MutantManager.revoke(player,data));
+            else MutantManager.revokeOffline(source.getServer(),id);
+            count++;
+        }
+        int removed=count;source.sendSuccess(()->Component.translatable("command.dragonminez.mutant.revoked",removed),true);return count;
+    }
+    private static final String KNOCKOUT_EFFECT = "knockout";
 	private static final SuggestionProvider<CommandSourceStack> EFFECT_SUGGESTIONS = (ctx, builder) ->
 			SharedSuggestionProvider.suggest(List.of("mightfruit", "majin", "mutant"), builder);
 	private static final SuggestionProvider<CommandSourceStack> REMOVE_SUGGESTIONS = (ctx, builder) ->
@@ -38,7 +55,10 @@ public class EffectsCommand {
 		dispatcher.register(Commands.literal("dmzeffect")
 				.requires(source -> DMZPermissions.check(source, DMZPermissions.EFFECTS_LIST_SELF, DMZPermissions.EFFECTS_LIST_OTHERS))
 
-				.then(Commands.literal("give")
+				.then(Commands.literal("confirm_mutant")
+                        .requires(source -> source.hasPermission(2))
+                        .executes(ctx->confirmMutant(ctx.getSource())))
+                .then(Commands.literal("give")
 						.requires(source -> DMZPermissions.check(source, DMZPermissions.EFFECTS_GIVE_SELF, DMZPermissions.EFFECTS_GIVE_OTHERS))
 						.then(Commands.argument("effect", StringArgumentType.string()).suggests(EFFECT_SUGGESTIONS)
 								.then(Commands.argument("duration", IntegerArgumentType.integer(-1))
@@ -84,7 +104,7 @@ public class EffectsCommand {
 			});
 		}
 
-		String durationText = duration == -1 ? "permanent" : duration + " seconds";
+		Component durationText = duration == -1 ? Component.translatable("command.dragonminez.effects.permanent") : Component.translatable("command.dragonminez.effects.seconds",duration);
 
 		if (targets.size() == 1) {
 			source.sendSuccess(() -> Component.translatable("command.dragonminez.effects.give_success", effectName, power, targets.iterator().next().getName().getString(), durationText), log);
@@ -97,6 +117,15 @@ public class EffectsCommand {
 	private static int removeEffect(CommandSourceStack source, Collection<ServerPlayer> targets, String effectName) {
 		boolean log = ConfigManager.getServerConfig().getGameplay().getCommandOutputOnConsole();
 		boolean isMutant = effectName.equalsIgnoreCase(MutantManager.EFFECT_NAME);
+        if(isMutant){
+            if(!source.hasPermission(2))return 0;
+            var ids=targets.stream().map(ServerPlayer::getUUID).collect(java.util.stream.Collectors.toSet());
+            long now=source.getServer().overworld().getGameTime();
+            PENDING.entrySet().removeIf(entry->entry.getValue().expires()<now);
+            PENDING.put(sourceKey(source),new Pending(ids,now+600));
+            source.sendSuccess(()->Component.translatable("command.dragonminez.mutant.confirm",ids.size()),false);return 0;
+        }
+
 		for (ServerPlayer player : targets) {
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
 				if (effectName.equalsIgnoreCase(KNOCKOUT_EFFECT)) {
@@ -125,10 +154,9 @@ public class EffectsCommand {
 		boolean log = ConfigManager.getServerConfig().getGameplay().getCommandOutputOnConsole();
 		for (ServerPlayer player : targets) {
 			StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
-				if (data.getEffects().hasEffect(MutantManager.EFFECT_NAME)) {
-					MutantManager.revoke(player, data);
-				}
-				data.getEffects().clear();
+                MutantManager.reconcileHolder(player,data);
+                data.getEffects().clear();
+                MutantManager.reconcileHolder(player,data);
 
 				UUID partnerUUID = data.getStatus().getFusionPartnerUUID() != null
 						? data.getStatus().getFusionPartnerUUID()

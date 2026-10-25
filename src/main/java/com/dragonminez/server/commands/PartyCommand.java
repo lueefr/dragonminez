@@ -132,7 +132,7 @@ public class PartyCommand {
         player.sendSystemMessage(Component.translatable("quest.dmz.party.list.header").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
 
         if (party == null) {
-            player.sendSystemMessage(Component.literal("  - " + player.getGameProfile().getName() + " ⭐").withStyle(ChatFormatting.GOLD));
+            player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.partycommand.8c64da63f6" , player.getGameProfile().getName()).withStyle(ChatFormatting.GOLD));
             return 1;
         }
 
@@ -147,7 +147,7 @@ public class PartyCommand {
             String suffix = isLeader ? " ⭐" : (isOwner ? " ☆" : "");
             ChatFormatting color = !isOnline ? ChatFormatting.GRAY : (isLeader ? ChatFormatting.GOLD : ChatFormatting.YELLOW);
 
-            player.sendSystemMessage(Component.literal("  - " + name + suffix).withStyle(color));
+            player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.partycommand.78bbc6183e" , name, suffix).withStyle(color));
         }
 
         return 1;

@@ -238,6 +238,6 @@ public class AttributeTooltipHandler {
 	}
 
 	public static MutableComponent listHeader() {
-		return Component.literal(" \u2507 ").withStyle(ChatFormatting.GRAY);
+		return net.minecraft.network.chat.Component.translatable("text.dragonminez.attributetooltiphandler.aaa53ed86c").withStyle(ChatFormatting.GRAY);
 	}
 }

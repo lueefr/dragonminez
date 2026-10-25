@@ -220,7 +220,7 @@ public class ForgeCommonEvents {
 			if (!BetaWhitelist.isAllowed(username)) {
 				LogUtil.error(Env.SERVER, "User {} tried to join but is not in the beta whitelist.", username);
 				if (player instanceof ServerPlayer serverPlayer) {
-					serverPlayer.connection.disconnect(Component.literal("""
+					serverPlayer.connection.disconnect(com.dragonminez.api.lang.ConfigTranslations.text("""
 							§c[DragonMine Z]
 							
 							§7You are not allowed to play this Beta/Alpha version.
@@ -495,13 +495,13 @@ public class ForgeCommonEvents {
 	@SubscribeEvent
 	public static void onPlayerNameFormat(PlayerEvent.NameFormat event) {
 		String fusionName = fusionDisplayName(event.getEntity());
-		if (fusionName != null) event.setDisplayname(Component.literal(fusionName));
+		if (fusionName != null) event.setDisplayname(com.dragonminez.api.lang.ConfigTranslations.text(fusionName));
 	}
 
 	@SubscribeEvent
 	public static void onPlayerTabListNameFormat(PlayerEvent.TabListNameFormat event) {
 		String fusionName = fusionDisplayName(event.getEntity());
-		if (fusionName != null) event.setDisplayName(Component.literal(fusionName));
+		if (fusionName != null) event.setDisplayName(com.dragonminez.api.lang.ConfigTranslations.text(fusionName));
 	}
 
 	@SubscribeEvent

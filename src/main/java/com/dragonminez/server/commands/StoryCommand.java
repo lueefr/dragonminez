@@ -223,11 +223,11 @@ public class StoryCommand {
 				quests.sort(Map.Entry.comparingByKey(Comparator.naturalOrder()));
 
 				if (quests.isEmpty()) {
-					context.getSource().sendFailure(Component.literal("No quests are loaded."));
+					context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.04dff0a8a7"));
 					return;
 				}
 
-				context.getSource().sendSystemMessage(Component.literal("Quest progress for " + player.getGameProfile().getName() + ":"));
+				context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.d687730431" , player.getGameProfile().getName()));
 				for (Map.Entry<String, Quest> entry : quests) {
 					String questKey = entry.getKey();
 					Quest quest = entry.getValue();
@@ -235,9 +235,9 @@ public class StoryCommand {
 					Component title = Component.translatable(quest.getTitle());
 					context.getSource().sendSystemMessage(
 							status.copy()
-									.append(Component.literal(" "))
+									.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.36a9e7f1c9"))
 									.append(title)
-									.append(Component.literal(" [" + questKey + "]"))
+									.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.0f22835e53" , questKey))
 					);
 
 					if (pqd.isQuestAccepted(questKey) && !pqd.isQuestCompleted(questKey)) {
@@ -247,7 +247,7 @@ public class StoryCommand {
 							int required = quest.getObjectiveRequired(pqd, questKey, i);
 							String progressText = progress >= required ? "[DONE]" : "[" + progress + "/" + required + "]";
 							context.getSource().sendSystemMessage(
-									Component.literal("  " + progressText + " ").append(QuestTextFormatter.describeObjective(objective))
+									net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.17017438fe" , progressText).append(QuestTextFormatter.describeObjective(objective))
 							);
 						}
 					}
@@ -256,7 +256,7 @@ public class StoryCommand {
 
 			return 1;
 		} catch (Exception e) {
-			context.getSource().sendFailure(Component.literal("Failed to list quests: " + e.getMessage()));
+			context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.848ee0fd69" , e.getMessage()));
 			return 0;
 		}
 	}
@@ -270,45 +270,44 @@ public class StoryCommand {
 			String questKey = normalizeId(StringArgumentType.getString(context, "quest"));
 			Quest quest = QuestRegistry.getQuest(questKey);
 			if (quest == null) {
-				context.getSource().sendFailure(Component.literal("Quest not found: " + questKey
-						+ "  (tip: use '.' instead of ':' — e.g. classic_saga.1)"));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.d12cf931a6" , questKey));
 				return 0;
 			}
 
 			QuestService.ResolvedQuest resolved = QuestService.resolveQuest(questKey);
 			String sagaLabel = (resolved != null && resolved.saga() != null) ? resolved.saga().getId() : "none";
 
-			context.getSource().sendSystemMessage(Component.literal("=== Quest: " + questKey + " ==="));
+			context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.264b956fd4" , questKey));
 			context.getSource().sendSystemMessage(
-					Component.literal("Title : ").append(Component.translatable(quest.getTitle())));
-			context.getSource().sendSystemMessage(Component.literal("Type  : " + quest.getType().name()));
-			context.getSource().sendSystemMessage(Component.literal("Saga  : " + sagaLabel));
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.1f534b0657").append(Component.translatable(quest.getTitle())));
+			context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.348efa5dd2" , quest.getType().name()));
+			context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.4107ca5434" , sagaLabel));
 			if (quest.getQuestGiver() != null && !quest.getQuestGiver().isBlank()) {
-				context.getSource().sendSystemMessage(Component.literal("Giver : " + quest.getQuestGiver()));
+				context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.67ec3282c9" , quest.getQuestGiver()));
 			}
 			if (quest.getTurnIn() != null && !quest.getTurnIn().isBlank()) {
-				context.getSource().sendSystemMessage(Component.literal("TurnIn: " + quest.getTurnIn()));
+				context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.5df8c6f3ed" , quest.getTurnIn()));
 			}
 			context.getSource().sendSystemMessage(
-					Component.literal("Objectives (" + quest.getObjectives().size() + "):"));
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.d07d2d1cc2" , quest.getObjectives().size()));
 			for (int i = 0; i < quest.getObjectives().size(); i++) {
 				context.getSource().sendSystemMessage(
-						Component.literal("  [" + i + "] ").append(
+						net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.2a46a7684f" , i).append(
 								QuestTextFormatter.describeObjective(quest.getObjectives().get(i))));
 			}
-			context.getSource().sendSystemMessage(Component.literal("Rewards: " + quest.getRewards().size()));
-			context.getSource().sendSystemMessage(Component.literal("Secret : " + quest.isSecret()));
-			context.getSource().sendSystemMessage(Component.literal("Claim  : " + quest.getClaimMode().name()));
+			context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.367b64cfa5" , quest.getRewards().size()));
+			context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.32ca81e04e" , quest.isSecret()));
+			context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.d2c36bc9a9" , quest.getClaimMode().name()));
 			if (quest.hasPrerequisites()) {
-				context.getSource().sendSystemMessage(Component.literal("Has prerequisites: yes"));
+				context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.097fd2f54f"));
 			}
 			if (quest.hasStartRequirements()) {
-				context.getSource().sendSystemMessage(Component.literal("Has start requirements: yes"));
+				context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.7bd96fea42"));
 			}
 
 			return 1;
 		} catch (Exception e) {
-			context.getSource().sendFailure(Component.literal("Failed to get quest info: " + e.getMessage()));
+			context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.f385746059" , e.getMessage()));
 			return 0;
 		}
 	}
@@ -323,7 +322,7 @@ public class StoryCommand {
 			String questKey = normalizeId(StringArgumentType.getString(context, "quest"));
 			List<ServerPlayer> targets = getTargetPlayers(context, targetPlayer);
 			if (targets.isEmpty()) {
-				context.getSource().sendFailure(Component.literal("No valid players found."));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.914969e0d1"));
 				return 0;
 			}
 
@@ -333,8 +332,7 @@ public class StoryCommand {
 			} else {
 				Quest quest = QuestRegistry.getQuest(questKey);
 				if (quest == null) {
-					context.getSource().sendFailure(Component.literal("Quest not found: " + questKey
-							+ "  (tip: use '.' instead of ':' — e.g. classic_saga.1)"));
+					context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.d12cf931a6" , questKey));
 					return 0;
 				}
 				questsToStart.add(Map.entry(questKey, quest));
@@ -359,11 +357,10 @@ public class StoryCommand {
 
 			int affected = successCount;
 			context.getSource().sendSuccess(() ->
-					Component.literal(("all".equalsIgnoreCase(questKey) ? "Started all quests" : "Started quest " + questKey)
-							+ " for " + affected + " player(s)."), log);
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.57ce2b0506" , ("all".equalsIgnoreCase(questKey) ? "Started all quests" : "Started quest " + questKey), affected), log);
 			return successCount;
 		} catch (Exception e) {
-			context.getSource().sendFailure(Component.literal("Failed to start quest: " + e.getMessage()));
+			context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.32617202ab" , e.getMessage()));
 			return 0;
 		}
 	}
@@ -378,7 +375,7 @@ public class StoryCommand {
 			String questKey = normalizeId(StringArgumentType.getString(context, "quest"));
 			List<ServerPlayer> targets = getTargetPlayers(context, targetPlayer);
 			if (targets.isEmpty()) {
-				context.getSource().sendFailure(Component.literal("No valid players found."));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.914969e0d1"));
 				return 0;
 			}
 
@@ -388,8 +385,7 @@ public class StoryCommand {
 			} else {
 				Quest quest = QuestRegistry.getQuest(questKey);
 				if (quest == null) {
-					context.getSource().sendFailure(Component.literal("Quest not found: " + questKey
-							+ "  (tip: use '.' instead of ':' — e.g. classic_saga.1)"));
+					context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.d12cf931a6" , questKey));
 					return 0;
 				}
 				questsToFinish.add(Map.entry(questKey, quest));
@@ -409,11 +405,10 @@ public class StoryCommand {
 
 			int affected = successCount;
 			context.getSource().sendSuccess(() ->
-					Component.literal(("all".equalsIgnoreCase(questKey) ? "Finished all quests" : "Finished quest " + questKey)
-							+ " for " + affected + " player(s)."), log);
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.57ce2b0506" , ("all".equalsIgnoreCase(questKey) ? "Finished all quests" : "Finished quest " + questKey), affected), log);
 			return successCount;
 		} catch (Exception e) {
-			context.getSource().sendFailure(Component.literal("Failed to finish quest: " + e.getMessage()));
+			context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.b2088d9ee8" , e.getMessage()));
 			return 0;
 		}
 	}
@@ -428,13 +423,12 @@ public class StoryCommand {
 			String questKey = normalizeId(StringArgumentType.getString(context, "quest"));
 			List<ServerPlayer> targets = getTargetPlayers(context, targetPlayer);
 			if (targets.isEmpty()) {
-				context.getSource().sendFailure(Component.literal("No valid players found."));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.914969e0d1"));
 				return 0;
 			}
 
 			if (!"all".equalsIgnoreCase(questKey) && QuestRegistry.getQuest(questKey) == null) {
-				context.getSource().sendFailure(Component.literal("Quest not found: " + questKey
-						+ "  (tip: use '.' instead of ':' — e.g. classic_saga.1)"));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.d12cf931a6" , questKey));
 				return 0;
 			}
 
@@ -465,11 +459,10 @@ public class StoryCommand {
 
 			int affected = successCount;
 			context.getSource().sendSuccess(() ->
-					Component.literal(("all".equalsIgnoreCase(questKey) ? "Failed all active quests" : "Failed quest " + questKey)
-							+ " for " + affected + " player(s)."), log);
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.57ce2b0506" , ("all".equalsIgnoreCase(questKey) ? "Failed all active quests" : "Failed quest " + questKey), affected), log);
 			return successCount;
 		} catch (Exception e) {
-			context.getSource().sendFailure(Component.literal("Failed to fail quest: " + e.getMessage()));
+			context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.93ba1c2358" , e.getMessage()));
 			return 0;
 		}
 	}
@@ -484,13 +477,12 @@ public class StoryCommand {
 			String questKey = normalizeId(StringArgumentType.getString(context, "quest"));
 			List<ServerPlayer> targets = getTargetPlayers(context, targetPlayer);
 			if (targets.isEmpty()) {
-				context.getSource().sendFailure(Component.literal("No valid players found."));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.914969e0d1"));
 				return 0;
 			}
 
 			if (!"all".equalsIgnoreCase(questKey) && QuestRegistry.getQuest(questKey) == null) {
-				context.getSource().sendFailure(Component.literal("Quest not found: " + questKey
-						+ "  (tip: use '.' instead of ':' — e.g. classic_saga.1)"));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.d12cf931a6" , questKey));
 				return 0;
 			}
 
@@ -519,11 +511,10 @@ public class StoryCommand {
 
 			int affected = successCount;
 			context.getSource().sendSuccess(() ->
-					Component.literal(("all".equalsIgnoreCase(questKey) ? "Reset all quests" : "Reset quest " + questKey)
-							+ " for " + affected + " player(s)."), log);
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.57ce2b0506" , ("all".equalsIgnoreCase(questKey) ? "Reset all quests" : "Reset quest " + questKey), affected), log);
 			return successCount;
 		} catch (Exception e) {
-			context.getSource().sendFailure(Component.literal("Failed to reset quest: " + e.getMessage()));
+			context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.7847abf30f" , e.getMessage()));
 			return 0;
 		}
 	}
@@ -539,13 +530,12 @@ public class StoryCommand {
 			String questKey = "none".equalsIgnoreCase(raw) ? null : normalizeId(raw);
 			List<ServerPlayer> targets = getTargetPlayers(context, targetPlayer);
 			if (targets.isEmpty()) {
-				context.getSource().sendFailure(Component.literal("No valid players found."));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.914969e0d1"));
 				return 0;
 			}
 
 			if (questKey != null && QuestRegistry.getQuest(questKey) == null) {
-				context.getSource().sendFailure(Component.literal("Quest not found: " + questKey
-						+ "  (tip: use '.' instead of ':' — e.g. classic_saga.1)"));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.d12cf931a6" , questKey));
 				return 0;
 			}
 
@@ -561,10 +551,10 @@ public class StoryCommand {
 			String label = questKey == null ? "none" : questKey;
 			int affected = successCount;
 			context.getSource().sendSuccess(() ->
-					Component.literal("Set tracked quest to '" + label + "' for " + affected + " player(s)."), log);
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.21b9d2460f" , label, affected), log);
 			return successCount;
 		} catch (Exception e) {
-			context.getSource().sendFailure(Component.literal("Failed to set tracked quest: " + e.getMessage()));
+			context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.5d458d1c98" , e.getMessage()));
 			return 0;
 		}
 	}
@@ -579,12 +569,12 @@ public class StoryCommand {
 			String sagaId = normalizeId(StringArgumentType.getString(context, "saga"));
 			List<ServerPlayer> targets = getTargetPlayers(context, targetPlayer);
 			if (targets.isEmpty()) {
-				context.getSource().sendFailure(Component.literal("No valid players found."));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.914969e0d1"));
 				return 0;
 			}
 
 			if (!"all".equalsIgnoreCase(sagaId) && QuestRegistry.getSaga(sagaId) == null) {
-				context.getSource().sendFailure(Component.literal("Saga not found: " + sagaId));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.922a3390dc" , sagaId));
 				return 0;
 			}
 
@@ -610,11 +600,10 @@ public class StoryCommand {
 
 			int affected = successCount;
 			context.getSource().sendSuccess(() ->
-					Component.literal(("all".equalsIgnoreCase(sagaId) ? "Started all sagas" : "Started saga " + sagaId)
-							+ " for " + affected + " player(s)."), log);
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.57ce2b0506" , ("all".equalsIgnoreCase(sagaId) ? "Started all sagas" : "Started saga " + sagaId), affected), log);
 			return successCount;
 		} catch (Exception e) {
-			context.getSource().sendFailure(Component.literal("Failed to start saga: " + e.getMessage()));
+			context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.bf808d7c21" , e.getMessage()));
 			return 0;
 		}
 	}
@@ -629,12 +618,12 @@ public class StoryCommand {
 			String sagaId = normalizeId(StringArgumentType.getString(context, "saga"));
 			List<ServerPlayer> targets = getTargetPlayers(context, targetPlayer);
 			if (targets.isEmpty()) {
-				context.getSource().sendFailure(Component.literal("No valid players found."));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.914969e0d1"));
 				return 0;
 			}
 
 			if (!"all".equalsIgnoreCase(sagaId) && QuestRegistry.getSaga(sagaId) == null) {
-				context.getSource().sendFailure(Component.literal("Saga not found: " + sagaId));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.922a3390dc" , sagaId));
 				return 0;
 			}
 
@@ -657,11 +646,10 @@ public class StoryCommand {
 
 			int affected = successCount;
 			context.getSource().sendSuccess(() ->
-					Component.literal(("all".equalsIgnoreCase(sagaId) ? "Finished all sagas" : "Finished saga " + sagaId)
-							+ " for " + affected + " player(s)."), log);
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.57ce2b0506" , ("all".equalsIgnoreCase(sagaId) ? "Finished all sagas" : "Finished saga " + sagaId), affected), log);
 			return successCount;
 		} catch (Exception e) {
-			context.getSource().sendFailure(Component.literal("Failed to finish saga: " + e.getMessage()));
+			context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.96755eb4f3" , e.getMessage()));
 			return 0;
 		}
 	}
@@ -676,12 +664,12 @@ public class StoryCommand {
 			String sagaId = normalizeId(StringArgumentType.getString(context, "saga"));
 			List<ServerPlayer> targets = getTargetPlayers(context, targetPlayer);
 			if (targets.isEmpty()) {
-				context.getSource().sendFailure(Component.literal("No valid players found."));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.914969e0d1"));
 				return 0;
 			}
 
 			if (!"all".equalsIgnoreCase(sagaId) && QuestRegistry.getSaga(sagaId) == null) {
-				context.getSource().sendFailure(Component.literal("Saga not found: " + sagaId));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.922a3390dc" , sagaId));
 				return 0;
 			}
 
@@ -714,11 +702,10 @@ public class StoryCommand {
 
 			int affected = successCount;
 			context.getSource().sendSuccess(() ->
-					Component.literal(("all".equalsIgnoreCase(sagaId) ? "Reset all sagas" : "Reset saga " + sagaId)
-							+ " for " + affected + " player(s)."), log);
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.57ce2b0506" , ("all".equalsIgnoreCase(sagaId) ? "Reset all sagas" : "Reset saga " + sagaId), affected), log);
 			return successCount;
 		} catch (Exception e) {
-			context.getSource().sendFailure(Component.literal("Failed to reset saga: " + e.getMessage()));
+			context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.cb7d9a9bb1" , e.getMessage()));
 			return 0;
 		}
 	}
@@ -804,7 +791,7 @@ public class StoryCommand {
 
 			QuestNPCEntity npc = MainEntities.QUEST_NPC.get().create(player.level());
 			if (npc == null) {
-				context.getSource().sendFailure(Component.literal("Failed to create QuestNPCEntity."));
+				context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.ef2e31013a"));
 				return 0;
 			}
 
@@ -833,10 +820,10 @@ public class StoryCommand {
 			npc.setHomePosition(player.getX(), player.getZ());
 			player.serverLevel().addFreshEntity(npc);
 
-			context.getSource().sendSuccess(() -> Component.literal("Spawned quest NPC '" + npcId + "'."), true);
+			context.getSource().sendSuccess(() -> net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.727370d795" , npcId), true);
 			return 1;
 		} catch (Exception e) {
-			context.getSource().sendFailure(Component.literal("Failed to spawn quest NPC: " + e.getMessage()));
+			context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.052434bb2e" , e.getMessage()));
 			return 0;
 		}
 	}
@@ -849,24 +836,20 @@ public class StoryCommand {
 
 			if (npcs.isEmpty()) {
 				context.getSource().sendSystemMessage(
-						Component.literal("No quest NPCs within " + NPC_SEARCH_RADIUS + " blocks."));
+						net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.b634e77c12" , NPC_SEARCH_RADIUS));
 				return 0;
 			}
 
 			context.getSource().sendSystemMessage(
-					Component.literal("Quest NPCs within " + NPC_SEARCH_RADIUS + " blocks (" + npcs.size() + "):"));
+					net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.14f228f36d" , NPC_SEARCH_RADIUS, npcs.size()));
 			npcs.sort(Comparator.comparingDouble(npc -> npc.distanceToSqr(player)));
 			for (QuestNPCEntity npc : npcs) {
 				int dist = (int) npc.distanceTo(player);
-				context.getSource().sendSystemMessage(Component.literal(
-						"  [" + npc.getNpcId() + "]"
-								+ " @ (" + (int) npc.getX() + ", " + (int) npc.getY() + ", " + (int) npc.getZ() + ")"
-								+ " — " + dist + "m away"
-				));
+				context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.1e14e51cd7" , npc.getNpcId(), (int) npc.getX(), (int) npc.getY(), (int) npc.getZ(), dist));
 			}
 			return npcs.size();
 		} catch (Exception e) {
-			context.getSource().sendFailure(Component.literal("Failed to list quest NPCs: " + e.getMessage()));
+			context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.e12ebc85d2" , e.getMessage()));
 			return 0;
 		}
 	}
@@ -879,7 +862,7 @@ public class StoryCommand {
 
 			if (npcs.isEmpty()) {
 				context.getSource().sendFailure(
-						Component.literal("No quest NPCs within " + NPC_SEARCH_RADIUS + " blocks."));
+						net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.b634e77c12" , NPC_SEARCH_RADIUS));
 				return 0;
 			}
 
@@ -890,10 +873,10 @@ public class StoryCommand {
 
 			String npcId = nearest.getNpcId();
 			nearest.discard();
-			context.getSource().sendSuccess(() -> Component.literal("Removed quest NPC '" + npcId + "'."), true);
+			context.getSource().sendSuccess(() -> net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.ed5302aed8" , npcId), true);
 			return 1;
 		} catch (Exception e) {
-			context.getSource().sendFailure(Component.literal("Failed to remove quest NPC: " + e.getMessage()));
+			context.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.247181550a" , e.getMessage()));
 			return 0;
 		}
 	}
@@ -903,10 +886,10 @@ public class StoryCommand {
 	// ============================================================
 
 	private static Component formatQuestStatus(PlayerQuestData pqd, String questKey) {
-		if (pqd.isQuestCompleted(questKey)) return Component.literal("[SUCCESS]");
-		if (pqd.isQuestAccepted(questKey)) return Component.literal("[ACTIVE]");
-		if (pqd.getQuestStatus(questKey) == PlayerQuestData.QuestStatus.FAILED) return Component.literal("[FAILED]");
-		return Component.literal("[NOT STARTED]");
+		if (pqd.isQuestCompleted(questKey)) return net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.c3565869ed");
+		if (pqd.isQuestAccepted(questKey)) return net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.77fd24765d");
+		if (pqd.getQuestStatus(questKey) == PlayerQuestData.QuestStatus.FAILED) return net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.2e06265b07");
+		return net.minecraft.network.chat.Component.translatable("text.dragonminez.storycommand.97b629f8aa");
 	}
 
 	private static void completeQuest(PlayerQuestData pqd, String questKey, Quest quest, ServerPlayer player) {

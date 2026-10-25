@@ -380,7 +380,7 @@ public class RaceSelectionScreen extends ScaledScreen {
 		for (RacialSkillParts.Part part : RacialSkillParts.forRace(racialSkill)) {
 			paragraphs.add(Component.empty().withStyle(Style.EMPTY.withFont(DMZ_FONT))
 					.append(part.name().withStyle(ChatFormatting.GOLD))
-					.append(Component.literal(": "))
+					.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.raceselectionscreen.45822f54a0"))
 					.append(part.description()));
 		}
 

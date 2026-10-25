@@ -620,7 +620,7 @@ public class SkillsConfig {
 		for (String race : races) {
 			if (race == null || race.isBlank()) continue;
 			if (!first) out.append(", ");
-			out.append(Component.translatableWithFallback("race.dragonminez." + race.toLowerCase(Locale.ROOT), race));
+			out.append(Component.translatable("race.dragonminez." + race.toLowerCase(Locale.ROOT)));
 			first = false;
 		}
 		return out;

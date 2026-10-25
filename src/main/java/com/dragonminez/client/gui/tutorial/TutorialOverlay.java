@@ -289,7 +289,7 @@ final class TutorialOverlay {
 		}
 
 		String counter = TutorialManager.position() + "/" + TutorialManager.total();
-		Component counterComponent = Component.literal(counter).withStyle(DMZ_STYLE);
+		Component counterComponent = com.dragonminez.api.lang.ConfigTranslations.text(counter).withStyle(DMZ_STYLE);
 		text(graphics, font, counterComponent.getVisualOrderText(), x + popupWidth - POPUP_PADDING - font.width(counterComponent), y + POPUP_PADDING, 0x9FB8AE, textAlpha);
 
 		for (FormattedCharSequence line : lines) {

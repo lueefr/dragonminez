@@ -95,7 +95,7 @@ public class TechniqueChargeOverlay {
 		MutableComponent hint = charging ? tr("technique.charge.charging") : tr("technique.charge.overcharging");
 		int color = charging ? 0xFFFFFFFF : 0xFFFFD200;
 
-		MutableComponent pct = Component.literal(Math.round(percent) + "%").withStyle(Style.EMPTY.withFont(DMZ_FONT));
+		MutableComponent pct = net.minecraft.network.chat.Component.translatable("text.dragonminez.techniquechargeoverlay.eaf8695fa7" , Math.round(percent)).withStyle(Style.EMPTY.withFont(DMZ_FONT));
 		int pctY = barY - 4 - font.lineHeight;
 		int hintY = pctY - 2 - font.lineHeight;
 		guiGraphics.drawString(font, hint, (width - font.width(hint)) / 2, hintY, color, true);

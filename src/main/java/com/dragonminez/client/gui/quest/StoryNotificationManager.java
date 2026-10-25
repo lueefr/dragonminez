@@ -22,7 +22,7 @@ public final class StoryNotificationManager {
 		if (mc.player == null) return;
 
 		Quest quest = QuestRegistry.getClientQuest(message.getQuestId());
-		Component questTitle = quest != null ? toComponent(quest.getTitle()) : Component.literal(message.getQuestId());
+		Component questTitle = quest != null ? toComponent(quest.getTitle()) : com.dragonminez.api.lang.ConfigTranslations.text(message.getQuestId());
 
 		switch (message.getEventType()) {
 			case QUEST_STARTED -> NotificationHUD.push(
@@ -45,7 +45,7 @@ public final class StoryNotificationManager {
 	}
 
 	private static Component resolveObjectiveText(Minecraft mc, StoryToastS2C message, Quest quest) {
-		if (quest == null) return Component.literal(message.getQuestId());
+		if (quest == null) return com.dragonminez.api.lang.ConfigTranslations.text(message.getQuestId());
 		int idx = message.getObjectiveIndex();
 		if (idx < 0 || idx >= quest.getObjectives().size()) {
 			return toComponent(quest.getTitle());

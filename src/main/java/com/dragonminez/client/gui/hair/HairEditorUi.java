@@ -34,7 +34,7 @@ public final class HairEditorUi {
 	}
 
 	public static MutableComponent txt(String text) {
-		return Component.literal(text).withStyle(Style.EMPTY.withFont(DMZ_FONT));
+		return com.dragonminez.api.lang.ConfigTranslations.text(text).withStyle(Style.EMPTY.withFont(DMZ_FONT));
 	}
 
 	public static boolean inside(double mouseX, double mouseY, int x, int y, int width, int height) {

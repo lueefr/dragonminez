@@ -136,7 +136,8 @@ public final class WorldBossRewards {
 				if (!won) continue;
 				double ratio = resolved.entry().isGuaranteed() ? guaranteedRatio : 1.0;
 				amounts[j] = grant(resolved, player, ratio);
-				granted.add(describe(resolved, amounts[j]));
+				granted.add(WorldBossRewardText.describe(resolved.reward(), amounts[j],
+                        StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null)));
 			}
 
 			entries.add(new WorldBossResults.PlayerEntry(score.id(), score.name(), rank, (float) points, (float) share, score.auraRgb(),
@@ -218,11 +219,11 @@ public final class WorldBossRewards {
 		} else {
 			MutableComponent list = Component.empty();
 			for (int i = 0; i < granted.size(); i++) {
-				if (i > 0) list.append(Component.literal(", "));
+				if (i > 0) list.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.worldbossrewards.0a07f65946"));
 				list.append(granted.get(i).copy().withStyle(ChatFormatting.YELLOW));
 			}
 			message = Component.translatable("worldboss.dragonminez.results.received", list, compactPoints, percent);
 		}
-		return message.append(Component.literal(" ")).append(moreInfo);
+		return message.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.worldbossrewards.36a9e7f1c9")).append(moreInfo);
 	}
 }

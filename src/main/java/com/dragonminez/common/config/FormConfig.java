@@ -181,6 +181,7 @@ public class FormConfig {
 	public static class FormData {
 		private String name = "";
         private com.google.gson.JsonObject buy;
+        private com.google.gson.JsonObject use;
         private com.google.gson.JsonObject visual;
         private Boolean editHair;
         public com.google.gson.JsonObject getBuy() { return buy; }
@@ -203,7 +204,9 @@ public class FormConfig {
 		private Boolean furUsesHairColor = false;
 		private String eye1Color = "";
 		private String eye2Color = "";
-		private String auraType = "kakarot";
+		private Double auraTransitionSeconds = 0.4;
+        private Double auraSealSeconds = 0.4;
+        private String auraType = "kakarot";
 		private String auraType3D = AURA_3D_USER_PREFERENCE;
 		private Integer auraLayer = 0;
 		private String auraColor = "";
@@ -240,6 +243,7 @@ public class FormConfig {
 		private Double maxCostMultiplier = 0.5;
 		private Double maxStatsMultiplier = 1.25;
 		private String baseForm = "";
+        private String multiplierMode = "multiply";
         private String inheritsMultipliersFrom = "";
         private String formRequisite = "";
         private List<String> completedContentRequisites = new ArrayList<>();
@@ -273,35 +277,35 @@ public class FormConfig {
 		private transient float[] rgbTintColor;
 
 		public Double getStrMultiplier() {
-			return Math.max(0.01, strMultiplier);
+			return "add".equals(multiplierMode) ? strMultiplier : Math.max(0.01, strMultiplier);
 		}
 
 		public Double getSkpMultiplier() {
-			return Math.max(0.01, skpMultiplier);
+			return "add".equals(multiplierMode) ? skpMultiplier : Math.max(0.01, skpMultiplier);
 		}
 
 		public Double getStmMultiplier() {
-			return Math.max(0.01, stmMultiplier);
+			return "add".equals(multiplierMode) ? stmMultiplier : Math.max(0.01, stmMultiplier);
 		}
 
 		public Double getDefMultiplier() {
-			return Math.max(0.01, defMultiplier);
+			return "add".equals(multiplierMode) ? defMultiplier : Math.max(0.01, defMultiplier);
 		}
 
 		public Double getVitMultiplier() {
-			return Math.max(0.01, vitMultiplier);
+			return "add".equals(multiplierMode) ? vitMultiplier : Math.max(0.01, vitMultiplier);
 		}
 
 		public Double getPwrMultiplier() {
-			return Math.max(0.01, pwrMultiplier);
+			return "add".equals(multiplierMode) ? pwrMultiplier : Math.max(0.01, pwrMultiplier);
 		}
 
 		public Double getEneMultiplier() {
-			return Math.max(0.01, eneMultiplier);
+			return "add".equals(multiplierMode) ? eneMultiplier : Math.max(0.01, eneMultiplier);
 		}
 
 		public Double getSpeedMultiplier() {
-			return Math.max(0.01, speedMultiplier);
+			return "add".equals(multiplierMode) ? speedMultiplier : Math.max(0.01, speedMultiplier);
 		}
 
 		public Double getStaminaDrainMultiplier() {

@@ -39,7 +39,7 @@ public class AuraLoopSound extends AbstractTickableSoundInstance {
 
         var stats = StatsProvider.get(StatsCapability.INSTANCE, this.player).orElse(null);
 
-        if (stats == null || !(stats.getStatus().isAuraActive() || stats.getStatus().isPermanentAura() || stats.getStatus().isForcedAura())) {
+        if (stats == null || !com.dragonminez.api.forms.FormVisuals.flag(stats,"aura",stats.getStatus().isAuraActive() || stats.getStatus().isPermanentAura() || stats.getStatus().isForcedAura())) {
             this.stop();
             return;
         }

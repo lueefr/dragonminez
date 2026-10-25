@@ -62,7 +62,20 @@ public final class ConfigTranslations {
     }
     public String translate(String locale, String key) {
         String value = find(locale, key);
-        return value != null ? value : key;
+        if(value!=null)return value;
+        value=bundled(locale).get(key);
+        if(value==null)value=bundled("en_us").get(key);
+        return value==null?key:value;
+    }
+    private static final Map<String,Map<String,String>> BUNDLED=new java.util.concurrent.ConcurrentHashMap<>();
+    private static Map<String,String> bundled(String locale){return BUNDLED.computeIfAbsent(locale,id->{
+        try(var stream=ConfigTranslations.class.getResourceAsStream("/assets/dragonminez/lang/"+id+".json")){
+            return stream==null?Map.of():parse(new String(stream.readAllBytes(),StandardCharsets.UTF_8));
+        }catch(IOException|RuntimeException ex){return Map.of();}
+    });}
+    /** Preserve translation keys across the wire; the receiving client selects its own locale. */
+    public static net.minecraft.network.chat.MutableComponent text(String key) {
+        return key==null||key.isEmpty()?net.minecraft.network.chat.Component.empty():net.minecraft.network.chat.Component.translatable(key);
     }
     private static String lookup(Map<String, Map<String, String>> translations, String locale, String key) {
         return translations.getOrDefault(locale, Map.of()).get(key);

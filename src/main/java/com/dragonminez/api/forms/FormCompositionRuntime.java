@@ -38,7 +38,7 @@ public final class FormCompositionRuntime {
     }
 
     public static boolean isComposed(FormConfig.FormData form) {
-        return form != null && ((form.getBaseForm() != null && !form.getBaseForm().isBlank())
+        return form != null && ("add".equals(form.getMultiplierMode()) || (form.getBaseForm() != null && !form.getBaseForm().isBlank())
                 || (form.getInheritsMultipliersFrom() != null && !form.getInheritsMultipliersFrom().isBlank()));
     }
 
@@ -81,8 +81,9 @@ public final class FormCompositionRuntime {
                 }
                 double factor = value.getMaxMastery() > 0 ? 1 + Math.min(1, Math.max(0, mastery) / value.getMaxMastery()) * (value.getMaxStatsMultiplier()-1) : 1;
                 Multipliers raw = raw(value);
-                local.put(id, new Multipliers(adjust(raw.str(),factor),adjust(raw.skp(),factor),adjust(raw.stm(),factor),adjust(raw.def(),factor),
-                        adjust(raw.vit(),factor),adjust(raw.pwr(),factor),adjust(raw.ene(),factor),adjust(raw.speed(),factor)));
+                boolean additive="add".equals(value.getMultiplierMode());
+                local.put(id, new Multipliers(adjust(raw.str(),factor,additive),adjust(raw.skp(),factor,additive),adjust(raw.stm(),factor,additive),adjust(raw.def(),factor,additive),
+                        adjust(raw.vit(),factor,additive),adjust(raw.pwr(),factor,additive),adjust(raw.ene(),factor,additive),adjust(raw.speed(),factor,additive)));
             });
             resolver.updatePlayer(data.getPlayer().getUUID(), new PlayerState(++stateRevision, input.current, input.currentAnchor, unlocked, local));
             previous = input;
@@ -96,7 +97,7 @@ public final class FormCompositionRuntime {
         };
     }
     public static Definition definition(String group, FormConfig.FormData form) {
-        return new Definition(group + "." + form.getName(), qualify(group, form.getBaseForm()), qualify(group, form.getInheritsMultipliersFrom()), raw(form));
+        return new Definition(group + "." + form.getName(), qualify(group, form.getBaseForm()), qualify(group, form.getInheritsMultipliersFrom()), raw(form), form.getMultiplierMode());
     }
     private static String qualify(String group, String reference) {
         if (reference == null || reference.isBlank() || reference.equals("best") || reference.equals("current")) return reference;
@@ -104,7 +105,7 @@ public final class FormCompositionRuntime {
         if (dot<=0 || dot==reference.length()-1) throw new IllegalArgumentException("Expected group.form: " + reference);
         return FusionForms.qualifyLinkedGroup(group, reference.substring(0,dot)) + reference.substring(dot);
     }
-    private static double adjust(double value, double factor) { return value>1 ? value*factor : value; }
+    private static double adjust(double value,double factor,boolean additive){return additive||value>1?value*factor:value;}
     private static Multipliers raw(FormConfig.FormData form) {
         return new Multipliers(form.getStrMultiplier(),form.getSkpMultiplier(),form.getStmMultiplier(),form.getDefMultiplier(),
                 form.getVitMultiplier(),form.getPwrMultiplier(),form.getEneMultiplier(),form.getSpeedMultiplier());

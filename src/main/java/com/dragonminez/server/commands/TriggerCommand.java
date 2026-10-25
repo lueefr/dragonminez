@@ -226,7 +226,7 @@ public class TriggerCommand {
 		var character = data.getCharacter();
 		float[] resourceSnapshot = data.snapshotMultiplierResources();
 		character.recordPreviousForm();
-		character.setActiveForm(group, form.getName());
+		character.forceSetActiveForm(group, form.getName());
 		data.restoreMultiplierGains(target, resourceSnapshot);
 		TransformationItemCostHelper.clearFormDurationSecondsRemaining(target);
 		TriggerFormMarker.markForm(target, group, form.getName());
@@ -293,7 +293,7 @@ public class TriggerCommand {
 		var character = data.getCharacter();
 		float[] resourceSnapshot = data.snapshotMultiplierResources();
 		character.recordPreviousStackForm();
-		character.setActiveStackForm(group, form.getName());
+		character.forceSetActiveStackForm(group, form.getName());
 		data.restoreMultiplierGains(target, resourceSnapshot);
 		TransformationItemCostHelper.clearStackFormDurationSecondsRemaining(target);
 		TriggerFormMarker.markStack(target, group, form.getName());
@@ -501,15 +501,15 @@ public class TriggerCommand {
 		Component formName = character.hasActiveForm()
 				? Component.translatable(FusionForms.formTranslationKey(character.getRaceName(), character.getActiveFormGroup(), character.getActiveForm()))
 				: null;
-		if (!character.hasActiveStackForm()) return formName != null ? formName : Component.literal("base");
+		if (!character.hasActiveStackForm()) return formName != null ? formName : net.minecraft.network.chat.Component.translatable("text.dragonminez.triggercommand.cae662172f");
 
 		String stackGroup = character.getActiveStackFormGroup();
 		Component stackName = Component.empty()
 				.append(Component.translatable("race.dragonminez.stack.group." + stackGroup))
-				.append(Component.literal(" "))
+				.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.triggercommand.36a9e7f1c9"))
 				.append(Component.translatable("race.dragonminez.stack.form." + stackGroup + "." + character.getActiveStackForm()));
 		if (formName == null) return stackName;
-		return Component.empty().append(formName).append(Component.literal(" x ")).append(stackName);
+		return Component.empty().append(formName).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.triggercommand.fc191eafd9")).append(stackName);
 	}
 
 	private static void finish(ServerPlayer target) {

@@ -50,7 +50,7 @@ public final class MutantManager {
 
 	public static void revoke(ServerPlayer player, StatsData data) {
 		if (player == null || data == null) return;
-		data.getEffects().removeEffect(EFFECT_NAME);
+		data.getEffects().revokeMutant();
 		player.removeEffect(MainEffects.MUTANT);
 
 		MutantSavedData saved = MutantSavedData.get(player.getServer());
@@ -75,9 +75,13 @@ public final class MutantManager {
 
 	public static void reconcileHolder(ServerPlayer player, StatsData data) {
 		if (player == null || data == null || player.getServer() == null) return;
-		if (!isMutant(data)) return;
-		MutantSavedData saved = MutantSavedData.get(player.getServer());
-		if (!saved.isHolder(player.getUUID())) saved.addHolder(player.getUUID());
+        MutantSavedData saved = MutantSavedData.get(player.getServer());
+        if (saved.wasRevoked(player.getUUID())) {
+            data.getEffects().revokeMutant();player.removeEffect(MainEffects.MUTANT);return;
+        }
+        if (saved.isHolder(player.getUUID())) {
+            if(!data.getEffects().hasEffect(EFFECT_NAME))data.getEffects().addEffect(EFFECT_NAME,1,-1);
+        } else if (data.getEffects().hasEffect(EFFECT_NAME)) saved.addHolder(player.getUUID());
 	}
 
 	public static void rollForPlayer(ServerPlayer player, StatsData data) {
@@ -87,10 +91,12 @@ public final class MutantManager {
 		if (!data.getStatus().isHasCreatedCharacter()) return;
 
 		MutantSavedData saved = MutantSavedData.get(player.getServer());
-		if (saved.isHolder(player.getUUID()) || isMutant(data)) return;
+		if (saved.hasAttempted(player.getUUID())) return;
+        saved.markAttempted(player.getUUID());
+        if (saved.isHolder(player.getUUID()) || isMutant(data)) return;
 		if (saved.count() >= cfg.getMaxHolders()) return;
 
-		if (player.getServer().overworld().getRandom().nextDouble() < cfg.getChance()) {
+		if (player.getServer().overworld().getRandom().nextDouble() < cfg.getInitialChance()) {
 			grant(player, data);
 		}
 	}
@@ -98,7 +104,7 @@ public final class MutantManager {
 	public static void runLottery(MinecraftServer server) {
 		if (server == null) return;
 		GeneralServerConfig.MutantConfig cfg = config();
-		if (cfg == null || !cfg.getEnabled()) return;
+		if (cfg == null || !cfg.getEnabled() || !cfg.getRetryEnabled()) return;
 
 		MutantSavedData saved = MutantSavedData.get(server);
 		int maxHolders = cfg.getMaxHolders();
@@ -116,7 +122,7 @@ public final class MutantManager {
 
 		Collections.shuffle(candidates);
 		int picks = Math.min(cfg.getPlayersPerRoll(), candidates.size());
-		double chance = cfg.getChance();
+		double chance = cfg.getRetryChance();
 
 		for (int i = 0; i < picks; i++) {
 			if (saved.count() >= maxHolders) break;

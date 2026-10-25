@@ -74,6 +74,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 	private final List<RadialNode> baseNodes = new ArrayList<>();
 	private final List<RadialNode> chain = new ArrayList<>();
 	private FormPreview currentPreview = null;
+    private RadialNode hoveredPanelNode;
 
 	private static final int PANEL_WIDTH = 130;
 	private static final int PANEL_ROW_H = 13;
@@ -101,7 +102,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 	private long lastClickMs = 0L;
 
 	public UtilityMenuScreen() {
-		super(Component.literal("Menu").withStyle(Style.EMPTY.withFont(DMZ_FONT)));
+		super(net.minecraft.network.chat.Component.translatable("text.dragonminez.utilitymenuscreen.99af6606ff").withStyle(Style.EMPTY.withFont(DMZ_FONT)));
 		this.openTime = System.currentTimeMillis();
 	}
 
@@ -198,10 +199,17 @@ public class UtilityMenuScreen extends ScaledScreen {
 			if (isActiveSlot(node)) drawChildSectors(graphics, cx, cy, node, baseCenter(baseNodes.indexOf(node)), 1, hover, true, openScale);
 		}
 
+        hoveredPanelNode=null;
 		if (panelOptions != null) drawPanel(graphics, cx, cy, uiMouseX, uiMouseY);
 		else panelBar.clear();
 
 		super.render(graphics, (int) Math.round(uiMouseX), (int) Math.round(uiMouseY), partialTick);
+        RadialNode lockNode=panelOptions==null?hover.deepest:hoveredPanelNode;
+        if(lockNode!=null){
+            var locks=lockNode.useLocks(statsData);
+            if(!locks.isEmpty())TextUtil.renderAdvancedTooltip(graphics,font,(int)uiMouseX,(int)uiMouseY,w,h,
+                    lockNode.label(statsData),locks,null,0xFFFFFF);
+        }
 		endUiScale(graphics);
 	}
 
@@ -280,13 +288,14 @@ public class UtilityMenuScreen extends ScaledScreen {
 			int drawY = isDragged ? (int) Math.round(dragCurrentY - PANEL_ROW_H / 2.0) : ry;
 
 			boolean hovered = !dragging && mouseInRows && mouseX >= px && mouseX <= px + pw && rowMouseY >= ry && rowMouseY < ry + PANEL_ROW_H;
+            if(hovered)hoveredPanelNode=node;
 			if (hovered) graphics.fill(px + 1, ry, px + pw - 1, ry + PANEL_ROW_H - 1, 0x55000000);
 			if (isDragged) graphics.fill(px + 1, drawY, px + pw - 1, drawY + PANEL_ROW_H - 1, 0x33FFFFFF);
 			if (node.active(statsData)) drawRowBorder(graphics, px + 1, drawY, px + pw - 1, drawY + PANEL_ROW_H - 1, 0xFF3BE05A);
 
 			int color = node.labelColor(statsData);
 			String text = this.font.plainSubstrByWidth(node.label(statsData).getString(), textWidth);
-			TextUtil.drawStringWithBorder(graphics, this.font, Component.literal(text).withStyle(style), px + 6, drawY + 3, color, 0x000000);
+			TextUtil.drawStringWithBorder(graphics, this.font, com.dragonminez.api.lang.ConfigTranslations.text(text).withStyle(style), px + 6, drawY + 3, color, 0x000000);
 		}
 
 		if (panelScrollable) {
@@ -511,7 +520,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 		if (alpha < 0.4f) return;
 		float scale = 1.5f + 0.25f * hoverAmt;
 		Style style = Style.EMPTY.withFont(DMZ_FONT);
-		Component line = Component.literal(text).withStyle(style);
+		Component line = com.dragonminez.api.lang.ConfigTranslations.text(text).withStyle(style);
 		graphics.pose().pushPose();
 		graphics.pose().translate(x, y, 0);
 		graphics.pose().scale(scale, scale, 1f);
@@ -551,7 +560,7 @@ public class UtilityMenuScreen extends ScaledScreen {
 		int startY = Math.round(y + (iconBase + 4f * hoverAmt) / 2f + 2f);
 		int centerX = Math.round(x);
 		for (int i = 0; i < lines.size(); i++) {
-			Component line = Component.literal(lines.get(i)).withStyle(style);
+			Component line = com.dragonminez.api.lang.ConfigTranslations.text(lines.get(i)).withStyle(style);
 			TextUtil.drawCenteredStringWithBorder(graphics, this.font, line, centerX, startY + i * lineHeight, color, 0x000000);
 		}
 	}

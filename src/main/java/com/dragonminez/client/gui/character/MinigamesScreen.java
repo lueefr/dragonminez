@@ -52,7 +52,7 @@ public class MinigamesScreen extends BaseMenuScreen {
 	private CustomTextureButton shadowIncBtn;
 
 	public MinigamesScreen() {
-		super(Component.literal("hub"));
+		super(net.minecraft.network.chat.Component.translatable("text.dragonminez.minigamesscreen.08d33503ee"));
 	}
 
 	@Override

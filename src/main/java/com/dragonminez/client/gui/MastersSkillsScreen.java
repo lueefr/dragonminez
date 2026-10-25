@@ -82,7 +82,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 	private final LivingEntity masterEntity;
 
 	public MastersSkillsScreen(String masterName, LivingEntity masterEntity) {
-		super(Component.literal(masterName).withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
+		super(com.dragonminez.api.lang.ConfigTranslations.text(masterName).withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
 		this.masterName = masterName;
 		this.masterEntity = masterEntity;
 	}
@@ -248,7 +248,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 		if (!statsData.getSkills().hasSkill(selectedSkill) || skill.getLevel() == 0) {
 			int cost = getUpgradeCost(selectedSkill, 0);
 			double currentTPS = statsData.getResources().getTrainingPointsExact();
-			boolean canAfford = currentTPS >= cost && !FormRequisites.checkSkillLevel(statsData, selectedSkill, 1, true).isLocked();
+			boolean canAfford = currentTPS >= cost;
 			if (cost == -1 || cost == Integer.MAX_VALUE) return;
 
 			purchaseButton = new TexturedTextButton.Builder()
@@ -550,7 +550,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 		if (!learned) {
 			int tpCost = getUpgradeCost(selectedSkill, 0);
 			if (tpCost != Integer.MAX_VALUE && tpCost != -1) {
-				TextUtil.drawCenteredStringWithBorder(graphics, this.font, txt(tpCost + " TPS"), panelX + 70, yOffset + 12, 0xFFAAAAAA);
+				TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("text.dragonminez.mastersskillsscreen.5abf35cca0" , tpCost), panelX + 70, yOffset + 12, 0xFFAAAAAA);
 			}
 		}
 	}
@@ -576,7 +576,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 		if (skill.getLevel() == 0) {
 			int cost = getUpgradeCost(selectedSkill, 0);
 			if (cost != Integer.MAX_VALUE && cost != -1) {
-				TextUtil.drawCenteredStringWithBorder(graphics, this.font, txt("%d TPS".formatted(cost)), panelX + 72, startY + 24, 0xFFAAAAAA);
+				TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.cost.tp",cost), panelX + 72, startY + 24, 0xFFAAAAAA);
 			}
 			FormRequisites.Lock lock = FormRequisites.checkSkillLevel(statsData, selectedSkill, 1, true);
 			if (lock.isLocked()) {
@@ -698,6 +698,6 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 	}
 
 	public MutableComponent txt(String text) {
-		return Component.literal(text).withStyle(Style.EMPTY.withFont(DMZ_FONT));
+		return com.dragonminez.api.lang.ConfigTranslations.text(text).withStyle(Style.EMPTY.withFont(DMZ_FONT));
 	}
 }

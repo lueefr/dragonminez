@@ -76,7 +76,7 @@ public final class DMZTextPlaceholders {
 		if (visible.indexOf('%') < 0) return component;
 		String replaced = apply(visible, player);
 		if (replaced.equals(visible)) return component;
-		return Component.literal(replaced).withStyle(component.getStyle());
+		return com.dragonminez.api.lang.ConfigTranslations.text(replaced).withStyle(component.getStyle());
 	}
 
 	private static String safe(String value) {

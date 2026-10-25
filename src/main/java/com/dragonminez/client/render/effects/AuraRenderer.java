@@ -226,6 +226,7 @@ public class AuraRenderer {
 		public float[] color;
 		public float alpha;
 		public AuraStyle style;
+        public String variant="";
 
 		public AuraLayer(String type, int layerId, float[] color) {
 			this(type, layerId, color, 1.0f);
@@ -248,6 +249,7 @@ public class AuraRenderer {
 		BakedGeoModel playerModel;
 		List<AuraLayer> lastLayers;
 		float growth;
+        final AuraSeal seal = new AuraSeal();
 		long motionNanos;
 		Map<LayerKey, LayerMotion> motions = new HashMap<>();
         final AuraTypeBlend<LayerKey> typeBlend = new AuraTypeBlend<>();
@@ -257,10 +259,10 @@ public class AuraRenderer {
         java.util.UUID typeOwner;
 	}
 
-    private record LayerKey(int layer, String type) {}
+    private record LayerKey(int layer, String type, String variant) {}
 
     private static LayerKey layerKey(AuraLayer layer) {
-        return new LayerKey(layer.layerId, layer.type == null ? "" : layer.type.toLowerCase(java.util.Locale.ROOT));
+        return new LayerKey(layer.layerId, layer.type == null ? "" : layer.type.toLowerCase(java.util.Locale.ROOT),layer.variant);
     }
 
     private static List<AuraLayer> transitionLayers(Player player, CachedAuraData data, List<AuraLayer> desired) {
@@ -275,19 +277,27 @@ public class AuraRenderer {
         }
         double dt = data.typeNanos == 0 || Minecraft.getInstance().isPaused() ? 0 : (now - data.typeNanos) / 1.0e9;
         data.typeNanos = now;
+        var stats=StatsProvider.get(StatsCapability.INSTANCE,player).orElse(null);
+        String variant=stats==null?"":stats.getCharacter().getActiveFormGroup()+"."+stats.getCharacter().getActiveForm()+"|"+
+                stats.getCharacter().getActiveStackFormGroup()+"."+stats.getCharacter().getActiveStackForm();
+        var configured=stats==null?null:stats.getCharacter().getActiveStackFormData();
+        if(configured==null&&stats!=null)configured=stats.getCharacter().getActiveFormData();
+        double duration=configured==null||configured.getAuraTransitionSeconds()==null?0.4:configured.getAuraTransitionSeconds();
         List<LayerKey> keys = new ArrayList<>();
         for (AuraLayer layer : desired) {
+            layer.variant=variant;
             LayerKey key = layerKey(layer);
             keys.add(key);
             data.typeLayers.put(key, layer);
         }
-        Map<LayerKey, Double> weights = data.typeBlend.update(keys, dt);
+        Map<LayerKey, Double> weights = data.typeBlend.update(keys, dt,duration);
         List<AuraLayer> result = new ArrayList<>();
         weights.forEach((key, weight) -> {
             if (weight <= 0) return;
             AuraLayer source = data.typeLayers.get(key);
             AuraLayer layer = new AuraLayer(source.type, source.layerId, source.color, source.alpha * weight.floatValue());
             layer.style = source.style;
+            layer.variant=source.variant;
             result.add(layer);
         });
         data.typeLayers.keySet().retainAll(weights.keySet());
@@ -493,9 +503,8 @@ public class AuraRenderer {
 				boolean hasLightning = AuraFxState.hasLightning(stats);
 
 				if (isAuraActive || hasLightning) {
-					currentFramePlayers.add(localPlayer.getId());
-
 					if (isAuraActive) {
+                        currentFramePlayers.add(localPlayer.getId());
 						renderShaderFirstPersonAura(localPlayer, partialTick, poseStack, mc, projectionMatrix);
 					}
 
@@ -1050,13 +1059,16 @@ public class AuraRenderer {
 				totalWeight += weight;
 			}
 
-			blended.add(new AuraLayer(base.type, base.layerId, new float[]{r / totalWeight, g / totalWeight, b / totalWeight}, base.alpha));
+            AuraLayer layer=new AuraLayer(base.type,base.layerId,new float[]{r/totalWeight,g/totalWeight,b/totalWeight},base.alpha);
+            layer.variant=base.variant;layer.style=base.style;blended.add(layer);
 		}
 		return blended;
 	}
 
 	private static boolean renderShaderGhostAura(Player player, CachedAuraData data, PoseStack poseStack, Minecraft mc, float partialTick, Matrix4f projectionMatrix) {
-		if (data.alphaProgress > 0.0f) {
+        var sealStats=StatsProvider.get(StatsCapability.INSTANCE,player).orElse(null);
+        boolean sealed=com.dragonminez.api.forms.FormVisuals.sealed(sealStats);
+		if (!sealed && data.alphaProgress > 0.0f) {
 			data.alphaProgress -= FADE_SPEED;
 			if (data.alphaProgress < 0.0f) data.alphaProgress = 0.0f;
 		}
@@ -1067,7 +1079,8 @@ public class AuraRenderer {
 		List<AuraLayer> activeLayers = data.lastLayers;
 		if (activeLayers == null || activeLayers.isEmpty()) return false;
 
-		advanceMotions(player, data, activeLayers, false);
+		advanceMotions(player, data, activeLayers, sealed);
+        if (sealed && data.seal.factor() <= 0.001) return false;
 		boolean shellVisible = data.use3D && data.growth > 0.001f;
 		if (data.alphaProgress <= 0.001f && !shellVisible) return false;
 
@@ -1076,12 +1089,12 @@ public class AuraRenderer {
 		double lerpY = Mth.lerp(partialTick, player.yo, player.getY());
 		double lerpZ = Mth.lerp(partialTick, player.zo, player.getZ());
 
-		drawGroundPulse(player, data, activeLayers, new Vec3(lerpX, lerpY, lerpZ), poseStack, mc, projectionMatrix, partialTick);
+		if(!sealed)drawGroundPulse(player, data, activeLayers, new Vec3(lerpX, lerpY, lerpZ), poseStack, mc, projectionMatrix, partialTick);
 
 		boolean isLocalPlayer = player == mc.player;
 		boolean isFirstPerson = isLocalPlayer && mc.options.getCameraType().isFirstPerson();
 
-		drawFlightTrail(player, data, activeLayers, poseStack, projectionMatrix, partialTick);
+		if(!sealed)drawFlightTrail(player, data, activeLayers, poseStack, projectionMatrix, partialTick);
 
 		for (AuraLayer layer : activeLayers) {
 			poseStack.pushPose();
@@ -1095,7 +1108,12 @@ public class AuraRenderer {
 
 	private static void executeAuraShaderDraw(Player player, CachedAuraData data, AuraLayer layer, PoseStack poseStack, Minecraft mc, Matrix4f projectionMatrix, Vec3 cameraOffset, float partialTick, float alphaMultiplier, boolean isFirstPerson) {
 		boolean isLocalPlayer = player == mc.player;
+        float seal=(float)data.seal.factor();
+        if(seal<=0.001f)return;
 		if (data.use3D) {
+            poseStack.pushPose();
+            poseStack.translate(0,player.getBbHeight()*0.5*(1-seal),0);
+            poseStack.scale(seal,seal,seal);
 			if (Aura3DRenderer.isGod(layer.type)) {
 				executeGodDraw(player, data, layer, poseStack, projectionMatrix, partialTick, isLocalPlayer && isFirstPerson, false);
 			} else if (Aura3DRenderer.isSmooth(layer.type)) {
@@ -1103,6 +1121,7 @@ public class AuraRenderer {
 			} else {
 				executeAura3DDraw(player, data, layer, poseStack, projectionMatrix, partialTick, isLocalPlayer && isFirstPerson, false);
 			}
+            poseStack.popPose();
 			return;
 		}
 		if (alphaMultiplier <= 0.001f) return;
@@ -1111,7 +1130,7 @@ public class AuraRenderer {
 		if (shader == null) return;
 
 		float maxAlpha = (isLocalPlayer && isFirstPerson) ? 0.5f : 1.0f;
-		float finalAlpha = maxAlpha * alphaMultiplier * layer.alpha;
+		float finalAlpha = maxAlpha * alphaMultiplier * layer.alpha * seal;
 
 		String typeStr = layer.type != null && !layer.type.isEmpty() ? layer.type.toLowerCase() : "kakarot";
 		ResourceLocation mainTex = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/races/aura/" + typeStr + "_aura.png");
@@ -1124,9 +1143,9 @@ public class AuraRenderer {
 		shader.safeGetUniform("ProjMat").set(projectionMatrix);
 		applyAuraColors(shader, layer.color);
 
-		float finalScaleX = data.auraScaleX * AURA_2D_BASE_MULTIPLIER * (1.0f + layer.layerId * 0.15f);
-		float finalScaleY = data.auraScaleY * AURA_2D_BASE_MULTIPLIER * (1.0f + layer.layerId * 0.15f);
-		float finalScaleZ = data.auraScaleZ * AURA_2D_BASE_MULTIPLIER * (1.0f + layer.layerId * 0.15f);
+		float finalScaleX = seal * data.auraScaleX * AURA_2D_BASE_MULTIPLIER * (1.0f + layer.layerId * 0.15f);
+		float finalScaleY = seal * data.auraScaleY * AURA_2D_BASE_MULTIPLIER * (1.0f + layer.layerId * 0.15f);
+		float finalScaleZ = seal * data.auraScaleZ * AURA_2D_BASE_MULTIPLIER * (1.0f + layer.layerId * 0.15f);
 
 		VertexBuffer mesh = AuraMeshFactory.getBillboardQuad();
 
@@ -1165,7 +1184,7 @@ public class AuraRenderer {
 		boolean flightBillboard = isFastFlying(player) && !isFirstPerson;
 
 		Vec3 auraUp = flightBillboard ? flightAxis(player, partialTick) : AURA_2D_UP;
-		double baseLift = flightBillboard ? player.getBbHeight() * 0.5f : AURA_2D_GROUND_LIFT;
+		double baseLift = (flightBillboard ? player.getBbHeight() * 0.5f : AURA_2D_GROUND_LIFT) + player.getBbHeight()*0.5*(1-seal);
 		double axisLift = (flightBillboard ? AURA_2D_FLIGHT_OFFSET : AURA_2D_GROUND_OFFSET) * finalScaleY;
 		Vec3 centre = cameraOffset.add(0.0, baseLift, 0.0).add(auraUp.scale(axisLift));
 
@@ -1346,6 +1365,11 @@ public class AuraRenderer {
 		long now = Util.getNanos();
 		float dt = data.motionNanos == 0L ? 0.0f : Math.min(MAX_MOTION_STEP, (now - data.motionNanos) / 1.0e9f);
 		data.motionNanos = now;
+        var sealStats=StatsProvider.get(StatsCapability.INSTANCE,player).orElse(null);
+        var sealForm=sealStats==null?null:sealStats.getCharacter().getActiveStackFormData();
+        if(sealForm==null&&sealStats!=null)sealForm=sealStats.getCharacter().getActiveFormData();
+        double sealSeconds=sealForm==null||sealForm.getAuraSealSeconds()==null?0.4:sealForm.getAuraSealSeconds();
+        data.seal.update(com.dragonminez.api.forms.FormVisuals.sealed(sealStats),Minecraft.getInstance().isPaused()?0:dt,sealSeconds);
 		if (Minecraft.getInstance().isPaused()) dt = 0.0f;
 
 		data.growth = active
@@ -1370,7 +1394,7 @@ public class AuraRenderer {
 	}
 
 	private static float smoothFade(CachedAuraData data) {
-		return Mth.clamp(data.growth * 3.0f, 0.0f, 1.0f);
+		return Mth.clamp(data.growth * 3.0f, 0.0f, 1.0f) * (float)data.seal.factor();
 	}
 
 	private static void executeSmoothDraw(Player player, CachedAuraData data, AuraLayer layer, PoseStack poseStack,

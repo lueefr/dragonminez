@@ -25,6 +25,24 @@ public class ConfigLoader {
 
 	public <T> T loadConfig(Path path, Class<T> clazz) throws IOException {
 		try {
+            var kind=com.dragonminez.common.config.schema.ContentAdapters.kind(clazz);
+            if(kind!=null){
+                JsonObject tree=com.dragonminez.common.config.schema.ContentMigration.load(path,kind,flat->{
+                    if(kind==com.dragonminez.common.config.schema.ContentSchema.Kind.FORMS || kind==com.dragonminez.common.config.schema.ContentSchema.Kind.SKILLS)flat.addProperty("configVersion",ConfigManager.CONFIG_VERSION);
+                    T parsed=gson.fromJson(flat,clazz);
+                    if(parsed==null)throw new IllegalArgumentException("Empty content config");
+                    if(parsed instanceof FormConfig forms){
+                        if(forms.getGroupName().isBlank())throw new IllegalArgumentException("Missing form group name");
+                        for(var form:forms.getForms().values()){
+                            com.dragonminez.api.rules.Conditions.validate(form.getBuy());com.dragonminez.api.rules.Conditions.validate(form.getUse());
+                            com.dragonminez.api.forms.FormVisuals.validate(form.getVisual());
+                            com.dragonminez.api.forms.FormCompositionRuntime.definition(forms.getGroupName(),form);
+                        }
+                    }
+                    JsonSchema.check("config",path.getFileName().toString(),"",flat,clazz);
+                });
+                return gson.fromJson(tree,clazz);
+            }
 			String content = Files.readString(path, StandardCharsets.UTF_8);
 			JsonElement tree = gson.fromJson(content, JsonElement.class);
 			if (tree != null && tree.isJsonObject() && !isAboutToBeRegenerated(tree.getAsJsonObject())) {

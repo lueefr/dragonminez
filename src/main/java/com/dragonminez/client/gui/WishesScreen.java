@@ -64,7 +64,7 @@ public class WishesScreen extends ScaledScreen {
 	private TexturedTextButton confirmButton;
 
 	public WishesScreen(int dragonEntityId, String dragonType, int wishCount) {
-		super(Component.literal("Wishes").withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
+		super(net.minecraft.network.chat.Component.translatable("text.dragonminez.wishesscreen.403cc21502").withStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "smooth"))));
 		this.dragonEntityId = dragonEntityId;
 		this.dragonType = dragonType;
 		this.maxWishesToSelect = wishCount;

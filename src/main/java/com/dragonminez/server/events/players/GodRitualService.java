@@ -402,7 +402,7 @@ public final class GodRitualService {
 		}
 		float[] resourceSnapshot = data.snapshotMultiplierResources();
 		character.clearPreviousFormRecord();
-		character.setActiveForm(cfg.getGroupName(), form.getName());
+		character.forceSetActiveForm(cfg.getGroupName(), form.getName());
 		data.restoreMultiplierGains(recipient, resourceSnapshot);
 		data.getStatus().setGodRitualTicks(cfg.getDurationTicks());
 		data.getResources().setActionCharge(0);

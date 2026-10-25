@@ -68,7 +68,7 @@ public class ItemReward extends QuestReward {
 
 	public MutableComponent itemName() {
 		ResourceLocation id = ResourceLocation.tryParse(itemId);
-		if (id == null) return Component.literal(itemId);
+		if (id == null) return com.dragonminez.api.lang.ConfigTranslations.text(itemId);
 		Item item = BuiltInRegistries.ITEM.get(id);
 		if (item == null || item == Items.AIR) return Component.translatable("item." + id.toLanguageKey());
 		return new ItemStack(item).getHoverName().copy();

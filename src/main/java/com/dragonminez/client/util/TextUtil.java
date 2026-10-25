@@ -29,7 +29,7 @@ public class TextUtil {
     }
 
     public static int width(Font font, String text, Style style) {
-        return font.width(Component.literal(text).withStyle(style));
+        return font.width(com.dragonminez.api.lang.ConfigTranslations.text(text).withStyle(style));
     }
 
     public static List<String> wrap(Font font, String text, int maxWidth, Style style) {
@@ -38,7 +38,7 @@ public class TextUtil {
             out.add("");
             return out;
         }
-        for (FormattedCharSequence seq : font.split(Component.literal(text).withStyle(style), maxWidth)) {
+        for (FormattedCharSequence seq : font.split(com.dragonminez.api.lang.ConfigTranslations.text(text).withStyle(style), maxWidth)) {
             StringBuilder sb = new StringBuilder();
             seq.accept((index, st, codePoint) -> {
                 sb.appendCodePoint(codePoint);
@@ -61,7 +61,7 @@ public class TextUtil {
 
     public static List<FormattedCharSequence> sequences(List<String> lines, Style style) {
         List<FormattedCharSequence> out = new ArrayList<>(lines.size());
-        for (String line : lines) out.add(Component.literal(line).setStyle(style).getVisualOrderText());
+        for (String line : lines) out.add(com.dragonminez.api.lang.ConfigTranslations.text(line).setStyle(style).getVisualOrderText());
         return out;
     }
 
@@ -186,7 +186,7 @@ public class TextUtil {
                 String raw = c.getString();
                 if (raw.contains("\n")) {
                     for (String part : raw.split("\n")) {
-                        for (FormattedCharSequence wrapped : font.split(Component.literal(part).setStyle(c.getStyle()), allowedMaxWidth)) {
+                        for (FormattedCharSequence wrapped : font.split(com.dragonminez.api.lang.ConfigTranslations.text(part).setStyle(c.getStyle()), allowedMaxWidth)) {
                             components.add(new CenteredTextComponent(wrapped));
                         }
                     }
@@ -207,7 +207,7 @@ public class TextUtil {
                 String raw = c.getString();
                 if (raw.contains("\n")) {
                     for (String part : raw.split("\n")) {
-                        for (FormattedCharSequence wrapped : font.split(Component.literal(part).setStyle(c.getStyle()), allowedMaxWidth)) {
+                        for (FormattedCharSequence wrapped : font.split(com.dragonminez.api.lang.ConfigTranslations.text(part).setStyle(c.getStyle()), allowedMaxWidth)) {
                             components.add(new CenteredTextComponent(wrapped));
                         }
                     }

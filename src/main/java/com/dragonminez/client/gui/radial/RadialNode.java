@@ -9,6 +9,8 @@ import java.util.List;
 public interface RadialNode {
 	Component label(StatsData stats);
 
+    default List<Component> useLocks(StatsData stats){return List.of();}
+
 	ResourceLocation icon(StatsData stats);
 
 	default String faceText(StatsData stats) {

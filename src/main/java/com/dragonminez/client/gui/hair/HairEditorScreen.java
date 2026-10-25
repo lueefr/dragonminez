@@ -478,7 +478,7 @@ public class HairEditorScreen extends ScaledScreen {
 	private void renderTopBar(GuiGraphics graphics, int mouseX, int mouseY) {
 		int top = 6;
 		HairEditorUi.button(graphics, font, HairEditorUi.tr("gui.dragonminez.hair_editor.cancel"), MARGIN, top, 60, TOP_BAR_HEIGHT, HairEditorUi.inside(mouseX, mouseY, MARGIN, top, 60, TOP_BAR_HEIGHT), false, true);
-		Component title = state.isDirty() ? HairEditorUi.txt(getTitle().getString() + " *") : getTitle();
+		Component title = state.isDirty() ? HairEditorUi.tr("text.dragonminez.haireditorscreen.d77a71115c" , getTitle().getString()) : getTitle();
 		TextUtil.drawCenteredStringWithBorder(graphics, font, title, getUiWidth() / 2, top + 4, HairEditorUi.TITLE);
 
 		int x = getUiWidth() - MARGIN;

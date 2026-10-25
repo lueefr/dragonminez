@@ -96,7 +96,7 @@ public abstract class PauseScreenMixin extends Screen {
 					this.minecraft.setScreen(pauseScreen);
 				},
 				Component.translatable("gui.dragonminez.title.discord.prompt"),
-				Component.literal(dragonminez$DISCORD_URL),
+				com.dragonminez.api.lang.ConfigTranslations.text(dragonminez$DISCORD_URL),
 				Component.translatable("gui.dragonminez.title.discord.open"),
 				CommonComponents.GUI_CANCEL
 		));
@@ -117,7 +117,7 @@ public abstract class PauseScreenMixin extends Screen {
 					this.minecraft.setScreen(pauseScreen);
 				},
 				Component.translatable("gui.dragonminez.title.patreon.prompt"),
-				Component.literal(dragonminez$PATREON_URL),
+				com.dragonminez.api.lang.ConfigTranslations.text(dragonminez$PATREON_URL),
 				Component.translatable("gui.dragonminez.title.patreon.open"),
 				CommonComponents.GUI_CANCEL
 		));

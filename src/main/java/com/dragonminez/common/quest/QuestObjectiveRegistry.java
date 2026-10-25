@@ -18,7 +18,7 @@ import java.util.function.Function;
  * QuestObjectiveRegistry.register("MY_TYPE",
  *     json -> new MyObjective(json.get("value").getAsString()),          // parse from quest JSON
  *     (objective, out) -> out.addProperty("value", ((MyObjective) objective).getValue()), // client sync
- *     objective -> Component.literal("Do the thing"));                    // HUD/journal text
+ *     objective -> net.minecraft.network.chat.Component.translatable("text.dragonminez.questobjectiveregistry.3d3c4a8117"));                    // HUD/journal text
  * }</pre>
  *
  * Objective subclasses use the {@code QuestObjective(String customType, int required)} constructor

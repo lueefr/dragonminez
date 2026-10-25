@@ -125,7 +125,7 @@ public class DebugCommand {
 						Files.createDirectories(outputPath.getParent());
 						Files.writeString(outputPath, json, StandardCharsets.UTF_8);
 						Path debugDir = outputPath.getParent();
-						Component clickablePath = Component.literal(debugDir.toString())
+						Component clickablePath = com.dragonminez.api.lang.ConfigTranslations.text(debugDir.toString())
 								.withStyle(style -> style
 										.withColor(ChatFormatting.AQUA)
 										.withUnderlined(true)

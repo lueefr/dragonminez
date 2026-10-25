@@ -181,7 +181,7 @@ public class FalseSuperSaiyanEvents {
 
 		float[] resourceSnapshot = data.snapshotMultiplierResources();
 		data.getCharacter().clearPreviousFormRecord();
-		data.getCharacter().setActiveForm(cfg.getGroupName(), form.getName());
+		data.getCharacter().forceSetActiveForm(cfg.getGroupName(), form.getName());
 		data.restoreMultiplierGains(player, resourceSnapshot);
 
 		data.getStatus().setForcedAura(true);

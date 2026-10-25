@@ -76,7 +76,7 @@ public class WorldBossCommand {
 	private static int run(CommandContext<CommandSourceStack> ctx, String key, BossAction action) throws CommandSyntaxException {
 		WorldBossLair lair = WorldBossManager.lair(key);
 		if (lair == null) {
-			ctx.getSource().sendFailure(Component.literal("Unknown world boss: " + key));
+			ctx.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("text.dragonminez.worldbosscommand.b8a60706eb" , key));
 			return 0;
 		}
 		return action.run(ctx, lair);
@@ -108,8 +108,8 @@ public class WorldBossCommand {
 			return 0;
 		}
 
-		Component name = Component.literal(lair.displayName()).withStyle(ChatFormatting.YELLOW);
-		Component coords = ComponentUtils.wrapInSquareBrackets(Component.literal(pos.getX() + ", " + pos.getY() + ", " + pos.getZ()))
+		Component name = com.dragonminez.api.lang.ConfigTranslations.text(lair.displayName()).withStyle(ChatFormatting.YELLOW);
+		Component coords = ComponentUtils.wrapInSquareBrackets(net.minecraft.network.chat.Component.translatable("text.dragonminez.worldbosscommand.a05993dd12" , pos.getX(), pos.getY(), pos.getZ()))
 				.withStyle(style -> style
 						.withColor(ChatFormatting.GREEN)
 						.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/dmzworldboss tp " + lair.key()))
@@ -124,7 +124,7 @@ public class WorldBossCommand {
 			found = Component.translatable("command.dragonminez.worldboss.locate.found", name, coords, distance);
 		} else {
 			found = Component.translatable("command.dragonminez.worldboss.locate.found_elsewhere", name, coords,
-					Component.literal(lair.dimension().location().toString()).withStyle(ChatFormatting.AQUA));
+					com.dragonminez.api.lang.ConfigTranslations.text(lair.dimension().location().toString()).withStyle(ChatFormatting.AQUA));
 		}
 		Component status = status(server, lair);
 		source.sendSuccess(() -> found, false);
@@ -185,7 +185,7 @@ public class WorldBossCommand {
 		player.teleportTo(level, target.getX() + 0.5D, target.getY() + 2.0D, target.getZ() + 0.5D,
 				player.getYRot(), player.getXRot());
 		ctx.getSource().sendSuccess(() -> Component.translatable("command.dragonminez.worldboss.tp.success",
-				Component.literal(lair.displayName()).withStyle(ChatFormatting.YELLOW)), false);
+				com.dragonminez.api.lang.ConfigTranslations.text(lair.displayName()).withStyle(ChatFormatting.YELLOW)), false);
 		return 1;
 	}
 
@@ -194,7 +194,7 @@ public class WorldBossCommand {
 		WorldBossManager.Data.Entry entry = data.entry(lair.key());
 
 		ServerLevel level = WorldBossManager.levelFor(ctx.getSource().getServer(), lair.key());
-		String structureNote = WorldBossManager.restoreLairStructure(level, lair, entry.lair);
+		Component structureNote = WorldBossManager.restoreLairStructureText(level, lair, entry.lair);
 		WorldBossManager.endFight(lair.key(), level);
 		boolean unloaded = false;
 		if (entry.bossId != null) {
@@ -211,10 +211,11 @@ public class WorldBossCommand {
 		data.markDirty();
 		if (level != null) WorldBossManager.syncToAll(level, lair.key());
 
-		String message = "World boss state cleared for " + lair.displayName() + "."
-				+ (unloaded ? " The old boss was not loaded; it will be removed as soon as its chunk loads." : "")
-				+ structureNote;
-		ctx.getSource().sendSuccess(() -> Component.literal(message), false);
+        Component message=Component.translatable("command.dragonminez.worldboss.reset_done",
+                com.dragonminez.api.lang.ConfigTranslations.text(lair.displayName()));
+        if(unloaded)message=message.copy().append(Component.translatable("command.dragonminez.worldboss.reset_unloaded"));
+        Component result=message.copy().append(structureNote);
+        ctx.getSource().sendSuccess(()->result,false);
 		return 1;
 	}
 
@@ -224,7 +225,7 @@ public class WorldBossCommand {
 		entry.nextRespawnTick = 0L;
 		data.markDirty();
 
-		ctx.getSource().sendSuccess(() -> Component.literal("Respawn cooldown cleared for " + lair.displayName() + "."), false);
+		ctx.getSource().sendSuccess(() -> net.minecraft.network.chat.Component.translatable("text.dragonminez.worldbosscommand.600422d4fb" , lair.displayName()), false);
 		return 1;
 	}
 }

@@ -55,9 +55,9 @@ public class RestoreCommand {
 
 		source.sendSystemMessage(Component.translatable("command.dragonminez.restore.warning").withStyle(ChatFormatting.RED));
 		source.sendSystemMessage(Component.translatable("command.dragonminez.restore.prompt")
-				.append(Component.literal(" ["))
+				.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.restorecommand.c4ebc7684b"))
 				.append(confirmButton)
-				.append(Component.literal("]")));
+				.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.restorecommand.cfae0d4248")));
 		return 1;
 	}
 

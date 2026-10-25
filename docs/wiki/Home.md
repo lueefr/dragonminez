@@ -1,5 +1,7 @@
 # Configuration API
 
+Start with [Content layout and migration](Content-configuration), [purchase and use conditions](Use-and-purchase), [aura and multiplier composition](Aura-and-composition), [config translations](Translations) and [permanent mutant ownership](Mutant-lifetime).
+
 Use the API to add completion requirements to forms, define custom NPCs, compose form multipliers and translate custom text. JSON configuration covers these features without an addon. Java entry points are available for integrations.
 
 ## Rules and visual extensions
@@ -24,16 +26,20 @@ The examples below use generic IDs. Replace them with your content. Adding a nam
 
 ### Add a completion requirement
 
-Inside a form entry, add `completedContentRequisites`:
+Inside a form entry, add `requirements.unlock.completedContent`:
 
 ```json
 {
   "name": "custom_stage",
-  "unlockOnSkillLevel": 1,
-  "completedContentRequisites": [
-    "example:trial_complete",
-    "example:chapter_complete"
-  ]
+  "requirements": {
+    "unlock": {
+      "skillLevel": 1,
+      "completedContent": [
+        "example:trial_complete",
+        "example:chapter_complete"
+      ]
+    }
+  }
 }
 ```
 
@@ -130,21 +136,44 @@ Create `config/dragonminez/custom_npcs/guide.json`:
 
 ```json
 {
+  "schema": 1,
   "id": "example:guide",
-  "baseModel": "master_male",
-  "baseTexture": "master_base",
-  "armor": {"chest": "minecraft:iron_chestplate"},
-  "hairType": "base",
-  "hairPreset": 1,
-  "name": "npc.example.guide",
-  "dialogues": ["dialogue.example.welcome"],
-  "alignment": 50,
-  "offers": {
-    "skills": ["custom_training"],
-    "quests": ["custom_task"],
-    "shop": [
-      {"item": "minecraft:apple", "count": 2, "price": 5}
-    ]
+  "appearance": {
+    "body": {
+      "texture": "master_base",
+      "model": "master_male"
+    },
+    "armor": {
+      "chest": "minecraft:iron_chestplate"
+    },
+    "hair": {
+      "slot": "base",
+      "preset": 1
+    }
+  },
+  "identity": {
+    "name": "npc.example.guide",
+    "alignment": 50
+  },
+  "interaction": {
+    "dialogues": [
+      "dialogue.example.welcome"
+    ],
+    "offers": {
+      "skills": [
+        "custom_training"
+      ],
+      "quests": [
+        "custom_task"
+      ],
+      "shop": [
+        {
+          "item": "minecraft:apple",
+          "count": 2,
+          "price": 5
+        }
+      ]
+    }
   }
 }
 ```
@@ -157,9 +186,9 @@ Each file defines a separate custom NPC. Built-in masters and enemies are not re
 | `baseModel` | Body model alias: `master_male` (default), `master_female` or `humanoid_slim`. |
 | `baseTexture` | Filename without `.png` from `config/dragonminez/npc_textures/`, such as `master_base`. |
 | `armor` | Cosmetic item IDs in `head`, `chest`, `legs` and `feet`. Cosmetic items grant no equipment attributes. |
-| `hairType` | Existing hair-style slot; `base` selects the ordinary slot and `none` disables hair. |
+| `appearance.hair.slot` | Existing hair-style slot; `base` selects the ordinary slot and `none` disables hair. |
 | `hairPreset` | Existing preset ID; defaults to 1. Positive IDs must exist. |
-| `hairCode` / `forcedHairCode` | Complete Hair Salon export; see the import instructions below. |
+| `hairCode` / `appearance.hair.code` | Complete Hair Salon export; see the import instructions below. |
 | `name` | Display name or translation key. |
 | `dialogues` | Display strings or translation keys; these are not executable scripts. |
 | `alignment` | Value from 0 to 100; defaults to 50. Existing alignment service gates apply. |
@@ -186,9 +215,13 @@ config/dragonminez/npc_textures/
 ```json
 {
   "id": "example:visitor",
-  "baseModel": "master_female",
-  "baseTexture": "custom_outfit",
-  "name": "npc.example.visitor"
+  "appearance": {
+    "baseModel": "master_female",
+    "baseTexture": "custom_outfit"
+  },
+  "identity": {
+    "name": "npc.example.visitor"
+  }
 }
 ```
 
@@ -211,19 +244,25 @@ For example, this complete, minimal export can be used as a starting point:
 ```json
 {
   "id": "example:hair_guide",
-  "baseModel": "master_male",
-  "baseTexture": "master_base",
-  "name": "npc.example.hair_guide",
-  "hairType": "base",
-  "hairCode": "DMZF22:tdBLDoIwFAXQ26LyGRinzkjcABT8jZTycQG4A2KM0YBBYtyKrsMVuDIfYocwY_Rum_bm5FmABSY1sDsA3QDLMd4d8kN5yuzbpahsxwA_ZtBnriuE55lgiUVPGX050YQGfjvS5EPwSx5QqkO5mT5fFKrrP5SPzxug_l-V8AIZUnFVnyjShUk9hWo-1_P_OImjUNa9BE07oK6C-v58vli0QrUGOukTylPRIRVKulyuVut1q3TQSO1eV7rvgHoKGgRShmErdNhAnX5X6ndIfSWNojhOklbpqJFu-5PiCw"
+  "appearance": {
+    "hair": {
+      "code": "DMZF22:tdBLDoIwFAXQ26LyGRinzkjcABT8jZTycQG4A2KM0YBBYtyKrsMVuDIfYocwY_Rum_bm5FmABSY1sDsA3QDLMd4d8kN5yuzbpahsxwA_ZtBnriuE55lgiUVPGX050YQGfjvS5EPwSx5QqkO5mT5fFKrrP5SPzxug_l-V8AIZUnFVnyjShUk9hWo-1_P_OImjUNa9BE07oK6C-v58vli0QrUGOukTylPRIRVKulyuVut1q3TQSO1eV7rvgHoKGgRShmErdNhAnX5X6ndIfSWNojhOklbpqJFu-5PiCw"
+    },
+    "baseModel": "master_male",
+    "baseTexture": "master_base",
+    "hairType": "base"
+  },
+  "identity": {
+    "name": "npc.example.hair_guide"
+  }
 }
 ```
 
-Replace the sample with the full exported code for your design. `DMZ22:` contains one style, which is used directly. `DMZF22:` contains a set; `hairType` selects the corresponding style from that set. `base` selects the ordinary style, and `none` hides hair. Other slots use the existing `hairType` identifiers. An empty selected style remains empty instead of reverting to a numeric preset.
+Replace the sample with the full exported code for your design. `DMZ22:` contains one style, which is used directly. `DMZF22:` contains a set; `appearance.hair.slot` selects the corresponding style from that set. `base` selects the ordinary style, and `none` hides hair. Other slots use the existing `appearance.hair.slot` identifiers. An empty selected style remains empty instead of reverting to a numeric preset.
 
 Imported hair preserves its global, strand, tip and segment colors. Whitespace and invisible clipboard separators are removed before decoding. The code takes precedence over `hairPreset`; when no code is supplied, numeric presets keep their existing behavior. No network request to the Hair Salon is made when spawning or rendering the NPC.
 
-`forcedHairCode` remains supported and is the canonical field used in synchronized/saved NPC definitions; `hairCode` is an accepted JSON alias. Use one field, not both. The existing limit of 30,000 characters for the complete serialized NPC definition still applies, including the code and other fields.
+`appearance.hair.code` remains supported and is the canonical field used in synchronized/saved NPC definitions; `hairCode` is an accepted JSON alias. Use one field, not both. The existing limit of 30,000 characters for the complete serialized NPC definition still applies, including the code and other fields.
 
 Java integrations can use `com.dragonminez.api.npc.CustomNpcHair.resolveCode(code, hairType)` to resolve a single export or a selected full-set slot, and `normalizeCode(code)` for clipboard cleanup.
 
@@ -279,7 +318,7 @@ Add a source to a form to multiply its local values by another form's resolved v
 | `"baseForm": "group.form"` | Use a specific form as the source. |
 | `"inheritsMultipliersFrom": "group.form"` | Inherit the referenced form's recursively resolved result and apply the local delta. |
 
-Use only one source field per form. `inheritsMultipliersFrom` takes a specific form reference. To create dynamic inheritance, put `best` or `current` at the root and reference that root from later stages.
+Use only one source field per form. `stats.composition.inherits` takes a specific form reference. To create dynamic inheritance, put `best` or `current` at the root and reference that root from later stages.
 
 ### Define a dynamic chain
 
@@ -287,21 +326,44 @@ Create a group under `config/dragonminez/races/<race>/forms/`:
 
 ```json
 {
+  "schema": 1,
   "configVersion": "2.2.0",
-  "groupName": "custom_path",
-  "formType": "superforms",
+  "identity": {
+    "groupName": "custom_path",
+    "formType": "superforms"
+  },
   "forms": {
     "stage_one": {
       "name": "stage_one",
-      "unlockOnSkillLevel": 1,
-      "baseForm": "best",
-      "strMultiplier": 1.10
+      "stats": {
+        "multipliers": {
+          "strength": 1.1
+        },
+        "composition": {
+          "base": "best"
+        }
+      },
+      "requirements": {
+        "unlock": {
+          "skillLevel": 1
+        }
+      }
     },
     "stage_two": {
       "name": "stage_two",
-      "unlockOnSkillLevel": 2,
-      "inheritsMultipliersFrom": "custom_path.stage_one",
-      "strMultiplier": 1.15
+      "stats": {
+        "multipliers": {
+          "strength": 1.15
+        },
+        "composition": {
+          "inherits": "custom_path.stage_one"
+        }
+      },
+      "requirements": {
+        "unlock": {
+          "skillLevel": 2
+        }
+      }
     }
   }
 }
@@ -316,7 +378,7 @@ If the selected source's STR multiplier is 4.0:
 
 If that source becomes 6.0, the chain becomes 6.6 and 7.59 without editing the local deltas. Existing mastery adjustments participate in resolution; other applicable runtime modifiers still apply.
 
-The supported fields are `strMultiplier`, `skpMultiplier`, `stmMultiplier`, `defMultiplier`, `vitMultiplier`, `pwrMultiplier`, `eneMultiplier` and `speedMultiplier`. Values must resolve to finite positive numbers. Omitted fields retain existing form defaults.
+The supported fields are `stats.multipliers.strength`, `stats.multipliers.strikePower`, `stats.multipliers.stamina`, `stats.multipliers.defense`, `stats.multipliers.vitality`, `stats.multipliers.kiPower`, `stats.multipliers.energy` and `stats.multipliers.speed`. Values must resolve to finite positive numbers. Omitted fields retain existing form defaults.
 
 ### Resolution rules
 

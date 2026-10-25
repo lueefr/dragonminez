@@ -142,11 +142,12 @@ public class ExecuteActionC2S {
 		if (TransformationsHelper.isOozaruForm(nextForm)) return false;
 
 		String group = TransformationsHelper.getTransformTargetGroup(data);
+        if (!com.dragonminez.api.forms.FormAccess.allow(data,group,nextForm.getName(),false,false)) return false;
 
 		if (TransformationsHelper.needsFreeTransformMastery(data) && !TransformationsHelper.meetsFreeTransformMastery(data)) {
 			Component targetName = Component.translatable(FusionForms.formTranslationKey(data.getCharacter().getRaceName(), group, nextForm.getName()));
-			player.displayClientMessage(Component.translatable("message.dragonminez.form.free_transform_mastery",
-					(int) Math.round(nextForm.getAllowFreeTransformOnMastery()), targetName), true);
+			com.dragonminez.api.forms.FormAccess.notice(player,Component.translatable("message.dragonminez.form.free_transform_mastery",
+					(int) Math.round(nextForm.getAllowFreeTransformOnMastery()), targetName),null);
 			return false;
 		}
 
@@ -179,12 +180,12 @@ public class ExecuteActionC2S {
 		if (player.isCreative()) cost = 0;
 
 		if (data.getResources().getCurrentEnergy() < cost) {
-			player.displayClientMessage(Component.translatable("message.dragonminez.form.no_ki_instant", cost), true);
+			com.dragonminez.api.forms.FormAccess.notice(player,Component.translatable("message.dragonminez.form.no_ki_instant", cost),null);
 			return false;
 		}
 
 		if (!player.isCreative() && !TransformationItemCostHelper.canAffordAndHandleTriggerCost(player, nextForm)) {
-			player.displayClientMessage(Component.translatable("message.dragonminez.form.no_trigger_item"), true);
+			com.dragonminez.api.forms.FormAccess.notice(player,Component.translatable("message.dragonminez.form.no_trigger_item"),null);
 			return false;
 		}
 
@@ -205,8 +206,10 @@ public class ExecuteActionC2S {
 		FormConfig.FormData nextForm = TransformationsHelper.getNextAvailableStackForm(data);
 		if (nextForm == null) return false;
 
+        String useGroup=data.getCharacter().hasActiveStackForm()?data.getCharacter().getActiveStackFormGroup():data.getCharacter().getSelectedStackFormGroup();
+        if (!com.dragonminez.api.forms.FormAccess.allow(data,useGroup,nextForm.getName(),true,false)) return false;
 		if (!nextForm.getFormStackable()) {
-			player.displayClientMessage(Component.translatable("message.dragonminez.form.not_stackable"), true);
+			com.dragonminez.api.forms.FormAccess.notice(player,Component.translatable("message.dragonminez.form.not_stackable"),null);
 			return false;
 		}
 
@@ -219,14 +222,14 @@ public class ExecuteActionC2S {
 
 			if (activeFormData == null || !activeFormData.getFormStackable()
 					|| !TransformationsHelper.areFormsCompatible(activeFormData, data.getCharacter().getActiveFormGroup(), nextForm, group)) {
-				player.displayClientMessage(Component.translatable("message.dragonminez.form.not_stackable"), true);
+				com.dragonminez.api.forms.FormAccess.notice(player,Component.translatable("message.dragonminez.form.not_stackable"),null);
 				return false;
 			}
 
 			double baseMastery = data.getCharacter().getFormMasteries().getMastery(data.getCharacter().getActiveFormGroup(), data.getCharacter().getActiveForm());
 			double stackMastery = data.getCharacter().getStackFormMasteries().getMastery(group, nextForm.getName());
 			if (baseMastery < activeFormData.getStackOnMastery() || stackMastery < nextForm.getStackOnMastery()) {
-				player.displayClientMessage(Component.translatable("message.dragonminez.form.not_stackable"), true);
+				com.dragonminez.api.forms.FormAccess.notice(player,Component.translatable("message.dragonminez.form.not_stackable"),null);
 				return false;
 			}
 		}
@@ -239,12 +242,12 @@ public class ExecuteActionC2S {
 		if (player.isCreative()) cost = 0;
 
 		if (data.getResources().getCurrentEnergy() < cost) {
-			player.displayClientMessage(Component.translatable("message.dragonminez.form.no_ki_instant", cost), true);
+			com.dragonminez.api.forms.FormAccess.notice(player,Component.translatable("message.dragonminez.form.no_ki_instant", cost),null);
 			return false;
 		}
 
 		if (!player.isCreative() && !TransformationItemCostHelper.canAffordAndHandleTriggerCost(player, nextForm)) {
-			player.displayClientMessage(Component.translatable("message.dragonminez.form.no_trigger_item"), true);
+			com.dragonminez.api.forms.FormAccess.notice(player,Component.translatable("message.dragonminez.form.no_trigger_item"),null);
 			return false;
 		}
 
