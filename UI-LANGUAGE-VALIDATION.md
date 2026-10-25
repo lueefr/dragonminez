@@ -22,11 +22,11 @@ The hair editor called `PanoramaRenderer.render` with the final arguments revers
 
 Corrected argument order in the hair editor and the pixel editor, which had the same error. Full-opacity panoramas retain normal animation timing. Screen render captures confirm that the varying-opacity flicker is removed; the background still moves with the panorama.
 
-## Sinking after changing language — investigation in progress
+## Sinking after changing language — not reproduced
 
 No position/height workaround has been added. Initial reproduction with packaged Hotfix 9 did not reproduce sinking: English → Portuguese → English preserved `(0.5, 81, 0.5)`, standing dimensions and root/body/head transforms. Runs cover the default Saiyan and Frost Demon bodies, a female Saiyan, Iris/Sodium with Complementary Unbound, and GeckoLib 4.9.3 with EMF/ETF, ImmediatelyFast, 3D skin layers and RRLS.
 
-The installed mod set also ran on NeoForge 21.1.264 with rendering configuration copies and the saved character attachment in an isolated disposable world. Position, dimensions and bone transforms remained stable through both language reloads. A further run is testing a copy of the original world, walking and form changes. Original saves, mod JARs and configs are not modified.
+The installed mod set also ran on NeoForge 21.1.264 with rendering configuration copies and the saved character attachment in an isolated disposable world. Position, dimensions and bone transforms remained stable through both language reloads. The original-world copy also preserved Y=73 and standing dimensions across English/Portuguese switches, walking and form changes. Camera collision against the surrounding construction limits the visual assessment at the saved position; bone transforms and collision dimensions were sampled separately. There is no confirmed root cause or fix for this fourth report yet. Original saves, mod JARs and configs are not modified.
 
 ## Checks and local evidence
 
@@ -36,3 +36,6 @@ The installed mod set also ran on NeoForge 21.1.264 with rendering configuration
 - `dragonminez-port-tools/ui-language-shader-smoke/`: baseline with Iris/Sodium and Complementary Unbound.
 - `dragonminez-port-tools/ui-language-pack-smoke/`: GeckoLib 4.9.3 and rendering/reload integration checks, including the female body.
 - Temporary client automation is injected only into a copy of the packaged JAR. The distributed build does not contain these classes.
+
+- `dragonminez-port-tools/ui-fixes-pack-smoke/candidate.log`: final candidate with the installed mod set, NeoForge 21.1.264, GeckoLib 4.9.3 and active Complementary shader pack. Config-provided form names resolve in both English and Portuguese; the orange player outline is visible in `2026-10-25_01.34.14.png`. Screen render captures cover the corrected editor panorama.
+- `dragonminez-port-tools/ui-language-world-smoke/baseline.log` and `baseline-facing-path.log`: copied-world baseline, including the saved character attachment, language changes, walking and transformation/reversion. No original world files were written.
