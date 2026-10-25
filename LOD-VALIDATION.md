@@ -15,7 +15,7 @@ The original bundled column `(320, 320)` contains no non-air blocks above Y 96. 
 
 - `build runGameTestServer`: 26 unit tests and all 40 required GameTests passed. `BUILD SUCCESSFUL` with normal server shutdown. Initial log: `/tmp/dmz-lod-progress-build-4.log`; final successful validation log: `/tmp/dmz-lod-progress-final-build.log`.
 - Read-only template verification passed: 348 templates, 4,831,278 positions (4,244,741 air and 586,537 non-air), 22 block entities and negative chunks; the shipped index and file set matched the source regions. Log: `/tmp/dmz-lod-templates-check.log`.
-- Source translation audit and its four Python regression tests passed.
+- Source translation audit and its four Python regression tests passed; all 14 release-tool tests also passed.
 - `git diff --check` passed.
 
 ## Minecraft with Neo-Voxy
@@ -26,7 +26,18 @@ The actual generated columns at `(320,320)`, `(511,320)`, `(512,320)`, `(-321,-3
 
 The harness explicitly submitted two full chunks through Voxy's own `tryIngestChunk` API and read its `WorldEngine`/`Mapper` data back. The landmark remained ANDESITE; the `(320,320)` column retained 8 lower-deck cloud blocks and 13 upper-deck cloud blocks with an empty gap. The Voxy render system initialized its normal pipeline and shut down normally. This establishes full-chunk ingestion for those fixtures, not automatic generation of unseen terrain.
 
-Logs: `/home/lucas/Dev/dragonminez-port-tools/lod-voxy-smoke/run.log` and `final.log` in the same directory. Both clients finished with `BUILD SUCCESSFUL`. The second run used the exact packaged checksum below, vanilla distance 4, and waited 20 seconds after submitting the chunks. Both captures show sky, so neither establishes distant rendering coverage. A full-palace cache comparison is being checked separately; the data-ingestion result must not be presented as a visual pass.
+Logs: `/home/lucas/Dev/dragonminez-port-tools/lod-voxy-smoke/run.log` and `final.log` in the same directory. Both clients finished with `BUILD SUCCESSFUL`. The second run used the exact packaged checksum below, vanilla distance 4, and waited 20 seconds after submitting the chunks. Both captures show sky, so neither establishes distant rendering coverage. The data-ingestion result must not be presented as a visual pass.
+
+### Complete palace comparison
+
+The next run used the same packaged candidate, ordinary chunk generation and unmodified Voxy. It explicitly submitted the two fixtures plus all 80 palace-area chunks (`x=-4..3`, `z=-4..5`) to the current client world's Voxy engine. The test waited 20 seconds after submission, captured a near view at `(30,190,-50)` with yaw 0 / pitch 30, moved to `(80,210,-110)` with yaw 15 / pitch 18, then waited another 20 seconds before the far capture. Vanilla render distance was 4.
+
+- Near capture: the palace roofs, gates and paths are visible: `/home/lucas/Dev/dragonminez-port-tools/lod-voxy-smoke/game/screenshots/2026-10-25_16.55.04.png`.
+- Far capture: the palace is absent despite the explicit ingestion. This is a **failed distant visual comparison**, not a compatibility pass: `2026-10-25_16.55.24.png` in the same directory.
+- Voxy cache readback still passed for the ANDESITE fixture, both cloud decks and the empty gap.
+- Log: `/home/lucas/Dev/dragonminez-port-tools/lod-voxy-smoke/palace.log`.
+
+These results establish that fresh generation supplies the builds and the near view can render them. They do not establish why the distant render is missing. The next rendering investigation needs frame/viewport, mesh and culling diagnostics; the evidence does not yet identify the responsible component. No renderer workaround or third-party modification was shipped.
 
 ## Limits
 
