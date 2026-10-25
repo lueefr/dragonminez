@@ -25,6 +25,7 @@ public final class DialogueParser {
 	}
 
 	public static DialogueTree parse(JsonObject json, String fileName) {
+        if(json!=null)json=com.dragonminez.common.config.schema.ContentSchema.decode(com.dragonminez.common.config.schema.ContentSchema.Kind.DIALOGUE,json);
 		if (json == null || !json.has("npc") || !json.has("nodes")) {
 			LogUtil.error(Env.COMMON, "Dialogue file '{}' is missing required fields 'npc'/'nodes'", fileName);
 			return null;

@@ -24,7 +24,7 @@ public final class DebugFileWriter {
 		Minecraft minecraft = Minecraft.getInstance();
 		if (minecraft.player == null) return;
 		if (text == null) {
-			minecraft.player.displayClientMessage(Component.translatable("command.dragonminez.debug.error", "invalid data"), false);
+			minecraft.player.displayClientMessage(Component.translatable("command.dragonminez.debug.error", Component.translatable("text.dragonminez.debug.invalid")), false);
 			return;
 		}
 

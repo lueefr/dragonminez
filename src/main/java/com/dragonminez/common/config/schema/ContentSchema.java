@@ -5,7 +5,7 @@ import java.util.*;
 
 /** Human-facing content layout. Unknown keys are retained for addons and manual rollback. */
 public final class ContentSchema {
-    public enum Kind { FORMS, FORM, SKILLS, SKILL, NPC, QUEST, SAGA, RULES }
+    public enum Kind { FORMS, FORM, SKILLS, SKILL, NPC, QUEST, SAGA, RULES, RACE_CHARACTER, RACE_STATS, CLASS_STATS, OBJECTIVE, REWARD, TECHNIQUES, TECHNIQUE, ENTITIES, RAID, TOURNAMENT, FIGHTER, NPC_PLACEMENT, DIALOGUE, DIALOGUE_NODE, DIALOGUE_CHOICE }
     private static final Map<Kind,LinkedHashMap<String,String>> FIELDS=new EnumMap<>(Kind.class);
     private static final Map<Kind,Map<String,String>> PREVIOUS_PATHS=new EnumMap<>(Kind.class);
     static {
@@ -35,7 +35,93 @@ public final class ContentSchema {
         map(Kind.QUEST,"progression","repeatable repeat_cooldown_seconds completionId time_limit_seconds parallel_objectives party_scaling secret");
         map(Kind.SAGA,"identity","name");map(Kind.SAGA,"progression","requirements questFolder");
         put(Kind.RULES,"content","completion.rewards");put(Kind.RULES,"buy","purchase.conditions");
+        map(Kind.RACE_CHARACTER,"identity","racialSkill hasGender");
+        map(Kind.RACE_CHARACTER,"appearance.body","useVanillaSkin customModel isLayered headBones defaultModelScaling defaultBodyType slimBodyTypes defaultBodyColor defaultBodyColor2 defaultBodyColor3");
+        map(Kind.RACE_CHARACTER,"appearance.hair","defaultHairType defaultHairColor");
+        map(Kind.RACE_CHARACTER,"appearance.face","defaultEyesType defaultNoseType defaultMouthType defaultTattooType defaultEye1Color defaultEye2Color");
+        map(Kind.RACE_CHARACTER,"appearance.tail","hasSaiyanTail");
+        map(Kind.RACE_CHARACTER,"aura","auraType auraType3D aura3DStyle defaultAuraColor");
+        put(Kind.RACE_CHARACTER,"formSkillsCosts","economy.formSkills");
+        FIELDS.put(Kind.RACE_STATS,new LinkedHashMap<>());
+        map(Kind.CLASS_STATS,"stats","baseStats statScaling");
+        map(Kind.CLASS_STATS,"regeneration.health","baseHp5 hp5VitScaling");
+        map(Kind.CLASS_STATS,"regeneration.energy","baseEp5 ep5EneScaling");
+        map(Kind.CLASS_STATS,"regeneration.stamina","baseSp5 sp5StmScaling sp5ResScaling");
+        map(Kind.CLASS_STATS,"economy","tpCostMultiplier tpGainMultiplier");
+        map(Kind.CLASS_STATS,"racial","passive");
+        map(Kind.QUEST,"requirements","prerequisites");
+        put(Kind.QUEST,"requirements","requirements.start");
+        // Type-specific payloads keep extension keys while grouping native fields by subject.
+        map(Kind.OBJECTIVE,"target","entity entityName item biome dimension structure npcId skill");
+        map(Kind.OBJECTIVE,"progress","count waves duration seconds ticks milliseconds mode count_mode checkpoints radius x y z");
+        map(Kind.OBJECTIVE,"combat","health meleeDamage kiDamage AITier canTransform CanTransform TransformHealth TransformMeleeDamage TransformKiDamage TransformHealthMultiplier TransformMeleeDamageMultiplier TransformKiMultiplier TransformTriggerPercent");
+        map(Kind.OBJECTIVE,"appearance","TextureVariant");
+        map(Kind.OBJECTIVE,"spawning","spawn");
+        map(Kind.OBJECTIVE,"navigation","hint");
+        map(Kind.REWARD,"grant","item itemReward count amount command skill level group form mastery stack technique");
+        map(Kind.REWARD,"availability","difficulty difficulties difficultyType minDifficulty");
+        map(Kind.REWARD,"text","translationKey");
+        map(Kind.TECHNIQUES,"types","kiAttacks strikeAttacks evasionAttacks");
+        map(Kind.TECHNIQUE,"progression","minXPCost maxXPCost xpCostMultiplier xpGainMultiplier xpGainPerHit xpGainPerKill");
+        map(Kind.TECHNIQUE,"economy","kiCostMultiplier");
+        map(Kind.TECHNIQUE,"combat","damageMultiplier destructionMultiplier maxDestructionRadius");
+        map(Kind.TECHNIQUE,"timing","castTimeTicks cooldownTicks");
+        map(Kind.TECHNIQUE,"appearance.size","baseSizeCap transformedSizeCap sizePowerFloor sizePowerCeiling");
+        put(Kind.ENTITIES,"defaultEntityStats","stats.byEntity");
+        put(Kind.ENTITIES,"transformDefaults","transformation.defaults");
+        map(Kind.RAID,"identity","enabled displayName");
+        map(Kind.RAID,"encounter","activationRadius leashDistance interWaveDelaySeconds trigger waves defeat");
+        map(Kind.RAID,"appearance","music");map(Kind.RAID,"economy","rewards");
+        map(Kind.TOURNAMENT,"identity","enabled displayName format difficultyStars");
+        map(Kind.TOURNAMENT,"rules","qualifierSlots lethal");
+        map(Kind.TOURNAMENT,"timing","reentryCooldownSeconds victoryCooldownSeconds matchTimeoutSeconds nextRoundSeconds rulesAcceptSeconds returnSeconds arrivalSeconds");
+        map(Kind.TOURNAMENT,"arena","ring");map(Kind.TOURNAMENT,"fighters","champion semifinalist finalist contenders");
+        map(Kind.TOURNAMENT,"economy","rewards");
+        map(Kind.FIGHTER,"identity","entityId");
+        map(Kind.FIGHTER,"combat","health meleeDamage kiDamage aiTier perRoundScaling");
+        map(Kind.FIGHTER,"appearance","halo supervillain");
+        map(Kind.FIGHTER,"spawning","count dimension spawnChance preparationSeconds dormantUntilEscortDead");
+        map(Kind.FIGHTER,"text","omenMessage startMessage announceMessage");
+        map(Kind.NPC_PLACEMENT,"identity","npc");map(Kind.NPC_PLACEMENT,"location","dimension x y z yaw");
+        map(Kind.DIALOGUE,"identity","npc");map(Kind.DIALOGUE,"interaction","start");
+        map(Kind.DIALOGUE_NODE,"text","line");map(Kind.DIALOGUE_NODE,"interaction","choices");
+        put(Kind.DIALOGUE_CHOICE,"text","text.label");put(Kind.DIALOGUE_CHOICE,"goto","navigation.next");
+        put(Kind.DIALOGUE_CHOICE,"conditions","requirements");put(Kind.DIALOGUE_CHOICE,"actions","effects.actions");
+        map(Kind.FIGHTER,"appearance","textureVariant");
+        map(Kind.FIGHTER,"transformation","canTransform transformHealth transformMeleeDamage transformKiDamage");
+        map(Kind.OBJECTIVE,"target","npc_id npc dragon dragon_id dragonId ball_set ballSet ball_set_id ballSetId set skillId id");
+        map(Kind.OBJECTIVE,"progress","mobs_per_wave mobsPerWave wave_delay_seconds waveDelaySeconds level minLevel required");
+        map(Kind.REWARD,"grant","formGroup form_group formName form_name code techniqueCode technique_code itemType itemId enchantments potion mobEffects material pattern");
         FIELDS.forEach((kind,fields)->PREVIOUS_PATHS.put(kind,Map.copyOf(fields)));
+        put(Kind.RACE_CHARACTER,"defaultHairType","appearance.hair.slot");
+        put(Kind.RACE_CHARACTER,"defaultHairColor","appearance.hair.color");
+        put(Kind.RACE_CHARACTER,"customModel","appearance.body.model");
+        put(Kind.RACE_CHARACTER,"useVanillaSkin","appearance.body.usePlayerSkin");
+        put(Kind.RACE_CHARACTER,"isLayered","appearance.body.layered");
+        put(Kind.RACE_CHARACTER,"defaultModelScaling","appearance.body.scale");
+        put(Kind.RACE_CHARACTER,"defaultBodyType","appearance.body.type");
+        put(Kind.RACE_CHARACTER,"defaultBodyColor","appearance.body.primaryColor");
+        put(Kind.RACE_CHARACTER,"defaultBodyColor2","appearance.body.secondaryColor");
+        put(Kind.RACE_CHARACTER,"defaultBodyColor3","appearance.body.tertiaryColor");
+        put(Kind.RACE_CHARACTER,"defaultEyesType","appearance.face.eyes");
+        put(Kind.RACE_CHARACTER,"defaultNoseType","appearance.face.nose");
+        put(Kind.RACE_CHARACTER,"defaultMouthType","appearance.face.mouth");
+        put(Kind.RACE_CHARACTER,"defaultTattooType","appearance.face.tattoo");
+        put(Kind.RACE_CHARACTER,"defaultEye1Color","appearance.face.primaryEyeColor");
+        put(Kind.RACE_CHARACTER,"defaultEye2Color","appearance.face.secondaryEyeColor");
+        put(Kind.RACE_CHARACTER,"auraType","aura.main.type2d");
+        put(Kind.RACE_CHARACTER,"auraType3D","aura.main.type3d");
+        put(Kind.RACE_CHARACTER,"aura3DStyle","aura.main.style");
+        put(Kind.RACE_CHARACTER,"defaultAuraColor","aura.main.color");
+        put(Kind.CLASS_STATS,"baseStats","stats.base");
+        put(Kind.CLASS_STATS,"statScaling","stats.scaling");
+        put(Kind.CLASS_STATS,"baseHp5","regeneration.health.basePerFiveSeconds");
+        put(Kind.CLASS_STATS,"hp5VitScaling","regeneration.health.perVitality");
+        put(Kind.CLASS_STATS,"baseEp5","regeneration.energy.basePerFiveSeconds");
+        put(Kind.CLASS_STATS,"ep5EneScaling","regeneration.energy.perEnergy");
+        put(Kind.CLASS_STATS,"baseSp5","regeneration.stamina.basePerFiveSeconds");
+        put(Kind.CLASS_STATS,"sp5StmScaling","regeneration.stamina.perVitality");
+        put(Kind.CLASS_STATS,"sp5ResScaling","regeneration.stamina.perResistance");
         put(Kind.FORM,"hairType","appearance.hair.slot");
         put(Kind.FORM,"forcedHairCode","appearance.hair.code");
         put(Kind.FORM,"hairColor","appearance.hair.color");
@@ -166,14 +252,17 @@ public final class ContentSchema {
         }
         var ordered=new ArrayList<>(paths(kind).entrySet());
         ordered.sort(java.util.Comparator.comparingInt((Map.Entry<String,String> entry)->entry.getValue().split("\\.").length).reversed());
+        var extracted=new LinkedHashMap<String,JsonElement>();
         for(var field:ordered){
-            JsonElement value=take(result,field.getValue());
+            String head=field.getValue().split("\\.")[0];
+            boolean legacyScalar=head.equals(field.getKey())&&result.has(head)&&!result.get(head).isJsonObject();
+            JsonElement value=legacyScalar?null:take(result,field.getValue());
             String previous=PREVIOUS_PATHS.getOrDefault(kind,Map.of()).get(field.getKey());
             if(previous!=null&&!previous.equals(field.getValue())){
                 JsonElement old=take(result,previous);
                 if(old!=null){if(value!=null)throw new IllegalArgumentException("Duplicate nested alias: "+field.getKey());value=old;}
             }
-            if(value!=null){if(get(result,field.getKey())!=null)throw new IllegalArgumentException("Mixed legacy and nested field: "+field.getKey());insert(result,field.getKey(),value);}
+            if(value!=null)extracted.put(field.getKey(),value);
         }
         var sectionPaths=new ArrayList<>(paths(kind).values());sectionPaths.addAll(PREVIOUS_PATHS.getOrDefault(kind,Map.of()).values());
         for(String path:sectionPaths){
@@ -184,6 +273,15 @@ public final class ContentSchema {
                 parent=parent.contains(".")?parent.substring(0,parent.lastIndexOf('.')):"";
             }
         }
+        extracted.forEach((field,value)->{
+            if(get(result,field)!=null)throw new IllegalArgumentException("Mixed legacy and nested field: "+field);
+            insert(result,field,value);
+        });
+        if(kind==Kind.DIALOGUE)transformMap(result,"nodes",Kind.DIALOGUE_NODE,false);
+        if(kind==Kind.DIALOGUE_NODE)transformList(result,"choices",Kind.DIALOGUE_CHOICE,false);
+        if(kind==Kind.RACE_STATS)transformMap(result,"classes",Kind.CLASS_STATS,false);
+        if(kind==Kind.TECHNIQUES)for(String key:List.of("kiAttacks","strikeAttacks","evasionAttacks"))transformMap(result,key,Kind.TECHNIQUE,false);
+        if(kind==Kind.QUEST){transformList(result,"objectives",Kind.OBJECTIVE,false);transformList(result,"rewards",Kind.REWARD,false);}
         if(kind==Kind.FORMS){
             legacyAliases(result,Map.of("group_name","groupName","form_type","formType"));
             if(result.has("formType")){
@@ -194,13 +292,33 @@ public final class ContentSchema {
             transformMap(result,"forms",Kind.FORM,false);
         }
         if(kind==Kind.FORM)normalizeLegacyForm(result);
+        if(kind==Kind.RACE_CHARACTER&&result.has("formSkillsCosts")){
+            var costs=result.getAsJsonObject("formSkillsCosts");
+            for(String key:new ArrayList<>(costs.keySet()))if(costs.get(key).isJsonArray()){
+                var entry=new JsonObject();entry.addProperty("buyFromMaster",false);entry.add("prices",costs.get(key));costs.add(key,entry);
+            }
+        }
+        if(kind==Kind.REWARD&&result.has("type")){
+            String type=result.get("type").getAsString();
+            int colon=type.indexOf(':');
+            if(colon>0&&Set.of("hard","normal").contains(type.substring(0,colon).toLowerCase(Locale.ROOT))){
+                boolean explicit=List.of("difficulty","difficulties","difficultyType","minDifficulty").stream().anyMatch(result::has);
+                if(!explicit){var levels=new JsonArray();if(type.substring(0,colon).equalsIgnoreCase("hard"))levels.add("HARD");else{levels.add("EASY");levels.add("NORMAL");}result.add("difficulties",levels);}
+                result.addProperty("type",type.substring(colon+1));
+            }
+        }
         if(kind==Kind.NPC)legacyAliases(result,Map.of("hairCode","forcedHairCode"));
         if(kind==Kind.SKILLS)transformMap(result,"skills",Kind.SKILL,false);
         return result;
     }
     public static JsonObject encode(Kind kind,JsonObject flat){
-        JsonObject result=new JsonObject();if(kind!=Kind.FORM&&kind!=Kind.SKILL)result.addProperty("schema",1);
+        JsonObject result=new JsonObject();if(!Set.of(Kind.FORM,Kind.SKILL,Kind.CLASS_STATS,Kind.OBJECTIVE,Kind.REWARD,Kind.TECHNIQUE,Kind.FIGHTER,Kind.DIALOGUE_NODE,Kind.DIALOGUE_CHOICE).contains(kind))result.addProperty("schema",1);
         JsonObject remaining=flat.deepCopy();remaining.remove("schema");
+        if(kind==Kind.DIALOGUE)transformMap(remaining,"nodes",Kind.DIALOGUE_NODE,true);
+        if(kind==Kind.DIALOGUE_NODE)transformList(remaining,"choices",Kind.DIALOGUE_CHOICE,true);
+        if(kind==Kind.RACE_STATS)transformMap(remaining,"classes",Kind.CLASS_STATS,true);
+        if(kind==Kind.TECHNIQUES)for(String key:List.of("kiAttacks","strikeAttacks","evasionAttacks"))transformMap(remaining,key,Kind.TECHNIQUE,true);
+        if(kind==Kind.QUEST){transformList(remaining,"objectives",Kind.OBJECTIVE,true);transformList(remaining,"rewards",Kind.REWARD,true);}
         if(kind==Kind.FORMS)transformMap(remaining,"forms",Kind.FORM,true);
         if(kind==Kind.SKILLS)transformMap(remaining,"skills",Kind.SKILL,true);
         for(String key:List.of("configVersion","defaultsVersion","id","name"))if(remaining.has(key)&&!paths(kind).containsKey(key))result.add(key,remaining.remove(key));
@@ -216,6 +334,15 @@ public final class ContentSchema {
         else if(target.get(e.getKey()).isJsonObject()&&e.getValue().isJsonObject())mergeUnknown(target.getAsJsonObject(e.getKey()),e.getValue().getAsJsonObject());
         else throw new IllegalArgumentException("Conflicting content field: "+e.getKey());
     });}
+    private static void transformList(JsonObject root,String key,Kind kind,boolean encode){
+        if(!root.has(key)||root.get(key).isJsonNull())return;
+        JsonArray values=root.getAsJsonArray(key);
+        for(int i=0;i<values.size();i++){
+            if(!values.get(i).isJsonObject())continue;
+            JsonObject value=values.get(i).getAsJsonObject();
+            values.set(i,encode?encode(kind,value):decode(kind,value));
+        }
+    }
     private static void transformMap(JsonObject root,String key,Kind kind,boolean encode){
         if(!root.has(key))return;JsonObject values=root.getAsJsonObject(key);
         for(String id:new ArrayList<>(values.keySet())){

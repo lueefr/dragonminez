@@ -223,6 +223,7 @@ public class QuestParser {
 	}
 
 	private static QuestObjective parseObjectiveUnchecked(JsonObject json) {
+        if(json!=null)json=com.dragonminez.common.config.schema.ContentSchema.decode(com.dragonminez.common.config.schema.ContentSchema.Kind.OBJECTIVE,json);
 		if (json == null) {
 			return new PlaceholderObjective(null, "the entry is not a JSON object", true);
 		}
@@ -420,6 +421,7 @@ public class QuestParser {
 	}
 
 	private static QuestReward parseRewardUnchecked(JsonObject json) {
+        if(json!=null)json=com.dragonminez.common.config.schema.ContentSchema.decode(com.dragonminez.common.config.schema.ContentSchema.Kind.REWARD,json);
 		if (json == null) {
 			return new PlaceholderReward(null, "the entry is not a JSON object", true);
 		}

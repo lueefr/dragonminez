@@ -11,6 +11,6 @@ public final class BonusNameFormatter {
 		if (bonusName == null || bonusName.isEmpty()) return "";
 		if (bonusName.startsWith("Zenkai_Temp_")) return Component.translatable("gui.dragonminez.bonus.zenkai_temp").getString();
 		if (bonusName.startsWith("CellJr_")) return Component.translatable("gui.dragonminez.bonus.cell_jr").getString();
-		return bonusName.replace("_", " ");
+		return com.dragonminez.api.lang.ConfigTranslations.text(bonusName).getString();
 	}
 }

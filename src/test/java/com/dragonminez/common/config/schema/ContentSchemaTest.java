@@ -98,6 +98,41 @@ class ContentSchemaTest {
         var nested=json("{schema:1,forms:{stage:{name:'stage',appearance:{hair:null},effects:{lightning:null},aura:null}}}");
         assertDoesNotThrow(()->decode(Kind.FORMS,nested));
     }
+    @Test void historicalContentLayoutsAcrossSubsystemsRoundTrip()throws Exception{
+        try(var input=getClass().getResourceAsStream("/content-history/content.json")){
+            assertNotNull(input);
+            var cases=JsonParser.parseString(new String(input.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonArray();
+            var kinds=new java.util.HashSet<Kind>();
+            for(var item:cases){
+                var entry=item.getAsJsonObject();Kind kind=Kind.valueOf(entry.get("kind").getAsString());kinds.add(kind);
+                var flat=decode(kind,entry.getAsJsonObject("document"));
+                assertEquals(flat,decode(kind,encode(kind,flat)),entry.get("source").getAsString());
+            }
+            assertTrue(kinds.containsAll(java.util.Set.of(Kind.SKILLS,Kind.RACE_CHARACTER,Kind.RACE_STATS,Kind.ENTITIES,Kind.TECHNIQUES,Kind.QUEST,Kind.SAGA)));
+        }
+    }
+    @Test void questPayloadsAndLegacyPricesConvertToCanonicalSections(){
+        var quest=decode(Kind.QUEST,json("{id:'trial',type:'SIDEQUEST',title:'example.title',prerequisites:{conditions:[]},requirements:{conditions:[]},objectives:[{type:'KILL',entity:'example:enemy',count:2,health:30}],rewards:[{type:'hard:TPS',amount:5}]}"));
+        var nested=encode(Kind.QUEST,quest);
+        assertTrue(nested.getAsJsonObject("requirements").has("start"));
+        assertEquals("example:enemy",nested.getAsJsonArray("objectives").get(0).getAsJsonObject().getAsJsonObject("target").get("entity").getAsString());
+        assertEquals("TPS",nested.getAsJsonArray("rewards").get(0).getAsJsonObject().get("type").getAsString());
+        var character=decode(Kind.RACE_CHARACTER,json("{formSkillsCosts:{training:[100,-1]}}"));
+        assertEquals(-1,character.getAsJsonObject("formSkillsCosts").getAsJsonObject("training").getAsJsonArray("prices").get(1).getAsInt());
+        assertFalse(character.getAsJsonObject("formSkillsCosts").getAsJsonObject("training").get("buyFromMaster").getAsBoolean());
+        assertEquals(quest,decode(Kind.QUEST,nested));
+    }
+    @Test void npcDialoguePlacementAndRuleLayoutsRemainAdditive(){
+        for(var entry:java.util.Map.of(
+            Kind.NPC_PLACEMENT,"{npc:'example:guide',dimension:'minecraft:overworld',x:1,y:80,z:3,yaw:0,addon:2}",
+            Kind.DIALOGUE,"{npc:'example:guide',start:'greet',nodes:{greet:{line:'example.line',choices:[{text:'example.choice',goto:'greet',conditions:{operator:'AND',conditions:[]},actions:[]}]}}}",
+            Kind.NPC,"{id:'example:guide',baseTexture:'master_base',hairCode:'',name:'example.guide',offers:{skills:['training']}}",
+            Kind.RULES,"{buy:{training:{'1':{content:'example:trial'}}},content:{'example:trial':[{tp:10}]}}"
+        ).entrySet()){
+            var flat=decode(entry.getKey(),json(entry.getValue()));
+            assertEquals(flat,decode(entry.getKey(),encode(entry.getKey(),flat)),entry.getKey().name());
+        }
+    }
     @Test void visualAppearanceAndAuraStateAreGroupedWithoutLosingRules(){
         var flat=decode(Kind.FORM,json("{name:'stage',furUsesHairColor:true,outlineShader:{enabled:true},visual:{aura:'sealed',parts:{left_forearm:[1.5,1,1.5]},fur:{color:'#AA3344'},eyes:'#222222',tail:'#AA3344',outline:true,rules:[{if:{flying:true},set:{aura:true}}]}}"));
         var nested=encode(Kind.FORM,flat);

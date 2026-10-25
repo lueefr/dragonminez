@@ -200,7 +200,7 @@ Files remain under `<world>/dragonminez/quests`, `sidequests` and `sagas`; they 
 }
 ```
 
-This illustrates the layout; fill `objectives` with supported objective definitions for a playable quest. Objective/reward payloads retain their existing type-specific fields. Existing prerequisite expressions remain supported. Saga manifests group `name` under `identity` and `requirements`/`questFolder` under `progression`.
+This illustrates the layout; fill `objectives` with supported objective definitions for a playable quest. Objective/reward payloads now group their type-specific fields under `target`, `progress`, `combat`, `spawning`, `appearance`, `navigation`, `grant`, `availability` and `text`. Java parsers still receive their established field names. Existing prerequisite expressions remain supported under `requirements.prerequisites` and `requirements.start`. Saga manifests group `name` under `identity` and `requirements`/`questFolder` under `progression`.
 
 ## Migration and rollback
 
@@ -211,3 +211,76 @@ Replacement uses an atomic filesystem move. If the filesystem cannot provide it,
 Known historical layouts include unversioned files, snake-case aliases, scalar or three-axis model scale, numeric historical hair slots, the intermediate `hairCode` field, renamed skill/mastery fields and old flat 2.2 files. The test corpus records distinct form layouts from repository history. Retired values that have no active setting remain under `legacy`; custom/unknown JSON fields are preserved. Unknown historical numeric hair IDs are rejected rather than guessed.
 
 To roll back manually, stop the server, copy the chosen backup over its original path and use a matching mod build. Keep world/player backups when downgrading; JSON backups do not roll back player progression.
+
+
+## Races, techniques and encounters
+
+Race `character.json` groups body/hair/face defaults under `appearance`, aura defaults under `aura.main`, and form purchase settings under `economy.formSkills`. A legacy price array becomes an object with `buyFromMaster: false` and `prices`; `-1` retains its grant-only meaning.
+
+```json
+{
+  "schema": 1,
+  "appearance": {
+    "hair": {"slot": 1, "color": "#72B8FF"},
+    "body": {"model": "", "usePlayerSkin": true, "scale": [0.94, 0.94, 0.94]}
+  },
+  "economy": {
+    "formSkills": {
+      "custom_training": {"buyFromMaster": true, "prices": [100, 200, -1]}
+    }
+  }
+}
+```
+
+Race `stats.json` retains the `classes` map. Each class has `stats.base`, `stats.scaling`, health/energy/stamina `regeneration`, `economy` and `racial` sections. Regeneration names state their units: `basePerFiveSeconds`, `perVitality`, `perEnergy` and `perResistance`.
+
+Techniques group their types under `types.kiAttacks`, `types.strikeAttacks` and `types.evasionAttacks`. Each entry separates `progression`, `economy`, `combat`, `timing` and `appearance.size`. Entity defaults use `stats.byEntity` and `transformation.defaults`. Raids and tournaments separate `identity`, encounter/rules, timing, fighters/arena, appearance and economy. Fighter definitions separate combat stats, appearance, spawning and transformation. These layouts preserve Java APIs, IDs, values and timing units.
+
+## Quest objectives and rewards
+
+Inside a quest entry:
+
+```json
+{
+  "requirements": {
+    "prerequisites": {"operator": "AND", "conditions": []},
+    "start": {"operator": "AND", "conditions": []}
+  },
+  "objectives": [
+    {"type": "BIOME", "target": {"biome": "minecraft:plains"}}
+  ],
+  "rewards": [
+    {"type": "TPS", "grant": {"amount": 100}, "availability": {"difficulties": ["NORMAL", "HARD"]}}
+  ]
+}
+```
+
+A historical `hard:` or `normal:` reward type prefix becomes an explicit difficulty list when no explicit difficulty override existed. Unknown addon fields remain in the JSON; they are not dropped to make migration pass.
+
+## NPC placements and dialogue trees
+
+Custom NPC placements group `npc` under `identity` and dimension/coordinates/yaw under `location`. World dialogue trees group the NPC under `identity` and the starting node under `interaction`. Each node has `text.line` and `interaction.choices`; a choice uses `text.label`, `navigation.next`, `requirements` and `effects.actions`.
+
+```json
+{
+  "schema": 1,
+  "identity": {"npc": "example:guide"},
+  "interaction": {"start": "greeting"},
+  "nodes": {
+    "greeting": {
+      "text": {"line": "example.dialogue.greeting"},
+      "interaction": {"choices": [
+        {"text": {"label": "example.dialogue.finish"}, "effects": {"actions": []}}
+      ]}
+    }
+  }
+}
+```
+
+## Validation before writing
+
+Quest default updates join the same deferred migration queue as layout conversion. Invalid, duplicate or rejected definitions are removed from that queue before any replacement. A failed backup prevents writing. Backups are numbered and retained. Reloading a file after an intentional edit validates the new bytes; an edit after validation still prevents commit.
+
+Malformed built-in quest/saga files use their generated default in memory and retain the malformed original on disk, including when automatic generation of missing defaults is disabled. Custom files without a bundled default are skipped. Disabling default generation still prevents creation of missing quest files.
+
+See [Historical coverage and text auditing](History-and-audit) for the executable compatibility corpus and translation checks.

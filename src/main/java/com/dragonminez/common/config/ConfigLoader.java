@@ -28,7 +28,14 @@ public class ConfigLoader {
             var kind=com.dragonminez.common.config.schema.ContentAdapters.kind(clazz);
             if(kind!=null){
                 JsonObject tree=com.dragonminez.common.config.schema.ContentMigration.load(path,kind,flat->{
-                    if(kind==com.dragonminez.common.config.schema.ContentSchema.Kind.FORMS || kind==com.dragonminez.common.config.schema.ContentSchema.Kind.SKILLS)flat.addProperty("configVersion",ConfigManager.CONFIG_VERSION);
+                    if(java.util.Set.of(com.dragonminez.common.config.schema.ContentSchema.Kind.FORMS,
+                            com.dragonminez.common.config.schema.ContentSchema.Kind.SKILLS,
+                            com.dragonminez.common.config.schema.ContentSchema.Kind.RACE_CHARACTER,
+                            com.dragonminez.common.config.schema.ContentSchema.Kind.RACE_STATS,
+                            com.dragonminez.common.config.schema.ContentSchema.Kind.TECHNIQUES,
+                            com.dragonminez.common.config.schema.ContentSchema.Kind.ENTITIES,
+                            com.dragonminez.common.config.schema.ContentSchema.Kind.RAID,
+                            com.dragonminez.common.config.schema.ContentSchema.Kind.TOURNAMENT).contains(kind))flat.addProperty("configVersion",ConfigManager.CONFIG_VERSION);
                     T parsed=gson.fromJson(flat,clazz);
                     if(parsed==null)throw new IllegalArgumentException("Empty content config");
                     if(parsed instanceof FormConfig forms){

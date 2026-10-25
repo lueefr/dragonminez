@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - '**.java'
+      - 'scripts/audit-player-text.py'
+      - 'scripts/java_text_calls.py'
+      - 'scripts/tests/**'
       - 'src/main/resources/**'
       - 'src/generated/resources/**'
       - 'build.gradle.kts'
@@ -66,6 +69,11 @@ jobs:
         with:
           dependency-graph: generate-and-submit
           artifact-retention-days: 2
+
+      - name: Audit player text and verify the auditor
+        run: |
+          python3 scripts/audit-player-text.py
+          python3 -m unittest discover -s scripts/tests -v
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew

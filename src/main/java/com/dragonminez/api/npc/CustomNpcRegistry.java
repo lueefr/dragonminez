@@ -87,6 +87,9 @@ public final class CustomNpcRegistry {
     private volatile Snapshot snapshot = new Snapshot(Map.of(), Map.of());
 
     public synchronized void reload(Path configRoot) throws IOException {
+        List<Path> candidates=new ArrayList<>(files(configRoot.resolve("custom_npcs")));
+        candidates.addAll(files(configRoot.resolve("custom_npc_placements")));
+        try {
         Map<String, Definition> definitions = new TreeMap<>();
         for (Path path : files(configRoot.resolve("custom_npcs"))) {
             Definition definition = read(path, Definition.class);
@@ -102,6 +105,11 @@ public final class CustomNpcRegistry {
         }
         snapshot = new Snapshot(Map.copyOf(definitions), Map.copyOf(placements));
         revision++;
+        } catch(IOException|RuntimeException ex){
+            candidates.forEach(com.dragonminez.common.config.schema.ContentMigration::discard);
+            snapshot=new Snapshot(Map.of(),Map.of());revision++;
+            throw ex;
+        }
     }
     public Optional<Definition> get(String id) { return Optional.ofNullable(snapshot.definitions.get(id)); }
     public Map<String, Definition> definitions() { return snapshot.definitions; }
@@ -115,10 +123,10 @@ public final class CustomNpcRegistry {
     private static <T> T read(Path path, Class<T> type) throws IOException {
         if (Files.size(path) > 65536) throw new IllegalArgumentException(path + ": NPC JSON exceeds 64 KiB");
         try {
-            if(type==Definition.class){var flat=com.dragonminez.common.config.schema.ContentMigration.load(path,
-                com.dragonminez.common.config.schema.ContentSchema.Kind.NPC,tree->{
-                    Definition parsed=(Definition)Objects.requireNonNull(GSON.fromJson(tree,type));
-                    tree.addProperty("baseTexture",parsed.baseTexture());tree.addProperty("baseModel",parsed.baseModel());
+            if(type==Definition.class||type==Placement.class){var flat=com.dragonminez.common.config.schema.ContentMigration.load(path,
+                com.dragonminez.common.config.schema.ContentAdapters.kind(type),tree->{
+                    Object value=Objects.requireNonNull(GSON.fromJson(tree,type));
+                    if(value instanceof Definition parsed){tree.addProperty("baseTexture",parsed.baseTexture());tree.addProperty("baseModel",parsed.baseModel());}
                 });
                 return Objects.requireNonNull(GSON.fromJson(flat,type));}
             return Objects.requireNonNull(GSON.fromJson(Files.readString(path,StandardCharsets.UTF_8),type));

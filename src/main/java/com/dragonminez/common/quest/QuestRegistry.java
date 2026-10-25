@@ -149,6 +149,7 @@ public class QuestRegistry {
 		cachedWorldFolder = worldFolder;
 
 		QuestUpdateReport.clear();
+        QuestUpgrader.clearDefaults();
 		JsonLoadReport.clear("quests");
 		QuestUpgrader.setAutoUpdateEnabled(
 				ConfigManager.getServerConfig().getGameplay().getAutoUpdateQuests());
@@ -210,10 +211,10 @@ public class QuestRegistry {
 		StringBuilder sb = new StringBuilder();
 		sb.append("DragonMineZ quest update report\n");
 		sb.append("Target defaults version: ").append(QuestUpgrader.DEFAULTS_VERSION).append('\n');
-		sb.append(applied).append(" value(s) auto-updated to the new defaults; ")
+		sb.append(applied).append(" default value update(s) prepared; ")
 				.append(conflicts).append(" conflict(s) left as your edits; ")
 				.append(keptDeletions).append(" field(s) you deleted were left deleted.\n");
-		sb.append("Originals were backed up under dragonminez/oldBackup/.\n\n");
+		sb.append("Successful writes save original bytes in oldBackup directories next to the content files.\n\n");
 		if (!retired.isEmpty()) {
 			sb.append("Obsolete default files from an older version (moved out so they no longer collide with the current defaults):\n");
 			for (QuestUpdateReport.Retired file : retired) {
@@ -292,14 +293,31 @@ public class QuestRegistry {
 	/**
 	 * Loads a Single Default Saga File, used in loadSagaFiles.
 	 */
+    static void validateContent(Path file,com.dragonminez.common.config.schema.ContentSchema.Kind kind,JsonObject flat){
+        if(kind==com.dragonminez.common.config.schema.ContentSchema.Kind.QUEST){
+            Quest parsed=QuestParser.parseQuest(flat);
+            if(parsed==null)throw new IllegalArgumentException("Invalid quest: "+file);
+            for(int i=0;i<parsed.getObjectives().size();i++)if(parsed.getObjectives().get(i).isPlaceholder())
+                throw new IllegalArgumentException("Invalid quest objective["+i+"] in "+file);
+            for(int i=0;i<parsed.getRewards().size();i++)if(parsed.getRewards().get(i).isPlaceholder())
+                throw new IllegalArgumentException("Invalid quest reward["+i+"] in "+file);
+        }else for(String key:List.of("id","name","questFolder"))
+            if(!flat.has(key)||!flat.get(key).isJsonPrimitive()||flat.get(key).getAsString().isBlank())
+                throw new IllegalArgumentException("Missing saga field: "+key);
+    }
     private static JsonObject loadContent(Path file,com.dragonminez.common.config.schema.ContentSchema.Kind kind)throws IOException{
-        return com.dragonminez.common.config.schema.ContentMigration.load(file,kind,flat->{
-            if(kind==com.dragonminez.common.config.schema.ContentSchema.Kind.QUEST){
-                if(QuestParser.parseQuest(flat)==null)throw new IllegalArgumentException("Invalid quest: "+file);
-            }else for(String key:List.of("id","name","questFolder"))
-                if(!flat.has(key)||!flat.get(key).isJsonPrimitive()||flat.get(key).getAsString().isBlank())
-                    throw new IllegalArgumentException("Missing saga field: "+key);
-        });
+        try {
+            return com.dragonminez.common.config.schema.ContentMigration.load(file,kind,flat->validateContent(file,kind,flat));
+        } catch(IOException|RuntimeException ex) {
+            com.dragonminez.common.config.schema.ContentMigration.discard(file);
+            JsonObject fallback=QuestUpgrader.defaultFor(file);
+            if(fallback==null)throw ex;
+            fallback=com.dragonminez.common.config.schema.ContentSchema.decode(kind,fallback);
+            validateContent(file,kind,fallback);
+            LogUtil.error(Env.COMMON,"Invalid content '{}': {}. Using bundled default in memory; original left untouched.",file,ex.getMessage());
+            JsonLoadReport.error("quests",file.toString(),"Invalid content; bundled default loaded in memory: "+ex.getMessage());
+            return fallback;
+        }
     }
 
 	private static void loadSingleSagaFile(Path sagaDir, Path file, Map<String, String> sagaSources) {
@@ -307,13 +325,15 @@ public class QuestRegistry {
 		try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
 			JsonObject root = loadContent(file,com.dragonminez.common.config.schema.ContentSchema.Kind.SAGA);
 			if (root == null) {
-				reportError(display, "the file is empty, saga skipped");
+				com.dragonminez.common.config.schema.ContentMigration.discard(file);
+                reportError(display, "the file is empty, saga skipped");
 				return;
 			}
 			QuestParser.validateSaga("quests", display, root);
 			for (String key : new String[]{"id", "name"}) {
 				if (!root.has(key) || !root.get(key).isJsonPrimitive() || root.get(key).getAsString().isBlank()) {
-					reportError(display, "missing required field '" + key + "', saga skipped");
+					com.dragonminez.common.config.schema.ContentMigration.discard(file);
+                reportError(display, "missing required field '" + key + "', saga skipped");
 					return;
 				}
 			}
@@ -321,7 +341,8 @@ public class QuestRegistry {
 			String sagaId = root.get("id").getAsString();
 			String previous = sagaSources.putIfAbsent(sagaId, display);
 			if (previous != null) {
-				reportError(display, "duplicate saga id '" + sagaId + "' (already loaded from " + previous + "), saga skipped");
+				com.dragonminez.common.config.schema.ContentMigration.discard(file);
+                reportError(display, "duplicate saga id '" + sagaId + "' (already loaded from " + previous + "), saga skipped");
 				return;
 			}
 
@@ -334,6 +355,7 @@ public class QuestRegistry {
 
 			LogUtil.info(Env.COMMON, "Loaded saga: {} ({} quests)", saga.getName(), saga.getQuests().size());
 		} catch (Exception e) {
+            com.dragonminez.common.config.schema.ContentMigration.discard(file);
 			LogUtil.error(Env.COMMON, "Failed to load saga file: {}", display, e);
 			JsonLoadReport.error("quests", display, "Malformed saga JSON, file skipped: " + JsonLoadReport.rootCause(e));
 		}
@@ -406,21 +428,24 @@ public class QuestRegistry {
 					JsonObject root = loadContent(file,com.dragonminez.common.config.schema.ContentSchema.Kind.QUEST);
 					QuestParser.validate("quests", display, root);
 					Quest quest = parseQuestOrReport(display, root);
-					if (quest == null) continue;
+					if (quest == null) {com.dragonminez.common.config.schema.ContentMigration.discard(file);continue;}
 
 					if (quest.getStringId() != null) {
-						reportError(display, "saga quests need a numeric 'id' (found \"" + quest.getStringId() + "\"), file skipped");
+						com.dragonminez.common.config.schema.ContentMigration.discard(file);
+                reportError(display, "saga quests need a numeric 'id' (found \"" + quest.getStringId() + "\"), file skipped");
 						continue;
 					}
 					String previous = idSources.putIfAbsent(quest.getId(), display);
 					if (previous != null) {
-						reportError(display, "duplicate quest id " + quest.getId() + " (already used by " + previous + "), file skipped");
+						com.dragonminez.common.config.schema.ContentMigration.discard(file);
+                reportError(display, "duplicate quest id " + quest.getId() + " (already used by " + previous + "), file skipped");
 						continue;
 					}
 
 					quests.add(quest);
 					reportIssues(display, root, quest);
 				} catch (Exception e) {
+            com.dragonminez.common.config.schema.ContentMigration.discard(file);
 					LogUtil.error(Env.COMMON, "Failed to load quest file: {}", display, e);
 					JsonLoadReport.error("quests", display, "Malformed quest JSON, file skipped: " + JsonLoadReport.rootCause(e));
 				}
@@ -499,22 +524,25 @@ public class QuestRegistry {
 			JsonObject root = loadContent(file,com.dragonminez.common.config.schema.ContentSchema.Kind.QUEST);
 			QuestParser.validate("quests", display, root);
 			Quest quest = parseQuestOrReport(display, root);
-			if (quest == null) return;
+			if (quest == null) {com.dragonminez.common.config.schema.ContentMigration.discard(file);return;}
 
 			String effectiveId = quest.getEffectiveId();
 			if (effectiveId.indexOf(':') >= 0) {
-				reportError(display, "side quest id '" + effectiveId + "' must not contain ':' (reserved for saga quest keys), file skipped");
+				com.dragonminez.common.config.schema.ContentMigration.discard(file);
+                reportError(display, "side quest id '" + effectiveId + "' must not contain ':' (reserved for saga quest keys), file skipped");
 				return;
 			}
 			String previous = idSources.putIfAbsent(effectiveId, display);
 			if (previous != null) {
-				reportError(display, "duplicate side quest id '" + effectiveId + "' (already loaded from " + previous + "), file skipped");
+				com.dragonminez.common.config.schema.ContentMigration.discard(file);
+                reportError(display, "duplicate side quest id '" + effectiveId + "' (already loaded from " + previous + "), file skipped");
 				return;
 			}
 
 			LOADED_QUESTS.put(effectiveId, quest);
 			reportIssues(display, root, quest);
 		} catch (Exception e) {
+            com.dragonminez.common.config.schema.ContentMigration.discard(file);
 			LogUtil.error(Env.COMMON, "Failed to load side-quest file: {}", display, e);
 			JsonLoadReport.error("quests", display, "Malformed side-quest JSON, file skipped: " + JsonLoadReport.rootCause(e));
 		}

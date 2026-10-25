@@ -480,16 +480,16 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 		int scaledKiDamage = (int) (statsData.getKiDamage() * tech.getDamageMultiplier() * tech.getOutputMultiplier());
 		String utilKey = tech.getUtility() == KiAttackData.Utility.HEAL ? "gui.dragonminez.technique.heal" : "gui.dragonminez.technique.damage";
 
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.type").append(": ").append(tr("technique.type." + tech.getKiType().name().toLowerCase())), panelX + 15, yOffset, 0xDDDDDD); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.type").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr("technique.type." + tech.getKiType().name().toLowerCase())), panelX + 15, yOffset, 0xDDDDDD); yOffset += 12;
 		yOffset = renderAllowedRaces(graphics, panelX, yOffset);
-		TextUtil.drawStringWithBorder(graphics, this.font, tr(utilKey).append(": ").append(txt(String.valueOf(scaledKiDamage))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.size").append(": ").append(txt(String.format(Locale.US, "%.1f", tech.getSize()))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.speed").append(": ").append(txt(String.format(Locale.US, "%.1f", tech.getSpeed()))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.armor_pen").append(": ").append(txt(String.valueOf(tech.getArmorPenetration()))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.cast_time").append(": ").append(txt(String.format(Locale.US, "%.1fs", tech.getActualCastTime() / 20.0f))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.cooldown").append(": ").append(txt(String.format(Locale.US, "%.1fs", tech.getActualCooldown() / 20.0f))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr(utilKey).append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.valueOf(scaledKiDamage))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.size").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.format(Locale.US, "%.1f", tech.getSize()))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.speed").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.format(Locale.US, "%.1f", tech.getSpeed()))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.armor_pen").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.valueOf(tech.getArmorPenetration()))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.cast_time").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.c142d89262", String.format(Locale.ROOT, "%.1f", tech.getActualCastTime() / 20.0f)).getString())), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.cooldown").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.c142d89262", String.format(Locale.ROOT, "%.1f", tech.getActualCooldown() / 20.0f)).getString())), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
 
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.energy_cost").append(": ").append(txt(String.format(Locale.US, "%.1f", tech.getCalculatedCost(statsData)))), panelX + 15, yOffset, 0xFFAAAA); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.energy_cost").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.format(Locale.US, "%.1f", tech.getCalculatedCost(statsData)))), panelX + 15, yOffset, 0xFFAAAA); yOffset += 12;
 
 		renderLearnedFooter(graphics, panelX, yOffset);
 	}
@@ -504,13 +504,13 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 
 		int scaledStrikeDamage = (int) (statsData.getStrikeDamage() * tech.getDamageMultiplier());
 
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.type").append(": ").append(tr("technique.type.strike")), panelX + 15, yOffset, 0xDDDDDD); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.type").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr("technique.type.strike")), panelX + 15, yOffset, 0xDDDDDD); yOffset += 12;
 		yOffset = renderAllowedRaces(graphics, panelX, yOffset);
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.damage").append(": ").append(txt(String.valueOf(scaledStrikeDamage))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.cast_time").append(": ").append(txt(String.format(Locale.US, "%.1fs", tech.getActualCastTime() / 20.0f))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.cooldown").append(": ").append(txt(String.format(Locale.US, "%.1fs", tech.getActualCooldown() / 20.0f))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.damage").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.valueOf(scaledStrikeDamage))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.cast_time").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.c142d89262", String.format(Locale.ROOT, "%.1f", tech.getActualCastTime() / 20.0f)).getString())), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.cooldown").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.c142d89262", String.format(Locale.ROOT, "%.1f", tech.getActualCooldown() / 20.0f)).getString())), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
 
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.energy_cost").append(": ").append(txt(String.format(Locale.US, "%.1f", tech.getCalculatedCost(statsData)))), panelX + 15, yOffset, 0xFFAAAA); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.energy_cost").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.format(Locale.US, "%.1f", tech.getCalculatedCost(statsData)))), panelX + 15, yOffset, 0xFFAAAA); yOffset += 12;
 
 		renderLearnedFooter(graphics, panelX, yOffset);
 	}
@@ -523,15 +523,15 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr(tech.getName()).withStyle(ChatFormatting.BOLD), panelX + 70, yOffset, 0xFFFFFFFF); yOffset += 24;
 
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.type").append(": ").append(tr("technique.type.evasion")), panelX + 15, yOffset, 0xDDDDDD); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.type").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(tr("technique.type.evasion")), panelX + 15, yOffset, 0xDDDDDD); yOffset += 12;
 		yOffset = renderAllowedRaces(graphics, panelX, yOffset);
 		if (tech.getActualDamageMultiplier() > 0.0f) {
-			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.damage").append(": ").append(txt(String.valueOf((int) tech.getActualHitDamage(statsData)))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
+			TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.damage").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.valueOf((int) tech.getActualHitDamage(statsData)))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
 		}
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.duration").append(": ").append(txt(String.format(Locale.US, "%.1fs", tech.getActualDurationTicks() / 20.0f))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.cooldown").append(": ").append(txt(String.format(Locale.US, "%.1fs", tech.getActualCooldown() / 20.0f))), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.duration").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.c142d89262", String.format(Locale.ROOT, "%.1f", tech.getActualDurationTicks() / 20.0f)).getString())), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.cooldown").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(net.minecraft.network.chat.Component.translatable("text.dragonminez.format.c142d89262", String.format(Locale.ROOT, "%.1f", tech.getActualCooldown() / 20.0f)).getString())), panelX + 15, yOffset, 0xFFFFFF); yOffset += 12;
 
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.energy_cost").append(": ").append(txt(String.format(Locale.US, "%.1f", tech.getCalculatedCost(statsData)))), panelX + 15, yOffset, 0xFFAAAA); yOffset += 12;
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.energy_cost").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(txt(String.format(Locale.US, "%.1f", tech.getCalculatedCost(statsData)))), panelX + 15, yOffset, 0xFFAAAA); yOffset += 12;
 
 		renderLearnedFooter(graphics, panelX, yOffset);
 	}
@@ -539,7 +539,7 @@ public class MastersSkillsScreen extends BaseMenuScreen {
 	private int renderAllowedRaces(GuiGraphics graphics, int panelX, int yOffset) {
 		SkillsConfig skillsConfig = ConfigManager.getSkillsConfig();
 		int labelColor = skillsConfig.isSkillAllowedForRace(selectedSkill, getPlayerRaceName(), statsData != null && statsData.getStatus().isAndroidUpgraded()) ? 0xDDDDDD : 0xFF5555;
-		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.races").append(": ").append(skillsConfig.describeAllowedRaces(selectedSkill)), panelX + 15, yOffset, labelColor);
+		TextUtil.drawStringWithBorder(graphics, this.font, tr("gui.dragonminez.technique.races").append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.45822f54a0")).append(skillsConfig.describeAllowedRaces(selectedSkill)), panelX + 15, yOffset, labelColor);
 		return yOffset + 12;
 	}
 

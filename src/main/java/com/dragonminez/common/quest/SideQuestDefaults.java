@@ -36,7 +36,6 @@ final class SideQuestDefaults {
 	private SideQuestDefaults() {} // utility class
 
 	static void createDefaultSideQuestFiles(Path sideQuestDir) {
-		if (!ConfigManager.getServerConfig().getGameplay().getCreateDefaultSideQuests()) return;
 		dmzBase = sideQuestDir.getParent(); // <world>/dragonminez
 		createClassicCategory(sideQuestDir);
 		createTrainingCategory(sideQuestDir);
@@ -59,6 +58,9 @@ final class SideQuestDefaults {
 
 	private static void writeQuestFile(Path dir, String filename, JsonObject quest) {
 		try {
+            if(!ConfigManager.getServerConfig().getGameplay().getCreateDefaultSideQuests()){
+                QuestUpgrader.registerDefault(dir.resolve(filename),quest);return;
+            }
 			Files.createDirectories(dir);
 			QuestUpgrader.upgradeOrWrite(dmzBase, dir.resolve(filename), quest);
 		} catch (IOException e) { LogUtil.error(Env.COMMON, "Failed to create default side-quest file: {}", filename, e); }

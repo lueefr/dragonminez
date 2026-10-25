@@ -91,7 +91,7 @@ public class HairEditorScreen extends ScaledScreen {
     public HairEditorScreen(Screen previousScreen,Character character) { this(previousScreen,character,null); }
 
     public HairEditorScreen(Screen previousScreen,Character character,String formId) {
-		super(formId==null?HairEditorUi.tr("gui.dragonminez.hair_editor.title"):HairEditorUi.tr("gui.dragonminez.hair_editor.title").copy().append(" — ").append(com.dragonminez.api.forms.FormHair.name(character.getRaceName(),formId)));
+		super(formId==null?HairEditorUi.tr("gui.dragonminez.hair_editor.title"):HairEditorUi.tr("gui.dragonminez.hair_editor.title").copy().append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.3b2e8119b6")).append(com.dragonminez.api.forms.FormHair.name(character.getRaceName(),formId)));
 		this.previousScreen = previousScreen;
 		this.character = character;
 

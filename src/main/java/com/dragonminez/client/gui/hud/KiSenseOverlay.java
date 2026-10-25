@@ -158,7 +158,8 @@ public class KiSenseOverlay {
 	private static void drawBattlePower(GuiGraphics guiGraphics, Minecraft mc, int id, boolean player) {
 		float bp = KiSenseScan.getCachedBP(id);
 		boolean maxed = player ? bp >= Float.MAX_VALUE : bp >= Integer.MAX_VALUE;
-		String text = maxed ? "BP: ???" : "BP: " + String.format("%,.0f", bp).replace(",", ".");
+		String text = net.minecraft.network.chat.Component.translatable("text.dragonminez.ki_sense.power",
+                maxed ? net.minecraft.network.chat.Component.translatable("text.dragonminez.unknown_value") : String.format("%,.0f", bp).replace(",", ".")).getString();
 		float y = -BORDER - 1.5f - mc.font.lineHeight * BP_SCALE;
 		HudRender.dmzText(guiGraphics, text, WIDTH / 2.0f, y, BP_SCALE, 0.5f, BP_COLOR, 1.0f);
 	}

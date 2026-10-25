@@ -471,7 +471,7 @@ public class ConfigManager {
 				try {
 					LOADER.saveDefaultFromTemplate(path, templateName);
 					config = LOADER.loadConfig(path, clazz);
-					if (isOutdated(versionGetter.apply(config))) overwrite = true;
+					overwrite = isOutdated(versionGetter.apply(config));
 				} catch (Exception e) {
 					reason = "Template loading failed: " + e.getMessage();
 				}
@@ -786,8 +786,8 @@ public class ConfigManager {
 	private static void saveWithAddedDefaults(Path path, Object config) {
 		LogUtil.warn(Env.COMMON, "Added missing default entries to {}", path.getFileName());
         try {
-            if(config instanceof SkillsConfig && Files.exists(path)) {
-                var kind=com.dragonminez.common.config.schema.ContentSchema.Kind.SKILLS;
+            var kind=com.dragonminez.common.config.schema.ContentAdapters.kind(config.getClass());
+            if(kind!=null && Files.exists(path)) {
                 com.dragonminez.common.config.schema.ContentMigration.update(path,kind,
                         com.dragonminez.common.config.schema.ContentSchema.decode(kind,GSON.toJsonTree(config).getAsJsonObject()));
             } else LOADER.saveConfig(path, config);
@@ -806,7 +806,7 @@ public class ConfigManager {
 
 		if (skillsConfig != null && characterConfig.normalizeFormSkillKeys(skillsConfig.getFormSkills())) {
 			LogUtil.warn(Env.COMMON, "Normalized legacy form-skill keys in character.json for race '{}'", raceName);
-			try { LOADER.saveConfig(racePath.resolve("character.json"), characterConfig); } catch (Exception e) {
+			try { saveWithAddedDefaults(racePath.resolve("character.json"), characterConfig); } catch (Exception e) {
 				LogUtil.error(Env.COMMON, "Failed to save normalized character.json for race '{}': {}", raceName, e.getMessage());
 			}
 		}
@@ -825,7 +825,7 @@ public class ConfigManager {
 				folded = true;
 			}
 			if (folded) {
-				try { LOADER.saveConfig(statsPath, statsConfig); } catch (Exception e) {
+				try { saveWithAddedDefaults(statsPath, statsConfig); } catch (Exception e) {
 					LogUtil.error(Env.COMMON, "Failed to save migrated stats.json for race '{}': {}", raceName, e.getMessage());
 				}
 				LogUtil.warn(Env.COMMON, "Migrated user-modified DEF_scaling to flat-defense units for race '{}'", raceName);

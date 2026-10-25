@@ -109,11 +109,11 @@ public class DragonBallsCommand {
 				int listed = 0;
 				for (BlockPos pos : active) {
 					if (listed++ >= MAX_LISTED_POSITIONS) break;
-					positions.append(" ").append(positionLink(source, level, pos, true));
+					positions.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9")).append(positionLink(source, level, pos, true));
 				}
 				for (BlockPos pos : pending) {
 					if (listed++ >= MAX_LISTED_POSITIONS) break;
-					positions.append(" ").append(positionLink(source, level, pos, false));
+					positions.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.36a9e7f1c9")).append(positionLink(source, level, pos, false));
 				}
 				int hidden = active.size() + pending.size() - MAX_LISTED_POSITIONS;
 				if (hidden > 0) positions.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.dragonballscommand.d7c42231d7" , hidden).withStyle(ChatFormatting.DARK_GRAY));

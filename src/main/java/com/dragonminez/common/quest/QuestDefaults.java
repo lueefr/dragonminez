@@ -19,7 +19,6 @@ final class QuestDefaults {
 
 	static void createDefaultQuestFiles(Path questsDir) {
 		if (!ConfigManager.getServerConfig().getGameplay().getStoryModeEnabled()) return;
-		if (!ConfigManager.getServerConfig().getGameplay().getCreateDefaultSagas()) return;
 
 		dmzBase = questsDir.getParent();
 
@@ -36,6 +35,9 @@ final class QuestDefaults {
 
 	private static void writeQuest(Path dir, String filename, JsonObject quest) {
 		try {
+            if(!ConfigManager.getServerConfig().getGameplay().getCreateDefaultSagas()){
+                QuestUpgrader.registerDefault(dir.resolve(filename),quest);return;
+            }
 			Files.createDirectories(dir);
 			QuestUpgrader.upgradeOrWrite(dmzBase, dir.resolve(filename), quest);
 		} catch (IOException e) {

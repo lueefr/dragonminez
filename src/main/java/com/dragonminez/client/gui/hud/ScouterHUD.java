@@ -367,9 +367,9 @@ public class ScouterHUD {
 
 	private static String formatBP(double bp) {
 		if (bp < 10000) return String.valueOf((long) bp);
-		if (bp < 99950) return String.format(Locale.ROOT, "%.1fk", bp / 1000.0);
+		if (bp < 99950) return net.minecraft.network.chat.Component.translatable("text.dragonminez.format.8ea9a9e91e", String.format(Locale.ROOT, "%.1f", bp / 1000.0)).getString();
 		if (bp < 1000000) return (long) (bp / 1000.0) + "k";
-		if (bp < 99950000) return String.format(Locale.ROOT, "%.1fm", bp / 1000000.0);
+		if (bp < 99950000) return net.minecraft.network.chat.Component.translatable("text.dragonminez.format.a8bef0fdaf", String.format(Locale.ROOT, "%.1f", bp / 1000000.0)).getString();
 		return (long) (bp / 1000000.0) + "m";
 	}
 
