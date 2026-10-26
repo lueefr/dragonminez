@@ -113,6 +113,18 @@ Use this schema for each memory entry:
 
 Add durable memories below this line, newest first.
 
+### 2026-10-25 - Restore Stencil State Around Aura Rendering
+
+- Type: pitfall
+- Status: active
+- Source: debugging
+- Scope: NeoForge 1.21.1 client aura/model rendering
+- Summary: Leaving stencil writes disabled can hide distant terrain when another renderer initializes a new framebuffer, including initial entry, resizing and dimension changes.
+- Guidance: Use the scoped `client/render/util/StencilState` guard around stencil changes. Restore actual front/back masks, comparisons, operations and enablement, and keep Minecraft's cached state synchronized. Render-state layers must balance setup and cleanup, including nested calls.
+- Do Not: Leave a zero write mask as a cleanup default or assume that disabling the stencil test restores its write mask. Do not patch third-party JARs to compensate for state leaked by this mod.
+- Verification: Exercise aura cleanup and render-state layers with non-default front/back masks, then test distant rendering after a resize and a dimension round trip.
+- Related: `client/render/effects/AuraRenderer.java`, `client/render/DMZPlayerRenderer.java`, `client/render/util/ModRenderTypes.java`
+
 ### 2026-10-25 - Wiki Is For User Customization
 
 - Type: prohibition

@@ -6,6 +6,7 @@ import com.dragonminez.client.animation.IPlayerAnimatable;
 import com.dragonminez.client.render.hair.HairRenderCapture;
 import com.dragonminez.client.render.hair.HairRenderContext;
 import com.dragonminez.client.render.util.SkinPaintContext;
+import com.dragonminez.client.render.util.StencilState;
 import com.dragonminez.client.render.layer.*;
 import com.dragonminez.client.systems.BioSwellRenderState;
 import com.dragonminez.client.systems.FormVisualTransition;
@@ -230,40 +231,40 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 
 		boolean isAuraActive = com.dragonminez.api.forms.FormVisuals.flag(stats,"aura",stats.getStatus().isAuraActive() || stats.getStatus().isPermanentAura() || stats.getStatus().isForcedAura());
 
-		if (isAuraActive) {
-			if (bufferSource instanceof MultiBufferSource.BufferSource bs) bs.endBatch();
-			GL11.glEnable(GL11.GL_STENCIL_TEST);
-			RenderSystem.stencilMask(0xFF);
-			RenderSystem.stencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-			RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-		}
-
-		boolean demonEye = RelicItemsStatusHandler.isDemonEyeActive(stats) && !entity.isSpectator() && !entity.isInvisible();
-		MultiBufferSource baseSource = demonEye ? new SaiyanInvaderRenderer.TintedBufferSource(bufferSource, DEMON_EYE_TINT) : bufferSource;
-		baseSource = GodRitualShellEffect.wrap(entity, stats, baseSource, partialTick);
-		MultiBufferSource renderSource = baseSource;
-		if (maskBufferSource != null) {
-			maskBufferSource.wrap(baseSource);
-			maskBufferSource.setForceCaptureAll(true);
-			renderSource = maskBufferSource;
-		}
-		MultiBufferSource borderSource = demonEye
-				? AuraBorderRenderer.begin(entity, renderSource, DEMON_EYE_FLAME_OUTER, DEMON_EYE_FLAME_INNER, partialTick)
-				: AuraBorderRenderer.begin(entity, renderSource, AuraBorderRenderer.playerColor(entity, stats), partialTick);
-		try {
-			super.render(entity, entityYaw, partialTick, poseStack, borderSource, packedLight);
-		} finally {
-			AuraBorderRenderer.end(borderSource);
-			if (maskBufferSource != null) {
-				maskBufferSource.setForceCaptureAll(false);
-				maskBufferSource.setMaskCaptureEnabled(true);
+		try (StencilState stencil = isAuraActive ? StencilState.capture() : null) {
+			if (isAuraActive) {
+				if (bufferSource instanceof MultiBufferSource.BufferSource bs) bs.endBatch();
+				GL11.glEnable(GL11.GL_STENCIL_TEST);
+				RenderSystem.stencilMask(0xFF);
+				RenderSystem.stencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+				RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 			}
-		}
 
-		if (isAuraActive) {
-			if (bufferSource instanceof MultiBufferSource.BufferSource bs) bs.endBatch();
-			GL11.glDisable(GL11.GL_STENCIL_TEST);
-			RenderSystem.stencilMask(0x00);
+			boolean demonEye = RelicItemsStatusHandler.isDemonEyeActive(stats) && !entity.isSpectator() && !entity.isInvisible();
+			MultiBufferSource baseSource = demonEye ? new SaiyanInvaderRenderer.TintedBufferSource(bufferSource, DEMON_EYE_TINT) : bufferSource;
+			baseSource = GodRitualShellEffect.wrap(entity, stats, baseSource, partialTick);
+			MultiBufferSource renderSource = baseSource;
+			if (maskBufferSource != null) {
+				maskBufferSource.wrap(baseSource);
+				maskBufferSource.setForceCaptureAll(true);
+				renderSource = maskBufferSource;
+			}
+			MultiBufferSource borderSource = demonEye
+					? AuraBorderRenderer.begin(entity, renderSource, DEMON_EYE_FLAME_OUTER, DEMON_EYE_FLAME_INNER, partialTick)
+					: AuraBorderRenderer.begin(entity, renderSource, AuraBorderRenderer.playerColor(entity, stats), partialTick);
+			try {
+				super.render(entity, entityYaw, partialTick, poseStack, borderSource, packedLight);
+			} finally {
+				AuraBorderRenderer.end(borderSource);
+				if (maskBufferSource != null) {
+					maskBufferSource.setForceCaptureAll(false);
+					maskBufferSource.setMaskCaptureEnabled(true);
+				}
+			}
+
+			if (isAuraActive) {
+				if (bufferSource instanceof MultiBufferSource.BufferSource bs) bs.endBatch();
+			}
 		}
 
 		this.shadowRadius = 0.4f * ((scalingX + scalingZ) / 2.0f);

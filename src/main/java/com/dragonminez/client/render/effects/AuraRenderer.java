@@ -8,6 +8,7 @@ import com.dragonminez.client.render.util.AuraMeshFactory;
 import com.dragonminez.client.render.util.IrisCompat;
 import com.dragonminez.client.render.util.ModRenderTypes;
 import com.dragonminez.client.render.util.PlayerEffectQueue;
+import com.dragonminez.client.render.util.StencilState;
 import com.dragonminez.client.systems.FormVisualTransition;
 import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.common.config.ConfigManager;
@@ -567,12 +568,13 @@ public class AuraRenderer {
 	}
 
 	public static void cleanCaches(Set<Integer> currentFramePlayers) {
-		RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();
-		if (!mainTarget.isStencilEnabled()) mainTarget.enableStencil();
-		mainTarget.bindWrite(false);
-		RenderSystem.stencilMask(0xFF);
-		RenderSystem.clear(GL11.GL_STENCIL_BUFFER_BIT, Minecraft.ON_OSX);
-		RenderSystem.stencilMask(0x00);
+        try (StencilState stencil = StencilState.capture()) {
+            RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();
+            if (!mainTarget.isStencilEnabled()) mainTarget.enableStencil();
+            mainTarget.bindWrite(false);
+            RenderSystem.stencilMask(0xFF);
+            RenderSystem.clear(GL11.GL_STENCIL_BUFFER_BIT, Minecraft.ON_OSX);
+        }
 
 		LAST_RENDER_TIME.keySet().removeIf(id -> !currentFramePlayers.contains(id) && !AURA_CACHE.containsKey(id));
 		PULSE_LAST_RENDER_TIME.keySet().removeIf(id -> !currentFramePlayers.contains(id) && !AURA_CACHE.containsKey(id));

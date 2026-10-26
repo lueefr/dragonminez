@@ -27,13 +27,16 @@ public class ModRenderTypes extends RenderType {
         super(pName, pFormat, pMode, pBufferSize, pAffectsCrumbling, pSortOnUpload, pSetupState, pClearState);
     }
 
+    private static final java.util.Deque<StencilState> STENCIL_STATES = new java.util.ArrayDeque<>();
+
     public static final RenderStateShard.LayeringStateShard STENCIL_READ_NOTEQUAL = new RenderStateShard.LayeringStateShard("stencil_read_notequal", () -> {
+        STENCIL_STATES.push(StencilState.capture());
         GL11.glEnable(GL11.GL_STENCIL_TEST);
         RenderSystem.stencilMask(0x00);
         RenderSystem.stencilFunc(GL11.GL_NOTEQUAL, 1, 0xFF);
         RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
     }, () -> {
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        STENCIL_STATES.pop().close();
     });
 
     public static RenderType getCustomAura(ResourceLocation texture) {
