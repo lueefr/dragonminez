@@ -2,6 +2,7 @@ package com.dragonminez.server.world.feature;
 
 import com.dragonminez.Reference;
 import com.dragonminez.server.world.dimension.OtherworldDimension;
+import com.dragonminez.server.world.dimension.OtherworldTournamentGrounds;
 import com.dragonminez.server.world.gen.OtherworldGeneration;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -46,14 +47,15 @@ public final class OtherworldFixedStructuresFeature extends Feature<NoneFeatureC
 		if (!otherworldLevel && !otherworldGenerator) return false;
 
 		ChunkPos chunkPos = new ChunkPos(context.origin());
+        boolean tournament = OtherworldTournamentGrounds.placeInGeneratedChunk(world, chunkPos);
 		TemplateVerticalBounds templateBounds = TEMPLATE_BOUNDS.get(chunkPos.toLong());
-		if (templateBounds == null) return false;
+		if (templateBounds == null) return tournament;
 
 		BlockPos origin = new BlockPos(chunkPos.getMinBlockX(), templateBounds.minY(), chunkPos.getMinBlockZ());
 		BoundingBox chunkBounds = new BoundingBox(
 				chunkPos.getMinBlockX(), templateBounds.minY(), chunkPos.getMinBlockZ(),
 				chunkPos.getMaxBlockX(), templateBounds.maxY(), chunkPos.getMaxBlockZ());
-		return placeChunkTemplate(world, chunkPos, origin, chunkBounds, context.random());
+		return placeChunkTemplate(world, chunkPos, origin, chunkBounds, context.random()) || tournament;
 	}
 
 	static boolean placeChunkTemplate(WorldGenLevel world, ChunkPos sourceChunk, BlockPos origin,

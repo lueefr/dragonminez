@@ -619,6 +619,7 @@ public class ForgeCommonEvents {
 
 	@SubscribeEvent
 	public static void onServerStopping(ServerStoppingEvent event) {
+        com.dragonminez.server.world.dimension.OtherworldTournamentGrounds.reset();
 		StorageManager.shutdown();
 		com.dragonminez.server.world.structure.placement.StructureSpawnPlanner.reset();
 		com.dragonminez.server.world.tournament.Tournament.Manager.reset();
