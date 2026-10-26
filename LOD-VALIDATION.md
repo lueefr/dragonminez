@@ -70,3 +70,11 @@ The pre-fix cached-world image and the post-fix fresh-world image are distinct t
 Existing Minecraft chunks and addon LOD databases are not automatically rewritten. Saved terrain can retain differences from current generation. The supplied Voxy SeedGen 0.3.0 pair previously failed in its required far-plane injection; no third-party JAR was patched, and compatibility with that pair is not claimed.
 
 Final stencil candidate SHA-256: `b3eb1a8b4df31690d93de19a564b60ae2ea4286318d063d889c644b2396139a3`. The distributed JAR contains neither `lodsmoke` nor `rulessmoke` harness classes. Historical combined-branch checks remain in `HOTFIX-VALIDATION.md`; they do not replace this branch's tests. Developer diagnostics stay in this repository, outside the customization wiki.
+
+## Pause-menu compatibility follow-up
+
+The pause menu now leaves feedback/report widgets hidden when another menu mod has replaced their row. This avoids resurrecting Discord/Patreon buttons on top of Better Modlist's Mods button. No dependency on Better Modlist was added.
+
+Java 21 `build` (including 26 unit tests), the translation audit and `git diff --check` passed. An isolated Minecraft client with the user's unmodified Better Modlist 21.1.5 checked REPLACE, INSERT, ICON and disabled game-menu modification: all visible widget rectangles were disjoint, and the REPLACE Mods button opened Better Modlist. `PAUSE_FINAL_PASS` and normal `BUILD SUCCESSFUL` shutdown are in `/home/lucas/Dev/dragonminez-port-tools/pause-modlist-smoke/run.log`. The replacement-row capture is `game/screenshots/2026-10-25_21.55.29.png` in that harness.
+
+The UI follow-up artifact SHA-256 is `cabe837c98183fa085e0f586d0b7acb8fe0b56b382eb7be58e4b9eae495892f9`; it adds only the hidden-widget guard to the LOD-tested source above. It was installed in the requested PrismLauncher instance in place of the previous JAR. Smoke harness classes are absent from the installed artifact.
