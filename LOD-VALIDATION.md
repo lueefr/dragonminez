@@ -1,51 +1,72 @@
-# Otherworld / Voxy progress — 2026-10-25
+# Otherworld / distant terrain validation — 2026-10-25
 
-Branch: `fix/2.2-neoforge-1.21.1-lod`, updated with `main` through PR #22. Minecraft 1.21.1, NeoForge 21.1.238, Java 21. Mod version remains 2.2. PR #7 remains a draft.
+Branch: `fix/2.2-neoforge-1.21.1-lod`, updated with `main` through PR #22. Minecraft 1.21.1, NeoForge 21.1.238, Java 21. Mod version remains 2.2. The final packaged candidate passed the Neo-Voxy and DH matrices below.
 
-## Change
+## Generation
 
-- Removed all three startup/dimension-load imports of bundled MCA terrain and the region-repair implementation. Existing saves are never replaced by that loader. Fresh chunks now use the published density graph, surface rules and the existing per-chunk landmark feature.
-- Extended the landmark feature guard to recognize Otherworld noise settings in auxiliary levels, while retaining dimension recognition for existing datapack overrides.
-- Added two GameTests for fresh noise/surface columns and auxiliary-level landmark generation.
-- Added `extract_otherworld_templates.py --check` for a read-only round-trip comparison of existing templates and their index with the original regions.
+Bundled MCA terrain is no longer imported or repaired at startup. Existing saved regions and player changes remain untouched. Fresh chunks use the published vanilla density graph, surface rules and per-chunk feature pipeline. The original saved `(320,320)` column had no clouds above Y 96; fresh generation has two separated decks there.
 
-The original bundled column `(320, 320)` contains no non-air blocks above Y 96. Current procedural generation has both cloud decks there. This confirms a discrepancy between the old imported terrain and the current graph, independently of any renderer.
+All 348 fixed landmark templates retain explicit air and block-entity NBT. The feature accepts the Otherworld dimension or the Otherworld noise-settings key in an auxiliary worldgen level. Unrelated generators are rejected.
 
-## Automated validation
+The tournament schematic now also runs during `FEATURES`, with immutable chunk-local columns shared with the existing incremental builder. Runtime progression readiness, protection bounds and NPC placement retain the existing builder. Unfinished builder tickets and live level references are released at server shutdown. A fresh client test generated STONE_BRICKS at `(0,354,-1200)` before any player entered Otherworld, with `playerCount=0` and `runtimeBuilt=false`.
 
-- `build runGameTestServer`: 26 unit tests and all 40 required GameTests passed. `BUILD SUCCESSFUL` with normal server shutdown. Initial log: `/tmp/dmz-lod-progress-build-4.log`; final successful validation log: `/tmp/dmz-lod-progress-final-build.log`.
-- Read-only template verification passed: 348 templates, 4,831,278 positions (4,244,741 air and 586,537 non-air), 22 block entities and negative chunks; the shipped index and file set matched the source regions. Log: `/tmp/dmz-lod-templates-check.log`.
-- Source translation audit and its four Python regression tests passed; all 14 release-tool tests also passed.
-- `git diff --check` passed.
+## Automated checks
 
-## Minecraft with Neo-Voxy
+- Java 21 `build runGameTestServer`: 26 unit tests and all 43 required GameTests passed, including three new tournament schematic tests. Initial arena log: `/tmp/dmz-lod-arena-release-build.log`; initial stencil log: `/tmp/dmz-lod-stencil-build.log`. Final packaged validation: `/tmp/dmz-lod-stencil-final-build.log`.
+- Read-only template comparison passed: 348 templates, 4,831,278 positions (4,244,741 air, 586,537 non-air), 22 block entities, negative chunks and the complete index/file set. Log: `/tmp/dmz-lod-arena-templates-check.log`.
+- Translation audit: 6,786 bundled keys, 272 files, 2,063 static calls and 115 dynamic data calls. Its four Python regression tests passed; bundled language consistency passed.
+- All 14 release-tool tests passed. `git diff --check` passed.
 
-An isolated client loaded the packaged candidate with Sodium 0.8.13 and the supplied, unmodified Neo-Voxy `0.5.0-alpha.12-mc1.21.1-neoforge`. No SeedGen was loaded. The test used a new disposable world, software OpenGL on a separate virtual display, and normal integrated-server chunk generation.
+## Distant Horizons 3.3.3
 
-The actual generated columns at `(320,320)`, `(511,320)`, `(512,320)`, `(-321,-321)` and `(2048,2048)` matched the published noise's solid/air layout above Y 96. Both decks used cloud blocks. The fresh full chunk at `(-1,61)` contained ANDESITE at `(-1,162,980)` through features.
+An isolated client used the final packaged stencil candidate, Sodium 0.8.13 and the supplied unmodified DH 3.3.3 JAR, without SeedGen. The world was a disposable copy of the earlier freshly generated comparison world. No user world was modified. Settings: vanilla distance 4, DH distance 32, internal-server generation, CHUNKS_ONLY plan and two generator threads. Software OpenGL ran on a separate virtual display.
 
-The harness explicitly submitted two full chunks through Voxy's own `tryIngestChunk` API and read its `WorldEngine`/`Mapper` data back. The landmark remained ANDESITE; the `(320,320)` column retained 8 lower-deck cloud blocks and 13 upper-deck cloud blocks with an empty gap. The Voxy render system initialized its normal pipeline and shut down normally. This establishes full-chunk ingestion for those fixtures, not automatic generation of unseen terrain.
+The native terrain-data API, read off the render thread with a fresh cache per query, confirmed:
 
-Logs: `/home/lucas/Dev/dragonminez-port-tools/lod-voxy-smoke/run.log` and `final.log` in the same directory. Both clients finished with `BUILD SUCCESSFUL`. The second run used the exact packaged checksum below, vanilla distance 4, and waited 20 seconds after submitting the chunks. Both captures show sky, so neither establishes distant rendering coverage. The data-ingestion result must not be presented as a visual pass.
+- Palace: LIME_TERRACOTTA at `(0,160,0)`; distant palace visible in captures.
+- Complete `(320,320)` column above Y 96: exact solid/air match, eight lower-deck cloud blocks, thirteen upper-deck cloud blocks and the empty gap preserved.
+- Negative-coordinate landmark: ANDESITE at `(-1,162,980)`.
+- Tournament: STONE_BRICKS at `(0,354,-1200)`; the arena is visible in the capture.
+- After resizing to 1100×680 and travelling Otherworld → Overworld → Otherworld, the palace data and distant image returned correctly.
 
-### Complete palace comparison
+The run emitted `DH_FINAL_PASS` and finished with `BUILD SUCCESSFUL` and normal shutdown. The harness waited for actual API completion rather than treating a short fixed delay as a pass or failure. Recorded delays include software rendering, generation and harness query timeouts; this is not a performance benchmark.
 
-The next run used the same packaged candidate, ordinary chunk generation and unmodified Voxy. It explicitly submitted the two fixtures plus all 80 palace-area chunks (`x=-4..3`, `z=-4..5`) to the current client world's Voxy engine. Submission was checked, but completion of every ingest/mesh job was not asserted. The test waited 20 seconds after submission, captured a near view at `(30,190,-50)` with yaw 0 / pitch 30, moved to `(80,210,-110)` with yaw 15 / pitch 18, then waited another 20 seconds before the far capture. Vanilla render distance was 4.
+Log: `/home/lucas/Dev/dragonminez-port-tools/lod-dh-smoke/stencil-matrix-final.log`. Captures in that harness's `game/screenshots/`:
 
-- Near capture: the palace roofs, gates and paths are visible: `/home/lucas/Dev/dragonminez-port-tools/lod-voxy-smoke/game/screenshots/2026-10-25_16.55.04.png`.
-- Far capture: the palace is absent despite the explicit ingestion. This is a **failed distant visual comparison**, not a compatibility pass: `2026-10-25_16.55.24.png` in the same directory.
-- Voxy cache readback still passed for the ANDESITE fixture, both cloud decks and the empty gap.
-- Unlike the two smaller successful client runs, the palace run stalled during shutdown in vanilla chunk-unload future processing (`ChunkMap.processUnloads` / `CompletableFuture.postComplete`). The isolated disposable client was terminated after collecting thread dumps. This run is not recorded as a successful process-completion check.
-- Log: `/home/lucas/Dev/dragonminez-port-tools/lod-voxy-smoke/palace.log`; shutdown dump: `/tmp/dmz-lod-palace-shutdown.txt`.
+- `2026-10-25_21.31.34.png`: distant palace.
+- `2026-10-25_21.32.05.png`: cloud scene and complete-column readback.
+- `2026-10-25_21.32.36.png`: negative-coordinate landmark scene.
+- `2026-10-25_21.33.06.png`: tournament arena.
+- `2026-10-25_21.34.12.png`: distant palace after the round trip.
 
-These results establish that fresh generation supplies the builds and the near view can render them. They do not establish why the distant render is missing. The next rendering investigation needs frame/viewport, mesh and culling diagnostics; the evidence does not yet identify the responsible component. No renderer workaround or third-party modification was shipped.
+The complete matrix passed twice: initially on the arena candidate (`matrix-columns.log`, SHA-256 `6fdab397961cc88472c4b2349f4c8cc66bd0ce5479a097f0274b281aa51378dd`), then again on the final stencil candidate documented here. The final run also emitted `DH_FINAL_PASS` and ended normally with `BUILD SUCCESSFUL`.
 
-## Limits
+## Neo-Voxy alpha.12: renderer regression
 
-No existing world terrain or LOD database is automatically rewritten. Old saved chunks may still differ from newly generated chunks. The tournament arena still has a separate incremental runtime builder; this milestone does not claim that every runtime-built structure is available to every distant generator.
+Tests use the supplied unmodified Neo-Voxy `0.5.0-alpha.12-mc1.21.1-neoforge` and Sodium 0.8.13, without SeedGen. Voxy alone does not generate unseen chunks; the harness generates normal full chunks and explicitly ingests them through Voxy's own API. This is not a claim of automatic unseen-terrain generation.
 
-The supplied Neo-Voxy alpha.12 / Voxy SeedGen 0.3.0 combination previously failed in SeedGen's required far-plane mixin before the comparison. No third-party JAR was patched and no compatibility claim for that pair is made here.
+Full-chunk cache readback preserves the palace, ANDESITE fixture and both cloud decks with the empty gap. Earlier cached-world captures (`2026-10-25_17.16.00.png`, `17.16.20.png`) showed the distant palace. Fresh-world rendering and window resizing exposed a repeatable failure: geometry was prepared and present in the cache, but all visible-section/quad counts dropped to zero.
 
-Historical combined-branch evidence remains in `HOTFIX-VALIDATION.md`; it is not substituted for tests of this updated branch.
+A current-candidate comparison reproduced the trigger precisely. Opening the saved fresh world showed the distant palace at vanilla distance 4 (`2026-10-25_21.18.25.png`, 15,152 green roof pixels and 6,336 red gate pixels in the central crop). Resizing the window made it disappear. Restoring the stencil write mask to 255 once, without changing the world, cache, Voxy JAR or renderer, immediately restored the distant palace.
 
-Packaged candidate SHA-256: `4f3ba4cc6db6678d685b5975fad845678dfc5d090d7cafc2e3eea945075ff67d`. The distributed JAR contains neither the `lodsmoke` nor `rulessmoke` harness.
+DragonMineZ's aura cleanup left stencil writes disabled. Voxy's depth/stencil initialization then could not initialize newly allocated stencil data as expected. The production fix scopes and restores stencil state in aura cleanup, aura model rendering and the aura render-state layer, including separate front/back masks, comparisons, operations and test enablement. It restores Minecraft's cached state and native GL state; no third-party JAR or Voxy renderer workaround is shipped.
+
+Pre-fix logs: `fresh-raw-readback.log`, `fresh-native-readback.log`, `reopen-fresh-cache.log` under `/home/lucas/Dev/dragonminez-port-tools/lod-voxy-smoke/`. Manual near-camera diagnostic captures do not count as distant passes.
+
+The final stencil candidate passed in a new disposable world in `stencil-fresh-final.log`, without manual camera changes, renderer reloads, debug agents or mask resets:
+
+- Native GL assertions preserved different front/back write masks, the comparison/reference and test enablement after aura cleanup and render-state setup/cleanup.
+- Before entry: arena generation passed with no Otherworld players and no completed runtime build.
+- Fresh distant view at `(80,210,-110)`, yaw 15 / pitch 18, vanilla distance 4: 15,332 green roof pixels and 6,171 red gate pixels.
+- After resizing to 1100×680: 29,220 green and 10,933 red pixels.
+- After Otherworld → Overworld → Otherworld: 29,169 green and 10,970 red pixels. The harness also requested aura activation on return.
+- Each image required empty ingest/model/mesh queues, actual visible Voxy sections, the fixed distant camera, and successful cache readback of the palace, negative landmark and arena.
+- `LOD_FINAL_PASS` and `BUILD SUCCESSFUL`; normal shutdown. Captures: `2026-10-25_21.28.37.png`, `21.29.00.png`, `21.29.28.png` in the Voxy harness's `game/screenshots/`.
+
+The pre-fix cached-world image and the post-fix fresh-world image are distinct tests. The passing final run does not rely on the earlier manual diagnostic probes.
+
+## Limits and artifact
+
+Existing Minecraft chunks and addon LOD databases are not automatically rewritten. Saved terrain can retain differences from current generation. The supplied Voxy SeedGen 0.3.0 pair previously failed in its required far-plane injection; no third-party JAR was patched, and compatibility with that pair is not claimed.
+
+Final stencil candidate SHA-256: `b3eb1a8b4df31690d93de19a564b60ae2ea4286318d063d889c644b2396139a3`. The distributed JAR contains neither `lodsmoke` nor `rulessmoke` harness classes. Historical combined-branch checks remain in `HOTFIX-VALIDATION.md`; they do not replace this branch's tests. Developer diagnostics stay in this repository, outside the customization wiki.
