@@ -338,6 +338,7 @@ public class ClientStatsEvents {
 				} else kiRgb = character.getRgbAuraColor();
 				int colorMain = ColorUtils.rgbToInt(kiRgb[0], kiRgb[1], kiRgb[2]);
 				int colorBorder = ColorUtils.darkenColor(colorMain, 0.85f);
+				com.dragonminez.client.combat.ClientKiAim.sendNow();
 				NetworkHandler.sendToServer(new KiBlastC2S(true, fireKiVolley, colorMain, colorBorder));
 				kiBlastTimer = 10;
 				blockLockTicks = fireKiVolley ? 30 : 20;
@@ -520,13 +521,13 @@ public class ClientStatsEvents {
 						var lockedReviveTarget = LockOnEvent.getLockedTarget();
 						NetworkHandler.sendToServer(new WorldBossReviveC2S(lockedReviveTarget != null ? lockedReviveTarget.getId() : -1));
 					} else if (t instanceof KiAttackData ki && !data.getCooldowns().hasCooldown("TechniqueCooldown_" + id)) { if (player.isPassenger() && TechniqueDispatcher.restrictsMovementWhileCharging(ki.getKiType())) continue; var lockedKiTarget = LockOnEvent.getLockedTarget(); int kiTargetId = lockedKiTarget != null ? lockedKiTarget.getId() : -1;
-					if (ki.isInstantCast()) NetworkHandler.sendToServer(TechniqueChargeC2S.start(i, kiTargetId));
+					if (ki.isInstantCast()) com.dragonminez.client.combat.ClientKiAim.startCharge(i,kiTargetId);
 					else {
 						activeChargeSlot = i;
 						chargeReleaseSent = false;
 						chargePending = true;
 						chargePendingTicks = 0;
-						NetworkHandler.sendToServer(TechniqueChargeC2S.start(i, kiTargetId));
+						com.dragonminez.client.combat.ClientKiAim.startCharge(i,kiTargetId);
 					}
 					net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new DMZClientEvent.KiAttackCast(player, i));
 				}
@@ -550,6 +551,7 @@ public class ClientStatsEvents {
 
 		boolean slotDown = activeChargeSlot < TECHNIQUE_VISIBLE_SLOTS && downNow[activeChargeSlot];
 		if (!slotDown && !chargeReleaseSent) {
+			com.dragonminez.client.combat.ClientKiAim.sendNow();
 			NetworkHandler.sendToServer(TechniqueChargeC2S.setHolding(false));
 			chargeReleaseSent = true;
 			net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new DMZClientEvent.KiAttackRelease(player));

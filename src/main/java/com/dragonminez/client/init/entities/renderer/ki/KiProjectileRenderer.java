@@ -206,7 +206,6 @@ public class KiProjectileRenderer extends EntityRenderer<AbstractKiProjectile> {
                     break;
             }
 
-            boolean depthTest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
             org.joml.Matrix4fStack modelViewStack = RenderSystem.getModelViewStack();
             modelViewStack.pushMatrix();
             modelViewStack.identity();
@@ -214,7 +213,7 @@ public class KiProjectileRenderer extends EntityRenderer<AbstractKiProjectile> {
             immediateBuffer.endBatch();
             modelViewStack.popMatrix();
             RenderSystem.applyModelViewMatrix();
-            EffectBloomRenderer.restoreKiState(depthTest);
+            EffectBloomRenderer.restoreKiState(true);
 
             ShaderInstance shader = DMZShaders.ki3dShader;
             if (shader != null) shader.clear();

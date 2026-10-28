@@ -2,9 +2,10 @@ package com.dragonminez.client.render.effects;
 
 import com.dragonminez.client.util.ColorUtils;
 import com.dragonminez.common.config.FormConfig;
-import net.minecraft.util.Mth;
 
 public final class AuraStyle {
+    /** Negative x preserves the native profile for non-player effects. */
+    public final float[] meshWeights = {-1,0,0};
 	private static final float CORE_LIGHTEN = 0.45f;
 	private static final float[] WHITE = {1.0f, 1.0f, 1.0f};
 
@@ -59,7 +60,7 @@ public final class AuraStyle {
 			float peak = Math.max(base[0], Math.max(base[1], base[2]));
 			for (int i = 0; i < 3; i++) {
 				float brightest = peak > 1.0e-4f ? base[i] / peak : base[i];
-				style.coreColor[i] = Mth.lerp(CORE_LIGHTEN, base[i], brightest);
+				style.coreColor[i] = lerp(CORE_LIGHTEN, base[i], brightest);
 			}
 		} else copy(ColorUtils.hexToRgb(c.getCoreColor()), style.coreColor);
 
@@ -90,6 +91,7 @@ public final class AuraStyle {
 	}
 
 	public AuraStyle copyFrom(AuraStyle other) {
+		copy(other.meshWeights,meshWeights);
 		sizeX = other.sizeX;
 		sizeY = other.sizeY;
 		sizeZ = other.sizeZ;
@@ -120,34 +122,37 @@ public final class AuraStyle {
 	public AuraStyle blendTowards(AuraStyle target, float t) {
 		if (t <= 0.0f) return this;
 		if (t >= 1.0f) return copyFrom(target);
-		sizeX = Mth.lerp(t, sizeX, target.sizeX);
-		sizeY = Mth.lerp(t, sizeY, target.sizeY);
-		sizeZ = Mth.lerp(t, sizeZ, target.sizeZ);
-		peaks = Mth.lerp(t, peaks, target.peaks);
-		waveFrequency = Mth.lerp(t, waveFrequency, target.waveFrequency);
-		waveSpeed = Mth.lerp(t, waveSpeed, target.waveSpeed);
-		waveAmplitude = Mth.lerp(t, waveAmplitude, target.waveAmplitude);
-		noiseDetail = Mth.lerp(t, noiseDetail, target.noiseDetail);
-		upwardBias = Mth.lerp(t, upwardBias, target.upwardBias);
-		coreAlpha = Mth.lerp(t, coreAlpha, target.coreAlpha);
-		rimAlpha = Mth.lerp(t, rimAlpha, target.rimAlpha);
-		rimPower = Mth.lerp(t, rimPower, target.rimPower);
-		rimThreshold = Mth.lerp(t, rimThreshold, target.rimThreshold);
-		noiseFactor = Mth.lerp(t, noiseFactor, target.noiseFactor);
-		bloomIntensity = Mth.lerp(t, bloomIntensity, target.bloomIntensity);
-		spikeDensity = Mth.lerp(t, spikeDensity, target.spikeDensity);
-		spikeBurstRate = Mth.lerp(t, spikeBurstRate, target.spikeBurstRate);
-		spikeRarity = Mth.lerp(t, spikeRarity, target.spikeRarity);
-		bandStart = Mth.lerp(t, bandStart, target.bandStart);
-		secondBorderFactor = Mth.lerp(t, secondBorderFactor, target.secondBorderFactor);
+		sizeX = lerp(t, sizeX, target.sizeX);
+		sizeY = lerp(t, sizeY, target.sizeY);
+		sizeZ = lerp(t, sizeZ, target.sizeZ);
+		peaks = lerp(t, peaks, target.peaks);
+		waveFrequency = lerp(t, waveFrequency, target.waveFrequency);
+		waveSpeed = lerp(t, waveSpeed, target.waveSpeed);
+		waveAmplitude = lerp(t, waveAmplitude, target.waveAmplitude);
+		noiseDetail = lerp(t, noiseDetail, target.noiseDetail);
+		upwardBias = lerp(t, upwardBias, target.upwardBias);
+		coreAlpha = lerp(t, coreAlpha, target.coreAlpha);
+		rimAlpha = lerp(t, rimAlpha, target.rimAlpha);
+		rimPower = lerp(t, rimPower, target.rimPower);
+		rimThreshold = lerp(t, rimThreshold, target.rimThreshold);
+		noiseFactor = lerp(t, noiseFactor, target.noiseFactor);
+		bloomIntensity = lerp(t, bloomIntensity, target.bloomIntensity);
+		spikeDensity = lerp(t, spikeDensity, target.spikeDensity);
+		spikeBurstRate = lerp(t, spikeBurstRate, target.spikeBurstRate);
+		spikeRarity = lerp(t, spikeRarity, target.spikeRarity);
+		bandStart = lerp(t, bandStart, target.bandStart);
+		secondBorderFactor = lerp(t, secondBorderFactor, target.secondBorderFactor);
 		for (int i = 0; i < 3; i++) {
-			coreColor[i] = Mth.lerp(t, coreColor[i], target.coreColor[i]);
-			rimColor[i] = Mth.lerp(t, rimColor[i], target.rimColor[i]);
-			noiseColor[i] = Mth.lerp(t, noiseColor[i], target.noiseColor[i]);
-			secondBorderColor[i] = Mth.lerp(t, secondBorderColor[i], target.secondBorderColor[i]);
+			meshWeights[i] = lerp(t,meshWeights[i],target.meshWeights[i]);
+			coreColor[i] = lerp(t, coreColor[i], target.coreColor[i]);
+			rimColor[i] = lerp(t, rimColor[i], target.rimColor[i]);
+			noiseColor[i] = lerp(t, noiseColor[i], target.noiseColor[i]);
+			secondBorderColor[i] = lerp(t, secondBorderColor[i], target.secondBorderColor[i]);
 		}
 		return this;
 	}
+
+	private static float lerp(float t,float from,float to){return from+t*(to-from);}
 
 	private static void copy(float[] from, float[] to) {
 		to[0] = from[0];

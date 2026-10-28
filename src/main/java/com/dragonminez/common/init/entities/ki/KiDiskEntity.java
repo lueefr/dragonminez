@@ -111,12 +111,13 @@ public class KiDiskEntity extends AbstractKiProjectile {
         this.setFireTick(this.tickCount);
 
         if (this.getOwner() instanceof LivingEntity livingOwner) {
-            Vec3 lookDir = livingOwner.getLookAngle();
+            Vec3 lookDir = com.dragonminez.common.combat.aim.KiAim.direction(livingOwner,livingOwner.getEyePosition());
             Vec3 spawnPos = livingOwner.getEyePosition().add(lookDir.scale(0.5D));
 
             this.setPos(spawnPos.x, spawnPos.y - 0.2D, spawnPos.z);
             this.shootFromRotation(livingOwner, livingOwner.getXRot(), livingOwner.getYRot(), 0.0F, this.getKiSpeed(), 0.0F);
 
+            lookDir=com.dragonminez.common.combat.aim.KiAim.direction(livingOwner,this.position());
             this.setDeltaMovement(lookDir.scale(this.getKiSpeed()));
             this.setYRot((float) (Mth.atan2(lookDir.z, lookDir.x) * Mth.RAD_TO_DEG) + 90.0F);
             this.setXRot((float) (Mth.atan2(lookDir.horizontalDistance(), lookDir.y) * Mth.RAD_TO_DEG) - 90.0F);

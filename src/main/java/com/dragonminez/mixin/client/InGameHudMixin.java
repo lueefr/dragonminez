@@ -30,7 +30,7 @@ public abstract class InGameHudMixin {
 
 	@Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
 	private void dragonminez$pre_renderCrosshair(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-		float[] offset = OverShoulderCamera.crosshairOffset(guiGraphics.guiWidth(), guiGraphics.guiHeight());
+		float[] offset = com.dragonminez.client.combat.ClientKiAim.active()?new float[]{0,0}:OverShoulderCamera.crosshairOffset(guiGraphics.guiWidth(), guiGraphics.guiHeight());
 		this.dragonminez$crosshairShifted = offset[0] != 0.0F || offset[1] != 0.0F;
 		if (this.dragonminez$crosshairShifted) {
 			guiGraphics.pose().pushPose();
@@ -53,7 +53,7 @@ public abstract class InGameHudMixin {
 
 	@Redirect(method = "renderCrosshair", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/CameraType;isFirstPerson()Z"))
 	private boolean dragonminez$shoulderCrosshair(CameraType cameraType) {
-		return cameraType.isFirstPerson() || OverShoulderCamera.isDecoupled();
+		return cameraType.isFirstPerson() || OverShoulderCamera.isDecoupled() || com.dragonminez.client.combat.ClientKiAim.active();
 	}
 
 	@Inject(method = "renderCrosshair", at = @At("TAIL"))

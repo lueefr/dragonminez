@@ -150,6 +150,7 @@ public final class Aura3DRenderer {
 											float growth, float time, float phase, float backFace) {
 		shader.setSampler("NoiseTex", AuraNoiseTexture.getId());
 		shader.safeGetUniform("NormalMat").set(normal);
+		shader.safeGetUniform("MeshWeights").set(style.meshWeights[0],style.meshWeights[1],style.meshWeights[2]);
 		shader.safeGetUniform("Size").set(style.sizeX, style.sizeY, style.sizeZ);
 		shader.safeGetUniform("Time").set(time);
 		shader.safeGetUniform("Phase").set(phase);
@@ -276,6 +277,7 @@ public final class Aura3DRenderer {
 										 float growth, float time, float hollow, float backFace, float layer, float faces) {
 		shader.setSampler("NoiseTex", AuraNoiseTexture.getId());
 		shader.safeGetUniform("NormalMat").set(normal);
+		shader.safeGetUniform("MeshWeights").set(style.meshWeights[0],style.meshWeights[1],style.meshWeights[2]);
 		shader.safeGetUniform("Size").set(style.sizeX, style.sizeY, style.sizeZ);
 		shader.safeGetUniform("Time").set(time);
 		shader.safeGetUniform("Growth").set(Mth.clamp(growth, 0.0f, 1.0f));
@@ -347,6 +349,7 @@ public final class Aura3DRenderer {
 	private static void applySparkingUniforms(ShaderInstance shader, Matrix3f normal, AuraStyle style, float alpha,
 											  float growth, float time, float backFace) {
 		shader.safeGetUniform("NormalMat").set(normal);
+		shader.safeGetUniform("MeshWeights").set(style.meshWeights[0],style.meshWeights[1],style.meshWeights[2]);
 		shader.safeGetUniform("Size").set(style.sizeX, style.sizeY, style.sizeZ);
 		shader.safeGetUniform("Time").set(time);
 		shader.safeGetUniform("Growth").set(Mth.clamp(growth, 0.0f, 1.0f));

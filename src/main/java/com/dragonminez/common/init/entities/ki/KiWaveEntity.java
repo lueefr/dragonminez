@@ -483,7 +483,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
             return;
         }
 
-        Vec3 look = owner.getLookAngle();
+        Vec3 look = isCasting?owner.getLookAngle():this.level().isClientSide?Vec3.directionFromRotation(this.getFixedPitch(),this.getFixedYaw()):com.dragonminez.common.combat.aim.KiAim.direction(owner,owner.getEyePosition());
         Vec3 newPos;
 
         double centerX = owner.getX();
@@ -509,6 +509,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
 
         this.setPos(newPos.x, newPos.y, newPos.z);
 
+        if(!isCasting&&!this.level().isClientSide)look=com.dragonminez.common.combat.aim.KiAim.direction(owner,newPos);
         float horizontalDistance = (float) Math.sqrt(look.x * look.x + look.z * look.z);
         float exactPitch = (float) (-(Mth.atan2(look.y, horizontalDistance) * (180F / Math.PI)));
         float exactYaw = (float) (Mth.atan2(look.z, look.x) * (180F / Math.PI) - 90.0F);

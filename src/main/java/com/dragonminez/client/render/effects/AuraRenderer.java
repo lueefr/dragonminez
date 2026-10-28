@@ -291,12 +291,31 @@ public class AuraRenderer {
             data.typeLayers.put(key, layer);
         }
         Map<LayerKey, Double> weights = data.typeBlend.update(keys, dt,duration);
+        Map<Integer,AuraStyle> morphStyles=new HashMap<>();
+        Map<Integer,Double> styleWeights=new HashMap<>();
+        Map<Integer,float[]> profiles=new HashMap<>();
+        weights.forEach((key,weight)->{
+            float[] profile=profiles.computeIfAbsent(key.layer(),ignored->new float[3]);
+            int index=Aura3DRenderer.isGod(key.type())?2:Aura3DRenderer.isSparking(key.type())?1:0;
+            profile[index]+=weight.floatValue();
+            var source=data.typeLayers.get(key);
+            if(source!=null&&source.style!=null&&weight>0){
+                double total=styleWeights.getOrDefault(key.layer(),0d)+weight;
+                var mixed=morphStyles.get(key.layer());
+                if(mixed==null)morphStyles.put(key.layer(),new AuraStyle().copyFrom(source.style));
+                else mixed.blendTowards(source.style,(float)(weight/total));
+                styleWeights.put(key.layer(),total);
+            }
+        });
         List<AuraLayer> result = new ArrayList<>();
         weights.forEach((key, weight) -> {
             if (weight <= 0) return;
             AuraLayer source = data.typeLayers.get(key);
             AuraLayer layer = new AuraLayer(source.type, source.layerId, source.color, source.alpha * weight.floatValue());
-            layer.style = source.style;
+            layer.style = source.style==null?null:new AuraStyle().copyFrom(morphStyles.get(key.layer()));
+            if(layer.style!=null){var profile=profiles.get(key.layer());float total=profile[0]+profile[1]+profile[2];
+                for(int i=0;i<3;i++)layer.style.meshWeights[i]=total>0?profile[i]/total:0;}
+
             layer.variant=source.variant;
             result.add(layer);
         });

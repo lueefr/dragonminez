@@ -72,6 +72,7 @@ public final class EffectBloomRenderer {
 					bloomPass = true;
 					try {
 						for (KiRenderTask task : kiTasks) {
+							restoreKiState(true);
 							task.render(poseStack, projectionMatrix);
 						}
 					} finally {
@@ -108,6 +109,7 @@ public final class EffectBloomRenderer {
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.depthMask(false);
 		RenderSystem.disableCull();
-		if (depthTest) RenderSystem.enableDepthTest();
+		if (depthTest) { RenderSystem.enableDepthTest(); RenderSystem.depthFunc(org.lwjgl.opengl.GL11.GL_LEQUAL); }
+        else RenderSystem.disableDepthTest();
 	}
 }

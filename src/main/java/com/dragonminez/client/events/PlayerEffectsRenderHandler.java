@@ -211,6 +211,7 @@ public class PlayerEffectsRenderHandler {
 			RenderSystem.disableCull();
 
 			for (var task : kiAttacks) {
+				EffectBloomRenderer.restoreKiState(true);
 				task.render(poseStack, projectionMatrix);
 			}
 

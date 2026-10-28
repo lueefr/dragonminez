@@ -62,3 +62,17 @@ buscas distantes desativadas; o teste de mundo normal usa as configurações pad
 
 Não houve commit, push ou publicação no GitHub. As alterações do repositório
 estão staged para revisão, conforme a instrução em `AI/Agents.md`.
+
+## Combat visuals and customization — 2026-10-27
+
+Validation for `fix/1.21.1-combat-visual-customization`, based on main `547af94f`:
+
+- Java 21: `./gradlew build runGameTestServer -PincludeClientOnlyDevMods=false --no-daemon --console=plain` passed: 27 unit tests and all 37 required GameTests. New coverage checks offset-camera convergence, lock-on precedence and release, disk/beam/laser direction, the aim packet codec, contextual conditions and invalid configuration rejection.
+- Disposable flat-world client with Sodium 0.8.13, Iris 1.8.14 beta 1, Complementary Unbound r5.9.3 and Dynamic Crosshair 9.11 passed. The API registered and produced `RANGED_WEAPON` in third person; intermediate 3D mesh weights were observed during form changes; 98 visible/bloom ki task executions retained depth testing with `GL_LEQUAL`. The aura shaders compiled successfully.
+- Better Modlist 21.1.5: REPLACE, INSERT, ICON and unmodified menu layouts passed rectangle-overlap checks; clicking Mods opened its ModsScreen. This client also starts without Dynamic Crosshair or Iris installed.
+- These client checks use Xvfb/Mesa software rendering and disposable worlds. They do not establish compatibility with every GPU, shader pack or optional-mod version.
+- Validation logs: `/tmp/dmz-combat-visual-final-validation.log`, `/tmp/dmz-combat-visual-client-04.log`, `/tmp/dmz-combat-menu-client-01.log`. External client harnesses live in `dragonminez-port-tools/combat-visual-smoke` and `combat-menu-smoke`; harness classes and optional-mod API classes are absent from the distribution JAR.
+- The aim packet is appended to the existing packet registry; network revision is now 2. Clients and servers must use the updated build together.
+
+User configuration examples are in `docs/CONTEXTUAL-CONDITIONS.md` and
+`docs/AURA-MESH-TRANSITIONS.md`. No wiki files or SeedGen/LOD code were changed.

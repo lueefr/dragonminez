@@ -34,7 +34,8 @@ public abstract class PauseScreenMixin extends Screen {
 	private void dragonminez$replaceFeedbackButtons(CallbackInfo info) {
 		Button feedbackButton = this.dragonminez$findButton("menu.sendFeedback");
 		Button reportButton = this.dragonminez$findButton("menu.reportBugs");
-		if (feedbackButton == null || reportButton == null) {
+		// Better Modlist hides these widgets and reuses the row for its Mods button.
+		if (feedbackButton == null || reportButton == null || !feedbackButton.visible || !reportButton.visible) {
 			return;
 		}
 

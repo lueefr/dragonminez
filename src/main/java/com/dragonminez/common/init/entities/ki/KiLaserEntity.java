@@ -494,7 +494,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
             if (this.strikeOrigin != null) this.setPos(this.strikeOrigin.x, this.strikeOrigin.y, this.strikeOrigin.z);
             return;
         }
-        Vec3 look = owner.getLookAngle();
+        Vec3 look = !this.isFiring()?owner.getLookAngle():this.level().isClientSide?Vec3.directionFromRotation(this.getFixedPitch(),this.getFixedYaw()):com.dragonminez.common.combat.aim.KiAim.direction(owner,owner.getEyePosition());
         Vec3 right = look.cross(new Vec3(0, 1, 0)).normalize();
         Vec3 up = right.cross(look).normalize();
 
@@ -534,8 +534,10 @@ public class KiLaserEntity extends AbstractKiProjectile{
         Vec3 newPos = hitboxCenter.add(offset);
         this.setPos(newPos.x, newPos.y, newPos.z);
 
-        this.setYRot(owner.getYRot());
-        this.setXRot(owner.getXRot());
+        if(this.isFiring()&&!this.level().isClientSide)look=com.dragonminez.common.combat.aim.KiAim.direction(owner,newPos);
+        this.setYRot((float)(Mth.atan2(look.z,look.x)*180/Math.PI)-90);
+        this.setXRot((float)(-Mth.atan2(look.y,look.horizontalDistance())*180/Math.PI));
+        if(this.isFiring()&&!this.level().isClientSide){this.entityData.set(FIXED_YAW,this.getYRot());this.entityData.set(FIXED_PITCH,this.getXRot());}
     }
 
 

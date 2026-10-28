@@ -113,7 +113,8 @@ public class KiBlastC2S {
 					Vec3 right = Vec3.directionFromRotation(0.0F, player.getYRot() + 90.0F);
 					double side = (leftHand ? -1.0 : 1.0) * HAND_OFFSET;
 					kiBlast.setPos(player.getX() + right.x * side, player.getEyeY() - 0.4, player.getZ() + right.z * side);
-					kiBlast.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, kiBlast.getKiSpeed(), 0.5F);
+					var aim=com.dragonminez.common.combat.aim.KiAim.direction(player,kiBlast.position());
+                    kiBlast.shoot(aim.x,aim.y,aim.z,kiBlast.getKiSpeed(),0);
 					player.level().addFreshEntity(kiBlast);
 
 					NetworkHandler.sendToTrackingEntityAndSelf(new TriggerAnimationS2C(player.getUUID(), TriggerAnimationS2C.AnimationType.KI_BLAST_SHOT, leftHand ? 2 : 0, player.getId()), player);
@@ -158,7 +159,8 @@ public class KiBlastC2S {
 		KiBlastEntity kiBlast = new KiBlastEntity(player.level(), player);
 		kiBlast.setup(player, volley.damage, 0.5F, 1.5f, volley.colorMain, volley.colorBorder);
 		kiBlast.setPos(player.getX() + right.x * side, player.getEyeY() - 0.4, player.getZ() + right.z * side);
-		kiBlast.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, kiBlast.getKiSpeed(), VOLLEY_SPREAD);
+		var aim=com.dragonminez.common.combat.aim.KiAim.direction(player,kiBlast.position());
+        kiBlast.shoot(aim.x,aim.y,aim.z,kiBlast.getKiSpeed(),0);
 		player.level().addFreshEntity(kiBlast);
 		volley.shotsFired++;
 	}

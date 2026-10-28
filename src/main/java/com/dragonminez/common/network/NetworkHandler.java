@@ -14,7 +14,7 @@ public class NetworkHandler {
 
 	public static SimpleChannel INSTANCE;
 	private static int packetId = 0;
-	private static final int NETWORK_REVISION = 1;
+	private static final int NETWORK_REVISION = 2;
 
 	private static int id() {
 		return packetId++;
@@ -932,6 +932,8 @@ public class NetworkHandler {
                 .decoder(CustomNpcShopC2S::new).encoder(CustomNpcShopC2S::encode).consumerMainThread(CustomNpcShopC2S::handle).add();
         net.messageBuilder(RuleNoticeS2C.class,id(),NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(RuleNoticeS2C::new).encoder(RuleNoticeS2C::encode).consumerMainThread(RuleNoticeS2C::handle).add();
+        net.messageBuilder(KiAimC2S.class,id(),NetworkDirection.PLAY_TO_SERVER)
+                .decoder(KiAimC2S::new).encoder(KiAimC2S::encode).consumerMainThread(KiAimC2S::handle).add();
 	}
 
 	public static <MSG> void sendToServer(MSG message) {

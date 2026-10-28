@@ -54,7 +54,7 @@ public class TechniqueDispatcher {
                         blast.fireHability(maxLife);
                         int renderType = blast.getKiRenderType();
                         if (renderType != 2 && renderType != 5 && renderType != 6 && renderType != 7) {
-                            Vec3 lookBlast = owner.getLookAngle();
+                            Vec3 lookBlast = com.dragonminez.common.combat.aim.KiAim.direction(owner,blast.position());
                             blast.setDeltaMovement(lookBlast.scale(kiSpeed));
                         }
                     } else if (activeKi instanceof KiLaserEntity laser) {
@@ -159,7 +159,7 @@ public class TechniqueDispatcher {
                 smallBall.setHomingTarget(homingTargetId);
                 smallBall.setFiring(true);
 
-                Vec3 lookSmall = owner.getLookAngle();
+                Vec3 lookSmall = com.dragonminez.common.combat.aim.KiAim.direction(owner,smallBall.position());
                 Vec3 spawnPos = owner.getEyePosition().add(lookSmall.scale(0.5D));
                 smallBall.setPos(spawnPos.x, spawnPos.y - 0.2D, spawnPos.z);
                 smallBall.setDeltaMovement(lookSmall.scale(kiSpeed));

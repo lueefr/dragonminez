@@ -1035,7 +1035,8 @@ public class KiBlastEntity extends AbstractKiProjectile {
             } else {
                 if (this.getOwner() instanceof LivingEntity owner) {
                     Vec3 look = owner.getLookAngle();
-                    this.shootFromRotation(owner, owner.getXRot(), owner.getYRot(), 0.0F, this.getKiSpeed(), 0.0F);
+                    var aim=com.dragonminez.common.combat.aim.KiAim.direction(owner,this.position());
+                    this.shoot(aim.x,aim.y,aim.z,this.getKiSpeed(),0);
                 }
             }
             //this.level().playSound(null, this.getX(), this.getY(), this.getZ(), MainSounds.KIBLAST_ATTACK.get(), SoundSource.PLAYERS, 0.5F, 2.0F);
@@ -1108,6 +1109,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
             }
 
             Vec3 kiPos = new Vec3(this.getX(), this.getVisualCenterY(), this.getZ());
+            if(livingOwner instanceof Player)endPos=com.dragonminez.common.combat.aim.KiAim.target(livingOwner);
             Vec3 newTrajectory = endPos.subtract(kiPos).normalize();
 
             this.shoot(newTrajectory.x, newTrajectory.y, newTrajectory.z, this.getKiSpeed(), 0.0F);
@@ -1136,7 +1138,8 @@ public class KiBlastEntity extends AbstractKiProjectile {
             Vec3 lookDir = owner.getLookAngle();
             Vec3 spawnPos = owner.getEyePosition().add(lookDir.scale(0.5D));
             this.setPos(spawnPos.x, spawnPos.y - 0.2D, spawnPos.z);
-            this.shootFromRotation(owner, owner.getXRot(), owner.getYRot(), 0.0F, speed, 0.0F);
+            var aim=com.dragonminez.common.combat.aim.KiAim.direction(owner,this.position());
+            this.shoot(aim.x,aim.y,aim.z,speed,0);
 
             this.level().playSound(null, this.getX(), this.getY(), this.getZ(), MainSounds.KIBLAST_ATTACK.get(), SoundSource.PLAYERS, 0.1F, 1.0F + (this.random.nextFloat() * 0.2F));
         } else {
@@ -1572,7 +1575,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         } else if (owner instanceof Mob mob && mob.getTarget() != null && mob.getTarget().isAlive()) {
             aimed = mob.getTarget();
         }
-        if (aimed == null) return owner.getLookAngle();
+        if (aimed == null) return com.dragonminez.common.combat.aim.KiAim.direction(owner,center);
 
         Vec3 toTarget = aimed.position().add(0.0D, aimed.getBbHeight() / 2.0D, 0.0D).subtract(center);
         return toTarget.lengthSqr() < 1.0E-4D ? owner.getLookAngle() : toTarget.normalize();

@@ -33,8 +33,25 @@ float triangleWave(float x) {
     return abs(fract(x) * 2.0 - 1.0);
 }
 
+uniform vec3 MeshWeights;
+float dmzMeshRadius(float t) {
+    t=clamp(t,0.0,1.0);
+    float y=t*2.0-1.0;
+    float s=sqrt(max(0.0,1.0-y*y));
+    vec3 profiles=vec3((0.8+0.5*pow(1.0-t,1.5))*s,
+        (0.84+0.42*pow(1.0-t,1.25))*s/1.040264103,
+        pow(s,0.9)*(0.86+0.30*pow(1.0-t,1.3)));
+    return dot(profiles,MeshWeights);
+}
+vec3 dmzMorph(vec3 p) {
+    if(MeshWeights.x<0.0)return p;
+    float radius=length(p.xz);
+    if(radius>0.000001)p.xz*=dmzMeshRadius(p.y*0.5+0.5)/radius;
+    return p;
+}
+
 void main() {
-    vec3 p = Position;
+    vec3 p = dmzMorph(Position);
 
     // Measured in whole turns: Peaks is an integer and the noise repeats once per turn, so both close up
     // where atan() wraps at the back instead of leaving a seam.

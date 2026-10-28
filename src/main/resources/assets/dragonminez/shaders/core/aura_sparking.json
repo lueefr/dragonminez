@@ -33,7 +33,8 @@
     { "name": "BackFace", "type": "float", "count": 1, "values": [0.02] },
     { "name": "BloomIntensity", "type": "float", "count": 1, "values": [1.0] },
     { "name": "BloomPass", "type": "float", "count": 1, "values": [0.0] },
-    { "name": "LayerPass", "type": "float", "count": 1, "values": [0.0] }
+    { "name": "LayerPass", "type": "float", "count": 1, "values": [0.0] },
+    {"name":"MeshWeights","type":"float","count":3,"values":[-1,0,0]}
   ],
   "blend": {
     "func": "add",
