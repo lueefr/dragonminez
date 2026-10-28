@@ -23,6 +23,7 @@
   ],
   "client": [
     "client.ConfigLanguageMixin",
+    "client.FormNameColorMixin",
     "client.AbstractSoundInstanceAccessor",
     "client.BundleTooltipComponentAccessor",
     "client.BrandingControlMixin",

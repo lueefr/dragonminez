@@ -105,3 +105,22 @@ and level-based defense scaling remain supported.
   weights with a configured 2-second transition, and depth testing on 170 visible
   and bloom ki draws. This uses a disposable flat world and Xvfb/Mesa software
   rendering. Log: `/tmp/dmz-upstream-client-02.log`.
+
+## Mastery actionbar and automatic form-name colors — 2026-10-28
+
+Mastery refusals (the direct-transformation threshold and nested JSON mastery
+conditions, including purchases) now use the vanilla actionbar instead of the
+modal notice. Other refusal dialogs retain their existing behavior. Form-name
+components resolve their hair color from form identity/configuration, independently
+of locale formatting, including stack forms, bundled forms and base-hair fallback.
+
+- Java 21 `build runGameTestServer -PincludeClientOnlyDevMods=false` passed:
+  27 unit tests and all 41 required GameTests. The new test covers nested/legacy
+  mastery notices, unchanged non-mastery routing, distinct colors in one message,
+  black hair, preservation of source components and bundled Saiyan forms.
+- A packaged client with Iris/Complementary and Dynamic Crosshair confirmed an
+  actual vanilla actionbar packet without a modal, RGB color retained across the
+  wire, and automatic coloring of a freshly translated unformatted form name.
+- Logs: `/tmp/dmz-mastery-validation-02.log` and
+  `/tmp/dmz-mastery-client-01.log`. No language edits or packet-format changes
+  are required; the wiki was left unchanged.

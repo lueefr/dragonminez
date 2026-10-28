@@ -25,8 +25,7 @@ public final class FormAccess {
         if (data.getPlayer() instanceof ServerPlayer player) {
             Component reason = Component.translatable(forced ? "rules.dragonminez.use_warning" : "rules.dragonminez.use_denied",
                     name(data,group+"."+form), join(missing));
-            if(forced)NetworkHandler.sendToPlayer(new RuleNoticeS2C(reason,color(data,group+"."+form)),player);
-            else notice(player,reason,color(data,group+"."+form));
+            notice(player,reason,color(data,group+"."+form));
         }
         return forced;
     }
@@ -39,10 +38,44 @@ public final class FormAccess {
         try {
             var form = FormHair.get(data.getCharacter().getRaceName(),ref);
             String hex = form == null ? null : form.getHairColor();
-            if(hex!=null&&hex.isBlank())hex=data.getCharacter().getHairColor();
+            if(hex==null||hex.isBlank())hex=data.getCharacter().getHairColor();
             if(hex != null && hex.matches("#?[0-9a-fA-F]{6}")) return Integer.parseInt(hex.replace("#",""),16);
         } catch (IllegalArgumentException ignored) {}
         return null;
+    }
+    /** Resolve identity keys, never translated display strings: works in every locale. */
+    public static Integer colorForKey(StatsData data,String key) {
+        String prefix="race.dragonminez.";
+        if(!key.startsWith(prefix))return null;
+        int separator=key.indexOf(".form.",prefix.length());
+        if(separator<0)return null;
+        String race=key.substring(prefix.length(),separator),ref=key.substring(separator+6);
+        int dot=ref.lastIndexOf('.');if(dot<=0)return null;
+        var definition=ConfigManager.getForm(race,ref.substring(0,dot),ref.substring(dot+1));
+        if(definition==null)definition=ConfigManager.getStackForm(ref.substring(0,dot),ref.substring(dot+1));
+        if(definition==null)return null;
+        String hex=definition.getHairColor();
+        if((hex==null||hex.isBlank())&&data!=null)hex=data.getCharacter().getHairColor();
+        return hex!=null&&hex.matches("#?[0-9a-fA-F]{6}")?Integer.parseInt(hex.replace("#",""),16):null;
+    }
+    public static boolean isMasteryNotice(Component message) {
+        if(message.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents text) {
+            if(text.getKey().equals("rules.dragonminez.mastery")||text.getKey().equals("message.dragonminez.form.free_transform_mastery"))return true;
+            for(Object argument:text.getArgs())if(argument instanceof Component child&&isMasteryNotice(child))return true;
+        }
+        return message.getSiblings().stream().anyMatch(FormAccess::isMasteryNotice);
+    }
+    public static Component coloredNames(Component message,StatsData data) {
+        net.minecraft.network.chat.MutableComponent result;
+        if(message.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents text) {
+            Object[] args=text.getArgs().clone();
+            for(int i=0;i<args.length;i++)if(args[i] instanceof Component child)args[i]=coloredNames(child,data);
+            result=net.minecraft.network.chat.MutableComponent.create(new net.minecraft.network.chat.contents.TranslatableContents(text.getKey(),text.getFallback(),args));
+            result.setStyle(message.getStyle());
+            Integer color=colorForKey(data,text.getKey());if(color!=null)result.withStyle(style->style.withColor(color));
+        }else result=message.plainCopy().setStyle(message.getStyle());
+        for(Component sibling:message.getSiblings())result.append(coloredNames(sibling,data));
+        return result;
     }
     public static Component join(List<Component> lines) {
         var result=Component.empty();
@@ -51,6 +84,9 @@ public final class FormAccess {
     }
     public static void notice(ServerPlayer player,Component reason,Integer color) {
         if (!com.dragonminez.common.network.PacketRateLimiter.allow(player.getUUID(),"rule_notice",player.serverLevel().getGameTime(),10)) return;
+        var data=com.dragonminez.common.stats.StatsProvider.get(com.dragonminez.common.stats.StatsCapability.INSTANCE,player).orElse(null);
+        if(data!=null)reason=coloredNames(reason,data);
+        if(isMasteryNotice(reason)){player.displayClientMessage(reason,true);return;}
         NetworkHandler.sendToPlayer(new RuleNoticeS2C(reason,color),player);
     }
     private FormAccess() {}
