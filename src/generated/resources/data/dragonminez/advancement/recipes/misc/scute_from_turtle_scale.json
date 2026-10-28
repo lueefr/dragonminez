@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "dragonminez:scute_from_turtle_scale"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_turtle_scale": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dragonminez:turtle_scale"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_turtle_scale"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "dragonminez:scute_from_turtle_scale"
+    ]
+  }
+}

@@ -38,6 +38,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ public class Raid {
 	private static final int GROUND_SEARCH_UP = 24;
 	private static final int WALKER_SEARCH_UP = 4;
 	private static final int GROUND_SEARCH_DOWN = 32;
+	private static final int MISSING_TICKS_BEFORE_LOST = 30 * 20;
 
 	@Getter
 	private final UUID raidId;
@@ -87,6 +89,7 @@ public class Raid {
 	private ServerBossEvent bossEvent;                  // transient, rebuilt on demand / after load
 	private final Set<UUID> musicListeners = new HashSet<>();
 	private final Map<UUID, Integer> outsideTicks = new HashMap<>();
+	private final Map<UUID, Integer> missingTicks = new HashMap<>();
 
 	public Raid(UUID raidId, String typeId, ResourceKey<Level> dimension, BlockPos center,
 				Set<UUID> participants, Difficulty difficulty) {
@@ -118,9 +121,17 @@ public class Raid {
 		return RaidTypes.getOrDefault(typeId);
 	}
 
+	public boolean forgetMob(UUID id) {
+		missingTicks.remove(id);
+		currentWaveEscort.remove(id);
+		return currentWaveMobs.remove(id);
+	}
+
 	public boolean replaceMob(UUID oldId, LivingEntity replacement) {
 		if (!currentWaveMobs.remove(oldId)) return false;
+		missingTicks.remove(oldId);
 
+		if (replacement instanceof Mob mob) mob.setPersistenceRequired();
 		currentWaveMobs.add(replacement.getUUID());
 		if (currentWaveEscort.remove(oldId)) currentWaveEscort.add(replacement.getUUID());
 
@@ -136,6 +147,11 @@ public class Raid {
 		RaidType type = type();
 		if (type == null) {
 			LogUtil.warn(Env.SERVER, "Raid {} has no type '{}' any more; cancelling it", raidId, typeId);
+			cancel(level);
+			return;
+		}
+		if (level.getDifficulty() == net.minecraft.world.Difficulty.PEACEFUL) {
+			LogUtil.info(Env.SERVER, "Raid {} cancelled: the world is on Peaceful", raidId);
 			cancel(level);
 			return;
 		}
@@ -182,17 +198,29 @@ public class Raid {
 
 	private int countAliveMobs(ServerLevel level) {
 		int alive = 0;
+		boolean centerLoaded = level.areEntitiesLoaded(ChunkPos.asLong(center));
 		Iterator<UUID> it = currentWaveMobs.iterator();
 		while (it.hasNext()) {
-			Entity entity = level.getEntity(it.next());
+			UUID id = it.next();
+			Entity entity = level.getEntity(id);
 			if (entity instanceof LivingEntity living && living.isAlive()) {
+				missingTicks.remove(id);
 				alive++;
 				if (living instanceof DBSagasEntity saga) saga.setRaidTargets(participants);
 			} else if (entity == null) {
 				// Not currently loaded (chunk unloaded). Treat as still pending so the wave doesn't
 				// complete prematurely; it will be recounted once the chunk reloads.
-				alive++;
+				int missing = centerLoaded ? missingTicks.merge(id, 1, Integer::sum) : missingTicks.getOrDefault(id, 0);
+				if (missing >= MISSING_TICKS_BEFORE_LOST) {
+					LogUtil.warn(Env.SERVER, "Raid {} lost track of mob {}; counting it as defeated", raidId, id);
+					missingTicks.remove(id);
+					currentWaveEscort.remove(id);
+					it.remove();
+				} else {
+					alive++;
+				}
 			} else {
+				missingTicks.remove(id);
 				it.remove();
 			}
 		}
@@ -238,6 +266,7 @@ public class Raid {
 		currentWaveIndex = waveIndex;
 		currentWaveMobs.clear();
 		currentWaveEscort.clear();
+		missingTicks.clear();
 
 		RaidDefinition.Wave wave = type.wave(waveIndex);
 		RandomSource random = level.getRandom();
@@ -289,7 +318,7 @@ public class Raid {
 		if (mob instanceof DBSagasEntity saga) saga.setRaidTargets(participants);
 		if (focus != null && !spawn.isDormantUntilEscortDead()) mob.setTarget(focus);
 
-		level.addFreshEntity(mob);
+		if (!level.addFreshEntity(mob)) return null;
 
 		RaidTeams.assign(level, mob, spawn.isDormantUntilEscortDead());
 

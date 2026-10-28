@@ -23,6 +23,7 @@ public class DMZDragonDefinitionProvider implements DataProvider {
 	public CompletableFuture<?> run(CachedOutput cachedOutput) {
 		CompletableFuture<?> future = CompletableFuture.completedFuture(null);
 
+		java.util.Set<String> radarPaths = new java.util.HashSet<>();
 		Map<String, DragonBallSetDefinition> setsById = new LinkedHashMap<>();
 		for (DragonBallSetDefinition definition : DragonBallDefinitions.getBootstrapBallSets()) {
 			setsById.put(definition.getId(), definition);
@@ -31,7 +32,11 @@ public class DMZDragonDefinitionProvider implements DataProvider {
 
 		for (DragonRadarDefinition definition : DragonBallDefinitions.getBootstrapRadars()) {
 			if (definition.getBallSetId() != null && setsById.containsKey(definition.getBallSetId())) {
-				future = CompletableFuture.allOf(future, save(cachedOutput, definition.toJson(), "dragonballs/" + definition.getBallSetId() + "/definitions/radar.json"));
+				String folder = "dragonballs/" + definition.getBallSetId();
+                // Multiple radars can share a set (Earth radar and fused radar).
+                // Each save must have its own path; concurrent writes corrupt JSON.
+                if (!radarPaths.add(folder)) folder += "/" + definition.getId();
+                future = CompletableFuture.allOf(future, save(cachedOutput, definition.toJson(), folder + "/definitions/radar.json"));
 			}
 		}
 

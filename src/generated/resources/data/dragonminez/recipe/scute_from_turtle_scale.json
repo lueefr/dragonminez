@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "dragonminez",
+  "ingredients": [
+    {
+      "item": "dragonminez:turtle_scale"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft:turtle_scute"
+  }
+}

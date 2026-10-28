@@ -56,7 +56,7 @@ Be concise, technical, and direct.
 
 ## Repo Snapshot
 
-DragonMineZ 2.2 is a Minecraft mod inspired by Dragon Ball, in active development. The repository has two active branches with different loaders and rules. The mod version stays 2.2 across branches.
+DragonMineZ 2.2 is a Minecraft mod inspired by Dragon Ball, in active development. The repository has two active branches with different loaders and rules. The NeoForge branch tracks upstream 2.2.1; the Fabric branch remains based on 2.2.
 
 ### Branch `main` — NeoForge 1.21.1
 
@@ -214,6 +214,7 @@ Important systems:
 ### Localization
 
 - Source locale: `src/main/resources/assets/dragonminez/lang/en_us.json`.
+- Translations: repo-root `lang/<code>.json`, downloaded at runtime from GitHub `main` by `client/lang/LiveTranslationManager` (not bundled in the jar). Add new keys to `en_us.json` only; translators update `lang/` through PRs.
 - Keep localization keys stable unless intentionally renaming.
 - Update language entries when adding user-visible text.
 - Validate language JSON when possible.

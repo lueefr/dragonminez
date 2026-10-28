@@ -1,5 +1,6 @@
 package com.dragonminez.client.gui.dialogue;
 
+import com.dragonminez.client.events.DMZClientEvent;
 import com.dragonminez.client.gui.character.minigames.UltimateChallenge;
 import com.dragonminez.client.gui.hair.HairEditorScreen;
 import com.dragonminez.common.alignment.AlignmentBand;
@@ -12,6 +13,7 @@ import com.dragonminez.server.util.BabaReviveService;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -77,6 +79,7 @@ final class MasterServices {
 			default -> {
 			}
 		}
+		NeoForge.EVENT_BUS.post(new DMZClientEvent.NpcDialogueOptionsEvent(npcId, stats, player, host, options));
 	}
 
 	private void karin(List<DialogueOption> options, StatsData stats, LocalPlayer player) {

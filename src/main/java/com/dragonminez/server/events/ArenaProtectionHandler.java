@@ -7,6 +7,7 @@ import com.dragonminez.server.world.tournament.Tournament;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +16,6 @@ import net.neoforged.neoforge.event.entity.EntityMobGriefingEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
@@ -23,6 +23,8 @@ import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import java.util.List;
 import java.util.UUID;
 
@@ -112,19 +114,20 @@ public class ArenaProtectionHandler {
 		}
 	}
 
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public static void onPlayerDeath(LivingDeathEvent event) {
+		if (!(event.getEntity() instanceof ServerPlayer player) || player.level().isClientSide()) return;
+		if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
+		if (!Tournament.Manager.isInNonLethalMatch(player)) return;
+
+		event.setCanceled(true);
+		Tournament.Manager.knockOut(player);
+	}
+
 	@SubscribeEvent
-	public static void onPlayerHurt(LivingIncomingDamageEvent event) {
+	public static void onOpponentHurt(LivingIncomingDamageEvent event) {
 		LivingEntity target = event.getEntity();
 		if (target == null || target.level().isClientSide()) return;
-
-		if (target instanceof ServerPlayer player) {
-			if (!Tournament.Manager.isInNonLethalMatch(player)) return;
-			if (player.getHealth() - event.getAmount() > 0.0F) return;
-
-			event.setCanceled(true);
-			Tournament.Manager.knockOut(player);
-			return;
-		}
 
 		if (!(target instanceof net.minecraft.world.entity.Mob mob)) return;
 		if (!Tournament.Manager.isNonLethalOpponent(mob)) return;

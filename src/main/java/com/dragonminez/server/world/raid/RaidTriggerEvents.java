@@ -28,6 +28,8 @@ import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 
+import net.minecraft.world.entity.Entity;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import java.util.UUID;
 
 @EventBusSubscriber(modid = Reference.MOD_ID)
@@ -76,6 +78,36 @@ public class RaidTriggerEvents {
 
 		if (raid.replaceMob(oldId, saga)) {
 			LogUtil.info(Env.SERVER, "Raid {} tracked a transform: {} -> {}", rawRaidId, oldId, saga.getUUID());
+		}
+	}
+
+	@SubscribeEvent
+	public static void onOrphanRaidMobJoin(EntityJoinLevelEvent event) {
+		if (event.getLevel().isClientSide() || !event.loadedFromDisk()) return;
+		if (event.getLevel().getServer() == null || event.getLevel().getServer().getLevel(Level.OVERWORLD) == null) return;
+		Entity entity = event.getEntity();
+		String rawRaidId = entity.getPersistentData().getString(DBSagasEntity.RAID_ID_TAG);
+		if (rawRaidId.isBlank()) return;
+
+		Raid raid = RaidSavedData.get(event.getLevel().getServer()).getRaid(UUID.fromString(rawRaidId));
+		if (raid == null || raid.isFinished()) event.setCanceled(true);
+	}
+
+	@SubscribeEvent
+	public static void onRaidMobLeave(EntityLeaveLevelEvent event) {
+		if (event.getLevel().isClientSide()) return;
+		Entity entity = event.getEntity();
+		Entity.RemovalReason reason = entity.getRemovalReason();
+		if (reason == null || (!reason.shouldDestroy() && reason != Entity.RemovalReason.CHANGED_DIMENSION)) return;
+
+		String rawRaidId = entity.getPersistentData().getString(DBSagasEntity.RAID_ID_TAG);
+		if (rawRaidId.isBlank()) return;
+
+		Raid raid = RaidSavedData.get(event.getLevel().getServer()).getRaid(UUID.fromString(rawRaidId));
+		if (raid == null || raid.isFinished()) return;
+
+		if (raid.forgetMob(entity.getUUID()) && reason != Entity.RemovalReason.KILLED) {
+			LogUtil.info(Env.SERVER, "Raid {} stopped tracking mob {} ({})", rawRaidId, entity.getUUID(), reason);
 		}
 	}
 

@@ -76,3 +76,32 @@ Validation for `fix/1.21.1-combat-visual-customization`, based on main `547af94f
 
 User configuration examples are in `docs/CONTEXTUAL-CONDITIONS.md` and
 `docs/AURA-MESH-TRANSITIONS.md`. No wiki files or SeedGen/LOD code were changed.
+
+## Upstream merge — 2026-10-28
+
+Integrated all seven upstream commits after `d824a29c`, through
+`DragonMineZ/dragonminez` main `cbb42959` (2.2.1), into the NeoForge 1.21.1 fork.
+Forge-only imports, event dispatch, pack-resource construction, entity spawn
+signatures and the scute recipe were adapted to NeoForge/Minecraft 1.21.1.
+The fork's custom form hair tabs, config generation tracking, packet throttling
+and level-based defense scaling remain supported.
+
+- `runData` passed and generated the new scute recipe and advancement. Fixed an
+  existing radar data-provider collision: Earth and fused radars no longer write
+  concurrently into the same JSON. Both generated definitions are now tested.
+- Java 21 `build runGameTestServer -PincludeClientOnlyDevMods=false` passed:
+  27 unit tests and all 40 required GameTests. Three new integration checks cover
+  the defense curve, legacy flight/resource limits and generated radar integrity.
+- `scripts/check_lang.sh` passed for bundled English and the upstream root `lang/`
+  translations. Config translations continue to overlay Minecraft's language
+  lookup; the new GitHub live pack supplies upstream translations underneath.
+- Logs: `/tmp/dmz-upstream-datagen-02.log` and
+  `/tmp/dmz-upstream-validation-02.log`.
+- No wiki or SeedGen/LOD code was changed. These checks do not represent a full
+  gameplay campaign or validate every optional shader/mod combination.
+- Packaged-client validation also passed with Sodium/Iris, Complementary and
+  Dynamic Crosshair: addon tab registration/ordering/onOpen, cached live-pack
+  translation lookup, bow crosshair in third person, intermediate 3D aura mesh
+  weights with a configured 2-second transition, and depth testing on 170 visible
+  and bloom ki draws. This uses a disposable flat world and Xvfb/Mesa software
+  rendering. Log: `/tmp/dmz-upstream-client-02.log`.

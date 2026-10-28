@@ -111,7 +111,6 @@ public final class NotificationFeeds {
 			Component waypoint = waypointLine(objective, progress);
 			if (waypoint != null) text.append(net.minecraft.network.chat.Component.translatable("text.dragonminez.fragment.01ba4719c8")).append(waypoint);
 			any = true;
-			if (!quest.isParallelObjectives()) break;
 		}
 		return any ? text : Component.translatable("gui.dragonminez.quests.status.complete");
 	}
