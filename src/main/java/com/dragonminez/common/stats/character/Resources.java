@@ -175,14 +175,22 @@ public class Resources {
 
         double oldValue = this.trainingPoints;
         if (amount >= Integer.MAX_VALUE) {
-            setTrainingPointsExact(oldValue + amount);
+            addGain(oldValue,amount);
             return;
         }
         DMZEvent.TPGainEvent event = new DMZEvent.TPGainEvent(player, (int) Math.min(oldValue, Integer.MAX_VALUE), (int) amount, shareWithParty, preBoosted);
 
         if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
-            setTrainingPointsExact(oldValue + event.getTpGain());
+            addGain(oldValue,event.getTpGain());
         }
+    }
+
+    private void addGain(double previous,double amount) {
+        if(statsData!=null&&player instanceof ServerPlayer&&statsData.getStatus().isHasCreatedCharacter()) {
+            amount=Math.min(Double.MAX_VALUE,amount*ConfigManager.getAttributes().multiplier(statsData,"TP"));
+            amount=statsData.getRebirth().award(ConfigManager.getRebirth(),amount);
+        }
+        setTrainingPointsExact(previous+amount);
     }
 
     public void addRacialSkillCount(int amount) { setRacialSkillCount(racialSkillCount + amount); }

@@ -128,6 +128,7 @@ public class ModClientEvents {
 				SkinGathererProvider.clearShadedLayers();
 				DBSagaModel.clearCache();
 				ArmorTextureResolver.clearCache();
+                com.dragonminez.client.util.ClothingTextures.clearCache();
 				CombatAnimationResolver.reload(resourceManager);
 				EvasionAnimations.reload(resourceManager);
 				KiAnimations.reload(resourceManager);

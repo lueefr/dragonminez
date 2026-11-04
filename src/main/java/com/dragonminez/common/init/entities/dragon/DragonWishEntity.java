@@ -46,6 +46,7 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 	private static final EntityDataAccessor<Boolean> GRANTED_WISH = SynchedEntityData.defineId(DragonWishEntity.class, EntityDataSerializers.BOOLEAN);
 	private static final EntityDataAccessor<String> DRAGON_DEFINITION_ID = SynchedEntityData.defineId(DragonWishEntity.class, EntityDataSerializers.STRING);
 	private static final EntityDataAccessor<Integer> DESPAWN_FADE = SynchedEntityData.defineId(DragonWishEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> WISH_COUNT = SynchedEntityData.defineId(DragonWishEntity.class, EntityDataSerializers.INT);
 	public static final int FADE_TICKS = 50;
 
 	private long summonExpiresAt;
@@ -73,6 +74,7 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 		builder.define(GRANTED_WISH, false);
 		builder.define(DRAGON_DEFINITION_ID, defaultDragonDefinitionId == null ? "" : defaultDragonDefinitionId);
 		builder.define(DESPAWN_FADE, -1);
+        builder.define(WISH_COUNT, -1);
 	}
 
 	@Override
@@ -85,6 +87,10 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 	@Override
 	public void tick() {
 		super.tick();
+        if (!this.level().isClientSide) {
+            var definition = getDragonDefinition();
+            if (definition != null) this.entityData.set(WISH_COUNT, definition.getWishCount());
+        }
 		if (this.level() instanceof ServerLevel serverLevel && !this.isRemoved() && this.tickCount % 20 == 0) checkSummon(serverLevel);
 		if (this.level().isClientSide) {
 			if (isFading()) spawnFadeParticles();
@@ -151,7 +157,7 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 		DragonDefinition definition = getDragonDefinition();
 		if (definition != null && this.level().isClientSide && this.getOwnerName().equals(player.getName().getString())) {
 			if (!this.hasGrantedWish() && Minecraft.getInstance().player != null && Minecraft.getInstance().player.equals(player)) {
-				Minecraft.getInstance().setScreen(new WishesScreen(this.getId(), definition.getWishScreenId(), definition.getWishCount()));
+				Minecraft.getInstance().setScreen(new WishesScreen(this.getId(), definition.getWishScreenId(), wishCount()));
 				Minecraft.getInstance().player.playSound(MainSounds.UI_MENU_SWITCH.get());
 			}
 		}
@@ -232,6 +238,12 @@ public class DragonWishEntity extends Mob implements GeoEntity {
 	public long getSummonExpiresAt() { return this.summonExpiresAt; }
 	public void setDragonDefinitionId(String id) { this.entityData.set(DRAGON_DEFINITION_ID, id); }
 	public String getDragonDefinitionId() { return this.entityData.get(DRAGON_DEFINITION_ID); }
+
+    public int wishCount() {
+        int count = this.entityData.get(WISH_COUNT);
+        var definition = getDragonDefinition();
+        return count > 0 ? count : definition == null ? 1 : definition.getWishCount();
+    }
 
 	public float getRenderScale() {
 		return switch (getDragonDefinitionId()) {

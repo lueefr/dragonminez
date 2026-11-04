@@ -90,6 +90,9 @@ public class ConfigManager {
 		private Map<String, FormConfig> stackForms = new HashMap<>();
 		private EntitiesConfig entities;
         private RuleConfig rules = new RuleConfig();
+        private ClothingConfig clothing = ClothingConfig.defaults();
+        private RebirthConfig rebirth = new RebirthConfig();
+        private AttributeConfig attributes = new AttributeConfig();
         private Map<String, Map<String, String>> translations = new HashMap<>();
 	}
 
@@ -112,6 +115,14 @@ public class ConfigManager {
     private static final Map<String,Map<String,FormConfig>> SAFE_DEFAULT_FORMS=new HashMap<>();
     private static final Map<String,FormConfig> SAFE_DEFAULT_STACKS=new HashMap<>();
     private static RuleConfig rulesConfig = new RuleConfig();
+    private static ClothingConfig clothing = ClothingConfig.defaults();
+    private static RebirthConfig rebirth = new RebirthConfig();
+    private static AttributeConfig attributes = new AttributeConfig();
+    public static AttributeConfig getAttributes() { return useServerSync() ? SYNCED.attributes : attributes; }
+    public static RebirthConfig getRebirth() { return useServerSync() ? SYNCED.rebirth : rebirth; }
+    private static boolean clothingGate = true;
+    public static boolean clothingGate() { return clothingGate; }
+    public static ClothingConfig getClothing() { return useServerSync() ? SYNCED.clothing : clothing; }
     public static RuleConfig getRulesConfig() { return useServerSync() ? SYNCED.rules : rulesConfig; }
 
 	public static void initialize() {
@@ -170,6 +181,12 @@ public class ConfigManager {
 	}
 
     private static void loadExtensionConfigs()throws IOException{
+        try{attributes=AttributeConfig.load(CONFIG_DIR.resolve("progression/attributes.json"));}
+        catch(IOException|RuntimeException ex){attributes=new AttributeConfig();LogUtil.error(Env.COMMON,"Invalid attributes configuration: {}. Originals left untouched.",ex.getMessage());}
+        try{rebirth=RebirthConfig.load(CONFIG_DIR.resolve("progression/reincarnation.json"));}
+        catch(IOException|RuntimeException ex){rebirth=new RebirthConfig();rebirth.enabled=false;LogUtil.error(Env.COMMON,"Invalid reincarnation configuration: {}. Feature disabled; original left untouched.",ex.getMessage());}
+        try{clothing=ClothingConfig.load(CONFIG_DIR.resolve("appearance/clothing.json"));}
+        catch(IOException|RuntimeException ex){clothing=ClothingConfig.defaults();LogUtil.error(Env.COMMON,"Invalid clothing configuration: {}. Using defaults; original left untouched.",ex.getMessage());}
         try{com.dragonminez.api.lang.ConfigTranslations.INSTANCE.reload(CONFIG_DIR.resolve("lang"));}
         catch(RuntimeException ex){LogUtil.error(Env.COMMON,"Invalid config translations: {}. Originals left untouched.",ex.getMessage());}
         try{com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.reload(CONFIG_DIR);}
@@ -185,6 +202,10 @@ public class ConfigManager {
             rulesConfig=new RuleConfig();com.dragonminez.common.config.schema.ContentMigration.begin();
             LogUtil.error(Env.COMMON,"Invalid extension rules: {}. Using defaults; original left untouched.",ex.getMessage());
         }
+        try{AttributeConfig.parse(GSON.toJson(attributes));}
+        catch(RuntimeException ex){attributes=new AttributeConfig();LogUtil.error(Env.COMMON,"Invalid character attributes: {}. Originals left untouched.",ex.getMessage());}
+        try{RebirthConfig.parse(GSON.toJson(rebirth));}
+        catch(RuntimeException ex){rebirth=new RebirthConfig();rebirth.enabled=false;LogUtil.error(Env.COMMON,"Invalid reincarnation rules: {}. Originals left untouched.",ex.getMessage());}
         validateFormComposition();
         try{com.dragonminez.common.config.schema.ContentMigration.commitPending();}
         catch(IOException ex){throw new IllegalStateException("Content migration failed; original backups retained",ex);}
@@ -1490,7 +1511,7 @@ public class ConfigManager {
 			stream.filter(Files::isRegularFile)
 					.filter(p -> p.toString().endsWith(".json"))
 					.filter(p -> !p.getFileName().toString().toLowerCase().startsWith("old_"))
-					.filter(p -> !CONFIG_DIR.relativize(p).toString().replace("\\", "/").startsWith(OLD_BACKUP_DIR + "/"))
+					.filter(p -> java.util.stream.StreamSupport.stream(CONFIG_DIR.relativize(p).spliterator(), false).noneMatch(part -> part.toString().equals(OLD_BACKUP_DIR)))
 					.forEach(p -> {
 						String relativePath = CONFIG_DIR.relativize(p).toString().replace("\\", "/");
 						CACHED_CONFIG_FILES.add(relativePath.substring(0, relativePath.length() - 5));
@@ -1597,11 +1618,17 @@ public class ConfigManager {
 		} else if (configFilePath.startsWith("forms/")) {
 			FormConfig formConfig = LOADER.loadConfig(path, FormConfig.class);
 			STACK_FORMS.put(formGroupKey(formConfig, configFilePath.split("/")[1]), formConfig);
+        } else if (configFilePath.equals("progression/attributes")) {
+            attributes = AttributeConfig.load(CONFIG_DIR.resolve("progression/attributes.json"));
+        } else if (configFilePath.equals("progression/reincarnation")) {
+            rebirth = RebirthConfig.load(CONFIG_DIR.resolve("progression/reincarnation.json"));
+        } else if (configFilePath.equals("appearance/clothing")) {
+            clothing = ClothingConfig.load(CONFIG_DIR.resolve("appearance/clothing.json"));
         } else if (configFilePath.equals("rules")) {
             rulesConfig = RuleConfig.load(CONFIG_DIR.resolve("rules.json"));
         } else if (configFilePath.startsWith("lang/")) {
             com.dragonminez.api.lang.ConfigTranslations.INSTANCE.reload(CONFIG_DIR.resolve("lang"));
-        } else if (configFilePath.startsWith("custom_npcs/") || configFilePath.startsWith("custom_npc_placements/")) {
+        } else if (configFilePath.startsWith("npcs/") || configFilePath.startsWith("custom_npcs/") || configFilePath.startsWith("custom_npc_placements/")) {
             com.dragonminez.api.npc.CustomNpcRegistry.INSTANCE.reload(CONFIG_DIR);
             rulesConfig = RuleConfig.load(CONFIG_DIR.resolve("rules.json"));
         }
@@ -1647,7 +1674,7 @@ public class ConfigManager {
 	public static List<String> getEditorConfigFiles() {
 		if (!isViewingRemoteServerConfig()) return new ArrayList<>(getAvailableConfigFiles());
 		SyncedConfigs synced = SYNCED;
-		List<String> files = new ArrayList<>(List.of("general-server", "combat", "training", "skills", "techniques", "entities", "rules", CLIENT_ONLY_CONFIG, HudLayoutConfig.FILE_NAME));
+		List<String> files = new ArrayList<>(List.of("general-server", "combat", "training", "skills", "techniques", "entities", "rules", "appearance/clothing", "progression/reincarnation", "progression/attributes", CLIENT_ONLY_CONFIG, HudLayoutConfig.FILE_NAME));
 		synced.character.keySet().forEach(race -> files.add("races/" + race + "/character"));
 		synced.stats.keySet().forEach(race -> files.add("races/" + race + "/stats"));
 		synced.forms.forEach((race, groups) -> groups.keySet().forEach(group -> files.add("races/" + race + "/forms/" + group)));
@@ -1666,6 +1693,9 @@ public class ConfigManager {
 			case "techniques" -> synced.techniques;
 			case "entities" -> synced.entities;
             case "rules" -> synced.rules;
+            case "appearance/clothing" -> synced.clothing;
+            case "progression/reincarnation" -> synced.rebirth;
+            case "progression/attributes" -> synced.attributes;
 			default -> null;
 		};
 		String[] parts = configFilePath.split("/");
@@ -1702,6 +1732,9 @@ public class ConfigManager {
 		addSyncPayload(payloads, "combat", GSON.toJson(combatConfig != null ? combatConfig : DefaultConfigs.COMBAT));
 		addSyncPayload(payloads, "training", GSON.toJson(trainingConfig != null ? trainingConfig : DefaultConfigs.TRAINING));
 		addSyncPayload(payloads, "rules", GSON.toJson(rulesConfig));
+        addSyncPayload(payloads, "appearance/clothing", GSON.toJson(clothing));
+        addSyncPayload(payloads, "progression/reincarnation", GSON.toJson(rebirth));
+        addSyncPayload(payloads, "progression/attributes", GSON.toJson(attributes));
 		addSyncPayload(payloads, "skills", GSON.toJson(skillsConfig != null ? skillsConfig : DefaultConfigs.SKILLS));
 		addSyncPayload(payloads, "techniques", GSON.toJson(techniqueConfig != null ? techniqueConfig : DefaultConfigs.TECHNIQUES));
 		addSyncPayload(payloads, "entities", GSON.toJson(entitiesConfig != null ? entitiesConfig : DefaultConfigs.ENTITIES));
@@ -1740,6 +1773,7 @@ public class ConfigManager {
 			reset = false;
 		}
 		NetworkHandler.sendToPlayer(new SyncServerConfigS2C(SYNC_END_MARKER, new byte[0], reset), player);
+        NetworkHandler.sendToPlayer(new SyncServerConfigS2C("appearance/clothing_gate", Boolean.toString(player.serverLevel().getGameRules().getBoolean(com.dragonminez.common.init.MainGameRules.CLOTHING_TOP)), false), player);
 	}
 
 	public static boolean applySpecificSyncedConfig(String configFilePath, String json) {
@@ -1747,12 +1781,19 @@ public class ConfigManager {
 			commitServerSyncBatch();
 			return true;
 		}
-		SyncedConfigs target = pendingSync != null ? pendingSync : SYNCED;
+		if (configFilePath.equals("appearance/clothing_gate")) {
+            clothingGate = JsonParser.parseString(json).getAsBoolean();
+            return true;
+        }
+        SyncedConfigs target = pendingSync != null ? pendingSync : SYNCED;
 		try {
 			if (configFilePath.equals("general-server")) target.generalServer = GSON.fromJson(json, GeneralServerConfig.class);
 			else if (configFilePath.equals("combat")) target.combat = GSON.fromJson(json, CombatConfig.class);
 			else if (configFilePath.equals("training")) target.training = GSON.fromJson(json, TrainingConfig.class);
 			else if (configFilePath.equals("rules")) target.rules = RuleConfig.parse(json);
+            else if (configFilePath.equals("appearance/clothing")) target.clothing = ClothingConfig.parse(json);
+            else if (configFilePath.equals("progression/reincarnation")) target.rebirth = RebirthConfig.parse(json);
+            else if (configFilePath.equals("progression/attributes")) target.attributes = AttributeConfig.parse(json);
 			else if (configFilePath.equals("skills")) target.skills = GSON.fromJson(json, SkillsConfig.class);
 			else if (configFilePath.equals("techniques")) target.techniques = GSON.fromJson(json, TechniqueConfig.class);
 			else if (configFilePath.equals("entities")) target.entities = GSON.fromJson(json, EntitiesConfig.class);
@@ -1796,6 +1837,7 @@ public class ConfigManager {
 	}
 
 	public static void clearServerSync() {
+        clothingGate = true;
         com.dragonminez.api.lang.ConfigTranslations.INSTANCE.clearRemote();
         formConfigGeneration++;
 		pendingSync = null;

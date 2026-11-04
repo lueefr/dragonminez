@@ -13,9 +13,12 @@ import java.util.List;
 /** Use-only conditions. Unlock and purchase checks deliberately do not consult this API. */
 public final class FormAccess {
     public static List<Component> missing(StatsData data, String group, String form, boolean stack) {
-        FormConfig.FormData definition = stack ? ConfigManager.getStackForm(group, form)
-                : ConfigManager.getForm(data.getCharacter().getRaceName(), group, form);
-        return definition == null ? List.of() : Conditions.missing(new Conditions.Context(data, group+"."+form), definition.getUse());
+        var result=new java.util.ArrayList<Component>();
+        FormConfig.FormData definition=FormVariants.data(data,group,form,stack);
+        if(FormVariants.blocked(data,group,form))result.add(Component.translatable("rules.dragonminez.attribute_block",name(data,group+"."+form)));
+        if(definition!=null)result.addAll(Conditions.missing(new Conditions.Context(data,FormVariants.resolve(data,group,form).key()),definition.getUse()));
+        else result.add(Component.translatable("rules.dragonminez.form_missing"));
+        return List.copyOf(result);
     }
     public static boolean allow(StatsData data, String group, String form, boolean stack, boolean forced) {
         if (data == null || data.getPlayer() == null || data.getPlayer().level().isClientSide
@@ -30,13 +33,15 @@ public final class FormAccess {
         return forced;
     }
     public static Component name(StatsData data, String ref) {
-        Component name = FormHair.name(data.getCharacter().getRaceName(),ref);
+        int dot=ref.lastIndexOf('.');var target=FormVariants.resolve(data,ref.substring(0,dot),ref.substring(dot+1));
+        Component name = FormHair.name(data.getCharacter().getRaceName(),target.key());
         Integer color = color(data,ref);
         return color == null ? name : name.copy().withStyle(style -> style.withColor(color));
     }
     public static Integer color(StatsData data,String ref) {
         try {
-            var form = FormHair.get(data.getCharacter().getRaceName(),ref);
+            int dot=ref.lastIndexOf('.');var target=FormVariants.resolve(data,ref.substring(0,dot),ref.substring(dot+1));
+            var form = FormHair.get(data.getCharacter().getRaceName(),target.key());
             String hex = form == null ? null : form.getHairColor();
             if(hex==null||hex.isBlank())hex=data.getCharacter().getHairColor();
             if(hex != null && hex.matches("#?[0-9a-fA-F]{6}")) return Integer.parseInt(hex.replace("#",""),16);
@@ -53,6 +58,10 @@ public final class FormAccess {
         int dot=ref.lastIndexOf('.');if(dot<=0)return null;
         var definition=ConfigManager.getForm(race,ref.substring(0,dot),ref.substring(dot+1));
         if(definition==null)definition=ConfigManager.getStackForm(ref.substring(0,dot),ref.substring(dot+1));
+        if(data!=null&&(race.equals(data.getCharacter().getRaceName())||race.equals("stack"))) {
+            var effective=FormVariants.data(data,ref.substring(0,dot),ref.substring(dot+1),race.equals("stack"));
+            if(effective!=null)definition=effective;
+        }
         if(definition==null)return null;
         String hex=definition.getHairColor();
         if((hex==null||hex.isBlank())&&data!=null)hex=data.getCharacter().getHairColor();
@@ -86,7 +95,6 @@ public final class FormAccess {
         if (!com.dragonminez.common.network.PacketRateLimiter.allow(player.getUUID(),"rule_notice",player.serverLevel().getGameTime(),10)) return;
         var data=com.dragonminez.common.stats.StatsProvider.get(com.dragonminez.common.stats.StatsCapability.INSTANCE,player).orElse(null);
         if(data!=null)reason=coloredNames(reason,data);
-        if(isMasteryNotice(reason)){player.displayClientMessage(reason,true);return;}
         NetworkHandler.sendToPlayer(new RuleNoticeS2C(reason,color),player);
     }
     private FormAccess() {}

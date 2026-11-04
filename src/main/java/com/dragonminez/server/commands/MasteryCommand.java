@@ -131,13 +131,18 @@ public class MasteryCommand {
 		if (targets.size() == 1) {
 			ServerPlayer target = targets.iterator().next();
 			ctx.getSource().sendSuccess(() -> Component.translatable("command.dragonminez.mastery." + modeKey + ".success",
-					value, group, form, target.getName().getString()), log);
+					value, group, formName(target,group,form), target.getName().getString()), log);
 		} else {
 			ctx.getSource().sendSuccess(() -> Component.translatable("command.dragonminez.mastery." + modeKey + ".multiple",
-					value, group, form, targets.size()), log);
+					value, group, formName(targets.iterator().next(),group,form), targets.size()), log);
 		}
 		return targets.size();
 	}
+
+    private static Component formName(ServerPlayer player,String group,String form) {
+        var data=StatsProvider.get(StatsCapability.INSTANCE,player).orElse(null);
+        return data==null?com.dragonminez.api.forms.FormHair.name("stack",group+"."+form):com.dragonminez.api.forms.FormAccess.name(data,group+"."+form);
+    }
 
 	private static int setCurrentMastery(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets, boolean add, boolean stack) {
 		double value = DoubleArgumentType.getDouble(ctx, "value");
@@ -162,7 +167,7 @@ public class MasteryCommand {
 			apply(target, data, group, form, value, add, stack);
 			applied++;
 			ctx.getSource().sendSuccess(() -> Component.translatable("command.dragonminez.mastery." + modeKey + ".success",
-					value, group, form, target.getName().getString()), log);
+					value, group, formName(target,group,form), target.getName().getString()), log);
 		}
 		return applied;
 	}

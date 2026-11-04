@@ -285,7 +285,7 @@ public class ExecuteActionC2S {
 		}
 
 		FormConfig.FormData previousForm = TransformationsHelper.getPreviousForm(data);
-		String activeGroup = data.getCharacter().getActiveFormGroup();
+		String activeGroup = data.getCharacter().slotGroup();
 		String target = previousForm != null ? previousForm.getName() : null;
 		if (!ignoreEvolutionFloor && TransformationsHelper.isBelowEvolutionFloor(data, activeGroup, target)) return;
 
@@ -315,7 +315,7 @@ public class ExecuteActionC2S {
 
 		FormConfig.FormData previousForm = TransformationsHelper.getPreviousStackForm(data);
 		if (previousForm != null) {
-			data.getCharacter().setActiveStackForm(data.getCharacter().getActiveStackFormGroup(), previousForm.getName());
+			data.getCharacter().setActiveStackForm(data.getCharacter().stackGroup(), previousForm.getName());
 			playFormSound(player, MainSounds.INSTA_FORM_OFF.get());
 		} else {
 			data.getCharacter().clearActiveStackForm(player);

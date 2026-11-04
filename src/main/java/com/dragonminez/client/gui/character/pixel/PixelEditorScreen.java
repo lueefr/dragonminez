@@ -1330,7 +1330,7 @@ public class PixelEditorScreen extends ScaledScreen {
 		int previewY = previewRowY();
 		HairEditorUi.divider(graphics, textX, x + width - 8, previewY - 4);
 		TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("gui.dragonminez.pixel_editor.preview"), x + width / 2, previewY - 1, HairEditorUi.TITLE);
-		TextUtil.drawCenteredStringWithBorder(graphics, this.font, txt(formPreview.displayName()), x + width / 2, previewY + 10, HairEditorUi.TEXT);
+		TextUtil.drawCenteredStringWithBorder(graphics, this.font, formPreview.displayNameComponent(), x + width / 2, previewY + 10, HairEditorUi.TEXT);
 		if (prevFormButton != null) prevFormButton.visible = formPreview.size() > 1;
 		if (nextFormButton != null) nextFormButton.visible = formPreview.size() > 1;
 	}

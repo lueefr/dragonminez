@@ -82,10 +82,12 @@ public class TransformStatusHandler implements IStatusEffectHandler {
 
         CompoundTag effectTag = getOrCreateEffectTag(player);
 
-        String activeForm = normalizeFormName(data.getCharacter().getActiveForm(), true);
-        String activeFormGroup = normalizeGroupName(data.getCharacter().getActiveFormGroup());
-        String activeStackForm = normalizeFormName(data.getCharacter().getActiveStackForm(), false);
-        String activeStackGroup = normalizeGroupName(data.getCharacter().getActiveStackFormGroup());
+        var effective=com.dragonminez.api.forms.FormVariants.resolve(data,data.getCharacter().getActiveFormGroup(),data.getCharacter().getActiveForm());
+        var stacked=com.dragonminez.api.forms.FormVariants.resolve(data,data.getCharacter().getActiveStackFormGroup(),data.getCharacter().getActiveStackForm());
+        String activeForm = normalizeFormName(effective.form(), true);
+        String activeFormGroup = normalizeGroupName(effective.group());
+        String activeStackForm = normalizeFormName(stacked.form(), false);
+        String activeStackGroup = normalizeGroupName(stacked.group());
 
         String lastForm = decodeNullable(effectTag.getString(TAG_LAST_FORM));
         String lastFormGroup = decodeNullable(effectTag.getString(TAG_LAST_FORM_GROUP));

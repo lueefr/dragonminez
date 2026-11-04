@@ -54,12 +54,15 @@ public class FormSelectNode extends AbstractRadialNode {
 
 	@Override
 	public ResourceLocation icon(StatsData stats) {
-		return icon;
+        var target=com.dragonminez.api.forms.FormVariants.resolve(stats,group,form);
+        var config=stack?ConfigManager.getStackFormGroup(target.group()):ConfigManager.getFormGroup(race,target.group());
+        return config==null?icon:iconForFormType(config.getFormType());
 	}
 
 	@Override
 	public int iconTint(StatsData stats) {
-		return tint;
+        var definition=com.dragonminez.api.forms.FormVariants.data(stats,group,form,stack);
+        return definition==null?tint:tintOf(definition);
 	}
 
 	@Override

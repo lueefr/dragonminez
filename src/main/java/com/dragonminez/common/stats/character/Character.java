@@ -408,18 +408,26 @@ public class Character {
 	}
 
 	public void setRace(String race) {
+        if(statsData!=null)statsData.getRebirth().race(getRaceName(),race==null?"human":race.toLowerCase(java.util.Locale.ROOT),statsData.getStatus().isHasCreatedCharacter());
 		if (race != null) this.race = race.toLowerCase();
 		else this.race = "human";
 		if (!canHaveGender() && !gender.equals(GENDER_MALE)) this.gender = GENDER_MALE;
 		updateOozaruCache();
 	}
 
+    public String getSelectedFormGroup() { return com.dragonminez.api.forms.FormVariants.slot(statsData,selectedFormGroup,selectedForm).group(); }
+    public String getSelectedForm() { return com.dragonminez.api.forms.FormVariants.slot(statsData,selectedFormGroup,selectedForm).form(); }
+    public String getSelectedStackFormGroup() { return com.dragonminez.api.forms.FormVariants.slot(statsData,selectedStackFormGroup,selectedStackForm).group(); }
+    public String getSelectedStackForm() { return com.dragonminez.api.forms.FormVariants.slot(statsData,selectedStackFormGroup,selectedStackForm).form(); }
+
 	public void setSelectedFormGroup(String selectedFormGroup) {
 		this.selectedFormGroup = safeString(selectedFormGroup);
 	}
 
 	public void setSelectedForm(String selectedForm) {
-		this.selectedForm = safeString(selectedForm);
+        var slot = com.dragonminez.api.forms.FormVariants.slot(statsData, selectedFormGroup, safeString(selectedForm));
+        this.selectedFormGroup = slot.group();
+        this.selectedForm = slot.form();
 	}
 
 	public void setSelectedStackFormGroup(String selectedStackFormGroup) {
@@ -427,7 +435,9 @@ public class Character {
 	}
 
 	public void setSelectedStackForm(String selectedStackForm) {
-		this.selectedStackForm = safeString(selectedStackForm);
+        var slot = com.dragonminez.api.forms.FormVariants.slot(statsData, selectedStackFormGroup, safeString(selectedStackForm));
+        this.selectedStackFormGroup = slot.group();
+        this.selectedStackForm = slot.form();
 	}
 
 	public String getRaceName() {
@@ -702,6 +712,15 @@ public class Character {
 
     @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) private transient String pendingFormGroup;
     @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) private transient String pendingStackGroup;
+    public String slotGroup() { return activeFormGroup; }
+    public String slotForm() { return activeForm; }
+    public String stackGroup() { return activeStackFormGroup; }
+    public String stackForm() { return activeStackForm; }
+    public String getActiveFormGroup() { return com.dragonminez.api.forms.FormVariants.resolve(statsData,activeFormGroup,activeForm).group(); }
+    public String getActiveForm() { return com.dragonminez.api.forms.FormVariants.resolve(statsData,activeFormGroup,activeForm).form(); }
+    public String getActiveStackFormGroup() { return com.dragonminez.api.forms.FormVariants.resolve(statsData,activeStackFormGroup,activeStackForm).group(); }
+    public String getActiveStackForm() { return com.dragonminez.api.forms.FormVariants.resolve(statsData,activeStackFormGroup,activeStackForm).form(); }
+
     /** Compatibility for scripts assigning group then form; commit the pair atomically. */
     public void setActiveFormGroup(String group){pendingFormGroup=group==null?"":group;}
     public void setActiveForm(String form){
@@ -716,22 +735,25 @@ public class Character {
 
 	public void setActiveForm(String groupName, String formName) {
         pendingFormGroup=null;
+        var slot=com.dragonminez.api.forms.FormVariants.slot(statsData,groupName,formName);groupName=slot.group();formName=slot.form();
         if (!com.dragonminez.api.forms.FormAccess.allow(statsData,groupName,formName,false,false)) return;
         setActiveFormUnchecked(groupName,formName);
     }
 
     public void forceSetActiveForm(String groupName,String formName) {
         pendingFormGroup=null;
+        var slot=com.dragonminez.api.forms.FormVariants.slot(statsData,groupName,formName);groupName=slot.group();formName=slot.form();
         com.dragonminez.api.forms.FormAccess.allow(statsData,groupName,formName,false,true);
         setActiveFormUnchecked(groupName,formName);
     }
 
     private void setActiveFormUnchecked(String groupName,String formName) {
+        var previous = com.dragonminez.api.forms.FormVariants.resolve(statsData, activeFormGroup, activeForm);
         if (statsData != null && (!java.util.Objects.equals(activeFormGroup, groupName)
                 || !java.util.Objects.equals(activeForm, formName))
-                && !com.dragonminez.api.forms.FormCompositionRuntime.usesCurrent(statsData, activeFormGroup, activeForm)) {
-            this.compositionBaseFormGroup = activeFormGroup;
-            this.compositionBaseForm = activeForm;
+                && !com.dragonminez.api.forms.FormCompositionRuntime.usesCurrent(statsData, previous.group(), previous.form())) {
+            this.compositionBaseFormGroup = previous.group();
+            this.compositionBaseForm = previous.form();
         }
 		this.activeFormGroup = groupName != null ? groupName : "";
 		this.activeForm = formName != null ? formName : "";
@@ -794,7 +816,7 @@ public class Character {
 
 	public FormConfig.FormData getActiveFormData() {
 		if (!hasActiveForm()) return null;
-		FormConfig.FormData raw = ConfigManager.getForm(getRaceName(), activeFormGroup, activeForm);
+		FormConfig.FormData raw = statsData==null?ConfigManager.getForm(getRaceName(),activeFormGroup,activeForm):com.dragonminez.api.forms.FormVariants.data(statsData,activeFormGroup,activeForm,false);
 		return isFused() ? FusionAppearance.present(this, activeFormGroup, raw) : raw;
 	}
 
@@ -867,12 +889,14 @@ public class Character {
 
 	public void setActiveStackForm(String groupName, String formName) {
         pendingStackGroup=null;
+        var slot=com.dragonminez.api.forms.FormVariants.slot(statsData,groupName,formName);groupName=slot.group();formName=slot.form();
         if (!com.dragonminez.api.forms.FormAccess.allow(statsData,groupName,formName,true,false)) return;
         setActiveStackFormUnchecked(groupName,formName);
     }
 
     public void forceSetActiveStackForm(String groupName,String formName) {
         pendingStackGroup=null;
+        var slot=com.dragonminez.api.forms.FormVariants.slot(statsData,groupName,formName);groupName=slot.group();formName=slot.form();
         com.dragonminez.api.forms.FormAccess.allow(statsData,groupName,formName,true,true);
         setActiveStackFormUnchecked(groupName,formName);
     }
@@ -914,7 +938,7 @@ public class Character {
 
 	public FormConfig.FormData getActiveStackFormData() {
 		if (!hasActiveStackForm()) return null;
-		FormConfig.FormData raw = ConfigManager.getStackForm(activeStackFormGroup, activeStackForm);
+		FormConfig.FormData raw = statsData==null?ConfigManager.getStackForm(activeStackFormGroup,activeStackForm):com.dragonminez.api.forms.FormVariants.data(statsData,activeStackFormGroup,activeStackForm,true);
 		return isFused() ? FusionAppearance.present(this, activeStackFormGroup, raw) : raw;
 	}
 

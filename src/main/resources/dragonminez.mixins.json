@@ -24,6 +24,10 @@
   "client": [
     "client.ConfigLanguageMixin",
     "client.FormNameColorMixin",
+    "client.FormNameCacheMixin",
+    "client.FormNameStyleMixin",
+    "client.FormNameFontMixin",
+    "client.FormNameScreenMixin",
     "client.AbstractSoundInstanceAccessor",
     "client.BundleTooltipComponentAccessor",
     "client.BrandingControlMixin",

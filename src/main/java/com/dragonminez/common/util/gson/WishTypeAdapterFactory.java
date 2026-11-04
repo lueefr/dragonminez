@@ -89,6 +89,7 @@ public final class WishTypeAdapterFactory implements TypeAdapterFactory {
 		}
 		return switch (type) {
 			case "item" -> ItemWish.class;
+            case "rewards" -> com.dragonminez.common.wish.wishes.RewardWish.class;
 			case "command" -> CommandWish.class;
 			case "tps" -> TPSWish.class;
 			case "multi_wish" -> MultiItemWish.class;

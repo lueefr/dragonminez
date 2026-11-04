@@ -35,7 +35,9 @@ public final class FormTransition {
 
 		boolean matches(Character character) {
 			return Objects.equals(formGroup, character.getActiveFormGroup()) && Objects.equals(form, character.getActiveForm())
-					&& Objects.equals(stackGroup, character.getActiveStackFormGroup()) && Objects.equals(stack, character.getActiveStackForm());
+					&& Objects.equals(stackGroup, character.getActiveStackFormGroup()) && Objects.equals(stack, character.getActiveStackForm())
+                    && Objects.equals(formData==null?null:formData.getName(),character.getActiveFormData()==null?null:character.getActiveFormData().getName())
+                    && Objects.equals(stackData==null?null:stackData.getName(),character.getActiveStackFormData()==null?null:character.getActiveStackFormData().getName());
 		}
 
 		public float[] overlay(float[] base, Function<FormConfig.FormData, float[]> rgb) {

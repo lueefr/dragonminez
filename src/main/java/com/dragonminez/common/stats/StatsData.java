@@ -65,7 +65,8 @@ public class StatsData {
 	private final Effects effects;
 	private final SecondaryStatEffects secondaryStatEffects;
 	private final PlayerQuestData playerQuestData;
-	private final com.dragonminez.api.forms.FormHistory formHistory = new com.dragonminez.api.forms.FormHistory();
+	private final com.dragonminez.common.progression.RebirthState rebirth = new com.dragonminez.common.progression.RebirthState();
+    private final com.dragonminez.api.forms.FormHistory formHistory = new com.dragonminez.api.forms.FormHistory();
 	private final com.dragonminez.api.content.ContentProgress contentProgress = new com.dragonminez.api.content.ContentProgress();
 	private final BonusStats bonusStats;
 	private final Techniques techniques;
@@ -847,8 +848,9 @@ public class StatsData {
 		double secondary = statName.equalsIgnoreCase("DEF") ? 1.0 : secondaryStatEffects.getMultiplier(statName);
 		double kiShare = GodRitualHelper.kiShareMultiplier(this, statName);
 
-		if (ConfigManager.getServerConfig().getGameplay().getMultiplicationInsteadOfAdditionForMultipliers()) return form * stack * effect * secondary * kiShare;
-		else return (1.0 + (form - 1.0) + (stack - 1.0) + (effect - 1.0) + (secondary - 1.0)) * kiShare;
+        double potential=ConfigManager.getAttributes().multiplier(this,statName.toUpperCase(java.util.Locale.ROOT));
+		if (ConfigManager.getServerConfig().getGameplay().getMultiplicationInsteadOfAdditionForMultipliers()) return potential * form * stack * effect * secondary * kiShare;
+		else return potential * (1.0 + (form - 1.0) + (stack - 1.0) + (effect - 1.0) + (secondary - 1.0)) * kiShare;
 	}
 
 	public double getFormMultiplier(String statName) {
@@ -856,6 +858,8 @@ public class StatsData {
 		String currentFormGroup = character.getActiveFormGroup();
 		if (currentForm == null || currentForm.isEmpty() || currentForm.equals("base")) return 1.0;
 		if (currentFormGroup == null || currentFormGroup.isEmpty()) return 1.0;
+        var effective=com.dragonminez.api.forms.FormVariants.resolve(this,currentFormGroup,currentForm);
+        currentFormGroup=effective.group();currentForm=effective.form();
 		var formConfig = ConfigManager.getFormGroup(character.getRaceName(), currentFormGroup);
 		if (formConfig == null) return 1.0;
 		var formData = formConfig.getForm(currentForm);
@@ -1072,6 +1076,8 @@ public class StatsData {
 		String currentFormGroup = character.getActiveStackFormGroup();
 		if (currentForm == null || currentForm.isEmpty()) return 1.0;
 		if (currentFormGroup == null || currentFormGroup.isEmpty()) return 1.0;
+        var effective=com.dragonminez.api.forms.FormVariants.resolve(this,currentFormGroup,currentForm);
+        currentFormGroup=effective.group();currentForm=effective.form();
 		var formConfig = ConfigManager.getStackFormGroup(currentFormGroup);
 		if (formConfig == null) return 1.0;
 		var formData = formConfig.getForm(currentForm);
@@ -1646,9 +1652,25 @@ public class StatsData {
 		return kneeCost + (kneeCost / STAT_COST_LATE_EXPONENT) * (Math.pow(ratio, STAT_COST_LATE_EXPONENT) - 1.0);
 	}
 
+    public double levelCost(int level) {
+        int maximum=getConfiguredMaxValue();
+        if(maximum<=1)return 0;
+        int initial=getInitialTotalStats();
+        long total=Math.max(initial,getConfiguredMaxTotalStatsRaw());
+        long target=initial+(long)Math.ceil((double)(Math.clamp(level,1,maximum)-1)*(total-initial)/(maximum-1));
+        double cost=0;
+        long start=Math.max(initial,stats.getTotalStats());
+        long costStart=Math.max(initial,getTpCostTotalStats());
+        for(long point=start;point<target&&costStart+point-start<Integer.MAX_VALUE;point++)cost+=statCost((int)(costStart+point-start));
+        return cost;
+    }
+
 	public int getSingleStatCost(int simulatedTotalStats) {
+        if(!ConfigManager.getServerConfig().getDynamicGrowth().isManualTpPurchasesEnabled())return Integer.MAX_VALUE;
+        return statCost(simulatedTotalStats);
+    }
+    private int statCost(int simulatedTotalStats) {
 		var dynamicGrowthConfig = ConfigManager.getServerConfig().getDynamicGrowth();
-		if (!dynamicGrowthConfig.isManualTpPurchasesEnabled()) return Integer.MAX_VALUE;
 		double globalMult = ConfigManager.getServerConfig().getGameplay().getGlobalTpCostMultiplier();
 		double raceMult = getRaceTpCostMultiplier();
 		double totalMult = globalMult * raceMult;
@@ -1812,6 +1834,7 @@ public class StatsData {
 		nbt.put("SecondaryStatEffects", secondaryStatEffects.save());
 		nbt.put("PlayerQuestData", playerQuestData.serializeNBT());
 		nbt.put("CompletedContent", contentProgress.save());
+        nbt.put("Reincarnation", rebirth.save());
         nbt.put("FormHistory", formHistory.save());
 		nbt.put("BonusStats", bonusStats.save());
 		nbt.put("Techniques", techniques.save());
@@ -1824,6 +1847,8 @@ public class StatsData {
 
 	public void load(CompoundTag nbt) throws ClassNotFoundException {
 		boolean fullPayload = nbt.contains("Character") && nbt.contains("Stats");
+        if(nbt.contains("Reincarnation"))rebirth.load(nbt.getCompound("Reincarnation"));
+        else if(fullPayload)rebirth.load(new CompoundTag());
         if (nbt.contains("FormHistory")) formHistory.load(nbt.getCompound("FormHistory"));
         else if (fullPayload) formHistory.load(new CompoundTag());
         if (nbt.contains("CompletedContent")) contentProgress.load(nbt.getCompound("CompletedContent"));
@@ -1873,6 +1898,7 @@ public class StatsData {
 
 	public void copyFrom(StatsData other) {
 		this.contentProgress.copyFrom(other.contentProgress);
+        this.rebirth.load(other.rebirth.save());
         this.formHistory.copyFrom(other.formHistory);
 		this.stats.copyFrom(other.stats);
 		this.status.copyFrom(other.status);

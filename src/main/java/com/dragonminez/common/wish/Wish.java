@@ -16,11 +16,26 @@ public abstract class Wish {
     private final String description;
     private final String type;
     private Boolean repeatable;
+    private String id;
+    private com.google.gson.JsonObject requirements;
 
     protected Wish(String name, String description, String type) {
         this.name = name;
         this.description = description;
         this.type = type;
+    }
+
+    public String key(String dragon) {
+        String identity=id==null?name:id;
+        return "dragonminez:wish/"+java.util.UUID.nameUUIDFromBytes((dragon+"\0"+identity).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+    public boolean available(StatsData data,String dragon) {
+        return (isRepeatable()||!data.getContentProgress().hasCompleted(key(dragon)))
+                &&(requirements==null||com.dragonminez.api.rules.Conditions.test(new com.dragonminez.api.rules.Conditions.Context(data,null),requirements));
+    }
+    public void validate() {
+        if(id!=null)com.dragonminez.api.content.ContentProgress.requireId(id);
+        if(requirements!=null)com.dragonminez.api.rules.Conditions.validate(requirements);
     }
 
     public abstract void grant(ServerPlayer player);

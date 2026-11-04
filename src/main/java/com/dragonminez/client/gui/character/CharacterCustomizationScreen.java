@@ -770,7 +770,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 			TextUtil.drawCenteredStringWithBorder(graphics, this.font, tr("text.dragonminez.charactercustomizationscreen.24115e5dc1" , tr("gui.dragonminez.customization.chest_size").getString(), String.format("%.2f", character.getBoobScale())), centerX, top + 150, 0xFF9B9B);
 		}
 		if (shouldRenderFormPreviewInPreset()) {
-			TextUtil.drawCenteredStringWithBorder(graphics, this.font, txt(getCurrentPreviewTransformationName()), centerX, top + 178, 0xFFFFFF);
+			TextUtil.drawCenteredStringWithBorder(graphics, this.font, getCurrentPreviewTransformationName(), centerX, top + 178, 0xFFFFFF);
 		}
 	}
 
@@ -779,7 +779,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		int maxHairIndex = Math.max(0, getMaxHairForCurrentState() - 1);
 		Set<Integer> selected = getSelectedHeadBoneValues();
 		renderPreviewGrid(graphics, hairBar, top + 30, 0, maxHairIndex, selected::contains, PreviewRenderMode.HAIR_ONLY, true, PREVIEW_GRID_VISIBLE_ROWS);
-		TextUtil.drawCenteredStringWithBorder(graphics, this.font, txt(getCurrentPreviewTransformationName()), centerX, top + 178, 0xFFFFFF);
+		TextUtil.drawCenteredStringWithBorder(graphics, this.font, getCurrentPreviewTransformationName(), centerX, top + 178, 0xFFFFFF);
 	}
 
 	private void renderEyesText(GuiGraphics graphics, int centerX, int top) {
@@ -1746,7 +1746,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		previewFormIndex = -1;
 		previewFormOptions.add(new PreviewFormOption("", ""));
 
-		List<TransformationsHelper.OrderedFormEntry> orderedForms = TransformationsHelper.getOrderedFormsForRace(character.getRace(), PREVIEW_FORM_TYPE_ORDER);
+		List<TransformationsHelper.OrderedFormEntry> orderedForms = TransformationsHelper.orderedForms(com.dragonminez.client.text.FormNameText.viewer(),character.getRace(),PREVIEW_FORM_TYPE_ORDER);
 		for (TransformationsHelper.OrderedFormEntry entry : orderedForms) {
 			if (entry == null || entry.getFormData() == null) continue;
 			previewFormOptions.add(new PreviewFormOption(entry.getGroupName(), entry.getFormData().getName()));
@@ -1847,19 +1847,16 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		previewFormIndex = nextIndex;
 	}
 
-	private String getCurrentPreviewTransformationName() {
+	private Component getCurrentPreviewTransformationName() {
 		if (previewFormIndex < 0 || previewFormIndex >= previewFormOptions.size()) {
-			return tr("forms.dragonminez.base").getString();
+			return tr("forms.dragonminez.base");
 		}
 		PreviewFormOption option = previewFormOptions.get(previewFormIndex);
 		String rawName = option.formName != null ? option.formName : "";
-		if (rawName.isEmpty()) return tr("forms.dragonminez.base").getString();
+		if (rawName.isEmpty()) return tr("forms.dragonminez.base");
 		String raceName = character.getRace() != null ? character.getRace().toLowerCase(Locale.ROOT) : "human";
 		String translationKey = "race.dragonminez." + raceName + ".form." + option.groupName + "." + rawName;
-		if (I18n.exists(translationKey)) {
-			return tr(translationKey).getString();
-		}
-		return formatPreviewFormName(rawName);
+		return Component.translatableWithFallback(translationKey, formatPreviewFormName(rawName));
 	}
 
 	private String formatPreviewFormName(String rawName) {

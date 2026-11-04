@@ -22,6 +22,7 @@ public final class DragonBallDefinitions {
 	private static Map<String, DragonBallSetDefinition> runtimeBallSets = Map.of();
 	private static Map<String, DragonRadarDefinition> runtimeRadars = Map.of();
 	private static Map<String, DragonDefinition> runtimeDragons = Map.of();
+    private static Map<String, DragonDefinition> originalDragons = Map.of();
 	private static Map<String, DragonRadarRecipeDefinition> runtimeRadarRecipes = Map.of();
 	private static Map<String, DragonBallSetAssetDefinition> runtimeBallSetAssets = Map.of();
 	private static Map<String, DragonRadarAssetDefinition> runtimeRadarAssets = Map.of();
@@ -86,6 +87,7 @@ public final class DragonBallDefinitions {
 		runtimeBallSets = Map.copyOf(preparedBallSets);
 		runtimeRadars = copyById(radars, DragonRadarDefinition::getId);
 		runtimeDragons = copyById(dragons, DragonDefinition::getId);
+        originalDragons = runtimeDragons;
 		runtimeRadarRecipes = copyById(radarRecipes, DragonRadarRecipeDefinition::getId);
 		runtimeBallSetAssets = copyById(ballSetAssets, DragonBallSetAssetDefinition::getId);
 		runtimeRadarAssets = copyById(radarAssets, DragonRadarAssetDefinition::getId);
@@ -127,6 +129,16 @@ public final class DragonBallDefinitions {
 	public static Collection<DragonAssetDefinition> getBootstrapDragonAssets() { return Collections.unmodifiableCollection(BOOTSTRAP_DRAGON_ASSETS.values()); }
 	public static Collection<DragonBallSetDefinition> getBallSets() { return Collections.unmodifiableCollection(runtimeBallSets.values()); }
 	public static Collection<DragonRadarDefinition> getRadars() { return Collections.unmodifiableCollection(runtimeRadars.values()); }
+    public static int defaultCount(String id) {
+        return originalDragons.values().stream().filter(definition -> definition.getWishScreenId().equals(id))
+                .mapToInt(DragonDefinition::getWishCount).findFirst().orElse(1);
+    }
+    public static void wishCounts(Map<String,Integer> counts) {
+        Map<String,DragonDefinition> updated=new LinkedHashMap<>();
+        originalDragons.forEach((id,definition)->updated.put(id,counts.containsKey(definition.getWishScreenId())?definition.withCount(counts.get(definition.getWishScreenId())):definition));
+        runtimeDragons=Map.copyOf(updated);
+    }
+
 	public static Collection<DragonDefinition> getDragons() { return Collections.unmodifiableCollection(runtimeDragons.values()); }
 	public static Collection<DragonRadarRecipeDefinition> getRadarRecipes() { return Collections.unmodifiableCollection(runtimeRadarRecipes.values()); }
 	public static Collection<DragonBallSetAssetDefinition> getBallSetAssets() { return Collections.unmodifiableCollection(runtimeBallSetAssets.values()); }

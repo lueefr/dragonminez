@@ -87,21 +87,26 @@ public final class CustomNpcRegistry {
     private volatile Snapshot snapshot = new Snapshot(Map.of(), Map.of());
 
     public synchronized void reload(Path configRoot) throws IOException {
-        List<Path> candidates=new ArrayList<>(files(configRoot.resolve("custom_npcs")));
-        candidates.addAll(files(configRoot.resolve("custom_npc_placements")));
+        List<Path> candidates=new ArrayList<>(paths(configRoot,"definitions","custom_npcs"));
+        candidates.addAll(paths(configRoot,"placements","custom_npc_placements"));
         try {
         Map<String, Definition> definitions = new TreeMap<>();
-        for (Path path : files(configRoot.resolve("custom_npcs"))) {
+        for (Path path : paths(configRoot,"definitions","custom_npcs")) {
             Definition definition = read(path, Definition.class);
             toJson(definition);
             CustomNpcVisuals.get(definition.baseModel());
             if (definitions.putIfAbsent(definition.id(), definition) != null) throw new IllegalArgumentException("Duplicate custom NPC: " + definition.id());
         }
         Map<String, Placement> placements = new TreeMap<>();
-        for (Path path : files(configRoot.resolve("custom_npc_placements"))) {
+        for (Path path : paths(configRoot,"placements","custom_npc_placements")) {
             Placement placement = read(path, Placement.class);
             if (!definitions.containsKey(placement.npc())) throw new IllegalArgumentException(path + ": unknown custom NPC " + placement.npc());
             placements.put(path.getFileName().toString(), placement);
+        }
+        for(Path path:candidates) {
+            String folder=path.getParent().getFileName().toString();
+            if(folder.equals("custom_npcs")||folder.equals("custom_npc_placements"))
+                com.dragonminez.common.config.schema.ContentMigration.relocate(path,configRoot.resolve("npcs").resolve(folder.equals("custom_npcs")?"definitions":"placements").resolve(path.getFileName()));
         }
         snapshot = new Snapshot(Map.copyOf(definitions), Map.copyOf(placements));
         revision++;
@@ -114,6 +119,11 @@ public final class CustomNpcRegistry {
     public Optional<Definition> get(String id) { return Optional.ofNullable(snapshot.definitions.get(id)); }
     public Map<String, Definition> definitions() { return snapshot.definitions; }
     public Map<String, Placement> placements() { return snapshot.placements; }
+    private static List<Path> paths(Path root,String folder,String legacy)throws IOException {
+        var result=new ArrayList<>(files(root.resolve("npcs").resolve(folder)));
+        if(Files.isDirectory(root.resolve(legacy)))result.addAll(files(root.resolve(legacy)));
+        return result;
+    }
     private static List<Path> files(Path directory) throws IOException {
         Files.createDirectories(directory);
         try (var paths = Files.list(directory)) {

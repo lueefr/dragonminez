@@ -85,10 +85,10 @@ public final class ModelFormPreview {
 		Character character = cap.get().getCharacter();
 		Status status = cap.get().getStatus();
 
-		String formGroup = character.getActiveFormGroup();
-		String form = character.getActiveForm();
-		String stackGroup = character.getActiveStackFormGroup();
-		String stackForm = character.getActiveStackForm();
+		String formGroup = character.slotGroup();
+		String form = character.slotForm();
+		String stackGroup = character.stackGroup();
+		String stackForm = character.stackForm();
 		boolean androidUpgraded = status.isAndroidUpgraded();
 
 		character.clearActiveForm();

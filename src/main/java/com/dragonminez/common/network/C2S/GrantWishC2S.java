@@ -23,7 +23,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public class GrantWishC2S {
-	private static final int MAX_WISHES = 64;
+	public static final int MAX_WISHES = 64;
 	private static final int MAX_TARGETS = 256;
 
 	private final int dragonEntityId;
@@ -76,6 +76,8 @@ public class GrantWishC2S {
 			DragonDefinition definition = dragon.getDragonDefinition();
 			if (definition == null || !definition.getWishScreenId().equals(dragonType)) return;
 
+            var data=StatsProvider.get(StatsCapability.INSTANCE,player).orElse(null);
+            if(data==null)return;
 			List<Wish> allWishes = WishManager.getAllWishes().get(definition.getWishScreenId());
 			if (allWishes == null || allWishes.isEmpty()) return;
 
@@ -88,6 +90,10 @@ public class GrantWishC2S {
 				int index = selectedWishIndices.get(i);
 				if (index < 0 || index >= allWishes.size()) continue;
 				Wish wish = allWishes.get(index);
+                if(!wish.available(data,dragonType)) {
+                    com.dragonminez.api.forms.FormAccess.notice(player,net.minecraft.network.chat.Component.translatable("gui.dragonminez.wishes.unavailable"),null);
+                    return;
+                }
 				if (!wish.isRepeatable() && !used.add(index)) continue;
 				wishesToGrant.add(wish);
 				targetsToGrant.add(resolveTargets(player, wish, i < selectedTargets.size() ? selectedTargets.get(i) : List.of()));
@@ -99,6 +105,7 @@ public class GrantWishC2S {
 				Wish wish = wishesToGrant.get(i);
 				if (wish.getMaxTargets() > 0) wish.grant(player, targetsToGrant.get(i));
 				else wish.grant(player);
+                com.dragonminez.api.content.ContentCompletionApi.complete(player,wish.key(dragonType),"wish");
 			}
 		});
 		context.get().setPacketHandled(true);

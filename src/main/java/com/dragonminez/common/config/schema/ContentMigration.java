@@ -10,16 +10,39 @@ import java.util.function.Consumer;
 public final class ContentMigration {
     private record Pending(String original,ContentSchema.Kind kind,JsonObject flat) {}
     private static final java.util.Map<Path,Pending> PENDING=new java.util.LinkedHashMap<>();
-    public static synchronized void begin(){PENDING.clear();}
+    private record Move(Path target,String original) {}
+    private static final java.util.Map<Path,Move> MOVES=new java.util.LinkedHashMap<>();
+    public static synchronized void begin(){PENDING.clear();MOVES.clear();}
+    public static synchronized void relocate(Path file,Path target)throws IOException {
+        if(Files.exists(target))throw new IOException("Destination already exists: "+target);
+        MOVES.put(key(file),new Move(key(target),Files.readString(file,StandardCharsets.UTF_8)));
+    }
     private static Path key(Path file){return file.toAbsolutePath().normalize();}
-    public static synchronized void discard(Path file){PENDING.remove(key(file));}
+    public static synchronized void discard(Path file){PENDING.remove(key(file));MOVES.remove(key(file));}
     public static synchronized void commitPending()throws IOException{
         for(var entry:PENDING.entrySet()){
             if(!Files.readString(entry.getKey(),StandardCharsets.UTF_8).equals(entry.getValue().original()))
                 throw new IOException("Content changed during migration; refusing to overwrite: "+entry.getKey());
         }
+        for(var entry:MOVES.entrySet()) {
+            if(Files.exists(entry.getValue().target())||!Files.readString(entry.getKey(),StandardCharsets.UTF_8).equals(entry.getValue().original()))
+                throw new IOException("Content changed before relocation: "+entry.getKey());
+        }
         var entries=PENDING.entrySet().iterator();
         while(entries.hasNext()){var entry=entries.next();commit(entry.getKey(),entry.getValue());entries.remove();}
+        var moves=MOVES.entrySet().iterator();
+        while(moves.hasNext()) {
+            var entry=moves.next();Path file=entry.getKey(),target=entry.getValue().target();
+            Files.createDirectories(target.getParent());
+            Path folder=target.getParent().resolve("oldBackup");Files.createDirectories(folder);
+            Path backup=folder.resolve(file.getFileName()+".relocated.bak");
+            for(int i=1;Files.exists(backup);i++)backup=folder.resolve(file.getFileName()+".relocated."+i+".bak");
+            Files.copy(file,backup);
+            try{Files.move(file,target,StandardCopyOption.ATOMIC_MOVE);}
+            catch(AtomicMoveNotSupportedException ex){throw new IOException("Atomic relocation unavailable; original preserved: "+file,ex);}
+            System.getLogger("DragonMineZ").log(System.Logger.Level.INFO,"Moved content {0} to {1}; backup: {2}",file,target,backup);
+            moves.remove();
+        }
     }
     private static final Gson PRETTY=new GsonBuilder().setPrettyPrinting().create();
     public static synchronized JsonObject load(Path file,ContentSchema.Kind kind,Consumer<JsonObject> validator)throws IOException{

@@ -36,4 +36,28 @@ public final class CustomNpcTextureGameTests {
         }
         helper.succeed();
     }
+    @GameTest(template="port_empty")
+    public static void groupedFiles(GameTestHelper helper)throws Exception {
+        var root=java.nio.file.Files.createTempDirectory("dmz-npc-layout-");
+        var legacy=root.resolve("custom_npcs/guide.json");
+        var target=root.resolve("npcs/definitions/guide.json");
+        java.nio.file.Files.createDirectories(legacy.getParent());
+        String original="{\"id\":\"example:grouped\",\"baseTexture\":\"master_base\",\"name\":\"Visitor\"}";
+        java.nio.file.Files.writeString(legacy,original);
+        com.dragonminez.common.config.schema.ContentMigration.begin();
+        try {
+            CustomNpcRegistry.INSTANCE.reload(root);
+            helper.assertTrue(java.nio.file.Files.exists(legacy),"NPC moved before validation transaction committed");
+            com.dragonminez.common.config.schema.ContentMigration.commitPending();
+            helper.assertTrue(java.nio.file.Files.exists(target)&&!java.nio.file.Files.exists(legacy),"Validated NPC was not moved into grouped folder");
+            helper.assertTrue(java.nio.file.Files.readString(legacy.getParent().resolve("oldBackup/guide.json.legacy.bak")).equals(original),"NPC migration lost exact original backup");
+            CustomNpcRegistry.INSTANCE.reload(root);
+            helper.assertTrue(CustomNpcRegistry.INSTANCE.get("example:grouped").isPresent(),"Grouped NPC did not reload");
+            helper.succeed();
+        } finally {
+            com.dragonminez.common.config.schema.ContentMigration.begin();
+            CustomNpcRegistry.INSTANCE.reload(net.neoforged.fml.loading.FMLPaths.CONFIGDIR.get().resolve("dragonminez"));
+        }
+    }
+
 }

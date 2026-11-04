@@ -226,6 +226,7 @@ public class NPCActionC2S {
 	}
 
 	private static boolean handleEnma(ServerPlayer player, StatsData data, int action) {
+        if(action==2)return com.dragonminez.common.progression.RebirthService.begin(player,data);
 		if (action != 1 || !BabaReviveService.canEnmaReturn(data)) return false;
 		BabaReviveService.handleEnmaReturn(player, data);
 		return true;

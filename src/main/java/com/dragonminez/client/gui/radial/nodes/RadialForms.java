@@ -54,7 +54,7 @@ public final class RadialForms {
 				if (config == null) continue;
 				String type = config.getFormType() != null ? config.getFormType().toLowerCase(Locale.ROOT) : "";
 				if (!typeFilter.test(type)) continue;
-				if (!ConfigManager.getSkillsConfig().isSkillAllowedForRace(TransformationsHelper.getSkillNameForType(type), FusionForms.raceOf(stats, group))) continue;
+				if (!ConfigManager.getSkillsConfig().isSkillAllowedForRace(TransformationsHelper.getSkillNameForType(type), FusionForms.raceOf(stats, group))&&config.getForms().keySet().stream().noneMatch(form->com.dragonminez.api.forms.FormVariants.granted(stats,group,form))) continue;
 				List<String> formNames = TransformationsHelper.getSelectableFormNames(stats, race, group);
 				RadialNode head = buildGroupHead(stats, race, group, formNames, categoryKey, false);
 				if (head != null) heads.add(head);

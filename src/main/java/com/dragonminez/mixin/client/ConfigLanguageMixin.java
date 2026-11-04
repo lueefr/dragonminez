@@ -15,6 +15,10 @@ public abstract class ConfigLanguageMixin {
     }
     @Inject(method = "getOrDefault", at = @At("HEAD"), cancellable = true)
     private void dragonminez$configName(String key, String fallback, CallbackInfoReturnable<String> cir) {
+        if(com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread()) {
+            String target=com.dragonminez.client.text.FormNameText.variantKey(key);
+            if(!target.equals(key)){cir.setReturnValue(((ClientLanguage)(Object)this).getOrDefault(target,target));return;}
+        }
         String value = dragonminez$custom(key);
         if (value != null) cir.setReturnValue(value);
     }
@@ -25,6 +29,10 @@ public abstract class ConfigLanguageMixin {
     }
     @Inject(method = "has", at = @At("HEAD"), cancellable = true)
     private void dragonminez$hasConfigName(String key, CallbackInfoReturnable<Boolean> cir) {
+        if(com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread()) {
+            String target=com.dragonminez.client.text.FormNameText.variantKey(key);
+            if(!target.equals(key)){cir.setReturnValue(((ClientLanguage)(Object)this).has(target));return;}
+        }
         if (dragonminez$custom(key) != null) cir.setReturnValue(true);
     }
 }

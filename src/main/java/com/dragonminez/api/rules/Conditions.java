@@ -42,6 +42,11 @@ public final class Conditions {
         add("mastery", v -> { var o=v.getAsJsonObject(); form(o.get("form").getAsString()); positive(o.get("min").getAsDouble()); },
                 (c,v) -> mastery(c,v.getAsJsonObject().get("form").getAsString()) >= v.getAsJsonObject().get("min").getAsDouble());
         add("race", v -> id(v.getAsString()), (c,v) -> c.data().getCharacter().getRaceName().equals(v.getAsString()));
+        add("originRace",v->id(v.getAsString()),(c,v)->{
+            String origin=c.data().getRebirth().originRace();
+            return (origin.isEmpty()?c.data().getCharacter().getRaceName():origin).equals(v.getAsString());
+        });
+        add("previousRace",v->id(v.getAsString()),(c,v)->c.data().getRebirth().previousRace().equals(v.getAsString()));
         add("used", v -> form(v.getAsString()), (c,v) -> c.data().getFormHistory().used(c.data().getCharacter().getRaceName(),qualify(c,v.getAsString())));
         bool("first", c -> c.form()!=null && (!c.data().getFormHistory().used(c.data().getCharacter().getRaceName(),c.form()) || c.data().getFormHistory().first(c.data().getCharacter().getRaceName(),c.form())));
         bool("flying", c -> c.data().getSkills().isSkillActive("fly"));
@@ -114,7 +119,7 @@ public final class Conditions {
         if(key.equals("skill")){var o=value.getAsJsonObject();return Component.translatable("rules.dragonminez.skill",Component.translatable("skill.dragonminez."+o.get("id").getAsString()),o.get("level").getAsInt());}
         if(key.equals("used")) return Component.translatable("rules.dragonminez.used",formName(context,value.getAsString()));
         if(key.equals("content")) return Component.translatable("rules.dragonminez.content",Component.translatable(value.getAsString()));
-        if(key.equals("race")) return Component.translatable("rules.dragonminez.race",Component.translatable("race.dragonminez."+value.getAsString()));
+        if(key.equals("race")||key.equals("originRace")||key.equals("previousRace")) return Component.translatable("rules.dragonminez."+key,Component.translatable("race.dragonminez."+value.getAsString()));
         if(value.isJsonPrimitive()&&value.getAsJsonPrimitive().isBoolean())return Component.translatable("rules.dragonminez."+key,Component.translatable("rules.dragonminez.boolean."+value.getAsBoolean()));
         return Component.translatable("rules.dragonminez."+key,value.isJsonPrimitive()?value.getAsString():value.toString());
     }

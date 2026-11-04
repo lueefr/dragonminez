@@ -142,4 +142,22 @@ class ContentSchemaTest {
         assertFalse(nested.has("visual"));
         assertEquals(flat,decode(Kind.FORM,nested));
     }
+    @Test void relocationBackup()throws Exception {
+        Path source=directory.resolve("legacy/guide.json"),target=directory.resolve("npcs/definitions/guide.json");
+        Files.createDirectories(source.getParent());Files.writeString(source,"{name:'guide'}");
+        ContentMigration.relocate(source,target);assertTrue(Files.exists(source));assertFalse(Files.exists(target));
+        ContentMigration.commitPending();
+        assertFalse(Files.exists(source));assertEquals("{name:'guide'}",Files.readString(target));
+        assertEquals(Files.readString(target),Files.readString(target.getParent().resolve("oldBackup/guide.json.relocated.bak")));
+    }
+    @Test void relocationConflicts()throws Exception {
+        Path source=directory.resolve("old.json"),target=directory.resolve("new.json");Files.writeString(source,"original");
+        ContentMigration.relocate(source,target);Files.writeString(source,"edited");
+        assertThrows(java.io.IOException.class,ContentMigration::commitPending);
+        assertEquals("edited",Files.readString(source));assertFalse(Files.exists(target));
+        ContentMigration.begin();ContentMigration.relocate(source,target);Files.writeString(target,"existing");
+        assertThrows(java.io.IOException.class,ContentMigration::commitPending);
+        assertEquals("edited",Files.readString(source));assertEquals("existing",Files.readString(target));
+    }
+
 }

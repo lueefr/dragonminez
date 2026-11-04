@@ -172,7 +172,7 @@ public final class HairStyleResolver {
 		}
 		if (look.hasStack()) {
 			style = styleForStackForm(player, character, look.stackGroup(), look.stack(), style);
-			rgb = rgbForStackForm(look.stackGroup(), look.stack(), rgb, hairRgb);
+			rgb = rgbForStackForm(character,look.stackGroup(), look.stack(), rgb, hairRgb);
 		}
 		if (oozaru) rgb = look.overlay(character.getRgbBodyColor2(), FormConfig.FormData::getRgbBodyColor2);
 		boolean force = oozaru || hasColorOverride(look.formData(), hairRgb) || hasColorOverride(look.stackData(), hairRgb);
@@ -192,13 +192,13 @@ public final class HairStyleResolver {
 
 	private static StyleChoice styleForForm(Player player, Character character, String group, String formName) {
 		FormConfig config = ConfigManager.getFormGroup(character.getRaceName(), group);
-		FormConfig.FormData formData = config != null ? config.getForm(formName) : null;
+		FormConfig.FormData formData = character.getStatsData()==null?(config != null ? config.getForm(formName) : null):com.dragonminez.api.forms.FormVariants.data(character.getStatsData(),group,formName,false);
 		return styleForFormData(player, character, group+"."+formName, formData, new StyleChoice(style(player, character, HairStyleSlot.BASE), HairStyleSlot.BASE));
 	}
 
 	private static StyleChoice styleForStackForm(Player player, Character character, String group, String formName, StyleChoice fallback) {
 		FormConfig config = ConfigManager.getStackFormGroup(group);
-		FormConfig.FormData formData = config != null ? config.getForm(formName) : null;
+		FormConfig.FormData formData = character.getStatsData()==null?(config != null ? config.getForm(formName) : null):com.dragonminez.api.forms.FormVariants.data(character.getStatsData(),group,formName,true);
 		return styleForFormData(player, character, group+"."+formName, formData, fallback);
 	}
 
@@ -247,17 +247,17 @@ public final class HairStyleResolver {
 	private static float[] rgbForForm(Character character, String group, String formName, Function<FormConfig.FormData, float[]> hairRgb) {
 		FormConfig config = ConfigManager.getFormGroup(character.getRaceName(), group);
 		if (config != null) {
-			FormConfig.FormData formData = config.getForm(formName);
+			FormConfig.FormData formData = character.getStatsData()==null?config.getForm(formName):com.dragonminez.api.forms.FormVariants.data(character.getStatsData(),group,formName,false);
 			float[] rgb = formData != null ? hairRgb.apply(formData) : null;
 			if (rgb != null) return rgb;
 		}
 		return character.getRgbRenderHairColor();
 	}
 
-	private static float[] rgbForStackForm(String group, String formName, float[] fallback, Function<FormConfig.FormData, float[]> hairRgb) {
+	private static float[] rgbForStackForm(Character character,String group, String formName, float[] fallback, Function<FormConfig.FormData, float[]> hairRgb) {
 		FormConfig config = ConfigManager.getStackFormGroup(group);
 		if (config != null) {
-			FormConfig.FormData formData = config.getForm(formName);
+			FormConfig.FormData formData = character.getStatsData()==null?config.getForm(formName):com.dragonminez.api.forms.FormVariants.data(character.getStatsData(),group,formName,true);
 			float[] rgb = formData != null ? hairRgb.apply(formData) : null;
 			if (rgb != null) return rgb;
 		}

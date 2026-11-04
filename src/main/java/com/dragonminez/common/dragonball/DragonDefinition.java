@@ -39,6 +39,10 @@ public class DragonDefinition {
 		this.assetDefinitionId = assetDefinitionId == null || assetDefinitionId.isBlank() ? null : assetDefinitionId;
 	}
 
+    public DragonDefinition withCount(int count) {
+        return new DragonDefinition(id,entityRegistryName,entityWidth,entityHeight,validDimensions,ballSetId,wishScreenId,count,assetDefinitionId);
+    }
+
 	public String getId() { return id; }
 	public String getEntityRegistryName() { return entityRegistryName; }
 	public float getEntityWidth() { return entityWidth; }

@@ -311,7 +311,7 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 		if (statsData == null) return;
 		String race = statsData.getCharacter().getRaceName().toLowerCase(Locale.ROOT);
 		var skillsConfig = ConfigManager.getSkillsConfig();
-		List<TransformationsHelper.OrderedFormEntry> orderedForms = TransformationsHelper.getOrderedFormsForRace(race, PREVIEW_FORM_TYPE_ORDER);
+		List<TransformationsHelper.OrderedFormEntry> orderedForms = TransformationsHelper.orderedForms(statsData,race,PREVIEW_FORM_TYPE_ORDER);
 		Map<String, List<FormConfig.FormData>> groupedForms = new LinkedHashMap<>();
 		Map<String, String> groupTypes = new LinkedHashMap<>();
 

@@ -73,6 +73,21 @@ public final class ConfigTranslations {
         if (value == null) value = lookup(local, locale, key);
         if (value == null) value = lookup(remote, "en_us", key);
         if (value == null) value = lookup(local, "en_us", key);
+        if (value == null) {
+            Set<String> locales = new TreeSet<>(local.keySet());
+            locales.addAll(remote.keySet());
+            locales.remove(locale);
+            locales.remove("en_us");
+            for (String alternate : locales) {
+                String candidate = lookup(remote, alternate, key);
+                if (candidate == null) candidate = lookup(local, alternate, key);
+                if (candidate != null) {
+                    String packaged = bundled(locale).get(key);
+                    if (packaged == null) packaged = bundled("en_us").get(key);
+                    return packaged == null ? candidate : packaged;
+                }
+            }
+        }
         return value;
     }
     public String translate(String locale, String key) {

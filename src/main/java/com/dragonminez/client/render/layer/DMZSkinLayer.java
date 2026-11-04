@@ -134,10 +134,12 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		float headAlpha = player.isSpectator() ? SPECTATOR_HEAD_ALPHA : 1.0f;
 		TransformationMaskBufferSource maskBuffer = bufferSource instanceof TransformationMaskBufferSource mask ? mask : null;
 
+		boolean hideTop = com.dragonminez.client.util.ClothingTextures.hidesTop(player);
 		List<BodyLayerFadeTracker.FadingLayer> fadingLayers = new ArrayList<>();
 		SkinGathererProvider.BodyLayerSink geoConsumer = new SkinGathererProvider.BodyLayerSink() {
 			@Override
 			public void base(ResourceLocation texture, float[] color) {
+                texture = com.dragonminez.client.util.ClothingTextures.resolve(texture,hideTop);
 				RenderType baseType = alpha < 1.0f ? RenderType.entityTranslucent(texture) : RenderType.entityCutoutNoCull(texture);
 				renderLayerWholeModel(model, poseStack, bufferSource, animatable, baseType, color[0], color[1], color[2], 1.0f, partialTick, packedLight, packedOverlay, alpha, true);
 			}
@@ -155,6 +157,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 
 			@Override
 			public void overlayTranslucent(ResourceLocation texture, float[] color) {
+                texture = com.dragonminez.client.util.ClothingTextures.resolve(texture,hideTop);
 				renderLayerWholeModel(model, poseStack, bufferSource, animatable, ModRenderTypes.skinOverlayTranslucent(texture), color[0], color[1], color[2], 1.0f, partialTick, packedLight, packedOverlay, alpha, true);
 			}
 
@@ -181,6 +184,7 @@ public class DMZSkinLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
 		SkinGathererProvider.BodyLayerSink overlayConsumer = new SkinGathererProvider.BodyLayerSink() {
 			@Override
 			public void base(ResourceLocation texture, float[] color) {
+                texture = com.dragonminez.client.util.ClothingTextures.resolve(texture,hideTop);
 				RenderType overlayType = alpha < 1.0f ? ModRenderTypes.skinOverlayTranslucent(texture) : ModRenderTypes.skinOverlayCutout(texture);
 				renderLayerWholeModel(model, poseStack, bufferSource, animatable, overlayType, color[0], color[1], color[2], 1.0f, partialTick, packedLight, packedOverlay, alpha, true);
 			}

@@ -33,7 +33,7 @@ public class FormMasteries {
     public void addMastery(String formGroup, String formName, double amount, double maxMastery) {
         String key = getKey(formGroup, formName);
         double current = masteries.getOrDefault(key, 0.0);
-        double newMastery = Math.min(maxMastery, current + amount);
+        double newMastery = amount>=0?Math.max(current,Math.min(maxMastery,current+amount)):Math.max(0,current+amount);
         put(key, newMastery);
     }
 
@@ -42,7 +42,9 @@ public class FormMasteries {
     }
 
     private String getKey(String formGroup, String formName) {
-        return formGroup.toLowerCase() + ":" + formName.toLowerCase();
+        String reference=com.dragonminez.common.config.ConfigManager.getAttributes().canonical(formGroup.toLowerCase(java.util.Locale.ROOT)+"."+formName.toLowerCase(java.util.Locale.ROOT));
+        int dot=reference.lastIndexOf('.');
+        return reference.substring(0,dot)+":"+reference.substring(dot+1);
     }
 
     public Map<String, Double> entries() {

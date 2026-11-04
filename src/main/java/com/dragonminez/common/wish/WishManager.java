@@ -44,6 +44,7 @@ public class WishManager {
 		Path wishDir = dragonminezFolder.resolve("wishes");
 
 		Map<String, List<Wish>> merged = new LinkedHashMap<>(DragonWishRegistry.getServerWishes());
+        Map<String,Integer> counts=new LinkedHashMap<>();
 		try {
 			if (!Files.exists(wishDir)) {
 				Files.createDirectories(wishDir);
@@ -65,25 +66,36 @@ public class WishManager {
 			try (var stream = Files.list(wishDir)) {
 				stream.filter(path -> path.getFileName().toString().endsWith(".json"))
 						.sorted(Comparator.comparing(path -> path.getFileName().toString()))
-						.forEach(path -> loadWishConfig(path, merged));
+						.forEach(path -> loadWishConfig(path, merged, counts));
 			}
 		} catch (IOException e) {
 			LogUtil.error(Env.COMMON, "Failed to load wishes", e);
 		}
 
 		DragonWishRegistry.setServerWishes(merged);
+        com.dragonminez.common.dragonball.DragonBallDefinitions.wishCounts(counts);
 		LogUtil.info(Env.COMMON, "Loaded {} dragon wish list(s) after merging datapacks and config files", merged.size());
 	}
 
-	private static void loadWishConfig(Path path, Map<String, List<Wish>> merged) {
+	private static void loadWishConfig(Path path, Map<String, List<Wish>> merged,Map<String,Integer> counts) {
 		try {
-			JsonArray rootArray = GsonUtils.GSON.fromJson(Files.readString(path), JsonArray.class);
+            String original=Files.readString(path);
+            JsonElement root=JsonParser.parseString(original);
+            String dragonId=path.getFileName().toString().replace(".json", "");
+            boolean legacy=root.isJsonArray();
+            JsonArray rootArray=legacy?root.getAsJsonArray():root.getAsJsonObject().getAsJsonArray("wishes");
+            int count=legacy?defaultCount(dragonId):root.getAsJsonObject().getAsJsonObject("summoning").get("wishCount").getAsInt();
+            if(!legacy&&root.getAsJsonObject().getAsJsonObject("summoning").get("wishCount").getAsBigDecimal().compareTo(java.math.BigDecimal.valueOf(count))!=0)
+                throw new IllegalArgumentException("Wish count must be an integer");
+            if(count<1||count>com.dragonminez.common.network.C2S.GrantWishC2S.MAX_WISHES)throw new IllegalArgumentException("Wish count must be within 1.."+com.dragonminez.common.network.C2S.GrantWishC2S.MAX_WISHES);
 			List<Wish> wishes = new ArrayList<>();
 			for (JsonElement element : rootArray) {
 				validateWish("wishes/" + path.getFileName(), element);
-				wishes.add(GsonUtils.GSON.fromJson(element, Wish.class));
+				Wish wish=GsonUtils.GSON.fromJson(element, Wish.class);
+                wish.validate();wishes.add(wish);
 			}
-			String dragonId = path.getFileName().toString().replace(".json", "");
+            if(legacy)saveConverted(path,original,rootArray,count);
+            counts.put(dragonId,count);
 			merged.put(dragonId, List.copyOf(wishes));
 			LogUtil.info(Env.COMMON, "Loaded dragon wishes from config file {}", path.getFileName());
 		} catch (Exception e) {
@@ -91,6 +103,29 @@ public class WishManager {
 			JsonLoadReport.error("wishes", "wishes/" + path.getFileName(), "Malformed wish JSON, file skipped: " + JsonLoadReport.rootCause(e));
 		}
 	}
+
+    private static int defaultCount(String id) {
+        return com.dragonminez.common.dragonball.DragonBallDefinitions.defaultCount(id);
+    }
+    private static JsonObject envelope(JsonArray wishes,int count) {
+        var root=new JsonObject();var summoning=new JsonObject();summoning.addProperty("wishCount",count);
+        root.add("summoning",summoning);root.add("wishes",wishes);return root;
+    }
+    private static void saveConverted(Path file,String original,JsonArray wishes,int count)throws IOException {
+        if(!Files.readString(file).equals(original))throw new IOException("Wish file changed while loading");
+        Path folder=file.getParent().resolve("oldBackup");Files.createDirectories(folder);
+        Path backup=folder.resolve(file.getFileName()+".legacy.bak");
+        for(int index=1;Files.exists(backup);index++)backup=folder.resolve(file.getFileName()+".legacy."+index+".bak");
+        Files.copy(file,backup);
+        Path temporary=Files.createTempFile(file.getParent(),"wish-",".tmp");
+        try {
+            Files.writeString(temporary,GsonUtils.GSON.toJson(envelope(wishes,count)));
+            if(!Files.readString(file).equals(original))throw new IOException("Wish file changed during conversion");
+            try{Files.move(temporary,file,java.nio.file.StandardCopyOption.ATOMIC_MOVE,java.nio.file.StandardCopyOption.REPLACE_EXISTING);}
+            catch(java.nio.file.AtomicMoveNotSupportedException ex){Files.move(temporary,file,java.nio.file.StandardCopyOption.REPLACE_EXISTING);}
+        } finally {Files.deleteIfExists(temporary);}
+        LogUtil.info(Env.COMMON,"Converted wishes {}; original backup: {}",file,backup);
+    }
 
 	private static void validateWish(String file, JsonElement element) {
 		if (element == null || !element.isJsonObject()) return;
@@ -117,7 +152,8 @@ public class WishManager {
 		try (Writer writer = Files.newBufferedWriter(wishFile, StandardCharsets.UTF_8)) {
 			Type listType = new TypeToken<ArrayList<Wish>>() {
 			}.getType();
-			GsonUtils.GSON.toJson(defaultWishes, listType, writer);
+			JsonArray wishes=GsonUtils.GSON.toJsonTree(defaultWishes,listType).getAsJsonArray();
+            GsonUtils.GSON.toJson(envelope(wishes,defaultCount(dragonId)),writer);
 		} catch (IOException e) {
 			LogUtil.error(Env.COMMON, "Could not create default wishes for " + dragonId, e);
 		}

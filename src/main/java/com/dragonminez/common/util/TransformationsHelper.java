@@ -49,6 +49,14 @@ public class TransformationsHelper {
 		}
 	}
 
+    public static List<OrderedFormEntry> orderedForms(StatsData data,String race,List<String> order) {
+        var entries=getOrderedFormsForRace(race,order);
+        if(data==null||!data.getCharacter().getRaceName().equals(race))return entries;
+        return entries.stream().filter(entry->!com.dragonminez.api.forms.FormVariants.hidden(data,entry.getGroupName(),entry.getFormData().getName()))
+                .map(entry->new OrderedFormEntry(entry.getGroupName(),entry.getFormType(),com.dragonminez.api.forms.FormVariants.project(data,entry.getGroupName(),entry.getFormData(),false)))
+                .filter(entry->entry.getFormData()!=null).toList();
+    }
+
 	public static List<OrderedFormEntry> getOrderedFormsForRace(String raceName, List<String> formTypeOrder) {
 		List<OrderedFormEntry> result = new ArrayList<>();
 		Map<String, FormConfig> allGroups = ConfigManager.getAllFormsForRace(raceName);
@@ -90,7 +98,7 @@ public class TransformationsHelper {
 		if (formConfig == null) {
 			return unlockedForms;
 		}
-		if (isScriptedFormType(formConfig.getFormType())) {
+		if (isScriptedFormType(formConfig.getFormType())&&formConfig.getForms().keySet().stream().noneMatch(form->com.dragonminez.api.forms.FormVariants.granted(statsData,groupName,form))) {
 			return unlockedForms;
 		}
 		if (FusionForms.isQualified(groupName) && !FusionForms.isForeignGroupAllowed(statsData, groupName)) {
@@ -113,8 +121,9 @@ public class TransformationsHelper {
 		String formType = formConfig.getFormType();
 
 		for (FormConfig.FormData formData : formConfig.getForms().values()) {
+            if(com.dragonminez.api.forms.FormVariants.hidden(statsData,groupName,formData.getName()))continue;
 			if (isOozaruGroup && !hasTail && isTailOnlyOozaruForm(formData.getName())) continue;
-			if (hasFormSkillAccess(statsData, groupName, formType, formData.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, groupName, formData)) {
+			if (com.dragonminez.api.forms.FormVariants.granted(statsData,groupName,formData.getName())||(hasFormSkillAccess(statsData, groupName, formType, formData.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, groupName, formData))) {
 				unlockedForms.add(formData);
 			}
 		}
@@ -131,7 +140,8 @@ public class TransformationsHelper {
 		String formType = formConfig.getFormType();
 
 		for (FormConfig.FormData formData : formConfig.getForms().values()) {
-			if (isStackFormUnlocked(statsData, formType, formData.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, formData)) {
+            if(com.dragonminez.api.forms.FormVariants.hidden(statsData,groupName,formData.getName()))continue;
+			if (com.dragonminez.api.forms.FormVariants.granted(statsData,groupName,formData.getName())||(isStackFormUnlocked(statsData, formType, formData.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, formData))) {
 				unlockedForms.add(formData);
 			}
 		}
@@ -180,7 +190,7 @@ public class TransformationsHelper {
 
 	public static boolean isInScriptedForm(StatsData statsData) {
 		if (statsData == null || !statsData.getCharacter().hasActiveForm()) return false;
-		return isScriptedFormGroup(statsData.getCharacter().getRaceName(), statsData.getCharacter().getActiveFormGroup());
+		return isScriptedFormGroup(statsData.getCharacter().getRaceName(), statsData.getCharacter().slotGroup());
 	}
 
 	public static boolean isGodRitualGroup(String raceName, String groupName) {
@@ -297,13 +307,15 @@ public class TransformationsHelper {
 	}
 
 	private static boolean isFormSelectable(StatsData statsData, String groupName, FormConfig.FormData formData, boolean stack) {
-		return meetsFreeTransformMasteryFor(statsData, groupName, formData, stack);
+		return com.dragonminez.api.forms.FormVariants.granted(statsData,groupName,formData.getName())||meetsFreeTransformMasteryFor(statsData, groupName, formData, stack);
 	}
 
 	public static String getGroupWithFirstAvailableForm(StatsData statsData) {
 		String race = statsData.getCharacter().getRaceName();
 		Map<String, FormConfig> allGroups = FusionForms.allFormGroups(statsData);
 		if (allGroups == null || allGroups.isEmpty()) return null;
+        for(var entry:allGroups.entrySet())if(entry.getValue().getForms().keySet().stream().anyMatch(form->
+                com.dragonminez.api.forms.FormVariants.granted(statsData,entry.getKey(),form)&&!com.dragonminez.api.forms.FormVariants.hidden(statsData,entry.getKey(),form)))return entry.getKey();
 
 		List<String> preferredTypes = new ArrayList<>();
 		List<String> allTypes = new ArrayList<>();
@@ -340,7 +352,8 @@ public class TransformationsHelper {
 
 		Optional<FormConfig.FormData> firstForm = config.getForms().values().stream()
 				.filter(f -> !isOozaruGroup1 || hasTail1 || !isTailOnlyOozaruForm(f.getName()))
-				.filter(f -> hasFormSkillAccess(statsData, group, config.getFormType(), f.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, group, f))
+				.filter(f -> !com.dragonminez.api.forms.FormVariants.hidden(statsData,group,f.getName()))
+                .filter(f -> com.dragonminez.api.forms.FormVariants.granted(statsData,group,f.getName())||(hasFormSkillAccess(statsData, group, config.getFormType(), f.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, group, f)))
 				.min(Comparator.comparingInt(FormConfig.FormData::getUnlockOnSkillLevel));
 
 		return firstForm.map(FormConfig.FormData::getName).orElse(null);
@@ -357,7 +370,8 @@ public class TransformationsHelper {
 
 		Optional<FormConfig.FormData> firstForm = config.getForms().values().stream()
 				.filter(f -> !isOozaruGroup2 || hasTail2 || !isTailOnlyOozaruForm(f.getName()))
-				.filter(f -> hasFormSkillAccess(statsData, group, config.getFormType(), f.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, group, f))
+				.filter(f -> !com.dragonminez.api.forms.FormVariants.hidden(statsData,group,f.getName()))
+                .filter(f -> com.dragonminez.api.forms.FormVariants.granted(statsData,group,f.getName())||(hasFormSkillAccess(statsData, group, config.getFormType(), f.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, group, f)))
 				.min(Comparator.comparingInt(FormConfig.FormData::getUnlockOnSkillLevel));
 
 		return firstForm.map(FormConfig.FormData::getUnlockOnSkillLevel).orElse(-1);
@@ -368,6 +382,8 @@ public class TransformationsHelper {
 	public static String getGroupWithFirstAvailableStackForm(StatsData statsData) {
 		Map<String, FormConfig> allGroups = ConfigManager.getAllStackForms();
 		if (allGroups == null || allGroups.isEmpty()) return null;
+        for(var entry:allGroups.entrySet())if(entry.getValue().getForms().keySet().stream().anyMatch(form->
+                com.dragonminez.api.forms.FormVariants.granted(statsData,entry.getKey(),form)&&!com.dragonminez.api.forms.FormVariants.hidden(statsData,entry.getKey(),form)))return entry.getKey();
 
 		List<String> preferredTypes = new ArrayList<>();
 		for (FormConfig config : allGroups.values()) {
@@ -401,7 +417,8 @@ public class TransformationsHelper {
 		if (config == null) return null;
 
 		Optional<FormConfig.FormData> firstForm = config.getForms().values().stream()
-				.filter(f -> isStackFormUnlocked(statsData, config.getFormType(), f.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, f))
+				.filter(f -> !com.dragonminez.api.forms.FormVariants.hidden(statsData,group,f.getName()))
+                .filter(f -> com.dragonminez.api.forms.FormVariants.granted(statsData,group,f.getName())||(isStackFormUnlocked(statsData, config.getFormType(), f.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, f)))
 				.min(Comparator.comparingInt(FormConfig.FormData::getUnlockOnSkillLevel));
 
 		return firstForm.map(FormConfig.FormData::getName).orElse(null);
@@ -415,7 +432,8 @@ public class TransformationsHelper {
 		if (config == null) return -1;
 
 		Optional<FormConfig.FormData> firstForm = config.getForms().values().stream()
-				.filter(f -> isStackFormUnlocked(statsData, config.getFormType(), f.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, f))
+				.filter(f -> !com.dragonminez.api.forms.FormVariants.hidden(statsData,group,f.getName()))
+                .filter(f -> com.dragonminez.api.forms.FormVariants.granted(statsData,group,f.getName())||(isStackFormUnlocked(statsData, config.getFormType(), f.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, f)))
 				.min(Comparator.comparingInt(FormConfig.FormData::getUnlockOnSkillLevel));
 
 		return firstForm.map(FormConfig.FormData::getUnlockOnSkillLevel).orElse(-1);
@@ -481,10 +499,10 @@ public class TransformationsHelper {
 		var character = statsData.getCharacter();
 		String selectedGroup = character.getSelectedFormGroup();
 		if (character.hasActiveForm()) {
-			if (selectedGroup != null && !selectedGroup.isEmpty() && !selectedGroup.equalsIgnoreCase(character.getActiveFormGroup())) {
+			if (selectedGroup != null && !selectedGroup.isEmpty() && !selectedGroup.equalsIgnoreCase(character.slotGroup())) {
 				return selectedGroup;
 			}
-			return character.getActiveFormGroup();
+			return character.slotGroup();
 		}
 		return selectedGroup;
 	}
@@ -493,14 +511,14 @@ public class TransformationsHelper {
 		var character = statsData.getCharacter();
 		if (!character.hasActiveForm()) return false;
 		String selectedGroup = character.getSelectedFormGroup();
-		return selectedGroup != null && !selectedGroup.isEmpty() && !selectedGroup.equalsIgnoreCase(character.getActiveFormGroup());
+		return selectedGroup != null && !selectedGroup.isEmpty() && !selectedGroup.equalsIgnoreCase(character.slotGroup());
 	}
 
 	public static boolean needsFreeTransformMastery(StatsData statsData) {
 		var character = statsData.getCharacter();
 		String group = getTransformTargetGroup(statsData);
 		if (group == null || group.isEmpty()) return false;
-		if (character.hasActiveForm() && group.equalsIgnoreCase(character.getActiveFormGroup())) return false;
+		if (character.hasActiveForm() && group.equalsIgnoreCase(character.slotGroup())) return false;
 		return getNextFormCandidate(statsData) != null;
 	}
 
@@ -513,13 +531,13 @@ public class TransformationsHelper {
 	public static String getEvolutionFloorForm(StatsData statsData) {
 		var character = statsData.getCharacter();
 		if (!FROST_DEMON_RACE.equals(character.getRaceName())) return null;
-		if (!FrostDemonForms.GROUP_EVOLUTIONFORMS.equalsIgnoreCase(character.getActiveFormGroup())) return null;
+		if (!FrostDemonForms.GROUP_EVOLUTIONFORMS.equalsIgnoreCase(character.slotGroup())) return null;
 
 		FormConfig config = ConfigManager.getFormGroup(character.getRaceName(), FrostDemonForms.GROUP_EVOLUTIONFORMS);
 		if (config == null) return null;
 
 		int floorIndex = formIndex(config, FrostDemonForms.FINAL_FORM);
-		int activeIndex = formIndex(config, character.getActiveForm());
+		int activeIndex = formIndex(config, character.slotForm());
 		if (floorIndex < 0 || activeIndex < floorIndex) return null;
 		return FrostDemonForms.FINAL_FORM;
 	}
@@ -538,7 +556,7 @@ public class TransformationsHelper {
 	public static boolean clampToEvolutionFloor(StatsData statsData) {
 		String floor = getEvolutionFloorForm(statsData);
 		if (floor == null) return false;
-		if (!floor.equalsIgnoreCase(statsData.getCharacter().getActiveForm())) {
+		if (!floor.equalsIgnoreCase(statsData.getCharacter().slotForm())) {
 			statsData.getCharacter().setActiveForm(FrostDemonForms.GROUP_EVOLUTIONFORMS, floor);
 		}
 		return true;
@@ -578,7 +596,7 @@ public class TransformationsHelper {
 		FormConfig config = ConfigManager.getFormGroup(race, group);
 		if (config == null) return null;
 
-		return (hasFormSkillAccess(statsData, group, config.getFormType(), nextFormConfig.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, group, nextFormConfig)) ? nextFormConfig : null;
+		return (com.dragonminez.api.forms.FormVariants.granted(statsData,group,nextFormConfig.getName())||(hasFormSkillAccess(statsData, group, config.getFormType(), nextFormConfig.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, group, nextFormConfig))) ? nextFormConfig : null;
 	}
 
 	public static int formChargeStep(int mastery) {
@@ -595,7 +613,7 @@ public class TransformationsHelper {
 		FormConfig.FormData next = getNextAvailableStackForm(statsData);
 		if (next == null || !statsData.getCharacter().isFused()) return next;
 		var character = statsData.getCharacter();
-		String group = character.hasActiveStackForm() ? character.getActiveStackFormGroup() : character.getSelectedStackFormGroup();
+		String group = character.hasActiveStackForm() ? character.stackGroup() : character.getSelectedStackFormGroup();
 		return FusionAppearance.present(character, group, next);
 	}
 
@@ -603,7 +621,6 @@ public class TransformationsHelper {
 		String race = statsData.getCharacter().getRaceName();
 		String group = getTransformTargetGroup(statsData);
 		if (group == null || group.isEmpty()) return null;
-		if (isInScriptedForm(statsData) || isScriptedFormGroup(race, group)) return null;
 		FormConfig config = ConfigManager.getFormGroup(race, group);
 		if (config == null) return null;
 
@@ -617,7 +634,7 @@ public class TransformationsHelper {
 		if (isAndroidUpgraded && !isAndroidGroup && !isGodGroup) return null;
 
 		boolean crossGroup = isCrossGroupTransform(statsData);
-		String currentFormName = statsData.getCharacter().getActiveForm();
+		String currentFormName = statsData.getCharacter().slotForm();
 		FormConfig.FormData nextFormConfig = null;
 		if (crossGroup || currentFormName == null || currentFormName.isEmpty()) {
 			FormConfig.FormData selected = config.getForm(statsData.getCharacter().getSelectedForm());
@@ -636,11 +653,14 @@ public class TransformationsHelper {
 					continue;
 				}
 				if (isOozaruGroupNext && !hasTailNext && isTailOnlyOozaruForm(entry.getValue().getName())) continue;
+                if(com.dragonminez.api.forms.FormVariants.hidden(statsData,group,entry.getKey()))continue;
 				nextFormConfig = entry.getValue();
 				break;
 			}
 		}
-		return nextFormConfig;
+        if ((isInScriptedForm(statsData) || isScriptedFormGroup(race, group))
+                && (nextFormConfig == null || !com.dragonminez.api.forms.FormVariants.granted(statsData, group, nextFormConfig.getName()))) return null;
+		return com.dragonminez.api.forms.FormVariants.project(statsData,group,nextFormConfig,false);
 	}
 
 	public static boolean isNextFormMasteryBlocked(StatsData statsData) {
@@ -704,13 +724,13 @@ public class TransformationsHelper {
 	}
 
 	public static FormConfig.FormData getNextAvailableStackForm(StatsData statsData) {
-		String group = statsData.getCharacter().hasActiveStackForm() ? statsData.getCharacter().getActiveStackFormGroup() : statsData.getCharacter().getSelectedStackFormGroup();
+		String group = statsData.getCharacter().hasActiveStackForm() ? statsData.getCharacter().stackGroup() : statsData.getCharacter().getSelectedStackFormGroup();
 
 		if (group == null || group.isEmpty()) return null;
 		FormConfig config = ConfigManager.getStackFormGroup(group);
 		if (config == null) return null;
 
-		String currentFormName = statsData.getCharacter().getActiveStackForm();
+		String currentFormName = statsData.getCharacter().stackForm();
 		String nextFormName;
 		FormConfig.FormData nextFormConfig = null;
 		if (currentFormName == null || currentFormName.isEmpty()) {
@@ -724,12 +744,14 @@ public class TransformationsHelper {
 					continue;
 				}
 
+                if(com.dragonminez.api.forms.FormVariants.hidden(statsData,group,entry.getKey()))continue;
 				nextFormConfig = entry.getValue();
 				break;
 			}
 		}
+        nextFormConfig=com.dragonminez.api.forms.FormVariants.project(statsData,group,nextFormConfig,true);
 		if (nextFormConfig != null) {
-			return (isStackFormUnlocked(statsData, config.getFormType(), nextFormConfig.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, nextFormConfig)) ? nextFormConfig : null;
+			return (com.dragonminez.api.forms.FormVariants.granted(statsData,group,nextFormConfig.getName())||(isStackFormUnlocked(statsData, config.getFormType(), nextFormConfig.getUnlockOnSkillLevel()) && meetsMasteryRequisite(statsData, nextFormConfig))) ? nextFormConfig : null;
 		}
 		return nextFormConfig;
 	}
@@ -738,8 +760,8 @@ public class TransformationsHelper {
 		if (!statsData.getCharacter().hasActiveForm()) return false;
 
 		String race = statsData.getCharacter().getRaceName();
-		String group = statsData.getCharacter().getActiveFormGroup();
-		String currentForm = statsData.getCharacter().getActiveForm();
+		String group = statsData.getCharacter().slotGroup();
+		String currentForm = statsData.getCharacter().slotForm();
 
 		if ("androidforms".equalsIgnoreCase(group) && "androidbase".equalsIgnoreCase(currentForm)) return false;
 		if (isDefaultGroup(race, group)) return !"frostdemon".equals(race) && !"majin".equals(race) && !"bioandroid".equals(race);
@@ -749,8 +771,8 @@ public class TransformationsHelper {
 	public static boolean canStackDescend(StatsData statsData) {
 		if (!statsData.getCharacter().hasActiveStackForm()) return false;
 
-		String group = statsData.getCharacter().getActiveStackFormGroup();
-		String currentForm = statsData.getCharacter().getActiveStackForm();
+		String group = statsData.getCharacter().stackGroup();
+		String currentForm = statsData.getCharacter().stackForm();
 
 		return !group.equalsIgnoreCase("") && !currentForm.equalsIgnoreCase("");
 	}
@@ -811,8 +833,8 @@ public class TransformationsHelper {
 		if (!statsData.getCharacter().hasActiveForm()) return null;
 
 		String race = statsData.getCharacter().getRaceName();
-		String group = statsData.getCharacter().getActiveFormGroup();
-		String current = statsData.getCharacter().getActiveForm();
+		String group = statsData.getCharacter().slotGroup();
+		String current = statsData.getCharacter().slotForm();
 
 		FormConfig config = ConfigManager.getFormGroup(race, group);
 		if (config == null) return null;
@@ -828,8 +850,8 @@ public class TransformationsHelper {
 	public static FormConfig.FormData getPreviousStackForm(StatsData statsData) {
 		if (!statsData.getCharacter().hasActiveStackForm()) return null;
 
-		String group = statsData.getCharacter().getActiveStackFormGroup();
-		String current = statsData.getCharacter().getActiveStackForm();
+		String group = statsData.getCharacter().stackGroup();
+		String current = statsData.getCharacter().stackForm();
 
 		FormConfig config = ConfigManager.getStackFormGroup(group);
 		if (config == null) return null;
@@ -843,8 +865,8 @@ public class TransformationsHelper {
 	}
 
 	public static int getKaiokenPhase(StatsData stats) {
-		if ("kaioken".equalsIgnoreCase(stats.getCharacter().getActiveStackFormGroup())) {
-			return switch (stats.getCharacter().getActiveStackForm()) {
+		if ("kaioken".equalsIgnoreCase(stats.getCharacter().stackGroup())) {
+			return switch (stats.getCharacter().stackForm()) {
 				case "x2" -> 1;
 				case "x3" -> 2;
 				case "x4" -> 3;
@@ -858,7 +880,7 @@ public class TransformationsHelper {
 	public static boolean hasGodFormActive(StatsData statsData) {
 		var character = statsData.getCharacter();
 		if (!character.hasActiveForm()) return false;
-		FormConfig config = ConfigManager.getFormGroup(character.getRaceName(), character.getActiveFormGroup());
+		FormConfig config = ConfigManager.getFormGroup(character.getRaceName(), character.slotGroup());
 		return config != null && config.getFormType() != null && config.getFormType().toLowerCase(Locale.ROOT).contains("god");
 	}
 

@@ -169,6 +169,8 @@ public class CreateCharacterC2S {
 				if (!data.getStatus().isHasCreatedCharacter()) {
 					if (msg.customHair != null) HairSanitizer.sanitizeAndLog(msg.customHair, HairStyleSlot.BASE, player.getGameProfile().getName());
 					Character previous = data.getCharacter();
+                    int alignment=data.getResources().getAlignment();
+                    boolean rebirth=data.getRebirth().pending();
 					String safeClass = AppearanceValidator.characterClass(msg.raceName, msg.className, previous.getCharacterClass());
 					if (!safeClass.equals(msg.className)) {
 						LogUtil.warn(Env.COMMON, "CreateCharacterC2S from '{}' sent unknown class '{}', using '{}'", player.getGameProfile().getName(), msg.className, safeClass);
@@ -189,7 +191,9 @@ public class CreateCharacterC2S {
 							AppearanceValidator.color(msg.eye1Color, previous.getEye1Color()),
 							AppearanceValidator.color(msg.eye2Color, previous.getEye2Color()),
 							AppearanceValidator.color(msg.auraColor, previous.getAuraColor()));
-					Character character = data.getCharacter();
+					com.dragonminez.common.progression.RebirthService.finish(data);
+                    if(rebirth&&com.dragonminez.common.config.ConfigManager.getRebirth().retention.alignment)data.getResources().setAlignment(alignment);
+                    Character character = data.getCharacter();
 					if (!character.canHaveGender() || !Character.GENDER_FEMALE.equals(character.getGender())) character.setGender(Character.GENDER_MALE);
 					data.getCharacter().setSelectedFormGroup(TransformationsHelper.getGroupWithFirstAvailableForm(data));
 					data.getCharacter().setSelectedForm(TransformationsHelper.getFirstAvailableForm(data));

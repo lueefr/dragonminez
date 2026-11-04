@@ -19,6 +19,10 @@ public final class FormUseTracker {
         var c=data.getCharacter();
         update(player,data,"base",c.hasActiveForm()?c.getActiveFormGroup()+"."+c.getActiveForm():"");
         update(player,data,"stack",c.hasActiveStackForm()?c.getActiveStackFormGroup()+"."+c.getActiveStackForm():"");
+        var base=FormVariants.resolve(data,c.getActiveFormGroup(),c.getActiveForm());
+        var stack=FormVariants.resolve(data,c.getActiveStackFormGroup(),c.getActiveStackForm());
+        update(player,data,"variant_base",c.hasActiveForm()&&!base.key().equals(c.getActiveFormGroup()+"."+c.getActiveForm())?base.key():"");
+        update(player,data,"variant_stack",c.hasActiveStackForm()&&!stack.key().equals(c.getActiveStackFormGroup()+"."+c.getActiveStackForm())?stack.key():"");
     }
     private static void update(ServerPlayer player,StatsData data,String channel,String form){
         var history=data.getFormHistory();String race=data.getCharacter().getRaceName();

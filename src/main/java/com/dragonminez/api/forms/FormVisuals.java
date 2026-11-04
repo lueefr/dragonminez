@@ -62,8 +62,8 @@ public final class FormVisuals {
     }
     private static JsonObject compute(StatsData data){
         JsonObject result=new JsonObject();if(data==null)return result;var c=data.getCharacter();
-        apply(result,data,c.getActiveFormGroup()+"."+c.getActiveForm(),c.getActiveFormData());
-        apply(result,data,c.getActiveStackFormGroup()+"."+c.getActiveStackForm(),c.getActiveStackFormData());return result;
+        apply(result,data,FormVariants.resolve(data,c.getActiveFormGroup(),c.getActiveForm()).key(),c.getActiveFormData());
+        apply(result,data,FormVariants.resolve(data,c.getActiveStackFormGroup(),c.getActiveStackForm()).key(),c.getActiveStackFormData());return result;
     }
     private static void apply(JsonObject result,StatsData data,String id,FormConfig.FormData form){
         if(form==null||form.getVisual()==null)return;var visual=form.getVisual();merge(result,visual);

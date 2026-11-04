@@ -7,6 +7,19 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConfigTranslationsTest {
+    @Test void fallbackOrder() throws Exception {
+        Files.writeString(dir.resolve("pt_br.json"), "{\"example.form\":\"Forma\",\"example.other\":\"Outra\",\"gui.dragonminez.cost.tp\":\"Alternativo\"}");
+        Files.writeString(dir.resolve("es_es.json"), "{\"example.form\":\"Forma española\"}");
+        var translations = new ConfigTranslations();
+        translations.reload(dir);
+        assertEquals("Forma española", translations.translate("fr_fr", "example.form"));
+        assertEquals("Outra", translations.find("fr_fr", "example.other"));
+        assertEquals("%s TP", translations.find("fr_fr", "gui.dragonminez.cost.tp"));
+        translations.replaceRemote(Map.of("en_us", Map.of("example.form", "English")));
+        assertEquals("English", translations.translate("fr_fr", "example.form"));
+        assertEquals("Forma", translations.translate("pt_br", "example.form"));
+        assertEquals("example.absent", translations.translate("fr_fr", "example.absent"));
+    }
     @Test void runtimeAuditDeduplicatesDynamicKeysAndClearsAfterReload()throws Exception{
         var t=new ConfigTranslations();
         t.recordMissing("pt_br","example:trial");t.recordMissing("pt_br","example:trial");

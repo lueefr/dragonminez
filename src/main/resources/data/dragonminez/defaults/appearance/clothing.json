@@ -1,0 +1,44 @@
+{
+  "rules": [
+    {
+      "items": [
+        "dragonminez:a13_armor_chestplate",
+        "dragonminez:a14_armor_chestplate",
+        "dragonminez:age1000_armor_chestplate",
+        "dragonminez:bardock_dbz_armor_chestplate",
+        "dragonminez:bardock_super_armor_chestplate",
+        "dragonminez:beerus_armor_chestplate",
+        "dragonminez:broly_super_armor_chestplate",
+        "dragonminez:broly_z_armor_chestplate",
+        "dragonminez:caulifla_armor_chestplate",
+        "dragonminez:demon_gi_blue_armor_chestplate",
+        "dragonminez:dragon_clan_armor_chestplate",
+        "dragonminez:evil_buu_armor_chestplate",
+        "dragonminez:fighter_armor_chestplate",
+        "dragonminez:gogeta_armor_chestplate",
+        "dragonminez:gohan_super_armor_chestplate",
+        "dragonminez:goku_gt_armor_chestplate",
+        "dragonminez:goku_kid_armor_chestplate",
+        "dragonminez:goku_whis_armor_chestplate",
+        "dragonminez:goten_armor_chestplate",
+        "dragonminez:king_vegeta_armor_chestplate",
+        "dragonminez:majin21_armor_chestplate",
+        "dragonminez:majin_buu_armor_chestplate",
+        "dragonminez:mighty_majin_armor_chestplate",
+        "dragonminez:mystic_armor_chestplate",
+        "dragonminez:orange_high_armor_chestplate",
+        "dragonminez:piccolo_armor_chestplate",
+        "dragonminez:super_buu_armor_chestplate",
+        "dragonminez:tien_armor_chestplate",
+        "dragonminez:trunks_kid_armor_chestplate",
+        "dragonminez:trunks_z_armor_chestplate",
+        "dragonminez:turles_armor_chestplate",
+        "dragonminez:vegeta_buu_armor_chestplate",
+        "dragonminez:vegeta_gt_armor_chestplate",
+        "dragonminez:warrior_clan_armor_chestplate",
+        "dragonminez:wonder_majin_armor_chestplate"
+      ],
+      "hideTop": true
+    }
+  ]
+}

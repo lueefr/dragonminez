@@ -56,6 +56,11 @@ final class MasterServices {
 				DialogueOption earth = closing("earth", "gui.dragonminez.button.enma.earth", 1);
 				if (!BabaReviveService.canEnmaReturn(stats)) lock(earth, reason("gui.dragonminez.dialogue.locked.need_baba"));
 				options.add(earth);
+				if(com.dragonminez.common.config.ConfigManager.getRebirth().enabled) {
+                    var rebirth=DialogueOption.of("reincarnate",NpcDialogueContent.tr("gui.dragonminez.rebirth.button"),()->host.push(rebirthPage(stats))).submenu();
+                    if(!com.dragonminez.common.progression.RebirthService.allows(stats))lock(rebirth,reason("gui.dragonminez.rebirth.locked"));
+                    options.add(rebirth);
+                }
 			}
 			case "baba" -> baba(options, stats);
 			case "popo" -> {
@@ -194,6 +199,45 @@ final class MasterServices {
 				}).tone(DialogueOption.Tone.PRIMARY).enabled(host.inputValue() > 0 && !content.isPending(2))))
 				.withNumberInput(String.valueOf(maxWeight).length(), NpcDialogueContent.tr("gui.dragonminez.dialogue.weight.hint", maxWeight));
 	}
+
+    private DialoguePage rebirthPage(StatsData stats) {
+        return DialoguePage.speech("reincarnate",()->rebirthLine(stats),()->List.of(
+                closing("rebirth_confirm","gui.dragonminez.rebirth.accept",2).tone(DialogueOption.Tone.DANGER),
+                DialogueOption.of("rebirth_cancel",NpcDialogueContent.tr("gui.cancel"),host::pop)));
+    }
+
+    private Component rebirthLine(StatsData stats) {
+        var config = ConfigManager.getRebirth();
+        var keep = config.retention;
+        var bonus = config.bonus;
+        var text = NpcDialogueContent.line("gui.dragonminez.rebirth.confirm");
+        text.append("\n").append(NpcDialogueContent.tr("gui.dragonminez.rebirth.retention", keep.statsPercent, keep.tpPercent, keep.pendingPercent));
+        var flags = new java.util.LinkedHashMap<String, Boolean>();
+        flags.put("skills", keep.skills); flags.put("mastery", keep.mastery);
+        flags.put("inventory", keep.inventory); flags.put("content", keep.content);
+        flags.put("story", keep.story); flags.put("techniques", keep.techniques);
+        flags.put("effects", keep.effects); flags.put("cooldowns", keep.cooldowns);
+        flags.put("bonusStats", keep.bonusStats); flags.put("history", keep.history);
+        flags.put("alignment", keep.alignment); flags.put("raceHistory", keep.raceHistory);
+        var retained = Component.empty();
+        var removed = Component.empty();
+        flags.forEach((key, value) -> {
+            var list = value ? retained : removed;
+            if (!list.getSiblings().isEmpty()) list.append(", ");
+            list.append(NpcDialogueContent.tr("gui.dragonminez.rebirth.field." + key));
+        });
+        if (!retained.getSiblings().isEmpty()) text.append("\n").append(NpcDialogueContent.tr("gui.dragonminez.rebirth.keep", retained));
+        if (!removed.getSiblings().isEmpty()) text.append("\n").append(NpcDialogueContent.tr("gui.dragonminez.rebirth.reset", removed));
+        Component cap = !bonus.cap.enabled ? NpcDialogueContent.tr("gui.dragonminez.rebirth.cap.none")
+                : NpcDialogueContent.tr("gui.dragonminez.rebirth.cap." + bonus.cap.mode,
+                    bonus.cap.mode.equals("tp") ? bonus.cap.tp : bonus.cap.mode.equals("level") ? bonus.cap.level : stats.getRebirth().deathLevel());
+        Component limit = bonus.stacking.limit == 0 ? NpcDialogueContent.tr("gui.dragonminez.rebirth.unlimited") : Component.literal(Integer.toString(bonus.stacking.limit));
+        text.append("\n").append(NpcDialogueContent.tr("gui.dragonminez.rebirth.bonus", bonus.multiplier, cap, limit,
+                NpcDialogueContent.tr("gui.dragonminez.rebirth.mode." + bonus.stacking.mode),
+                NpcDialogueContent.tr("gui.dragonminez.rebirth.renewal." + bonus.stacking.renewal)));
+        if (bonus.durationTicks >= 0) text.append("\n").append(NpcDialogueContent.tr("gui.dragonminez.rebirth.duration", bonus.durationTicks / 20.0)).append(" ").append(NpcDialogueContent.tr("gui.dragonminez.rebirth.timer." + bonus.stacking.durationRenewal));
+        return text;
+    }
 
 	private DialoguePage dendeReset() {
 		return DialoguePage.speech("dende_reset", () -> NpcDialogueContent.line("gui.dragonminez.lines.dende.reset_warning",

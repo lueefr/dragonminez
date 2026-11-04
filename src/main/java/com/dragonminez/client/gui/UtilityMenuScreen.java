@@ -294,8 +294,9 @@ public class UtilityMenuScreen extends ScaledScreen {
 			if (node.active(statsData)) drawRowBorder(graphics, px + 1, drawY, px + pw - 1, drawY + PANEL_ROW_H - 1, 0xFF3BE05A);
 
 			int color = node.labelColor(statsData);
-			String text = this.font.plainSubstrByWidth(node.label(statsData).getString(), textWidth);
-			TextUtil.drawStringWithBorder(graphics, this.font, com.dragonminez.api.lang.ConfigTranslations.text(text).withStyle(style), px + 6, drawY + 3, color, 0x000000);
+			var label = node.label(statsData).copy().withStyle(style);
+			var text = net.minecraft.locale.Language.getInstance().getVisualOrder(this.font.substrByWidth(label, textWidth));
+			graphics.drawString(this.font, text, px + 6, drawY + 3, color, true);
 		}
 
 		if (panelScrollable) {
@@ -555,13 +556,13 @@ public class UtilityMenuScreen extends ScaledScreen {
 
 		int color = node.labelColor(statsData);
 		Style style = Style.EMPTY.withFont(DMZ_FONT);
-		List<String> lines = TextUtil.wrap(this.font, label.getString(), maxWidth, style);
-		int lineHeight = this.font.lineHeight;
+		var lines = this.font.split(label.copy().withStyle(style), maxWidth);
+		int lineHeight = this.font.lineHeight + 2;
 		int startY = Math.round(y + (iconBase + 4f * hoverAmt) / 2f + 2f);
 		int centerX = Math.round(x);
 		for (int i = 0; i < lines.size(); i++) {
-			Component line = com.dragonminez.api.lang.ConfigTranslations.text(lines.get(i)).withStyle(style);
-			TextUtil.drawCenteredStringWithBorder(graphics, this.font, line, centerX, startY + i * lineHeight, color, 0x000000);
+			var line = lines.get(i);
+			graphics.drawString(this.font, line, centerX - this.font.width(line) / 2, startY + i * lineHeight, color, true);
 		}
 	}
 

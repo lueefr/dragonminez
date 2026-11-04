@@ -379,6 +379,11 @@ public class WishesScreen extends ScaledScreen {
 
 	private void addSelection(int index) {
 		Wish wish = availableWishes.get(index);
+        var data=com.dragonminez.common.stats.StatsProvider.get(com.dragonminez.common.stats.StatsCapability.INSTANCE,minecraft.player).orElse(null);
+        if(data==null||!wish.available(data,dragonType)) {
+            com.dragonminez.client.gui.RuleNoticeScreen.open(Component.translatable("gui.dragonminez.wishes.unavailable"),null);
+            return;
+        }
 		if (needsTargets(wish) && reviveTargets.isEmpty()) return;
 		boolean alreadyPicked = selectedIndices.contains(index);
 		if (maxWishesToSelect == 1) {

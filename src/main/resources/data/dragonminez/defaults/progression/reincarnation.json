@@ -1,0 +1,37 @@
+{
+  "enabled": true,
+  "requirements": {},
+  "retention": {
+    "statsPercent": 0,
+    "skills": false,
+    "mastery": false,
+    "inventory": true,
+    "content": true,
+    "tpPercent": 0,
+    "pendingPercent": 0,
+    "story": false,
+    "techniques": false,
+    "effects": false,
+    "cooldowns": false,
+    "bonusStats": false,
+    "history": false,
+    "alignment": false,
+    "raceHistory": true
+  },
+  "bonus": {
+    "multiplier": 2.0,
+    "durationTicks": -1,
+    "cap": {
+      "enabled": true,
+      "mode": "previous_level",
+      "level": 100,
+      "tp": 200000
+    },
+    "stacking": {
+      "limit": 1,
+      "mode": "multiply",
+      "renewal": "restart",
+      "durationRenewal": "restart"
+    }
+  }
+}

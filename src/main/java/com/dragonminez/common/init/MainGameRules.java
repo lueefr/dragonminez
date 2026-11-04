@@ -25,6 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainGameRules {
+    public static final GameRules.Key<GameRules.BooleanValue> CLOTHING_TOP =
+            GameRules.register("dmzClothingHidesTop", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true, (server, value) -> {
+                for (ServerPlayer player : server.getPlayerList().getPlayers())
+                    com.dragonminez.common.network.NetworkHandler.sendToPlayer(new com.dragonminez.common.network.S2C.SyncServerConfigS2C(
+                            "appearance/clothing_gate", Boolean.toString(value.get()), false), player);
+            }));
+
 
 	private static final int MASTER_STRUCTURE_MARGIN = 2;
 

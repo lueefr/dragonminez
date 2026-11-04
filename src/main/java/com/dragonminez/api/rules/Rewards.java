@@ -28,6 +28,39 @@ public final class Rewards {
     private interface Apply {void apply(ServerPlayer player,StatsData data,JsonElement value);}
     private static void add(String key,java.util.function.Consumer<JsonElement> validate,Apply apply){register(key,new Type(){public void validate(JsonElement v){validate.accept(v);}public void apply(ServerPlayer p,StatsData d,JsonElement v){apply.apply(p,d,v);}});}
     static {
+        add("race",com.dragonminez.common.progression.RaceChange::validate,com.dragonminez.common.progression.RaceChange::apply);
+        add("item",v->{
+            var object=v.getAsJsonObject();com.dragonminez.api.content.ContentProgress.requireId(object.get("id").getAsString());integer(object.get("count"));
+            if(Conditions.ready()&&!net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(net.minecraft.resources.ResourceLocation.parse(object.get("id").getAsString())))
+                throw new IllegalArgumentException("Unknown item reward: "+object.get("id"));
+        },(p,d,v)->{
+            var object=v.getAsJsonObject();String id=object.get("id").getAsString();
+            if(!net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(net.minecraft.resources.ResourceLocation.parse(id)))throw new IllegalArgumentException("Unknown item reward: "+id);
+            new com.dragonminez.common.wish.wishes.ItemWish("","",id,object.get("count").getAsInt()).grant(p);
+        });
+        add("customize",v->{if(!v.isJsonPrimitive()||!v.getAsJsonPrimitive().isBoolean()||!v.getAsBoolean())throw new IllegalArgumentException("customize must be true");},
+                (p,d,v)->new com.dragonminez.common.wish.wishes.ReCustomizeWish("","").grant(p));
+        add("appearance",v->{
+            var object=v.getAsJsonObject();
+            for(var entry:object.entrySet()) {
+                if(!Set.of("bodyColor","bodyColor2","bodyColor3","hairColor","eye1Color","eye2Color","auraColor").contains(entry.getKey()))throw new IllegalArgumentException("Unknown appearance property: "+entry.getKey());
+                if(!entry.getValue().getAsString().matches("#?[a-fA-F0-9]{6}"))throw new IllegalArgumentException("Expected an RGB appearance color");
+            }
+        },(p,d,v)->{
+            var character=d.getCharacter();
+            v.getAsJsonObject().entrySet().forEach(entry->{
+                String color=entry.getValue().getAsString();
+                switch(entry.getKey()) {
+                    case "bodyColor" -> character.setBodyColor(color);
+                    case "bodyColor2" -> character.setBodyColor2(color);
+                    case "bodyColor3" -> character.setBodyColor3(color);
+                    case "hairColor" -> character.setHairColor(color);
+                    case "eye1Color" -> character.setEye1Color(color);
+                    case "eye2Color" -> character.setEye2Color(color);
+                    case "auraColor" -> character.setAuraColor(color);
+                }
+            });
+        });
         add("form",v -> Conditions.form(v.getAsString()),(p,d,v) -> {
             String[] ref=Conditions.form(v.getAsString());var group=group(d,ref[0]);
             if(group==null || !group.getForms().containsKey(ref[1]))throw new IllegalArgumentException("Reward form not found for player race: "+v);
@@ -43,7 +76,7 @@ public final class Rewards {
             masteries.addMastery(ref[0],ref[1],o.get("add").getAsDouble(),group.getForms().get(ref[1]).getMaxMastery());
         });
         add("content",v -> com.dragonminez.api.content.ContentProgress.requireId(v.getAsString()),(p,d,v) -> ContentCompletionApi.complete(p,v.getAsString(),"reward"));
-        add("tp",v -> {double n=v.getAsDouble();Conditions.positive(n);if(n!=Math.rint(n))throw new IllegalArgumentException("TP rewards must be whole points");},(p,d,v) -> d.getResources().setTrainingPointsExact(d.getResources().getTrainingPointsExact()+v.getAsDouble()));
+        add("tp",v -> {double n=v.getAsDouble();Conditions.positive(n);if(n!=Math.rint(n))throw new IllegalArgumentException("TP rewards must be whole points");},(p,d,v) -> d.getResources().addTrainingPoints(v.getAsDouble(),false,true));
     }
     private static com.dragonminez.common.config.FormConfig group(StatsData data,String id){
         var group=ConfigManager.getFormGroup(data.getCharacter().getRaceName(),id);return group!=null?group:ConfigManager.getStackFormGroup(id);

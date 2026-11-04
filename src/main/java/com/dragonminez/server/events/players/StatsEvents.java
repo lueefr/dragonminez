@@ -156,6 +156,7 @@ public class StatsEvents {
 
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent.Post event) {
+        if(event.getEntity() instanceof ServerPlayer player)StatsProvider.get(StatsCapability.INSTANCE,player).ifPresent(data->data.getRebirth().tick());
 		if (event.getEntity().level().isClientSide) return;
 		Player player = event.getEntity();
 		if (!(player instanceof ServerPlayer serverPlayer)) return;
@@ -300,6 +301,7 @@ public class StatsEvents {
 					addAlignment[0] = true;
 				else removeAlignment[0] = true;
 				if (victimData.getStatus().isHasCreatedCharacter()) {
+                    victimData.getRebirth().record(victimData.getLevel());
 					boolean wasMutant = victimData.getEffects().hasEffect(MutantManager.EFFECT_NAME);
 					boolean keepMutant = true;
 					if (wasMutant && victim instanceof ServerPlayer mutantVictim) MutantManager.reconcileHolder(mutantVictim, victimData);

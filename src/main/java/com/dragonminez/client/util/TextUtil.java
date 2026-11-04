@@ -102,17 +102,13 @@ public class TextUtil {
     }
 
     public static FormattedCharSequence overrideColor(FormattedCharSequence sequence, int color) {
-        return sink -> sequence.accept((index, style, codePoint) ->
-                sink.accept(index, style.withColor(net.minecraft.network.chat.TextColor.fromRgb(color)), codePoint)
-        );
+        return com.dragonminez.client.text.FormNameText.unstyled(sink -> sequence.accept((index, style, codePoint) ->
+                sink.accept(index, com.dragonminez.client.text.FormNameText.unmark(style).withColor(net.minecraft.network.chat.TextColor.fromRgb(color)), codePoint)
+        ));
     }
 
     public static void drawStringWithBorder(GuiGraphics graphics, Font font, String text, int x, int y, int textColor, int borderColor) {
-        graphics.drawString(font, text, x + 1, y, borderColor, false);
-        graphics.drawString(font, text, x - 1, y, borderColor, false);
-        graphics.drawString(font, text, x, y + 1, borderColor, false);
-        graphics.drawString(font, text, x, y - 1, borderColor, false);
-        graphics.drawString(font, text, x, y, textColor, false);
+        drawStringWithBorder(graphics,font,Component.literal(text),x,y,textColor,borderColor);
     }
 
     public static void drawStringWithBorder(GuiGraphics graphics, Font font, Component text, int x, int y, int textColor, int borderColor) {
@@ -121,6 +117,36 @@ public class TextUtil {
     }
 
     public static void drawStringWithBorder(GuiGraphics graphics, Font font, FormattedCharSequence text, int x, int y, int textColor, int borderColor) {
+        if (com.dragonminez.client.text.FormNameText.modScreen() && !(text instanceof com.dragonminez.client.text.FormNameText.Unstyled)) {
+            var marked = com.dragonminez.client.text.FormNamePalette.annotate(text);
+            if (marked != null) text = marked;
+        }
+        record Glyph(int index, net.minecraft.network.chat.Style style, int codepoint) {}
+        java.util.List<Glyph> glyphs = new java.util.ArrayList<>();
+        boolean[] named = {false};
+        text.accept((index, style, codepoint) -> {
+            glyphs.add(new Glyph(index, style, codepoint));
+            named[0] |= com.dragonminez.client.text.FormNameText.color(style) != null;
+            return true;
+        });
+        if (named[0] && !(text instanceof com.dragonminez.client.text.FormNameText.Unstyled)) {
+            int cursor = x;
+            for (int start = 0; start < glyphs.size();) {
+                boolean form = com.dragonminez.client.text.FormNameText.color(glyphs.get(start).style()) != null;
+                int end = start + 1;
+                while (end < glyphs.size() && (com.dragonminez.client.text.FormNameText.color(glyphs.get(end).style()) != null) == form) end++;
+                var run = glyphs.subList(start,end);
+                FormattedCharSequence sequence = sink -> {
+                    for (var glyph : run) if (!sink.accept(glyph.index(),glyph.style(),glyph.codepoint())) return false;
+                    return true;
+                };
+                if (form) graphics.drawString(font,sequence,cursor,y,textColor,false);
+                else drawStringWithBorder(graphics,font,sequence,cursor,y,textColor,borderColor);
+                cursor += font.width(sequence);
+                start = end;
+            }
+            return;
+        }
         FormattedCharSequence borderSeq = overrideColor(text, borderColor);
         graphics.drawString(font, borderSeq, x + 1, y, borderColor, false);
         graphics.drawString(font, borderSeq, x - 1, y, borderColor, false);

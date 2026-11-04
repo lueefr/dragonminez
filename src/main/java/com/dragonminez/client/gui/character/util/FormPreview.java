@@ -30,7 +30,7 @@ public final class FormPreview {
 	public FormPreview(String race) {
 		this.race = race != null ? race : "human";
 		options.add(new Option("", ""));
-		for (TransformationsHelper.OrderedFormEntry entry : TransformationsHelper.getOrderedFormsForRace(this.race, TYPE_ORDER)) {
+		for (TransformationsHelper.OrderedFormEntry entry : TransformationsHelper.orderedForms(com.dragonminez.client.text.FormNameText.viewer(),this.race,TYPE_ORDER)) {
 			if (entry == null || entry.getFormData() == null) continue;
 			options.add(new Option(entry.getGroupName(), entry.getFormData().getName()));
 		}
@@ -65,11 +65,13 @@ public final class FormPreview {
 		return options.get(index);
 	}
 
-	public String displayName() {
+	public String displayName() {return displayNameComponent().getString();}
+
+	public net.minecraft.network.chat.Component displayNameComponent() {
 		Option option = current();
-		if (option.isBase()) return I18n.get("forms.dragonminez.base");
+		if (option.isBase()) return net.minecraft.network.chat.Component.translatable("forms.dragonminez.base");
 		String key = "race.dragonminez." + race.toLowerCase(Locale.ROOT) + ".form." + option.group() + "." + option.form();
-		if (I18n.exists(key)) return I18n.get(key);
+		if (I18n.exists(key)) return net.minecraft.network.chat.Component.translatable(key);
 		String[] parts = option.form().replace('-', ' ').replace('_', ' ').split("\\s+");
 		StringBuilder builder = new StringBuilder();
 		for (String part : parts) {
@@ -78,7 +80,7 @@ public final class FormPreview {
 			builder.append(java.lang.Character.toUpperCase(part.charAt(0)));
 			if (part.length() > 1) builder.append(part.substring(1).toLowerCase(Locale.ROOT));
 		}
-		return builder.isEmpty() ? option.form() : builder.toString();
+		return net.minecraft.network.chat.Component.translatableWithFallback(key,builder.isEmpty() ? option.form() : builder.toString());
 	}
 
 	public Snapshot apply(LivingEntity player) {
@@ -86,7 +88,7 @@ public final class FormPreview {
 		Option option = current();
 		StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(stats -> {
 			Character character = stats.getCharacter();
-			snapshot[0] = new Snapshot(character.getActiveFormGroup(), character.getActiveForm(), character.getActiveStackFormGroup(), character.getActiveStackForm(), stats.getStatus().isAndroidUpgraded());
+			snapshot[0] = new Snapshot(character.slotGroup(), character.slotForm(), character.stackGroup(), character.stackForm(), stats.getStatus().isAndroidUpgraded());
 			character.clearActiveForm();
 			character.clearActiveStackForm();
 			if (option.isBase()) return;
