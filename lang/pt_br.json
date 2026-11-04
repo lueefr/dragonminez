@@ -5356,5 +5356,13 @@
   "gui.dragonminez.rebirth.field.raceHistory": "origens raciais",
   "gui.dragonminez.rebirth.timer.restart": "O tempo reinicia.",
   "gui.dragonminez.rebirth.timer.keep": "O tempo é mantido.",
-  "gui.dragonminez.rebirth.timer.extend": "A duração aumenta ao reencarnar."
+  "gui.dragonminez.rebirth.timer.extend": "A duração aumenta ao reencarnar.",
+  "rules.dragonminez.property": "Propriedade de personagem necessária: %s",
+  "rules.dragonminez.property.equals": "%s: %s",
+  "rules.dragonminez.property.contains": "%s inclui %s",
+  "rules.dragonminez.property.min": "%s ≥ %s",
+  "rules.dragonminez.property.max": "%s ≤ %s",
+  "rules.dragonminez.property.present": "Requer %s",
+  "rules.dragonminez.property.absent": "Requer ausência de %s",
+  "rules.dragonminez.property.unset": "não definido"
 }

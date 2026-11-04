@@ -109,7 +109,7 @@ public class LockOnEvent {
 		if (data.getStatus().isAndroidUpgraded()) maxRange += 25.0;
 		if (player.distanceTo(target) > maxRange) return false;
 
-		if (!KiSenseScan.canTarget(target, data)) return false;
+		if (!canTarget(target, data)) return false;
 		return player.hasLineOfSight(target) || data.getStatus().isAndroidUpgraded();
 	}
 
@@ -292,9 +292,6 @@ public class LockOnEvent {
 		if (!(target instanceof Player targetPlayer)) return true;
 		StatsData targetData = StatsProvider.get(StatsCapability.INSTANCE, targetPlayer).orElse(null);
 		if (targetData == null) return true;
-		if (KiSenseScan.isCloaked(targetPlayer)) return false;
-		if (KiSenseScan.isKiSuppressed(targetData)) return false;
-		if (TransformationsHelper.hasGodFormActive(targetData) && !TransformationsHelper.hasGodKi(myData)) return false;
-		return true;
+        return com.dragonminez.common.combat.aim.KiDetection.allows(myData,targetData,"lock_on");
 	}
 }

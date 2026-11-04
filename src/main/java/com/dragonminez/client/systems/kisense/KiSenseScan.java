@@ -3,7 +3,6 @@ package com.dragonminez.client.systems.kisense;
 import com.dragonminez.common.init.MainItems;
 import com.dragonminez.common.init.MainSounds;
 import com.dragonminez.common.init.entities.IBattlePower;
-import com.dragonminez.common.racial.impl.GlindDivinity;
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsData;
 import com.dragonminez.common.stats.StatsProvider;
@@ -64,11 +63,7 @@ public final class KiSenseScan {
 		if (!(target instanceof Player targetPlayer)) return true;
 		StatsData targetData = StatsProvider.get(StatsCapability.INSTANCE, targetPlayer).orElse(null);
 		if (targetData == null) return true;
-		if (isCloaked(targetPlayer)) return false;
-		if (isKiSuppressed(targetData)) return false;
-		if (targetData.getStatus().isAndroidUpgraded()) return false;
-		if (TransformationsHelper.hasGodFormActive(targetData) && !TransformationsHelper.hasGodKi(myData)) return false;
-		return true;
+        return com.dragonminez.common.combat.aim.KiDetection.allows(myData,targetData,"ki_sense");
 	}
 
 	public static double combatRange(StatsData data, int level) {
@@ -134,7 +129,6 @@ public final class KiSenseScan {
 			boolean visible = !entity.isInvisible() || !entity.isInvisibleTo(player);
 			if (!visible) continue;
 			if (!canTarget(entity, data)) continue;
-			if (GlindDivinity.isHiddenFrom(entity, player)) continue;
 
 			double dist = player.distanceTo(entity);
 			float bp = getEntityBP(entity);

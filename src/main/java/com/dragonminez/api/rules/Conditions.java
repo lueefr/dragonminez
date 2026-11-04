@@ -32,6 +32,7 @@ public final class Conditions {
         });
     }
     static {
+        add("property",PropertyCondition::validate,PropertyCondition::test);
         add("all", Conditions::validateList, (c,v) -> v.getAsJsonArray().asList().stream().allMatch(e -> test(c,e.getAsJsonObject())));
         add("any", Conditions::validateList, (c,v) -> v.getAsJsonArray().asList().stream().anyMatch(e -> test(c,e.getAsJsonObject())));
         add("not", v -> validate(v.getAsJsonObject()), (c,v) -> !test(c,v.getAsJsonObject()));
@@ -115,6 +116,7 @@ public final class Conditions {
         if(key.equals("dimension")||key.equals("biome")){var id=net.minecraft.resources.ResourceLocation.parse(value.getAsString());return Component.translatable("rules.dragonminez."+key,Component.translatable(key+"."+id.getNamespace()+"."+id.getPath().replace('/','.')));}
         if(key.equals("heldItem"))return Component.translatable("rules.dragonminez.heldItem",net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.parse(value.getAsString())).getDescription());
         if(key.equals("effect")){var o=value.getAsJsonObject();var id=net.minecraft.resources.ResourceLocation.parse(o.get("id").getAsString());return Component.translatable("rules.dragonminez.effect",Component.translatable("effect."+id.getNamespace()+"."+id.getPath()),o.has("minAmplifier")?o.get("minAmplifier").getAsInt()+1:1);}
+        if(key.equals("property"))return PropertyCondition.describe(value);
         if(key.equals("mastery")){var o=value.getAsJsonObject();return Component.translatable("rules.dragonminez.mastery",formName(context,o.get("form").getAsString()),o.get("min").getAsDouble());}
         if(key.equals("skill")){var o=value.getAsJsonObject();return Component.translatable("rules.dragonminez.skill",Component.translatable("skill.dragonminez."+o.get("id").getAsString()),o.get("level").getAsInt());}
         if(key.equals("used")) return Component.translatable("rules.dragonminez.used",formName(context,value.getAsString()));

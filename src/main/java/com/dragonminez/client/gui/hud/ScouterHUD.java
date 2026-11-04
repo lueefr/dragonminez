@@ -10,7 +10,6 @@ import com.dragonminez.common.init.MainItems;
 import com.dragonminez.common.init.MainSounds;
 import com.dragonminez.common.init.entities.IBattlePower;
 import com.dragonminez.common.quest.QuestUnlocks;
-import com.dragonminez.common.racial.impl.GlindDivinity;
 import com.dragonminez.common.network.C2S.DamageCurioC2S;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.stats.*;
@@ -104,14 +103,19 @@ public class ScouterHUD {
 		}
 	}
 
+    private static boolean detected(LivingEntity target,Player viewer) {
+        var data=viewer==null?null:StatsProvider.get(StatsCapability.INSTANCE,viewer).orElse(null);
+        return com.dragonminez.common.combat.aim.KiDetection.visible(data,target,"scouter");
+    }
+
 	private static void performSmartScan(Player player) {
 		Entity currentTarget = player.level().getEntity(strongestEntityID);
-		boolean cachedIsAlive = (currentTarget instanceof LivingEntity living && living.isAlive());
+		boolean cachedIsAlive = (currentTarget instanceof LivingEntity living && living.isAlive() && detected(living,player));
 		double thresholdBP = cachedIsAlive ? cachedBP : -1;
 
 		AABB searchBox = player.getBoundingBox().inflate(SCAN_RANGE);
 		List<LivingEntity> entities = player.level().getEntitiesOfClass(LivingEntity.class, searchBox,
-				e -> e != player && e.isAlive() && !GlindDivinity.isHiddenFrom(e, player));
+				e -> e != player && e.isAlive() && detected(e, player));
 
 		LivingEntity newStrongest = null;
 		double maxFoundBP = thresholdBP;
@@ -249,7 +253,7 @@ public class ScouterHUD {
 		LivingEntity best = null;
 		double bestDist = Double.MAX_VALUE;
 		for (LivingEntity living : mc.level.getEntitiesOfClass(LivingEntity.class, area,
-				e -> e != camera && e != mc.player && e.isAlive() && !e.isSpectator() && !GlindDivinity.isHiddenFrom(e, mc.player))) {
+				e -> e != camera && e != mc.player && e.isAlive() && !e.isSpectator() && detected(e, mc.player))) {
 			AABB bounds = living.getBoundingBox().inflate(Math.max(AIM_TOLERANCE, living.getPickRadius()));
 			Optional<Vec3> crossing = bounds.contains(eye) ? Optional.of(eye) : bounds.clip(eye, end);
 			if (crossing.isEmpty()) continue;

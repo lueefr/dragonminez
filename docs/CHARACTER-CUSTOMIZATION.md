@@ -118,6 +118,73 @@ consequence of being a former race. Separate wishes can offer different destinat
 `{ "customize": true }` opens the existing appearance editor. Fixed color changes use
 `{ "appearance": { "bodyColor": "#AABBCC", "hairColor": "#112233" } }`.
 
+## Referenced base multipliers and custom properties
+
+An attribute can inherit resolved form multipliers, including composition chains and
+mastery, without activating that form or changing the base appearance:
+
+```json
+{
+  "attributes": {
+    "example:absorbed_power": {
+      "when": { "content": "example:absorbed_power" },
+      "composition": {
+        "inherits": [
+          { "form": "path.source", "factor": 1.0, "stats": ["STR", "SKP", "PWR"] }
+        ]
+      },
+      "properties": { "example:ki_signature": "example:special_energy" }
+    },
+    "example:perception": {
+      "when": { "content": "example:perception" },
+      "properties": { "example:perceived_energy": ["example:special_energy"] }
+    }
+  },
+  "detection": [
+    {
+      "channels": ["ki_sense", "lock_on", "instant_transmission", "scouter"],
+      "mode": "replace",
+      "target": {
+        "property": { "id": "example:ki_signature", "equals": "example:special_energy" }
+      },
+      "observer": {
+        "property": { "id": "example:perceived_energy", "contains": "example:special_energy" }
+      }
+    }
+  ]
+}
+```
+
+`composition.inherits` multiplies the selected source factors into the numeric `base`
+factors. Multiple sources multiply together. Empty `stats` means all supported stats;
+`RES` covers both `DEF` and `STM`. `factor` scales that source. TP is independent.
+If a source resolves to 21 and the numeric base factor is 3, the effective base factor
+is 63; a subsequent transformation of 2 produces 126. References read composition
+and mastery, without copying other character attributes, temporary effects or the
+character's complete final multiplier. A missing source for the current race logs a
+warning and contributes a neutral factor; use race conditions for race-specific sources.
+A referenced form can itself use dynamic `best`/`current` composition.
+
+Properties are namespaced values, independent of native flags. Values may be strings,
+booleans, finite numbers, or arrays of scalar values. Later matching attribute definitions
+win when several define the same property. They are derived from conditions rather than
+saved as a separate mutable copy. Saved completion flags therefore preserve wish-granted
+properties across reconnects, while changing the JSON updates their behavior.
+
+The shared `property` condition supports `equals`, `contains`, `present`, `min`, and `max`.
+Conditions can use a property to activate another attribute, replace a form, block its use,
+or gate a wish. Avoid circular property dependencies; recursive lookups return an unset
+value rather than recursing indefinitely. Add lang entries for property IDs and symbolic
+values when they appear in requirement descriptions.
+
+Detection rules evaluate `target` against the detected player and `observer` against the
+viewer. Empty `channels` applies to all channels. `restrict` adds a requirement to native
+detection; `replace` replaces the native result for matching targets. Rules run in order.
+Unmatched targets keep native behavior. These rules affect ki sense, lock-on, scouters,
+and instant transmission; lock-on and teleport decisions are also checked on the server.
+They do not bypass distance, line-of-sight, skill or other travel requirements.
+No particular energy type, form name or completion flag is built into this system.
+
 ## Reincarnation
 
 Enma offers a confirmation before reopening character creation. The configuration controls:

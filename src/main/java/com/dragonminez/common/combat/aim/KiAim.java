@@ -33,6 +33,7 @@ public final class KiAim {
     public static LivingEntity validLock(ServerPlayer player,int id) {
         if(id<0||!(player.serverLevel().getEntity(id) instanceof LivingEntity target)||target==player||!target.isAlive()||target.isSpectator())return null;
         var data=StatsProvider.get(StatsCapability.INSTANCE,player).orElse(null);if(data==null)return null;
+        if(!KiDetection.visible(data,target,"lock_on"))return null;
         int sense=data.getSkills().getSkillLevel("kisense");if(sense<=0)return null;
         double range=15+5*sense+(data.getStatus().isAndroidUpgraded()?25:0);
         return player.distanceToSqr(target)<=range*range&&(player.hasLineOfSight(target)||data.getStatus().isAndroidUpgraded())?target:null;

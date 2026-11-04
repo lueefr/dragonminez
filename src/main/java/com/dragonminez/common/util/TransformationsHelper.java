@@ -880,14 +880,12 @@ public class TransformationsHelper {
 	public static boolean hasGodFormActive(StatsData statsData) {
 		var character = statsData.getCharacter();
 		if (!character.hasActiveForm()) return false;
-		FormConfig config = ConfigManager.getFormGroup(character.getRaceName(), character.slotGroup());
+		FormConfig config = ConfigManager.getFormGroup(character.getRaceName(), character.getActiveFormGroup());
 		return config != null && config.getFormType() != null && config.getFormType().toLowerCase(Locale.ROOT).contains("god");
 	}
 
 	public static boolean isInstantTransmissionBlocked(StatsData requester, StatsData target) {
-		if (target.getStatus().isAndroidUpgraded()) return true;
-		if (GlindDivinity.isHiddenFrom(target, requester)) return true;
-		return hasGodFormActive(target) && !hasGodKi(requester);
+        return !com.dragonminez.common.combat.aim.KiDetection.allows(requester,target,"instant_transmission");
 	}
 
 	public static boolean hasGodKi(StatsData statsData) {

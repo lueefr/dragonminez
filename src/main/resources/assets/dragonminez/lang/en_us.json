@@ -6856,5 +6856,13 @@
   "gui.dragonminez.rebirth.field.raceHistory": "race origins",
   "gui.dragonminez.rebirth.timer.restart": "Timer restarts.",
   "gui.dragonminez.rebirth.timer.keep": "Timer is retained.",
-  "gui.dragonminez.rebirth.timer.extend": "Duration increases on reincarnation."
+  "gui.dragonminez.rebirth.timer.extend": "Duration increases on reincarnation.",
+  "rules.dragonminez.property": "Required character property: %s",
+  "rules.dragonminez.property.equals": "%s: %s",
+  "rules.dragonminez.property.contains": "%s includes %s",
+  "rules.dragonminez.property.min": "%s ≥ %s",
+  "rules.dragonminez.property.max": "%s ≤ %s",
+  "rules.dragonminez.property.present": "Requires %s",
+  "rules.dragonminez.property.absent": "Requires absence of %s",
+  "rules.dragonminez.property.unset": "unset"
 }
