@@ -494,7 +494,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
             if (this.strikeOrigin != null) this.setPos(this.strikeOrigin.x, this.strikeOrigin.y, this.strikeOrigin.z);
             return;
         }
-        Vec3 look = !this.isFiring()?owner.getLookAngle():this.level().isClientSide?Vec3.directionFromRotation(this.getFixedPitch(),this.getFixedYaw()):com.dragonminez.common.combat.aim.KiAim.direction(owner,owner.getEyePosition());
+        Vec3 look = !this.isFiring()?Vec3.directionFromRotation(0,owner.yBodyRot):this.level().isClientSide?Vec3.directionFromRotation(this.getFixedPitch(),this.getFixedYaw()):com.dragonminez.common.combat.aim.KiAim.direction(owner,owner.getEyePosition());
         Vec3 right = look.cross(new Vec3(0, 1, 0)).normalize();
         Vec3 up = right.cross(look).normalize();
 
@@ -506,8 +506,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
         Vec3 offset;
 
         if (!this.isFiring()) {
-            offset = castOffset(owner, right, up, look,
-                    this.entityData.get(OFFSET_X), this.entityData.get(OFFSET_Y), this.entityData.get(OFFSET_Z));
+            offset = heldCastOffset(owner, this.entityData.get(OFFSET_X), this.entityData.get(OFFSET_Y), this.entityData.get(OFFSET_Z));
         } else {
             double forwardDistance = (owner.getBbWidth() / 2.0D) + 0.3D;
 

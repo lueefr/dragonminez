@@ -1665,8 +1665,8 @@ public class KiBlastEntity extends AbstractKiProjectile {
         Vec3 newPos = new Vec3(centerX, centerY, centerZ).add(offset);
         this.setPos(newPos.x, newPos.y, newPos.z);
 
-        this.setYRot(owner.getYRot());
-        this.setXRot(owner.getXRot());
+        this.setYRot(this.isFiring()?owner.getYRot():owner.yBodyRot);
+        this.setXRot(this.isFiring()?owner.getXRot():0);
     }
 
     private void pulseAreaDamage() {

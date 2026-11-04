@@ -2,7 +2,6 @@ package com.dragonminez.client.combat;
 
 import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
-import com.dragonminez.common.stats.techniques.KiAttackData;
 import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.network.C2S.KiAimC2S;
 import com.dragonminez.common.network.C2S.TechniqueChargeC2S;
@@ -26,10 +25,10 @@ public final class ClientKiAim {
         var data=StatsProvider.get(StatsCapability.INSTANCE,player).orElse(null);
         if(data==null||!data.getStatus().isHasCreatedCharacter())return false;
         var techniques=data.getTechniques();
-        return techniques.isTechniqueCharging()||techniques.isTechniqueChargeActive()
-            ||player.tickCount<visibleUntil
-            ||player.getMainHandItem().isEmpty()&&data.getSkills().getSkillLevel("kicontrol")>0
-                &&(techniques.getSelectedTechnique() instanceof KiAttackData||com.dragonminez.client.util.KeyBinds.DESCEND.isDown());
+        boolean casting=player instanceof com.dragonminez.client.animation.IPlayerAnimatable animated
+                &&(animated.dragonminez$isShootingKi()||animated.dragonminez$getCurrentKiAnimation().startsWith("ki."));
+        return casting||techniques.isTechniqueCharging()||techniques.isTechniqueChargeActive()
+            ||player.tickCount<visibleUntil;
     }
     public static String rangedState() {
         var player=Minecraft.getInstance().player;if(player==null)return "RANGED_WEAPON";

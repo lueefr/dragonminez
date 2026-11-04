@@ -447,7 +447,7 @@ public abstract class AbstractKiProjectile extends Projectile {
 
     /** Held offsets are relative to the upright body, not the camera's pitch or the fired radius. */
     protected Vec3 heldCastOffset(LivingEntity owner, float offsetX, float offsetY, float offsetZ) {
-        Vec3 forward = Vec3.directionFromRotation(0, owner.getYRot());
+        Vec3 forward = Vec3.directionFromRotation(0, owner.yBodyRot);
         Vec3 up = new Vec3(0, 1, 0);
         Vec3 right = forward.cross(up);
         return right.scale(offsetX * ownerWidthScale(owner))

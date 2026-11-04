@@ -74,6 +74,10 @@ public final class KiChargeAnchorGameTests {
             wave.tick();
             helper.assertTrue(wave.position().distanceTo(original) < 1e-5, "Held charge drifted with its radius");
             owner.setYRot(90);
+            owner.yHeadRot=90;
+            wave.tick();
+            helper.assertTrue(wave.position().distanceTo(original) < 1e-5, "Held charge moved with the head while the body stayed still");
+            owner.yBodyRot=90;
             wave.tick();
             helper.assertTrue(wave.position().distanceTo(original) > .1, "Held charge failed to turn with the caster");
             helper.assertTrue(Math.abs(wave.getY() - original.y) < 1e-5, "Turning changed the hand's height");
