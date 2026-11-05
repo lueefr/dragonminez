@@ -8,6 +8,10 @@ on:
       - gradle.properties
   workflow_dispatch: {}
 
+concurrency:
+  group: release-prepare-main
+  cancel-in-progress: false
+
 permissions:
   contents: read
   actions: read
@@ -21,6 +25,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Read release metadata
         id: metadata
@@ -61,6 +67,8 @@ jobs:
         run: ./gradlew build
 
       - name: Build release manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
         if: steps.metadata.outputs.stable == 'true'
         shell: bash
         run: |
@@ -68,8 +76,9 @@ jobs:
           changelog_args=()
           if [[ -f "release-notes/${{ steps.metadata.outputs.version }}.md" ]]; then
             changelog_args+=(--changelog-file "release-notes/${{ steps.metadata.outputs.version }}.md")
-          elif [[ -f CHANGELOG.md ]]; then
-            changelog_args+=(--changelog-file CHANGELOG.md)
+          else
+            python3 -m scripts.release.github_release notes --tag "v${{ steps.metadata.outputs.version }}" --source "$GITHUB_SHA" --repository "$GITHUB_REPOSITORY" --output release-changelog.md
+            changelog_args+=(--changelog-file release-changelog.md)
           fi
 
           python3 -m scripts.release.prepare_release \
