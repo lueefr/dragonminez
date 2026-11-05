@@ -2,7 +2,7 @@
 
 ## Smooth aura transitions
 
-Main and extra aura layers blend across type or form changes. The outgoing shell remains visible while the incoming shell appears. This includes changes between forms using the same texture/geometry with a different color. Reversing during a transition starts from the visible mixture rather than snapping to an endpoint.
+Main and extra aura layers blend across type or form changes. The outgoing shell remains visible while the incoming shell appears. In the 3D backend, compatible aura meshes also interpolate their geometry gradually during the transition. This includes changes between forms using the same texture/geometry with a different color. Reversing during a transition starts from the visible mixture rather than snapping to an endpoint.
 
 Per-form timing lives under `aura`:
 
@@ -112,3 +112,6 @@ A parent strength multiplier of 16 and a child strength delta of 5 resolve to 21
 The resolver caches results separately for each player. Unlock, mastery, race, relevant progression and config revisions invalidate the applicable cache. Static cycles are rejected during configuration validation with a reference path. Dynamic resolution excludes the form currently being resolved and its descendants from candidate selection, avoiding self-selection through `best`/`current`.
 
 Java integrations use `FormCompositionResolver.Definition`, `PlayerState`, `reload`, `updatePlayer` and `resolve`. The four-argument `Definition` constructor retains multiplicative behavior; the constructor with a `mode` argument selects `"add"` or `"multiply"`. Pure resolver callers must supply all eight local stat values, including explicit zero deltas where appropriate.
+
+
+To apply a resolved form multiplier to the character's base without activating that form, use [attribute composition](Character-attributes#inherit-resolved-power-and-declare-properties). This is separate from composing an active form.

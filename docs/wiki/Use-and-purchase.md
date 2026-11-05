@@ -92,7 +92,17 @@ All keys in an object are ANDed. Use `all`, `any` and `not` to compose objects:
 | `mastery` | `form` as `group.form`, and numeric minimum `min`. |
 | `skill` | Skill `id` and minimum `level`. |
 | `level` | Minimum player level. |
-| `race` | Race ID. |
+| `race` | Current race ID. |
+| `originRace`, `previousRace` | Initial race or most recent previous race ID. |
+| `property` | Namespaced `id` and `equals`, `contains`, `present`, `min` and/or `max`; see [character properties](Character-attributes). |
+| `healthPercent`, `energyPercent`, `staminaPercent` | Object with `min` and/or `max`, within 0–100. |
+| `powerRelease` | `min`/`max` within 0–1000. |
+| `altitude` | `min`/`max` within -2048–2048. |
+| `timeOfDay` | `min`/`max` within 0–23999. |
+| `dimension`, `biome`, `heldItem` | Namespaced dimension/biome/main-hand item ID. |
+| `activeForm`, `stackForm` | Active effective form as `group.form`. |
+| `effect` | Object with registered effect `id` and optional `minAmplifier` (zero-based, 0–255). |
+| `raining`, `thundering`, `sprinting`, `swimming`, `underwater`, `burning`, `gliding`, `moving` | Boolean context conditions. |
 | `used` | Form reference used at least once. |
 | `first` | Boolean: the form's first-use state. |
 | `flying`, `charging`, `chargingKi`, `transforming`, `aura`, `grounded`, `sneaking`, `water`, `night` | Boolean context conditions. |
@@ -103,19 +113,26 @@ During cross-race fusion, linked racial `mastery` and `used` references resolve 
 
 Mastery values are points in that form's configured mastery scale; a form with a maximum of 100 uses `min: 100` for maximum mastery. Nesting is bounded and unknown registered condition names are rejected at config validation.
 
-## Refusal dialogs and colors
+## Refusals and form-name colors
 
-The server sends a translatable message to a centered modal built with the tutorial panel skin and smooth font. OK closes it and restores the previous screen. Long messages can be scrolled.
+While a menu is open, refusals appear in a tutorial-style notice near the bottom of the
+screen. It does not dim the background, replace the menu or intercept clicks. It closes
+after five seconds, on the next click (which still reaches the menu), or when no menu is
+open. Outside a GUI, refusal text appears above the hotbar instead of opening a pop-up.
 
-Each referenced form name carries its own configured hair color. The renderer computes a contrasting outline for each colored span: dark text gets a light outline, light text gets a dark outline. Multiple form names may therefore have different colors in one message. The target form colors the surrounding use-denial message; without a target, the first colored form provides the surrounding style. Messages without any form use the default tutorial style.
+Form names use their configured hair color automatically, including built-in forms and
+names overridden by lang JSON. No color codes are required. In GUIs, each form-name span
+gets a contrasting outline: dark text has a light outline and light text has a dark
+outline. HUD/actionbar names use their color without this additional outline.
 
-Text is not translated into the server's language before transmission. Each receiving client resolves its own selected locale through the config translation layer.
+Clients resolve translatable messages in their selected locale through the
+[config translation layer](Translations).
 
 ## Java API
 
 - `Conditions.register(key, type)` adds validation, evaluation and translatable descriptions. Register before extension validation completes.
 - `Conditions.missing(new Conditions.Context(data, "path.stage"), condition)` returns descriptions of unmet conditions.
-- `FormAccess.missing(data, group, form, stack)` describes use locks without changing state or sending a dialog.
+- `FormAccess.missing(data, group, form, stack)` describes use locks without changing state or sending a notice.
 - `FormAccess.allow(data, group, form, stack, forced)` checks on the server and emits a refusal or forced-use warning when needed.
 - `Character.setActiveForm(group, form)` and `setActiveStackForm(group, form)` enforce use conditions on the logical server.
 - `Character.forceSetActiveForm(group, form)` and `forceSetActiveStackForm(group, form)` explicitly bypass use conditions and warn the affected player. Administrative triggers and forced native ritual grants use this path.
@@ -126,4 +143,4 @@ Legacy scripts assigning the group and form separately keep their method signatu
 Custom Java integrations should check `FormAccess.allow` before charging their own external costs. Do not directly mutate form fields or load fabricated NBT to implement a transformation.
 
 
-All native skill purchase/upgrade refusals now use the modal path: missing or unavailable skill, race restriction, fusion, missing offering within 10 blocks, alignment, existing ownership, maximum level, grant-only level, insufficient TP and configured requirements. The server returns a translatable reason before debiting TP or granting progression. It never trusts the cost sent by the client.
+Native skill purchase/upgrade refusals use the same GUI-notice/actionbar behavior: missing or unavailable skill, race restriction, fusion, missing offering within 10 blocks, alignment, existing ownership, maximum level, grant-only level, insufficient TP and configured requirements. The server returns a translatable reason before debiting TP or granting progression. It never trusts the cost sent by the client.

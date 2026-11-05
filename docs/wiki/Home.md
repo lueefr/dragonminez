@@ -10,17 +10,32 @@ See [Historical compatibility and text auditing](History-and-audit) for migratio
 
 See [Rules, rewards and form visuals](Rules) for first-completion rewards, purchase conditions, body-part scaling, fur/tail/eye-marking colors, conditional aura/lightning/outlines, first-use history, editable form hairstyles and `/dmzlocate npc`.
 
+## Character customization guides
+
+- [Character attributes, properties and form variants](Character-attributes): potential buffs/debuffs, inherited base power, form replacement, mastery sharing and custom ki detection.
+- [Dragon wishes and race changes](Dragon-wishes): Shenron, Porunga and Porunga (Daima), wish counts, quantities and composite rewards.
+- [Enma reincarnation](Reincarnation): retained progress, cumulative TP budgets, timers and stacking policies.
+- [Clothing](Clothing): outfits that hide the female body top and the controlling gamerule.
+
+Gameplay JSONs are configured on the server and relevant data is synchronized to clients.
+Players need the compatible mod, without manually installing server JSONs. Custom textures
+and other external assets may still need to be distributed separately.
+
 ## Configuration files and reload
 
 | Content | Location |
 | --- | --- |
 | Racial form groups | `config/dragonminez/races/<race>/forms/*.json` |
-| Custom NPC definitions | `config/dragonminez/custom_npcs/*.json` |
-| Custom NPC placements | `config/dragonminez/custom_npc_placements/*.json` |
+| Custom NPC definitions | `config/dragonminez/npcs/definitions/*.json` |
+| Custom NPC placements | `config/dragonminez/npcs/placements/*.json` |
+| Character attributes and detection | `config/dragonminez/progression/attributes.json` |
+| Reincarnation | `config/dragonminez/progression/reincarnation.json` |
+| Clothing rules | `config/dragonminez/appearance/clothing.json` |
+| Dragon wishes | `<world>/dragonminez/wishes/{shenron,porunga,porunga_daima}.json` |
 | Config translations | `config/dragonminez/lang/<locale>.json` |
 | Side quests | `<world>/dragonminez/sidequests/*.json` |
 
-After editing config files, run `/dmzreload config`. After editing quests, run `/dmzreload story`. Use `/dmzreload all` for both. These commands require the server's administrative permissions. Invalid JSON, unknown references and dependency cycles are reported in the server log.
+The progression and appearance guides recommend a server restart after editing. For the existing reloadable content, run `/dmzreload config`. After editing quests, run `/dmzreload story`. Use `/dmzreload all` for both. These commands require the server's administrative permissions. Invalid JSON, unknown references and dependency cycles are reported in the server log.
 
 The examples below use generic IDs. Replace them with your content. Adding a name to an NPC's offers does not register the corresponding skill or quest.
 
@@ -134,7 +149,7 @@ For direct reads, `StatsData.getContentProgress()` provides `hasCompleted(id)`, 
 
 ## 2. Define a custom NPC
 
-Create `config/dragonminez/custom_npcs/guide.json`:
+Create `config/dragonminez/npcs/definitions/guide.json`:
 
 ```json
 {
@@ -281,7 +296,7 @@ Without coordinates, the executor's position is used. The command uses its curre
 
 ### Create a persistent placement
 
-Create `config/dragonminez/custom_npc_placements/guide.json`:
+Create `config/dragonminez/npcs/placements/guide.json`:
 
 ```json
 {
@@ -424,3 +439,13 @@ Lookup order:
 Server snapshots are synchronized to connected clients. Changes invalidate cached translated Components, and remote translations are cleared on disconnect. A translated label does not register the content it names.
 
 Java integrations use `com.dragonminez.api.lang.ConfigTranslations.INSTANCE` for `reload`, `find`, `translate`, `localSnapshot` and `revision`. Normal config networking manages remote snapshots; integrations should not use client translations as progression authority.
+
+
+## Legacy NPC directories
+
+Validated definitions and placements in `custom_npcs` and `custom_npc_placements`
+migrate to `npcs/definitions` and `npcs/placements`. Conversion and relocation keep
+backups under `oldBackup` and log the backup paths. Invalid files are left untouched;
+resolve conflicting destination files before retrying. Do not edit an old backup as
+though it were an active configuration. Core settings, races/forms and world-scoped
+quests/wishes keep their established folders.

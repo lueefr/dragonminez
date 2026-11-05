@@ -8,7 +8,7 @@ These optional JSON fields extend the existing configuration. Keep them absent t
 /dmzlocate npc example:guide
 ```
 
-The command suggests IDs from `custom_npcs`. It uses the existing `/dmzlocate` permission. In the current dimension it prefers a loaded instance, then a configured placement. If neither exists there, it checks other dimensions. Results include the dimension and a clickable teleport suggestion using the NPC's Y coordinate.
+The command suggests IDs from `npcs/definitions`. It uses the existing `/dmzlocate` permission. In the current dimension it prefers a loaded instance, then a configured placement. If neither exists there, it checks other dimensions. Results include the dimension and a clickable teleport suggestion using the NPC's Y coordinate.
 
 A placement can be located before its chunk is loaded. Locating does not generate chunks, spawn the NPC, or force-load dimensions. A command-spawned NPC without a placement can only be located while loaded. Existing structure lookup syntax is unchanged.
 

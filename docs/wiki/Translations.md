@@ -23,9 +23,10 @@ Use the selected language's filename, such as `pt_br.json`, and provide `en_us.j
 1. Config dictionary for the receiving client's selected locale.
 2. Config dictionary for English (`en_us`).
 3. Bundled/resource translations for the selected locale, with the usual bundled English fallback.
-4. The original translation key, unchanged.
+4. Another available config locale containing that key, in alphabetical locale order.
+5. The original translation key, unchanged.
 
-Within each config locale, server-synchronized entries take precedence over the client's local entries. English config entries intentionally take precedence over bundled selected-locale entries. Reloading config translations invalidates cached translatable text.
+Within each config locale, server-synchronized entries take precedence over the client's local entries. English config entries intentionally take precedence over bundled selected-locale entries. Bundled selected-locale or English entries take precedence over an unrelated config locale. Reloading config translations invalidates cached translatable text.
 
 The same overlay applies to names, condition descriptions, denial/warning messages, buttons, tooltips and chat components. A server sends translation keys and arguments, allowing clients with different selected languages to read different translations of the same message. Do not resolve a message into a server-localized string before sending it.
 
@@ -52,3 +53,22 @@ Run `python3 scripts/audit-player-text.py`. It checks bundled keys, component en
 The client language hook also records exhausted dynamic lookups. Inspect `ConfigTranslations.INSTANCE.missingSnapshot()` or the debug log for locale/key pairs. Entries are deduplicated and bounded; config translation reload clears them. This keeps the raw-key fallback intact while making missing dynamic translations observable. `recordMissing` is an audit hook, not a replacement for translation.
 
 The auditor's own regression tests run with `python3 -m unittest discover -s scripts/tests -v`. CI runs both commands. Numeric formatting, player-provided values and IDs used as data are distinct from built-in sentence/label templates; new templates must go in the catalog.
+
+
+## Rename existing forms
+
+Built-in form names use the same dictionaries as custom forms. Copy the actual race,
+group and form IDs from the generated configuration; do not rename those IDs to change
+a display name. For example, a form named `original` in group `path` for race `saiyan`
+uses this entry in `config/dragonminez/lang/en_us.json`:
+
+```json
+{ "race.dragonminez.saiyan.form.path.original": "My Form" }
+```
+
+Use `pt_br.json` for Portuguese or another selected locale filename. Add only keys you
+want to override; fallback is per key, so an incomplete dictionary still works.
+Hair colors and contrasting GUI outlines are derived from the form automatically.
+Translations need no formatting/color codes. In ordinary HUD/actionbar text, only the
+form color is applied. Conditional replacement forms use their own name and appearance
+while retaining the original slot; see [form variants](Character-attributes).

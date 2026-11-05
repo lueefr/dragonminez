@@ -135,7 +135,7 @@ Keep existing categories and entries when extending this shared file. Race form 
 
 ## Custom NPCs
 
-Each new NPC belongs in `config/dragonminez/custom_npcs/*.json`. This registry is separate from built-in masters and enemies.
+Each new NPC belongs in `config/dragonminez/npcs/definitions/*.json`. This registry is separate from built-in masters and enemies.
 
 ```json
 {
