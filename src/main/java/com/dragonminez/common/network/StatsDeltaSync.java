@@ -193,6 +193,7 @@ public final class StatsDeltaSync {
 
 	private static CompoundTag snapshot(StatsData data) {
 		CompoundTag tag = data.save();
+        tag.put("RuntimeView", data.getRuntime().view());
 		tag.getCompound(CHARACTER).remove(SkinPixels.NBT_KEY);
 		return tag;
 	}

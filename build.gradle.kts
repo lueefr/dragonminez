@@ -175,6 +175,10 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.42")
     annotationProcessor("org.projectlombok:lombok:1.18.42")
 
+    implementation("org.luaj:luaj-jse:3.0.1")
+    add("additionalRuntimeClasspath", "org.luaj:luaj-jse:3.0.1")
+    jarJar("org.luaj:luaj-jse:3.0.1")
+
     // Database libraries (pure Java; jar-in-jar for distribution).
     // Exclude HikariCP's slf4j pin so it does not fight Minecraft's strictly 2.0.9.
     // Versions verified on Maven Central (same pins as pre-port project).

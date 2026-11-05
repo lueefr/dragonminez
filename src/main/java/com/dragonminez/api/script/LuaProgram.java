@@ -1,0 +1,85 @@
+package com.dragonminez.api.script;
+
+import org.luaj.vm2.*;
+import org.luaj.vm2.compiler.LuaC;
+import org.luaj.vm2.lib.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+/** Local trusted server scripts return validated commands, never Java object references. */
+public final class LuaProgram {
+    public record Change(String meter, boolean additive, double value) {}
+    private final Prototype prototype;
+    private final String name;
+    public LuaProgram(String name, String source) {
+        this.name = Objects.requireNonNull(name);
+        byte[] bytes = source.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length > 65536 || source.indexOf('\u001b') >= 0) throw new IllegalArgumentException("Lua source must be text within 64 KiB");
+        try { prototype = LuaC.instance.compile(new ByteArrayInputStream(bytes), name); }
+        catch (IOException | RuntimeException ex) { throw new IllegalArgumentException("Cannot compile script " + name, ex); }
+        evaluate(null, Map.of());
+    }
+    public List<Change> evaluate(String event, Map<String, Double> values) {
+        var globals = new Globals();
+        var packages = new LuaTable(); packages.set("loaded", new LuaTable()); globals.set("package", packages);
+        globals.load(new BaseLib()); globals.load(new MathLib());
+        for (String key : List.of("load", "loadfile", "dofile", "require", "collectgarbage", "print", "module")) globals.set(key, LuaValue.NIL);
+        globals.get("math").set("random", LuaValue.NIL); globals.get("math").set("randomseed", LuaValue.NIL);
+        var budget = new Budget(); globals.load(budget); globals.set("debug", LuaValue.NIL); globals.set("package", LuaValue.NIL);
+        try {
+            var module = new LuaClosure(prototype, globals).call().checktable();
+            var callback = module.get("onEvent").checkfunction();
+            if (event == null) return List.of();
+            var context = new LuaTable(); context.set("event", event); var numbers = new LuaTable();
+            values.forEach((key, value) -> { if (!Double.isFinite(value)) throw new IllegalArgumentException("Script inputs must be finite"); numbers.set(key, LuaValue.valueOf(value)); });
+            context.set("values", numbers);
+            var returned = callback.call(context);
+            if (returned.isnil()) return List.of();
+            var actions = returned.checktable(); int length = actions.length();
+            if (length > 64) throw new IllegalArgumentException("At most 64 script commands");
+            List<Change> changes = new ArrayList<>();
+            for (int index = 1; index <= length; index++) {
+                var action = actions.get(index).checktable();
+                String meter = action.get("meter").checkjstring(), operation = action.get("operation").checkjstring();
+                double value = action.get("value").checkdouble();
+                if (!meter.matches("[a-z0-9_.-]+:[a-z0-9_./-]+") || !Set.of("set", "add").contains(operation) || !Double.isFinite(value)) throw new IllegalArgumentException("Invalid script meter command");
+                changes.add(new Change(meter, operation.equals("add"), value));
+            }
+            return List.copyOf(changes);
+        } catch (BudgetStop ex) { throw new IllegalArgumentException("Script exceeded execution limit: " + name); }
+        catch (LuaError ex) { throw new IllegalArgumentException("Script failed: " + name + ": " + ex.getMessage(), ex); }
+    }
+    private static final class BudgetStop extends Error {}
+    private static final class Budget extends DebugLib {
+        private record Frame(LuaClosure closure, LuaValue[] stack) {}
+        private final Deque<Frame> frames = new ArrayDeque<>();
+        private int remaining = 20000;
+        private final long deadline = System.nanoTime() + 100000000;
+        @Override public void onCall(LuaFunction function) {
+            enter(new Frame(null, null)); super.onCall(function);
+        }
+        @Override public void onCall(LuaClosure closure, Varargs args, LuaValue[] stack) {
+            enter(new Frame(closure, stack)); super.onCall(closure, args, stack);
+        }
+        private void enter(Frame frame) {
+            if (frames.size() >= 96) throw new BudgetStop(); frames.push(frame);
+        }
+        @Override public void onReturn() { super.onReturn(); if (!frames.isEmpty()) frames.pop(); }
+        @Override public void onInstruction(int pc, Varargs args, int top) {
+            if (--remaining < 0 || System.nanoTime() > deadline) throw new BudgetStop();
+            var frame = frames.peek();
+            if (frame != null && frame.closure() != null) {
+                int instruction = frame.closure().p.code[pc];
+                if (Lua.GET_OPCODE(instruction) == Lua.OP_CONCAT) {
+                    long size = 0;
+                    for (int index = Lua.GETARG_B(instruction); index <= Lua.GETARG_C(instruction); index++) {
+                        var value = frame.stack()[index]; if (value != null) size += value.rawlen();
+                    }
+                    if (size > 65536) throw new BudgetStop();
+                }
+            }
+            super.onInstruction(pc, args, top);
+        }
+    }
+}

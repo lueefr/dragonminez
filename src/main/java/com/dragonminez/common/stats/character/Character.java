@@ -759,6 +759,7 @@ public class Character {
 		this.activeForm = formName != null ? formName : "";
 		this.activeFormItemDurationTicks = 0;
 		updateOozaruCache();
+        if (statsData != null) statsData.getRuntime().changed(statsData);
 	}
 
 	public void recordPreviousForm() {
@@ -791,6 +792,7 @@ public class Character {
 		this.activeForm = "";
 		this.activeFormItemDurationTicks = 0;
 		updateOozaruCache();
+        if (statsData != null) statsData.getRuntime().changed(statsData);
 
 	}
 
@@ -906,6 +908,7 @@ public class Character {
 		this.activeStackForm = formName != null ? formName : "";
 		this.activeStackFormItemDurationTicks = 0;
 		updateOozaruCache();
+        if (statsData != null) statsData.getRuntime().changed(statsData);
 	}
 
 	public void clearActiveStackForm() {
@@ -914,6 +917,7 @@ public class Character {
 		this.activeStackForm = "";
 		this.activeStackFormItemDurationTicks = 0;
 		updateOozaruCache();
+        if (statsData != null) statsData.getRuntime().changed(statsData);
 	}
 
 	public void clearActiveStackForm(LivingEntity entity) {

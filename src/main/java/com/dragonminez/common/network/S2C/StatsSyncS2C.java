@@ -33,6 +33,7 @@ public class StatsSyncS2C implements StatsGroupsPacket {
 
         StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
             this.nbt.merge(data.save());
+            this.nbt.put("RuntimeView", data.getRuntime().view());
             this.nbt.getCompound("Character").remove(SkinPixels.NBT_KEY);
         });
     }

@@ -6866,5 +6866,7 @@
   "gui.dragonminez.text.separator": ", ",
   "gui.dragonminez.text.newline": "\n",
   "gui.dragonminez.text.space": " ",
-  "gui.dragonminez.text.value": "%s"
+  "gui.dragonminez.text.value": "%s",
+  "rules.dragonminez.meter": "%s: %s–%s",
+  "rules.dragonminez.form_cooldown": "This form is recovering."
 }

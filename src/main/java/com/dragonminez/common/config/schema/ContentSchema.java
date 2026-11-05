@@ -140,6 +140,8 @@ public final class ContentSchema {
         put(Kind.FORM,"hideTail","appearance.tail.hidden");
         put(Kind.FORM,"auraTransitionSeconds","aura.transitionSeconds");
         put(Kind.FORM,"auraSealSeconds","aura.absorptionSeconds");
+        put(Kind.FORM,"auraLayers","aura.layers");
+        put(Kind.RACE_CHARACTER,"auraLayers","aura.layers");
         put(Kind.FORM,"auraType","aura.main.type2d");
         put(Kind.FORM,"auraType3D","aura.main.type3d");
         put(Kind.FORM,"auraLayer","aura.main.layer");

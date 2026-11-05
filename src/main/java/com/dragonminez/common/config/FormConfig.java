@@ -187,6 +187,7 @@ public class FormConfig {
         public com.google.gson.JsonObject getBuy() { return buy; }
         public com.google.gson.JsonObject getVisual() { return visual; }
         public Boolean getEditHair() { return editHair; }
+		private List<AuraLayers.Layer> auraLayers;
 		private Integer unlockOnSkillLevel = 0;
 		private String formCombo = "";
 		private String customModel = "";

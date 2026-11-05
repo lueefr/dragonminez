@@ -223,6 +223,11 @@ public class AuraRenderer {
 	public static class AuraLayer {
 		public String type;
 		public int layerId;
+        public String identity = "";
+        public Float scale;
+        public int order() { return layerId; }
+        public float boost() { return scale == null ? 1.0f + layerId * 0.15f : scale; }
+        public String identity() { return identity.isEmpty() ? "legacy:" + layerId : identity; }
 		public float[] color;
 		public float alpha;
 		public AuraStyle style;
@@ -259,10 +264,10 @@ public class AuraRenderer {
         java.util.UUID typeOwner;
 	}
 
-    private record LayerKey(int layer, String type, String variant) {}
+    private record LayerKey(String identity, String type, String variant) {}
 
     private static LayerKey layerKey(AuraLayer layer) {
-        return new LayerKey(layer.layerId, layer.type == null ? "" : layer.type.toLowerCase(java.util.Locale.ROOT),layer.variant);
+        return new LayerKey(layer.identity(), layer.type == null ? "" : layer.type.toLowerCase(java.util.Locale.ROOT),layer.variant);
     }
 
     private static List<AuraLayer> transitionLayers(Player player, CachedAuraData data, List<AuraLayer> desired) {
@@ -291,20 +296,20 @@ public class AuraRenderer {
             data.typeLayers.put(key, layer);
         }
         Map<LayerKey, Double> weights = data.typeBlend.update(keys, dt,duration);
-        Map<Integer,AuraStyle> morphStyles=new HashMap<>();
-        Map<Integer,Double> styleWeights=new HashMap<>();
-        Map<Integer,float[]> profiles=new HashMap<>();
+        Map<String,AuraStyle> morphStyles=new HashMap<>();
+        Map<String,Double> styleWeights=new HashMap<>();
+        Map<String,float[]> profiles=new HashMap<>();
         weights.forEach((key,weight)->{
-            float[] profile=profiles.computeIfAbsent(key.layer(),ignored->new float[3]);
+            float[] profile=profiles.computeIfAbsent(key.identity(),ignored->new float[3]);
             int index=Aura3DRenderer.isGod(key.type())?2:Aura3DRenderer.isSparking(key.type())?1:0;
             profile[index]+=weight.floatValue();
             var source=data.typeLayers.get(key);
             if(source!=null&&source.style!=null&&weight>0){
-                double total=styleWeights.getOrDefault(key.layer(),0d)+weight;
-                var mixed=morphStyles.get(key.layer());
-                if(mixed==null)morphStyles.put(key.layer(),new AuraStyle().copyFrom(source.style));
+                double total=styleWeights.getOrDefault(key.identity(),0d)+weight;
+                var mixed=morphStyles.get(key.identity());
+                if(mixed==null)morphStyles.put(key.identity(),new AuraStyle().copyFrom(source.style));
                 else mixed.blendTowards(source.style,(float)(weight/total));
-                styleWeights.put(key.layer(),total);
+                styleWeights.put(key.identity(),total);
             }
         });
         List<AuraLayer> result = new ArrayList<>();
@@ -312,11 +317,11 @@ public class AuraRenderer {
             if (weight <= 0) return;
             AuraLayer source = data.typeLayers.get(key);
             AuraLayer layer = new AuraLayer(source.type, source.layerId, source.color, source.alpha * weight.floatValue());
-            layer.style = source.style==null?null:new AuraStyle().copyFrom(morphStyles.get(key.layer()));
-            if(layer.style!=null){var profile=profiles.get(key.layer());float total=profile[0]+profile[1]+profile[2];
+            layer.style = source.style==null?null:new AuraStyle().copyFrom(morphStyles.get(key.identity()));
+            if(layer.style!=null){var profile=profiles.get(key.identity());float total=profile[0]+profile[1]+profile[2];
                 for(int i=0;i<3;i++)layer.style.meshWeights[i]=total>0?profile[i]/total:0;}
 
-            layer.variant=source.variant;
+            layer.variant=source.variant; layer.identity=source.identity; layer.scale=source.scale;
             result.add(layer);
         });
         data.typeLayers.keySet().retainAll(weights.keySet());
@@ -396,7 +401,7 @@ public class AuraRenderer {
 
 		float animSpeed = auraPhase(player, partialTick);
 		float alpha = layer.alpha;
-		float boost = 1.0f + layer.layerId * 0.15f;
+		float boost = layer.boost();
 		float finalScaleX = data.auraScaleX * AURA_2D_BASE_MULTIPLIER * boost;
 		float finalScaleY = data.auraScaleY * AURA_2D_BASE_MULTIPLIER * boost;
 		float finalScaleZ = data.auraScaleZ * AURA_2D_BASE_MULTIPLIER * boost;
@@ -757,6 +762,8 @@ public class AuraRenderer {
 			putShifting(layerMap, fd.getExtraAuraLayer(), extraLayer(fd, use3D));
 		}
 
+        List<AuraLayer> baseLayers = new ArrayList<>(layerMap.values());
+
 		if (character.hasActiveStackForm() && character.getActiveStackFormData() != null) {
 			var fd = character.getActiveStackFormData();
 			String stackHex = fd.getAuraColor() != null && !fd.getAuraColor().isEmpty() ? fd.getAuraColor() : "#FFFFFF";
@@ -801,6 +808,21 @@ public class AuraRenderer {
 		}
 
 		List<AuraLayer> activeLayers = new ArrayList<>(layerMap.values());
+        var baseForm = character.getActiveFormData();
+        var stackForm = character.getActiveStackFormData();
+        var baseDefinitions = baseForm != null && baseForm.getAuraLayers() != null ? baseForm.getAuraLayers() : raceCharacter == null ? null : raceCharacter.getAuraLayers();
+        var stackDefinitions = stackForm == null ? null : stackForm.getAuraLayers();
+        if (baseDefinitions != null || stackDefinitions != null) {
+            activeLayers = baseDefinitions == null ? baseLayers : configuredLayers(stats, baseDefinitions, "base", use3D);
+            if (stackDefinitions != null) activeLayers.addAll(configuredLayers(stats, stackDefinitions, "stack", use3D));
+            else if (stackForm != null) {
+                var layer = new AuraLayer(formAuraType(stackForm, use3D), stackForm.getAuraLayer(), stackForm.getRgbAuraColor());
+                if (use3D) layer.style = AuraStyle.resolve(stackForm.getAura3DStyle(), layer.color);
+                activeLayers.add(layer);
+                if (stackForm.hasExtraAura()) activeLayers.add(extraLayer(stackForm, use3D));
+            }
+        }
+
 		activeLayers.sort(Comparator.comparingInt(l -> l.layerId));
 
 		if (use3D) {
@@ -811,6 +833,18 @@ public class AuraRenderer {
 		}
 		return activeLayers;
 	}
+
+    private static List<AuraLayer> configuredLayers(StatsData stats, List<com.dragonminez.common.config.AuraLayers.Layer> definitions, String origin, boolean use3D) {
+        List<AuraLayer> result = new ArrayList<>();
+        for (var definition : definitions) {
+            if (!com.dragonminez.api.rules.Conditions.test(new com.dragonminez.api.rules.Conditions.Context(stats, null), definition.getWhen()) || definition.getOpacity() <= 0) continue;
+            var layer = new AuraLayer(use3D ? definition.getType3d() : definition.getType2d(), definition.getOrder(), ColorUtils.hexToRgb(definition.getColor()), definition.getOpacity());
+            layer.identity = origin + "/" + definition.getId(); layer.scale = definition.getScale();
+            if (use3D) layer.style = AuraStyle.resolve(definition.getStyle(), layer.color);
+            result.add(layer);
+        }
+        return result;
+    }
 
 	private static void putLayer(Map<Integer, AuraLayer> layerMap, int layerId, AuraLayer layer) {
 		if (layerId < 0) return;
@@ -1014,14 +1048,14 @@ public class AuraRenderer {
 
 	private static float auraMergeRadius(PreparedAura aura) {
 		AuraLayer top = aura.layers().get(aura.layers().size() - 1);
-		float boost = 1.0f + top.layerId * 0.15f;
+		float boost = top.boost();
 		float width = aura.data().use3D ? Aura3DRenderer.widthFactor(top.type) : AURA_2D_MERGE_WIDTH;
 		return aura.data().auraScaleX * width * boost;
 	}
 
 	private static float auraMergeHeight(PreparedAura aura) {
 		AuraLayer top = aura.layers().get(aura.layers().size() - 1);
-		float boost = 1.0f + top.layerId * 0.15f;
+		float boost = top.boost();
 		float height = aura.data().use3D ? Aura3DRenderer.heightFactor(top.type) * AURA_3D_VISIBLE_HEIGHT : AURA_2D_MERGE_HEIGHT;
 		return aura.data().auraScaleY * height * boost;
 	}
@@ -1079,6 +1113,7 @@ public class AuraRenderer {
 			}
 
             AuraLayer layer=new AuraLayer(base.type,base.layerId,new float[]{r/totalWeight,g/totalWeight,b/totalWeight},base.alpha);
+            layer.identity=base.identity; layer.scale=base.scale;
             layer.variant=base.variant;layer.style=base.style;blended.add(layer);
 		}
 		return blended;
@@ -1162,9 +1197,9 @@ public class AuraRenderer {
 		shader.safeGetUniform("ProjMat").set(projectionMatrix);
 		applyAuraColors(shader, layer.color);
 
-		float finalScaleX = seal * data.auraScaleX * AURA_2D_BASE_MULTIPLIER * (1.0f + layer.layerId * 0.15f);
-		float finalScaleY = seal * data.auraScaleY * AURA_2D_BASE_MULTIPLIER * (1.0f + layer.layerId * 0.15f);
-		float finalScaleZ = seal * data.auraScaleZ * AURA_2D_BASE_MULTIPLIER * (1.0f + layer.layerId * 0.15f);
+		float finalScaleX = seal * data.auraScaleX * AURA_2D_BASE_MULTIPLIER * layer.boost();
+		float finalScaleY = seal * data.auraScaleY * AURA_2D_BASE_MULTIPLIER * layer.boost();
+		float finalScaleZ = seal * data.auraScaleZ * AURA_2D_BASE_MULTIPLIER * layer.boost();
 
 		VertexBuffer mesh = AuraMeshFactory.getBillboardQuad();
 
@@ -1422,7 +1457,7 @@ public class AuraRenderer {
 		if (motion == null || !motion.ready) return;
 
 		float bodyRot = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot);
-		float boost = (1.0f + layer.layerId * 0.15f) / Aura3DRenderer.SMOOTH_SCALE_REFERENCE;
+		float boost = layer.boost() / Aura3DRenderer.SMOOTH_SCALE_REFERENCE;
 		float scaleX = data.auraScaleX * boost;
 		float scaleY = data.auraScaleY * boost;
 		float scaleZ = data.auraScaleZ * boost;
@@ -1453,7 +1488,7 @@ public class AuraRenderer {
 		if (motion == null || !motion.ready) return;
 
 		float bodyRot = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot);
-		float boost = (1.0f + layer.layerId * 0.15f) / Aura3DRenderer.SMOOTH_SCALE_REFERENCE;
+		float boost = layer.boost() / Aura3DRenderer.SMOOTH_SCALE_REFERENCE;
 		float scaleX = data.auraScaleX * boost;
 		float scaleY = data.auraScaleY * boost;
 		float scaleZ = data.auraScaleZ * boost;
@@ -1486,12 +1521,12 @@ public class AuraRenderer {
 		if (motion == null || !motion.ready) return;
 
 		float bodyRot = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot);
-		float boost = 1.0f + layer.layerId * 0.15f;
+		float boost = layer.boost();
 		float time = auraPhase(player, partialTick) / 10.0f;
 
 		float widthBoost = Aura3DRenderer.isSmooth(layer.type)
 				? boost
-				: 1.0f + layer.layerId * SPARKING_LAYER_WIDTH;
+				: layer.scale == null ? 1.0f + layer.layerId * SPARKING_LAYER_WIDTH : layer.scale;
 		float width = Aura3DRenderer.widthFactor(layer.type) * widthBoost;
 		float height = Aura3DRenderer.heightFactor(layer.type) * boost;
 		float scaleX = data.auraScaleX * width;
@@ -1541,7 +1576,7 @@ public class AuraRenderer {
 
 		float expansion = 1.0f + (3.0f * progress);
 		float alphaCurve = (float) Math.sin(progress * Math.PI);
-		float boost = 1.0f + topLayer.layerId * 0.15f;
+		float boost = topLayer.boost();
 		float alpha = alphaCurve * 0.5f * topLayer.alpha * smoothFade(data);
 		float spin = (player.level().getGameTime() + partialTick) * 2.5f;
 
@@ -1607,7 +1642,7 @@ public class AuraRenderer {
 			poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
 		}
 
-		float layerScaleBoost = 1.0f + (topLayer.layerId * 0.15f);
+		float layerScaleBoost = topLayer.boost();
 		float scaleMultiplier = 0.5f;
 		float sX = data.auraScaleX * expansion * scaleMultiplier * layerScaleBoost;
 		float sZ = data.auraScaleZ * expansion * scaleMultiplier * layerScaleBoost;

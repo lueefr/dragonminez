@@ -64,6 +64,7 @@ public class SpeedDodgeHandler {
 
 		StatsProvider.get(StatsCapability.INSTANCE, defender).ifPresent(data -> {
 			if (!data.getStatus().isHasCreatedCharacter()) return;
+            if (ReactionEvents.handles(data, source)) return;
 			if (data.getStatus().isStunned()) return;
 			if (defender.hasEffect(MainEffects.STUN)) return;
 			if (defender.isSpectator()) return;

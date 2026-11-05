@@ -38,11 +38,13 @@ public class ConfigLoader {
                             com.dragonminez.common.config.schema.ContentSchema.Kind.TOURNAMENT).contains(kind))flat.addProperty("configVersion",ConfigManager.CONFIG_VERSION);
                     T parsed=gson.fromJson(flat,clazz);
                     if(parsed==null)throw new IllegalArgumentException("Empty content config");
+                    if(parsed instanceof RaceCharacterConfig race) AuraLayers.validate(race.getAuraLayers());
                     if(parsed instanceof FormConfig forms){
                         if(forms.getGroupName().isBlank())throw new IllegalArgumentException("Missing form group name");
                         for(var form:forms.getForms().values()){
                             com.dragonminez.api.rules.Conditions.validate(form.getBuy());com.dragonminez.api.rules.Conditions.validate(form.getUse());
                             com.dragonminez.api.forms.FormVisuals.validate(form.getVisual());
+                AuraLayers.validate(form.getAuraLayers());
                             com.dragonminez.api.forms.FormCompositionRuntime.definition(forms.getGroupName(),form);
                         }
                     }

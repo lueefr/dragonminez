@@ -14,6 +14,7 @@ import java.util.List;
 public final class FormAccess {
     public static List<Component> missing(StatsData data, String group, String form, boolean stack) {
         var result=new java.util.ArrayList<Component>();
+        if(data.getCooldowns().hasCooldown("RuntimeForm:"+FormVariants.resolve(data,group,form).key()))result.add(Component.translatable("rules.dragonminez.form_cooldown"));
         FormConfig.FormData definition=FormVariants.data(data,group,form,stack);
         if(FormVariants.blocked(data,group,form))result.add(Component.translatable("rules.dragonminez.attribute_block",name(data,group+"."+form)));
         if(definition!=null)result.addAll(Conditions.missing(new Conditions.Context(data,FormVariants.resolve(data,group,form).key()),definition.getUse()));

@@ -93,6 +93,7 @@ public class ConfigManager {
         private ClothingConfig clothing = ClothingConfig.defaults();
         private RebirthConfig rebirth = new RebirthConfig();
         private AttributeConfig attributes = new AttributeConfig();
+        private RuntimeConfig runtime = RuntimeConfig.empty();
         private Map<String, Map<String, String>> translations = new HashMap<>();
 	}
 
@@ -118,6 +119,8 @@ public class ConfigManager {
     private static ClothingConfig clothing = ClothingConfig.defaults();
     private static RebirthConfig rebirth = new RebirthConfig();
     private static AttributeConfig attributes = new AttributeConfig();
+    private static RuntimeConfig runtime = RuntimeConfig.empty();
+    public static RuntimeConfig getRuntime() { return useServerSync() ? SYNCED.runtime : runtime; }
     public static AttributeConfig getAttributes() { return useServerSync() ? SYNCED.attributes : attributes; }
     public static RebirthConfig getRebirth() { return useServerSync() ? SYNCED.rebirth : rebirth; }
     private static boolean clothingGate = true;
@@ -181,6 +184,8 @@ public class ConfigManager {
 	}
 
     private static void loadExtensionConfigs()throws IOException{
+        try{runtime=RuntimeConfig.load(CONFIG_DIR.resolve("progression/runtime.json"));}
+        catch(IOException|RuntimeException ex){runtime=RuntimeConfig.empty();LogUtil.error(Env.COMMON,"Invalid runtime configuration: {}. Original left untouched; rules disabled.",ex.getMessage());}
         try{attributes=AttributeConfig.load(CONFIG_DIR.resolve("progression/attributes.json"));}
         catch(IOException|RuntimeException ex){attributes=new AttributeConfig();LogUtil.error(Env.COMMON,"Invalid attributes configuration: {}. Originals left untouched.",ex.getMessage());}
         try{rebirth=RebirthConfig.load(CONFIG_DIR.resolve("progression/reincarnation.json"));}
@@ -197,6 +202,8 @@ public class ConfigManager {
 
     public static void validateExtensionRules() {
         com.dragonminez.api.rules.Conditions.finishRegistration();
+        try{runtime.validate();}
+        catch(RuntimeException ex){runtime=RuntimeConfig.empty();LogUtil.error(Env.COMMON,"Invalid runtime rules: {}. Original left untouched.",ex.getMessage());}
         try{RuleConfig.parse(GSON.toJson(rulesConfig));}
         catch(RuntimeException ex){
             rulesConfig=new RuleConfig();com.dragonminez.common.config.schema.ContentMigration.begin();
@@ -220,6 +227,7 @@ public class ConfigManager {
                 com.dragonminez.api.rules.Conditions.validate(form.getBuy());
                 com.dragonminez.api.rules.Conditions.validate(form.getUse());
                 com.dragonminez.api.forms.FormVisuals.validate(form.getVisual());
+                AuraLayers.validate(form.getAuraLayers());
                 if(Boolean.FALSE.equals(form.getEditHair()) && !form.hasHairCodeOverride() && !"none".equals(form.getHairType()))throw new IllegalArgumentException("editHair:false requires forcedHairCode or hairType:none for "+groupId+"."+form.getName());
                 if (form.getCompletedContentRequisites() != null) form.getCompletedContentRequisites().forEach(com.dragonminez.api.content.ContentProgress::requireId);
                 definitions.add(com.dragonminez.api.forms.FormCompositionRuntime.definition(groupId, form));
@@ -1618,6 +1626,8 @@ public class ConfigManager {
 		} else if (configFilePath.startsWith("forms/")) {
 			FormConfig formConfig = LOADER.loadConfig(path, FormConfig.class);
 			STACK_FORMS.put(formGroupKey(formConfig, configFilePath.split("/")[1]), formConfig);
+        } else if (configFilePath.equals("progression/runtime")) {
+            runtime = RuntimeConfig.load(CONFIG_DIR.resolve("progression/runtime.json"));
         } else if (configFilePath.equals("progression/attributes")) {
             attributes = AttributeConfig.load(CONFIG_DIR.resolve("progression/attributes.json"));
         } else if (configFilePath.equals("progression/reincarnation")) {
@@ -1674,7 +1684,7 @@ public class ConfigManager {
 	public static List<String> getEditorConfigFiles() {
 		if (!isViewingRemoteServerConfig()) return new ArrayList<>(getAvailableConfigFiles());
 		SyncedConfigs synced = SYNCED;
-		List<String> files = new ArrayList<>(List.of("general-server", "combat", "training", "skills", "techniques", "entities", "rules", "appearance/clothing", "progression/reincarnation", "progression/attributes", CLIENT_ONLY_CONFIG, HudLayoutConfig.FILE_NAME));
+		List<String> files = new ArrayList<>(List.of("general-server", "combat", "training", "skills", "techniques", "entities", "rules", "appearance/clothing", "progression/reincarnation", "progression/attributes", "progression/runtime", CLIENT_ONLY_CONFIG, HudLayoutConfig.FILE_NAME));
 		synced.character.keySet().forEach(race -> files.add("races/" + race + "/character"));
 		synced.stats.keySet().forEach(race -> files.add("races/" + race + "/stats"));
 		synced.forms.forEach((race, groups) -> groups.keySet().forEach(group -> files.add("races/" + race + "/forms/" + group)));
@@ -1696,6 +1706,7 @@ public class ConfigManager {
             case "appearance/clothing" -> synced.clothing;
             case "progression/reincarnation" -> synced.rebirth;
             case "progression/attributes" -> synced.attributes;
+            case "progression/runtime" -> JsonParser.parseString(synced.runtime.json());
 			default -> null;
 		};
 		String[] parts = configFilePath.split("/");
@@ -1735,6 +1746,7 @@ public class ConfigManager {
         addSyncPayload(payloads, "appearance/clothing", GSON.toJson(clothing));
         addSyncPayload(payloads, "progression/reincarnation", GSON.toJson(rebirth));
         addSyncPayload(payloads, "progression/attributes", GSON.toJson(attributes));
+        addSyncPayload(payloads, "progression/runtime", runtime.json());
 		addSyncPayload(payloads, "skills", GSON.toJson(skillsConfig != null ? skillsConfig : DefaultConfigs.SKILLS));
 		addSyncPayload(payloads, "techniques", GSON.toJson(techniqueConfig != null ? techniqueConfig : DefaultConfigs.TECHNIQUES));
 		addSyncPayload(payloads, "entities", GSON.toJson(entitiesConfig != null ? entitiesConfig : DefaultConfigs.ENTITIES));
@@ -1794,6 +1806,7 @@ public class ConfigManager {
             else if (configFilePath.equals("appearance/clothing")) target.clothing = ClothingConfig.parse(json);
             else if (configFilePath.equals("progression/reincarnation")) target.rebirth = RebirthConfig.parse(json);
             else if (configFilePath.equals("progression/attributes")) target.attributes = AttributeConfig.parse(json);
+            else if (configFilePath.equals("progression/runtime")) target.runtime = RuntimeConfig.parse(json);
 			else if (configFilePath.equals("skills")) target.skills = GSON.fromJson(json, SkillsConfig.class);
 			else if (configFilePath.equals("techniques")) target.techniques = GSON.fromJson(json, TechniqueConfig.class);
 			else if (configFilePath.equals("entities")) target.entities = GSON.fromJson(json, EntitiesConfig.class);

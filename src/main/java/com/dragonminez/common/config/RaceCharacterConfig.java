@@ -33,6 +33,7 @@ public class RaceCharacterConfig {
 	private String[] headBones = new String[0];
 	private String racialSkill = "human";
 	private Boolean hasSaiyanTail = false;
+	private java.util.List<AuraLayers.Layer> auraLayers;
 	private String auraType = "kakarot";
 	private String auraType3D = FormConfig.AURA_3D_USER_PREFERENCE;
 	private FormConfig.Aura3DStyle aura3DStyle = new FormConfig.Aura3DStyle();

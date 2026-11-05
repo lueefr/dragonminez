@@ -65,6 +65,8 @@ public class StatsData {
 	private final Effects effects;
 	private final SecondaryStatEffects secondaryStatEffects;
 	private final PlayerQuestData playerQuestData;
+	private final com.dragonminez.common.progression.RuntimeState runtime = new com.dragonminez.common.progression.RuntimeState();
+    public com.dragonminez.common.progression.RuntimeState getRuntime() { return runtime; }
 	private final com.dragonminez.common.progression.RebirthState rebirth = new com.dragonminez.common.progression.RebirthState();
     private final com.dragonminez.api.forms.FormHistory formHistory = new com.dragonminez.api.forms.FormHistory();
 	private final com.dragonminez.api.content.ContentProgress contentProgress = new com.dragonminez.api.content.ContentProgress();
@@ -820,7 +822,7 @@ public class StatsData {
 		if (character.hasActiveStackForm() && character.getActiveStackFormData() != null)
 			formRawEneDrain += Math.max(0.0, character.getActiveStackFormData().getEnergyDrain());
 		double percentageEnergy = maxEnergy * (formRawEneDrain * 0.01) * 0.75 * masteryWeightedCostFactor(FormConfig.FormData::getEnergyDrain);
-		return (base * energyRatio) + percentageEnergy;
+		return ((base * energyRatio) + percentageEnergy) * ConfigManager.getRuntime().behaviors().factor(this,"energyDrain");
 	}
 
 	public double getEffectiveStaminaDrain() {
@@ -829,7 +831,7 @@ public class StatsData {
 		double maxStamina = getMaxStamina();
 		double staminaRatio = Math.max(1.0, getReducedOffense() / Math.max(1.0, maxStamina * 1.5));
 		double percentageStamina = maxStamina * 0.005 * masteryWeightedCostFactor(FormConfig.FormData::getStaminaDrain);
-		return (base * staminaRatio) + percentageStamina;
+		return ((base * staminaRatio) + percentageStamina) * ConfigManager.getRuntime().behaviors().factor(this,"staminaDrain");
 	}
 
 	public double getEffectiveHealthDrain() {
@@ -838,7 +840,7 @@ public class StatsData {
 		double maxHealth = getMaxHealth();
 		double healthRatio = Math.max(1.0, getReducedOffense() / Math.max(1.0, maxHealth * 1.5));
 		double percentageHealth = maxHealth * 0.005 * masteryWeightedCostFactor(FormConfig.FormData::getHealthDrain);
-		return (base * healthRatio) + percentageHealth;
+		return ((base * healthRatio) + percentageHealth) * ConfigManager.getRuntime().behaviors().factor(this,"healthDrain");
 	}
 
 	public double getTotalMultiplier(String statName) {
@@ -848,7 +850,7 @@ public class StatsData {
 		double secondary = statName.equalsIgnoreCase("DEF") ? 1.0 : secondaryStatEffects.getMultiplier(statName);
 		double kiShare = GodRitualHelper.kiShareMultiplier(this, statName);
 
-        double potential=ConfigManager.getAttributes().multiplier(this,statName.toUpperCase(java.util.Locale.ROOT));
+        double potential=ConfigManager.getAttributes().multiplier(this,statName.toUpperCase(java.util.Locale.ROOT)) * ConfigManager.getRuntime().behaviors().factor(this,statName.toUpperCase(java.util.Locale.ROOT));
 		if (ConfigManager.getServerConfig().getGameplay().getMultiplicationInsteadOfAdditionForMultipliers()) return potential * form * stack * effect * secondary * kiShare;
 		else return potential * (1.0 + (form - 1.0) + (stack - 1.0) + (effect - 1.0) + (secondary - 1.0)) * kiShare;
 	}
@@ -1835,6 +1837,7 @@ public class StatsData {
 		nbt.put("PlayerQuestData", playerQuestData.serializeNBT());
 		nbt.put("CompletedContent", contentProgress.save());
         nbt.put("Reincarnation", rebirth.save());
+        nbt.put("RuntimeMeters", runtime.save());
         nbt.put("FormHistory", formHistory.save());
 		nbt.put("BonusStats", bonusStats.save());
 		nbt.put("Techniques", techniques.save());
@@ -1847,6 +1850,9 @@ public class StatsData {
 
 	public void load(CompoundTag nbt) throws ClassNotFoundException {
 		boolean fullPayload = nbt.contains("Character") && nbt.contains("Stats");
+        if(nbt.contains("RuntimeMeters"))runtime.load(nbt.getCompound("RuntimeMeters"));
+        else if(fullPayload)runtime.load(new CompoundTag());
+        if(nbt.contains("RuntimeView"))runtime.view(nbt.getCompound("RuntimeView"));
         if(nbt.contains("Reincarnation"))rebirth.load(nbt.getCompound("Reincarnation"));
         else if(fullPayload)rebirth.load(new CompoundTag());
         if (nbt.contains("FormHistory")) formHistory.load(nbt.getCompound("FormHistory"));
@@ -1899,6 +1905,7 @@ public class StatsData {
 	public void copyFrom(StatsData other) {
 		this.contentProgress.copyFrom(other.contentProgress);
         this.rebirth.load(other.rebirth.save());
+        this.runtime.load(other.runtime.save());
         this.formHistory.copyFrom(other.formHistory);
 		this.stats.copyFrom(other.stats);
 		this.status.copyFrom(other.status);
