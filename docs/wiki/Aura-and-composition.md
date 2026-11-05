@@ -149,3 +149,39 @@ For a layer sealed except while charging, add:
 Use any shared condition in `sealedWhen`, including `all`, `any`, `not` and meter thresholds. Whole-aura sealing still takes precedence over every layer.
 
 Omitting `layers` keeps legacy main/extra settings. Supplying a list replaces that owner's legacy aura; an empty list removes its layers. Configured stack lists append independent layers. Existing files and configVersion are not rewritten.
+
+
+## Replace or remove layers
+
+Each layer entry accepts `operation`: `add` (default), `replace`, or `remove`.
+`replace` and `remove` require `target`, the stable identity `base/<id>` or
+`stack/<id>`. An `add` entry has no target. The base list is processed first,
+then the stack list, both in file order. A target must already exist at that
+point to be removed; a missing target is harmless. Replacement still adds its
+new shell when the target is absent. Its own ID remains independent.
+
+For example, a stack can replace a base shell while charging and remove a
+second shell whenever the stack is active:
+
+```json
+{
+  "aura": {
+    "layers": [
+      {
+        "id": "charged",
+        "operation": "replace",
+        "target": "base/inner",
+        "color": "#FF3344",
+        "when": {"chargingKi": true}
+      },
+      {"id": "hide_outer", "operation": "remove", "target": "base/outer"}
+    ]
+  }
+}
+```
+
+A false `when` skips the entire operation. `remove` does not draw a shell.
+Normal fades and mesh transitions apply when the resulting list changes.
+`sealedWhen` controls absorption of a replacement's own shell, not whether
+its replacement operation runs. Targets address configured layer IDs; legacy
+main/extra aura layers do not have these owner-qualified IDs.

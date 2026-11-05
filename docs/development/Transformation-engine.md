@@ -215,7 +215,7 @@ A usable server configuration:
 
 Forms and race character configs accept `aura.layers`. A missing list keeps the old main/extra behavior. A supplied list (including an empty one) replaces that owner's legacy aura; stack lists append their own layers. IDs are stable within the base/stack owner namespace and remain separate from drawing order. Up to 16 layers per owner are validated.
 
-Each layer accepts id, type2d, type3d, color, uniform scale (default 1), opacity, order, when and a 3D style object. 3D style size controls per-axis geometry. Explicit scale disables the legacy index-based expansion in world, GUI and pulse rendering. Existing files are not rewritten and configVersion is unchanged. Shared predicates may use meters. Conditional removal uses the existing type fade; whole-aura sealing and mesh transitions remain supported. Layers now accept `sealedWhen` and `sealSeconds` (0.01..10 seconds, default 0.4). Their own reversible absorption contracts each shell into the body, with an initially sealed shell absent on its first frame. World and GUI rendering preserve stable identities and the existing mesh blending; whole-aura sealing remains an outer gate. Replacement operations across owners and emitter configuration remain pending.
+Each layer accepts id, type2d, type3d, color, uniform scale (default 1), opacity, order, when and a 3D style object. 3D style size controls per-axis geometry. Explicit scale disables the legacy index-based expansion in world, GUI and pulse rendering. Existing files are not rewritten and configVersion is unchanged. Shared predicates may use meters. Conditional removal uses the existing type fade; whole-aura sealing and mesh transitions remain supported. Layers now accept `sealedWhen` and `sealSeconds` (0.01..10 seconds, default 0.4). Their own reversible absorption contracts each shell into the body, with an initially sealed shell absent on its first frame. World and GUI rendering preserve stable identities and the existing mesh blending; whole-aura sealing remains an outer gate. Owner-qualified `operation`/`target` entries now apply in base-then-stack file order, supporting conditional add/replace/remove. Missing targets are harmless; replacement adds its own shell regardless. Pure list composition is shared with server GameTests. Network revision 4 requires updated clients for the new aura semantics. Per-layer emitter configuration remains pending.
 
 ## Combat reaction branch
 
@@ -314,3 +314,23 @@ The validated runtime, behavior factors/maintenance, aura lists, dodge reactions
 `feature/combat-responses` adds `response` selection (`dodge` default, `block`, `counter`) to the same validated reaction definitions. Block/counter processing occurs at incoming-damage LOWEST, after the mod's HIGH-priority native damage replacement. Dodge remains HIGHEST. This avoids reducing a vanilla input that native melee calculation subsequently overwrites. Costs, selection, weighted probability and projectile windows remain shared.
 
 Counters require range/line of sight and use the existing generic strike damage source, retaining native damage/protection handling. A thread-local guard prevents recursive reaction chains during retaliation; it is removed in finally. No combat state is persisted. `dmz:blocked`/`dmz:countered` expose stage-specific measured damage inputs. See the wiki Runtime-rules guide for configuration.
+
+
+## Planned: configurable form dimensions
+
+Requested on 2026-11-05; planning only, after the current aura work.
+
+- Expose one consistent size configuration for every transformation, including
+  per-axis visual scale, physical height/width and eye position with safe bounds.
+- Resolve dimensions on the server and synchronize the result so rendering,
+  movement, flight geometry, targeting and collision agree. Reuse the current
+  form-size pipeline rather than introducing a second independent multiplier.
+- Default the Oozaru transformation to the same standing height as the hostile
+  Oozaru NPC. Derive that default from the NPC dimensions; allow server owners
+  to reduce or override it in the transformation JSON. Other transformations
+  retain their existing dimensions unless configured.
+- Audit existing scaling fields and document precedence/migration without
+  changing configVersion or discarding owner-created JSON.
+- Verify transitions without size jumps, third-person rendering, ceiling
+  clearance, eye position and authoritative flight hitboxes for small/large
+  forms, reconnect and character cloning.

@@ -328,7 +328,7 @@ public class AuraRenderer {
 
             layer.variant=source.variant; layer.identity=source.identity; layer.scale=source.scale;
             var seal = data.layerSeals.computeIfAbsent(key, ignored -> new AuraSeal(source.sealed));
-            layer.absorption = (float)seal.update(source.sealed, dt, source.sealSeconds);
+            layer.absorption = (float)seal.update(source.sealed, Math.min(MAX_MOTION_STEP, dt), source.sealSeconds);
             layer.alpha *= layer.absorption;
             result.add(layer);
         });
@@ -827,8 +827,9 @@ public class AuraRenderer {
         var baseDefinitions = baseForm != null && baseForm.getAuraLayers() != null ? baseForm.getAuraLayers() : raceCharacter == null ? null : raceCharacter.getAuraLayers();
         var stackDefinitions = stackForm == null ? null : stackForm.getAuraLayers();
         if (baseDefinitions != null || stackDefinitions != null) {
-            activeLayers = baseDefinitions == null ? baseLayers : configuredLayers(stats, baseDefinitions, "base", use3D);
-            if (stackDefinitions != null) activeLayers.addAll(configuredLayers(stats, stackDefinitions, "stack", use3D));
+            activeLayers = baseDefinitions == null ? new ArrayList<>(baseLayers) : new ArrayList<>();
+            if (baseDefinitions != null) configuredLayers(stats, baseDefinitions, "base", use3D, activeLayers);
+            if (stackDefinitions != null) configuredLayers(stats, stackDefinitions, "stack", use3D, activeLayers);
             else if (stackForm != null) {
                 var layer = new AuraLayer(formAuraType(stackForm, use3D), stackForm.getAuraLayer(), stackForm.getRgbAuraColor());
                 if (use3D) layer.style = AuraStyle.resolve(stackForm.getAura3DStyle(), layer.color);
@@ -848,18 +849,20 @@ public class AuraRenderer {
 		return activeLayers;
 	}
 
-    private static List<AuraLayer> configuredLayers(StatsData stats, List<com.dragonminez.common.config.AuraLayers.Layer> definitions, String origin, boolean use3D) {
-        List<AuraLayer> result = new ArrayList<>();
+    private static void configuredLayers(StatsData stats, List<com.dragonminez.common.config.AuraLayers.Layer> definitions, String origin, boolean use3D, List<AuraLayer> result) {
         for (var definition : definitions) {
-            if (!com.dragonminez.api.rules.Conditions.test(new com.dragonminez.api.rules.Conditions.Context(stats, null), definition.getWhen()) || definition.getOpacity() <= 0) continue;
+            if (!com.dragonminez.api.rules.Conditions.test(new com.dragonminez.api.rules.Conditions.Context(stats, null), definition.getWhen())) continue;
+            if (definition.getOperation().equals("remove")) {
+                com.dragonminez.common.config.AuraLayers.apply(result, definition, null, AuraLayer::identity);
+                continue;
+            }
             var layer = new AuraLayer(use3D ? definition.getType3d() : definition.getType2d(), definition.getOrder(), ColorUtils.hexToRgb(definition.getColor()), definition.getOpacity());
             layer.identity = origin + "/" + definition.getId(); layer.scale = definition.getScale();
             layer.sealed = definition.getSealedWhen() != null && com.dragonminez.api.rules.Conditions.test(new com.dragonminez.api.rules.Conditions.Context(stats, null), definition.getSealedWhen());
             layer.sealSeconds = definition.getSealSeconds();
             if (use3D) layer.style = AuraStyle.resolve(definition.getStyle(), layer.color);
-            result.add(layer);
+            com.dragonminez.common.config.AuraLayers.apply(result, definition, layer, AuraLayer::identity);
         }
-        return result;
     }
 
 	private static void putLayer(Map<Integer, AuraLayer> layerMap, int layerId, AuraLayer layer) {
