@@ -822,7 +822,7 @@ public class StatsData {
 		if (character.hasActiveStackForm() && character.getActiveStackFormData() != null)
 			formRawEneDrain += Math.max(0.0, character.getActiveStackFormData().getEnergyDrain());
 		double percentageEnergy = maxEnergy * (formRawEneDrain * 0.01) * 0.75 * masteryWeightedCostFactor(FormConfig.FormData::getEnergyDrain);
-		return (base * energyRatio) + percentageEnergy;
+		return ((base * energyRatio) + percentageEnergy) * ConfigManager.getRuntime().behaviors().factor(this,"energyDrain");
 	}
 
 	public double getEffectiveStaminaDrain() {
@@ -831,7 +831,7 @@ public class StatsData {
 		double maxStamina = getMaxStamina();
 		double staminaRatio = Math.max(1.0, getReducedOffense() / Math.max(1.0, maxStamina * 1.5));
 		double percentageStamina = maxStamina * 0.005 * masteryWeightedCostFactor(FormConfig.FormData::getStaminaDrain);
-		return (base * staminaRatio) + percentageStamina;
+		return ((base * staminaRatio) + percentageStamina) * ConfigManager.getRuntime().behaviors().factor(this,"staminaDrain");
 	}
 
 	public double getEffectiveHealthDrain() {
@@ -840,7 +840,7 @@ public class StatsData {
 		double maxHealth = getMaxHealth();
 		double healthRatio = Math.max(1.0, getReducedOffense() / Math.max(1.0, maxHealth * 1.5));
 		double percentageHealth = maxHealth * 0.005 * masteryWeightedCostFactor(FormConfig.FormData::getHealthDrain);
-		return (base * healthRatio) + percentageHealth;
+		return ((base * healthRatio) + percentageHealth) * ConfigManager.getRuntime().behaviors().factor(this,"healthDrain");
 	}
 
 	public double getTotalMultiplier(String statName) {
@@ -850,7 +850,7 @@ public class StatsData {
 		double secondary = statName.equalsIgnoreCase("DEF") ? 1.0 : secondaryStatEffects.getMultiplier(statName);
 		double kiShare = GodRitualHelper.kiShareMultiplier(this, statName);
 
-        double potential=ConfigManager.getAttributes().multiplier(this,statName.toUpperCase(java.util.Locale.ROOT));
+        double potential=ConfigManager.getAttributes().multiplier(this,statName.toUpperCase(java.util.Locale.ROOT)) * ConfigManager.getRuntime().behaviors().factor(this,statName.toUpperCase(java.util.Locale.ROOT));
 		if (ConfigManager.getServerConfig().getGameplay().getMultiplicationInsteadOfAdditionForMultipliers()) return potential * form * stack * effect * secondary * kiShare;
 		else return potential * (1.0 + (form - 1.0) + (stack - 1.0) + (effect - 1.0) + (secondary - 1.0)) * kiShare;
 	}

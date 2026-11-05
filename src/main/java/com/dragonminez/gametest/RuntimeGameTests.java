@@ -61,6 +61,17 @@ public final class RuntimeGameTests {
             var replacement = RuntimeConfig.parse("{\"meters\":{\"example:total\":{\"scope\":\"character\",\"max\":3}}}");
             field.set(null, replacement);
             helper.assertTrue(data.getRuntime().value("example:total") == 3, "Reload did not preserve and clamp saved character meter");
+            double before = data.getTotalMultiplier("STR");
+            field.set(null, RuntimeConfig.parse("""
+                {"meters":{"example:focus":{"scope":"character","initial":50}},"behaviors":{
+                  "modifiers":[{"factors":{"STR":{"curve":{"input":{"source":"meter:example:focus"},"points":[[0,1],[100,2]]}}}}],
+                  "forms":{"runtime.next":{"durationTicks":2,"cooldownTicks":20}}
+                }}
+                """));
+            helper.assertTrue(Math.abs(data.getTotalMultiplier("STR") - before * 1.5) < 0.00001, "Meter-driven stat curve was not applied");
+            data.getRuntime().tick(data); data.getRuntime().tick(data);
+            helper.assertTrue(!data.getCharacter().hasActiveForm(), "Duration did not revert active form");
+            helper.assertTrue(data.getCooldowns().hasCooldown("RuntimeForm:runtime.next"), "Expired form did not start cooldown");
             helper.succeed();
         } finally { field.set(null, original); player.discard(); }
     }

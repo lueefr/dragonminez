@@ -15,6 +15,8 @@ public final class RuntimeConfig {
     private final EventRules rules;
     private final Map<String, JsonObject> conditions;
     private final int combatTicks;
+    private BehaviorConfig behaviors;
+    public BehaviorConfig behaviors() { return behaviors; }
     private RuntimeConfig(JsonObject source, EventRules rules, Map<String, JsonObject> conditions, int combatTicks) {
         this.source = source.deepCopy(); this.rules = rules; this.conditions = Map.copyOf(conditions); this.combatTicks = combatTicks;
     }
@@ -30,6 +32,7 @@ public final class RuntimeConfig {
     public static RuntimeConfig parse(String json) {
         var source = JsonParser.parseString(json).getAsJsonObject();
         var engine = source.deepCopy();
+        var behavior = engine.remove("behaviors");
         int combatTicks = 200;
         if (engine.has("combatTicks")) {
             var value = engine.remove("combatTicks");
@@ -49,7 +52,9 @@ public final class RuntimeConfig {
             for (String value : sources) if (!value.startsWith("meter:") && (!Set.of("event.damage", "event.originalDamage", "event.blockedDamage").contains(value) || !Set.of("dmz:damage_received", "dmz:damage_dealt").contains(event))) throw new IllegalArgumentException("Numeric source unavailable in event " + event + ": " + value);
         });
         conditions.values().forEach(condition -> checkMeters(condition, rules.meters()));
-        return new RuntimeConfig(source, rules, conditions, combatTicks);
+        var result = new RuntimeConfig(source, rules, conditions, combatTicks);
+        result.behaviors = BehaviorConfig.parse(behavior, rules.meters());
+        return result;
     }
     private static void checkMeters(JsonObject condition, Set<String> meters) {
         for (var entry : condition.entrySet()) {
