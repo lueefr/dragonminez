@@ -21,6 +21,9 @@ Gameplay JSONs are configured on the server and relevant data is synchronized to
 Players need the compatible mod, without manually installing server JSONs. Custom textures
 and other external assets may still need to be distributed separately.
 
+- [Runtime rules and reactions](Runtime-rules): meters, dynamic factors, maintenance, attack windows and force-relative evasion.
+- [Optional Lua scripts](Lua-scripts): server event callbacks, typed meter actions and reload.
+
 ## Configuration files and reload
 
 | Content | Location |
@@ -29,6 +32,8 @@ and other external assets may still need to be distributed separately.
 | Custom NPC definitions | `config/dragonminez/npcs/definitions/*.json` |
 | Custom NPC placements | `config/dragonminez/npcs/placements/*.json` |
 | Character attributes and detection | `config/dragonminez/progression/attributes.json` |
+| Runtime meters, behaviors and reactions | `config/dragonminez/progression/runtime.json` |
+| Optional Lua files | `config/dragonminez/scripts/<namespace>/<path>.lua` |
 | Reincarnation | `config/dragonminez/progression/reincarnation.json` |
 | Clothing rules | `config/dragonminez/appearance/clothing.json` |
 | Dragon wishes | `<world>/dragonminez/wishes/{shenron,porunga,porunga_daima}.json` |

@@ -115,3 +115,24 @@ Java integrations use `FormCompositionResolver.Definition`, `PlayerState`, `relo
 
 
 To apply a resolved form multiplier to the character's base without activating that form, use [attribute composition](Character-attributes#inherit-resolved-power-and-declare-properties). This is separate from composing an active form.
+
+## Independent aura layers
+
+Forms and race character definitions accept `aura.layers`; stack forms can supply additional layers. For example, two normal-size shells with different colors/types:
+
+```json
+{
+  "aura": {
+    "layers": [
+      {"id": "inner", "type2d": "kakarot", "type3d": "god", "color": "#FFFFFF", "scale": 0.96, "opacity": 0.8, "order": 0},
+      {"id": "outer", "type2d": "kakarot", "type3d": "sparking", "color": "#FF3344", "scale": 1, "opacity": 0.45, "order": 100, "when": {"chargingKi": true}}
+    ]
+  }
+}
+```
+
+Layer order controls drawing, not size: even order 100 with scale 1 keeps normal scale. IDs must be unique within that definition and stable across edits. Each owner accepts up to 16 layers. Colors use `#RRGGBB`; scale accepts 0.05..8 and opacity 0..1. `type3d` accepts `smooth`, `sparking`, `god` or `userPreference`. `type2d` selects the existing 2D aura variant. Optional `style` uses the existing 3D style fields, including per-axis `size`.
+
+`when` uses shared conditions, including meters. Conditional removal uses the normal fade. Whole-aura sealing and mesh transitions still apply. Individual layer sealing/absorption and per-layer emitter configuration are not supplied by this list.
+
+Omitting `layers` keeps legacy main/extra settings. Supplying a list replaces that owner's legacy aura; an empty list removes its layers. Configured stack lists append independent layers. Existing files and configVersion are not rewritten.
