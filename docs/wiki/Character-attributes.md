@@ -161,3 +161,29 @@ These files configure server behavior and synchronize the required data to clien
 Friends need the same compatible mod version, not a manual copy of these JSONs.
 External PNGs and other added assets have their own distribution requirements; see
 [custom NPC textures](Home#external-npc-textures).
+
+## Capture power instead of following it
+
+Form sources default to `mode: "live"`: mastery and source changes affect the inherited base. To retain the resolved power from a particular moment:
+
+```json
+{
+  "attributes": {
+    "example:retained_power": {
+      "when": {"content": "example:retained_power"},
+      "composition": {"inherits": [{
+        "id": "example:source_capture",
+        "form": "path.source",
+        "mode": "snapshot",
+        "capture": "once",
+        "factor": 1,
+        "stats": ["STR", "SKP", "PWR", "DEF", "STM"]
+      }]}
+    }
+  }
+}
+```
+
+Snapshot sources require a stable namespaced `id`, unique within the attribute. `capture: "once"` preserves the first eligible resolved form factors, including composition/mastery. Later source changes, mastery and race changes do not replace them. `capture: "activation"` captures again after the attribute stops matching and later matches again. Reconnecting or reloading while already active does not itself trigger recapture.
+
+Capture runs on the server after committed content completion and on created-character ticks. Stat queries only read. A source contributes a neutral factor before its first capture. `factor` and `stats` remain live settings applied to the saved factors. Other character attributes and temporary effects are not copied into the source. Captures survive saving, reconnection, cloning and temporarily removing their JSON definition, and synchronize normally to clients. Choose a new source ID to create a new capture.
