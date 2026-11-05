@@ -132,3 +132,30 @@ Replace `powerSource` with `powerWeights` to combine sources:
 Weights form a normalized weighted mean, so this example uses 75% strength and 25% Ki power for both fighters. Choose weights appropriate to your stat scales. Accepted keys are `battlePower`, `STR`, `PWR`, `SPEED`; weights accept 0..1000000, with at least one positive weight. Use either `powerSource` or `powerWeights`.
 
 `reactionTicks` limits attempts against the same projectile and defender, separately for each rule. It accepts 0..72000 ticks, default 0 (no additional limit). A failed probability roll or blocked displacement consumes that attempt window too. Another projectile gets its own attempt. Contacts during the interval deal damage normally: this is not an invulnerability period. The ordinary reaction cooldown still applies separately. Attempt windows are temporary and reset on runtime reload, character load or clone.
+
+### Blocking and counters
+
+`response` defaults to `dodge`. Choose `block` for damage reduction or `counter` for reduction with an immediate retaliation:
+
+```json
+{
+  "reactions": [{
+    "id": "example:guard",
+    "when": {"content": "example:guard"},
+    "response": "block",
+    "attacks": ["melee", "projectile"],
+    "hitChance": 0.25,
+    "damageFactor": 0.2,
+    "staminaCost": 0.03,
+    "cooldownTicks": 10
+  }]
+}
+```
+
+The example attempts a block on 75% of eligible contacts; successful blocks retain 20% of the damage reaching this stage. `damageFactor` is in 0..1, defaults to 0, and a `block` must reduce damage. This factor applies after the mod's incoming damage calculation; armor and later damage processing still apply. Full reduction cancels damage. Blocking does not move the defender or require a displacement path.
+
+For a counter, use `response: "counter"` and optionally `counterFactor` (default 0.5, positive up to 10) and `counterRange` (default 3, 0.1..32 blocks). Retaliation uses incoming damage at this stage times `counterFactor`, through the native generic strike damage path. It requires a living attacker in range and line of sight. Normal target protection, armor and damage handling remain in effect; retaliation can be rejected by the target. Reactions cannot chain recursively from retaliation damage. `counterFactor`/`counterRange` are invalid on other response types, and defense fields are invalid on `dodge`.
+
+Responses share the existing conditions, probability curve, resources, cooldown and per-projectile interval. A matching rule replaces native speed dodge. `hitChance` is the chance of bypassing the response; a successful block may still leave residual damage.
+
+Events `dmz:blocked` and `dmz:countered` expose `event.originalDamage`, `event.damage` (remaining incoming damage) and `event.blockedDamage`. `countered` is emitted when the native retaliation accepts damage; otherwise the defense emits `blocked`. These are measurements at the defense stage, not final post-armor damage. Use `dmz:damage_received`/`dmz:damage_dealt` for final committed damage.
