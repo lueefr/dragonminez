@@ -45,7 +45,23 @@ public final class ReactionGameTests {
             helper.assertTrue(event.isCanceled() && player.position().distanceToSqr(before) > 0.5, "Zero hit chance did not perform an actual server dodge");
             helper.assertTrue(data.getCooldowns().hasCooldown("RuntimeReaction:example:dodge"), "Dodge did not start cooldown");
             var next = new LivingIncomingDamageEvent(player, new DamageContainer(player.damageSources().mobAttack(attacker), 5)); ReactionEvents.react(next);
-            helper.assertTrue(!next.isCanceled(), "Reaction ignored cooldown"); helper.succeed();
+            helper.assertTrue(!next.isCanceled(), "Reaction ignored cooldown");
+            helper.assertTrue(ReactionConfig.weighted(Map.of("STR", 3d, "PWR", 1d), source -> source.equals("STR") ? 20 : 100) == 40, "Weighted power is not normalized");
+            helper.assertTrue(Double.isFinite(ReactionConfig.weighted(Map.of("STR", 1d, "PWR", 1d), source -> Double.MAX_VALUE)), "Weighted power overflowed finite scores");
+            field.set(null, RuntimeConfig.parse("{\"reactions\":[{\"id\":\"example:continuous\",\"attacks\":[\"projectile\"],\"powerWeights\":{\"STR\":3,\"PWR\":1},\"hitChance\":0,\"staminaCost\":0,\"cooldownTicks\":0,\"reactionTicks\":10}]}"));
+            var arrow = new net.minecraft.world.entity.projectile.Arrow(net.minecraft.world.entity.EntityType.ARROW, helper.getLevel()); arrow.setOwner(attacker);
+            var source = new net.minecraft.world.damagesource.DamageSource(helper.getLevel().registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getHolderOrThrow(net.minecraft.world.damagesource.DamageTypes.ARROW), arrow, attacker);
+            player.setPos(before);
+            var first = new LivingIncomingDamageEvent(player, new DamageContainer(source, 5)); ReactionEvents.react(first);
+            helper.assertTrue(first.isCanceled(), "First projectile reaction failed");
+            var repeat = new LivingIncomingDamageEvent(player, new DamageContainer(source, 5)); ReactionEvents.react(repeat);
+            helper.assertTrue(!repeat.isCanceled(), "Continuous projectile retried within its reaction interval");
+            var alternate = new net.minecraft.world.entity.projectile.Arrow(net.minecraft.world.entity.EntityType.ARROW, helper.getLevel()); alternate.setOwner(attacker);
+            var otherSource = new net.minecraft.world.damagesource.DamageSource(source.typeHolder(), alternate, attacker);
+            player.setPos(before);
+            var independent = new LivingIncomingDamageEvent(player, new DamageContainer(otherSource, 5)); ReactionEvents.react(independent);
+            helper.assertTrue(independent.isCanceled(), "One projectile suppressed another projectile's reaction");
+            helper.succeed();
         } finally { field.set(null, original); player.discard(); }
     }
 }

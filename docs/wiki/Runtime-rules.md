@@ -111,3 +111,24 @@ This is the probability of being hit, not of evading. `event.powerRatio` is atta
 The first matching reaction replaces the native speed-dodge roll for that attack category. Environment damage is excluded. Successful evasion needs sufficient resources, cooldown readiness and a loaded, bounded, collision-free displacement path; a wall cannot grant free damage cancellation. Energy/stamina costs are fractions of maximum resources in 0..1; distance accepts 0.1..4 blocks and cooldown 0..72000 ticks. Animation and position are synchronized by the server.
 
 For optional scripts that use the same meters, see [Lua scripts](Lua-scripts).
+
+### Weighted power and continuous projectiles
+
+Replace `powerSource` with `powerWeights` to combine sources:
+
+```json
+{
+  "reactions": [{
+    "id": "example:weighted_instinct",
+    "attacks": ["projectile"],
+    "powerWeights": {"STR": 3, "PWR": 1},
+    "hitChance": {"curve": {"input": {"source": "event.powerRatio"}, "points": [[0.5, 0], [1, 0.5], [2, 1]]}},
+    "cooldownTicks": 0,
+    "reactionTicks": 10
+  }]
+}
+```
+
+Weights form a normalized weighted mean, so this example uses 75% strength and 25% Ki power for both fighters. Choose weights appropriate to your stat scales. Accepted keys are `battlePower`, `STR`, `PWR`, `SPEED`; weights accept 0..1000000, with at least one positive weight. Use either `powerSource` or `powerWeights`.
+
+`reactionTicks` limits attempts against the same projectile and defender, separately for each rule. It accepts 0..72000 ticks, default 0 (no additional limit). A failed probability roll or blocked displacement consumes that attempt window too. Another projectile gets its own attempt. Contacts during the interval deal damage normally: this is not an invulnerability period. The ordinary reaction cooldown still applies separately. Attempt windows are temporary and reset on runtime reload, character load or clone.

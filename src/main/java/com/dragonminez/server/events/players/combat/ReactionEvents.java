@@ -30,12 +30,17 @@ public final class ReactionEvents {
         if (!(event.getEntity() instanceof ServerPlayer player) || !(event.getSource().getEntity() instanceof LivingEntity attacker) || attacker == player) return;
         var data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
         if (data == null || !data.getStatus().isHasCreatedCharacter() || data.getStatus().isStunned() || player.isSpectator()) return;
-        var rule = ConfigManager.getRuntime().reactions().select(data, category(event.getSource()));
-        if (rule == null || data.getCooldowns().hasCooldown("RuntimeReaction:" + rule.id())) return;
+        var reactions = ConfigManager.getRuntime().reactions();
+        var rule = reactions.select(data, category(event.getSource()));
+        if (rule == null || !reactions.enabled(rule) || data.getCooldowns().hasCooldown("RuntimeReaction:" + rule.id())) return;
         double energy = data.getMaxEnergy() * rule.energy(), stamina = data.getMaxStamina() * rule.stamina();
         if (data.getResources().getCurrentEnergy() < energy || data.getResources().getCurrentStamina() < stamina) return;
-        double attackerPower = power(attacker, rule.power()), defenderPower = power(player, rule.power());
-        double chance = ConfigManager.getRuntime().reactions().chance(rule, data, attackerPower, defenderPower);
+        var projectile = event.getSource().getDirectEntity();
+        if (projectile != null && projectile != attacker && !data.getRuntime().attempt(projectile.getUUID(), rule.id(), player.level().getGameTime(), rule.interval())) return;
+        double attackerPower, defenderPower;
+        try { attackerPower = score(attacker, rule); defenderPower = score(player, rule); }
+        catch (RuntimeException ex) { reactions.disable(rule, ex.getMessage()); return; }
+        double chance = reactions.chance(rule, data, attackerPower, defenderPower);
         if (player.getRandom().nextDouble() < chance) return;
         Vec3 away = player.position().subtract(attacker.position()).multiply(1, 0, 1);
         if (away.lengthSqr() < 0.0001) away = player.getLookAngle().multiply(1, 0, 1);
@@ -60,6 +65,9 @@ public final class ReactionEvents {
         if (!player.level().noCollision(player, player.getBoundingBox().expandTowards(offset))) return null;
         var hit = player.level().clip(new ClipContext(player.getEyePosition(), player.getEyePosition().add(offset), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         return hit.getType() == HitResult.Type.MISS ? target : null;
+    }
+    public static double score(LivingEntity entity, ReactionConfig.Rule rule) {
+        return rule.weights().isEmpty() ? power(entity, rule.power()) : ReactionConfig.weighted(rule.weights(), source -> power(entity, source));
     }
     private static double power(LivingEntity entity, String source) {
         if (entity instanceof net.minecraft.world.entity.player.Player player) {
