@@ -45,6 +45,12 @@ public class EntityMouseHandlerMixin {
 			return;
 		}
 
+        if (com.dragonminez.common.flight.FlightFrames.active(player)) {
+            com.dragonminez.client.flight.FlightClient.mouse(yawDelta, pitchDelta);
+            ci.cancel();
+            return;
+        }
+
 		boolean steering = TechniqueDispatcher.isFiringSteerableKiAttack(player);
 		double yaw = yawDelta;
 		double pitch = pitchDelta;

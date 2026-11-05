@@ -20,7 +20,7 @@ public final class KnockbackHelper {
 		target.hurtMarked = true;
 
 		if (target instanceof ServerPlayer serverPlayer) {
-			syncFlight(serverPlayer, velocity);
+            if (!com.dragonminez.common.flight.FlightServer.impulse(serverPlayer, velocity)) syncFlight(serverPlayer, velocity);
 		} else if (target instanceof DBSagasEntity saga) {
 			saga.lockKnockback(SAGA_KNOCKBACK_LOCK_TICKS);
 		}
