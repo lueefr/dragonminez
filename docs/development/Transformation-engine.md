@@ -202,3 +202,9 @@ The validated runtime, behavior factors/maintenance, aura lists, dodge reactions
 ## Reaction policy increment
 
 `powerWeights` replaces `powerSource` with a normalized mean of selected native scores, using scaled arithmetic to avoid overflowing finite inputs. `reactionTicks` limits attempts per defender/projectile/rule, including unsuccessful rolls and blocked displacements. It grants no damage immunity. Attempts are stored by UUID in a bounded 256-entry character-owned window and never persisted or synchronized; configuration reload and character load clear them. Defaults preserve prior reactions. See the wiki Runtime-rules page for examples.
+
+## Combat responses
+
+`feature/combat-responses` adds `response` selection (`dodge` default, `block`, `counter`) to the same validated reaction definitions. Block/counter processing occurs at incoming-damage LOWEST, after the mod's HIGH-priority native damage replacement. Dodge remains HIGHEST. This avoids reducing a vanilla input that native melee calculation subsequently overwrites. Costs, selection, weighted probability and projectile windows remain shared.
+
+Counters require range/line of sight and use the existing generic strike damage source, retaining native damage/protection handling. A thread-local guard prevents recursive reaction chains during retaliation; it is removed in finally. No combat state is persisted. `dmz:blocked`/`dmz:countered` expose stage-specific measured damage inputs. See the wiki Runtime-rules guide for configuration.

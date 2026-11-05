@@ -8,7 +8,7 @@ import java.util.*;
 
 /** Hit probability is explicit; it is never interpreted as dodge probability. */
 public final class ReactionConfig {
-    public record Rule(String id, JsonObject when, Set<String> attacks, DynamicValue chance, String power, Map<String, Double> weights, int interval, double distance, double energy, double stamina, int cooldown) {}
+    public record Rule(String id, JsonObject when, Set<String> attacks, DynamicValue chance, String power, Map<String, Double> weights, int interval, double distance, double energy, double stamina, int cooldown, String response, double damage, double counter, double range) {}
     private final List<Rule> rules = new ArrayList<>();
     public static ReactionConfig parse(JsonElement json, Set<String> meters) {
         var result = new ReactionConfig();
@@ -16,7 +16,7 @@ public final class ReactionConfig {
         Set<String> ids = new HashSet<>();
         for (var element : json.getAsJsonArray()) {
             var rule = element.getAsJsonObject();
-            if (!Set.of("id", "when", "attacks", "hitChance", "powerSource", "distance", "energyCost", "staminaCost", "cooldownTicks", "powerWeights", "reactionTicks").containsAll(rule.keySet())) throw new IllegalArgumentException("Unknown reaction field");
+            if (!Set.of("id", "when", "attacks", "hitChance", "powerSource", "distance", "energyCost", "staminaCost", "cooldownTicks", "powerWeights", "reactionTicks", "response", "damageFactor", "counterFactor", "counterRange").containsAll(rule.keySet())) throw new IllegalArgumentException("Unknown reaction field");
             String id = rule.get("id").getAsString(); com.dragonminez.api.content.ContentProgress.requireId(id);
             if (!ids.add(id)) throw new IllegalArgumentException("Duplicate reaction ID");
             var when = rule.has("when") ? rule.getAsJsonObject("when").deepCopy() : new JsonObject(); Conditions.validate(when);
@@ -39,7 +39,14 @@ public final class ReactionConfig {
             if (interval != Math.rint(interval)) throw new IllegalArgumentException("Reaction interval must be whole ticks");
             double cooldown = number(rule, "cooldownTicks", 10, 0, 72000);
             if (cooldown != Math.rint(cooldown)) throw new IllegalArgumentException("Reaction cooldown must be whole ticks");
-            result.rules.add(new Rule(id, when, Set.copyOf(attacks), chance, power, Map.copyOf(weights), (int) interval, number(rule, "distance", 1, 0.1, 4), number(rule, "energyCost", 0, 0, 1), number(rule, "staminaCost", 0.02, 0, 1), (int) cooldown));
+            String response = rule.has("response") ? rule.get("response").getAsString() : "dodge";
+            if (!Set.of("dodge", "block", "counter").contains(response)) throw new IllegalArgumentException("Unknown reaction response");
+            if (response.equals("dodge") && (rule.has("damageFactor") || rule.has("counterFactor") || rule.has("counterRange"))) throw new IllegalArgumentException("Dodge does not use defense factors");
+            if (response.equals("block") && (rule.has("counterFactor") || rule.has("counterRange"))) throw new IllegalArgumentException("Block does not use counter settings");
+            double damage = number(rule, "damageFactor", 0, 0, 1), counter = number(rule, "counterFactor", 0.5, 0, 10);
+            if (response.equals("block") && damage == 1) throw new IllegalArgumentException("Block must reduce damage");
+            if (response.equals("counter") && counter == 0) throw new IllegalArgumentException("Counter factor must be positive");
+            result.rules.add(new Rule(id, when, Set.copyOf(attacks), chance, power, Map.copyOf(weights), (int) interval, number(rule, "distance", 1, 0.1, 4), number(rule, "energyCost", 0, 0, 1), number(rule, "staminaCost", 0.02, 0, 1), (int) cooldown, response, damage, counter, number(rule, "counterRange", 3, 0.1, 32)));
         }
         if (result.rules.size() > 64) throw new IllegalArgumentException("At most 64 reaction rules");
         return result;
