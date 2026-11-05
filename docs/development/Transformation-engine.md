@@ -24,9 +24,9 @@ Create implementation branches when their work starts. Do not merge unfinished g
 - Missing context values are errors, not silent zeroes. Conditions remain a separate predicate adapter for the existing shared vocabulary.
 - Runtime errors must not partially commit an event. No content-specific form names or flags are built into the engine.
 
-## Subsequent integration
+## Integration direction
 
-Wire damage events from committed server damage, meter ownership into StatsData persistence, shared conditions through an adapter, and public-state synchronization through the existing delta mechanism. Add GameTests before enabling configured effects in gameplay. No automatic UI/Ultra Ego behavior is installed by the foundation.
+Damage events, StatsData persistence, shared conditions and full/delta synchronization are integrated on the runtime branch and covered by server GameTests. Attack phases, maintenance, visible HUD widgets and meter-driven stats remain subsequent modules. No automatic UI/Ultra Ego behavior is installed by the foundation.
 
 Force-relative UI curves describe hit probability, not dodge probability. Eligibility, resource availability, cooldown, collision and attack identity are evaluated separately. Continuous attacks require an explicit reaction interval.
 
@@ -55,3 +55,44 @@ The following is an engine example, not an automatically loaded server config ye
 ```
 
 Meter numeric sources use `meter:<namespaced-id>`. Event inputs cannot overwrite meter sources. Conditions and value sources observe pre-event values; actions commit in declaration order and clamp after each action. Unknown inputs and nonfinite results reject the event without committing any actions. The integration adapter must supply measured server event data and condition evaluation; this module does not trust client-supplied damage.
+
+## Server integration
+
+The runtime branch now loads `config/dragonminez/progression/runtime.json` and includes it in config synchronization. Missing files generate an empty ruleset. Invalid files remain unchanged and disable runtime rules until corrected/reloaded.
+
+Native events currently available:
+
+| Event | Timing / numeric inputs |
+| --- | --- |
+| `dmz:damage_received` | NeoForge post-damage event on the recipient |
+| `dmz:damage_dealt` | Same event for the responsible player; self damage excluded |
+| `dmz:combat_enter` | First committed damaging contact after being out of combat |
+| `dmz:combat_exit` | `combatTicks` without another damaging contact |
+| `dmz:form_changed` | Main/stack form changes; form meters reset first |
+| `dmz:tick` | Created server character tick, after decay |
+
+Damage events expose `event.damage` (NeoForge final damage), `event.originalDamage` and `event.blockedDamage`. Other native events have no event numeric inputs yet. Unknown native events, unavailable numeric inputs and unknown meter references in runtime conditions fail validation. Shared `when` conditions evaluate before meter actions, including `meter` conditions of the form `{"meter":{"id":"example:spirit","min":10}}`.
+
+`combatTicks` defaults to 200 and accepts 1..72000. Combat currently means actual damaging contact, not proximity or merely attempting an attack. Changing either main or stack form resets all form-scope meters. Character-scope meters survive save/load and cloning; form/combat scopes do not. Reload preserves and clamps character values and resets temporary scopes. Removed meter IDs remain in saved data so re-adding a definition can recover character progress.
+
+Live meter values use the existing full/delta stat synchronization. Disk snapshots contain only persistent meters; network snapshots add a separate live view. The runtime does not add meter HUD widgets or stat modifiers yet. No new packet registration or configVersion change is needed.
+
+A usable server configuration:
+
+```json
+{
+  "combatTicks": 200,
+  "meters": {
+    "example:spirit": { "scope": "combat", "min": 0, "max": 100, "decayPerTick": 0.05 }
+  },
+  "rules": [
+    {
+      "event": "dmz:damage_received",
+      "when": { "content": "example:enabled" },
+      "actions": [
+        { "meter": "example:spirit", "operation": "add", "value": { "source": "event.damage" } }
+      ]
+    }
+  ]
+}
+```

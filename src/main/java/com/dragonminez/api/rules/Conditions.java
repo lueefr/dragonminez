@@ -33,6 +33,19 @@ public final class Conditions {
     }
     static {
         add("property",PropertyCondition::validate,PropertyCondition::test);
+        add("meter", value -> {
+            var object = value.getAsJsonObject();
+            com.dragonminez.api.content.ContentProgress.requireId(object.get("id").getAsString());
+            if (!Set.of("id", "min", "max").containsAll(object.keySet()) || !object.has("min") && !object.has("max")) throw new IllegalArgumentException("Meter condition needs min and/or max");
+            double minimum = object.has("min") ? object.get("min").getAsDouble() : -Double.MAX_VALUE;
+            double maximum = object.has("max") ? object.get("max").getAsDouble() : Double.MAX_VALUE;
+            if (!Double.isFinite(minimum) || !Double.isFinite(maximum) || minimum > maximum) throw new IllegalArgumentException("Invalid meter bounds");
+        }, (context, value) -> {
+            var object = value.getAsJsonObject(); String id = object.get("id").getAsString();
+            if (!context.data().getRuntime().has(id)) return false;
+            double number = context.data().getRuntime().value(id);
+            return (!object.has("min") || number >= object.get("min").getAsDouble()) && (!object.has("max") || number <= object.get("max").getAsDouble());
+        });
         add("all", Conditions::validateList, (c,v) -> v.getAsJsonArray().asList().stream().allMatch(e -> test(c,e.getAsJsonObject())));
         add("any", Conditions::validateList, (c,v) -> v.getAsJsonArray().asList().stream().anyMatch(e -> test(c,e.getAsJsonObject())));
         add("not", v -> validate(v.getAsJsonObject()), (c,v) -> !test(c,v.getAsJsonObject()));
@@ -117,6 +130,7 @@ public final class Conditions {
         if(key.equals("heldItem"))return Component.translatable("rules.dragonminez.heldItem",net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.parse(value.getAsString())).getDescription());
         if(key.equals("effect")){var o=value.getAsJsonObject();var id=net.minecraft.resources.ResourceLocation.parse(o.get("id").getAsString());return Component.translatable("rules.dragonminez.effect",Component.translatable("effect."+id.getNamespace()+"."+id.getPath()),o.has("minAmplifier")?o.get("minAmplifier").getAsInt()+1:1);}
         if(key.equals("property"))return PropertyCondition.describe(value);
+        if(key.equals("meter")) { var object=value.getAsJsonObject();return Component.translatable("rules.dragonminez.meter",Component.translatable(object.get("id").getAsString()),object.has("min")?object.get("min").getAsString():"−∞",object.has("max")?object.get("max").getAsString():"∞"); }
         if(key.equals("mastery")){var o=value.getAsJsonObject();return Component.translatable("rules.dragonminez.mastery",formName(context,o.get("form").getAsString()),o.get("min").getAsDouble());}
         if(key.equals("skill")){var o=value.getAsJsonObject();return Component.translatable("rules.dragonminez.skill",Component.translatable("skill.dragonminez."+o.get("id").getAsString()),o.get("level").getAsInt());}
         if(key.equals("used")) return Component.translatable("rules.dragonminez.used",formName(context,value.getAsString()));

@@ -6,8 +6,9 @@ import java.util.function.Predicate;
 
 /** Event predicates and numeric expressions read one immutable pre-event snapshot. */
 public final class EventRules {
-    public record Context(String event, Map<String, Double> values) {
-        public Context { Objects.requireNonNull(event); values = Map.copyOf(values); }
+    public record Context(String event, Map<String, Double> values, Map<String, Boolean> flags) {
+        public Context(String event, Map<String, Double> values) { this(event, values, Map.of()); }
+        public Context { Objects.requireNonNull(event); values = Map.copyOf(values); flags = Map.copyOf(flags); }
     }
     public interface Compiler { Predicate<Context> compile(JsonObject condition); }
     private record Action(String meter, String operation, DynamicValue value) {}
@@ -18,6 +19,15 @@ public final class EventRules {
     private EventRules(Map<String, MeterState.Definition> definitions, List<Rule> rules) {
         this.definitions = Collections.unmodifiableMap(new LinkedHashMap<>(definitions)); this.rules = List.copyOf(rules);
     }
+    public Map<String, Set<String>> sources() {
+        Map<String, Set<String>> sources = new LinkedHashMap<>();
+        for (var rule : rules) for (var action : rule.actions()) sources.computeIfAbsent(rule.event(), key -> new HashSet<>()).addAll(action.value().dependencies());
+        Map<String, Set<String>> result = new LinkedHashMap<>();
+        sources.forEach((event, values) -> result.put(event, Set.copyOf(values)));
+        return Map.copyOf(result);
+    }
+    public Set<String> meters() { return definitions.keySet(); }
+    public boolean empty() { return definitions.isEmpty() && rules.isEmpty(); }
     public MeterState create() { return new MeterState(definitions); }
     public static EventRules compile(JsonObject json, Compiler compiler) {
         Objects.requireNonNull(compiler);
@@ -63,7 +73,7 @@ public final class EventRules {
         Map<String, Double> context = new HashMap<>();
         event.values().forEach((key, value) -> { if (key.startsWith("meter:")) throw new IllegalArgumentException("Event cannot override meter sources"); context.put(key, DynamicValue.finite(value)); });
         state.snapshot().forEach((id, value) -> context.put("meter:" + id, value));
-        Context snapshot = new Context(event.event(), context);
+        Context snapshot = new Context(event.event(), context, event.flags());
         Map<String, Double> updates = new LinkedHashMap<>();
         for (var rule : rules) if (rule.event().equals(event.event()) && rule.condition().test(snapshot)) for (var action : rule.actions()) {
             double value = action.value().evaluate(snapshot.values());
