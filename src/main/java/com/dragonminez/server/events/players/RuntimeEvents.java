@@ -21,6 +21,14 @@ public final class RuntimeEvents {
         });
     }
     @SubscribeEvent
+    public static void cast(com.dragonminez.common.events.DMZEvent.KiAttackCastEvent event) {
+        if (event.getStatsData().getStatus().isHasCreatedCharacter()) event.getStatsData().getRuntime().startAttack(event.getStatsData(), event.getKiAttack().getId());
+    }
+    @SubscribeEvent(priority = net.neoforged.bus.api.EventPriority.LOWEST)
+    public static void fire(com.dragonminez.common.events.DMZEvent.KiAttackFireEvent event) {
+        if (event.getStatsData().getStatus().isHasCreatedCharacter()) event.getStatsData().getRuntime().releaseAttack(event.getStatsData(), event.getKiAttack().getId(), event.getChargeMultiplier() * 100);
+    }
+    @SubscribeEvent
     public static void damage(LivingDamageEvent.Post event) {
         if (event.getEntity().level().isClientSide() || event.getNewDamage() <= 0 || !Float.isFinite(event.getNewDamage())) return;
         Map<String, Double> values = Map.of("event.damage", (double) event.getNewDamage(), "event.originalDamage", (double) event.getOriginalDamage(), "event.blockedDamage", (double) event.getBlockedDamage());

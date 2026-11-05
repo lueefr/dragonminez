@@ -6,6 +6,7 @@ The default path remains JSON. Optional Lua uses the same operations as JSON; di
 | --- | --- | --- |
 | `chore/documentation-layout` | Organize documentation and repair links; published to main | None |
 | `feature/transformation-runtime` | Compiled values, events, meters, state policies and deterministic evaluation | None |
+| `feature/attack-phases` | Attack lifecycle queries and configurable active/recovery windows | Lua/runtime stack |
 | `feature/form-behaviors` | Maintenance, timed states, attack phases and live/snapshot inheritance | Runtime |
 | `feature/combat-reactions` | Force-relative hit chance, automatic reactions and combat capabilities | Behaviors |
 | `feature/aura-layers` | Independent identified layers, scale, transitions and migration | Existing renderer; runtime for dynamic parameters |
@@ -101,7 +102,7 @@ A usable server configuration:
 
 `behaviors.modifiers` in runtime.json accepts `when` and `factors`; stat targets are STR/SKP/RES/DEF/STM/VIT/PWR/ENE/SPEED and cost targets are energyDrain/staminaDrain/healthDrain. Numeric expressions can read meters, state.formTicks, state.stackTicks and self.healthPercent. Factors multiply outside the existing form/stack calculation. Queries are guarded against recursive stat conditions; invalid computed factors disable modifiers until reload.
 
-`behaviors.forms` maps group.form to `when`, `durationTicks` (-1 unlimited), `cooldownTicks` and optional `fallback`. Maintenance runs on the server. Failure clears the form/stack, starts its persistent existing cooldown and attempts the fallback through ordinary access checks. Age counters synchronize in the live view. Attack-specific phases, captured inheritance and additional transition actions remain pending.
+`behaviors.forms` maps group.form to `when`, `durationTicks` (-1 unlimited), `cooldownTicks` and optional `fallback`. Maintenance runs on the server. Failure clears the form/stack, starts its persistent existing cooldown and attempts the fallback through ordinary access checks. Age counters synchronize in the live view. Attack phases are implemented separately on `feature/attack-phases`; captured inheritance and additional transition actions remain pending.
 
 ## Aura list branch
 
@@ -145,3 +146,25 @@ The server loads source files; clients receive subscription metadata, never sour
 Each invocation has a fresh environment. Persistent state belongs in declared meters. Only base language operations and deterministic math are exposed; filesystem, OS, Java objects, dynamic loading, coroutines, debug API and random functions are absent. Execution limits interrupt instruction loops, excessive recursion and oversized string concatenation, including loops inside `pcall`. These are safeguards for trusted local server scripts, not a process-isolated sandbox for hostile code.
 
 Implemented: event subscriptions, numeric inputs, transactional meter commands, server-only loading, reload and bounded execution. Still pending: content registration, broader gameplay operations, editor autocomplete/diagnostics, rendering/model/camera/HUD bindings and the remaining extension APIs. Lua support alone does not complete those modules.
+
+
+## Attack phase branch
+
+Ki cast/release events now feed character-owned transient phases: charging, active and recovery. Charging cancellation is detected on the server tick, including direct technique setters. New charges supersede previous windows. Reload, character load and clone reset phase state; live views synchronize it for client-side visual queries. No phase data is stored as persistent meters.
+
+Configure timing per technique in `progression/runtime.json`:
+
+```json
+{
+  "behaviors": {
+    "attacks": {"example:beam": {"activeTicks": 2, "recoveryTicks": 12}},
+    "modifiers": [{"factors": {"PWR": {"add": [1, {"source": "attack.charging"}]}}}]
+  }
+}
+```
+
+Timing defaults to one active tick and zero recovery ticks; active accepts 1..72000 and recovery accepts 0..72000. These are rule windows, not projectile lifetimes or additional input locks. Native cooldown, cost and projectile behavior remain authoritative. Technique IDs use the existing technique registry keys, including existing unnamespaced keys.
+
+Numeric sources `attack.charging`, `attack.active` and `attack.recovery` are 0/1; `attack.ticks` is elapsed ticks in the current phase and `attack.charge` is charge percent (0..200). Sources are available in JSON event actions, dynamic stat factors and Lua snapshots. Events: `dmz:attack_started`, `dmz:attack_released`, `dmz:attack_cancelled`, `dmz:attack_recovery` and `dmz:attack_finished`. Events observe the new phase; cancellation/finish observe idle. Successful releases retain their charge through active/recovery windows.
+
+This integration covers the native charged Ki technique lifecycle. Strike/basic-blast phase adapters, per-projectile continuous-reaction intervals and configurable attack input restrictions remain subsequent work.

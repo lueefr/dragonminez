@@ -8,6 +8,9 @@ import java.util.*;
 
 /** Conditional queries return factors; maintenance is executed separately by the server tick. */
 public final class BehaviorConfig {
+    public record Attack(int active, int recovery) {}
+    private final Map<String, Attack> attacks = new LinkedHashMap<>();
+    public Attack attack(String id) { return attacks.getOrDefault(id, new Attack(1, 0)); }
     public record Lifetime(JsonObject when, int duration, int cooldown, String fallback) {}
     private record Modifier(JsonObject when, Map<String, DynamicValue> factors) {}
     private final Map<String, Lifetime> lifetimes = new LinkedHashMap<>();
@@ -16,7 +19,15 @@ public final class BehaviorConfig {
     public static BehaviorConfig parse(JsonElement value, Set<String> meters) {
         var config = new BehaviorConfig();
         if (value == null) return config;
-        var root = value.getAsJsonObject(); fields(root, Set.of("forms", "modifiers"));
+        var root = value.getAsJsonObject(); fields(root, Set.of("forms", "modifiers", "attacks"));
+        if (root.has("attacks")) root.getAsJsonObject("attacks").entrySet().forEach(entry -> {
+            if (entry.getKey().isBlank()) throw new IllegalArgumentException("Attack needs a technique ID");
+            var rule = entry.getValue().getAsJsonObject(); fields(rule, Set.of("activeTicks", "recoveryTicks"));
+            int active = integer(rule, "activeTicks", 1), recovery = integer(rule, "recoveryTicks", 0);
+            if (active < 1 || active > 72000 || recovery > 72000) throw new IllegalArgumentException("Attack phases must be within 0..72000 ticks with nonzero active time");
+            config.attacks.put(entry.getKey(), new Attack(active, recovery));
+        });
+        if (config.attacks.size() > 256) throw new IllegalArgumentException("Too many attack phase policies");
         if (root.has("forms")) root.getAsJsonObject("forms").entrySet().forEach(entry -> {
             Conditions.form(entry.getKey()); var rule = entry.getValue().getAsJsonObject();
             fields(rule, Set.of("when", "durationTicks", "cooldownTicks", "fallback"));
@@ -34,7 +45,7 @@ public final class BehaviorConfig {
                 if (!TARGETS.contains(entry.getKey())) throw new IllegalArgumentException("Unknown modifier target: " + entry.getKey());
                 var expression = DynamicValue.compile(entry.getValue());
                 for (String source : expression.dependencies()) {
-                    if (source.startsWith("meter:") ? !meters.contains(source.substring(6)) : !Set.of("state.formTicks", "state.stackTicks", "self.healthPercent").contains(source)) throw new IllegalArgumentException("Unknown modifier source: " + source);
+                    if (source.startsWith("meter:") ? !meters.contains(source.substring(6)) : !Set.of("state.formTicks", "state.stackTicks", "self.healthPercent", "attack.charging", "attack.active", "attack.recovery", "attack.ticks", "attack.charge").contains(source)) throw new IllegalArgumentException("Unknown modifier source: " + source);
                 }
                 factors.put(entry.getKey(), expression);
             }

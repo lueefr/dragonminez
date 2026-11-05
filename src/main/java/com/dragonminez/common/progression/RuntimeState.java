@@ -9,6 +9,7 @@ import java.util.*;
 
 /** Character-owned meter state. Disk snapshots preserve only character-scoped values. */
 public final class RuntimeState {
+    private final AttackState attack = new AttackState();
     private RuntimeConfig config;
     private MeterState meters;
     private CompoundTag saved = new CompoundTag(), visible = new CompoundTag();
@@ -20,7 +21,7 @@ public final class RuntimeState {
         var next = ConfigManager.getRuntime();
         if (config == next) return;
         if (meters != null) store();
-        config = next; meters = next.rules().create(); failed = false; combatLeft = 0; formTicks = 0; stackTicks = 0;
+        config = next; attack.cancel(); meters = next.rules().create(); failed = false; combatLeft = 0; formTicks = 0; stackTicks = 0;
         var json = new JsonObject();
         for (String id : saved.getAllKeys()) if (next.rules().meters().contains(id) && saved.contains(id, Tag.TAG_ANY_NUMERIC)) {
             double value = saved.getDouble(id); if (Double.isFinite(value)) json.addProperty(id, value);
@@ -42,13 +43,38 @@ public final class RuntimeState {
         var before = meters.snapshot();
         Map<String, Double> inputs = new HashMap<>(numbers(data)); inputs.putAll(values);
         try {
-            config.rules().dispatch(meters, new EventRules.Context(event, values, config.flags(data)));
+            config.rules().dispatch(meters, new EventRules.Context(event, queries(values), config.flags(data)));
             config.rules().adjust(meters, config.scriptActions(event, Map.copyOf(inputs)));
         } catch (RuntimeException ex) {
             meters.restore(before);
             failed = true;
             com.dragonminez.LogUtil.error(com.dragonminez.Env.COMMON, "Runtime event {} failed for {}: {}. Rules disabled for this character until reload.", event, data.getPlayer().getUUID(), ex.getMessage());
         } finally { dispatching = false; }
+    }
+    private Map<String, Double> queries(Map<String, Double> values) {
+        Map<String, Double> result = new HashMap<>(attack.numbers()); result.putAll(values); return result;
+    }
+    public void startAttack(StatsData data, String id) {
+        if (!(data.getPlayer() instanceof net.minecraft.server.level.ServerPlayer)) return;
+        bind();
+        if (attack.phase() == AttackState.Phase.CHARGING && attack.technique().equals(id)) return;
+        if (attack.phase() == AttackState.Phase.CHARGING) dispatch(data, "dmz:attack_cancelled", Map.of());
+        attack.start(id); dispatch(data, "dmz:attack_started", Map.of());
+    }
+    public void releaseAttack(StatsData data, String id, double charge) {
+        if (!(data.getPlayer() instanceof net.minecraft.server.level.ServerPlayer)) return;
+        bind(); var timing = config.behaviors().attack(id);
+        attack.release(id, charge, timing.active(), timing.recovery()); dispatch(data, "dmz:attack_released", Map.of());
+    }
+    private void tickAttack(StatsData data) {
+        var techniques = data.getTechniques(); String id = techniques.getChargingTechniqueId();
+        boolean charging = techniques.isTechniqueCharging() && id != null && !id.isBlank();
+        if (charging && (attack.phase() != AttackState.Phase.CHARGING || !attack.technique().equals(id))) startAttack(data, id);
+        var previous = attack.phase();
+        if (attack.tick(charging, id, techniques.getTechniqueChargePercent())) {
+            String event = previous == AttackState.Phase.CHARGING ? "dmz:attack_cancelled" : attack.phase() == AttackState.Phase.RECOVERY ? "dmz:attack_recovery" : "dmz:attack_finished";
+            dispatch(data, event, Map.of());
+        }
     }
     public void contact(StatsData data) {
         bind();
@@ -59,6 +85,7 @@ public final class RuntimeState {
         if (!(data.getPlayer() instanceof net.minecraft.server.level.ServerPlayer)) return;
         bind();
         observe(data);
+        tickAttack(data);
         formTicks = Math.min(Integer.MAX_VALUE - 1, formTicks) + 1;
         stackTicks = Math.min(Integer.MAX_VALUE - 1, stackTicks) + 1;
         maintain(data, false); maintain(data, true);
@@ -83,7 +110,7 @@ public final class RuntimeState {
         }
     }
     public Map<String, Double> numbers(StatsData data) {
-        bind(); Map<String, Double> values = new HashMap<>();
+        bind(); Map<String, Double> values = new HashMap<>(attack.numbers());
         meters.snapshot().forEach((id, value) -> values.put("meter:" + id, value));
         values.put("state.formTicks", (double) formTicks); values.put("state.stackTicks", (double) stackTicks);
         var player = data.getPlayer();
@@ -115,12 +142,14 @@ public final class RuntimeState {
     }
     public CompoundTag view() {
         bind(); var tag = new CompoundTag(); meters.snapshot().forEach(tag::putDouble);
+        attack.numbers().forEach((key, value) -> tag.putDouble("$" + key, value));
         tag.putInt("$formTicks", formTicks); tag.putInt("$stackTicks", stackTicks); return tag;
     }
     public void view(CompoundTag tag) {
         visible = tag.copy();
         bind();
         formTicks = Math.max(0, tag.getInt("$formTicks")); stackTicks = Math.max(0, tag.getInt("$stackTicks"));
+        Map<String, Double> queries = new HashMap<>(); attack.numbers().keySet().forEach(key -> queries.put(key, tag.getDouble("$" + key))); attack.view(queries);
         for (String id : config.rules().meters()) if (tag.contains(id, Tag.TAG_ANY_NUMERIC) && Double.isFinite(tag.getDouble(id))) meters.set(id, tag.getDouble(id));
     }
 }
