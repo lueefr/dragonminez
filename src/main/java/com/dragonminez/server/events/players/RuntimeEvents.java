@@ -17,8 +17,15 @@ public final class RuntimeEvents {
     public static void tick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
-            if (data.getStatus().isHasCreatedCharacter()) data.getRuntime().tick(data);
+            if (data.getStatus().isHasCreatedCharacter()) {
+                com.dragonminez.common.config.ConfigManager.getAttributes().capture(data);
+                data.getRuntime().tick(data);
+            }
         });
+    }
+    @SubscribeEvent
+    public static void completed(com.dragonminez.api.content.ContentCompletedEvent event) {
+        StatsProvider.get(StatsCapability.INSTANCE, event.getPlayer()).ifPresent(data -> com.dragonminez.common.config.ConfigManager.getAttributes().capture(data));
     }
     @SubscribeEvent
     public static void cast(com.dragonminez.common.events.DMZEvent.KiAttackCastEvent event) {

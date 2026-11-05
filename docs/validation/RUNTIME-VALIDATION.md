@@ -1,0 +1,9 @@
+# Runtime and captured power validation — 2026-11-05
+
+The validated runtime, form factors/maintenance, aura lists, dodge reactions, Lua meter scripts and charged-Ki phase increments were integrated into main at `c5c8e74a`. The merge passed Java 21 `build runGameTestServer`: 51 unit tests and all 57 required GameTests. Log: `/tmp/dmz-main-runtime-merge.log`.
+
+The captured-power increment on `feature/power-snapshots` passed the same command with all 58 required GameTests and 51 unit tests. Log: `/tmp/dmz-power-final.log`. The added test verifies resolved additive-chain capture, pure stat queries, stable capture IDs, retention across later mastery, save/load and clone, full synchronization, live inheritance and recapture after conditional reactivation through committed content completion. Existing live configs retain their behavior and configVersion remains unchanged.
+
+The packaged-JAR client harness uses a disposable flat world, Xvfb/Mesa software rendering, Sodium/Iris, Complementary, Dynamic Crosshair and Better Modlist. It confirmed that LuaJ loads from `META-INF/jarjar/luaj-jse-3.0.1.jar` inside the candidate mod, rather than a development classpath library. Markers `LUA_PACKAGED_PASS` and `RUNTIME_CLIENT_PASS` confirm Lua execution, attack-phase/captured-factor views, persistent-only delta handling and client-side rejection of server runtime execution. Log: `/tmp/dmz-runtime-merged-client.log`.
+
+The external harness injects its verification classes only into a disposable candidate copy. The production JAR is unchanged by the harness. These checks do not establish completion of the broader Lua/rendering/flight roadmap or validate old Forge worlds and binary addons.

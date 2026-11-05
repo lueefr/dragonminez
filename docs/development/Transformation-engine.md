@@ -7,13 +7,14 @@ The default path remains JSON. Optional Lua uses the same operations as JSON; di
 | `chore/documentation-layout` | Organize documentation and repair links; published to main | None |
 | `feature/transformation-runtime` | Compiled values, events, meters, state policies and deterministic evaluation | None |
 | `feature/attack-phases` | Attack lifecycle queries and configurable active/recovery windows | Lua/runtime stack |
+| `feature/power-snapshots` | Persistent captured attribute inheritance with activation policies | Runtime/main |
 | `feature/form-behaviors` | Maintenance, timed states, attack phases and live/snapshot inheritance | Runtime |
 | `feature/combat-reactions` | Force-relative hit chance, automatic reactions and combat capabilities | Behaviors |
 | `feature/aura-layers` | Independent identified layers, scale, transitions and migration | Existing renderer; runtime for dynamic parameters |
 | `feature/lua-extension` | Optional runtime, controlled bindings, reload, diagnostics and content registration | Stable engine operations |
 | `feature/flight-physics` | Shared simulation, prediction and server reconciliation | Runtime and existing flight integration |
 
-Create implementation branches when their work starts. Do not merge unfinished gameplay modules into main.
+Create implementation branches when their work starts. Merge validated increments individually; the remaining scope of a module must stay explicitly pending.
 
 ## Runtime contract
 
@@ -102,7 +103,7 @@ A usable server configuration:
 
 `behaviors.modifiers` in runtime.json accepts `when` and `factors`; stat targets are STR/SKP/RES/DEF/STM/VIT/PWR/ENE/SPEED and cost targets are energyDrain/staminaDrain/healthDrain. Numeric expressions can read meters, state.formTicks, state.stackTicks and self.healthPercent. Factors multiply outside the existing form/stack calculation. Queries are guarded against recursive stat conditions; invalid computed factors disable modifiers until reload.
 
-`behaviors.forms` maps group.form to `when`, `durationTicks` (-1 unlimited), `cooldownTicks` and optional `fallback`. Maintenance runs on the server. Failure clears the form/stack, starts its persistent existing cooldown and attempts the fallback through ordinary access checks. Age counters synchronize in the live view. Attack phases are implemented separately on `feature/attack-phases`; captured inheritance and additional transition actions remain pending.
+`behaviors.forms` maps group.form to `when`, `durationTicks` (-1 unlimited), `cooldownTicks` and optional `fallback`. Maintenance runs on the server. Failure clears the form/stack, starts its persistent existing cooldown and attempts the fallback through ordinary access checks. Age counters synchronize in the live view. Attack phases are implemented separately on `feature/attack-phases`; captured attribute inheritance is implemented separately on `feature/power-snapshots`; additional transition actions remain pending.
 
 ## Aura list branch
 
@@ -168,3 +169,31 @@ Timing defaults to one active tick and zero recovery ticks; active accepts 1..72
 Numeric sources `attack.charging`, `attack.active` and `attack.recovery` are 0/1; `attack.ticks` is elapsed ticks in the current phase and `attack.charge` is charge percent (0..200). Sources are available in JSON event actions, dynamic stat factors and Lua snapshots. Events: `dmz:attack_started`, `dmz:attack_released`, `dmz:attack_cancelled`, `dmz:attack_recovery` and `dmz:attack_finished`. Events observe the new phase; cancellation/finish observe idle. Successful releases retain their charge through active/recovery windows.
 
 This integration covers the native charged Ki technique lifecycle. Strike/basic-blast phase adapters, per-projectile continuous-reaction intervals and configurable attack input restrictions remain subsequent work.
+
+## Captured power inheritance
+
+`progression/attributes.json` form sources now accept `mode: "live"` (the existing default) or `mode: "snapshot"`. Snapshot sources require a stable namespaced `id`, unique inside their attribute. Capture uses the source form's already resolved form composition and mastery, before the attribute's own `factor` and stat selection. This avoids multiplying an attribute back into its own source.
+
+```json
+{
+  "attributes": {
+    "example:absorbed_power": {
+      "when": {"content": "example:absorbed_power"},
+      "composition": {"inherits": [{
+        "id": "example:retained_power",
+        "form": "example.source",
+        "mode": "snapshot",
+        "capture": "once",
+        "factor": 1,
+        "stats": ["STR", "PWR", "DEF", "STM"]
+      }]}
+    }
+  }
+}
+```
+
+`capture: "once"` stores the first eligible resolved factors. Later mastery, source edits and race changes do not replace the captured values. `capture: "activation"` captures again after the attribute becomes ineligible and then eligible again; loading/reconnecting while already active does not count as a new activation. The source `factor` and stat selection remain live JSON settings. Changing the stable source ID creates a new capture. Java API `getSnapshots().clear(attributeId + "/" + sourceId)` explicitly removes a capture.
+
+The server captures after committed content completion and on created-character ticks, supporting conditions that change independently of wishes. Stat queries only read. Before the first server capture, that source contributes a neutral factor; missing source forms log once and retry when available. Invalid resolved factors disable that source's captures until config reload without replacing its existing snapshot. Snapshots remain saved when their definition is temporarily removed, survive cloning/reconnection, and use full/delta synchronization. Existing JSONs retain live behavior; configVersion is unchanged.
+
+The validated runtime, behavior factors/maintenance, aura lists, dodge reactions, Lua meter scripts and charged-Ki phase increments were merged into main at `c5c8e74a`. This does not mark the remaining scopes in their sections complete.

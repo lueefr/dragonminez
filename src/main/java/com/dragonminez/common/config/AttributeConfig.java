@@ -12,7 +12,7 @@ public final class AttributeConfig {
     private Map<String,Definition> attributes = new LinkedHashMap<>();
     private List<Detection> detection = new ArrayList<>();
     private transient Map<String,String> aliases=Map.of();
-    private transient boolean hasForms;
+    private transient boolean hasForms, hasSnapshots;
     public boolean hasForms() { return hasForms; }
     private static final ThreadLocal<Set<StatsData>> selecting=ThreadLocal.withInitial(HashSet::new);
     private static final ThreadLocal<Set<StatsData>> evaluating=ThreadLocal.withInitial(HashSet::new);
@@ -33,9 +33,12 @@ public final class AttributeConfig {
     }
     public static final class Source {
         public String form;
+        public String id;
+        public String mode = "live";
+        public String capture = "once";
         public double factor = 1;
         public Set<String> stats = new LinkedHashSet<>();
-        private transient boolean missing;
+        private transient boolean missing, failed;
     }
     public static final class Detection {
         public Set<String> channels = new LinkedHashSet<>();
@@ -75,9 +78,15 @@ public final class AttributeConfig {
             Conditions.validate(definition.when);
             if(definition.composition==null||definition.composition.inherits==null||definition.properties==null)throw new IllegalArgumentException("Missing attribute composition/properties: "+id);
             definition.properties.forEach((key,value)->{ContentProgress.requireId(key);propertyValue(value);});
+            Set<String> sources = new HashSet<>();
             for(var source:definition.composition.inherits) {
                 if(source==null||source.stats==null)throw new IllegalArgumentException("Invalid base form source: "+id);
                 Conditions.form(source.form);factor(source.factor);
+                if (!Set.of("live", "snapshot").contains(source.mode) || !Set.of("once", "activation").contains(source.capture)) throw new IllegalArgumentException("Invalid inheritance mode/capture: " + id);
+                if (source.mode.equals("snapshot")) {
+                    ContentProgress.requireId(source.id);
+                    if (!sources.add(source.id)) throw new IllegalArgumentException("Duplicate snapshot source: " + source.id);
+                }
                 for(String stat:source.stats)if(!Set.of("STR","SKP","RES","DEF","STM","VIT","PWR","ENE","SPEED").contains(stat))throw new IllegalArgumentException("Unknown source stat: "+stat);
             }
             if(definition.stackContent!=null)ContentProgress.requireId(definition.stackContent);
@@ -88,6 +97,7 @@ public final class AttributeConfig {
             factor(definition.tp);
             definition.base.forEach((stat,value)->{if(!Set.of("all","STR","SKP","RES","DEF","STM","VIT","PWR","ENE","SPEED").contains(stat))throw new IllegalArgumentException("Unknown base stat: "+stat);factor(value);});
         });
+        if (config.attributes.values().stream().mapToInt(value -> value.composition.inherits.size()).sum() > 256) throw new IllegalArgumentException("At most 256 attribute form sources");
         for(var rule:config.detection) {
             if(rule==null||rule.channels==null||rule.target==null||rule.observer==null||!Set.of("restrict","replace").contains(rule.mode))throw new IllegalArgumentException("Invalid detection rule");
             for(String channel:rule.channels)if(!Set.of("ki_sense","lock_on","instant_transmission","scouter").contains(channel))ContentProgress.requireId(channel);
@@ -101,6 +111,7 @@ public final class AttributeConfig {
         config.aliases=Map.copyOf(aliases);
         aliases.keySet().forEach(config::canonical);
         config.hasForms=config.attributes.values().stream().anyMatch(definition->!definition.forms.replace.isEmpty()||!definition.forms.block.isEmpty()||!definition.forms.grant.isEmpty());
+        config.hasSnapshots=config.attributes.values().stream().anyMatch(value->value.composition.inherits.stream().anyMatch(source->source.mode.equals("snapshot")));
         return config;
     }
     private static void factor(Double value) {
@@ -118,7 +129,8 @@ public final class AttributeConfig {
         if(attributes.isEmpty()||!evaluating.get().add(data))return 1;
         try {
             double total=1;
-            for(var definition:attributes.values()) {
+            for(var entry:attributes.entrySet()) {
+                var definition = entry.getValue();
                 if(!definition.enabled||!Conditions.test(new Conditions.Context(data,null),definition.when))continue;
                 int count=definition.stackContent==null?1:data.getContentProgress().count(definition.stackContent);
                 if(definition.stackLimit>0)count=Math.min(count,definition.stackLimit);
@@ -127,12 +139,49 @@ public final class AttributeConfig {
                 if(stat.equals("DEF")||stat.equals("STM"))value=product(value,definition.base.getOrDefault("RES",1d));
                 if(!stat.equals("TP"))for(var source:definition.composition.inherits) {
                     if(!source.stats.isEmpty()&&!source.stats.contains(stat)&&!((stat.equals("DEF")||stat.equals("STM"))&&source.stats.contains("RES")))continue;
-                    value=product(value,sourceValue(data,source,stat));
+                    value=product(value,source.mode.equals("snapshot") ? captured(data,entry.getKey(),source,stat) : sourceValue(data,source,stat));
                 }
                 total=product(total,stacked(value,count,definition.stacking));
             }
             return total;
         } finally {evaluating.get().remove(data);if(evaluating.get().isEmpty())evaluating.remove();}
+    }
+    private static double captured(StatsData data, String id, Source source, String stat) {
+        String key = id + "/" + source.id;
+        return data.getSnapshots().has(key) ? product(source.factor,data.getSnapshots().value(key,stat)) : 1;
+    }
+    public void capture(StatsData data) {
+        if (!(data.getPlayer() instanceof net.minecraft.server.level.ServerPlayer)) return;
+        if (!hasSnapshots) { data.getSnapshots().refresh(Set.of()); return; }
+        Set<String> active = new HashSet<>();
+        for (var entry : attributes.entrySet()) {
+            var definition = entry.getValue();
+            if (!definition.enabled || (definition.stackContent != null && data.getContentProgress().count(definition.stackContent) == 0)
+                    || !Conditions.test(new Conditions.Context(data,null),definition.when)) continue;
+            for (var source : definition.composition.inherits) if (source.mode.equals("snapshot")) {
+                String id = entry.getKey() + "/" + source.id;
+                if (source.failed) continue;
+                try {
+                    if (!data.getSnapshots().has(id) || (source.capture.equals("activation") && !data.getSnapshots().active(id))) {
+                        String[] reference = Conditions.form(source.form);
+                        var form = ConfigManager.getForm(data.getCharacter().getRaceName(), reference[0], reference[1]);
+                        if (form == null) form = ConfigManager.getStackForm(reference[0], reference[1]);
+                        if (form == null) {
+                            if (!source.missing) { source.missing = true; com.dragonminez.LogUtil.warn(com.dragonminez.Env.COMMON, "Snapshot source {} is unavailable for race {}", source.form, data.getCharacter().getRaceName()); }
+                            continue;
+                        }
+                        Map<String, Double> factors = new LinkedHashMap<>();
+                        for (String stat : com.dragonminez.common.progression.PowerSnapshots.STATS) factors.put(stat, data.getFormComposition().multiplier(data, reference[0], form, stat));
+                        data.getSnapshots().capture(id, factors);
+                    }
+                    active.add(id);
+                } catch (RuntimeException ex) {
+                    source.failed = true;
+                    com.dragonminez.LogUtil.error(com.dragonminez.Env.COMMON, "Snapshot source {} failed: {}. Capture disabled until reload.", id, ex.getMessage());
+                }
+            }
+        }
+        data.getSnapshots().refresh(active);
     }
     private static void propertyValue(JsonElement value) {
         if(value==null||value.isJsonNull()||value.isJsonObject())throw new IllegalArgumentException("Properties must be scalar values or arrays");
