@@ -36,12 +36,16 @@ public final class RuntimeState {
     public void dispatch(StatsData data, String event, Map<String, Double> values) {
         if (!(data.getPlayer() instanceof net.minecraft.server.level.ServerPlayer)) return;
         bind();
-        if (failed || dispatching || config.rules().empty()) return;
+        if (failed || dispatching) return;
         observe(data);
         dispatching = true;
+        var before = meters.snapshot();
+        Map<String, Double> inputs = new HashMap<>(numbers(data)); inputs.putAll(values);
         try {
             config.rules().dispatch(meters, new EventRules.Context(event, values, config.flags(data)));
+            config.rules().adjust(meters, config.scriptActions(event, Map.copyOf(inputs)));
         } catch (RuntimeException ex) {
+            meters.restore(before);
             failed = true;
             com.dragonminez.LogUtil.error(com.dragonminez.Env.COMMON, "Runtime event {} failed for {}: {}. Rules disabled for this character until reload.", event, data.getPlayer().getUUID(), ex.getMessage());
         } finally { dispatching = false; }
@@ -58,7 +62,7 @@ public final class RuntimeState {
         formTicks = Math.min(Integer.MAX_VALUE - 1, formTicks) + 1;
         stackTicks = Math.min(Integer.MAX_VALUE - 1, stackTicks) + 1;
         maintain(data, false); maintain(data, true);
-        if (config.rules().empty()) return;
+        if (!config.active()) return;
         if (combatLeft > 0 && --combatLeft == 0) {
             dispatch(data, "dmz:combat_exit", Map.of()); meters.reset(MeterState.Scope.COMBAT);
         }

@@ -116,3 +116,32 @@ Each layer accepts id, type2d, type3d, color, uniform scale (default 1), opacity
 Hit chance expressions may read event.powerRatio and configured meters. Equal zero powers yield ratio 1; positive attacker versus zero defender yields the maximum finite ratio. Probability clamps to 0..1. Reactions require sufficient resources, cooldown readiness, a loaded/bounded collision-free destination and a clear swept path. The server moves the defender, synchronizes position/animation, consumes costs and emits dmz:evaded. No free damage cancellation occurs when movement is blocked. Runtime expression errors disable that reaction until reload. Successful reactions also enter combat. Native NPC battle power is used when available; other living entities currently use max health as a fallback score.
 
 Swept displacement, probability endpoints, cooldown and actual movement are covered by a server GameTest. Configurable blocking/counters, power weights, attack-specific intervals and additional capabilities remain pending.
+
+## Lua branch: server event scripts
+
+Optional LuaJ scripts subscribe to runtime events in `progression/runtime.json`:
+
+```json
+{
+  "meters": {"example:spirit": {"scope": "character", "min": 0, "max": 100}},
+  "scripts": [{"id": "example:spirit", "events": ["dmz:damage_received"]}]
+}
+```
+
+Create `config/dragonminez/scripts/example/spirit.lua`:
+
+```lua
+return {
+  onEvent = function(ctx)
+    return {{meter = 'example:spirit', operation = 'add', value = ctx.values['event.damage']}}
+  end
+}
+```
+
+The server loads source files; clients receive subscription metadata, never source. `ctx.event` contains the event identifier; `ctx.values` contains the pre-event numeric snapshot, including `meter:<id>`, `state.formTicks`, `state.stackTicks` and `self.healthPercent`. Scripts return `add`/`set` meter commands. JSON actions run first, followed by script commands in subscription order, against the same pre-event inputs. A failure rolls back both sets of meter changes and disables this character's event rules until reload.
+
+`/dmzreload scripts` recompiles this configuration and its scripts without reloading storage or quests. Invalid source keeps the previously loaded configuration and leaves the files untouched. Sources must stay inside the scripts directory, including after symlink resolution. Each source is limited to 64 KiB, with at most 32 subscriptions and 64 combined returned commands per event.
+
+Each invocation has a fresh environment. Persistent state belongs in declared meters. Only base language operations and deterministic math are exposed; filesystem, OS, Java objects, dynamic loading, coroutines, debug API and random functions are absent. Execution limits interrupt instruction loops, excessive recursion and oversized string concatenation, including loops inside `pcall`. These are safeguards for trusted local server scripts, not a process-isolated sandbox for hostile code.
+
+Implemented: event subscriptions, numeric inputs, transactional meter commands, server-only loading, reload and bounded execution. Still pending: content registration, broader gameplay operations, editor autocomplete/diagnostics, rendering/model/camera/HUD bindings and the remaining extension APIs. Lua support alone does not complete those modules.

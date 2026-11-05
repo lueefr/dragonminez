@@ -38,6 +38,10 @@ public final class MeterState {
         });
         commit(next);
     }
+    public void restore(Map<String, Double> snapshot) {
+        if (!snapshot.keySet().equals(definitions.keySet())) throw new IllegalArgumentException("Snapshot does not match meter definitions");
+        commit(snapshot);
+    }
     void commit(Map<String, Double> updates) {
         Map<String, Double> next = new LinkedHashMap<>();
         updates.forEach((id, value) -> next.put(id, require(id).bound(value)));

@@ -31,7 +31,7 @@ import static com.dragonminez.common.diagnostics.JsonLoadReport.logConsoleReport
 
 public class ReloadCommand {
 	private static final SuggestionProvider<CommandSourceStack> RELOAD_VALUE_SUGGESTIONS = (ctx, builder) ->
-			SharedSuggestionProvider.suggest(List.of("all", "config", "story", "wishes"), builder);
+			SharedSuggestionProvider.suggest(List.of("all", "config", "story", "wishes", "scripts"), builder);
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(Commands.literal("dmzreload")
@@ -53,6 +53,7 @@ public class ReloadCommand {
 		source.sendSystemMessage(Component.translatable("command.dragonminez.reload.start"));
 
 		try {
+			if (scope == ReloadScope.SCRIPTS) ConfigManager.reloadSpecificConfig("progression/runtime");
 			if (scope.includesConfig()) {
 				ConfigManager.reload();
 				RaidTypes.reload(ConfigManager.getRaids());
@@ -75,7 +76,7 @@ public class ReloadCommand {
 			int syncedPlayers = 0;
 			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 				try {
-					if (scope.includesConfig()) {
+					if (scope.includesConfig() || scope == ReloadScope.SCRIPTS) {
 						ConfigManager.sendConfigSync(player);
 
 						StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
@@ -116,7 +117,8 @@ public class ReloadCommand {
 		ALL,
 		CONFIG,
 		STORY,
-		WISHES;
+		WISHES,
+        SCRIPTS;
 
 		private static ReloadScope from(String value) {
 			try {

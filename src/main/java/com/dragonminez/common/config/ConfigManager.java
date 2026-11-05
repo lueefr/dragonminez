@@ -202,7 +202,7 @@ public class ConfigManager {
 
     public static void validateExtensionRules() {
         com.dragonminez.api.rules.Conditions.finishRegistration();
-        try{runtime=RuntimeConfig.parse(runtime.json());}
+        try{runtime.validate();}
         catch(RuntimeException ex){runtime=RuntimeConfig.empty();LogUtil.error(Env.COMMON,"Invalid runtime rules: {}. Original left untouched.",ex.getMessage());}
         try{RuleConfig.parse(GSON.toJson(rulesConfig));}
         catch(RuntimeException ex){

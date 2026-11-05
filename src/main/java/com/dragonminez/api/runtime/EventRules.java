@@ -82,6 +82,19 @@ public final class EventRules {
         }
         state.commit(updates);
     }
+    public record Change(String meter, boolean additive, double value) {}
+    public void adjust(MeterState state, List<Change> actions) {
+        if (!state.matches(definitions) || actions.size() > 64) throw new IllegalArgumentException("Invalid script command batch");
+        Map<String, Double> updates = new LinkedHashMap<>();
+        for (var action : actions) {
+            var definition = definitions.get(action.meter());
+            if (definition == null) throw new IllegalArgumentException("Unknown script meter: " + action.meter());
+            double value = DynamicValue.finite(action.value());
+            if (action.additive()) value = DynamicValue.finite(updates.getOrDefault(action.meter(), state.value(action.meter())) + value);
+            updates.put(action.meter(), definition.bound(value));
+        }
+        state.commit(updates);
+    }
     private static void fields(JsonObject json, Set<String> allowed) {
         for (String field : json.keySet()) if (!allowed.contains(field)) throw new IllegalArgumentException("Unknown runtime field: " + field);
     }
