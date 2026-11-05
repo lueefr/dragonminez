@@ -1,5 +1,5 @@
 
-> Port 2.2 / Minecraft 1.21.1: [build, dependencies and validation](PORTING-1.21.1.md).
+> Port 2.2 / Minecraft 1.21.1: [build, dependencies and validation](docs/porting/NeoForge-1.21.1.md).
 <div align="center">
   <img src=".github/docs/img/dragonminez_big_logo.png" alt="Banner de DragonMine Z" width="70%" />
 </div>

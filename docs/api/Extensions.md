@@ -1,9 +1,9 @@
 # Configurable extension APIs — NeoForge 1.21.1
 
-For the current nested layout and safe automatic migration, see [Content configuration](docs/wiki/Content-configuration.md). Additional guides cover [independent purchase/use conditions](docs/wiki/Use-and-purchase.md), [aura and additive composition](docs/wiki/Aura-and-composition.md), [translations](docs/wiki/Translations.md) and [permanent mutant ownership](docs/wiki/Mutant-lifetime.md).
+For the current nested layout and safe automatic migration, see [Content configuration](../wiki/Content-configuration.md). Additional guides cover [independent purchase/use conditions](../wiki/Use-and-purchase.md), [aura and additive composition](../wiki/Aura-and-composition.md), [translations](../wiki/Translations.md) and [permanent mutant ownership](../wiki/Mutant-lifetime.md).
 
 
-This fork adds the following extension APIs for NeoForge 1.21.1. See [API validation results](API-VALIDATION.md) and [content/configuration validation](CONTENT-CONFIG-VALIDATION.md) and [completion validation and historical coverage](CONTENT-COMPLETENESS-VALIDATION.md).
+This fork adds the following extension APIs for NeoForge 1.21.1. See [API validation results](../validation/API-VALIDATION.md) and [content/configuration validation](../validation/CONTENT-CONFIG-VALIDATION.md) and [completion validation and historical coverage](../validation/CONTENT-COMPLETENESS-VALIDATION.md).
 
 ## Lifetime content completion
 
@@ -223,4 +223,4 @@ The example uses race ID `custom_race` and group `custom_path`; retain the exist
 
 ## Rules, visuals and form hairstyles
 
-See [the rule API guide](docs/wiki/Rules.md) for the optional `rules.json`, automatic completion rewards, purchase gates, per-part form visuals, lifetime first-use conditions, player-owned form hairstyles and custom NPC location commands.
+See [the rule API guide](../wiki/Rules.md) for the optional `rules.json`, automatic completion rewards, purchase gates, per-part form visuals, lifetime first-use conditions, player-owned form hairstyles and custom NPC location commands.

@@ -67,7 +67,7 @@ DragonMineZ 2.2 is a Minecraft mod inspired by Dragon Ball, in active developmen
 - Registrations are mostly centralized in `DMZCommon` and `common/init/Main*` classes.
 - Persistent player data uses NeoForge serializable attachments, keeping the 2.2 field layout, including double-precision training points and cooldowns.
 - Mandatory dependencies: GeckoLib `4.9.2`, TerraBlender `1.21.1-4.1.0.8`, Curios `9.5.1+1.21.1`. MariaDB and HikariCP are bundled in the JAR. JEI is optional.
-- Porting notes live in `PORTING-1.21.1.md`; final validation results and log paths live in `PORT-VALIDATION.md`. Read both before architecture-level changes.
+- Porting notes live in `docs/porting/NeoForge-1.21.1.md`; final validation results and log paths live in `docs/validation/PORT-VALIDATION.md`. Read both before architecture-level changes.
 - Loading old Forge 1.20.1 worlds and old binary addons is NOT validated on this branch.
 - Known hard-incompatibilities from the 1.20.1 version (Legendary Tooltips, Epic Fight, Better Combat) were not revalidated on NeoForge 1.21.1. Do not claim they still crash or still work without checking.
 

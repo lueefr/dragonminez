@@ -63,7 +63,7 @@ a passagem de uma receita de 6×6 pelos codecs de JSON/rede, o carregamento de
 receitas/loot estáticos, a construção das entidades e a restauração dos atributos,
 pontos de treino e cooldowns de um jogador de teste.
 
-Resultados finais e caminhos dos logs locais: `PORT-VALIDATION.md`.
+Resultados finais e caminhos dos logs locais: `docs/validation/PORT-VALIDATION.md`.
 Essas verificações não equivalem a uma campanha completa de gameplay, nem
 validam integrações opcionais com servidores de banco de dados reais.
 O carregamento de mundos antigos Forge 1.20.1 e addons binários da versão antiga
