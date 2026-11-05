@@ -133,6 +133,19 @@ Forms and race character definitions accept `aura.layers`; stack forms can suppl
 
 Layer order controls drawing, not size: even order 100 with scale 1 keeps normal scale. IDs must be unique within that definition and stable across edits. Each owner accepts up to 16 layers. Colors use `#RRGGBB`; scale accepts 0.05..8 and opacity 0..1. `type3d` accepts `smooth`, `sparking`, `god` or `userPreference`. `type2d` selects the existing 2D aura variant. Optional `style` uses the existing 3D style fields, including per-axis `size`.
 
-`when` uses shared conditions, including meters. Conditional removal uses the normal fade. Whole-aura sealing and mesh transitions still apply. Individual layer sealing/absorption and per-layer emitter configuration are not supplied by this list.
+`when` uses shared conditions, including meters. Conditional removal uses the normal fade. Whole-aura sealing and mesh transitions still apply. Each layer may also declare `sealedWhen` and `sealSeconds` (default 0.4, range 0.01..10). While the condition holds the shell contracts into the body until absent; when it stops holding the shell expands again. A layer that starts sealed does not flash on first render. Sealing preserves its identity, color and mesh transition. `when` still controls whether a layer exists; use `sealedWhen` for absorption. Per-layer emitter configuration is not supplied by this list.
+
+For a layer sealed except while charging, add:
+
+```json
+{
+  "id": "inner",
+  "color": "#66CCFF",
+  "sealedWhen": {"not": {"chargingKi": true}},
+  "sealSeconds": 0.6
+}
+```
+
+Use any shared condition in `sealedWhen`, including `all`, `any`, `not` and meter thresholds. Whole-aura sealing still takes precedence over every layer.
 
 Omitting `layers` keeps legacy main/extra settings. Supplying a list replaces that owner's legacy aura; an empty list removes its layers. Configured stack lists append independent layers. Existing files and configVersion are not rewritten.

@@ -2,7 +2,9 @@ package com.dragonminez.client.render.effects;
 
 /** Reversible geometric absorption. Zero means no shell exists. */
 public final class AuraSeal {
-    private double openness=1;
+    private double openness;
+    public AuraSeal(){this(false);}
+    public AuraSeal(boolean sealed){openness=sealed?0:1;}
     public double update(boolean sealed,double seconds) {
         return update(sealed,seconds,0.4);
     }
