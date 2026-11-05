@@ -1,5 +1,6 @@
 package com.dragonminez.mixin.common;
 
+import com.dragonminez.Reference;
 import com.dragonminez.common.combat.logic.player.PlayerAttackHelper;
 import com.dragonminez.common.combat.logic.player.PlayerAttackProperties;
 import com.dragonminez.common.combat.player.AttackHand;
@@ -8,8 +9,11 @@ import com.dragonminez.common.combat.util.Player_DMZ;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -103,6 +107,15 @@ public abstract class PlayerMixin implements Player_DMZ, PlayerAttackProperties 
 		}
 		return this.dragonminez$critActive;
 	}
+
+	@Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/common/damagesource/IScalingFunction;scaleDamage(Lnet/minecraft/world/damagesource/DamageSource;Lnet/minecraft/world/entity/player/Player;FLnet/minecraft/world/Difficulty;)F"))
+    private float dragonminez$mobDifficulty(net.neoforged.neoforge.common.damagesource.IScalingFunction scaling, DamageSource source, Player player, float amount, Difficulty difficulty) {
+        Entity attacker = source.getEntity();
+        if (attacker != null && difficulty != Difficulty.PEACEFUL
+                && scaling == net.neoforged.neoforge.common.damagesource.IScalingFunction.DEFAULT
+                && Reference.MOD_ID.equals(EntityType.getKey(attacker.getType()).getNamespace())) return amount;
+        return scaling.scaleDamage(source, player, amount, difficulty);
+    }
 
 	@Inject(method = "crit", at = @At("HEAD"), cancellable = true)
 	private void dragonminez$suppressVanillaCrit(Entity entityHit, CallbackInfo ci) {
