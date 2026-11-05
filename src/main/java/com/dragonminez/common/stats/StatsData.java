@@ -66,6 +66,8 @@ public class StatsData {
 	private final SecondaryStatEffects secondaryStatEffects;
 	private final PlayerQuestData playerQuestData;
 	private final com.dragonminez.common.progression.RuntimeState runtime = new com.dragonminez.common.progression.RuntimeState();
+    private final com.dragonminez.common.progression.PowerSnapshots snapshots = new com.dragonminez.common.progression.PowerSnapshots();
+    public com.dragonminez.common.progression.PowerSnapshots getSnapshots() { return snapshots; }
     public com.dragonminez.common.progression.RuntimeState getRuntime() { return runtime; }
 	private final com.dragonminez.common.progression.RebirthState rebirth = new com.dragonminez.common.progression.RebirthState();
     private final com.dragonminez.api.forms.FormHistory formHistory = new com.dragonminez.api.forms.FormHistory();
@@ -1838,6 +1840,7 @@ public class StatsData {
 		nbt.put("CompletedContent", contentProgress.save());
         nbt.put("Reincarnation", rebirth.save());
         nbt.put("RuntimeMeters", runtime.save());
+        nbt.put("PowerSnapshots", snapshots.save());
         nbt.put("FormHistory", formHistory.save());
 		nbt.put("BonusStats", bonusStats.save());
 		nbt.put("Techniques", techniques.save());
@@ -1850,6 +1853,8 @@ public class StatsData {
 
 	public void load(CompoundTag nbt) throws ClassNotFoundException {
 		boolean fullPayload = nbt.contains("Character") && nbt.contains("Stats");
+        if(nbt.contains("PowerSnapshots"))snapshots.load(nbt.getCompound("PowerSnapshots"));
+        else if(fullPayload)snapshots.load(new CompoundTag());
         if(nbt.contains("RuntimeMeters"))runtime.load(nbt.getCompound("RuntimeMeters"));
         else if(fullPayload)runtime.load(new CompoundTag());
         if(nbt.contains("RuntimeView"))runtime.view(nbt.getCompound("RuntimeView"));
@@ -1906,6 +1911,7 @@ public class StatsData {
 		this.contentProgress.copyFrom(other.contentProgress);
         this.rebirth.load(other.rebirth.save());
         this.runtime.load(other.runtime.save());
+        this.snapshots.load(other.snapshots.save());
         this.formHistory.copyFrom(other.formHistory);
 		this.stats.copyFrom(other.stats);
 		this.status.copyFrom(other.status);
