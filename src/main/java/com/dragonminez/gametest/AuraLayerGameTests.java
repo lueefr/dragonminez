@@ -10,6 +10,27 @@ import net.neoforged.neoforge.gametest.*;
 @PrefixGameTestTemplate(false)
 public final class AuraLayerGameTests {
     @GameTest(template="port_empty")
+    public static void layerOperations(GameTestHelper helper) {
+        var gson = new Gson();
+        var values = new java.util.ArrayList<>(java.util.List.of("base/inner", "base/outer"));
+        var replacement = gson.fromJson("{id:'replacement',operation:'replace',target:'base/inner'}", AuraLayers.Layer.class);
+        AuraLayers.validate(java.util.List.of(replacement));
+        AuraLayers.apply(values, replacement, "stack/replacement", value -> value);
+        helper.assertTrue(values.equals(java.util.List.of("base/outer", "stack/replacement")), "Replacement affected unrelated layers");
+        var removal = gson.fromJson("{id:'hide',operation:'remove',target:'base/outer'}", AuraLayers.Layer.class);
+        AuraLayers.apply(values, removal, null, value -> value);
+        AuraLayers.apply(values, removal, null, value -> value);
+        helper.assertTrue(values.equals(java.util.List.of("stack/replacement")), "Removal added a shell or failed when target absent");
+        AuraLayers.apply(values, replacement, "stack/another", value -> value);
+        helper.assertTrue(values.contains("stack/another"), "Replacement without target failed to supply its shell");
+        for (String invalid : java.util.List.of("{id:'bad',operation:'clear'}", "{id:'bad',operation:'replace'}", "{id:'bad',operation:'remove',target:'inner'}", "{id:'bad',target:'base/inner'}")) {
+            boolean failed = false;
+            try { AuraLayers.validate(java.util.List.of(gson.fromJson(invalid, AuraLayers.Layer.class))); } catch (IllegalArgumentException ex) { failed = true; }
+            helper.assertTrue(failed, "Invalid operation accepted: " + invalid);
+        }
+        helper.succeed();
+    }
+    @GameTest(template="port_empty")
     public static void layerSchema(GameTestHelper helper) {
         var gson = new GsonBuilder().registerTypeAdapterFactory(new ContentAdapters()).create();
         var group = gson.fromJson("""

@@ -136,3 +136,17 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   layer. Existing mesh morph, Ki depth, crosshair and authoritative flight
   smoke checks also passed. This is not a multi-machine latency stress test.
 - Logs: `/tmp/dmz-aura-sealing-validation.log`, `/tmp/dmz-aura-sealing-client.log`.
+
+
+## Aura layer composition — 2026-11-05
+
+- Java 21 build passed; all 62 required GameTests passed, including pure
+  cross-owner replacement/removal, harmless missing targets and schema errors.
+- Packaged Iris/Complementary client verified replacement removes its target,
+  unchanged explicit scale, reversible absorption, mesh morph, Ki depth,
+  Dynamic Crosshair and authoritative flight.
+- The first client run caught absorption finishing in a single slow frame;
+  the animation step is now bounded to 100 ms. The repeated client run passed
+  initial absence and both partial opening/closing phases with that fix.
+- Logs: `/tmp/dmz-aura-composition-validation.log`,
+  `/tmp/dmz-aura-composition-build.log`, `/tmp/dmz-aura-composition-client-02.log`.
