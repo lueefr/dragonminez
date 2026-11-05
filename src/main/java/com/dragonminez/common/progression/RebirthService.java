@@ -26,7 +26,13 @@ public final class RebirthService {
         if(!keep.content)data.getContentProgress().load(new net.minecraft.nbt.CompoundTag());
         if(keep.story)data.getPlayerQuestData().deserializeNBT(saved.getCompound("PlayerQuestData"));
         if(keep.techniques)data.getTechniques().load(saved.getCompound("Techniques"));else data.getTechniques().clearAllTechniques();
-        if(keep.effects)data.getEffects().load(saved.getCompound("Effects"));else data.getEffects().removeAllEffects();
+        if(keep.effects) {
+            data.getEffects().load(saved.getCompound("Effects"));
+            data.getSecondaryStatEffects().load(saved.getCompound("SecondaryStatEffects"));
+        } else {
+            data.getEffects().removeAllEffects();
+            data.getSecondaryStatEffects().clear();
+        }
         if(keep.cooldowns)data.getCooldowns().load(saved.getCompound("Cooldowns"));
         if(keep.bonusStats)data.getBonusStats().load(saved.getCompound("BonusStats"));
         if(!keep.history)data.getFormHistory().load(new net.minecraft.nbt.CompoundTag());

@@ -192,7 +192,8 @@ Enma offers a confirmation before reopening character creation. The configuratio
 - `enabled` and shared `requirements`.
 - `retention`: stat/TP/pending-point percentages and independent flags for skills,
   mastery, inventory, content, story, techniques, effects, cooldowns, bonus stats,
-  form history, alignment and race history.
+  form history, alignment and race history. Effect retention includes secondary combat
+  modifiers and is independent of skill retention.
 - `bonus.multiplier` and `durationTicks` (`-1` means no time limit).
 - `bonus.cap.enabled`; `mode` is `previous_level`, `level`, or `tp`.
 - `bonus.cap.level` or `bonus.cap.tp` for fixed targets.
