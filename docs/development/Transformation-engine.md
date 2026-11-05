@@ -34,6 +34,66 @@ Force-relative UI curves describe hit probability, not dodge probability. Eligib
 
 Aura migration converts old implicit layer size to explicit scale. New layer order never changes size. Lua interpreter selection requires execution-budget/isolation validation before adding a dependency. Flight uses client prediction and server reconciliation, not position smoothing alone.
 
+## Flight authority and body collision
+
+The flight branch uses Do a Barrel Roll as a control/orientation reference (reference checkout
+`15125e45927a167c078eb6b7a1c93132f5bc7980`). The server owns motion and body orientation;
+clients submit bounded controls, never authoritative positions or hitbox dimensions. Pitch,
+yaw and roll must affect the physical body and remote rendering as well as the local camera.
+Form scale remains the source of body dimensions.
+
+Implemented on the flight branch: shared fixed-tick quaternion simulation, server-owned sessions
+and bounded controls, client prediction with acknowledgement/replay, remote poses, swept body
+collision, form-resolved dimensions, oriented targeting, prone eye/camera origins and combat
+knockback. Vanilla position packets cannot override an active authoritative session. Vanilla
+teleport acknowledgements remain active; disconnects, cloning and dimension changes clear the
+session. Search flight uses the new engine by default; combat flight and scripted strike
+movement retain their existing handlers.
+
+Server settings live in `progression/runtime.json`, synchronized through the existing config
+channel. An example with the default motion values:
+
+```json
+{
+  "flight": {
+    "enabled": true,
+    "when": {},
+    "thrust": 0.055,
+    "drag": 0.04,
+    "braking": 0.3,
+    "gravity": 0,
+    "lift": 0,
+    "speed": 0.492,
+    "boost": 1.75,
+    "turn": 0.15,
+    "smoothing": 0.35,
+    "banking": 0.2,
+    "cost": 0,
+    "turnCost": 0
+  }
+}
+```
+
+Speed is blocks/tick before flight skill, attributes, temporary speed effects and the player's
+speed limiter. Default normal/boosted caps preserve the existing search-flight base speeds.
+Turn is radians/tick; drag/braking/smoothing are fractions. Cost and turnCost are additional
+energy per tick, disabled by default; existing flight drain still runs once through its native
+handler. `enabled: false` selects the native search-flight handler. Conditions use the shared
+vocabulary, including declared runtime meters. W/S provide thrust/braking/reverse, A/D yaw,
+mouse X roll, mouse Y pitch, jump/sneak local lift and sprint boost. Menus submit braking
+controls. Missing controls time out after ten server ticks.
+
+Validated with 60 unit tests, 60 required server GameTests and the packaged-client harness
+with Sodium/Iris/Complementary. The server test uses the real vanilla movement packet handler
+rather than FakePlayer's no-op override. Equal entity IDs on client/server remain isolated by
+weak object-identity stores. The client run covers A/D direction, authoritative movement/roll,
+prediction/reconciliation, teleport session resets, remote pose reception/cleanup, native eye
+queries and existing aura/Ki/crosshair regressions. Evidence is in the runtime validation note.
+
+Per-form parameter profiles, separate axis rates, broader latency simulation, remote-pose
+interpolation and automatic obstacle sliding remain separate enhancements; collision currently
+stops motion at the last clear pose. This increment does not complete the broader engine plan.
+
 ## Foundation implemented on the runtime branch
 
 `DynamicValue.compile` accepts constants, context sources, add/multiply/min/max operations and clamped linear/smooth point curves. `EventRules.compile` accepts meter declarations and event actions, with a predicate compiler supplied by the integration. `MeterState` owns values and serializes character-scope meters; it does not perform file I/O.

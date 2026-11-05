@@ -674,14 +674,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
             if (target.invulnerableTime > 0 && !chainShot && !this.isBreakthroughTarget(target)) continue;
 
             float hitPrecision = this.getSize() / 3.0F;
-            boolean beamHit = false;
-            for (AABB hb : MultipartTargeting.hitBoxes(target)) {
-                AABB targetBox = hb.inflate(hitPrecision);
-                if (targetBox.clip(start, end).isPresent() || targetBox.contains(start)) {
-                    beamHit = true;
-                    break;
-                }
-            }
+            boolean beamHit = MultipartTargeting.intersects(target, start, end, hitPrecision);
 
             if (beamHit) {
                 if (chainShot) {

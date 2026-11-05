@@ -934,6 +934,10 @@ public class NetworkHandler {
                 .decoder(RuleNoticeS2C::new).encoder(RuleNoticeS2C::encode).consumerMainThread(RuleNoticeS2C::handle).add();
         net.messageBuilder(KiAimC2S.class,id(),NetworkDirection.PLAY_TO_SERVER)
                 .decoder(KiAimC2S::new).encoder(KiAimC2S::encode).consumerMainThread(KiAimC2S::handle).add();
+        net.messageBuilder(FlightInputC2S.class,id(),NetworkDirection.PLAY_TO_SERVER)
+                .decoder(FlightInputC2S::new).encoder(FlightInputC2S::encode).consumerMainThread(FlightInputC2S::handle).add();
+        net.messageBuilder(FlightStateS2C.class,id(),NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(FlightStateS2C::new).encoder(FlightStateS2C::encode).consumerMainThread(FlightStateS2C::handle).add();
 	}
 
 	public static <MSG> void sendToServer(MSG message) {

@@ -25,6 +25,8 @@ public final class RuntimeConfig {
         }
         return List.copyOf(result);
     }
+    private FlightConfig flight;
+    public FlightConfig flight() { return flight; }
     private ReactionConfig reactions;
     public ReactionConfig reactions() { return reactions; }
     private BehaviorConfig behaviors;
@@ -46,6 +48,7 @@ public final class RuntimeConfig {
     public static RuntimeConfig parse(String json) {
         var source = JsonParser.parseString(json).getAsJsonObject();
         var engine = source.deepCopy();
+        var flight = engine.remove("flight");
         var behavior = engine.remove("behaviors");
         var reactions = engine.remove("reactions");
         var scripts = engine.remove("scripts");
@@ -69,6 +72,8 @@ public final class RuntimeConfig {
         });
         conditions.values().forEach(condition -> checkMeters(condition, rules.meters()));
         var result = new RuntimeConfig(source, rules, conditions, combatTicks);
+        result.flight = FlightConfig.parse(flight);
+        checkMeters(result.flight.when(), rules.meters());
         result.behaviors = BehaviorConfig.parse(behavior, rules.meters());
         result.reactions = ReactionConfig.parse(reactions, rules.meters());
         if (scripts != null) for (var entry : scripts.getAsJsonArray()) {
