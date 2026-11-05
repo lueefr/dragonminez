@@ -117,7 +117,7 @@ Each layer accepts id, type2d, type3d, color, uniform scale (default 1), opacity
 
 Hit chance expressions may read event.powerRatio and configured meters. Equal zero powers yield ratio 1; positive attacker versus zero defender yields the maximum finite ratio. Probability clamps to 0..1. Reactions require sufficient resources, cooldown readiness, a loaded/bounded collision-free destination and a clear swept path. The server moves the defender, synchronizes position/animation, consumes costs and emits dmz:evaded. No free damage cancellation occurs when movement is blocked. Runtime expression errors disable that reaction until reload. Successful reactions also enter combat. Native NPC battle power is used when available; other living entities currently use max health as a fallback score.
 
-Swept displacement, probability endpoints, cooldown and actual movement are covered by a server GameTest. Configurable blocking/counters, power weights, attack-specific intervals and additional capabilities remain pending.
+Swept displacement, probability endpoints, cooldown and actual movement are covered by a server GameTest. Weighted power and per-projectile attempt intervals are implemented on `feature/reaction-policies`; configurable blocking/counters and additional capabilities remain pending.
 
 ## Lua branch: server event scripts
 
@@ -197,3 +197,8 @@ This integration covers the native charged Ki technique lifecycle. Strike/basic-
 The server captures after committed content completion and on created-character ticks, supporting conditions that change independently of wishes. Stat queries only read. Before the first server capture, that source contributes a neutral factor; missing source forms log once and retry when available. Invalid resolved factors disable that source's captures until config reload without replacing its existing snapshot. Snapshots remain saved when their definition is temporarily removed, survive cloning/reconnection, and use full/delta synchronization. Existing JSONs retain live behavior; configVersion is unchanged.
 
 The validated runtime, behavior factors/maintenance, aura lists, dodge reactions, Lua meter scripts and charged-Ki phase increments were merged into main at `c5c8e74a`. This does not mark the remaining scopes in their sections complete.
+
+
+## Reaction policy increment
+
+`powerWeights` replaces `powerSource` with a normalized mean of selected native scores, using scaled arithmetic to avoid overflowing finite inputs. `reactionTicks` limits attempts per defender/projectile/rule, including unsuccessful rolls and blocked displacements. It grants no damage immunity. Attempts are stored by UUID in a bounded 256-entry character-owned window and never persisted or synchronized; configuration reload and character load clear them. Defaults preserve prior reactions. See the wiki Runtime-rules page for examples.

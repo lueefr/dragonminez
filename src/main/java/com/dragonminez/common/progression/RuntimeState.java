@@ -9,6 +9,8 @@ import java.util.*;
 
 /** Character-owned meter state. Disk snapshots preserve only character-scoped values. */
 public final class RuntimeState {
+    private final ReactionWindow reactions = new ReactionWindow();
+    public boolean attempt(java.util.UUID projectile, String rule, long tick, int interval) { bind(); return reactions.attempt(projectile, rule, tick, interval); }
     private final AttackState attack = new AttackState();
     private RuntimeConfig config;
     private MeterState meters;
@@ -21,7 +23,7 @@ public final class RuntimeState {
         var next = ConfigManager.getRuntime();
         if (config == next) return;
         if (meters != null) store();
-        config = next; attack.cancel(); meters = next.rules().create(); failed = false; combatLeft = 0; formTicks = 0; stackTicks = 0;
+        config = next; reactions.clear(); attack.cancel(); meters = next.rules().create(); failed = false; combatLeft = 0; formTicks = 0; stackTicks = 0;
         var json = new JsonObject();
         for (String id : saved.getAllKeys()) if (next.rules().meters().contains(id) && saved.contains(id, Tag.TAG_ANY_NUMERIC)) {
             double value = saved.getDouble(id); if (Double.isFinite(value)) json.addProperty(id, value);
@@ -137,7 +139,7 @@ public final class RuntimeState {
     }
     public CompoundTag save() { bind(); store(); return saved.copy(); }
     public void load(CompoundTag tag) {
-        saved = tag.copy(); config = null; meters = null; failed = false; combatLeft = 0; formTicks = 0; stackTicks = 0; form = ""; stack = "";
+        saved = tag.copy(); reactions.clear(); config = null; meters = null; failed = false; combatLeft = 0; formTicks = 0; stackTicks = 0; form = ""; stack = "";
         if (!visible.isEmpty()) view(visible);
     }
     public CompoundTag view() {
