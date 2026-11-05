@@ -81,7 +81,9 @@ public class FlyStatusHandler implements IStatusEffectHandler {
         double basePercent = 0.03;
         double energyCostPercent = Math.max(0.002, basePercent - (flyLevel * 0.005));
         energyCostPercent *= getFlyCostMultiplier(flyLevel);
-        boolean isSprintFlight = player.isSprinting() && player.getDeltaMovement().length() > 0.65F;
+        boolean sprint = com.dragonminez.common.flight.FlightFrames.active(player)
+                ? com.dragonminez.common.flight.FlightServer.boosted(player) : player.isSprinting();
+        boolean isSprintFlight = sprint && player.getDeltaMovement().length() > 0.65F;
         if (isSprintFlight) energyCostPercent *= 2.0;
         if (data.getStatus().getFlightMode() == Status.FLIGHT_COMBAT) {
             energyCostPercent *= ConfigManager.getCombatConfig().getCombatFlyDrainMultiplier();

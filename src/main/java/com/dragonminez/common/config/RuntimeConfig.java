@@ -74,6 +74,7 @@ public final class RuntimeConfig {
         var result = new RuntimeConfig(source, rules, conditions, combatTicks);
         result.flight = FlightConfig.parse(flight);
         checkMeters(result.flight.when(), rules.meters());
+        for (var profile : result.flight.profiles()) checkMeters(profile.when(), rules.meters());
         result.behaviors = BehaviorConfig.parse(behavior, rules.meters());
         result.reactions = ReactionConfig.parse(reactions, rules.meters());
         if (scripts != null) for (var entry : scripts.getAsJsonArray()) {
