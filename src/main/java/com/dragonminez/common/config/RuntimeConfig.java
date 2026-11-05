@@ -15,6 +15,8 @@ public final class RuntimeConfig {
     private final EventRules rules;
     private final Map<String, JsonObject> conditions;
     private final int combatTicks;
+    private ReactionConfig reactions;
+    public ReactionConfig reactions() { return reactions; }
     private BehaviorConfig behaviors;
     public BehaviorConfig behaviors() { return behaviors; }
     private RuntimeConfig(JsonObject source, EventRules rules, Map<String, JsonObject> conditions, int combatTicks) {
@@ -33,6 +35,7 @@ public final class RuntimeConfig {
         var source = JsonParser.parseString(json).getAsJsonObject();
         var engine = source.deepCopy();
         var behavior = engine.remove("behaviors");
+        var reactions = engine.remove("reactions");
         int combatTicks = 200;
         if (engine.has("combatTicks")) {
             var value = engine.remove("combatTicks");
@@ -48,12 +51,13 @@ public final class RuntimeConfig {
             return context -> Boolean.TRUE.equals(context.flags().get(key));
         });
         rules.sources().forEach((event, sources) -> {
-            if (event.startsWith("dmz:") && !Set.of("dmz:tick", "dmz:form_changed", "dmz:combat_enter", "dmz:combat_exit", "dmz:damage_received", "dmz:damage_dealt").contains(event)) throw new IllegalArgumentException("Unknown native runtime event: " + event);
+            if (event.startsWith("dmz:") && !Set.of("dmz:tick", "dmz:form_changed", "dmz:combat_enter", "dmz:combat_exit", "dmz:damage_received", "dmz:damage_dealt", "dmz:evaded").contains(event)) throw new IllegalArgumentException("Unknown native runtime event: " + event);
             for (String value : sources) if (!value.startsWith("meter:") && (!Set.of("event.damage", "event.originalDamage", "event.blockedDamage").contains(value) || !Set.of("dmz:damage_received", "dmz:damage_dealt").contains(event))) throw new IllegalArgumentException("Numeric source unavailable in event " + event + ": " + value);
         });
         conditions.values().forEach(condition -> checkMeters(condition, rules.meters()));
         var result = new RuntimeConfig(source, rules, conditions, combatTicks);
         result.behaviors = BehaviorConfig.parse(behavior, rules.meters());
+        result.reactions = ReactionConfig.parse(reactions, rules.meters());
         return result;
     }
     private static void checkMeters(JsonObject condition, Set<String> meters) {

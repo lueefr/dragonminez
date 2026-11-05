@@ -108,3 +108,11 @@ A usable server configuration:
 Forms and race character configs accept `aura.layers`. A missing list keeps the old main/extra behavior. A supplied list (including an empty one) replaces that owner's legacy aura; stack lists append their own layers. IDs are stable within the base/stack owner namespace and remain separate from drawing order. Up to 16 layers per owner are validated.
 
 Each layer accepts id, type2d, type3d, color, uniform scale (default 1), opacity, order, when and a 3D style object. 3D style size controls per-axis geometry. Explicit scale disables the legacy index-based expansion in world, GUI and pulse rendering. Existing files are not rewritten and configVersion is unchanged. Shared predicates may use meters. Conditional removal uses the existing type fade; whole-aura sealing and mesh transitions remain supported. Per-layer sealing/absorption, replacement operations across owners and emitter configuration remain pending.
+
+## Combat reaction branch
+
+`reactions` is an ordered list in runtime.json. Entries accept namespaced id, shared when, attacks (melee/projectile), hitChance expression, powerSource (battlePower/STR/PWR/SPEED), distance, fractional energyCost/staminaCost and cooldownTicks. First matching rule replaces native speed dodge for that attack category, avoiding two independent rolls. Environmental damage is not eligible.
+
+Hit chance expressions may read event.powerRatio and configured meters. Equal zero powers yield ratio 1; positive attacker versus zero defender yields the maximum finite ratio. Probability clamps to 0..1. Reactions require sufficient resources, cooldown readiness, a loaded/bounded collision-free destination and a clear swept path. The server moves the defender, synchronizes position/animation, consumes costs and emits dmz:evaded. No free damage cancellation occurs when movement is blocked. Runtime expression errors disable that reaction until reload. Successful reactions also enter combat. Native NPC battle power is used when available; other living entities currently use max health as a fallback score.
+
+Swept displacement, probability endpoints, cooldown and actual movement are covered by a server GameTest. Configurable blocking/counters, power weights, attack-specific intervals and additional capabilities remain pending.
