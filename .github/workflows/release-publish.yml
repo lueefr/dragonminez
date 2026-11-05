@@ -27,6 +27,10 @@ on:
         required: false
         type: string
 
+concurrency:
+  group: release-approved-main
+  cancel-in-progress: false
+
 permissions:
   contents: write
   actions: read
@@ -52,6 +56,7 @@ jobs:
           python3 - <<'PY'
           import json
           import os
+          import re
           from pathlib import Path
 
           event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text(encoding="utf-8"))
@@ -61,6 +66,12 @@ jobs:
           if missing:
               raise SystemExit(f"Missing release approval payload field(s): {', '.join(missing)}")
 
+          if not re.fullmatch(r"[0-9]+\.[0-9]+(?:\.[0-9]+)?", payload["version"]):
+              raise SystemExit("Approved version must be a numeric stable version")
+          if not re.fullmatch(r"[0-9a-f]{40}", payload["commit_sha"]):
+              raise SystemExit("Approved commit must be a full lowercase SHA")
+          if not re.fullmatch(r"[^\r\n]{1,256}", payload["approved_by"]):
+              raise SystemExit("Invalid approver")
           changelog = payload.get("changelog") or ""
           update_description = payload.get("update_description") or ""
           if not update_description:
@@ -133,6 +144,14 @@ jobs:
           echo "name=dragonminez-1.21.1-${version}.jar" >> "$GITHUB_OUTPUT"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "minecraft_version=${minecraft_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate missing exact-release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ ! -s release-changelog.md ]]; then
+            python3 -m scripts.release.github_release notes --tag "v$(grep '^mod_version=' gradle.properties | cut -d= -f2-)" --source "$GITHUB_SHA" --repository "$GITHUB_REPOSITORY" --output release-changelog.md
+          fi
 
       - name: Read changelog
         id: changelog
