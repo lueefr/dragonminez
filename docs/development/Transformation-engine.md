@@ -102,3 +102,9 @@ A usable server configuration:
 `behaviors.modifiers` in runtime.json accepts `when` and `factors`; stat targets are STR/SKP/RES/DEF/STM/VIT/PWR/ENE/SPEED and cost targets are energyDrain/staminaDrain/healthDrain. Numeric expressions can read meters, state.formTicks, state.stackTicks and self.healthPercent. Factors multiply outside the existing form/stack calculation. Queries are guarded against recursive stat conditions; invalid computed factors disable modifiers until reload.
 
 `behaviors.forms` maps group.form to `when`, `durationTicks` (-1 unlimited), `cooldownTicks` and optional `fallback`. Maintenance runs on the server. Failure clears the form/stack, starts its persistent existing cooldown and attempts the fallback through ordinary access checks. Age counters synchronize in the live view. Attack-specific phases, captured inheritance and additional transition actions remain pending.
+
+## Aura list branch
+
+Forms and race character configs accept `aura.layers`. A missing list keeps the old main/extra behavior. A supplied list (including an empty one) replaces that owner's legacy aura; stack lists append their own layers. IDs are stable within the base/stack owner namespace and remain separate from drawing order. Up to 16 layers per owner are validated.
+
+Each layer accepts id, type2d, type3d, color, uniform scale (default 1), opacity, order, when and a 3D style object. 3D style size controls per-axis geometry. Explicit scale disables the legacy index-based expansion in world, GUI and pulse rendering. Existing files are not rewritten and configVersion is unchanged. Shared predicates may use meters. Conditional removal uses the existing type fade; whole-aura sealing and mesh transitions remain supported. Per-layer sealing/absorption, replacement operations across owners and emitter configuration remain pending.
