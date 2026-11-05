@@ -90,9 +90,55 @@ weak object-identity stores. The client run covers A/D direction, authoritative 
 prediction/reconciliation, teleport session resets, remote pose reception/cleanup, native eye
 queries and existing aura/Ki/crosshair regressions. Evidence is in the runtime validation note.
 
-Per-form parameter profiles, separate axis rates, broader latency simulation, remote-pose
-interpolation and automatic obstacle sliding remain separate enhancements; collision currently
-stops motion at the last clear pose. This increment does not complete the broader engine plan.
+Conditional profiles and separate axis rates are implemented in the following increment.
+Broader latency simulation, remote-pose interpolation and automatic obstacle sliding remain
+separate enhancements; collision currently stops motion at the last clear pose. This does not
+complete the broader engine plan.
+
+## Flight profile increment
+
+`flight.profiles` accepts up to 32 ordered overrides. The first matching shared `when` condition
+selects the entire profile; omitted values inherit the root flight settings. Without a match,
+the root settings apply. Profiles do not inherit values from earlier profiles and cannot nest
+or override `enabled`. The root `when` continues to select eligibility for the shared engine;
+when it fails, native search flight handles movement.
+
+```json
+{
+  "flight": {
+    "speed": 0.492,
+    "turn": 0.15,
+    "profiles": [
+      {
+        "when": {"all": [{"activeForm": "example.focus"}, {"not": {"content": "example:exhausted"}}]},
+        "drag": 0.02,
+        "yawRate": 0.08,
+        "rollRate": 0.2,
+        "cost": 1
+      },
+      {
+        "when": {"content": "example:heavy_flight"},
+        "thrust": 0.04,
+        "gravity": 0.01,
+        "banking": 0.1
+      }
+    ]
+  }
+}
+```
+
+`pitchRate`, `yawRate` and `rollRate` are independent radians/tick values in 0..pi/4, each
+falling back to `turn` when omitted. Zero disables rotation on that axis. Existing uniform-turn
+JSON and Java constructors retain their behavior. Shared conditions can reference forms,
+content, mastery and declared meters; unknown meter references are rejected at load.
+
+Client prediction and the server resolve the same synchronized profile. The server alone pays
+additional motion costs; known resource restrictions also suppress client prediction and are
+retained when replaying unacknowledged inputs. Additional costs are charged during unrestricted
+simulation; native flight drain still runs through its existing handler. Boost drain now reads
+the applied server boost state rather than the vanilla sprint flag. Network revision 3 requires
+matching updated clients for these prediction semantics; existing JSON configVersion values
+are unchanged. Server GameTests and packaged-client evidence are in the runtime validation note.
 
 ## Foundation implemented on the runtime branch
 

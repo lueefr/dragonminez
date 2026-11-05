@@ -29,6 +29,7 @@ public final class FlightServer {
         final FlightInput input = new FlightInput(id);
         final ResourceKey<Level> dimension;
         State state;
+        boolean boost;
         long tick = Long.MIN_VALUE;
         Session(ServerPlayer player) {
             dimension = player.level().dimension();
@@ -49,6 +50,11 @@ public final class FlightServer {
         var current = SESSIONS.get(player);
         return current != null && current.dimension == player.level().dimension()
                 && current.input.accept(session, sequence, player.level().getGameTime(), controls);
+    }
+
+    public static boolean boosted(ServerPlayer player) {
+        var session = SESSIONS.get(player);
+        return session != null && session.boost;
     }
 
     public static boolean impulse(ServerPlayer player, net.minecraft.world.phys.Vec3 velocity) {
@@ -101,11 +107,11 @@ public final class FlightServer {
         }
         if (session.tick == player.level().getGameTime()) return;
         session.tick = player.level().getGameTime();
-        var config = ConfigManager.getRuntime().flight();
+        var config = ConfigManager.getRuntime().flight().resolve(data);
         var controls = session.input.controls(player.level().getGameTime());
         boolean restricted = data.getStatus().isStunned() || data.getStatus().isActionCharging()
                 || data.getStatus().isChargingKi() || TechniqueDispatcher.isMovementRestrictedKiAttack(player, data);
-        double cost = config.cost() + config.turnCost() * Math.min(1, Math.abs(controls.pitch()) + Math.abs(controls.yaw()) + Math.abs(controls.roll()));
+        double cost = config.charge(controls);
         if (!player.isCreative() && data.getResources().getCurrentEnergy() < cost) restricted = true;
         State next = restricted ? new State(session.state.position(), Vector.ZERO, session.state.rotation(), Vector.ZERO)
                 : FlightMotion.step(session.state, controls, FlightBody.tuning(player));
@@ -113,6 +119,8 @@ public final class FlightServer {
         player.horizontalCollision = resolved.velocity().equals(Vector.ZERO) && !next.velocity().equals(Vector.ZERO);
         player.verticalCollision = player.horizontalCollision && next.velocity().y() != 0;
         session.state = resolved;
+        session.boost = !restricted && controls.boost();
+        player.setSprinting(session.boost);
         if (!restricted && !player.isCreative() && cost > 0) data.getResources().removeEnergy((float) cost);
         FlightFrames.put(player, resolved);
         FlightBody.apply(player, resolved);

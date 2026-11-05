@@ -75,4 +75,17 @@ class FlightMotionTest {
         assertTrue(input.accept(42, 2, 22, controls));
         assertEquals(2, input.sequence());
     }
+
+    @Test void axisRates() {
+        var state = initial(Vector.ZERO, Vector.ZERO, 0, 0);
+        var independent = new Tuning(0, 0, 0, 0, 0, 1, 1, .15, 1, 0, 0, 0, .3);
+        var rolled = step(state, new Controls(1, 1, 1, 0, 0, false, false), independent);
+        assertEquals(0, yaw(rolled.rotation()), 1e-8);
+        assertEquals(0, pitch(rolled.rotation()), 1e-8);
+        assertTrue(roll(rolled.rotation()) > 15);
+        assertEquals(tuning.turn(), tuning.pitchRate());
+        assertEquals(tuning.turn(), tuning.yawRate());
+        assertEquals(tuning.turn(), tuning.rollRate());
+        assertThrows(IllegalArgumentException.class, () -> new Tuning(0, 0, 0, 0, 0, 1, 1, .15, 1, 0, 0, 0, 1));
+    }
 }
