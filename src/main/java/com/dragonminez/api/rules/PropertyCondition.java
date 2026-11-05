@@ -21,7 +21,7 @@ public final class PropertyCondition {
         var object=condition.getAsJsonObject();var name=net.minecraft.network.chat.Component.translatable(object.get("id").getAsString());
         var result=net.minecraft.network.chat.Component.empty();
         for(String comparison:java.util.List.of("present","equals","contains","min","max"))if(object.has(comparison)) {
-            if(!result.getSiblings().isEmpty())result.append(", ");
+            if(!result.getSiblings().isEmpty())result.append(net.minecraft.network.chat.Component.translatable("gui.dragonminez.text.separator"));
             var value=object.get(comparison);
             if(comparison.equals("present"))result.append(net.minecraft.network.chat.Component.translatable("rules.dragonminez.property."+(value.getAsBoolean()?"present":"absent"),name));
             else result.append(net.minecraft.network.chat.Component.translatable("rules.dragonminez.property."+comparison,name,valueText(value)));
@@ -32,12 +32,12 @@ public final class PropertyCondition {
         if(value.isJsonNull())return net.minecraft.network.chat.Component.translatable("rules.dragonminez.property.unset");
         if(value.isJsonArray()) {
             var result=net.minecraft.network.chat.Component.empty();
-            for(var entry:value.getAsJsonArray()){if(!result.getSiblings().isEmpty())result.append(", ");result.append(valueText(entry));}
+            for(var entry:value.getAsJsonArray()){if(!result.getSiblings().isEmpty())result.append(net.minecraft.network.chat.Component.translatable("gui.dragonminez.text.separator"));result.append(valueText(entry));}
             return result;
         }
         if(value.isJsonObject())throw new IllegalArgumentException("Property comparison must use scalar values or arrays");
         if(value.getAsJsonPrimitive().isBoolean())return net.minecraft.network.chat.Component.translatable("rules.dragonminez.boolean."+value.getAsBoolean());
-        return value.getAsJsonPrimitive().isNumber()?net.minecraft.network.chat.Component.literal(value.getAsString()):net.minecraft.network.chat.Component.translatable(value.getAsString());
+        return value.getAsJsonPrimitive().isNumber()?net.minecraft.network.chat.Component.translatable("gui.dragonminez.text.value",value.getAsString()):net.minecraft.network.chat.Component.translatable(value.getAsString());
     }
     public static boolean test(Conditions.Context context,JsonElement condition) {
         var object=condition.getAsJsonObject();var value=ConfigManager.getAttributes().property(context.data(),object.get("id").getAsString());

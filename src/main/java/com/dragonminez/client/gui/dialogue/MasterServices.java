@@ -211,7 +211,7 @@ final class MasterServices {
         var keep = config.retention;
         var bonus = config.bonus;
         var text = NpcDialogueContent.line("gui.dragonminez.rebirth.confirm");
-        text.append("\n").append(NpcDialogueContent.tr("gui.dragonminez.rebirth.retention", keep.statsPercent, keep.tpPercent, keep.pendingPercent));
+        text.append(NpcDialogueContent.tr("gui.dragonminez.text.newline")).append(NpcDialogueContent.tr("gui.dragonminez.rebirth.retention", keep.statsPercent, keep.tpPercent, keep.pendingPercent));
         var flags = new java.util.LinkedHashMap<String, Boolean>();
         flags.put("skills", keep.skills); flags.put("mastery", keep.mastery);
         flags.put("inventory", keep.inventory); flags.put("content", keep.content);
@@ -223,19 +223,19 @@ final class MasterServices {
         var removed = Component.empty();
         flags.forEach((key, value) -> {
             var list = value ? retained : removed;
-            if (!list.getSiblings().isEmpty()) list.append(", ");
+            if (!list.getSiblings().isEmpty()) list.append(NpcDialogueContent.tr("gui.dragonminez.text.separator"));
             list.append(NpcDialogueContent.tr("gui.dragonminez.rebirth.field." + key));
         });
-        if (!retained.getSiblings().isEmpty()) text.append("\n").append(NpcDialogueContent.tr("gui.dragonminez.rebirth.keep", retained));
-        if (!removed.getSiblings().isEmpty()) text.append("\n").append(NpcDialogueContent.tr("gui.dragonminez.rebirth.reset", removed));
+        if (!retained.getSiblings().isEmpty()) text.append(NpcDialogueContent.tr("gui.dragonminez.text.newline")).append(NpcDialogueContent.tr("gui.dragonminez.rebirth.keep", retained));
+        if (!removed.getSiblings().isEmpty()) text.append(NpcDialogueContent.tr("gui.dragonminez.text.newline")).append(NpcDialogueContent.tr("gui.dragonminez.rebirth.reset", removed));
         Component cap = !bonus.cap.enabled ? NpcDialogueContent.tr("gui.dragonminez.rebirth.cap.none")
                 : NpcDialogueContent.tr("gui.dragonminez.rebirth.cap." + bonus.cap.mode,
                     bonus.cap.mode.equals("tp") ? bonus.cap.tp : bonus.cap.mode.equals("level") ? bonus.cap.level : stats.getRebirth().deathLevel());
-        Component limit = bonus.stacking.limit == 0 ? NpcDialogueContent.tr("gui.dragonminez.rebirth.unlimited") : Component.literal(Integer.toString(bonus.stacking.limit));
-        text.append("\n").append(NpcDialogueContent.tr("gui.dragonminez.rebirth.bonus", bonus.multiplier, cap, limit,
+        Component limit = bonus.stacking.limit == 0 ? NpcDialogueContent.tr("gui.dragonminez.rebirth.unlimited") : NpcDialogueContent.tr("gui.dragonminez.text.value", bonus.stacking.limit);
+        text.append(NpcDialogueContent.tr("gui.dragonminez.text.newline")).append(NpcDialogueContent.tr("gui.dragonminez.rebirth.bonus", bonus.multiplier, cap, limit,
                 NpcDialogueContent.tr("gui.dragonminez.rebirth.mode." + bonus.stacking.mode),
                 NpcDialogueContent.tr("gui.dragonminez.rebirth.renewal." + bonus.stacking.renewal)));
-        if (bonus.durationTicks >= 0) text.append("\n").append(NpcDialogueContent.tr("gui.dragonminez.rebirth.duration", bonus.durationTicks / 20.0)).append(" ").append(NpcDialogueContent.tr("gui.dragonminez.rebirth.timer." + bonus.stacking.durationRenewal));
+        if (bonus.durationTicks >= 0) text.append(NpcDialogueContent.tr("gui.dragonminez.text.newline")).append(NpcDialogueContent.tr("gui.dragonminez.rebirth.duration", bonus.durationTicks / 20.0)).append(NpcDialogueContent.tr("gui.dragonminez.text.space")).append(NpcDialogueContent.tr("gui.dragonminez.rebirth.timer." + bonus.stacking.durationRenewal));
         return text;
     }
 

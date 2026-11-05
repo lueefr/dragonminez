@@ -108,7 +108,7 @@ public class TextUtil {
     }
 
     public static void drawStringWithBorder(GuiGraphics graphics, Font font, String text, int x, int y, int textColor, int borderColor) {
-        drawStringWithBorder(graphics,font,Component.literal(text),x,y,textColor,borderColor);
+        drawStringWithBorder(graphics,font,net.minecraft.locale.Language.getInstance().getVisualOrder(net.minecraft.network.chat.FormattedText.of(text)),x,y,textColor,borderColor);
     }
 
     public static void drawStringWithBorder(GuiGraphics graphics, Font font, Component text, int x, int y, int textColor, int borderColor) {

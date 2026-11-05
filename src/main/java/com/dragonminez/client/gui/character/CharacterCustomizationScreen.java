@@ -1856,19 +1856,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		if (rawName.isEmpty()) return tr("forms.dragonminez.base");
 		String raceName = character.getRace() != null ? character.getRace().toLowerCase(Locale.ROOT) : "human";
 		String translationKey = "race.dragonminez." + raceName + ".form." + option.groupName + "." + rawName;
-		return Component.translatableWithFallback(translationKey, formatPreviewFormName(rawName));
-	}
-
-	private String formatPreviewFormName(String rawName) {
-		String[] parts = rawName.replace('-', ' ').replace('_', ' ').split("\\s+");
-		StringBuilder builder = new StringBuilder();
-		for (String part : parts) {
-			if (part == null || part.isEmpty()) continue;
-			if (!builder.isEmpty()) builder.append(' ');
-			builder.append(java.lang.Character.toUpperCase(part.charAt(0)));
-			if (part.length() > 1) builder.append(part.substring(1).toLowerCase(Locale.ROOT));
-		}
-		return builder.isEmpty() ? rawName : builder.toString();
+		return Component.translatable(translationKey);
 	}
 
 	private boolean handlePreviewGridSelection(double uiMouseX, double uiMouseY, int startY, int minValue, int maxValue, int visibleRows, ScrollbarState bar, IntConsumer onSelect) {

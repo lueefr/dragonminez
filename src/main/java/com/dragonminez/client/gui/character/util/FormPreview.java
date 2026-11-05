@@ -5,7 +5,6 @@ import com.dragonminez.common.stats.StatsCapability;
 import com.dragonminez.common.stats.StatsProvider;
 import com.dragonminez.common.stats.character.Character;
 import com.dragonminez.common.util.TransformationsHelper;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.ArrayList;
@@ -71,16 +70,7 @@ public final class FormPreview {
 		Option option = current();
 		if (option.isBase()) return net.minecraft.network.chat.Component.translatable("forms.dragonminez.base");
 		String key = "race.dragonminez." + race.toLowerCase(Locale.ROOT) + ".form." + option.group() + "." + option.form();
-		if (I18n.exists(key)) return net.minecraft.network.chat.Component.translatable(key);
-		String[] parts = option.form().replace('-', ' ').replace('_', ' ').split("\\s+");
-		StringBuilder builder = new StringBuilder();
-		for (String part : parts) {
-			if (part == null || part.isEmpty()) continue;
-			if (!builder.isEmpty()) builder.append(' ');
-			builder.append(java.lang.Character.toUpperCase(part.charAt(0)));
-			if (part.length() > 1) builder.append(part.substring(1).toLowerCase(Locale.ROOT));
-		}
-		return net.minecraft.network.chat.Component.translatableWithFallback(key,builder.isEmpty() ? option.form() : builder.toString());
+		return net.minecraft.network.chat.Component.translatable(key);
 	}
 
 	public Snapshot apply(LivingEntity player) {

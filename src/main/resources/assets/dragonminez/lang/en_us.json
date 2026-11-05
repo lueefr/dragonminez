@@ -6813,9 +6813,6 @@
   "rules.dragonminez.moving": "Moving: %s",
   "rules.dragonminez.boolean.true": "Yes",
   "rules.dragonminez.boolean.false": "No",
-  "dimension.minecraft.overworld": "Overworld",
-  "dimension.minecraft.the_nether": "Nether",
-  "dimension.minecraft.the_end": "The End",
   "gamerule.dmzClothingHidesTop": "Clothing hides the female body top",
   "gamerule.dmzClothingHidesTop.description": "Allow the clothing JSON rules to hide the default top underneath selected clothes.",
   "gui.dragonminez.rebirth.button": "Reincarnate",
@@ -6865,5 +6862,9 @@
   "rules.dragonminez.property.max": "%s ≤ %s",
   "rules.dragonminez.property.present": "Requires %s",
   "rules.dragonminez.property.absent": "Requires absence of %s",
-  "rules.dragonminez.property.unset": "unset"
+  "rules.dragonminez.property.unset": "unset",
+  "gui.dragonminez.text.separator": ", ",
+  "gui.dragonminez.text.newline": "\n",
+  "gui.dragonminez.text.space": " ",
+  "gui.dragonminez.text.value": "%s"
 }
