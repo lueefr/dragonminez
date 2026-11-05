@@ -15,6 +15,8 @@ public final class AuraLayers {
         private float scale = 1, opacity = 1;
         private int order;
         private JsonObject when = new JsonObject();
+        private JsonObject sealedWhen;
+        private double sealSeconds = 0.4;
         private FormConfig.Aura3DStyle style = new FormConfig.Aura3DStyle();
     }
     public static void validate(List<Layer> layers) {
@@ -27,6 +29,8 @@ public final class AuraLayers {
             if (layer.type2d == null || !layer.type2d.matches("[a-z0-9_/-]{1,64}") || !Set.of("smooth", "sparking", "god", "userPreference").contains(layer.type3d)) throw new IllegalArgumentException("Invalid aura renderer type");
             if (layer.when == null || layer.style == null) throw new IllegalArgumentException("Missing aura conditions/style");
             Conditions.validate(layer.when);
+            if (layer.sealedWhen != null) Conditions.validate(layer.sealedWhen);
+            if (!Double.isFinite(layer.sealSeconds) || layer.sealSeconds < 0.01 || layer.sealSeconds > 10) throw new IllegalArgumentException("Aura sealSeconds must be 0.01..10");
         }
     }
 }

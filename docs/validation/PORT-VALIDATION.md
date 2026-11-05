@@ -124,3 +124,15 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
 - Logs: `/tmp/dmz-mastery-validation-02.log` and
   `/tmp/dmz-mastery-client-01.log`. No language edits or packet-format changes
   are required; the wiki was left unchanged.
+
+
+## Per-layer aura sealing — 2026-11-05
+
+- Java 21 `build runGameTestServer` passed: 62 unit tests and all 61 required
+  GameTests. Layer schema coverage includes conditions, duration limits,
+  nested JSON roundtrip and unchanged legacy definitions.
+- Packaged client with Iris/Complementary, Sodium and Dynamic Crosshair passed
+  initial absence, gradual opening and gradual absorption of an independent
+  layer. Existing mesh morph, Ki depth, crosshair and authoritative flight
+  smoke checks also passed. This is not a multi-machine latency stress test.
+- Logs: `/tmp/dmz-aura-sealing-validation.log`, `/tmp/dmz-aura-sealing-client.log`.

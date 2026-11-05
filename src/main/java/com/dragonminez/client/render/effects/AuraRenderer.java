@@ -232,6 +232,9 @@ public class AuraRenderer {
 		public float alpha;
 		public AuraStyle style;
         public String variant="";
+        public boolean sealed;
+        public double sealSeconds = 0.4;
+        public float absorption = 1;
 
 		public AuraLayer(String type, int layerId, float[] color) {
 			this(type, layerId, color, 1.0f);
@@ -259,6 +262,7 @@ public class AuraRenderer {
 		Map<LayerKey, LayerMotion> motions = new HashMap<>();
         final AuraTypeBlend<LayerKey> typeBlend = new AuraTypeBlend<>();
         final Map<LayerKey, AuraLayer> typeLayers = new HashMap<>();
+        final Map<LayerKey, AuraSeal> layerSeals = new HashMap<>();
         long typeNanos;
         boolean type3D;
         java.util.UUID typeOwner;
@@ -275,6 +279,7 @@ public class AuraRenderer {
         if (!player.getUUID().equals(data.typeOwner) || data.type3D != data.use3D) {
             data.typeBlend.clear();
             data.typeLayers.clear();
+            data.layerSeals.clear();
             data.motions.clear();
             data.typeNanos = 0;
             data.typeOwner = player.getUUID();
@@ -322,9 +327,13 @@ public class AuraRenderer {
                 for(int i=0;i<3;i++)layer.style.meshWeights[i]=total>0?profile[i]/total:0;}
 
             layer.variant=source.variant; layer.identity=source.identity; layer.scale=source.scale;
+            var seal = data.layerSeals.computeIfAbsent(key, ignored -> new AuraSeal(source.sealed));
+            layer.absorption = (float)seal.update(source.sealed, dt, source.sealSeconds);
+            layer.alpha *= layer.absorption;
             result.add(layer);
         });
         data.typeLayers.keySet().retainAll(weights.keySet());
+        data.layerSeals.keySet().retainAll(weights.keySet());
         data.motions.keySet().retainAll(weights.keySet());
         result.sort(Comparator.comparingInt(layer -> layer.layerId));
         return result;
@@ -372,6 +381,10 @@ public class AuraRenderer {
 		poseStack.translate(0.0f, 0.0f, -GUI_AURA_EYE_DISTANCE);
 
 		for (AuraLayer layer : activeLayers) {
+            if (layer.absorption <= 0.001f) continue;
+            poseStack.pushPose();
+            poseStack.translate(0, player.getBbHeight()*0.5*(1-layer.absorption), 0);
+            poseStack.scale(layer.absorption, layer.absorption, layer.absorption);
 			if (!use3D) {
 				drawGuiAura2D(player, data, layer, poseStack, auraProjection, partialTick);
 			} else if (Aura3DRenderer.isGod(layer.type)) {
@@ -381,6 +394,7 @@ public class AuraRenderer {
 			} else {
 				executeAura3DDraw(player, data, layer, poseStack, auraProjection, partialTick, false, true);
 			}
+            poseStack.popPose();
 		}
 
 		poseStack.popPose();
@@ -840,6 +854,8 @@ public class AuraRenderer {
             if (!com.dragonminez.api.rules.Conditions.test(new com.dragonminez.api.rules.Conditions.Context(stats, null), definition.getWhen()) || definition.getOpacity() <= 0) continue;
             var layer = new AuraLayer(use3D ? definition.getType3d() : definition.getType2d(), definition.getOrder(), ColorUtils.hexToRgb(definition.getColor()), definition.getOpacity());
             layer.identity = origin + "/" + definition.getId(); layer.scale = definition.getScale();
+            layer.sealed = definition.getSealedWhen() != null && com.dragonminez.api.rules.Conditions.test(new com.dragonminez.api.rules.Conditions.Context(stats, null), definition.getSealedWhen());
+            layer.sealSeconds = definition.getSealSeconds();
             if (use3D) layer.style = AuraStyle.resolve(definition.getStyle(), layer.color);
             result.add(layer);
         }
@@ -1114,7 +1130,7 @@ public class AuraRenderer {
 
             AuraLayer layer=new AuraLayer(base.type,base.layerId,new float[]{r/totalWeight,g/totalWeight,b/totalWeight},base.alpha);
             layer.identity=base.identity; layer.scale=base.scale;
-            layer.variant=base.variant;layer.style=base.style;blended.add(layer);
+            layer.variant=base.variant;layer.style=base.style;layer.absorption=base.absorption;blended.add(layer);
 		}
 		return blended;
 	}
@@ -1162,7 +1178,7 @@ public class AuraRenderer {
 
 	private static void executeAuraShaderDraw(Player player, CachedAuraData data, AuraLayer layer, PoseStack poseStack, Minecraft mc, Matrix4f projectionMatrix, Vec3 cameraOffset, float partialTick, float alphaMultiplier, boolean isFirstPerson) {
 		boolean isLocalPlayer = player == mc.player;
-        float seal=(float)data.seal.factor();
+        float seal=(float)data.seal.factor() * layer.absorption;
         if(seal<=0.001f)return;
 		if (data.use3D) {
             poseStack.pushPose();
