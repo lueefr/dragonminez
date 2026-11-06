@@ -18,12 +18,25 @@ public final class RuntimeConfig {
     private record Script(String id, Set<String> events) {}
     private final List<Script> scripts = new ArrayList<>();
     private final Map<String, com.dragonminez.api.script.LuaProgram> programs = new LinkedHashMap<>();
-    public List<com.dragonminez.api.runtime.EventRules.Change> scriptActions(String event, Map<String, Double> values) {
-        List<com.dragonminez.api.runtime.EventRules.Change> result = new ArrayList<>();
-        for (var script : scripts) if (script.events().contains(event) && programs.containsKey(script.id())) {
-            for (var action : programs.get(script.id()).evaluate(event, values)) result.add(new com.dragonminez.api.runtime.EventRules.Change(action.meter(), action.additive(), action.value()));
+    public record Commands(List<com.dragonminez.api.runtime.EventRules.Change> meters,List<JsonObject> rewards) {}
+    private record Gameplay(String event, JsonObject when, List<JsonObject> actions) {}
+    private final List<Gameplay> gameplay=new ArrayList<>();
+    public Commands scriptBatch(String event, Map<String,Double> values) {
+        var meters=new ArrayList<com.dragonminez.api.runtime.EventRules.Change>();var rewards=new ArrayList<JsonObject>();
+        for(var script:scripts)if(script.events().contains(event)&&programs.containsKey(script.id())){
+            var batch=programs.get(script.id()).evaluateBatch(event,values);
+            for(var change:batch.meters())meters.add(new com.dragonminez.api.runtime.EventRules.Change(change.meter(),change.additive(),change.value()));
+            for(var reward:batch.rewards()){com.dragonminez.api.rules.Rewards.validate(reward);rewards.add(reward);}
+            if(meters.size()+rewards.size()>64)throw new IllegalArgumentException("At most 64 combined script commands");
         }
-        return List.copyOf(result);
+        return new Commands(List.copyOf(meters),List.copyOf(rewards));
+    }
+    public List<com.dragonminez.api.runtime.EventRules.Change> scriptActions(String event,Map<String,Double> values){return scriptBatch(event,values).meters();}
+    public List<JsonObject> actions(String event,StatsData data){
+        var result=new ArrayList<JsonObject>();
+        for(var rule:gameplay)if(rule.event().equals(event)&&Conditions.test(new Conditions.Context(data,null),rule.when()))result.addAll(rule.actions());
+        if(result.size()>64)throw new IllegalArgumentException("At most 64 gameplay actions per event");
+        return result;
     }
     private List<MeterHudConfig.Bar> hud = List.of();
     public List<MeterHudConfig.Bar> hud() { return hud; }
@@ -38,7 +51,7 @@ public final class RuntimeConfig {
     }
     public EventRules rules() { return rules; }
     public int combatTicks() { return combatTicks; }
-    public boolean active() { return !rules.empty() || !scripts.isEmpty(); }
+    public boolean active() { return !rules.empty() || !scripts.isEmpty() || !gameplay.isEmpty(); }
     public void validate() { parse(json()); }
     public String json() { return new GsonBuilder().setPrettyPrinting().create().toJson(source); }
     public Map<String, Boolean> flags(StatsData data) {
@@ -50,6 +63,7 @@ public final class RuntimeConfig {
     public static RuntimeConfig parse(String json) {
         var source = JsonParser.parseString(json).getAsJsonObject();
         var engine = source.deepCopy();
+        var gameplay = engine.remove("gameplay");
         var hud = engine.remove("hud");
         var flight = engine.remove("flight");
         var behavior = engine.remove("behaviors");
@@ -75,6 +89,18 @@ public final class RuntimeConfig {
         });
         conditions.values().forEach(condition -> checkMeters(condition, rules.meters()));
         var result = new RuntimeConfig(source, rules, conditions, combatTicks);
+        if(gameplay!=null){
+            if(gameplay.getAsJsonArray().size()>128)throw new IllegalArgumentException("At most 128 gameplay event rules");
+            for(var entry:gameplay.getAsJsonArray()){
+                var rule=entry.getAsJsonObject();if(!Set.of("event","when","actions").containsAll(rule.keySet()))throw new IllegalArgumentException("Unknown gameplay rule field");
+                String event=rule.get("event").getAsString();com.dragonminez.api.content.ContentProgress.requireId(event);checkEvent(event);
+                var when=rule.has("when")?rule.getAsJsonObject("when").deepCopy():new JsonObject();Conditions.validate(when);checkMeters(when,rules.meters());
+                var actions=new ArrayList<JsonObject>();
+                for(var value:rule.getAsJsonArray("actions")){var action=value.getAsJsonObject().deepCopy();com.dragonminez.api.rules.Rewards.validate(action);actions.add(action);}
+                if(actions.size()>64)throw new IllegalArgumentException("At most 64 gameplay rule actions");
+                result.gameplay.add(new Gameplay(event,when,List.copyOf(actions)));
+            }
+        }
         result.hud = MeterHudConfig.parse(hud, rules);
         for(var bar : result.hud) checkMeters(bar.when(), rules.meters());
         result.flight = FlightConfig.parse(flight);

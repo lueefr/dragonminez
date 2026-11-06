@@ -10,6 +10,16 @@ class LuaProgramTest {
         var actions = script.evaluate("dmz:damage_received", Map.of("event.damage", 4d));
         assertEquals(8, actions.getFirst().value()); assertTrue(actions.getFirst().additive());
     }
+    @Test void typedRewards() {
+        var script=new LuaProgram("example:reward","return {onEvent=function(ctx) return {{reward={resource={id='energy',add=-2}}},{meter='example:count',operation='add',value=1}} end}");
+        var batch=script.evaluateBatch("example:test",Map.of());
+        assertEquals(-2,batch.rewards().getFirst().getAsJsonObject("resource").get("add").getAsInt());
+        assertEquals(1,batch.meters().size());
+        var mixed=new LuaProgram("example:mixed","return {onEvent=function(ctx) return {{reward={item={id='minecraft:stone',count=1}},meter='example:count'}} end}");
+        assertThrows(IllegalArgumentException.class,()->mixed.evaluateBatch("example:test",Map.of()));
+        var cyclic=new LuaProgram("example:cycle","return {onEvent=function(ctx) local a={} a.self=a return {{reward=a}} end}");
+        assertThrows(IllegalArgumentException.class,()->cyclic.evaluateBatch("example:test",Map.of()));
+    }
     @Test void unavailableApis() {
         var script = new LuaProgram("example:test", "assert(io==nil and os==nil and debug==nil and package==nil and luajava==nil and load==nil and loadfile==nil and dofile==nil and require==nil); return {onEvent=function(ctx) end}");
         assertTrue(script.evaluate("dmz:tick", Map.of()).isEmpty());
