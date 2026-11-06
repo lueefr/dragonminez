@@ -183,7 +183,7 @@ Damage events expose `event.damage` (NeoForge final damage), `event.originalDama
 
 `combatTicks` defaults to 200 and accepts 1..72000. Combat currently means actual damaging contact, not proximity or merely attempting an attack. Changing either main or stack form resets all form-scope meters. Character-scope meters survive save/load and cloning; form/combat scopes do not. Reload preserves and clamps character values and resets temporary scopes. Removed meter IDs remain in saved data so re-adding a definition can recover character progress.
 
-Live meter values use the existing full/delta stat synchronization. Disk snapshots contain only persistent meters; network snapshots add a separate live view. The runtime does not add meter HUD widgets or stat modifiers yet. No new packet registration or configVersion change is needed.
+Live meter values use the existing full/delta stat synchronization. Disk snapshots contain only persistent meters; network snapshots add a separate live view. Meter HUD widgets are implemented on `feature/runtime-meter-hud`; stat modifiers are supplied by the behavior module. No new packet registration or configVersion change is needed.
 
 A usable server configuration:
 
@@ -340,3 +340,12 @@ The following acceptance scope guides validation:
 - Verify transitions without size jumps, third-person rendering, ceiling
   clearance, eye position and authoritative flight hitboxes for small/large
   forms, reconnect and character cloning.
+
+
+## Meter HUD increment
+
+`runtime.json` accepts up to 16 validated `hud` entries bound to declared meters.
+The client renders synchronized values with translated labels, optional numbers,
+colors, anchors, bounded offsets and screen-clamped dimensions. Shared visibility
+conditions are validated against declared meter IDs. This supplies presentation
+without any client-side meter simulation. See Runtime-rules in the wiki.

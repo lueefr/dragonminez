@@ -25,6 +25,8 @@ public final class RuntimeConfig {
         }
         return List.copyOf(result);
     }
+    private List<MeterHudConfig.Bar> hud = List.of();
+    public List<MeterHudConfig.Bar> hud() { return hud; }
     private FlightConfig flight;
     public FlightConfig flight() { return flight; }
     private ReactionConfig reactions;
@@ -48,6 +50,7 @@ public final class RuntimeConfig {
     public static RuntimeConfig parse(String json) {
         var source = JsonParser.parseString(json).getAsJsonObject();
         var engine = source.deepCopy();
+        var hud = engine.remove("hud");
         var flight = engine.remove("flight");
         var behavior = engine.remove("behaviors");
         var reactions = engine.remove("reactions");
@@ -72,6 +75,8 @@ public final class RuntimeConfig {
         });
         conditions.values().forEach(condition -> checkMeters(condition, rules.meters()));
         var result = new RuntimeConfig(source, rules, conditions, combatTicks);
+        result.hud = MeterHudConfig.parse(hud, rules);
+        for(var bar : result.hud) checkMeters(bar.when(), rules.meters());
         result.flight = FlightConfig.parse(flight);
         checkMeters(result.flight.when(), rules.meters());
         for (var profile : result.flight.profiles()) checkMeters(profile.when(), rules.meters());

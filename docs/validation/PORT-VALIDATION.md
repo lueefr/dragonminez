@@ -164,3 +164,14 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   and authoritative flight. Mesh, absorption, Ki depth and crosshair passed too.
 - Logs: `/tmp/dmz-form-size-final.log`, `/tmp/dmz-form-size-client.log`.
   New defaults apply to newly generated files; owner-edited forms are preserved.
+
+
+## Runtime meter HUD — 2026-11-05
+
+- Java 21 build and all 64 required GameTests passed. HUD tests cover meter
+  bounds, fractional fill, clipping to small screens, malformed config, unknown
+  meter conditions and config synchronization roundtrip.
+- Packaged Iris/Sodium/Complementary client verified the actual framebuffer
+  pixel color inside a 40%-filled bar and resolved its translation label.
+  Existing flight, form dimensions, absorption, Ki depth and crosshair passed.
+- Logs: `/tmp/dmz-meter-hud-validation.log`, `/tmp/dmz-meter-hud-client.log`.
