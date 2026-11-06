@@ -271,6 +271,26 @@ public class GeneralServerConfig {
 	@Getter
 	@NoArgsConstructor
 	public static class WorldGenConfig {
+        @Getter(AccessLevel.NONE)
+        private Map<String,NoiseBinding> noiseSources = defaultSources();
+        private static Map<String,NoiseBinding> defaultSources(){
+            var sources=new LinkedHashMap<String,NoiseBinding>();
+            sources.put("dragonminez:namek",new NoiseBinding("minecraft:overworld",true,true));
+            sources.put("dragonminez:sacredkaiplanet",new NoiseBinding("minecraft:overworld",false,true));
+            return sources;
+        }
+        @Getter(AccessLevel.NONE)
+        private Integer rockyWeight = 40;
+        @Getter(AccessLevel.NONE)
+        private List<String> rockyAnchors = List.of("minecraft:badlands","minecraft:eroded_badlands","minecraft:wooded_badlands");
+        public List<net.minecraft.resources.ResourceKey<net.minecraft.world.level.biome.Biome>> rockyAnchors(){
+            try {
+                if(rockyAnchors==null||rockyAnchors.isEmpty()||rockyAnchors.size()>64)throw new IllegalArgumentException("Rocky anchors need 1..64 biome IDs");
+                return rockyAnchors.stream().map(id->{com.dragonminez.api.content.ContentProgress.requireId(id);return net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.BIOME,net.minecraft.resources.ResourceLocation.parse(id));}).toList();
+            } catch(RuntimeException ex){com.dragonminez.LogUtil.error(com.dragonminez.Env.COMMON,"Invalid rocky anchors: {}. Native defaults retained; original configuration left untouched.",ex.getMessage());return com.dragonminez.server.world.region.OverworldRegion.defaults();}
+        }
+        public Map<String,NoiseBinding> sources(){return noiseSources==null?Map.of():Collections.unmodifiableMap(noiseSources);}
+        public int rockyWeight(){return rockyWeight==null?40:Math.clamp(rockyWeight,0,1000);}
 		private Boolean generateCustomStructures = true;
 		private Boolean generateDragonBalls = true;
 		private Boolean otherworldActive = true;

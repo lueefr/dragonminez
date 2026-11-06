@@ -512,6 +512,8 @@ public class ForgeCommonEvents {
 	@SubscribeEvent
 	public static void onServerAboutToStart(net.neoforged.neoforge.event.server.ServerAboutToStartEvent event) {
 		if (!event.getServer().isDedicatedServer()) ConfigManager.reload();
+        try {com.dragonminez.server.world.gen.WorldgenBridge.install(event.getServer().registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.NOISE_SETTINGS),ConfigManager.getServerConfig().getWorldGen().sources());}
+        catch(RuntimeException ex){com.dragonminez.server.world.gen.WorldgenBridge.clear();LogUtil.error(Env.SERVER,"Invalid noise source bindings: {}. Native samplers retained; configuration left untouched.",ex.getMessage());}
 		com.dragonminez.server.world.worldboss.WorldBossManager.detectWipedDimensions(event.getServer());
 		if (ConfigManager.getServerConfig().getWorldGen().getOtherworldActive()) {
 			OtherworldRegionLoader.loadPreGeneratedRegions(event.getServer());
@@ -634,6 +636,7 @@ public class ForgeCommonEvents {
 
 	@SubscribeEvent
 	public static void onServerStopping(ServerStoppingEvent event) {
+        com.dragonminez.server.world.gen.WorldgenBridge.clear();
 		StorageManager.shutdown();
 		com.dragonminez.server.world.structure.placement.StructureSpawnPlanner.reset();
 		com.dragonminez.server.world.tournament.Tournament.Manager.reset();

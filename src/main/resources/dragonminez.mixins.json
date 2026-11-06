@@ -22,6 +22,7 @@
     "common.ProjectileOwner",
     "common.RangedAttributeMixin",
     "common.SinglePoolElementAccessor",
+    "common.WorldgenStateMixin",
     "common.StructureTemplateAccessor",
     "common.StructureTemplatePaletteInvoker",
     "common.StructureTemplatePoolAccessor"
