@@ -188,6 +188,11 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 		float scalingZ = resolved[2];
 
 		poseStack.pushPose();
+        var visual=com.dragonminez.client.flight.FlightVisuals.pose(entity);
+        if(visual!=null&&entity!=Minecraft.getInstance().player)poseStack.translate(
+                visual.position().x()-Mth.lerp(partialTick,entity.xo,entity.getX()),
+                visual.position().y()-Mth.lerp(partialTick,entity.yo,entity.getY()),
+                visual.position().z()-Mth.lerp(partialTick,entity.zo,entity.getZ()));
 		applyMysticBallSmear(entity, poseStack, partialTick);
 		float previewLift = TechniquePreview.modelLift(entity, partialTick);
 		if (previewLift != 0.0F) poseStack.translate(0.0F, previewLift, 0.0F);
@@ -210,7 +215,7 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 		}
 
 		if (FlySkillEvent.getInstance().isFlyingFast(entity) && !com.dragonminez.common.init.entities.ki.GumBindEntity.isClientBound(entity)) {
-            var flight = com.dragonminez.common.flight.FlightFrames.get(entity);
+            var flight = com.dragonminez.client.flight.FlightVisuals.pose(entity);
             float pivotY = (flight == null ? entity.getBbHeight() : com.dragonminez.common.flight.FlightBody.dimensions(entity).height()) / 2f;
             float centerY = flight == null ? pivotY : (float) com.dragonminez.common.flight.FlightBody.shape(entity, flight).radius().y();
             poseStack.translate(0, centerY, 0);

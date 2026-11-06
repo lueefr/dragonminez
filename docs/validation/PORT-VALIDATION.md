@@ -249,3 +249,17 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
 - Logs: `/tmp/dmz-projectile-reactions-final.log`,
   `/tmp/dmz-projectile-reactions-client.log`. Third-party projectiles must
   participate in the standard impact hook and honor vanilla deflection APIs.
+
+
+## Flight sliding and remote presentation — 2026-11-05
+
+- Java 21 build and all 70 required GameTests passed. New collision coverage
+  checks tangential travel along a wall, safe final geometry and disabled
+  sliding. Pure tests cover continuous interpolation, quaternion sign, disabled
+  blending and deterministic replay under delayed acknowledgement schedules.
+- Packaged Iris/Sodium/Complementary client confirmed remote interpolation,
+  ended-session and stale-local-ack rejection; owner/velocity deflection,
+  synchronized form dimensions, HUD pixels, aura absorption and mesh passed.
+- Logs: `/tmp/dmz-flight-smoothing-validation.log`,
+  `/tmp/dmz-flight-smoothing-client-build.log`, `/tmp/dmz-flight-smoothing-client.log`.
+  No real two-machine WAN stress test is claimed.

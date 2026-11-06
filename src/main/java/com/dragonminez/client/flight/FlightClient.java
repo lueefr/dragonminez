@@ -17,6 +17,8 @@ public final class FlightClient {
     private static Player owner;
     private static long session;
     private static long sequence;
+    private static long lastAck;
+    private static boolean ended;
     private static double pitch;
     private static double roll;
     private FlightClient() {}
@@ -39,16 +41,19 @@ public final class FlightClient {
         if (mc.level == null || !mc.level.dimension().location().equals(message.dimension())
                 || !(mc.level.getEntity(message.entity()) instanceof Player player)) return;
         if (player != mc.player) {
+            if(!FlightVisuals.receive(player,message))return;
             if (message.active()) { FlightFrames.put(player, message.state()); FlightBody.apply(player, message.state()); }
             else FlightFrames.remove(player);
             return;
         }
         if (owner != player || session != message.session()) {
             if (owner == player && message.session() < session) return;
-            owner = player; session = message.session(); sequence = message.sequence();
+            owner = player; session = message.session(); sequence = message.sequence(); lastAck=message.sequence(); ended=false;
             PENDING.clear(); pitch = roll = 0;
         }
-        if (!message.active()) { FlightFrames.remove(player); PENDING.clear(); return; }
+        if(message.sequence()<lastAck || ended&&message.active())return;
+        lastAck=message.sequence();
+        if (!message.active()) { ended=true; FlightFrames.remove(player); PENDING.clear(); return; }
         while (!PENDING.isEmpty() && PENDING.peekFirst().sequence() <= message.sequence()) PENDING.removeFirst();
         var state = message.state();
         for (var pending : PENDING) {

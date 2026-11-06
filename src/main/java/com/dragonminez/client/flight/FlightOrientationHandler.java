@@ -32,7 +32,7 @@ public class FlightOrientationHandler {
 	}
 
 	public static void frame(LocalPlayer player) {
-        var state = player == null ? null : com.dragonminez.common.flight.FlightFrames.get(player);
+        var state = player == null ? null : FlightVisuals.pose(player);
         if (state != null) {
             active = true;
             var rotation = state.rotation();
@@ -107,7 +107,7 @@ public class FlightOrientationHandler {
 
 	public static Vec3 getForwardVector(LocalPlayer player) {
 		if (player == null) return Vec3.ZERO;
-        var state = com.dragonminez.common.flight.FlightFrames.get(player);
+        var state = FlightVisuals.pose(player);
         if (state != null) return com.dragonminez.common.flight.FlightBody.vector(state.rotation().rotate(new com.dragonminez.api.flight.FlightMotion.Vector(0, 0, -1)));
 		if (!active) return player.getLookAngle();
 		ATTITUDE.bodyForward(SCRATCH);
@@ -116,7 +116,7 @@ public class FlightOrientationHandler {
 
 	public static Vec3 getRightVector(LocalPlayer player) {
 		if (player == null) return Vec3.ZERO;
-        var state = com.dragonminez.common.flight.FlightFrames.get(player);
+        var state = FlightVisuals.pose(player);
         if (state != null) return com.dragonminez.common.flight.FlightBody.vector(state.rotation().rotate(new com.dragonminez.api.flight.FlightMotion.Vector(1, 0, 0)));
 		if (!active) {
 			Vec3 look = player.getLookAngle();
