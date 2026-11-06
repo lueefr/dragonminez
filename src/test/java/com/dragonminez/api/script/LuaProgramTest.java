@@ -20,6 +20,16 @@ class LuaProgramTest {
         var cyclic=new LuaProgram("example:cycle","return {onEvent=function(ctx) local a={} a.self=a return {{reward=a}} end}");
         assertThrows(IllegalArgumentException.class,()->cyclic.evaluateBatch("example:test",Map.of()));
     }
+    @Test void declarativeContent() {
+        var program = new LuaProgram("example:definitions", "return {content={{type='attribute',id='example:power',value={base={STR=1.5}}}}}");
+        assertEquals(1, program.content().size());
+        assertEquals(1.5, program.content().getFirst().getAsJsonObject("value").getAsJsonObject("base").get("STR").getAsDouble());
+        program.content().getFirst().addProperty("id", "changed");
+        assertEquals("example:power", program.content().getFirst().get("id").getAsString());
+        assertTrue(program.evaluate("dmz:tick", Map.of()).isEmpty());
+        assertThrows(IllegalArgumentException.class, () -> new LuaProgram("example:invalid", "return {}"));
+        assertThrows(IllegalArgumentException.class, () -> new LuaProgram("example:cycle", "local a={} a[1]=a return {content=a}"));
+    }
     @Test void unavailableApis() {
         var script = new LuaProgram("example:test", "assert(io==nil and os==nil and debug==nil and package==nil and luajava==nil and load==nil and loadfile==nil and dofile==nil and require==nil); return {onEvent=function(ctx) end}");
         assertTrue(script.evaluate("dmz:tick", Map.of()).isEmpty());

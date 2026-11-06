@@ -198,6 +198,8 @@ public class ConfigManager {
         catch(RuntimeException ex){com.dragonminez.common.config.schema.ContentMigration.begin();LogUtil.error(Env.COMMON,"Invalid custom NPC configuration: {}. Originals left untouched.",ex.getMessage());}
         try{rulesConfig=RuleConfig.load(CONFIG_DIR.resolve("rules.json"));}
         catch(RuntimeException ex){rulesConfig=new RuleConfig();com.dragonminez.common.config.schema.ContentMigration.begin();LogUtil.error(Env.COMMON,"Invalid rules configuration: {}. Using defaults; original left untouched.",ex.getMessage());}
+        try { installScripts(runtime); }
+        catch (RuntimeException ex) { runtime=RuntimeConfig.empty(); LogUtil.error(Env.COMMON,"Invalid Lua content: {}. Script definitions not installed; originals left untouched.",ex.getMessage()); }
     }
 
     public static void validateExtensionRules() {
@@ -218,10 +220,15 @@ public class ConfigManager {
         catch(IOException ex){throw new IllegalStateException("Content migration failed; original backups retained",ex);}
     }
 
-    private static void validateFormComposition() {
-        boolean[] invalid={false};
-        RACE_FORMS.forEach((race, groups) -> {
-            try {
+    private static ScriptContent overlay = new ScriptContent();
+    private static void installScripts(RuntimeConfig candidate) {
+        var prepared = overlay.prepare(RACE_FORMS, STACK_FORMS, attributes, candidate.content());
+        RACE_FORMS.clear(); RACE_FORMS.putAll(prepared.races());
+        STACK_FORMS.clear(); STACK_FORMS.putAll(prepared.stacks());
+        attributes = prepared.attributes(); overlay = prepared.overlay();
+        invalidateSyncPayloads();
+    }
+    static void validateForms(Map<String,FormConfig> groups, Map<String,FormConfig> stacks) {
             var definitions = new ArrayList<com.dragonminez.api.forms.FormCompositionResolver.Definition>();
             java.util.function.BiConsumer<String, FormConfig> collect = (groupId, config) -> config.getForms().values().forEach(form -> {
                 com.dragonminez.api.rules.Conditions.validate(form.getBuy());
@@ -234,9 +241,15 @@ public class ConfigManager {
                 definitions.add(com.dragonminez.api.forms.FormCompositionRuntime.definition(groupId, form));
             });
             groups.forEach(collect);
-            STACK_FORMS.forEach(collect);
-            try { new com.dragonminez.api.forms.FormCompositionResolver().reload(definitions); }
-            catch (IllegalArgumentException ex) { throw new IllegalArgumentException("Invalid forms for race " + race + ": " + ex.getMessage(), ex); }
+            stacks.forEach(collect);
+        new com.dragonminez.api.forms.FormCompositionResolver().reload(definitions);
+    }
+
+    private static void validateFormComposition() {
+        boolean[] invalid={false};
+        RACE_FORMS.forEach((race, groups) -> {
+            try {
+            validateForms(groups, STACK_FORMS);
             }catch(RuntimeException ex){
                 LogUtil.error(Env.COMMON,"Invalid form configuration for '{}': {}. Using bundled defaults; originals left untouched.",race,ex.getMessage());
                 JsonLoadReport.error("config","races/"+race+"/forms",ex.getMessage());
@@ -1628,7 +1641,8 @@ public class ConfigManager {
 			FormConfig formConfig = LOADER.loadConfig(path, FormConfig.class);
 			STACK_FORMS.put(formGroupKey(formConfig, configFilePath.split("/")[1]), formConfig);
         } else if (configFilePath.equals("progression/runtime")) {
-            runtime = RuntimeConfig.load(CONFIG_DIR.resolve("progression/runtime.json"));
+            var candidate = RuntimeConfig.load(CONFIG_DIR.resolve("progression/runtime.json"));
+            installScripts(candidate); runtime = candidate;
         } else if (configFilePath.equals("progression/attributes")) {
             attributes = AttributeConfig.load(CONFIG_DIR.resolve("progression/attributes.json"));
         } else if (configFilePath.equals("progression/reincarnation")) {
