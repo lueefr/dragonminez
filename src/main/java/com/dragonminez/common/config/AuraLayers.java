@@ -19,6 +19,37 @@ public final class AuraLayers {
         private JsonObject when = new JsonObject();
         private JsonObject sealedWhen;
         private double sealSeconds = 0.4;
+        private JsonObject dynamic = new JsonObject();
+        private transient Map<String, com.dragonminez.api.runtime.DynamicValue> expressions;
+        private transient boolean failed;
+        public record Values(float scale, float opacity) {}
+        private synchronized Map<String, com.dragonminez.api.runtime.DynamicValue> compile() {
+            if(expressions!=null)return expressions;
+            if(dynamic==null)throw new IllegalArgumentException("Missing dynamic aura object");
+            Map<String,com.dragonminez.api.runtime.DynamicValue> result=new LinkedHashMap<>();
+            for(var entry:dynamic.entrySet()){
+                if(!Set.of("scale","opacity").contains(entry.getKey()))throw new IllegalArgumentException("Unknown dynamic aura field: "+entry.getKey());
+                var expression=com.dragonminez.api.runtime.DynamicValue.compile(entry.getValue());
+                for(String source:expression.dependencies()){
+                    if(source.startsWith("meter:"))com.dragonminez.api.content.ContentProgress.requireId(source.substring(6));
+                    else if(!Set.of("state.formTicks","state.stackTicks","self.healthPercent","attack.charging","attack.active","attack.recovery","attack.ticks","attack.charge").contains(source))throw new IllegalArgumentException("Unknown dynamic aura source: "+source);
+                }
+                result.put(entry.getKey(),expression);
+            }
+            expressions=Map.copyOf(result);return expressions;
+        }
+        public Values values(Map<String,Double> context) {
+            if(failed)return new Values(scale,opacity);
+            try{
+                var expressions=compile();
+                float size=expressions.containsKey("scale")?(float)Math.clamp(expressions.get("scale").evaluate(context),.05,8):scale;
+                float alpha=expressions.containsKey("opacity")?(float)Math.clamp(expressions.get("opacity").evaluate(context),0,1):opacity;
+                return new Values(size,alpha);
+            }catch(RuntimeException ex){
+                failed=true;com.dragonminez.LogUtil.error(com.dragonminez.Env.COMMON,"Dynamic aura layer {} failed: {}. Static appearance used until reload.",id,ex.getMessage());
+                return new Values(scale,opacity);
+            }
+        }
         private Emitter emitter;
         private FormConfig.Aura3DStyle style = new FormConfig.Aura3DStyle();
     }
@@ -47,6 +78,7 @@ public final class AuraLayers {
             if (layer.color == null || !layer.color.matches("#[0-9a-fA-F]{6}") || !Float.isFinite(layer.scale) || layer.scale < 0.05 || layer.scale > 8 || !Float.isFinite(layer.opacity) || layer.opacity < 0 || layer.opacity > 1) throw new IllegalArgumentException("Invalid aura color, scale or opacity");
             if (layer.type2d == null || !layer.type2d.matches("[a-z0-9_/-]{1,64}") || !Set.of("smooth", "sparking", "god", "userPreference").contains(layer.type3d)) throw new IllegalArgumentException("Invalid aura renderer type");
             if (layer.when == null || layer.style == null) throw new IllegalArgumentException("Missing aura conditions/style");
+            layer.compile();
             if(layer.emitter!=null)layer.emitter.validate();
             Conditions.validate(layer.when);
             if (layer.sealedWhen != null) Conditions.validate(layer.sealedWhen);

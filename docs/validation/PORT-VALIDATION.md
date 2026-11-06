@@ -200,3 +200,14 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   the configured layer color in the particle engine. Absorption, dimensions,
   authoritative flight, HUD pixel/translation and crosshair checks also passed.
 - Logs: `/tmp/dmz-aura-emitters-validation.log`, `/tmp/dmz-aura-emitters-client.log`.
+
+
+## Dynamic aura appearance — 2026-11-05
+
+- Java 21 build, all 66 required GameTests and player-text audit passed. New
+  cases cover meter/phase expressions, bounded output, serialized expressions,
+  invalid sources and atomic fallback of both appearance parameters on error.
+- Packaged Iris/Sodium/Complementary client checked dynamic layer opacity,
+  independent scale, actual emitter particles, absorption, HUD rendering and
+  authoritative flight with configured body dimensions.
+- Logs: `/tmp/dmz-aura-dynamic-final.log`, `/tmp/dmz-aura-dynamic-client.log`.

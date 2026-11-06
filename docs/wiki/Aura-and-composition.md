@@ -218,3 +218,36 @@ Emission advances by client ticks, not rendered frames. Limits are 32 particles
 per player per tick, 128 total per client tick, and a 128-block viewing radius.
 These cosmetic limits do not affect server gameplay. Omit `emitter` to retain
 existing behavior; the optional emitter adds to existing global aura effects.
+
+
+## Dynamic scale and opacity
+
+A layer's optional `dynamic` object overrides its static `scale`/`opacity`
+using the shared numeric expression language:
+
+```json
+{
+  "id": "inner",
+  "scale": 1, "opacity": 0.8,
+  "dynamic": {
+    "scale": {"add": [1, {"multiply": [0.01, {"source": "meter:example:spirit"}]}]},
+    "opacity": {"max": [0.2, {"source": "attack.charging"}]}
+  }
+}
+```
+
+Declare referenced meters in `progression/runtime.json`. Other available sources
+are `state.formTicks`, `state.stackTicks`, `self.healthPercent` and the
+`attack.charging`, `attack.active`, `attack.recovery`, `attack.ticks`,
+`attack.charge` values described in Runtime-rules. Event-only damage inputs
+are unavailable in persistent visual queries.
+
+Constants, add/multiply/min/max and clamped linear/smooth curves are supported.
+Scale clamps to 0.05..8 and opacity to 0..1. Layer order still never changes
+size. Emitters and absorption use the resulting appearance too. Expressions
+are compiled and cached, without changing meter/gameplay state on the client.
+
+Malformed expressions or unsupported sources fail configuration validation.
+A missing meter value or other evaluation error logs once and restores both
+static parameters for that layer until definitions are reloaded. Existing
+layers without `dynamic` retain their static appearance.

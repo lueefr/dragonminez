@@ -215,7 +215,7 @@ A usable server configuration:
 
 Forms and race character configs accept `aura.layers`. A missing list keeps the old main/extra behavior. A supplied list (including an empty one) replaces that owner's legacy aura; stack lists append their own layers. IDs are stable within the base/stack owner namespace and remain separate from drawing order. Up to 16 layers per owner are validated.
 
-Each layer accepts id, type2d, type3d, color, uniform scale (default 1), opacity, order, when and a 3D style object. 3D style size controls per-axis geometry. Explicit scale disables the legacy index-based expansion in world, GUI and pulse rendering. Existing files are not rewritten and configVersion is unchanged. Shared predicates may use meters. Conditional removal uses the existing type fade; whole-aura sealing and mesh transitions remain supported. Layers now accept `sealedWhen` and `sealSeconds` (0.01..10 seconds, default 0.4). Their own reversible absorption contracts each shell into the body, with an initially sealed shell absent on its first frame. World and GUI rendering preserve stable identities and the existing mesh blending; whole-aura sealing remains an outer gate. Owner-qualified `operation`/`target` entries now apply in base-then-stack file order, supporting conditional add/replace/remove. Missing targets are harmless; replacement adds its own shell regardless. Pure list composition is shared with server GameTests. Network revision 4 requires updated clients for the new aura semantics. Per-layer `emitter` settings now control bounded tick-based particles (count, interval, lifetime, size, radius, height and drift), using layer color/fade/sealing and world-render visibility. Advanced expression-driven visual parameters remain pending.
+Each layer accepts id, type2d, type3d, color, uniform scale (default 1), opacity, order, when and a 3D style object. 3D style size controls per-axis geometry. Explicit scale disables the legacy index-based expansion in world, GUI and pulse rendering. Existing files are not rewritten and configVersion is unchanged. Shared predicates may use meters. Conditional removal uses the existing type fade; whole-aura sealing and mesh transitions remain supported. Layers now accept `sealedWhen` and `sealSeconds` (0.01..10 seconds, default 0.4). Their own reversible absorption contracts each shell into the body, with an initially sealed shell absent on its first frame. World and GUI rendering preserve stable identities and the existing mesh blending; whole-aura sealing remains an outer gate. Owner-qualified `operation`/`target` entries now apply in base-then-stack file order, supporting conditional add/replace/remove. Missing targets are harmless; replacement adds its own shell regardless. Pure list composition is shared with server GameTests. Network revision 4 requires updated clients for the new aura semantics. Per-layer `emitter` settings now control bounded tick-based particles (count, interval, lifetime, size, radius, height and drift), using layer color/fade/sealing and world-render visibility. Dynamic scale/opacity expressions now read synchronized meter, form-age, health and attack-phase sources. Compilation is cached per layer; bounds and runtime failure fallback preserve a usable static appearance. Rendering/model/camera scripting remains part of the broader Lua scope.
 
 ## Combat reaction branch
 
@@ -349,3 +349,22 @@ The client renders synchronized values with translated labels, optional numbers,
 colors, anchors, bounded offsets and screen-clamped dimensions. Shared visibility
 conditions are validated against declared meter IDs. This supplies presentation
 without any client-side meter simulation. See Runtime-rules in the wiki.
+
+
+## Queued after the current feature plan: generic worldgen compatibility
+
+Requested on 2026-11-05. Start only after completing and merging the preceding
+feature modules; this entry authorizes planning, not implementation yet.
+
+- Audit DMZ biome placement and terrain generation against the active worldgen
+  pipeline, including TerraBlender, datapacks and other mods' generation rules.
+- Make DMZ biomes participate in biome-size changes and compatible terrain/noise
+  modifications rather than bypassing them. Tectonic is a requested validation
+  example, not a mod ID to hardcode as the integration mechanism.
+- Prefer shared loader/worldgen extension points and resource-driven settings;
+  inspect actual mod APIs and codecs before selecting adapters. Preserve DMZ
+  biome identity and required dimension-specific structures/features.
+- Validate both fresh worlds and existing-world boundaries, with and without
+  biome-sizing/terrain mods. Document which dimensions and generation paths
+  participate; do not claim universal compatibility without evidence.
+- No SeedGen/LOD implementation is part of this request.

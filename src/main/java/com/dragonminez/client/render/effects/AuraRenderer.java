@@ -884,14 +884,17 @@ public class AuraRenderer {
 	}
 
     private static void configuredLayers(StatsData stats, List<com.dragonminez.common.config.AuraLayers.Layer> definitions, String origin, boolean use3D, List<AuraLayer> result) {
+        Map<String,Double> context=null;
         for (var definition : definitions) {
             if (!com.dragonminez.api.rules.Conditions.test(new com.dragonminez.api.rules.Conditions.Context(stats, null), definition.getWhen())) continue;
             if (definition.getOperation().equals("remove")) {
                 com.dragonminez.common.config.AuraLayers.apply(result, definition, null, AuraLayer::identity);
                 continue;
             }
-            var layer = new AuraLayer(use3D ? definition.getType3d() : definition.getType2d(), definition.getOrder(), ColorUtils.hexToRgb(definition.getColor()), definition.getOpacity());
-            layer.identity = origin + "/" + definition.getId(); layer.scale = definition.getScale();
+            if(!definition.getDynamic().isEmpty()&&context==null)context=stats.getRuntime().numbers(stats);
+            var appearance=definition.values(context==null?Map.of():context);
+            var layer = new AuraLayer(use3D ? definition.getType3d() : definition.getType2d(), definition.getOrder(), ColorUtils.hexToRgb(definition.getColor()), appearance.opacity());
+            layer.identity = origin + "/" + definition.getId(); layer.scale = appearance.scale();
             layer.sealed = definition.getSealedWhen() != null && com.dragonminez.api.rules.Conditions.test(new com.dragonminez.api.rules.Conditions.Context(stats, null), definition.getSealedWhen());
             layer.sealSeconds = definition.getSealSeconds();
             layer.emitter = definition.getEmitter();

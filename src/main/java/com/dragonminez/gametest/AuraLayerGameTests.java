@@ -10,6 +10,30 @@ import net.neoforged.neoforge.gametest.*;
 @PrefixGameTestTemplate(false)
 public final class AuraLayerGameTests {
     @GameTest(template="port_empty")
+    public static void dynamicValues(GameTestHelper helper) {
+        var layer=new Gson().fromJson("""
+            {"id":"dynamic","scale":1,"opacity":0.8,"dynamic":{
+              "scale":{"add":[1,{"multiply":[0.01,{"source":"meter:example:spirit"}]}]},
+              "opacity":{"source":"attack.charging"}}}
+            """,AuraLayers.Layer.class);
+        AuraLayers.validate(java.util.List.of(layer));
+        var values=layer.values(java.util.Map.of("meter:example:spirit",50d,"attack.charging",1d));
+        helper.assertTrue(values.scale()==1.5f&&values.opacity()==1,"Dynamic aura did not read synchronized inputs");
+        values=layer.values(java.util.Map.of("meter:example:spirit",10000d,"attack.charging",-2d));
+        helper.assertTrue(values.scale()==8&&values.opacity()==0,"Dynamic aura escaped visual bounds");
+        var restored=new Gson().fromJson(new Gson().toJson(layer),AuraLayers.Layer.class);
+        helper.assertTrue(restored.values(java.util.Map.of("meter:example:spirit",0d,"attack.charging",.5)).opacity()==.5f,"Dynamic expressions lost on synchronization");
+        var fallback=layer.values(java.util.Map.of("meter:example:spirit",50d));
+        helper.assertTrue(fallback.scale()==1 && fallback.opacity()==.8f,"Failed visual evaluation partially applied overrides");
+        helper.assertTrue(layer.values(java.util.Map.of("meter:example:spirit",50d,"attack.charging",1d)).scale()==1,"Failed dynamic layer retried without reload");
+        for(String invalid:java.util.List.of("{unknown:1}","{scale:{source:'event.damage'}}")) {
+            boolean rejected=false;
+            try{AuraLayers.validate(java.util.List.of(new Gson().fromJson("{id:'invalid',dynamic:"+invalid+"}",AuraLayers.Layer.class)));}catch(IllegalArgumentException ex){rejected=true;}
+            helper.assertTrue(rejected,"Invalid dynamic aura accepted");
+        }
+        helper.succeed();
+    }
+    @GameTest(template="port_empty")
     public static void layerOperations(GameTestHelper helper) {
         var gson = new Gson();
         var values = new java.util.ArrayList<>(java.util.List.of("base/inner", "base/outer"));
