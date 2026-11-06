@@ -264,3 +264,40 @@ content rewards; see Lua-scripts for resource, effect and form activation
 examples and execution/rollback boundaries. Matching rules run in file order,
 followed by script rewards in subscription order. No client can submit these
 commands directly.
+
+
+## Form entry and exit actions
+
+A `behaviors.forms` lifetime rule can run shared gameplay actions on actual
+activation/deactivation, even without a duration limit:
+
+```json
+{
+  "behaviors": {
+    "forms": {
+      "example.focus": {
+        "durationTicks": -1,
+        "onEnter": [{"effect": {"id": "minecraft:regeneration", "ticks": 40}}],
+        "onExit": [{"resource": {"id": "stamina", "add": -5}}]
+      }
+    }
+  }
+}
+```
+
+Each list accepts up to 64 actions from the same registry as wishes and Lua
+rewards. Actual main/stack changes run old-main exit, old-stack exit, new-main
+entry and new-stack entry, where applicable. The general form_changed event
+follows these actions. Repeating a setter for the same form does not replay
+entry actions. Actions caused by other actions are observed on a later tick
+instead of recursively executing another transition chain.
+
+Loading a saved character, cloning it, reconnecting and reloading definitions
+do not replay entry actions for a form already active. Its next actual exit
+still runs exit actions. Administrative forced form changes count as actual
+changes. Transition actions run only for a created server character.
+
+These are ordered gameplay effects with the post-commit boundaries described
+above. A runtime failure disables further runtime rules for that character
+until reload. Avoid circular form activation rules and repeatedly granting
+permanent rewards without an explicit content/progression condition.

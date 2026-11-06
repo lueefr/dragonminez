@@ -12,7 +12,7 @@ public final class RuntimeState {
     private final ReactionWindow reactions = new ReactionWindow();
     public boolean attempt(java.util.UUID projectile, String rule, long tick, int interval) { bind(); return reactions.attempt(projectile, rule, tick, interval); }
     private final AttackState attack = new AttackState();
-    private boolean strikeCharge;
+    private boolean strikeCharge, observed, observing;
     private RuntimeConfig config;
     private MeterState meters;
     private CompoundTag saved = new CompoundTag(), visible = new CompoundTag();
@@ -120,15 +120,42 @@ public final class RuntimeState {
     public void changed(StatsData data) {
         if (!dispatching && data != null && data.getPlayer() instanceof net.minecraft.server.level.ServerPlayer) { bind(); observe(data); }
     }
+    public void prime(StatsData data) {
+        if(observed||data==null||!(data.getPlayer() instanceof net.minecraft.server.level.ServerPlayer))return;
+        bind();var character=data.getCharacter();
+        form=character.getActiveFormGroup()+"."+character.getActiveForm();
+        stack=character.getActiveStackFormGroup()+"."+character.getActiveStackForm();observed=true;
+    }
+    private void transition(StatsData data,String reference,boolean enter){
+        if(failed||!data.getStatus().isHasCreatedCharacter())return;
+        var rule=config.behaviors().lifetime(reference);if(rule==null)return;
+        var actions=enter?rule.onEnter():rule.onExit();if(actions.isEmpty())return;
+        dispatching=true;
+        try{
+            for(var action:actions)com.dragonminez.api.rules.Rewards.validate(action);
+            com.dragonminez.api.rules.Rewards.apply((net.minecraft.server.level.ServerPlayer)data.getPlayer(),data,reference,actions);
+        }catch(RuntimeException ex){failed=true;com.dragonminez.LogUtil.error(com.dragonminez.Env.COMMON,"Form transition {} failed (enter={}): {}. Rules disabled until reload.",reference,enter,ex.getMessage());}
+        finally{dispatching=false;}
+    }
     private void observe(StatsData data) {
+        if(observing)return;
+        if(!observed){prime(data);return;}
         var character = data.getCharacter();
         String current = character.getActiveFormGroup() + "." + character.getActiveForm();
         String extra = character.getActiveStackFormGroup() + "." + character.getActiveStackForm();
         if (!form.equals(current) || !stack.equals(extra)) {
             if (!form.equals(current)) formTicks = 0;
             if (!stack.equals(extra)) stackTicks = 0;
+            String previous=form, previousStack=stack;
             meters.reset(MeterState.Scope.FORM); form = current; stack = extra;
-            dispatch(data, "dmz:form_changed", Map.of());
+            observing=true;
+            try{
+                if(!previous.equals(current))transition(data,previous,false);
+                if(!previousStack.equals(extra))transition(data,previousStack,false);
+                if(!previous.equals(current))transition(data,current,true);
+                if(!previousStack.equals(extra))transition(data,extra,true);
+                dispatch(data,"dmz:form_changed",Map.of());
+            }finally{observing=false;}
         }
     }
     public Map<String, Double> numbers(StatsData data) {
@@ -159,7 +186,7 @@ public final class RuntimeState {
     }
     public CompoundTag save() { bind(); store(); return saved.copy(); }
     public void load(CompoundTag tag) {
-        saved = tag.copy(); reactions.clear(); config = null; meters = null; failed = false; combatLeft = 0; formTicks = 0; stackTicks = 0; form = ""; stack = "";
+        saved = tag.copy(); observed=false; observing=false; reactions.clear(); config = null; meters = null; failed = false; combatLeft = 0; formTicks = 0; stackTicks = 0; form = ""; stack = "";
         if (!visible.isEmpty()) view(visible);
     }
     public CompoundTag view() {

@@ -223,3 +223,13 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   command kinds and bounded cyclic tables. Player-text audit passed.
 - Log: `/tmp/dmz-gameplay-actions-validation-02.log`. Gameplay action execution
   remains ordered post-commit work; external effects are not group-rollback-safe.
+
+
+## Form transition gameplay actions — 2026-11-05
+
+- Java 21 build and all 68 required GameTests passed. The new test activates
+  real configured forms, replaces them, repeats setters, reloads runtime rules,
+  restores a saved character and loads a clone. Entry completion counts remain
+  unchanged across restoration; the subsequent real exit executes once.
+- Existing native attack, resource/effect script, meter and flight checks passed.
+  Player-text audit passed. Log: `/tmp/dmz-transition-actions-validation.log`.

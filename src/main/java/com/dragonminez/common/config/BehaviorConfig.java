@@ -14,7 +14,9 @@ public final class BehaviorConfig {
     }
     private final Map<String, Attack> attacks = new LinkedHashMap<>();
     public Attack attack(String id) { return attacks.getOrDefault(id, new Attack(1, 0)); }
-    public record Lifetime(JsonObject when, int duration, int cooldown, String fallback) {}
+    public record Lifetime(JsonObject when, int duration, int cooldown, String fallback, List<JsonObject> onEnter, List<JsonObject> onExit) {
+        public Lifetime(JsonObject when,int duration,int cooldown,String fallback){this(when,duration,cooldown,fallback,List.of(),List.of());}
+    }
     private record Modifier(JsonObject when, Map<String, DynamicValue> factors) {}
     private final Map<String, Lifetime> lifetimes = new LinkedHashMap<>();
     private final List<Modifier> modifiers = new ArrayList<>();
@@ -44,12 +46,12 @@ public final class BehaviorConfig {
         if (config.attacks.size() > 256) throw new IllegalArgumentException("Too many attack phase policies");
         if (root.has("forms")) root.getAsJsonObject("forms").entrySet().forEach(entry -> {
             Conditions.form(entry.getKey()); var rule = entry.getValue().getAsJsonObject();
-            fields(rule, Set.of("when", "durationTicks", "cooldownTicks", "fallback"));
+            fields(rule, Set.of("when", "durationTicks", "cooldownTicks", "fallback", "onEnter", "onExit"));
             var when = rule.has("when") ? rule.getAsJsonObject("when").deepCopy() : new JsonObject(); Conditions.validate(when);
             String fallback = rule.has("fallback") ? rule.get("fallback").getAsString() : "";
             if (!fallback.isEmpty()) Conditions.form(fallback);
             if (fallback.equals(entry.getKey())) throw new IllegalArgumentException("Form cannot fall back to itself");
-            config.lifetimes.put(entry.getKey(), new Lifetime(when, integer(rule, "durationTicks", -1), integer(rule, "cooldownTicks", 0), fallback));
+            config.lifetimes.put(entry.getKey(), new Lifetime(when, integer(rule, "durationTicks", -1), integer(rule, "cooldownTicks", 0), fallback, actions(rule,"onEnter"), actions(rule,"onExit")));
         });
         if (root.has("modifiers")) for (var element : root.getAsJsonArray("modifiers")) {
             var rule = element.getAsJsonObject(); fields(rule, Set.of("when", "factors"));
@@ -88,6 +90,13 @@ public final class BehaviorConfig {
             com.dragonminez.LogUtil.error(com.dragonminez.Env.COMMON, "Runtime modifier failed: {}. Modifiers disabled until reload.", ex.getMessage());
             return 1;
         } finally { evaluating.get().remove(data); if (evaluating.get().isEmpty()) evaluating.remove(); }
+    }
+    private static List<JsonObject> actions(JsonObject rule,String key){
+        if(!rule.has(key))return List.of();
+        var values=rule.getAsJsonArray(key);if(values.size()>64)throw new IllegalArgumentException("At most 64 form transition actions");
+        var actions=new ArrayList<JsonObject>();
+        for(var value:values){var action=value.getAsJsonObject().deepCopy();com.dragonminez.api.rules.Rewards.validate(action);actions.add(action);}
+        return List.copyOf(actions);
     }
     private static int integer(JsonObject root, String key, int fallback) {
         if (!root.has(key)) return fallback;
