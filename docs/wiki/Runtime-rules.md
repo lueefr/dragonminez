@@ -301,3 +301,53 @@ These are ordered gameplay effects with the post-commit boundaries described
 above. A runtime failure disables further runtime rules for that character
 until reload. Avoid circular form activation rules and repeatedly granting
 permanent rewards without an explicit content/progression condition.
+
+
+## Projectile destruction and deflection
+
+Projectile-only reactions accept `response: "destroy"` or `"deflect"`. They
+use the same force-relative hitChance, resource fractions, cooldown and
+reaction interval as other reactions:
+
+```json
+{
+  "reactions": [
+    {
+      "id": "example:intercept",
+      "when": {"content": "example:interception"},
+      "attacks": ["projectile"],
+      "response": "deflect",
+      "projectiles": ["minecraft:arrow"],
+      "hitChance": {"curve": {
+        "input": {"source": "event.powerRatio"},
+        "interpolation": "smooth",
+        "points": [[0.5, 0], [1, 0.5], [2, 1]]
+      }},
+      "energyCost": 0.01, "staminaCost": 0.02,
+      "reactionTicks": 4, "cooldownTicks": 8
+    }
+  ]
+}
+```
+
+HitChance still means the chance the original attack connects. A successful
+reaction destroys the entity or redirects it towards its former living owner,
+preserving speed and transferring ownership to the defender. It pays costs
+only after the response succeeds. Friendly/PvP protection remains enforced.
+
+Optional `projectiles` lists 1..64 registered projectile entity IDs, including
+other mods. Omitting it allows any eligible projectile; unmatched filtered
+rules are skipped. Block/counter damage factors do not apply to these responses.
+
+Vanilla projectiles and mod projectiles participating in NeoForge's impact
+hook are supported. DMZ flying projectiles now publish that hook as well.
+Native continuous Ki damage also supports destruction. Deflection requires a
+free-moving projectile: anchored/continuous Ki forms and healing/casting
+projectiles are excluded. An unsafe/unloaded/obstructed deflection destination
+leaves the original attack intact. Each projectile/defender/rule is attempted
+at most once per tick, even when multiple collision hooks report the same hit.
+
+Successful responses emit `dmz:projectile_destroyed` or
+`dmz:projectile_deflected`. Deflected ownership and motion synchronize to
+tracking clients with dimension/entity identity guards. A destroyed native
+projectile cannot damage another target later in the same tick.

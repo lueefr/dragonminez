@@ -122,7 +122,7 @@ public final class RuntimeConfig {
         return result;
     }
     private static void checkEvent(String event) {
-        if (event.startsWith("dmz:") && !Set.of("dmz:tick", "dmz:form_changed", "dmz:combat_enter", "dmz:combat_exit", "dmz:damage_received", "dmz:damage_dealt", "dmz:evaded", "dmz:blocked", "dmz:countered", "dmz:attack_started", "dmz:attack_released", "dmz:attack_cancelled", "dmz:attack_recovery", "dmz:attack_finished").contains(event)) throw new IllegalArgumentException("Unknown native runtime event: " + event);
+        if (event.startsWith("dmz:") && !Set.of("dmz:tick", "dmz:form_changed", "dmz:combat_enter", "dmz:combat_exit", "dmz:damage_received", "dmz:damage_dealt", "dmz:evaded", "dmz:blocked", "dmz:countered", "dmz:attack_started", "dmz:attack_released", "dmz:attack_cancelled", "dmz:attack_recovery", "dmz:projectile_destroyed", "dmz:projectile_deflected", "dmz:attack_finished").contains(event)) throw new IllegalArgumentException("Unknown native runtime event: " + event);
     }
     private static void checkMeters(JsonObject condition, Set<String> meters) {
         for (var entry : condition.entrySet()) {

@@ -10,15 +10,25 @@ import java.util.*;
 public final class ReactionConfig {
     public record Rule(String id, JsonObject when, Set<String> attacks, DynamicValue chance, String power, Map<String, Double> weights, int interval, double distance, double energy, double stamina, int cooldown, String response, double damage, double counter, double range) {}
     private final List<Rule> rules = new ArrayList<>();
+    private final Map<String,Set<String>> projectiles=new HashMap<>();
     public static ReactionConfig parse(JsonElement json, Set<String> meters) {
         var result = new ReactionConfig();
         if (json == null) return result;
         Set<String> ids = new HashSet<>();
         for (var element : json.getAsJsonArray()) {
             var rule = element.getAsJsonObject();
-            if (!Set.of("id", "when", "attacks", "hitChance", "powerSource", "distance", "energyCost", "staminaCost", "cooldownTicks", "powerWeights", "reactionTicks", "response", "damageFactor", "counterFactor", "counterRange").containsAll(rule.keySet())) throw new IllegalArgumentException("Unknown reaction field");
+            if (!Set.of("id", "when", "attacks", "hitChance", "powerSource", "distance", "energyCost", "staminaCost", "cooldownTicks", "powerWeights", "reactionTicks", "response", "damageFactor", "counterFactor", "counterRange", "projectiles").containsAll(rule.keySet())) throw new IllegalArgumentException("Unknown reaction field");
             String id = rule.get("id").getAsString(); com.dragonminez.api.content.ContentProgress.requireId(id);
             if (!ids.add(id)) throw new IllegalArgumentException("Duplicate reaction ID");
+            if(rule.has("projectiles")){
+                Set<String> types=new HashSet<>();for(var value:rule.getAsJsonArray("projectiles")){
+                    String type=value.getAsString();com.dragonminez.api.content.ContentProgress.requireId(type);
+                    if(Conditions.ready()&&!net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.containsKey(net.minecraft.resources.ResourceLocation.parse(type)))throw new IllegalArgumentException("Unknown projectile entity type: "+type);
+                    types.add(type);
+                }
+                if(types.isEmpty()||types.size()>64)throw new IllegalArgumentException("Projectile type list needs 1..64 IDs");
+                result.projectiles.put(id,Set.copyOf(types));
+            }
             var when = rule.has("when") ? rule.getAsJsonObject("when").deepCopy() : new JsonObject(); Conditions.validate(when);
             Set<String> attacks = new LinkedHashSet<>();
             if (rule.has("attacks")) rule.getAsJsonArray("attacks").forEach(value -> attacks.add(value.getAsString())); else attacks.add("melee");
@@ -40,7 +50,11 @@ public final class ReactionConfig {
             double cooldown = number(rule, "cooldownTicks", 10, 0, 72000);
             if (cooldown != Math.rint(cooldown)) throw new IllegalArgumentException("Reaction cooldown must be whole ticks");
             String response = rule.has("response") ? rule.get("response").getAsString() : "dodge";
-            if (!Set.of("dodge", "block", "counter").contains(response)) throw new IllegalArgumentException("Unknown reaction response");
+            if (!Set.of("dodge", "block", "counter", "destroy", "deflect").contains(response)) throw new IllegalArgumentException("Unknown reaction response");
+            if(Set.of("destroy","deflect").contains(response)){
+                if(!attacks.equals(Set.of("projectile")))throw new IllegalArgumentException("Projectile responses require projectile-only attacks");
+                if(rule.has("damageFactor")||rule.has("counterFactor")||rule.has("counterRange"))throw new IllegalArgumentException("Projectile responses do not use block/counter factors");
+            }
             if (response.equals("dodge") && (rule.has("damageFactor") || rule.has("counterFactor") || rule.has("counterRange"))) throw new IllegalArgumentException("Dodge does not use defense factors");
             if (response.equals("block") && (rule.has("counterFactor") || rule.has("counterRange"))) throw new IllegalArgumentException("Block does not use counter settings");
             double damage = number(rule, "damageFactor", 0, 0, 1), counter = number(rule, "counterFactor", 0.5, 0, 10);
@@ -51,8 +65,9 @@ public final class ReactionConfig {
         if (result.rules.size() > 64) throw new IllegalArgumentException("At most 64 reaction rules");
         return result;
     }
-    public Rule select(StatsData data, String attack) {
-        for (var rule : rules) if (rule.attacks().contains(attack) && Conditions.test(new Conditions.Context(data, null), rule.when())) return rule;
+    public Rule select(StatsData data,String attack){return select(data,attack,null);}
+    public Rule select(StatsData data, String attack, net.minecraft.world.entity.projectile.Projectile projectile) {
+        for (var rule : rules) if (rule.attacks().contains(attack) && (!projectiles.containsKey(rule.id())||projectile!=null&&projectiles.get(rule.id()).contains(net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(projectile.getType()).toString())) && Conditions.test(new Conditions.Context(data, null), rule.when())) return rule;
         return null;
     }
     public static double weighted(Map<String, Double> weights, java.util.function.ToDoubleFunction<String> source) {

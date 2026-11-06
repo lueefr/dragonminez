@@ -14,6 +14,7 @@ import net.neoforged.bus.api.*;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import java.util.Map;
+import java.util.Set;
 
 /** Dodges require a valid displacement; defenses run after native damage modifiers. */
 @EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
@@ -24,7 +25,7 @@ public final class ReactionEvents {
         return source.getDirectEntity() != source.getEntity() ? "projectile" : "melee";
     }
     public static boolean handles(StatsData data, DamageSource source) {
-        return source.getEntity() instanceof LivingEntity && ConfigManager.getRuntime().reactions().select(data, category(source)) != null;
+        return source.getEntity() instanceof LivingEntity && ConfigManager.getRuntime().reactions().select(data, category(source),source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile projectile?projectile:null) != null;
     }
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void react(LivingIncomingDamageEvent event) { process(event, false); }
@@ -36,8 +37,8 @@ public final class ReactionEvents {
         var data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
         if (data == null || !data.getStatus().isHasCreatedCharacter() || data.getStatus().isStunned() || player.isSpectator()) return;
         var reactions = ConfigManager.getRuntime().reactions();
-        var rule = reactions.select(data, category(event.getSource()));
-        if (rule == null) return;
+        var rule = reactions.select(data, category(event.getSource()),event.getSource().getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile projectile?projectile:null);
+        if (rule == null || Set.of("destroy","deflect").contains(rule.response())) return;
         boolean blocking = !rule.response().equals("dodge");
         if (defense != blocking || !reactions.enabled(rule) || data.getCooldowns().hasCooldown("RuntimeReaction:" + rule.id())) return;
         if (rule.response().equals("counter") && (!canCounter(player, attacker) || !attacker.isAlive() || player.distanceToSqr(attacker) > rule.range() * rule.range() || !player.hasLineOfSight(attacker))) return;
@@ -67,6 +68,46 @@ public final class ReactionEvents {
         com.dragonminez.common.network.NetworkHandler.sendToTrackingEntityAndSelf(new com.dragonminez.common.network.S2C.TriggerAnimationS2C(player.getUUID(), com.dragonminez.common.network.S2C.TriggerAnimationS2C.AnimationType.EVASION, 1), player);
         data.getRuntime().contact(data);
         data.getRuntime().dispatch(data, "dmz:evaded", Map.of());
+    }
+    @SubscribeEvent(priority=EventPriority.HIGHEST)
+    public static void impact(net.neoforged.neoforge.event.entity.ProjectileImpactEvent event){
+        if(event.isCanceled()||!(event.getRayTraceResult() instanceof net.minecraft.world.phys.EntityHitResult hit))return;
+        var target=com.dragonminez.common.combat.logic.player.TargetHelper.resolveHittable(hit.getEntity());
+        if(target instanceof ServerPlayer player && intercept(player,event.getProjectile()))event.setCanceled(true);
+    }
+    public static boolean intercept(ServerPlayer player,net.minecraft.world.entity.projectile.Projectile projectile){
+        if(projectile.isRemoved()||!(projectile.getOwner() instanceof LivingEntity attacker)||attacker==player||!canCounter(player,attacker))return false;
+        var data=StatsProvider.get(StatsCapability.INSTANCE,player).orElse(null);
+        if(data==null||!data.getStatus().isHasCreatedCharacter()||data.getStatus().isStunned()||player.isSpectator())return false;
+        var reactions=ConfigManager.getRuntime().reactions();var rule=reactions.select(data,"projectile",projectile);
+        if(rule==null||!Set.of("destroy","deflect").contains(rule.response())||!reactions.enabled(rule)||data.getCooldowns().hasCooldown("RuntimeReaction:"+rule.id()))return false;
+        if(projectile instanceof com.dragonminez.common.init.entities.ki.AbstractKiProjectile ki && (ki.isHeal()||!ki.isFiring()||rule.response().equals("deflect")&&!ki.acceptsDeflection()))return false;
+        double energy=data.getMaxEnergy()*rule.energy(),stamina=data.getMaxStamina()*rule.stamina();
+        if(data.getResources().getCurrentEnergy()<energy||data.getResources().getCurrentStamina()<stamina)return false;
+        if(!data.getRuntime().attempt(projectile.getUUID(),rule.id(),player.level().getGameTime(),Math.max(1,rule.interval())))return false;
+        double chance;
+        try{chance=reactions.chance(rule,data,score(attacker,rule),score(player,rule));}catch(RuntimeException ex){reactions.disable(rule,ex.getMessage());return false;}
+        if(player.getRandom().nextDouble()<chance)return false;
+        boolean destroyed=rule.response().equals("destroy");
+        if(destroyed)projectile.discard();
+        else{
+            Vec3 motion=projectile.getDeltaMovement();double speed=motion.length();
+            if(!Double.isFinite(speed)||speed<.0001)return false;
+            Vec3 direction=attacker.getBoundingBox().getCenter().subtract(player.getBoundingBox().getCenter()).normalize();
+            if(!Double.isFinite(direction.lengthSqr())||direction.lengthSqr()<.0001)return false;
+            var bounds=player.getBoundingBox();double clearance=Math.max(bounds.getXsize(),Math.max(bounds.getYsize(),bounds.getZsize()))*.5+projectile.getBbWidth()+.25;
+            Vec3 position=bounds.getCenter().add(direction.scale(clearance));
+            var block=net.minecraft.core.BlockPos.containing(position);
+            if(!player.level().hasChunkAt(block)||!player.level().getWorldBorder().isWithinBounds(block)||!player.level().noCollision(projectile,projectile.getBoundingBox().move(position.subtract(projectile.position()))))return false;
+            if(!projectile.deflect((ball,owner,random)->{ball.setPos(position);ball.setDeltaMovement(direction.scale(speed));ball.hasImpulse=true;ball.hurtMarked=true;},player,player,true))return false;
+            ((com.dragonminez.mixin.common.ProjectileOwner)projectile).leaveOwner(false);
+            if(projectile instanceof com.dragonminez.common.init.entities.ki.AbstractKiProjectile ki)ki.setHomingTarget(-1);
+            com.dragonminez.common.network.NetworkHandler.sendToTrackingEntity(new com.dragonminez.common.network.S2C.ProjectileMotionS2C(projectile.getId(),projectile.getUUID(),player.getId(),player.getUUID(),player.level().dimension().location(),projectile.position(),projectile.getDeltaMovement()),projectile);
+        }
+        data.getResources().removeEnergy((float)energy,false);data.getResources().removeStamina((float)stamina);
+        data.getCooldowns().setCooldown("RuntimeReaction:"+rule.id(),rule.cooldown());
+        data.getRuntime().contact(data);data.getRuntime().dispatch(data,destroyed?"dmz:projectile_destroyed":"dmz:projectile_deflected",Map.of());
+        return true;
     }
     private static boolean canCounter(ServerPlayer player, LivingEntity attacker) {
         if (com.dragonminez.common.combat.logic.player.TargetHelper.getRelation(player, attacker) == com.dragonminez.common.combat.logic.player.TargetHelper.Relation.FRIENDLY) return false;

@@ -233,3 +233,19 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   unchanged across restoration; the subsequent real exit executes once.
 - Existing native attack, resource/effect script, meter and flight checks passed.
   Player-text audit passed. Log: `/tmp/dmz-transition-actions-validation.log`.
+
+
+## Projectile reaction capabilities — 2026-11-05
+
+- Java 21 build and all 69 required GameTests passed. Server coverage includes
+  vanilla impact cancellation, resource costs, owner/direction transfer, new-owner
+  collision immunity, entity filters, motion packet roundtrip, native Ki
+  destruction and no residual damage to later targets.
+- A blocked test arena initially rejected deflection correctly. Clearing its
+  explicitly prepared air space enabled the response; production collision
+  and loaded-chunk protections remain intact.
+- Packaged Iris/Sodium/Complementary client verified owner/motion application
+  and rejection of stale entity UUIDs, plus existing flight/HUD/aura checks.
+- Logs: `/tmp/dmz-projectile-reactions-final.log`,
+  `/tmp/dmz-projectile-reactions-client.log`. Third-party projectiles must
+  participate in the standard impact hook and honor vanilla deflection APIs.

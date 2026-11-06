@@ -223,7 +223,7 @@ Each layer accepts id, type2d, type3d, color, uniform scale (default 1), opacity
 
 Hit chance expressions may read event.powerRatio and configured meters. Equal zero powers yield ratio 1; positive attacker versus zero defender yields the maximum finite ratio. Probability clamps to 0..1. Reactions require sufficient resources, cooldown readiness, a loaded/bounded collision-free destination and a clear swept path. The server moves the defender, synchronizes position/animation, consumes costs and emits dmz:evaded. No free damage cancellation occurs when movement is blocked. Runtime expression errors disable that reaction until reload. Successful reactions also enter combat. Native NPC battle power is used when available; other living entities currently use max health as a fallback score.
 
-Swept displacement, probability endpoints, cooldown and actual movement are covered by a server GameTest. Weighted power and per-projectile attempt intervals are implemented on `feature/reaction-policies`; configurable blocking/counters and additional capabilities remain pending.
+Swept displacement, probability endpoints, cooldown and actual movement are covered by a server GameTest. Weighted power and per-projectile attempt intervals are implemented on `feature/reaction-policies`; blocking/counters are implemented in the combat response increment. Projectile destruction/deflection now share reaction eligibility, power, costs and attempt intervals, with type filters, NeoForge impact integration, native Ki damage interception and synchronized owner/motion. Other capabilities remain pending.
 
 ## Lua branch: server event scripts
 
