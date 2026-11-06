@@ -759,6 +759,7 @@ public class Character {
     }
 
     private void setActiveFormUnchecked(String groupName,String formName) {
+        if (statsData != null) statsData.getRuntime().prime(statsData);
         var previous = com.dragonminez.api.forms.FormVariants.resolve(statsData, activeFormGroup, activeForm);
         if (statsData != null && (!java.util.Objects.equals(activeFormGroup, groupName)
                 || !java.util.Objects.equals(activeForm, formName))
@@ -798,6 +799,7 @@ public class Character {
 	}
 
 	public void clearActiveForm() {
+        if (statsData != null) statsData.getRuntime().prime(statsData);
         pendingFormGroup=null;
 		this.activeFormGroup = "";
 		this.activeForm = "";
@@ -915,6 +917,7 @@ public class Character {
     }
 
     private void setActiveStackFormUnchecked(String groupName,String formName) {
+        if (statsData != null) statsData.getRuntime().prime(statsData);
 		this.activeStackFormGroup = groupName != null ? groupName : "";
 		this.activeStackForm = formName != null ? formName : "";
 		this.activeStackFormItemDurationTicks = 0;
@@ -923,6 +926,7 @@ public class Character {
 	}
 
 	public void clearActiveStackForm() {
+        if (statsData != null) statsData.getRuntime().prime(statsData);
         pendingStackGroup=null;
 		this.activeStackFormGroup = "";
 		this.activeStackForm = "";
