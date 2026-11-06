@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import java.util.ArrayDeque;
 
 public final class FlightClient {
-    private record Pending(long sequence, Controls controls, boolean restricted) {}
+    private record Pending(long sequence, Controls controls) {}
     private static final ArrayDeque<Pending> PENDING = new ArrayDeque<>();
     private static Player owner;
     private static long session;
@@ -51,11 +51,7 @@ public final class FlightClient {
         if (!message.active()) { FlightFrames.remove(player); PENDING.clear(); return; }
         while (!PENDING.isEmpty() && PENDING.peekFirst().sequence() <= message.sequence()) PENDING.removeFirst();
         var state = message.state();
-        for (var pending : PENDING) {
-            var next = pending.restricted() ? new State(state.position(), Vector.ZERO, state.rotation(), Vector.ZERO)
-                    : FlightMotion.step(state, pending.controls(), FlightBody.tuning(player));
-            state = FlightBody.move(player, state, next);
-        }
+        for (var pending : PENDING) state = FlightBody.move(player, state, FlightMotion.step(state, pending.controls(), FlightBody.tuning(player)));
         FlightFrames.put(player, state);
         FlightBody.apply(player, state);
     }
@@ -70,11 +66,9 @@ public final class FlightClient {
                     (keys.keyUp.isDown() ? 1 : 0) - (keys.keyDown.isDown() ? 1 : 0),
                     (keys.keyJump.isDown() ? 1 : 0) - (keys.keyShift.isDown() ? 1 : 0), keys.keySprint.isDown(), keys.keyDown.isDown());
         pitch = roll = 0;
-        var data = com.dragonminez.common.stats.StatsProvider.get(com.dragonminez.common.stats.StatsCapability.INSTANCE, player).orElse(null);
-        if (data != null && !player.isCreative() && data.getResources().getCurrentEnergy() < ConfigManager.getRuntime().flight().resolve(data).charge(controls)) restricted = true;
         if (PENDING.size() >= 64) return;
         sequence++;
-        PENDING.addLast(new Pending(sequence, controls, restricted));
+        PENDING.addLast(new Pending(sequence, controls));
         NetworkHandler.sendToServer(new FlightInputC2S(session, sequence, controls));
         var state = FlightFrames.get(player);
         var next = restricted ? new State(state.position(), Vector.ZERO, state.rotation(), Vector.ZERO)

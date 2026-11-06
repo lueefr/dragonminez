@@ -19,60 +19,6 @@ import java.util.UUID;
 @PrefixGameTestTemplate(false)
 public final class FlightGameTests {
     @GameTest(template = "port_empty")
-    public static void motionProfiles(GameTestHelper helper) throws Exception {
-        var player = FakePlayerFactory.get(helper.getLevel(), new GameProfile(UUID.randomUUID(), "FlightProfiles"));
-        var data = StatsProvider.get(StatsCapability.INSTANCE, player).orElseThrow(IllegalStateException::new);
-        var field = ConfigManager.class.getDeclaredField("runtime"); field.setAccessible(true); var original = field.get(null);
-        var registry = ConfigManager.class.getDeclaredField("RACE_FORMS"); registry.setAccessible(true);
-        @SuppressWarnings("unchecked") var forms = (java.util.Map<String, java.util.Map<String, FormConfig>>) registry.get(null);
-        var group = new com.google.gson.Gson().fromJson("{groupName:'path',formType:'superforms',forms:{fast:{name:'fast'}}}", FormConfig.class);
-        var previous = forms.put("flight_test", new java.util.LinkedHashMap<>(java.util.Map.of("path", group)));
-        try {
-            data.getCharacter().setRace("flight_test"); data.getStatus().setHasCreatedCharacter(true);
-            var config = RuntimeConfig.parse("""
-                {"flight":{"speed":0.4,"thrust":0.02,"turn":0.1,"profiles":[
-                  {"when":{"all":[{"activeForm":"path.fast"},{"not":{"content":"example:blocked"}}]},
-                   "speed":0.8,"pitchRate":0.2,"yawRate":0.05,"rollRate":0.3,"cost":2,"turnCost":3},
-                  {"when":{"chargingKi":true},"speed":0.1,"drag":0.7}
-                ]}}
-                """);
-            field.set(null, config);
-            helper.assertTrue(config.flight().resolve(data).tuning().speed() == .4, "Unmatched profile replaced base flight");
-            double baseline = FlightBody.tuning(player).speed();
-            data.getCharacter().setActiveForm("path", "fast");
-            var fast = config.flight().resolve(data);
-            helper.assertTrue(fast.tuning().speed() == .8 && fast.tuning().thrust() == .02, "Form profile did not inherit base parameters");
-            helper.assertTrue(FlightBody.tuning(player).yawRate() == .05 && Math.abs(FlightBody.tuning(player).speed() - baseline * 2) < 1e-8,
-                    "Physical tuning lost profile axis rates or existing speed factors");
-            helper.assertTrue(fast.charge(new Controls(1, 1, 1, 0, 0, false, false)) == 5, "Profile turn cost was not normalized");
-            data.getStatus().setChargingKi(true);
-            helper.assertTrue(config.flight().resolve(data).tuning().speed() == .8, "Flight profile precedence changed");
-            var blocked = new net.minecraft.nbt.CompoundTag(); blocked.putInt("example:blocked", 1); data.getContentProgress().load(blocked);
-            var charging = config.flight().resolve(data);
-            helper.assertTrue(charging.tuning().speed() == .1 && charging.tuning().drag() == .7 && charging.cost() == 0,
-                    "Conditional profile did not switch atomically or leaked prior profile costs");
-            helper.assertTrue(RuntimeConfig.parse(config.json()).flight().resolve(data).tuning().equals(charging.tuning()), "Synchronized profile JSON changed tuning");
-            data.getStatus().setChargingKi(false);
-            helper.assertTrue(config.flight().resolve(data).tuning().speed() == .4, "Flight did not return to base parameters");
-            for (var invalid : java.util.List.of(
-                    "{\"flight\":{\"profiles\":[{\"enabled\":false}]}}",
-                    "{\"flight\":{\"profiles\":[{\"profiles\":[]}]}}",
-                    "{\"flight\":{\"profiles\":[{\"yawRate\":1}]}}",
-                    "{\"flight\":{\"profiles\":[{\"when\":{\"meter\":{\"id\":\"example:missing\",\"min\":1}}}]}}",
-                    "{\"flight\":{\"profiles\":[" + String.join(",", java.util.Collections.nCopies(33, "{}")) + "]}}")) {
-                boolean rejected = false;
-                try { RuntimeConfig.parse(invalid); } catch (IllegalArgumentException | IllegalStateException ex) { rejected = true; }
-                helper.assertTrue(rejected, "Invalid flight profile accepted: " + invalid);
-            }
-            helper.succeed();
-        } finally {
-            field.set(null, original);
-            if (previous == null) forms.remove("flight_test"); else forms.put("flight_test", previous);
-            player.discard();
-        }
-    }
-
-    @GameTest(template = "port_empty")
     public static void physicalFlight(GameTestHelper helper) throws Exception {
         var player = FakePlayerFactory.get(helper.getLevel(), new GameProfile(UUID.randomUUID(), "PhysicalFlight"));
         var connection = player.connection;

@@ -30,9 +30,8 @@ public final class FlightBody {
     }
 
     public static Tuning tuning(Player player) {
+        var base = com.dragonminez.common.config.ConfigManager.getRuntime().flight().tuning();
         var data = com.dragonminez.common.stats.StatsProvider.get(com.dragonminez.common.stats.StatsCapability.INSTANCE, player).orElse(null);
-        var config = com.dragonminez.common.config.ConfigManager.getRuntime().flight();
-        var base = (data == null ? config : config.resolve(data)).tuning();
         double factor = 1;
         if (data != null) {
             var attribute = com.dragonminez.common.init.EntityAttributes.FLY_SPEED;
@@ -43,7 +42,7 @@ public final class FlightBody {
         }
         if (!Double.isFinite(factor)) factor = 0;
         return new Tuning(Math.clamp(base.thrust() * factor, 0, 1), base.drag(), base.braking(), base.gravity(), base.lift(),
-                Math.clamp(base.speed() * factor, 1e-6, 8), base.boost(), base.turn(), base.smoothing(), base.banking(), base.pitchRate(), base.yawRate(), base.rollRate());
+                Math.clamp(base.speed() * factor, 1e-6, 8), base.boost(), base.turn(), base.smoothing(), base.banking());
     }
 
     public static FlightShape shape(Player player, State state) {

@@ -39,15 +39,10 @@ public final class FlightMotion {
             for (double value : new double[]{pitch,yaw,roll,throttle,lift}) if (!Double.isFinite(value) || Math.abs(value)>1) throw new IllegalArgumentException("Flight input outside -1..1");
         }
     }
-    public record Tuning(double thrust, double drag, double braking, double gravity, double lift, double speed, double boost, double turn, double smoothing, double banking,
-                         double pitchRate, double yawRate, double rollRate) {
-        public Tuning(double thrust, double drag, double braking, double gravity, double lift, double speed, double boost, double turn, double smoothing, double banking) {
-            this(thrust, drag, braking, gravity, lift, speed, boost, turn, smoothing, banking, turn, turn, turn);
-        }
+    public record Tuning(double thrust, double drag, double braking, double gravity, double lift, double speed, double boost, double turn, double smoothing, double banking) {
         public Tuning {
-            for (double n : new double[]{thrust,drag,braking,gravity,lift,speed,boost,turn,smoothing,banking,pitchRate,yawRate,rollRate}) if (!Double.isFinite(n) || n<0) throw new IllegalArgumentException("Flight tuning must be finite and nonnegative");
-            if (speed<=0 || speed>8 || boost<1 || boost>4 || drag>1 || braking>1 || turn>Math.PI/4 || smoothing>1 || thrust>1 || gravity>1 || lift>1 || banking>1
-                    || pitchRate>Math.PI/4 || yawRate>Math.PI/4 || rollRate>Math.PI/4) throw new IllegalArgumentException("Flight tuning outside bounds");
+            for (double n : new double[]{thrust,drag,braking,gravity,lift,speed,boost,turn,smoothing,banking}) if (!Double.isFinite(n) || n<0) throw new IllegalArgumentException("Flight tuning must be finite and nonnegative");
+            if (speed<=0 || speed>8 || boost<1 || boost>4 || drag>1 || braking>1 || turn>Math.PI/4 || smoothing>1 || thrust>1 || gravity>1 || lift>1 || banking>1) throw new IllegalArgumentException("Flight tuning outside bounds");
         }
     }
     public record State(Vector position, Vector velocity, Rotation rotation, Vector angular) {
@@ -59,7 +54,7 @@ public final class FlightMotion {
     public static State step(State state, Controls controls, Tuning tuning) {
         var target = new Vector(-controls.pitch(),-controls.yaw(),-controls.roll()-controls.yaw()*tuning.banking());
         var angular = state.angular().scale(1-tuning.smoothing()).add(target.scale(tuning.smoothing()));
-        var rotation = state.rotation().multiply(axis(0,1,0,angular.y()*tuning.yawRate())).multiply(axis(1,0,0,angular.x()*tuning.pitchRate())).multiply(axis(0,0,1,angular.z()*tuning.rollRate())).unit();
+        var rotation = state.rotation().multiply(axis(0,1,0,angular.y()*tuning.turn())).multiply(axis(1,0,0,angular.x()*tuning.turn())).multiply(axis(0,0,1,angular.z()*tuning.turn())).unit();
         var forward = rotation.rotate(new Vector(0,0,-1)); var up = rotation.rotate(new Vector(0,1,0));
         double ratio = Math.min(1,state.velocity().length()/tuning.speed());
         var force = forward.scale(controls.throttle()*tuning.thrust()*(controls.boost()?tuning.boost():1))
