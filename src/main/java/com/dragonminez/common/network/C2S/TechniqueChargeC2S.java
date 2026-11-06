@@ -72,6 +72,7 @@ public class TechniqueChargeC2S {
 
 				switch (msg.action) {
 					case START -> {
+                        if (!data.getRuntime().permits("ki")) break;
 						MinigameSessionManager.onPlayerAction(player, "technique");
 						if (!PacketRateLimiter.allow(player.getUUID(), "technique_charge_start", player.level().getGameTime(), START_MIN_INTERVAL_TICKS)) break;
 						if (player.isSpectator()

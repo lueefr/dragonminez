@@ -267,6 +267,7 @@ public class StrikeAttackHandler {
 		if (player.level().isClientSide) return;
 		StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(stats -> {
 			if (!stats.getStatus().isHasCreatedCharacter()) return;
+            if (!stats.getRuntime().permits("strike")) return;
 			if (stats.getStatus().isStunned()) return;
 			if (PENDING.containsKey(player.getUUID()) || ACTIVE.containsKey(player.getUUID())) return;
 
@@ -419,6 +420,12 @@ public class StrikeAttackHandler {
 		setStrikeLocked(player, false);
 	}
 
+    public static boolean ownsStrike(ServerPlayer player) {
+        UUID id=player.getUUID();
+        return PENDING.containsKey(id)||ACTIVE.containsKey(id)||SLAM_RINGS.containsKey(id)||METEOR_BURSTS.containsKey(id)
+                ||MYSTIC_BALLS.containsKey(id)||EYE_BEAMS.containsKey(id)||DEATH_CHASERS.containsKey(id)||ANDROID_COMBOS.containsKey(id)
+                ||BEAM_SWORD_SLASHES.containsKey(id)||PERFECT_RUSHES.containsKey(id)||SPIRIT_BREAKERS.containsKey(id);
+    }
 	public static boolean isStrikeLockOwned(ServerPlayer player) {
 		UUID id = player.getUUID();
 		if (com.dragonminez.common.init.entities.ki.GumBindEntity.isBound(id)) return true;

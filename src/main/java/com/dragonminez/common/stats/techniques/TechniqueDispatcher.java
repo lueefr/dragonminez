@@ -563,6 +563,7 @@ public class TechniqueDispatcher {
 	}
 
 	public static boolean canStartCharge(Player player, KiAttackData data, int lockedTargetId) {
+        if (player instanceof net.minecraft.server.level.ServerPlayer && com.dragonminez.common.stats.StatsProvider.get(com.dragonminez.common.stats.StatsCapability.INSTANCE,player).map(stats -> !stats.getRuntime().permits("ki")).orElse(false)) return false;
 		if (KiTechniqueHandler.HellzoneGrenade.is(data.getId())) return KiTechniqueHandler.HellzoneGrenade.hasTarget(player, lockedTargetId);
 		return true;
 	}

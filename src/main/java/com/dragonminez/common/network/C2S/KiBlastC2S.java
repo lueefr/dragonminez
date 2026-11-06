@@ -79,7 +79,8 @@ public class KiBlastC2S {
 			if (msg.isShooting) {
 				MinigameSessionManager.onPlayerAction(player, "ki blast");
 				StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> {
-					if (ACTIVE_VOLLEYS.containsKey(player.getUUID())) return;
+					if (!data.getRuntime().permits("ki")) return;
+                    if (ACTIVE_VOLLEYS.containsKey(player.getUUID())) return;
 					if (data.getCooldowns().hasCooldown(Cooldowns.KI_BLAST_CD)) return;
 					if (data.getStatus().isStunned()) return;
 					if (!data.getSkills().hasSkill("kicontrol")) return;
@@ -116,6 +117,7 @@ public class KiBlastC2S {
 					var aim=com.dragonminez.common.combat.aim.KiAim.direction(player,kiBlast.position());
                     kiBlast.shoot(aim.x,aim.y,aim.z,kiBlast.getKiSpeed(),0);
 					player.level().addFreshEntity(kiBlast);
+                    if (data.getStatus().isHasCreatedCharacter()) data.getRuntime().releaseAttack(data, "dmz:ki_blast", 100);
 
 					NetworkHandler.sendToTrackingEntityAndSelf(new TriggerAnimationS2C(player.getUUID(), TriggerAnimationS2C.AnimationType.KI_BLAST_SHOT, leftHand ? 2 : 0, player.getId()), player);
 					NetworkHandler.sendToTrackingEntityAndSelf(new StatsSyncS2C(player), player);
@@ -162,6 +164,7 @@ public class KiBlastC2S {
 		var aim=com.dragonminez.common.combat.aim.KiAim.direction(player,kiBlast.position());
         kiBlast.shoot(aim.x,aim.y,aim.z,kiBlast.getKiSpeed(),0);
 		player.level().addFreshEntity(kiBlast);
+        StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(data -> { if(data.getStatus().isHasCreatedCharacter())data.getRuntime().releaseAttack(data,"dmz:ki_volley",100); });
 		volley.shotsFired++;
 	}
 

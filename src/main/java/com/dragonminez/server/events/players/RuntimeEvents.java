@@ -36,6 +36,24 @@ public final class RuntimeEvents {
         if (event.getStatsData().getStatus().isHasCreatedCharacter()) event.getStatsData().getRuntime().releaseAttack(event.getStatsData(), event.getKiAttack().getId(), event.getChargeMultiplier() * 100);
     }
     @SubscribeEvent
+    public static void strikeCast(com.dragonminez.common.events.DMZEvent.StrikeAttackCastEvent event) {
+        if(event.getStatsData().getStatus().isHasCreatedCharacter())event.getStatsData().getRuntime().startStrike(event.getStatsData(),event.getStrike().getId());
+    }
+    @SubscribeEvent(priority=net.neoforged.bus.api.EventPriority.LOWEST)
+    public static void strikeFire(com.dragonminez.common.events.DMZEvent.StrikeAttackFireEvent event) {
+        if(event.getStatsData().getStatus().isHasCreatedCharacter())event.getStatsData().getRuntime().releaseAttack(event.getStatsData(),event.getStrike().getId(),100);
+    }
+    @SubscribeEvent(priority=net.neoforged.bus.api.EventPriority.HIGHEST)
+    public static void meleeGate(net.neoforged.neoforge.event.entity.player.AttackEntityEvent event) {
+        if(!(event.getEntity() instanceof ServerPlayer))return;
+        StatsProvider.get(StatsCapability.INSTANCE,event.getEntity()).ifPresent(data->{if(!data.getRuntime().permits("melee"))event.setCanceled(true);});
+    }
+    @SubscribeEvent(priority=net.neoforged.bus.api.EventPriority.LOWEST)
+    public static void meleePhase(net.neoforged.neoforge.event.entity.player.AttackEntityEvent event) {
+        if(!(event.getEntity() instanceof ServerPlayer))return;
+        StatsProvider.get(StatsCapability.INSTANCE,event.getEntity()).ifPresent(data->{if(data.getStatus().isHasCreatedCharacter())data.getRuntime().releaseAttack(data,"dmz:melee",100);});
+    }
+    @SubscribeEvent
     public static void damage(LivingDamageEvent.Post event) {
         if (event.getEntity().level().isClientSide() || event.getNewDamage() <= 0 || !Float.isFinite(event.getNewDamage())) return;
         Map<String, Double> values = Map.of("event.damage", (double) event.getNewDamage(), "event.originalDamage", (double) event.getOriginalDamage(), "event.blockedDamage", (double) event.getBlockedDamage());

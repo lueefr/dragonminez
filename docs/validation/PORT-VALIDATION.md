@@ -175,3 +175,17 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   pixel color inside a 40%-filled bar and resolved its translation label.
   Existing flight, form dimensions, absorption, Ki depth and crosshair passed.
 - Logs: `/tmp/dmz-meter-hud-validation.log`, `/tmp/dmz-meter-hud-client.log`.
+
+
+## Native attack phase adapters — 2026-11-05
+
+- Java 21 build and all 65 required GameTests passed. The new server test
+  posts native melee events through the NeoForge bus, verifies active/recovery
+  windows, cancellation of restricted follow-up input and restored idle input.
+- Strike cast/fire and native ownership feed the existing lifecycle; basic
+  blasts and volley projectiles emit their release phases after actual spawn.
+- New restrictions are enforced before native costs for charge requests, basic
+  blasts and strikes. Existing release/cancel paths remain available.
+- Player-text audit passed. Logs: `/tmp/dmz-attack-adapters-final.log`.
+  Specialized strike animations and a real multiplayer latency session were
+  not separately exercised by a client harness for this increment.

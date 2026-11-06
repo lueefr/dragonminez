@@ -274,7 +274,7 @@ Timing defaults to one active tick and zero recovery ticks; active accepts 1..72
 
 Numeric sources `attack.charging`, `attack.active` and `attack.recovery` are 0/1; `attack.ticks` is elapsed ticks in the current phase and `attack.charge` is charge percent (0..200). Sources are available in JSON event actions, dynamic stat factors and Lua snapshots. Events: `dmz:attack_started`, `dmz:attack_released`, `dmz:attack_cancelled`, `dmz:attack_recovery` and `dmz:attack_finished`. Events observe the new phase; cancellation/finish observe idle. Successful releases retain their charge through active/recovery windows.
 
-This integration covers the native charged Ki technique lifecycle. Strike/basic-blast phase adapters, per-projectile continuous-reaction intervals and configurable attack input restrictions remain subsequent work.
+The native charged Ki lifecycle is supplemented on `feature/attack-adapters` by melee attempts, basic blast/volley releases and native strike cast/fire/rush state. Attack policies accept charging/active/recovery restrictions for new melee, ki and strike inputs, enforced on the server before costs. Native actions already in flight continue. Per-projectile reaction attempt intervals are supplied by the reaction policy module; these phase windows do not control projectile lifetimes or movement.
 
 ## Captured power inheritance
 

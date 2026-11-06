@@ -197,3 +197,45 @@ Fill uses the meter's declared min/max and clamps to 0..100%. A zero-width
 meter range has empty fill. Colors use `#RRGGBB`. Shared `when` predicates
 control visibility and may reference declared meters. Hidden GUI and spectator
 mode hide these bars. Missing `hud` leaves the HUD unchanged.
+
+
+## Attack input restrictions and native adapters
+
+Attack timing policies also accept `restrictions`, listing actions forbidden
+while that attack is in a particular phase:
+
+```json
+{
+  "behaviors": {
+    "attacks": {
+      "dmz:melee": {
+        "activeTicks": 1,
+        "recoveryTicks": 8,
+        "restrictions": {"recovery": ["melee", "ki", "strike"]}
+      },
+      "example:beam": {
+        "activeTicks": 4,
+        "recoveryTicks": 12,
+        "restrictions": {"charging": ["melee", "strike"], "recovery": ["ki"]}
+      }
+    }
+  }
+}
+```
+
+Allowed phase names are `charging`, `active`, `recovery`; action names are
+`melee`, `ki`, `strike`. Missing restrictions permit the existing inputs.
+The server rejects new restricted actions before their costs; releasing or
+cancelling an existing charged technique remains available. Existing projectiles
+and volley shots continue. This does not configure movement restrictions.
+
+Native melee attempts use `dmz:melee`. Single basic ki shots use
+`dmz:ki_blast`; each actual volley shot uses `dmz:ki_volley`. Their release
+events expose charge 100, with configured active/recovery windows. Strike
+techniques use their existing technique IDs: native rushing is charging,
+engagement enters active, and interrupted windup cancels. Specialized strikes
+without a rush enter active when their native execution owns the actor.
+
+These adapters feed the same attack event sources and modifier queries as
+charged ki techniques. Timings remain rule windows, independent of native
+animation and projectile lifetime. New policies are optional.
