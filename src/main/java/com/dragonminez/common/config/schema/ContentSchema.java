@@ -131,6 +131,7 @@ public final class ContentSchema {
         put(Kind.FORM,"customModel","appearance.body.model");
         put(Kind.FORM,"keepBaseFormHeadBones","appearance.body.keepBaseHead");
         put(Kind.FORM,"modelScaling","appearance.body.scale");
+        put(Kind.FORM,"size","appearance.size");
         put(Kind.FORM,"bodyColor1","appearance.body.primaryColor");
         put(Kind.FORM,"bodyColor2","appearance.body.secondaryColor");
         put(Kind.FORM,"bodyColor3","appearance.body.tertiaryColor");

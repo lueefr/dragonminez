@@ -961,24 +961,24 @@ public class StatsEvents {
             }
 
             Character character = data.getCharacter();
-            float[] dimensions = formDimensions(character.getResolvedModelScaling(), pose);
+            float[] dimensions = formDimensions(character.getResolvedModelScaling(), pose, character.eyeRatio(character.getActiveFormData(), character.getActiveStackFormData()));
 
             FormTransition transition = data.getFormTransition();
             if (transition.isReady()) {
                 double time = transition.observe(data, transition.now());
                 FormTransition.Charge charge = transition.charge(character, time);
-                if (charge != null) dimensions = FormTransition.lerp(dimensions, formDimensions(charge.look().modelScaling(character), pose), charge.factor());
+                if (charge != null) dimensions = FormTransition.lerp(dimensions, formDimensions(charge.look().modelScaling(character), pose, character.eyeRatio(charge.look().formData(), charge.look().stackData())), charge.factor());
                 FormTransition.Revert revert = transition.revert(time);
-                if (revert != null) dimensions = FormTransition.lerp(dimensions, formDimensions(revert.look().modelScaling(character), pose), revert.factor());
+                if (revert != null) dimensions = FormTransition.lerp(dimensions, formDimensions(revert.look().modelScaling(character), pose, character.eyeRatio(revert.look().formData(), revert.look().stackData())), revert.factor());
             }
 
             event.setNewSize(EntityDimensions.fixed(dimensions[0], dimensions[1]).withEyeHeight(dimensions[2]));
         });
     }
 
-    private static float[] formDimensions(Float[] scaling, Pose pose) {
-        float finalWidth = Math.round(0.6F * scaling[0] * 10.0F) / 10.0F;
-        float finalHeight = Math.round(1.9F * scaling[1] * 10.0F) / 10.0F;
+    private static float[] formDimensions(Float[] scaling, Pose pose, float eyeRatio) {
+        float finalWidth = Math.max(0.1f, Math.round(0.6F * Math.max(scaling[0], scaling[2]) * 10.0F) / 10.0F);
+        float finalHeight = Math.max(0.1f, Math.round(1.9F * scaling[1] * 10.0F) / 10.0F);
 
         float poseHeightMultiplier = 1.0F;
         float eyeHeightMultiplier = 1.0F;
@@ -992,7 +992,9 @@ public class StatsEvents {
         }
 
         float alturaSegura = Math.round(finalHeight * poseHeightMultiplier * 10.0F) / 10.0F;
-        float finalEyeHeight = Math.round(1.7F * scaling[1] * eyeHeightMultiplier * 10.0F) / 10.0F;
+        float finalEyeHeight = Math.round(1.9F * eyeRatio * scaling[1] * eyeHeightMultiplier * 10.0F) / 10.0F;
+        alturaSegura = Math.max(0.1f, alturaSegura);
+        finalEyeHeight = Math.clamp(finalEyeHeight, 0.01f, alturaSegura - 0.01f);
         return new float[]{finalWidth, alturaSegura, finalEyeHeight};
     }
 }

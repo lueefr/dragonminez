@@ -316,9 +316,15 @@ The validated runtime, behavior factors/maintenance, aura lists, dodge reactions
 Counters require range/line of sight and use the existing generic strike damage source, retaining native damage/protection handling. A thread-local guard prevents recursive reaction chains during retaliation; it is removed in finally. No combat state is persisted. `dmz:blocked`/`dmz:countered` expose stage-specific measured damage inputs. See the wiki Runtime-rules guide for configuration.
 
 
-## Planned: configurable form dimensions
+## Configurable form dimensions
 
-Requested on 2026-11-05; planning only, after the current aura work.
+Implemented on `feature/form-dimensions` after authorization on 2026-11-05.
+`appearance.size` supplies multiplier, height, width, eyeRatio and an optional
+registered entity reference. It extends the existing per-axis body scale and
+main/stack transition pipeline. Explicit height overrides reference height;
+multiplier applies last. New Oozaru defaults reference the hostile NPC type.
+Existing owner files remain unchanged. See the Content-configuration wiki page.
+The following acceptance scope guides validation:
 
 - Expose one consistent size configuration for every transformation, including
   per-axis visual scale, physical height/width and eye position with safe bounds.

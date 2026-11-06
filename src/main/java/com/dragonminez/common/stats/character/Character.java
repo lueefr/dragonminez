@@ -487,11 +487,11 @@ public class Character {
 
 	private Float[] resolveFormModelScaling(FormConfig.FormData form, FormConfig.FormData stack) {
 		if (form == null && stack == null) return safeModelScaling(getModelScaling());
-		if (form != null && stack == null) return safeModelScaling(form.getModelScaling());
-		if (form == null && stack != null) return safeModelScaling(stack.getModelScaling());
+		if (form != null && stack == null) return formScale(form);
+		if (form == null && stack != null) return formScale(stack);
 
-		Float[] formScale = safeModelScaling(form.getModelScaling());
-		Float[] stackScale = safeModelScaling(stack.getModelScaling());
+		Float[] formScale = formScale(form);
+		Float[] stackScale = formScale(stack);
 
 		return new Float[]{
 				resolveAxis(formScale[0], stackScale[0]),
@@ -499,6 +499,17 @@ public class Character {
 				resolveAxis(formScale[2], stackScale[2])
 		};
 	}
+
+    private static Float[] formScale(FormConfig.FormData form) {
+        Float[] base = safeModelScaling(form.getModelScaling());
+        return form.getSize() == null ? base : form.getSize().resolve(base);
+    }
+
+    public float eyeRatio(FormConfig.FormData form, FormConfig.FormData stack) {
+        if (stack != null && stack.getSize() != null && stack.getSize().getEyeRatio() != null) return stack.getSize().getEyeRatio();
+        if (form != null && form.getSize() != null && form.getSize().getEyeRatio() != null) return form.getSize().getEyeRatio();
+        return 1.7f / 1.9f;
+    }
 
 	private float resolveAxis(float formVal, float stackVal) {
 		if (formVal == 0.9375f && stackVal == 0.9375f) return 0.9375f;

@@ -45,6 +45,7 @@ public class ConfigLoader {
                             com.dragonminez.api.rules.Conditions.validate(form.getBuy());com.dragonminez.api.rules.Conditions.validate(form.getUse());
                             com.dragonminez.api.forms.FormVisuals.validate(form.getVisual());
                 AuraLayers.validate(form.getAuraLayers());
+                if (form.getSize() != null) { form.getSize().validate(); form.getSize().resolve(form.getModelScaling()); }
                             com.dragonminez.api.forms.FormCompositionRuntime.definition(forms.getGroupName(),form);
                         }
                     }

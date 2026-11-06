@@ -221,6 +221,7 @@ public class FormConfig {
 		private String lightningColor = "";
 		private String tintColor = "#FF0000";
 		private Double tintIntensity = 0.0;
+		private FormSize size;
 		private Float[] modelScaling = {0.9375f, 0.9375f, 0.9375f};
 		private Double strMultiplier = 1.0;
 		private Double skpMultiplier = 1.0;
