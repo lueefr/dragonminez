@@ -221,7 +221,7 @@ Each layer accepts id, type2d, type3d, color, uniform scale (default 1), opacity
 
 Hit chance expressions may read event.powerRatio and configured meters. Equal zero powers yield ratio 1; positive attacker versus zero defender yields the maximum finite ratio. Probability clamps to 0..1. Reactions require sufficient resources, cooldown readiness, a loaded/bounded collision-free destination and a clear swept path. The server moves the defender, synchronizes position/animation, consumes costs and emits dmz:evaded. No free damage cancellation occurs when movement is blocked. Runtime expression errors disable that reaction until reload. Successful reactions also enter combat. Native NPC battle power is used when available; other living entities currently use max health as a fallback score.
 
-Swept displacement, probability endpoints, cooldown and actual movement are covered by a server GameTest. Weighted power and per-projectile attempt intervals are implemented on `feature/reaction-policies`; blocking/counters are implemented in the combat response increment. Projectile destruction/deflection now share reaction eligibility, power, costs and attempt intervals, with type filters, NeoForge impact integration, native Ki damage interception and synchronized owner/motion. Other capabilities remain pending.
+Swept displacement, probability endpoints, cooldown and actual movement are covered by a server GameTest. Weighted power and per-projectile attempt intervals are implemented on `feature/reaction-policies`; blocking/counters are implemented in the combat response increment. Projectile destruction/deflection now share reaction eligibility, power, costs and attempt intervals, with type filters, NeoForge impact integration, native Ki damage interception and synchronized owner/motion. Targeted effects and energy projections supply the remaining configured combat capabilities in subsequent increments.
 
 ## Lua branch: server event scripts
 
@@ -250,7 +250,7 @@ The server loads source files; clients receive subscription metadata, never sour
 
 Each invocation has a fresh environment. Persistent state belongs in declared meters. Only base language operations and deterministic math are exposed; filesystem, OS, Java objects, dynamic loading, coroutines, debug API and random functions are absent. Execution limits interrupt instruction loops, excessive recursion and oversized string concatenation, including loops inside `pcall`. These are safeguards for trusted local server scripts, not a process-isolated sandbox for hostile code.
 
-Implemented: event subscriptions, numeric inputs, transactional meter commands, server-only loading, reload, bounded execution and typed post-commit gameplay commands shared with JSON rewards. These cover content, resource changes, effects, normal form activation and the existing reward registry. Content definition registration now supplies validated in-memory form-group, stack-group and attribute overlays. Editor declarations and non-mutating diagnostics are implemented on `feature/lua-tooling`. Model/camera presentation now uses declarative form bindings, with meter HUD and aura control. Named read-only queries are implemented on `feature/lua-queries`; remaining combat capabilities still include energy projections. Meter-driven HUD/aura presentation is already available. Lua support alone does not complete those modules.
+Implemented: event subscriptions, numeric inputs, transactional meter commands, server-only loading, reload, bounded execution and typed post-commit gameplay commands shared with JSON rewards. These cover content, resource changes, effects, normal form activation and the existing reward registry. Content definition registration now supplies validated in-memory form-group, stack-group and attribute overlays. Editor declarations and non-mutating diagnostics are implemented on `feature/lua-tooling`. Model/camera presentation now uses declarative form bindings, with meter HUD and aura control. Named read-only queries are implemented on `feature/lua-queries`; energy projections are implemented on `feature/energy-projections`. Meter-driven HUD/aura presentation is already available. Lua support alone does not complete those modules.
 
 
 ## Attack phase branch
@@ -425,3 +425,32 @@ expressions, preserve aim yaw/pitch and leave hand FOV alone. Lua participates
 through registered form definitions and synchronized meters; arbitrary client
 Lua or graphics calls are not needed. Shared conditions retain main/stack
 merge order. Customization details are in Content-configuration.
+
+
+## Energy projection capability
+
+`projections` declares server-owned transient avatars with shared conditions,
+resource costs/upkeep, finite lifetime/cooldown, appearance resources and an
+optional bounded native-damage/effect pulse. Typed JSON/Lua reward actions
+request creation. One ID per caster and four instances total bound repeated
+requests. Native friendly/PvP/protection handling and loaded-chunk line-of-sight
+checks apply; avatars never force generation or block movement. Clients render
+synchronized owner/definition/expiry with normal translucent depth testing.
+Missing visual resources have bundled fallbacks. See Runtime-rules.
+
+## Feature completion audit before worldgen
+
+The reformulated feature plan now has implementations for runtime/meters and
+expressions; conditional/timed form behaviors and lifecycle actions; live and
+captured power inheritance; force-relative reactions, block/counter/projectile
+responses and targeted effects; energy projections; explicit multi-layer auras,
+mesh/seal/composition/emitters/dynamic parameters; authoritative profiled flight,
+collision sliding and remote presentation; form dimensions; meter HUD; and
+bounded server Lua with typed gameplay commands, content overlays, named
+read-only queries, diagnostics/editor declarations and declarative model/camera
+presentation. Completed increments are individually validated and merged.
+
+The next queued work is generic worldgen compatibility, after integrating the
+projection branch. Real WAN stress and arbitrary third-party assets/effects are
+verification limits, not claims made by the local test suite. No archived LOD
+or separate Fabric-port branch is part of this merge scope.

@@ -334,3 +334,21 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   subsequent invocations. Generated editor context includes the flags table.
 - Existing JSON files/configVersion are unchanged; network revision 17 requires
   matching clients for runtime configuration containing query declarations.
+
+
+### Energy projections — 2026-11-06
+
+- Branch `feature/energy-projections`: Java 21 build and all 76 required
+  GameTests passed. Evidence: `/tmp/dmz-projections-release-validation.log`.
+- Tests cover actual creation conditions, costs, duplicate/per-caster limits,
+  native damage and registered stun, wall occlusion, following, unpaid upkeep,
+  reset/config-removal cleanup, no world persistence, and invalid declarations.
+  A zero-stat uncreated test fixture was corrected to supply explicit PWR.
+- Packaged client with Sodium/Iris/Complementary passed in
+  `/tmp/dmz-projections-client.log`: actual GeoEntity rendering/owner/color,
+  missing-model fallback, configured expiry and full aura/Ki/crosshair/flight/
+  model/camera regressions. No fixture classes were added to the production JAR.
+- Player-text audit passed (6876 keys). Projection attack line checks require
+  loaded chunks before reading blocks; no chunk tickets/generation are added.
+- New resource IDs use native asset availability; malformed third-party assets
+  and every third-party effect implementation are not universally tested.

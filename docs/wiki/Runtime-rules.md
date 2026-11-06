@@ -388,3 +388,90 @@ remain in charge; no stronger/longer stacking rule is invented here.
 This also works for dodge, counter, projectile destruction and deflection.
 `dragonminez:stun` uses the existing stun mechanics; it is not a new persistent
 position anchor. Other mods' effects retain the behavior defined by those mods.
+
+
+## Energy projections
+
+Declare transient server-owned avatars in `runtime.json`. No existing form
+receives one automatically. Example:
+
+```json
+{
+  "projections": {
+    "example:guardian": {
+      "when": {"activeForm": "example.focus"},
+      "durationTicks": 200,
+      "cooldownTicks": 200,
+      "costs": {"energy": 0.05, "stamina": 0, "energyPerTick": 0.001},
+      "appearance": {
+        "model": "dragonminez:geo/entity/races/human.geo.json",
+        "texture": "minecraft:textures/block/white_wool.png",
+        "animation": "dragonminez:animations/entity/races/movement.animation.json",
+        "clip": "base.idle",
+        "scale": 4,
+        "color": "#66CCFF",
+        "opacity": 0.5,
+        "offset": [0, 0, 2],
+        "fullbright": true
+      },
+      "attack": {
+        "stat": "PWR", "factor": 0.1,
+        "radius": 5, "range": 16,
+        "intervalTicks": 20, "targets": 1,
+        "targeting": "hostile",
+        "effects": [{"id": "dragonminez:stun", "ticks": 10}]
+      }
+    }
+  },
+  "behaviors": {
+    "forms": {
+      "example.focus": {"onEnter": [{"projection": "example:guardian"}]}
+    }
+  }
+}
+```
+
+Request creation with the shared action `{"projection":"example:guardian"}`
+in form transitions, gameplay event actions, wishes/content rewards, or Lua:
+`{reward={projection='example:guardian'}}`. Access conditions, resources,
+cooldown and instance limits are checked by the server before charging costs.
+Unknown IDs are runtime errors; blocked creation does not consume resources.
+At most one instance of an ID and four total instances can exist per caster.
+There are at most 64 projection definitions.
+
+Duration is 1..72000 ticks (default 200); cooldown is 0..72000 ticks (default
+200). Costs are fractions of maximum energy/stamina in 0..1; upkeep is energy
+per tick, also fractional. An instance disappears on expiry, death/removal,
+character reset, dimension change, failed conditions, unpaid upkeep, missing
+configuration or an unloaded/out-of-border follow destination. It is not
+saved into the world and does not obstruct movement or catch projectiles.
+A reconnect or clone does not replay its creation action. Active instances
+retain their original expiry when definitions are edited; other fields are
+read from the current definition. New activation uses the new duration.
+
+Appearance is independent from physical caster size. `scale` is 0.1..32,
+opacity 0..1, color is `#RRGGBB`, and offset is [right, up, forward] in blocks
+relative to caster yaw (-32..32 each). The projection follows the caster's
+position/body yaw and looks with its head; its configured clip controls the
+rest of the animation. Model/texture/animation are resource IDs: other mods
+and resource packs may supply them. Clients need those resources; Lua or JSON
+does not transfer arbitrary asset files. Missing resources fall back to the
+bundled humanoid, white wool texture and native movement animations. The
+projection uses normal depth-tested translucent rendering and fades in its
+last ten ticks. Fullbright defaults true; false uses world lighting.
+
+Omit `attack` for a visual-only avatar. Otherwise damage equals the caster's
+base STR or PWR times its resolved stat multiplier times `factor` (0..100,
+default 0.1). Nonpositive/nonfinite damage does not attack. `radius` is a
+sphere around the projection's visual bounds center (0.1..32); `range` also
+limits distance from the caster (0.1..64). The server checks line of sight from
+the projection and native friendly/PvP restrictions. Targets are processed
+nearest first, with a stable UUID tie-breaker. `targets` is 1..16 and interval
+is 1..72000 ticks. Native damage, armor, protection and immunity still apply.
+Up to 16 registered effects apply only after successful damage.
+
+`targeting` defaults to `hostile` according to the mod's normal relationship
+configuration. `nonfriendly` also permits neutral targets; `aim` additionally
+limits nonfriendly targets to the caster's look cone, with `angle` in 1..180
+degrees (default 45). This uses authoritative player look, not a client-sent
+arbitrary target. A projection does not break blocks or create real chunks.

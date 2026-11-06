@@ -211,3 +211,9 @@ its own copied table: assigning a Lua field does not change character state,
 conditions, another script's inputs or future invocations. Unspecified query
 keys are Lua `nil`. Use typed commands to request actual changes; no player or
 Java objects are exposed through queries.
+
+
+Energy avatars use the same typed action: `{reward={projection='example:guardian'}}`.
+Declare their appearance, lifetime, costs and attack rules under `projections`
+in [Runtime rules](Runtime-rules); creating an avatar never registers a new
+Minecraft entity type from Lua.
