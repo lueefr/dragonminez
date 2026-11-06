@@ -8,7 +8,10 @@ import java.util.*;
 
 /** Conditional queries return factors; maintenance is executed separately by the server tick. */
 public final class BehaviorConfig {
-    public record Attack(int active, int recovery) {}
+    public record Attack(int active, int recovery, Map<String, Set<String>> restrictions) {
+        public Attack(int active, int recovery) { this(active, recovery, Map.of()); }
+        public boolean permits(String phase, String action) { return !restrictions.getOrDefault(phase, Set.of()).contains(action); }
+    }
     private final Map<String, Attack> attacks = new LinkedHashMap<>();
     public Attack attack(String id) { return attacks.getOrDefault(id, new Attack(1, 0)); }
     public record Lifetime(JsonObject when, int duration, int cooldown, String fallback) {}
@@ -22,10 +25,21 @@ public final class BehaviorConfig {
         var root = value.getAsJsonObject(); fields(root, Set.of("forms", "modifiers", "attacks"));
         if (root.has("attacks")) root.getAsJsonObject("attacks").entrySet().forEach(entry -> {
             if (entry.getKey().isBlank()) throw new IllegalArgumentException("Attack needs a technique ID");
-            var rule = entry.getValue().getAsJsonObject(); fields(rule, Set.of("activeTicks", "recoveryTicks"));
+            var rule = entry.getValue().getAsJsonObject(); fields(rule, Set.of("activeTicks", "recoveryTicks", "restrictions"));
             int active = integer(rule, "activeTicks", 1), recovery = integer(rule, "recoveryTicks", 0);
             if (active < 1 || active > 72000 || recovery > 72000) throw new IllegalArgumentException("Attack phases must be within 0..72000 ticks with nonzero active time");
-            config.attacks.put(entry.getKey(), new Attack(active, recovery));
+            Map<String, Set<String>> restrictions = new LinkedHashMap<>();
+            if (rule.has("restrictions")) for (var phase : rule.getAsJsonObject("restrictions").entrySet()) {
+                if (!Set.of("charging", "active", "recovery").contains(phase.getKey())) throw new IllegalArgumentException("Invalid attack restriction phase");
+                Set<String> actions = new HashSet<>();
+                for (var action : phase.getValue().getAsJsonArray()) {
+                    String name = action.getAsString();
+                    if (!Set.of("melee", "ki", "strike").contains(name)) throw new IllegalArgumentException("Invalid restricted attack action");
+                    actions.add(name);
+                }
+                restrictions.put(phase.getKey(), Set.copyOf(actions));
+            }
+            config.attacks.put(entry.getKey(), new Attack(active, recovery, Map.copyOf(restrictions)));
         });
         if (config.attacks.size() > 256) throw new IllegalArgumentException("Too many attack phase policies");
         if (root.has("forms")) root.getAsJsonObject("forms").entrySet().forEach(entry -> {
