@@ -5,7 +5,6 @@ import com.dragonminez.server.world.feature.OverworldPlacedFeatures;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.data.worldgen.Carvers;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -28,8 +27,6 @@ public class OverworldBiomes {
 		BiomeGenerationSettings.Builder biomeBuilder = new BiomeGenerationSettings.Builder(context.lookup(Registries.PLACED_FEATURE), context.lookup(Registries.CONFIGURED_CARVER));
 
 		BiomeDefaultFeatures.addDefaultCarversAndLakes(biomeBuilder);
-		biomeBuilder.addCarver(GenerationStep.Carving.AIR, context.lookup(Registries.CONFIGURED_CARVER).getOrThrow(Carvers.CANYON));
-		biomeBuilder.addCarver(GenerationStep.Carving.AIR, context.lookup(Registries.CONFIGURED_CARVER).getOrThrow(Carvers.CANYON));
 		BiomeDefaultFeatures.addDefaultCrystalFormations(biomeBuilder);
 		BiomeDefaultFeatures.addDefaultOres(biomeBuilder);
 		BiomeDefaultFeatures.addDefaultSoftDisks(biomeBuilder);

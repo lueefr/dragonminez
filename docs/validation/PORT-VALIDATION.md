@@ -352,3 +352,26 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   loaded chunks before reading blocks; no chunk tickets/generation are added.
 - New resource IDs use native asset availability; malformed third-party assets
   and every third-party effect implementation are not universally tested.
+
+
+### Generic worldgen compatibility — 2026-11-06
+
+- Java 21 datagen/build and all 77 required GameTests passed:
+  `/tmp/dmz-worldgen-final.log`. Tests cover actual RandomState construction,
+  channel selection, registry identity preservation, atomic invalid-source
+  rejection, biome anchors/fallbacks, common tags and surface-rule structure.
+- Packaged JAR plus an external native chunk-generation probe passed all 78
+  tests without Tectonic and with Tectonic 3.0.28 / Lithostitched 1.8.1:
+  `/tmp/dmz-worldgen-native-probe.log`, `/tmp/dmz-worldgen-tectonic-probe.log`.
+  Of 289 identical coordinates, 215 heights and 224 biome samples changed
+  under Tectonic. Natural Rocky generation was found in both runs; actual
+  noise-filled chunks contained 32512 and 48009 solid blocks respectively.
+- The final JAR also passed all 78 tests with both Tectonic climate scales
+  changed from 0.25 to 0.125: `/tmp/dmz-worldgen-scaled-probe.log`.
+  The external fixture validates Namek uses the active source climate while
+  retaining its own materials. Probe classes are outside the production JAR.
+- Player-text audit (6876 keys) and all five audit regression tests passed.
+  Datagen-only ordering noise in unrelated radar/pickaxe files was excluded.
+- Saved generator registry definitions are never mutated; existing chunks are
+  not regenerated. Arbitrary custom pipelines bypassing native noise or
+  TerraBlender are not universally covered. No SeedGen/LOD feature is enabled.

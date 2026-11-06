@@ -26,6 +26,10 @@ public class DMZBiomeTagGenerator extends BiomeTagsProvider {
 
 	@Override
 	protected void addTags(HolderLookup.Provider provider) {
+        this.tag(net.neoforged.neoforge.common.Tags.Biomes.IS_HOT_OVERWORLD).add(OverworldBiomes.ROCKY);
+        this.tag(net.neoforged.neoforge.common.Tags.Biomes.IS_DRY_OVERWORLD).add(OverworldBiomes.ROCKY);
+        this.tag(net.neoforged.neoforge.common.Tags.Biomes.IS_SPARSE_VEGETATION_OVERWORLD).add(OverworldBiomes.ROCKY);
+        this.tag(net.neoforged.neoforge.common.Tags.Biomes.IS_WASTELAND).add(OverworldBiomes.ROCKY);
 		this.tag(MainTags.Biomes.IS_NAMEK)
 				.replace(false)
 				.add(NamekBiomes.AJISSA_PLAINS)

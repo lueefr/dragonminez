@@ -450,7 +450,11 @@ bounded server Lua with typed gameplay commands, content overlays, named
 read-only queries, diagnostics/editor declarations and declarative model/camera
 presentation. Completed increments are individually validated and merged.
 
-The next queued work is generic worldgen compatibility, after integrating the
-projection branch. Real WAN stress and arbitrary third-party assets/effects are
+Generic worldgen compatibility is implemented in `feature/worldgen-compatibility`:
+Rocky maps native TerraBlender climate slots, respects preliminary surfaces and
+common biome tags, and avoids duplicate canyon passes. Declarative noise-source
+bindings allow DMZ dimensions to follow active terrain/climate resources while
+retaining their materials and saved generator definitions. Namek follows the
+Overworld by default; Sacred Kai shares climate only. Real WAN stress and arbitrary third-party assets/effects are
 verification limits, not claims made by the local test suite. No archived LOD
 or separate Fabric-port branch is part of this merge scope.

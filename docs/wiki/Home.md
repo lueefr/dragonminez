@@ -22,7 +22,8 @@ Players need the compatible mod, without manually installing server JSONs. Custo
 and other external assets may still need to be distributed separately.
 
 - [Runtime rules and reactions](Runtime-rules): meters, dynamic factors, maintenance, attack windows and force-relative evasion.
-- [Optional Lua scripts](Lua-scripts): server event callbacks, typed meter actions and reload.
+- [Optional Lua scripts](Lua-scripts): server callbacks, typed actions, content declarations, queries and editor tools.
+- [World generation](World-generation): native terrain/climate integration, Rocky slots and noise-source bindings.
 
 ## Configuration files and reload
 
