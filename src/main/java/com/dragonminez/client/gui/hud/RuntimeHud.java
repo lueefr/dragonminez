@@ -32,7 +32,7 @@ public final class RuntimeHud {
             int filled=(int)Math.round(box[2]*bar.fraction(value));
             if(filled>0)graphics.fill(box[0],box[1],box[0]+filled,box[1]+box[3],bar.color());
             Component label=ConfigTranslations.text(bar.label());
-            if(bar.showValue())label=label.copy().append(label.getString().isEmpty()?"":" ").append(Component.literal(String.format(java.util.Locale.ROOT,"%.0f",value)));
+            if(bar.showValue())label=label.copy().append(label.getString().isEmpty()?"":" ").append(Component.translatable("format.dragonminez.meter.value",String.format(java.util.Locale.ROOT,"%.0f",value)));
             if(!label.getString().isEmpty()){
                 int width=mc.font.width(label), x=Math.clamp(box[0],0,Math.max(0,graphics.guiWidth()-width));
                 int y=box[1]>=mc.font.lineHeight?box[1]-mc.font.lineHeight:Math.min(graphics.guiHeight()-mc.font.lineHeight,box[1]+box[3]);
