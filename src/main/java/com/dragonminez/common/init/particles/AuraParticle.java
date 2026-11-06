@@ -11,6 +11,8 @@ import net.neoforged.api.distmarker.OnlyIn;
 public class AuraParticle extends TextureSheetParticle {
 
     private float baseScale;
+    private float baseAlpha=1;
+    public void opacity(float value){baseAlpha=Math.clamp(value,0,1);setAlpha(baseAlpha);}
 
     protected AuraParticle(ClientLevel level, double x, double y, double z, double r, double g, double b) {
         super(level, x, y, z);
@@ -44,7 +46,7 @@ public class AuraParticle extends TextureSheetParticle {
             this.yd *= 0.98;
             this.zd *= 0.98;
 
-            this.setAlpha(1.0f - ((float) this.age / this.lifetime));
+            this.setAlpha(baseAlpha * (1.0f - ((float) this.age / this.lifetime)));
         }
     }
 

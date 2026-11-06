@@ -189,3 +189,14 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
 - Player-text audit passed. Logs: `/tmp/dmz-attack-adapters-final.log`.
   Specialized strike animations and a real multiplayer latency session were
   not separately exercised by a client harness for this increment.
+
+
+## Aura layer emitters — 2026-11-05
+
+- Java 21 build, 65 required GameTests and player-text audit passed. Schema
+  tests cover emitter parameters, invalid counts/intervals/sizes and existing
+  aura-layer roundtrip/sealing/composition behavior.
+- Packaged Iris/Sodium/Complementary client found actual aura particles with
+  the configured layer color in the particle engine. Absorption, dimensions,
+  authoritative flight, HUD pixel/translation and crosshair checks also passed.
+- Logs: `/tmp/dmz-aura-emitters-validation.log`, `/tmp/dmz-aura-emitters-client.log`.

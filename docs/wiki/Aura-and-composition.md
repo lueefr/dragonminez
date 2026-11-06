@@ -133,7 +133,7 @@ Forms and race character definitions accept `aura.layers`; stack forms can suppl
 
 Layer order controls drawing, not size: even order 100 with scale 1 keeps normal scale. IDs must be unique within that definition and stable across edits. Each owner accepts up to 16 layers. Colors use `#RRGGBB`; scale accepts 0.05..8 and opacity 0..1. `type3d` accepts `smooth`, `sparking`, `god` or `userPreference`. `type2d` selects the existing 2D aura variant. Optional `style` uses the existing 3D style fields, including per-axis `size`.
 
-`when` uses shared conditions, including meters. Conditional removal uses the normal fade. Whole-aura sealing and mesh transitions still apply. Each layer may also declare `sealedWhen` and `sealSeconds` (default 0.4, range 0.01..10). While the condition holds the shell contracts into the body until absent; when it stops holding the shell expands again. A layer that starts sealed does not flash on first render. Sealing preserves its identity, color and mesh transition. `when` still controls whether a layer exists; use `sealedWhen` for absorption. Per-layer emitter configuration is not supplied by this list.
+`when` uses shared conditions, including meters. Conditional removal uses the normal fade. Whole-aura sealing and mesh transitions still apply. Each layer may also declare `sealedWhen` and `sealSeconds` (default 0.4, range 0.01..10). While the condition holds the shell contracts into the body until absent; when it stops holding the shell expands again. A layer that starts sealed does not flash on first render. Sealing preserves its identity, color and mesh transition. `when` still controls whether a layer exists; use `sealedWhen` for absorption. Optional per-layer emitters are described below.
 
 For a layer sealed except while charging, add:
 
@@ -185,3 +185,36 @@ Normal fades and mesh transitions apply when the resulting list changes.
 `sealedWhen` controls absorption of a replacement's own shell, not whether
 its replacement operation runs. Targets address configured layer IDs; legacy
 main/extra aura layers do not have these owner-qualified IDs.
+
+
+## Layer particle emitters
+
+Add `emitter` to an emitted layer to create particles in that layer's color:
+
+```json
+{
+  "id": "inner",
+  "color": "#66CCFF",
+  "emitter": {
+    "count": 2, "interval": 3, "lifetime": 40,
+    "radius": 0.6, "height": 1,
+    "speed": 0.03, "rise": 0.04, "size": 0.8
+  }
+}
+```
+
+`count` is particles per emission (0..8, default 1). `interval` is client
+ticks between emissions (1..200, default 2); `lifetime` is particle ticks
+(1..200, default 30). `radius` and `height` accept 0..4, relative to the
+rendered aura scale. `speed` is outward blocks/tick (0..1); `rise` is vertical
+blocks/tick (-1..1). Particle `size` accepts 0.05..8, default 1.
+
+Particles use the existing aura sprite/provider. Their color and opacity follow
+the source layer, including fade and absorption. Emission stops when the layer
+is fully sealed, no longer rendered or out of range; particles already emitted
+finish their own lifetime. No particles are emitted from GUI-only previews.
+
+Emission advances by client ticks, not rendered frames. Limits are 32 particles
+per player per tick, 128 total per client tick, and a 128-block viewing radius.
+These cosmetic limits do not affect server gameplay. Omit `emitter` to retain
+existing behavior; the optional emitter adds to existing global aura effects.

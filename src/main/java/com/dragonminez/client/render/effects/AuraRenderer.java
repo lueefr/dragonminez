@@ -48,7 +48,40 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@net.neoforged.fml.common.EventBusSubscriber(modid=Reference.MOD_ID,value=net.neoforged.api.distmarker.Dist.CLIENT)
 public class AuraRenderer {
+    @net.neoforged.bus.api.SubscribeEvent
+    public static void emitters(net.neoforged.neoforge.client.event.ClientTickEvent.Post event) {
+        var mc=Minecraft.getInstance();
+        if(mc.level==null||mc.player==null||mc.isPaused())return;
+        int budget=128;
+        for(var entry:AURA_CACHE.entrySet()){
+            var data=entry.getValue();
+            if(data.lastLayers==null||data.alphaProgress<=.001||data.seal.factor()<=.001||mc.level.getGameTime()-LAST_RENDER_TIME.getOrDefault(entry.getKey(),Long.MIN_VALUE/2)>2)continue;
+            var entity=mc.level.getEntity(entry.getKey());
+            if(!(entity instanceof Player player)||!player.getUUID().equals(data.typeOwner)||player.distanceToSqr(mc.player)>128*128)continue;
+            int count=0;
+            for(var layer:data.lastLayers){
+                var emitter=layer.emitter;
+                if(emitter==null||layer.alpha<=.001||layer.absorption<=.001||player.tickCount%emitter.getInterval()!=0)continue;
+                for(int i=0;i<emitter.getCount()&&count<32&&budget>0;i++,count++,budget--){
+                    double angle=player.getRandom().nextDouble()*Math.PI*2;
+                    double radius=emitter.getRadius()*data.auraScaleX*layer.boost()*layer.absorption;
+                    double x=Math.cos(angle),z=Math.sin(angle);
+                    double height=emitter.getHeight()*data.auraScaleY*layer.absorption;
+                    var particle=mc.particleEngine.createParticle(com.dragonminez.common.init.MainParticles.AURA.get(),
+                            player.getX()+x*radius,player.getY()+player.getRandom().nextDouble()*height,player.getZ()+z*radius,
+                            layer.color[0],layer.color[1],layer.color[2]);
+                    if(particle instanceof com.dragonminez.common.init.particles.AuraParticle aura){
+                        aura.resize(emitter.getSize());aura.setLifetime(emitter.getLifetime());
+                        aura.opacity(layer.alpha*data.alphaProgress*(float)data.seal.factor());
+                        aura.setParticleSpeed(x*emitter.getSpeed(),emitter.getRise(),z*emitter.getSpeed());
+                    }
+                }
+            }
+            if(budget<=0)return;
+        }
+    }
 	private static final float HALF_SQRT_3 = (float) (Math.sqrt(3.0D) / 2.0D);
 	private static final float FADE_SPEED = 0.005f;
 	private static final float PULSE_SPEED = 0.01f;
@@ -235,6 +268,7 @@ public class AuraRenderer {
         public boolean sealed;
         public double sealSeconds = 0.4;
         public float absorption = 1;
+        public com.dragonminez.common.config.AuraLayers.Emitter emitter;
 
 		public AuraLayer(String type, int layerId, float[] color) {
 			this(type, layerId, color, 1.0f);
@@ -326,7 +360,7 @@ public class AuraRenderer {
             if(layer.style!=null){var profile=profiles.get(key.identity());float total=profile[0]+profile[1]+profile[2];
                 for(int i=0;i<3;i++)layer.style.meshWeights[i]=total>0?profile[i]/total:0;}
 
-            layer.variant=source.variant; layer.identity=source.identity; layer.scale=source.scale;
+            layer.variant=source.variant; layer.identity=source.identity; layer.scale=source.scale; layer.emitter=source.emitter;
             var seal = data.layerSeals.computeIfAbsent(key, ignored -> new AuraSeal(source.sealed));
             layer.absorption = (float)seal.update(source.sealed, Math.min(MAX_MOTION_STEP, dt), source.sealSeconds);
             layer.alpha *= layer.absorption;
@@ -860,6 +894,7 @@ public class AuraRenderer {
             layer.identity = origin + "/" + definition.getId(); layer.scale = definition.getScale();
             layer.sealed = definition.getSealedWhen() != null && com.dragonminez.api.rules.Conditions.test(new com.dragonminez.api.rules.Conditions.Context(stats, null), definition.getSealedWhen());
             layer.sealSeconds = definition.getSealSeconds();
+            layer.emitter = definition.getEmitter();
             if (use3D) layer.style = AuraStyle.resolve(definition.getStyle(), layer.color);
             com.dragonminez.common.config.AuraLayers.apply(result, definition, layer, AuraLayer::identity);
         }
