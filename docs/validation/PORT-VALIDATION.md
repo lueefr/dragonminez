@@ -375,3 +375,15 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
 - Saved generator registry definitions are never mutated; existing chunks are
   not regenerated. Arbitrary custom pipelines bypassing native noise or
   TerraBlender are not universally covered. No SeedGen/LOD feature is enabled.
+
+
+### Original upstream flight restoration — 2026-11-06
+
+- Removed custom physics, oriented body collision, input/state packets,
+  profiles and remote smoothing at the user's request. FlightOrientationHandler
+  matches upstream/main byte for byte; remaining native flight differences
+  are NeoForge API adapters and localization. Form dimensions remain active.
+- Java 21 build and all 74 remaining GameTests passed in
+  `/tmp/dmz-flight-restored.log`; player-text audit passed (6875 keys).
+- Network revision 19 rejects mismatched builds. Removed flight packet slots
+  stay reserved so later packet registrations retain their IDs.

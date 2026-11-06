@@ -327,7 +327,7 @@ Physical dimensions retain the engine's tenth-block rounding, with a minimum
 horizontal axis to contain both X and Z model scales.
 
 These settings enter the existing form/stack size composition and transition
-pipeline, including authoritative flight. Main/stack scales keep their existing
+pipeline. Flight uses the original upstream behavior. Main/stack scales keep their existing
 composition semantics. Server configs synchronize to clients; no client-specific
 size file is needed. Omitting `size` retains the existing body scale.
 

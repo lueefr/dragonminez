@@ -458,3 +458,11 @@ retaining their materials and saved generator definitions. Namek follows the
 Overworld by default; Sacred Kai shares climate only. Real WAN stress and arbitrary third-party assets/effects are
 verification limits, not claims made by the local test suite. No archived LOD
 or separate Fabric-port branch is part of this merge scope.
+
+
+## Flight restoration — 2026-11-06
+
+At the user's request, custom server flight physics, oriented collision,
+profiles and remote smoothing have been removed. Flight follows upstream main
+with the necessary NeoForge adapters. Prior flight sections describe retired
+work, not available configuration. Form dimensions and other features remain.
