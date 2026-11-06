@@ -30,6 +30,14 @@ class LuaProgramTest {
         assertThrows(IllegalArgumentException.class, () -> new LuaProgram("example:invalid", "return {}"));
         assertThrows(IllegalArgumentException.class, () -> new LuaProgram("example:cycle", "local a={} a[1]=a return {content=a}"));
     }
+    @Test void querySnapshots() {
+        var program = new LuaProgram("example:query", "return {onEvent=function(ctx) local before=ctx.flags['example:gift']; ctx.flags['example:gift']=false; return {{meter='example:count',operation='add',value=before and 2 or 1}} end}");
+        var flags = Map.of("example:gift", true);
+        assertEquals(2, program.evaluateBatch("example:test", Map.of(), flags).meters().getFirst().value());
+        assertTrue(flags.get("example:gift"));
+        assertEquals(2, program.evaluateBatch("example:test", Map.of(), flags).meters().getFirst().value());
+        assertEquals(1, program.evaluateBatch("example:test", Map.of(), Map.of()).meters().getFirst().value());
+    }
     @Test void unavailableApis() {
         var script = new LuaProgram("example:test", "assert(io==nil and os==nil and debug==nil and package==nil and luajava==nil and load==nil and loadfile==nil and dofile==nil and require==nil); return {onEvent=function(ctx) end}");
         assertTrue(script.evaluate("dmz:tick", Map.of()).isEmpty());

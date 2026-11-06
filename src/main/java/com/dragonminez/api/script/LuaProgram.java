@@ -26,7 +26,8 @@ public final class LuaProgram {
         evaluate(null, Map.of());
     }
     public List<Change> evaluate(String event, Map<String, Double> values) { return evaluateBatch(event,values).meters(); }
-    public Batch evaluateBatch(String event, Map<String, Double> values) {
+    public Batch evaluateBatch(String event, Map<String, Double> values) { return evaluateBatch(event, values, Map.of()); }
+    public Batch evaluateBatch(String event, Map<String, Double> values, Map<String, Boolean> flags) {
         var globals = new Globals();
         var packages = new LuaTable(); packages.set("loaded", new LuaTable()); globals.set("package", packages);
         globals.load(new BaseLib()); globals.load(new MathLib());
@@ -51,6 +52,7 @@ public final class LuaProgram {
             var context = new LuaTable(); context.set("event", event); var numbers = new LuaTable();
             values.forEach((key, value) -> { if (!Double.isFinite(value)) throw new IllegalArgumentException("Script inputs must be finite"); numbers.set(key, LuaValue.valueOf(value)); });
             context.set("values", numbers);
+            var queries = new LuaTable(); flags.forEach((key, value) -> queries.set(key, LuaValue.valueOf(Objects.requireNonNull(value)))); context.set("flags", queries);
             var returned = callback.call(context);
             if (returned.isnil()) return new Batch(List.of(),List.of());
             var actions = returned.checktable(); int length = actions.length();

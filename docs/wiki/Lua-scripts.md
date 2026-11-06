@@ -181,3 +181,33 @@ Java access or runtime package loading. Owner-specific meter IDs and the full
 schemas of action `reward`/content `value` objects remain documented in the
 respective configuration pages. For mod development, regenerate the checked-in
 reference with `./gradlew generateLuaBindings`; output is under `docs/api/lua/`.
+
+
+## Read-only named queries
+
+Declare Boolean queries in `runtime.json` using the shared condition vocabulary:
+
+```json
+{
+  "queries": {
+    "example:gift": {"content": "example:gift"},
+    "example:ready": {"all": [
+      {"race": "saiyan"},
+      {"meter": {"id": "example:resolve", "min": 50}}
+    ]}
+  }
+}
+```
+
+Include the meter declaration in your existing configuration. Queries can use
+all registered conditions, including form mastery, content, resource ranges,
+properties and `all`/`any`/`not`. Up to 128 namespaced query IDs are accepted;
+unknown conditions or undeclared meter references reject the configuration.
+
+Read the results in a callback as `ctx.flags['example:ready']`. Queries are
+evaluated once before this event's JSON/script commands commit, alongside the
+numeric snapshot. Later events observe committed changes. Each callback gets
+its own copied table: assigning a Lua field does not change character state,
+conditions, another script's inputs or future invocations. Unspecified query
+keys are Lua `nil`. Use typed commands to request actual changes; no player or
+Java objects are exposed through queries.
