@@ -204,6 +204,7 @@ public final class ContentSchema {
         FIELDS.get(Kind.FORM).remove("visual");
         put(Kind.FORM,"visual.aura","aura.state");
         put(Kind.FORM,"visual.parts","appearance.parts");
+        put(Kind.FORM,"visual.camera","appearance.camera");
         put(Kind.FORM,"visual.fur","appearance.fur.override");
         put(Kind.FORM,"visual.tail","appearance.tail.override");
         put(Kind.FORM,"visual.eyes","appearance.eyes.outline");

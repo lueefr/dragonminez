@@ -330,3 +330,54 @@ These settings enter the existing form/stack size composition and transition
 pipeline, including authoritative flight. Main/stack scales keep their existing
 composition semantics. Server configs synchronize to clients; no client-specific
 size file is needed. Omitting `size` retains the existing body scale.
+
+
+## Dynamic model poses and camera presentation
+
+Forms can drive registered body parts with the same numeric expressions used
+by meters and aura settings. Keep the old `false` (hide), `true` (show), or
+`[x,y,z]` scale syntax when no pose overrides are needed. The object syntax
+adds relative rotations and offsets:
+
+```json
+{
+  "appearance": {
+    "parts": {
+      "right_arm": {
+        "scale": [1, 1, 1],
+        "rotation": [15, 0, 0],
+        "offset": [0, {"multiply": [2, {"source": "attack.charging"}]}, 0]
+      }
+    },
+    "camera": {
+      "fov": 0.9,
+      "roll": {"multiply": [3, {"source": "attack.charging"}]}
+    }
+  }
+}
+```
+
+`scale` multiplies the animated bone scale (bounded 0.05..8 per axis).
+`rotation` adds degrees to the current animation (-180..180); `offset` adds
+model units, normally 16 per block (-32..32). Omitted axes groups leave the
+current pose unchanged. Each group has exactly three values. Supported part
+IDs include head, body, left_arm, right_arm, left_leg, right_leg, tail and
+left/right_forearm; addons can register more aliases. The pose is restored
+after drawing, including GUI previews; it does not change physical hitboxes.
+Use `appearance.size` for physical dimensions.
+
+Camera `fov` multiplies the world FOV (0.25..4; final FOV 15..170 degrees), and
+`roll` adds -180..180 degrees. Hand/item FOV, authoritative aim yaw/pitch and
+projectile direction are untouched. Camera overrides apply only to the local
+player's camera with a created character, outside menus and spectator mode.
+Shared conditional `effects.rules` can set `camera` and `parts` alongside other
+visual properties. Main/stack rules retain their existing merge order.
+
+Sources are synchronized `meter:<namespace:path>`, `state.formTicks`,
+`state.stackTicks`, `self.healthPercent` and attack-window values from
+[Runtime rules](Runtime-rules). Event-only values such as `event.damage` are
+not available while rendering: store them in a meter first. Expressions
+compile and cache; missing/nonfinite inputs disable that expression until
+configuration reload, log once and use neutral scale/rotation/offset/FOV/roll.
+These are presentation bindings: server Lua can declare the form and update
+its meters without running Lua or arbitrary graphics code on clients.

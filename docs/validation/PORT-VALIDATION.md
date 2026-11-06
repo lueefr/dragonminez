@@ -306,3 +306,18 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   passed, including preservation of UI checks outside the code generator.
 - LuaLS annotation syntax follows its official annotation reference. The
   generator output is checked in; a specific editor UI was not launched.
+
+
+### Controlled form presentation — 2026-11-06
+
+- Branch `feature/presentation-bindings`: Java 21 build and all 74 required
+  GameTests passed. Evidence: `/tmp/dmz-presentation-final.log`.
+- Server tests cover dynamic bone scale/rotation/offset, clamping, organized
+  schema roundtrip, rejected fields/event-only sources, missing-input fallback
+  and retry only after config generation changes.
+- Packaged client with Sodium/Iris/Complementary passed:
+  `/tmp/dmz-presentation-client.log` contains `PRESENTATION_PASS`, verifying
+  camera FOV/roll, unchanged aim yaw/pitch and hand FOV, actual renderer bone
+  application/restoration, plus full aura/Ki/crosshair/flight regressions.
+- Camera model-view parameters are presentation only; physical size continues
+  through appearance.size. No arbitrary client Lua is executed.
