@@ -151,6 +151,7 @@ public class ConfigMenuScreen extends BaseMenuScreen {
 		toggle(Category.GAMEPLAY, "config.cameraMovementDuringFlight", userConfig.getCameraMovementDuringFlight(), userConfig::setCameraMovementDuringFlight);
 		number(Category.GAMEPLAY, "config.flightTurnSensitivity", ConfigType.FLOAT, userConfig.getFlightTurnSensitivity(),
 				0.2f, 2.0f, userConfig::setFlightTurnSensitivity);
+        number(Category.GAMEPLAY,"config.flightBlend",ConfigType.FLOAT,userConfig.flightBlend(),0,.25f,userConfig::flightBlend);
 		action(Category.GAMEPLAY, "config.overShoulderCamera", "gui.dragonminez.config.open", () -> this.minecraft.setScreen(new OverShoulderCameraScreen(this)));
 		toggle(Category.GAMEPLAY, "config.reserveFirstHotbarSlot", userConfig.isReserveFirstHotbarSlot(), enabled -> {
 			userConfig.setReserveFirstHotbarSlot(enabled);

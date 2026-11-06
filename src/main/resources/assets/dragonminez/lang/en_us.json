@@ -1,4 +1,5 @@
 {
+  "config.flightBlend": "Remote Flight Smoothing (seconds)",
   "format.dragonminez.meter.value": "%s",
   "//": "SOUNDS",
   "itemGroup.dragonminez.blocks": "DMZ Blocks",

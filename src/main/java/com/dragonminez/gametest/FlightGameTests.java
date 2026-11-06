@@ -18,6 +18,32 @@ import java.util.UUID;
 @GameTestHolder("dragonminez")
 @PrefixGameTestTemplate(false)
 public final class FlightGameTests {
+    @GameTest(template="port_empty")
+    public static void obstacleSliding(GameTestHelper helper) throws Exception {
+        var player=FakePlayerFactory.get(helper.getLevel(),new GameProfile(UUID.randomUUID(),"FlightSlide"));
+        var data=StatsProvider.get(StatsCapability.INSTANCE,player).orElseThrow(IllegalStateException::new);
+        var field=ConfigManager.class.getDeclaredField("runtime");field.setAccessible(true);var original=field.get(null);
+        var origin=helper.absoluteVec(new Vec3(1.5,32,1.5));var start=BlockPos.containing(origin);
+        try{
+            data.getStatus().setHasCreatedCharacter(true);player.setPos(origin);
+            for(var block:BlockPos.betweenClosed(start.offset(-2,0,-2),start.offset(4,3,7)))helper.getLevel().setBlockAndUpdate(block,Blocks.AIR.defaultBlockState());
+            for(var block:BlockPos.betweenClosed(start.offset(-2,0,3),start.offset(4,3,3)))helper.getLevel().setBlockAndUpdate(block,Blocks.STONE.defaultBlockState());
+            var before=FlightMotion.initial(FlightBody.vector(origin),Vector.ZERO,0,0);
+            var after=new State(before.position().add(new Vector(2,0,5)),new Vector(2,0,5),before.rotation(),Vector.ZERO);
+            field.set(null,RuntimeConfig.parse("{flight:{sliding:true}}"));
+            var result=FlightBody.move(player,before,after);
+            helper.assertTrue(Math.abs(result.position().x()-after.position().x())<1e-6 && result.velocity().x()==2 && result.velocity().z()==0,"Wall collision did not preserve tangential movement");
+            helper.assertTrue(FlightBody.clear(player,result),"Slide ended inside wall");
+            field.set(null,RuntimeConfig.parse("{flight:{sliding:false}}"));
+            var stopped=FlightBody.move(player,before,after);
+            helper.assertTrue(stopped.velocity().equals(Vector.ZERO)&&stopped.position().x()<result.position().x(),"Disabling sliding retained tangential movement");
+            boolean rejected=false;try{RuntimeConfig.parse("{flight:{sliding:'yes'}}");}catch(IllegalArgumentException ex){rejected=true;}
+            helper.assertTrue(rejected,"Nonboolean sliding option accepted");
+            helper.succeed();
+        }finally{
+            field.set(null,original);for(var block:BlockPos.betweenClosed(start.offset(-2,0,3),start.offset(4,3,3)))helper.getLevel().setBlockAndUpdate(block,Blocks.AIR.defaultBlockState());player.discard();
+        }
+    }
     @GameTest(template = "port_empty")
     public static void motionProfiles(GameTestHelper helper) throws Exception {
         var player = FakePlayerFactory.get(helper.getLevel(), new GameProfile(UUID.randomUUID(), "FlightProfiles"));

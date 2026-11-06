@@ -91,9 +91,7 @@ prediction/reconciliation, teleport session resets, remote pose reception/cleanu
 queries and existing aura/Ki/crosshair regressions. Evidence is in the runtime validation note.
 
 Conditional profiles and separate axis rates are implemented in the following increment.
-Broader latency simulation, remote-pose interpolation and automatic obstacle sliding remain
-separate enhancements; collision currently stops motion at the last clear pose. This does not
-complete the broader engine plan.
+Remote-pose presentation now interpolates separately from authority, with local stale-ack and ended-session guards. Collision supports axis-swept obstacle sliding under a shared 512-substep budget; `flight.sliding: false` retains stopping. Deterministic delayed-ack replay is tested; real two-machine latency stress remains a verification limit. This does not complete the broader engine plan.
 
 ## Flight profile increment
 
@@ -368,3 +366,18 @@ feature modules; this entry authorizes planning, not implementation yet.
   biome-sizing/terrain mods. Document which dimensions and generation paths
   participate; do not claim universal compatibility without evidence.
 - No SeedGen/LOD implementation is part of this request.
+
+
+## Flight presentation and sliding increment
+
+`flight.sliding` defaults true and can be overridden by conditional profiles.
+The shared movement resolver preserves safe tangential displacement after a
+collision while retaining oriented sweeps, loaded-chunk/world-border checks
+and a maximum of 512 collision substeps across all candidates. Collision
+flags report blocked axes rather than treating all impacts as a full stop.
+
+Client `flightBlend` controls remote visual interpolation in 0..0.25 seconds
+(default 0.1), also exposed in the gameplay settings screen. It never changes
+server state, targeting geometry or local prediction. Remote body/aura
+positions and orientation use the presentation pose. Weak identity stores
+isolate same-ID entities; session/ack checks reject obsolete snapshots.
