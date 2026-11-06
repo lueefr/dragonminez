@@ -30,6 +30,13 @@ class PlayerTextAuditTest(unittest.TestCase):
     def test_accepts_translated_components_and_numeric_data(self):
         code,report=self.audit('String value=String.format("%.1f",amount); Component label=Component.translatable("example.message",value); graphics.drawString(font,label,0,0,0);')
         self.assertEqual(code,0,report)
+    def test_generated_lua_declarations_are_not_player_text(self):
+        code,report=self.audit('public static String declarations(){return new StringBuilder().append("---@class DMZContext").toString();}', 'api/script/LuaBindings.java')
+        self.assertEqual(code,0,report)
+        code,report=self.audit('public static void other(){Component.empty().append("UI text");}', 'api/script/LuaBindings.java')
+        self.assertNotEqual(code,0)
+        code,report=self.audit('public static String declarations(){graphics.drawString(font,"UI text",0,0,0);}', 'api/script/LuaBindings.java')
+        self.assertNotEqual(code,0)
     def test_report_exception_does_not_hide_quest_ui_strings(self):
         code,report=self.audit('private static void other(){ Component.empty().append("UI text"); }','common/quest/QuestRegistry.java')
         self.assertNotEqual(code,0)

@@ -13,6 +13,22 @@ import java.util.*;
 @PrefixGameTestTemplate(false)
 public final class LuaGameTests {
     @GameTest(template="port_empty")
+    public static void scriptDiagnostics(GameTestHelper helper) throws Exception {
+        var player = FakePlayerFactory.get(helper.getLevel(), new GameProfile(UUID.randomUUID(), "LuaDiagnostics"));
+        try {
+            var dispatcher = new com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack>();
+            com.dragonminez.server.commands.ReloadCommand.register(dispatcher);
+            var source = helper.getLevel().getServer().createCommandSourceStack().withSuppressedOutput();
+            long generation = ConfigManager.getFormConfigGeneration(); var runtime = ConfigManager.getRuntime();
+            helper.assertTrue(dispatcher.execute("dmzscript check", source) == 1, "Admin Lua diagnostics command failed");
+            helper.assertTrue(generation == ConfigManager.getFormConfigGeneration() && runtime == ConfigManager.getRuntime(), "Diagnostic command reloaded the server configuration");
+            boolean rejected = false;
+            try { dispatcher.execute("dmzscript check", player.createCommandSourceStack().withPermission(0).withSuppressedOutput()); } catch (com.mojang.brigadier.exceptions.CommandSyntaxException ex) { rejected = true; }
+            helper.assertTrue(rejected, "Unprivileged player could inspect server scripts");
+            helper.succeed();
+        } finally { player.discard(); }
+    }
+    @GameTest(template="port_empty")
     public static void serverScripts(GameTestHelper helper) throws Exception {
         Path directory = Files.createTempDirectory("dmz-lua-test-");
         Path file = directory.resolve("progression/runtime.json"), script = directory.resolve("scripts/example/damage.lua");

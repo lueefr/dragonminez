@@ -27,6 +27,8 @@ public final class ScriptContentGameTests {
             """);
         String original = Files.readString(script);
         var loaded = RuntimeConfig.load(runtime);
+        long generation = ConfigManager.getFormConfigGeneration(); var active = ConfigManager.getRuntime();
+        helper.assertTrue(ConfigManager.checkScripts(runtime) == 1 && generation == ConfigManager.getFormConfigGeneration() && active == ConfigManager.getRuntime(), "Script diagnostics changed live configuration");
         helper.assertTrue(loaded.content().size() == 2 && !loaded.json().contains("example:gift"), "Lua content was lost or source definitions leaked into runtime sync metadata");
         Map<String,Map<String,FormConfig>> races = new LinkedHashMap<>(); races.put("saiyan", new LinkedHashMap<>());
         var attributes = new AttributeConfig(); var overlay = new ScriptContent();

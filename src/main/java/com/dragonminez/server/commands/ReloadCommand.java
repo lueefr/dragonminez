@@ -34,6 +34,10 @@ public class ReloadCommand {
 			SharedSuggestionProvider.suggest(List.of("all", "config", "story", "wishes", "scripts"), builder);
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(Commands.literal("dmzscript")
+                .requires(source -> DMZPermissions.hasPermission(source, DMZPermissions.RELOAD))
+                .then(Commands.literal("check").executes(ctx -> scriptTool(ctx.getSource(), false)))
+                .then(Commands.literal("bindings").executes(ctx -> scriptTool(ctx.getSource(), true))));
 		dispatcher.register(Commands.literal("dmzreload")
 				.requires(source -> DMZPermissions.hasPermission(source, DMZPermissions.RELOAD))
 				.executes(ctx -> executeReload(ctx.getSource(), "all"))
@@ -41,6 +45,23 @@ public class ReloadCommand {
 						.executes(ctx -> executeReload(ctx.getSource(), StringArgumentType.getString(ctx, "target"))))
 		);
 	}
+
+    private static int scriptTool(CommandSourceStack source, boolean bindings) {
+        try {
+            if (bindings) {
+                var file = ConfigManager.exportScripts();
+                source.sendSuccess(() -> Component.translatable("command.dragonminez.script.bindings", file.toString()), false);
+            } else {
+                int count = ConfigManager.checkScripts();
+                source.sendSuccess(() -> Component.translatable("command.dragonminez.script.valid", count), false);
+            }
+            return 1;
+        } catch (Exception ex) {
+            LogUtil.error(Env.SERVER, "Lua diagnostic failed: {}", ex.toString());
+            source.sendFailure(Component.translatable("command.dragonminez.script.error", ex.getMessage()));
+            return 0;
+        }
+    }
 
 	public static int executeReload(CommandSourceStack source, String rawScope) {
 		ReloadScope scope = ReloadScope.from(rawScope);

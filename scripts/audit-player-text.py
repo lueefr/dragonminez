@@ -50,10 +50,12 @@ for source in sorted((root / 'src/main/java/com/dragonminez').rglob('*.java')):
                 else:
                     errors.append(f'{relative}:{line}: embedded message argument: {value}')
         elif name=='.append' and args and args[0][2].startswith('"'):
-            # The quest update report is a local diagnostic file, not player UI.
+            # Local diagnostic reports and generated Lua declarations are not player UI.
             report_start=text.rfind('private static void emitUpgradeReport',0,call.start())
             diagnostic=source.name=='QuestRegistry.java' and report_start>=0 and report_start==text.rfind('private static void ',0,call.start())
-            if not diagnostic:errors.append(f'{relative}:{line}: embedded appended text')
+            binding_start=text.rfind('public static String declarations()',0,call.start())
+            generated=relative=='src/main/java/com/dragonminez/api/script/LuaBindings.java' and binding_start>=0 and binding_start==text.rfind('public static ',0,call.start())
+            if not diagnostic and not generated:errors.append(f'{relative}:{line}: embedded appended text')
         elif name!='.append':
             for _,_,arg in args:
                 if STRING.fullmatch(arg) and json.loads(arg):errors.append(f'{relative}:{line}: direct rendered string')

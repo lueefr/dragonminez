@@ -221,6 +221,21 @@ public class ConfigManager {
     }
 
     private static ScriptContent overlay = new ScriptContent();
+    public static int checkScripts() throws IOException {
+        return checkScripts(CONFIG_DIR.resolve("progression/runtime.json"));
+    }
+    public static int checkScripts(Path file) throws IOException {
+        if (!Files.isRegularFile(file)) throw new IOException("Runtime configuration does not exist");
+        var candidate = RuntimeConfig.load(file);
+        overlay.prepare(RACE_FORMS, STACK_FORMS, attributes, candidate.content());
+        return candidate.scriptCount();
+    }
+    public static Path exportScripts() throws IOException {
+        Path scripts = CONFIG_DIR.resolve("scripts"); Files.createDirectories(scripts);
+        Path root = scripts.toRealPath(), metadata = root.resolve(".meta"); Files.createDirectories(metadata);
+        if (!metadata.toRealPath().startsWith(root)) throw new IOException("Editor metadata escapes scripts directory");
+        return com.dragonminez.api.script.LuaBindings.write(metadata);
+    }
     private static void installScripts(RuntimeConfig candidate) {
         var prepared = overlay.prepare(RACE_FORMS, STACK_FORMS, attributes, candidate.content());
         RACE_FORMS.clear(); RACE_FORMS.putAll(prepared.races());
