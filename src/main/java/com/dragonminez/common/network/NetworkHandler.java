@@ -14,7 +14,7 @@ public class NetworkHandler {
 
 	public static SimpleChannel INSTANCE;
 	private static int packetId = 0;
-	private static final int NETWORK_REVISION = 11;
+	private static final int NETWORK_REVISION = 12;
 
 	private static int id() {
 		return packetId++;
@@ -938,6 +938,8 @@ public class NetworkHandler {
                 .decoder(FlightInputC2S::new).encoder(FlightInputC2S::encode).consumerMainThread(FlightInputC2S::handle).add();
         net.messageBuilder(FlightStateS2C.class,id(),NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(FlightStateS2C::new).encoder(FlightStateS2C::encode).consumerMainThread(FlightStateS2C::handle).add();
+        net.messageBuilder(ProjectileMotionS2C.class,id(),NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(ProjectileMotionS2C::new).encoder(ProjectileMotionS2C::encode).consumerMainThread(ProjectileMotionS2C::handle).add();
 	}
 
 	public static <MSG> void sendToServer(MSG message) {

@@ -384,7 +384,9 @@ public abstract class AbstractKiProjectile extends Projectile {
         this.level().playSound(null, this.getX(), this.getY(), this.getZ(), sound, SoundSource.PLAYERS, 0.7F, 0.8F + (this.random.nextFloat() * 0.2F));
     }
 
+    public boolean acceptsDeflection(){return false;}
     public boolean applyDamageOrHeal(Entity target, float amount) {
+        if(this.isRemoved())return false;
         target = TargetHelper.resolveHittable(target);
         if (target instanceof LivingEntity livingTarget) {
             if (this.isHeal()) {
@@ -409,6 +411,7 @@ public abstract class AbstractKiProjectile extends Projectile {
                     });
                     amount = mod[0];
                 }
+                if(livingTarget instanceof net.minecraft.server.level.ServerPlayer player && com.dragonminez.server.events.players.combat.ReactionEvents.intercept(player,this))return false;
                 return livingTarget.hurt(MainDamageTypes.kiblast(this.level(), this, this.getOwner()), amount);
             }
         }
@@ -691,7 +694,7 @@ public abstract class AbstractKiProjectile extends Projectile {
 
         if (!this.level().isClientSide) {
             HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
-            if (hitResult.getType() != HitResult.Type.MISS) {
+            if (hitResult.getType() != HitResult.Type.MISS && !net.neoforged.neoforge.event.EventHooks.onProjectileImpact(this,hitResult)) {
                 this.onHit(hitResult);
             }
         }

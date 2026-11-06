@@ -19,6 +19,7 @@
     "common.LivingEntityMixin",
     "common.PlayerListMixin",
     "common.PlayerMixin",
+    "common.ProjectileOwner",
     "common.RangedAttributeMixin",
     "common.SinglePoolElementAccessor",
     "common.StructureTemplateAccessor",

@@ -1009,6 +1009,8 @@ public class KiBlastEntity extends AbstractKiProjectile {
         this.volleyTargetId = targetId;
     }
 
+    @Override
+    public boolean acceptsDeflection(){return isFiring()&&!isAnchoredVolley()&&!destructionBall&&!assaultRainRiser;}
     private boolean isAnchoredVolley() {
         int type = this.getKiRenderType();
         return type == RENDER_ASSAULT_RAIN || type == RENDER_BLASTER_METEOR;
