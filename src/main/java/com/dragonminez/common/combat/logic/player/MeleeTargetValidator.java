@@ -56,17 +56,6 @@ public final class MeleeTargetValidator {
 				OrientedBoundingBox obb = MeleeHitbox.build(player, adjustedOrigin, attack, attackRange, adjusted.pitch(), adjusted.yaw())
 						.inflate(BOX_SLACK)
 						.updateVertex();
-                if (target instanceof net.minecraft.world.entity.player.Player defender) {
-                    var state = com.dragonminez.common.flight.FlightFrames.get(defender);
-                    if (state != null) {
-                        var body = com.dragonminez.common.flight.FlightBody.box(com.dragonminez.common.flight.FlightBody.shape(defender, state));
-                        boolean hit = false;
-                        int samples = Math.max(1, (int) Math.ceil(sweep.length() / .2));
-                        for (int i = 0; i <= samples && !hit; i++) hit = obb.intersects(body.copy().offset(sweep.scale(i / (double) samples)).inflate(TARGET_SLACK).updateVertex());
-                        if (hit) return hasClearPath(player, adjustedOrigin, current, current.move(sweep));
-                        continue;
-                    }
-                }
 				if (obb.intersects(reachable)) return hasClearPath(player, adjustedOrigin, current, current.move(sweep));
 			}
 		}

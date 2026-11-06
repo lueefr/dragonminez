@@ -331,7 +331,6 @@ public class FlySkillEvent {
 		Minecraft mc = Minecraft.getInstance();
 		LocalPlayer player = mc.player;
 
-        com.dragonminez.client.flight.FlightClient.clean(player);
 		if (player == null || mc.isPaused()) return;
 
 		boolean startedGroundActivation = false;
@@ -372,17 +371,6 @@ public class FlySkillEvent {
 			Skill flySkill = data.getSkills().getSkill("fly");
 			if (flySkill == null) return;
 
-            if (com.dragonminez.common.flight.FlightFrames.active(player)) {
-                if (pendingFlightDisable) {
-                    pendingFlightDisable = false;
-                    NetworkHandler.sendToServer(new FlyToggleC2S(false));
-                }
-                com.dragonminez.client.flight.FlightClient.tick(player, data.getStatus().isStunned()
-                        || data.getStatus().isActionCharging() || data.getStatus().isChargingKi()
-                        || TechniqueDispatcher.isMovementRestrictedKiAttack(player, data));
-                wasFlyingSkillActive = flySkill.isActive();
-                return;
-            }
 			boolean isFlying = flySkill.isActive();
 			int flightMode = data.getStatus().getFlightMode();
 			boolean isCombatFly = flightMode == Status.FLIGHT_COMBAT;
@@ -658,7 +646,6 @@ public class FlySkillEvent {
 	}
 
 	public boolean isFlyingFast(AbstractClientPlayer player) {
-        if (com.dragonminez.common.flight.FlightFrames.active(player)) return true;
 		if (player == null) return false;
 		if (isStrikeRushing(player)) return true;
 

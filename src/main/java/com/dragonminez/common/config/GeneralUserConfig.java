@@ -41,10 +41,6 @@ public class GeneralUserConfig {
 	private Float utilityMenuScaleMultiplier = 1.0f;
 	private Boolean cameraMovementDuringFlight = true;
 	private Float flightTurnSensitivity = 0.75f;
-    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
-    private Float flightBlend=0.1f;
-    public float flightBlend(){return flightBlend==null||!Float.isFinite(flightBlend)?.1f:Math.clamp(flightBlend,0,.25f);}
-    public void flightBlend(float value){flightBlend=value;}
 	private Boolean tutorialsEnabled = true;
 	private List<String> tutorialsSeen = new ArrayList<>();
 	private Boolean showAccumulativeDamage = true;

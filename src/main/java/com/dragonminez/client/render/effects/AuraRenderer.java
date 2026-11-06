@@ -60,7 +60,7 @@ public class AuraRenderer {
             if(data.lastLayers==null||data.alphaProgress<=.001||data.seal.factor()<=.001||mc.level.getGameTime()-LAST_RENDER_TIME.getOrDefault(entry.getKey(),Long.MIN_VALUE/2)>2)continue;
             var entity=mc.level.getEntity(entry.getKey());
             if(!(entity instanceof Player player)||!player.getUUID().equals(data.typeOwner)||player.distanceToSqr(mc.player)>128*128)continue;
-            int count=0;var position=com.dragonminez.client.flight.FlightVisuals.position(player,1);
+            int count=0;
             for(var layer:data.lastLayers){
                 var emitter=layer.emitter;
                 if(emitter==null||layer.alpha<=.001||layer.absorption<=.001||player.tickCount%emitter.getInterval()!=0)continue;
@@ -70,7 +70,7 @@ public class AuraRenderer {
                     double x=Math.cos(angle),z=Math.sin(angle);
                     double height=emitter.getHeight()*data.auraScaleY*layer.absorption;
                     var particle=mc.particleEngine.createParticle(com.dragonminez.common.init.MainParticles.AURA.get(),
-                            position.x+x*radius,position.y+player.getRandom().nextDouble()*height,position.z+z*radius,
+                            player.getX()+x*radius,player.getY()+player.getRandom().nextDouble()*height,player.getZ()+z*radius,
                             layer.color[0],layer.color[1],layer.color[2]);
                     if(particle instanceof com.dragonminez.common.init.particles.AuraParticle aura){
                         aura.resize(emitter.getSize());aura.setLifetime(emitter.getLifetime());
@@ -963,8 +963,9 @@ public class AuraRenderer {
 		advanceMotions(player, data, activeLayers, true);
 
 		Vec3 cameraPos = mc.gameRenderer.getMainCamera().getPosition();
-		var position=com.dragonminez.client.flight.FlightVisuals.position(player,partialTick);
-        double lerpX=position.x,lerpY=position.y,lerpZ=position.z;
+		double lerpX = Mth.lerp(partialTick, player.xo, player.getX());
+		double lerpY = Mth.lerp(partialTick, player.yo, player.getY());
+		double lerpZ = Mth.lerp(partialTick, player.zo, player.getZ());
 
 		drawGroundPulse(player, data, activeLayers, new Vec3(lerpX, lerpY, lerpZ), poseStack, mc, projectionMatrix, partialTick);
 
@@ -1017,7 +1018,7 @@ public class AuraRenderer {
 		advanceMotions(player, data, activeLayers, true);
 
 		float partialTick = entry.partialTick();
-		Vec3 position = com.dragonminez.client.flight.FlightVisuals.position(player,partialTick);
+		Vec3 position = new Vec3(Mth.lerp(partialTick, player.xo, player.getX()), Mth.lerp(partialTick, player.yo, player.getY()), Mth.lerp(partialTick, player.zo, player.getZ()));
 
 		boolean inRitual = stats.getStatus().isInGodRitual()
 				|| (stats.getStatus().getGodRitualGlowStart() > 0L && !GodRitualHelper.isShellExpired(stats, gameTime));
@@ -1195,8 +1196,9 @@ public class AuraRenderer {
 		if (data.alphaProgress <= 0.001f && !shellVisible) return false;
 
 		Vec3 cameraPos = mc.gameRenderer.getMainCamera().getPosition();
-		var position=com.dragonminez.client.flight.FlightVisuals.position(player,partialTick);
-        double lerpX=position.x,lerpY=position.y,lerpZ=position.z;
+		double lerpX = Mth.lerp(partialTick, player.xo, player.getX());
+		double lerpY = Mth.lerp(partialTick, player.yo, player.getY());
+		double lerpZ = Mth.lerp(partialTick, player.zo, player.getZ());
 
 		if(!sealed)drawGroundPulse(player, data, activeLayers, new Vec3(lerpX, lerpY, lerpZ), poseStack, mc, projectionMatrix, partialTick);
 
@@ -1454,13 +1456,8 @@ public class AuraRenderer {
 		poseStack.translate(0.0f, -center * scaleY - lead * bodyScale, 0.0f);
 	}
 
-    private static float auraYaw(Player player,float partial){
-        var state=com.dragonminez.client.flight.FlightVisuals.pose(player);
-        return state==null?Mth.rotLerp(partial,player.yBodyRotO,player.yBodyRot):(float)com.dragonminez.api.flight.FlightMotion.yaw(state.rotation());
-    }
 	private static float auraLeanDegrees(Player player, float partialTick) {
-        var state=com.dragonminez.client.flight.FlightVisuals.pose(player);
-		if (isFastFlying(player)) return 90.0f - (state==null?player.getViewXRot(partialTick):(float)com.dragonminez.api.flight.FlightMotion.pitch(state.rotation()));
+		if (isFastFlying(player)) return 90.0f - player.getViewXRot(partialTick);
 
 		float swim = player.getSwimAmount(partialTick);
 		if (swim > 0.0f) {
@@ -1516,7 +1513,7 @@ public class AuraRenderer {
 		LayerMotion motion = data.motions.get(layerKey(layer));
 		if (motion == null || !motion.ready) return;
 
-		float bodyRot = auraYaw(player,partialTick);
+		float bodyRot = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot);
 		float boost = layer.boost() / Aura3DRenderer.SMOOTH_SCALE_REFERENCE;
 		float scaleX = data.auraScaleX * boost;
 		float scaleY = data.auraScaleY * boost;
@@ -1547,7 +1544,7 @@ public class AuraRenderer {
 		LayerMotion motion = data.motions.get(layerKey(layer));
 		if (motion == null || !motion.ready) return;
 
-		float bodyRot = auraYaw(player,partialTick);
+		float bodyRot = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot);
 		float boost = layer.boost() / Aura3DRenderer.SMOOTH_SCALE_REFERENCE;
 		float scaleX = data.auraScaleX * boost;
 		float scaleY = data.auraScaleY * boost;
@@ -1580,7 +1577,7 @@ public class AuraRenderer {
 		LayerMotion motion = data.motions.get(layerKey(layer));
 		if (motion == null || !motion.ready) return;
 
-		float bodyRot = auraYaw(player,partialTick);
+		float bodyRot = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot);
 		float boost = layer.boost();
 		float time = auraPhase(player, partialTick) / 10.0f;
 
