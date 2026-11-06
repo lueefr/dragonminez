@@ -140,3 +140,44 @@ nonempty consecutive integer tables represent arrays. Use JSON files when an
 explicit empty array is needed. Register content only during module loading;
 event callbacks cannot dynamically mutate registries. No new Minecraft entity
 or block registry type is created by these declarations.
+
+
+## Validate scripts and configure your editor
+
+`/dmzscript check` compiles the configured modules and validates their content
+against the current server registries without applying them or changing live
+configuration. It uses the same administrative permission as `/dmzreload`.
+Compilation errors include the module ID and Lua line information when supplied
+by the interpreter. Full diagnostics are also recorded in the server log.
+This does not execute every possible callback branch with every player state;
+callback errors still use the runtime failure safeguards described above.
+
+`/dmzscript bindings` writes generated editor declarations to
+`config/dragonminez/scripts/.meta/dragonminez.lua`. Existing files without the
+generated header and file symlinks are rejected; this command never overwrites
+an ordinary owner Lua module. Regenerate after updating the mod.
+
+The declarations use [Lua Language Server annotations](https://luals.github.io/wiki/annotations/)
+for context, native event/value names, meter/reward commands and content module
+shapes. Open your scripts directory as an editor workspace, include `.meta` as
+a library if the editor excludes hidden directories, and annotate your module:
+
+```lua
+---@type DMZModule
+local module = {}
+
+---@param ctx DMZContext
+function module.onEvent(ctx)
+  if ctx.event == 'dmz:damage_received' then
+    return {{meter = 'example:resolve', operation = 'add', value = ctx.values['event.damage']}}
+  end
+end
+
+return module
+```
+
+Editor declarations describe the controlled API; they do not enable filesystem,
+Java access or runtime package loading. Owner-specific meter IDs and the full
+schemas of action `reward`/content `value` objects remain documented in the
+respective configuration pages. For mod development, regenerate the checked-in
+reference with `./gradlew generateLuaBindings`; output is under `docs/api/lua/`.

@@ -292,3 +292,17 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   restore the original registries and cached synchronization state afterwards.
 - Client receives regular resolved content; arbitrary Lua rendering callbacks
   and new Minecraft registry entity/block declarations are not implemented here.
+
+
+### Lua creator tooling — 2026-11-06
+
+- Java 21 `generateLuaBindings build runGameTestServer` passed with all 73
+  required GameTests. Evidence: `/tmp/dmz-lua-tooling-final.log`.
+- Tests cover actual Brigadier admin diagnostics, unprivileged rejection,
+  unchanged runtime/generation, generated Lua syntax, guarded overwrite and
+  symlink rejection. The operator fixture uses the console identity because
+  permission nodes inspect the player identity rather than stack overrides.
+- Player-text audit passed (6875 keys); five Python audit regression tests
+  passed, including preservation of UI checks outside the code generator.
+- LuaLS annotation syntax follows its official annotation reference. The
+  generator output is checked in; a specific editor UI was not launched.

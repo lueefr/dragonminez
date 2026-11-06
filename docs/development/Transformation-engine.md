@@ -250,7 +250,7 @@ The server loads source files; clients receive subscription metadata, never sour
 
 Each invocation has a fresh environment. Persistent state belongs in declared meters. Only base language operations and deterministic math are exposed; filesystem, OS, Java objects, dynamic loading, coroutines, debug API and random functions are absent. Execution limits interrupt instruction loops, excessive recursion and oversized string concatenation, including loops inside `pcall`. These are safeguards for trusted local server scripts, not a process-isolated sandbox for hostile code.
 
-Implemented: event subscriptions, numeric inputs, transactional meter commands, server-only loading, reload, bounded execution and typed post-commit gameplay commands shared with JSON rewards. These cover content, resource changes, effects, normal form activation and the existing reward registry. Content definition registration now supplies validated in-memory form-group, stack-group and attribute overlays. Editor autocomplete/diagnostics, additional presentation bindings and remaining combat capabilities are still pending. Meter-driven HUD/aura presentation is already available. Lua support alone does not complete those modules.
+Implemented: event subscriptions, numeric inputs, transactional meter commands, server-only loading, reload, bounded execution and typed post-commit gameplay commands shared with JSON rewards. These cover content, resource changes, effects, normal form activation and the existing reward registry. Content definition registration now supplies validated in-memory form-group, stack-group and attribute overlays. Editor declarations and non-mutating diagnostics are implemented on `feature/lua-tooling`. Additional presentation bindings and remaining combat capabilities are still pending. Meter-driven HUD/aura presentation is already available. Lua support alone does not complete those modules.
 
 
 ## Attack phase branch
@@ -403,3 +403,14 @@ rewritten. Identity-tracked overlays restore previous definitions when removed
 while preserving newer disk objects. Resolved content uses normal config sync;
 Lua source and startup declarations are not embedded in runtime metadata.
 This is controlled content registration, not mutation of frozen Minecraft registries.
+
+
+## Lua creator tooling
+
+`/dmzscript check` validates source and prepared content without installation;
+`/dmzscript bindings` exports guarded LuaLS declarations under scripts/.meta.
+Native event IDs have one shared runtime/editor source. Generated declarations
+also document context sources and typed commands/content. `generateLuaBindings`
+refreshes the development reference under docs/api/lua. Arbitrary callback
+paths still require actual player/event execution; diagnostics do not pretend
+to prove every runtime branch safe.

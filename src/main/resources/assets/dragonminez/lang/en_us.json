@@ -1,5 +1,8 @@
 {
   "config.flightBlend": "Remote Flight Smoothing (seconds)",
+  "command.dragonminez.script.bindings": "Lua editor declarations written to %s.",
+  "command.dragonminez.script.valid": "Validated %s Lua modules and their content. Live configuration was not changed.",
+  "command.dragonminez.script.error": "Lua validation failed: %s",
   "format.dragonminez.meter.value": "%s",
   "//": "SOUNDS",
   "itemGroup.dragonminez.blocks": "DMZ Blocks",

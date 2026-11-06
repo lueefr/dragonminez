@@ -402,3 +402,11 @@ idea {
         isDownloadJavadoc = true
     }
 }
+
+// Editor declarations share the runtime's native vocabulary.
+tasks.register<JavaExec>("generateLuaBindings") {
+    dependsOn(tasks.named("classes"))
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.dragonminez.api.script.LuaBindings")
+    args(layout.projectDirectory.dir("docs/api/lua").asFile.absolutePath)
+}
