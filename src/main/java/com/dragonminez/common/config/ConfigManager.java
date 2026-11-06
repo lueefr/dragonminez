@@ -228,6 +228,7 @@ public class ConfigManager {
                 com.dragonminez.api.rules.Conditions.validate(form.getUse());
                 com.dragonminez.api.forms.FormVisuals.validate(form.getVisual());
                 AuraLayers.validate(form.getAuraLayers());
+                if (form.getSize() != null) { form.getSize().validate(); form.getSize().resolve(form.getModelScaling()); }
                 if(Boolean.FALSE.equals(form.getEditHair()) && !form.hasHairCodeOverride() && !"none".equals(form.getHairType()))throw new IllegalArgumentException("editHair:false requires forcedHairCode or hairType:none for "+groupId+"."+form.getName());
                 if (form.getCompletedContentRequisites() != null) form.getCompletedContentRequisites().forEach(com.dragonminez.api.content.ContentProgress::requireId);
                 definitions.add(com.dragonminez.api.forms.FormCompositionRuntime.definition(groupId, form));

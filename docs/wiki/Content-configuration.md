@@ -284,3 +284,49 @@ Quest default updates join the same deferred migration queue as layout conversio
 Malformed built-in quest/saga files use their generated default in memory and retain the malformed original on disk, including when automatic generation of missing defaults is disabled. Custom files without a bundled default are skipped. Disabling default generation still prevents creation of missing quest files.
 
 See [Historical coverage and text auditing](History-and-audit) for the executable compatibility corpus and translation checks.
+
+
+## Transformation dimensions
+
+Every form accepts `appearance.size`, in addition to the existing per-axis
+`appearance.body.scale`. For example:
+
+```json
+{
+  "appearance": {
+    "body": {"scale": [0.9375, 0.9375, 0.9375]},
+    "size": {"height": 3, "width": 1.2, "multiplier": 0.8, "eyeRatio": 0.85}
+  }
+}
+```
+
+Height and width use blocks. The example resolves to 2.4 blocks tall and
+0.96 blocks wide. `multiplier` defaults to 1 and accepts 0.05..16. Optional
+`height` and `width` accept 0.1..32 before that multiplier; resolved model axes
+must stay within 0.01..64. Height rescales all axes proportionally, while an
+explicit width sets both horizontal axes. Without height/reference the existing
+per-axis body scale is multiplied directly.
+
+Instead of height, `reference` can name any registered entity type, including
+other mods. It uses that type's registered standing height, without spawning
+an entity. Explicit height takes precedence over reference:
+
+```json
+{"appearance": {"size": {"reference": "dragonminez:saga_saiyan_oozaru", "multiplier": 0.75}}}
+```
+
+New default Oozaru and Golden Oozaru definitions use this reference with
+multiplier 1, matching the hostile NPC's four-block registered height. Existing
+owner-edited files are preserved; add this block to apply the same sizing there.
+
+`eyeRatio` is the eye position as a fraction of standing height, in 0.05..1.
+Without an override the existing proportion is retained. Stack eye overrides
+take precedence over the main form. Crouching/swimming still adjust the pose.
+Physical dimensions retain the engine's tenth-block rounding, with a minimum
+0.1-block body and eyes kept inside it. The square hitbox uses the larger
+horizontal axis to contain both X and Z model scales.
+
+These settings enter the existing form/stack size composition and transition
+pipeline, including authoritative flight. Main/stack scales keep their existing
+composition semantics. Server configs synchronize to clients; no client-specific
+size file is needed. Omitting `size` retains the existing body scale.

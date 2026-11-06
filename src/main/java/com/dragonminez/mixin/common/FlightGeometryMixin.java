@@ -50,7 +50,9 @@ public abstract class FlightGeometryMixin {
             var state = FlightFrames.get(player);
             if (state != null) {
                 var shape = FlightBody.shape(player, state);
-                var head = shape.rotation().rotate(new Vector(0, 0, -shape.extent().z() * .8));
+                var dimensions = FlightBody.dimensions(player);
+                double ratio = dimensions.eyeHeight() / dimensions.height();
+                var head = shape.rotation().rotate(new Vector(0, 0, -shape.extent().z() * (2 * ratio - 1)));
                 callback.setReturnValue(FlightBody.vector(shape.center().add(head)));
             }
         }

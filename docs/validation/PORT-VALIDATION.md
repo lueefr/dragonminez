@@ -150,3 +150,17 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   initial absence and both partial opening/closing phases with that fix.
 - Logs: `/tmp/dmz-aura-composition-validation.log`,
   `/tmp/dmz-aura-composition-build.log`, `/tmp/dmz-aura-composition-client-02.log`.
+
+
+## Form dimensions — 2026-11-05
+
+- Java 21 `build runGameTestServer` passed, including all 63 required GameTests.
+  New coverage checks registered entity height, reduction, explicit overrides,
+  eye ratio, pose dimensions, JSON roundtrip, invalid inputs and legacy scale.
+- Physical bounds contain both horizontal axes, retain a nonzero tiny body and
+  clamp the eyes inside it. Flight eye orientation uses resolved standing eyes.
+- Packaged Iris/Sodium/Complementary client passed with a reference-sized form
+  reduced to three blocks, asserting synchronized dimensions during predicted
+  and authoritative flight. Mesh, absorption, Ki depth and crosshair passed too.
+- Logs: `/tmp/dmz-form-size-final.log`, `/tmp/dmz-form-size-client.log`.
+  New defaults apply to newly generated files; owner-edited forms are preserved.
