@@ -37,6 +37,7 @@
 ---@class DMZContext
 ---@field event DMZEvent
 ---@field values table<DMZSource, number>
+---@field flags table<string, boolean> Named JSON queries evaluated before event actions.
 
 ---@class DMZMeter
 ---@field meter string

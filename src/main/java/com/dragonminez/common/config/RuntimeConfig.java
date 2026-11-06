@@ -21,10 +21,17 @@ public final class RuntimeConfig {
     public record Commands(List<com.dragonminez.api.runtime.EventRules.Change> meters,List<JsonObject> rewards) {}
     private record Gameplay(String event, JsonObject when, List<JsonObject> actions) {}
     private final List<Gameplay> gameplay=new ArrayList<>();
-    public Commands scriptBatch(String event, Map<String,Double> values) {
+    private Map<String,JsonObject> scriptQueries = Map.of();
+    public Map<String,Boolean> queries(StatsData data) {
+        var result = new LinkedHashMap<String,Boolean>();
+        scriptQueries.forEach((id, condition) -> result.put(id, Conditions.test(new Conditions.Context(data,null), condition)));
+        return Map.copyOf(result);
+    }
+    public Commands scriptBatch(String event, Map<String,Double> values) { return scriptBatch(event,values,Map.of()); }
+    public Commands scriptBatch(String event, Map<String,Double> values, Map<String,Boolean> flags) {
         var meters=new ArrayList<com.dragonminez.api.runtime.EventRules.Change>();var rewards=new ArrayList<JsonObject>();
         for(var script:scripts)if(script.events().contains(event)&&programs.containsKey(script.id())){
-            var batch=programs.get(script.id()).evaluateBatch(event,values);
+            var batch=programs.get(script.id()).evaluateBatch(event,values,flags);
             for(var change:batch.meters())meters.add(new com.dragonminez.api.runtime.EventRules.Change(change.meter(),change.additive(),change.value()));
             for(var reward:batch.rewards()){com.dragonminez.api.rules.Rewards.validate(reward);rewards.add(reward);}
             if(meters.size()+rewards.size()>64)throw new IllegalArgumentException("At most 64 combined script commands");
@@ -71,6 +78,7 @@ public final class RuntimeConfig {
         var source = JsonParser.parseString(json).getAsJsonObject();
         var engine = source.deepCopy();
         var gameplay = engine.remove("gameplay");
+        var queries = engine.remove("queries");
         var hud = engine.remove("hud");
         var flight = engine.remove("flight");
         var behavior = engine.remove("behaviors");
@@ -96,6 +104,17 @@ public final class RuntimeConfig {
         });
         conditions.values().forEach(condition -> checkMeters(condition, rules.meters()));
         var result = new RuntimeConfig(source, rules, conditions, combatTicks);
+        if (queries != null) {
+            var definitions = queries.getAsJsonObject();
+            if (definitions.size() > 128) throw new IllegalArgumentException("At most 128 named script queries");
+            var compiled = new LinkedHashMap<String,JsonObject>();
+            definitions.entrySet().forEach(entry -> {
+                com.dragonminez.api.content.ContentProgress.requireId(entry.getKey());
+                var condition=entry.getValue().getAsJsonObject().deepCopy();
+                Conditions.validate(condition); checkMeters(condition,rules.meters()); compiled.put(entry.getKey(),condition);
+            });
+            result.scriptQueries = Map.copyOf(compiled);
+        }
         if(gameplay!=null){
             if(gameplay.getAsJsonArray().size()>128)throw new IllegalArgumentException("At most 128 gameplay event rules");
             for(var entry:gameplay.getAsJsonArray()){

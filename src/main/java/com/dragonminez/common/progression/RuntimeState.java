@@ -47,7 +47,7 @@ public final class RuntimeState {
         Map<String, Double> inputs = new HashMap<>(numbers(data)); inputs.putAll(values);
         boolean committed=false;
         try {
-            var commands=config.scriptBatch(event,Map.copyOf(inputs));
+            var commands=config.scriptBatch(event,Map.copyOf(inputs),config.queries(data));
             var rewards=new ArrayList<>(config.actions(event,data));rewards.addAll(commands.rewards());
             if(rewards.size()>64)throw new IllegalArgumentException("At most 64 gameplay actions per event");
             for(var reward:rewards)com.dragonminez.api.rules.Rewards.validate(reward);

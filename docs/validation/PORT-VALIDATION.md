@@ -321,3 +321,16 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   application/restoration, plus full aura/Ki/crosshair/flight regressions.
 - Camera model-view parameters are presentation only; physical size continues
   through appearance.size. No arbitrary client Lua is executed.
+
+
+### Named Lua queries — 2026-11-06
+
+- Java 21 generation/build and all 75 required GameTests passed. Evidence:
+  `/tmp/dmz-lua-queries-final.log`; player-text audit passed.
+- Server fixture verifies queries observe the pre-event meter snapshot, then
+  see committed meter/content changes on the next event. Invalid query IDs,
+  unknown conditions and undeclared meters reject loading.
+- Lua unit tests verify callback table mutations do not change input flags or
+  subsequent invocations. Generated editor context includes the flags table.
+- Existing JSON files/configVersion are unchanged; network revision 17 requires
+  matching clients for runtime configuration containing query declarations.
