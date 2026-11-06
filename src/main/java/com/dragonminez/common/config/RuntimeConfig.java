@@ -54,6 +54,8 @@ public final class RuntimeConfig {
     }
     private List<MeterHudConfig.Bar> hud = List.of();
     public List<MeterHudConfig.Bar> hud() { return hud; }
+    private ProjectionConfig projections;
+    public ProjectionConfig projections() { return projections; }
     private FlightConfig flight;
     public FlightConfig flight() { return flight; }
     private ReactionConfig reactions;
@@ -81,6 +83,7 @@ public final class RuntimeConfig {
         var queries = engine.remove("queries");
         var hud = engine.remove("hud");
         var flight = engine.remove("flight");
+        var projections = engine.remove("projections");
         var behavior = engine.remove("behaviors");
         var reactions = engine.remove("reactions");
         var scripts = engine.remove("scripts");
@@ -129,6 +132,8 @@ public final class RuntimeConfig {
         }
         result.hud = MeterHudConfig.parse(hud, rules);
         for(var bar : result.hud) checkMeters(bar.when(), rules.meters());
+        result.projections = ProjectionConfig.parse(projections);
+        result.projections.all().forEach(definition -> checkMeters(definition.when(), rules.meters()));
         result.flight = FlightConfig.parse(flight);
         checkMeters(result.flight.when(), rules.meters());
         for (var profile : result.flight.profiles()) checkMeters(profile.when(), rules.meters());

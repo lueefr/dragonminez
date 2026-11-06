@@ -28,6 +28,7 @@ public final class Rewards {
     private interface Apply {void apply(ServerPlayer player,StatsData data,JsonElement value);}
     private static void add(String key,java.util.function.Consumer<JsonElement> validate,Apply apply){register(key,new Type(){public void validate(JsonElement v){validate.accept(v);}public void apply(ServerPlayer p,StatsData d,JsonElement v){apply.apply(p,d,v);}});}
     static {
+        add("projection",v->com.dragonminez.api.content.ContentProgress.requireId(v.getAsString()),(p,d,v)->com.dragonminez.common.init.entities.ki.EnergyProjection.spawn(p,v.getAsString()));
         add("effect",v->{
             var o=v.getAsJsonObject();
             com.dragonminez.api.content.ContentProgress.requireId(o.get("id").getAsString());integer(o.get("ticks"));

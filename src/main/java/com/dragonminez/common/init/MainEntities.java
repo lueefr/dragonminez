@@ -2241,6 +2241,10 @@ public class MainEntities {
                     .noSave()
                     .build("gum_ball"));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<com.dragonminez.common.init.entities.ki.EnergyProjection>> ENERGY_PROJECTION =
+            ENTITY_TYPES.register("energy_projection", () -> EntityType.Builder.<com.dragonminez.common.init.entities.ki.EnergyProjection>of(com.dragonminez.common.init.entities.ki.EnergyProjection::new, MobCategory.MISC)
+                    .sized(.6f, 1.8f).clientTrackingRange(12).updateInterval(1).fireImmune().noSave().build("dragonminez:energy_projection"));
+
     public static final DeferredHolder<EntityType<?>, EntityType<com.dragonminez.common.init.entities.questnpc.CustomNpcEntity>> CUSTOM_NPC =
             ENTITY_TYPES.register("custom_npc", () -> EntityType.Builder.of(com.dragonminez.common.init.entities.questnpc.CustomNpcEntity::new, MobCategory.CREATURE)
                     .sized(0.6f, 1.8f).build("dragonminez:custom_npc"));
