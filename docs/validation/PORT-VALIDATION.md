@@ -211,3 +211,15 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   independent scale, actual emitter particles, absorption, HUD rendering and
   authoritative flight with configured body dimensions.
 - Logs: `/tmp/dmz-aura-dynamic-final.log`, `/tmp/dmz-aura-dynamic-client.log`.
+
+
+## Typed gameplay actions and Lua — 2026-11-05
+
+- Java 21 build and all 67 required GameTests passed. A server test loads actual
+  Lua files through RuntimeConfig.load and combines JSON/Lua meter updates,
+  resource deltas and effects. An invalid script action leaves both meters
+  and resources unchanged before the post-commit stage.
+- Lua unit coverage includes typed reward conversion, rejection of mixed
+  command kinds and bounded cyclic tables. Player-text audit passed.
+- Log: `/tmp/dmz-gameplay-actions-validation-02.log`. Gameplay action execution
+  remains ordered post-commit work; external effects are not group-rollback-safe.

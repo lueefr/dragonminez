@@ -24,7 +24,7 @@ Create implementation branches when their work starts. Merge validated increment
 - Dynamic numbers compile once from JSON into immutable expressions. Dependencies are explicit, numbers must remain finite, expression depth and size are bounded.
 - Curves use strictly increasing input points with clamped endpoints; linear and smooth interpolation are explicit.
 - Missing context values are errors, not silent zeroes. Conditions remain a separate predicate adapter for the existing shared vocabulary.
-- Runtime errors must not partially commit an event. No content-specific form names or flags are built into the engine.
+- Meter evaluation errors must not partially commit meter changes. Gameplay commands are separately validated post-commit effects; external side effects are not advertised as rollback-safe. No content-specific form names or flags are built into the engine.
 
 ## Integration direction
 
@@ -252,7 +252,7 @@ The server loads source files; clients receive subscription metadata, never sour
 
 Each invocation has a fresh environment. Persistent state belongs in declared meters. Only base language operations and deterministic math are exposed; filesystem, OS, Java objects, dynamic loading, coroutines, debug API and random functions are absent. Execution limits interrupt instruction loops, excessive recursion and oversized string concatenation, including loops inside `pcall`. These are safeguards for trusted local server scripts, not a process-isolated sandbox for hostile code.
 
-Implemented: event subscriptions, numeric inputs, transactional meter commands, server-only loading, reload and bounded execution. Still pending: content registration, broader gameplay operations, editor autocomplete/diagnostics, rendering/model/camera/HUD bindings and the remaining extension APIs. Lua support alone does not complete those modules.
+Implemented: event subscriptions, numeric inputs, transactional meter commands, server-only loading, reload, bounded execution and typed post-commit gameplay commands shared with JSON rewards. These cover content, resource changes, effects, normal form activation and the existing reward registry. Still pending: content definition registration, editor autocomplete/diagnostics, rendering/model/camera/HUD bindings and the remaining extension APIs. Lua support alone does not complete those modules.
 
 
 ## Attack phase branch

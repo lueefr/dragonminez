@@ -28,6 +28,31 @@ public final class Rewards {
     private interface Apply {void apply(ServerPlayer player,StatsData data,JsonElement value);}
     private static void add(String key,java.util.function.Consumer<JsonElement> validate,Apply apply){register(key,new Type(){public void validate(JsonElement v){validate.accept(v);}public void apply(ServerPlayer p,StatsData d,JsonElement v){apply.apply(p,d,v);}});}
     static {
+        add("effect",v->{
+            var o=v.getAsJsonObject();
+            com.dragonminez.api.content.ContentProgress.requireId(o.get("id").getAsString());integer(o.get("ticks"));
+            if(o.has("amplifier"))integer(o.get("amplifier"));
+            int ticks=o.get("ticks").getAsInt(), amplifier=o.has("amplifier")?o.get("amplifier").getAsInt():0;
+            if(ticks<1||ticks>72000||amplifier<0||amplifier>255)throw new IllegalArgumentException("Invalid effect duration/amplifier");
+            if(Conditions.ready()&&!net.minecraft.core.registries.BuiltInRegistries.MOB_EFFECT.containsKey(net.minecraft.resources.ResourceLocation.parse(o.get("id").getAsString())))throw new IllegalArgumentException("Unknown effect");
+        },(p,d,v)->{
+            var o=v.getAsJsonObject();var effect=net.minecraft.core.registries.BuiltInRegistries.MOB_EFFECT.getHolder(net.minecraft.resources.ResourceLocation.parse(o.get("id").getAsString())).orElseThrow();
+            p.addEffect(new net.minecraft.world.effect.MobEffectInstance(effect,o.get("ticks").getAsInt(),o.has("amplifier")?o.get("amplifier").getAsInt():0));
+        });
+        add("resource",v->{
+            var o=v.getAsJsonObject();if(!Set.of("energy","stamina","health").contains(o.get("id").getAsString()))throw new IllegalArgumentException("Unknown resource");
+            double amount=o.get("add").getAsDouble();if(!Double.isFinite(amount)||Math.abs(amount)>1e9)throw new IllegalArgumentException("Invalid resource delta");
+        },(p,d,v)->{
+            var o=v.getAsJsonObject();float amount=o.get("add").getAsFloat();
+            switch(o.get("id").getAsString()){
+                case "energy" -> d.getResources().addEnergy(amount);
+                case "stamina" -> d.getResources().addStamina(amount);
+                case "health" -> p.setHealth(Math.clamp(p.getHealth()+amount,0,p.getMaxHealth()));
+            }
+        });
+        add("activate",v->{var o=v.getAsJsonObject();Conditions.form(o.get("form").getAsString());if(o.has("stack")&&(!o.get("stack").isJsonPrimitive()||!o.getAsJsonPrimitive("stack").isBoolean()))throw new IllegalArgumentException("activate stack must be boolean");},
+            (p,d,v)->{var o=v.getAsJsonObject();String[] form=Conditions.form(o.get("form").getAsString());if(o.has("stack")&&o.get("stack").getAsBoolean())d.getCharacter().setActiveStackForm(form[0],form[1]);else d.getCharacter().setActiveForm(form[0],form[1]);});
+
         add("race",com.dragonminez.common.progression.RaceChange::validate,com.dragonminez.common.progression.RaceChange::apply);
         add("item",v->{
             var object=v.getAsJsonObject();com.dragonminez.api.content.ContentProgress.requireId(object.get("id").getAsString());integer(object.get("count"));

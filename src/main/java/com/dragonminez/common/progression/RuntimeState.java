@@ -45,13 +45,20 @@ public final class RuntimeState {
         dispatching = true;
         var before = meters.snapshot();
         Map<String, Double> inputs = new HashMap<>(numbers(data)); inputs.putAll(values);
+        boolean committed=false;
         try {
+            var commands=config.scriptBatch(event,Map.copyOf(inputs));
+            var rewards=new ArrayList<>(config.actions(event,data));rewards.addAll(commands.rewards());
+            if(rewards.size()>64)throw new IllegalArgumentException("At most 64 gameplay actions per event");
+            for(var reward:rewards)com.dragonminez.api.rules.Rewards.validate(reward);
             config.rules().dispatch(meters, new EventRules.Context(event, queries(values), config.flags(data)));
-            config.rules().adjust(meters, config.scriptActions(event, Map.copyOf(inputs)));
+            config.rules().adjust(meters,commands.meters());
+            committed=true;
+            com.dragonminez.api.rules.Rewards.apply((net.minecraft.server.level.ServerPlayer)data.getPlayer(),data,event,rewards);
         } catch (RuntimeException ex) {
-            meters.restore(before);
+            if(!committed)meters.restore(before);
             failed = true;
-            com.dragonminez.LogUtil.error(com.dragonminez.Env.COMMON, "Runtime event {} failed for {}: {}. Rules disabled for this character until reload.", event, data.getPlayer().getUUID(), ex.getMessage());
+            com.dragonminez.LogUtil.error(com.dragonminez.Env.COMMON, "Runtime event {} failed for {} (meter commit={}): {}. Rules disabled for this character until reload.", event, data.getPlayer().getUUID(), committed, ex.getMessage());
         } finally { dispatching = false; }
     }
     private Map<String, Double> queries(Map<String, Double> values) {
@@ -111,7 +118,7 @@ public final class RuntimeState {
         meters.tick(); dispatch(data, "dmz:tick", Map.of());
     }
     public void changed(StatsData data) {
-        if (data != null && data.getPlayer() instanceof net.minecraft.server.level.ServerPlayer) { bind(); observe(data); }
+        if (!dispatching && data != null && data.getPlayer() instanceof net.minecraft.server.level.ServerPlayer) { bind(); observe(data); }
     }
     private void observe(StatsData data) {
         var character = data.getCharacter();

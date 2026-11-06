@@ -239,3 +239,28 @@ without a rush enter active when their native execution owns the actor.
 These adapters feed the same attack event sources and modifier queries as
 charged ki techniques. Timings remain rule windows, independent of native
 animation and projectile lifetime. New policies are optional.
+
+
+## Post-commit gameplay rules
+
+Optional `gameplay` rules use the shared reward/action registry after event
+meter updates. Their conditions are selected from the pre-event state:
+
+```json
+{
+  "gameplay": [
+    {
+      "event": "dmz:combat_enter",
+      "when": {"content": "example:recovery"},
+      "actions": [{"effect": {"id": "minecraft:regeneration", "ticks": 40}}]
+    }
+  ]
+}
+```
+
+Up to 128 rules are accepted, with at most 64 selected gameplay actions per
+event, including Lua rewards. Action objects are shared with wishes and
+content rewards; see Lua-scripts for resource, effect and form activation
+examples and execution/rollback boundaries. Matching rules run in file order,
+followed by script rewards in subscription order. No client can submit these
+commands directly.
