@@ -39,9 +39,23 @@ public final class FormVisuals {
             case "parts" -> e.getValue().getAsJsonObject().entrySet().forEach(p->{
                 if(!PARTS.containsKey(p.getKey()) && Conditions.ready())throw new IllegalArgumentException("Unknown body part: "+p.getKey());
                 var value=p.getValue();if(value.isJsonPrimitive()){bool(value);return;}
+                if(value.isJsonObject()) {
+                    var pose=value.getAsJsonObject();
+                    if(!Set.of("scale","rotation","offset").containsAll(pose.keySet()))throw new IllegalArgumentException("Unknown part pose field");
+                    for(var axes:pose.entrySet()) {
+                        var list=axes.getValue().getAsJsonArray();if(list.size()!=3)throw new IllegalArgumentException("Part pose needs three axes");
+                        list.forEach(VisualValue::validate);
+                    }
+                    return;
+                }
                 var scale=value.getAsJsonArray();if(scale.size()!=3)throw new IllegalArgumentException("Part scale needs [x,y,z]");
                 for(var axis:scale){double n=axis.getAsDouble();if(!Double.isFinite(n)||n<0.05||n>8)throw new IllegalArgumentException("Part scale must be 0.05..8");}
             });
+            case "camera" -> {
+                var camera=e.getValue().getAsJsonObject();
+                if(!Set.of("fov","roll").containsAll(camera.keySet()))throw new IllegalArgumentException("Unknown camera property");
+                camera.entrySet().forEach(entry->VisualValue.validate(entry.getValue()));
+            }
             case "rules" -> {
                 if(!rules)throw new IllegalArgumentException("Visual rules cannot be nested in set");
                 var list=e.getValue().getAsJsonArray();if(list.size()>128)throw new IllegalArgumentException("At most 128 visual rules per form");
@@ -86,6 +100,16 @@ public final class FormVisuals {
     public static JsonElement part(StatsData data,String bone){
         var visual=resolve(data);var parts=visual.getAsJsonObject("parts");if(parts==null)return null;
         for(var entry:PARTS.entrySet())if(entry.getValue().contains(bone)&&parts.has(entry.getKey()))return parts.get(entry.getKey());return null;
+    }
+    public static float[] pose(JsonObject value,Map<String,Double> numbers) {
+        float[] result={1,1,1,0,0,0,0,0,0};
+        String[] keys={"scale","rotation","offset"};
+        for(int kind=0;kind<keys.length;kind++)if(value.has(keys[kind])) {
+            var axes=value.getAsJsonArray(keys[kind]);
+            double minimum=kind==0?.05:kind==1?-180:-32,maximum=kind==0?8:kind==1?180:32;
+            for(int axis=0;axis<3;axis++)result[kind*3+axis]=(float)VisualValue.evaluate(axes.get(axis),numbers,kind==0?1:0,minimum,maximum);
+        }
+        return result;
     }
     private FormVisuals(){}
 }
