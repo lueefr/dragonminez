@@ -263,3 +263,16 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
 - Logs: `/tmp/dmz-flight-smoothing-validation.log`,
   `/tmp/dmz-flight-smoothing-client-build.log`, `/tmp/dmz-flight-smoothing-client.log`.
   No real two-machine WAN stress test is claimed.
+
+
+### Targeted reaction effects — 2026-11-05
+
+- Branch `feature/reaction-effects`: Java 21 `build runGameTestServer` passed;
+  all 71 required GameTests passed. Evidence: `/tmp/dmz-reaction-effects-validation.log`.
+- Actual server defense tests cover attacker stun/native speed modifier,
+  defender amplifier, range exclusion without changing defense, failed chance
+  without side effects, and malformed target/duration/amplifier/field rejection.
+- Existing dodge, counter, native Ki and vanilla projectile interception tests
+  passed. Player-text audit passed (6872 bundled keys, 277 files).
+- No new client rendering code; effect synchronization uses native mechanics.
+  Third-party effect implementation behavior is not claimed as universally tested.
