@@ -838,7 +838,14 @@ public class KiWaveEntity extends AbstractKiProjectile {
             if (target.invulnerableTime > 0 && !this.isBreakthroughTarget(target)) continue;
 
             float hitPrecision = (float) cilindroRadio;
-            boolean intersects = MultipartTargeting.intersects(target, start, end, hitPrecision);
+            boolean intersects = false;
+            for (AABB hb : MultipartTargeting.hitBoxes(target)) {
+                AABB targetBox = hb.inflate(hitPrecision);
+                if (targetBox.clip(start, end).isPresent() || targetBox.contains(start)) {
+                    intersects = true;
+                    break;
+                }
+            }
 
             if (intersects) {
                 boolean wasHit = this.applyBeamHit(target);

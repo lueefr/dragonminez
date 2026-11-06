@@ -32,16 +32,6 @@ public class FlightOrientationHandler {
 	}
 
 	public static void frame(LocalPlayer player) {
-        var state = player == null ? null : com.dragonminez.common.flight.FlightFrames.get(player);
-        if (state != null) {
-            active = true;
-            var rotation = state.rotation();
-            MODEL_ROTATION.set((float) rotation.x(), (float) rotation.y(), (float) rotation.z(), (float) rotation.w());
-            cameraRoll = (float) com.dragonminez.api.flight.FlightMotion.roll(rotation);
-            writtenYaw = player.getYRot(); writtenPitch = player.getXRot();
-            lastFrameNanos = System.nanoTime();
-            return;
-        }
 		long now = System.nanoTime();
 		float dt = lastFrameNanos == 0L ? 0F : Mth.clamp((now - lastFrameNanos) / 1.0E9F, 0F, MAX_FRAME_SECONDS);
 		lastFrameNanos = now;
@@ -100,15 +90,11 @@ public class FlightOrientationHandler {
 	}
 
 	public static Quaternionf getModelRotation() {
-        var player = Minecraft.getInstance().player;
-        if (player != null && com.dragonminez.common.flight.FlightFrames.active(player)) return MODEL_ROTATION;
 		return ATTITUDE.modelRotation(MODEL_ROTATION);
 	}
 
 	public static Vec3 getForwardVector(LocalPlayer player) {
 		if (player == null) return Vec3.ZERO;
-        var state = com.dragonminez.common.flight.FlightFrames.get(player);
-        if (state != null) return com.dragonminez.common.flight.FlightBody.vector(state.rotation().rotate(new com.dragonminez.api.flight.FlightMotion.Vector(0, 0, -1)));
 		if (!active) return player.getLookAngle();
 		ATTITUDE.bodyForward(SCRATCH);
 		return new Vec3(SCRATCH.x(), SCRATCH.y(), SCRATCH.z());
@@ -116,8 +102,6 @@ public class FlightOrientationHandler {
 
 	public static Vec3 getRightVector(LocalPlayer player) {
 		if (player == null) return Vec3.ZERO;
-        var state = com.dragonminez.common.flight.FlightFrames.get(player);
-        if (state != null) return com.dragonminez.common.flight.FlightBody.vector(state.rotation().rotate(new com.dragonminez.api.flight.FlightMotion.Vector(1, 0, 0)));
 		if (!active) {
 			Vec3 look = player.getLookAngle();
 			Vec3 side = new Vec3(-look.z, 0, look.x);

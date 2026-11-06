@@ -53,7 +53,7 @@ public abstract class CameraMixin implements RollCamera {
 		if (entity instanceof LocalPlayer player) {
 			OverShoulderCamera.beforeSetup(player, partialTick);
 			FlightOrientationHandler.frame(player);
-			this.dragonminez$roll = FlightOrientationHandler.getCameraRoll() * (thirdPersonReverse ? -1 : 1);
+			this.dragonminez$roll = FlightOrientationHandler.getCameraRoll();
 		} else this.dragonminez$roll = 0F;
 	}
 
@@ -127,14 +127,6 @@ public abstract class CameraMixin implements RollCamera {
 	private float dragonminez$vehicleZoom(float distance) {
 		return (float)(distance + OverShoulderCamera.vehicleCameraExtra(this.entity));
 	}
-
-    @Redirect(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V"))
-    private void flightCamera(Camera camera, double x, double y, double z, BlockGetter level, Entity entity,
-                              boolean detached, boolean reverse, float partial) {
-        if (entity instanceof net.minecraft.world.entity.player.Player player && com.dragonminez.common.flight.FlightFrames.active(player)) {
-            this.setPosition(player.getEyePosition(partial));
-        } else this.setPosition(new Vec3(x, y, z));
-    }
 
 	@Redirect(
 			method = "setup",

@@ -210,16 +210,9 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 		}
 
 		if (FlySkillEvent.getInstance().isFlyingFast(entity) && !com.dragonminez.common.init.entities.ki.GumBindEntity.isClientBound(entity)) {
-            var flight = com.dragonminez.common.flight.FlightFrames.get(entity);
-            float pivotY = (flight == null ? entity.getBbHeight() : com.dragonminez.common.flight.FlightBody.dimensions(entity).height()) / 2f;
-            float centerY = flight == null ? pivotY : (float) com.dragonminez.common.flight.FlightBody.shape(entity, flight).radius().y();
-            poseStack.translate(0, centerY, 0);
-            if (flight != null) {
-                var rotation = flight.rotation();
-                float bodyYaw = Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot);
-                poseStack.mulPose(new org.joml.Quaternionf((float) rotation.x(), (float) rotation.y(), (float) rotation.z(), (float) rotation.w()));
-                poseStack.mulPose(Axis.YP.rotationDegrees(-(180 - bodyYaw)));
-            } else if (entity == Minecraft.getInstance().player && FlightOrientationHandler.isActive()) {
+			float pivotY = entity.getBbHeight() / 2f;
+			poseStack.translate(0, pivotY, 0);
+			if (entity == Minecraft.getInstance().player && FlightOrientationHandler.isActive()) {
 				float bodyYaw = Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot);
 				poseStack.mulPose(FlightOrientationHandler.getModelRotation());
 				poseStack.mulPose(Axis.YP.rotationDegrees(-(180 - bodyYaw)));
