@@ -351,3 +351,40 @@ Successful responses emit `dmz:projectile_destroyed` or
 `dmz:projectile_deflected`. Deflected ownership and motion synchronize to
 tracking clients with dimension/entity identity guards. A destroyed native
 projectile cannot damage another target later in the same tick.
+
+
+## Effects after a successful reaction
+
+Each reaction may declare up to 16 `effects`, using registered Minecraft or
+mod effect IDs. Effects apply only after the configured reaction succeeds
+and its costs/cooldown commit. A failed chance, blocked dodge or unavailable
+resource applies no effects.
+
+```json
+{
+  "reactions": [{
+    "id": "example:guard",
+    "response": "block",
+    "hitChance": 0.2,
+    "damageFactor": 0.25,
+    "effectRange": 3,
+    "effects": [
+      {"target": "attacker", "id": "dragonminez:stun", "ticks": 20},
+      {"target": "defender", "id": "minecraft:resistance", "ticks": 40, "amplifier": 0}
+    ]
+  }]
+}
+```
+
+`target` is `defender` by default or `attacker`. Duration is 1..72000 whole
+ticks; amplifier is 0..255, default 0. `effectRange` is 0.1..32 blocks,
+default 3, and applies to attacker effects independently of counter range.
+They require line of sight and normal friendly/PvP permission. A distant
+projectile can still be intercepted without applying an effect to its distant
+owner. Defender effects do not require the attacker to be within this range.
+Dead or removed targets are skipped. Native effect stacking and immunity
+remain in charge; no stronger/longer stacking rule is invented here.
+
+This also works for dodge, counter, projectile destruction and deflection.
+`dragonminez:stun` uses the existing stun mechanics; it is not a new persistent
+position anchor. Other mods' effects retain the behavior defined by those mods.

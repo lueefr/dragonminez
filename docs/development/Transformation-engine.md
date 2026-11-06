@@ -381,3 +381,13 @@ Client `flightBlend` controls remote visual interpolation in 0..0.25 seconds
 server state, targeting geometry or local prediction. Remote body/aura
 positions and orientation use the presentation pose. Weak identity stores
 isolate same-ID entities; session/ack checks reject obsolete snapshots.
+
+
+## Targeted reaction effects
+
+Reactions accept up to 16 registered status effects with attacker/defender
+selection, bounded duration/amplifier and independent effectRange. Application
+follows successful defense/movement/interception and committed costs. Attacker
+effects require range, line of sight and friendly/PvP permission. Existing
+native stun is reused; this increment does not claim a new position anchor or
+complete projections/content registration. See Runtime-rules for customization.

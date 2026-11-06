@@ -67,6 +67,7 @@ public final class ReactionEvents {
         event.setCanceled(true);
         com.dragonminez.common.network.NetworkHandler.sendToTrackingEntityAndSelf(new com.dragonminez.common.network.S2C.TriggerAnimationS2C(player.getUUID(), com.dragonminez.common.network.S2C.TriggerAnimationS2C.AnimationType.EVASION, 1), player);
         data.getRuntime().contact(data);
+        effects(player, attacker, rule);
         data.getRuntime().dispatch(data, "dmz:evaded", Map.of());
     }
     @SubscribeEvent(priority=EventPriority.HIGHEST)
@@ -106,6 +107,7 @@ public final class ReactionEvents {
         }
         data.getResources().removeEnergy((float)energy,false);data.getResources().removeStamina((float)stamina);
         data.getCooldowns().setCooldown("RuntimeReaction:"+rule.id(),rule.cooldown());
+        effects(player, attacker, rule);
         data.getRuntime().contact(data);data.getRuntime().dispatch(data,destroyed?"dmz:projectile_destroyed":"dmz:projectile_deflected",Map.of());
         return true;
     }
@@ -128,7 +130,19 @@ public final class ReactionEvents {
             } finally { countering.remove(); }
         }
         data.getRuntime().contact(data);
+        effects(player, attacker, rule);
         data.getRuntime().dispatch(data, countered ? "dmz:countered" : "dmz:blocked", Map.of("event.damage", (double) remaining, "event.originalDamage", (double) original, "event.blockedDamage", (double) original - remaining));
+    }
+    private static void effects(ServerPlayer player, LivingEntity attacker, ReactionConfig.Rule rule) {
+        var reactions = ConfigManager.getRuntime().reactions();
+        double range = reactions.effectRange(rule);
+        for (var entry : reactions.effects(rule)) {
+            LivingEntity target = entry.target().equals("attacker") ? attacker : player;
+            if (!target.isAlive() || target.isRemoved()) continue;
+            if (target == attacker && (!canCounter(player, attacker) || player.distanceToSqr(attacker) > range * range || !player.hasLineOfSight(attacker))) continue;
+            var effect = net.minecraft.core.registries.BuiltInRegistries.MOB_EFFECT.getHolder(net.minecraft.resources.ResourceLocation.parse(entry.id())).orElseThrow();
+            target.addEffect(new net.minecraft.world.effect.MobEffectInstance(effect, entry.ticks(), entry.amplifier()), player);
+        }
     }
     public static Vec3 destination(ServerPlayer player, Vec3 offset) {
         var target = player.position().add(offset);

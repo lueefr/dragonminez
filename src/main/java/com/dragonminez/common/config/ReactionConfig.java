@@ -11,15 +11,36 @@ public final class ReactionConfig {
     public record Rule(String id, JsonObject when, Set<String> attacks, DynamicValue chance, String power, Map<String, Double> weights, int interval, double distance, double energy, double stamina, int cooldown, String response, double damage, double counter, double range) {}
     private final List<Rule> rules = new ArrayList<>();
     private final Map<String,Set<String>> projectiles=new HashMap<>();
+    private final Map<String,List<Effect>> effects=new HashMap<>();
+    private final Map<String,Double> effectRanges=new HashMap<>();
+    public double effectRange(Rule rule) { return effectRanges.getOrDefault(rule.id(), 3d); }
+    public record Effect(String target, String id, int ticks, int amplifier) {}
+    public List<Effect> effects(Rule rule) { return effects.getOrDefault(rule.id(), List.of()); }
     public static ReactionConfig parse(JsonElement json, Set<String> meters) {
         var result = new ReactionConfig();
         if (json == null) return result;
         Set<String> ids = new HashSet<>();
         for (var element : json.getAsJsonArray()) {
             var rule = element.getAsJsonObject();
-            if (!Set.of("id", "when", "attacks", "hitChance", "powerSource", "distance", "energyCost", "staminaCost", "cooldownTicks", "powerWeights", "reactionTicks", "response", "damageFactor", "counterFactor", "counterRange", "projectiles").containsAll(rule.keySet())) throw new IllegalArgumentException("Unknown reaction field");
+            if (!Set.of("id", "when", "attacks", "hitChance", "powerSource", "distance", "energyCost", "staminaCost", "cooldownTicks", "powerWeights", "reactionTicks", "response", "damageFactor", "counterFactor", "counterRange", "projectiles", "effects", "effectRange").containsAll(rule.keySet())) throw new IllegalArgumentException("Unknown reaction field");
             String id = rule.get("id").getAsString(); com.dragonminez.api.content.ContentProgress.requireId(id);
             if (!ids.add(id)) throw new IllegalArgumentException("Duplicate reaction ID");
+            result.effectRanges.put(id, number(rule, "effectRange", 3, 0.1, 32));
+            if (rule.has("effects")) {
+                var entries = rule.getAsJsonArray("effects");
+                if (entries.size() > 16) throw new IllegalArgumentException("At most 16 reaction effects");
+                List<Effect> effects = new ArrayList<>();
+                for (var entry : entries) {
+                    var effect = entry.getAsJsonObject();
+                    if (!Set.of("target", "id", "ticks", "amplifier").containsAll(effect.keySet())) throw new IllegalArgumentException("Unknown reaction effect field");
+                    String target = effect.has("target") ? effect.get("target").getAsString() : "defender";
+                    if (!Set.of("attacker", "defender").contains(target)) throw new IllegalArgumentException("Unknown reaction effect target");
+                    var value = effect.deepCopy(); value.remove("target");
+                    var reward = new JsonObject(); reward.add("effect", value); com.dragonminez.api.rules.Rewards.validate(reward);
+                    effects.add(new Effect(target, value.get("id").getAsString(), value.get("ticks").getAsInt(), value.has("amplifier") ? value.get("amplifier").getAsInt() : 0));
+                }
+                result.effects.put(id, List.copyOf(effects));
+            }
             if(rule.has("projectiles")){
                 Set<String> types=new HashSet<>();for(var value:rule.getAsJsonArray("projectiles")){
                     String type=value.getAsString();com.dragonminez.api.content.ContentProgress.requireId(type);

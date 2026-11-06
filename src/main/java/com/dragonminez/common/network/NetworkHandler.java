@@ -14,7 +14,7 @@ public class NetworkHandler {
 
 	public static SimpleChannel INSTANCE;
 	private static int packetId = 0;
-	private static final int NETWORK_REVISION = 13;
+	private static final int NETWORK_REVISION = 14;
 
 	private static int id() {
 		return packetId++;
