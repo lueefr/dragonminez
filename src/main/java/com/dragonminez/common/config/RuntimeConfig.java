@@ -31,6 +31,12 @@ public final class RuntimeConfig {
         }
         return new Commands(List.copyOf(meters),List.copyOf(rewards));
     }
+    public List<JsonObject> content() {
+        var result = new ArrayList<JsonObject>();
+        programs.values().forEach(program -> result.addAll(program.content()));
+        if (result.size() > 128) throw new IllegalArgumentException("At most 128 script content definitions");
+        return List.copyOf(result);
+    }
     public List<com.dragonminez.api.runtime.EventRules.Change> scriptActions(String event,Map<String,Double> values){return scriptBatch(event,values).meters();}
     public List<JsonObject> actions(String event,StatsData data){
         var result=new ArrayList<JsonObject>();
@@ -110,12 +116,12 @@ public final class RuntimeConfig {
         result.reactions = ReactionConfig.parse(reactions, rules.meters());
         if (scripts != null) for (var entry : scripts.getAsJsonArray()) {
             var definition = entry.getAsJsonObject();
-            if (!Set.of("id", "events").equals(definition.keySet())) throw new IllegalArgumentException("Script needs id and events");
+            if (!Set.of("id", "events").containsAll(definition.keySet()) || !definition.has("id")) throw new IllegalArgumentException("Script needs id and optional events");
             String id = definition.get("id").getAsString(); com.dragonminez.api.content.ContentProgress.requireId(id);
             if (result.scripts.stream().anyMatch(script -> script.id().equals(id))) throw new IllegalArgumentException("Duplicate script ID");
             Set<String> events = new LinkedHashSet<>();
-            for (var event : definition.getAsJsonArray("events")) { String name = event.getAsString(); com.dragonminez.api.content.ContentProgress.requireId(name); checkEvent(name); events.add(name); }
-            if (events.isEmpty() || events.size() > 32) throw new IllegalArgumentException("Script needs 1..32 event subscriptions");
+            if (definition.has("events")) for (var event : definition.getAsJsonArray("events")) { String name = event.getAsString(); com.dragonminez.api.content.ContentProgress.requireId(name); checkEvent(name); events.add(name); }
+            if (events.size() > 32) throw new IllegalArgumentException("At most 32 event subscriptions");
             result.scripts.add(new Script(id, Set.copyOf(events)));
         }
         if (result.scripts.size() > 32) throw new IllegalArgumentException("At most 32 runtime scripts");
@@ -142,6 +148,7 @@ public final class RuntimeConfig {
             next.put(script.id(), new com.dragonminez.api.script.LuaProgram(script.id(), Files.readString(file, StandardCharsets.UTF_8)));
         }
         programs.putAll(next);
+        content();
     }
     public static RuntimeConfig load(Path path) throws IOException {
         if (!Files.exists(path)) {

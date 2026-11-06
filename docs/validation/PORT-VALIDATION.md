@@ -276,3 +276,19 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   passed. Player-text audit passed (6872 bundled keys, 277 files).
 - No new client rendering code; effect synchronization uses native mechanics.
   Third-party effect implementation behavior is not claimed as universally tested.
+
+
+### Lua content overlays — 2026-11-05
+
+- Branch `feature/lua-content`: Java 21 build and all 72 required GameTests passed.
+  Evidence: `/tmp/dmz-lua-content-final.log`; player-text audit passed.
+- Lua unit tests cover content-only modules, defensive copies, missing module
+  exports, cyclic definitions and existing callback execution safeguards.
+- Server tests load actual temporary Lua/runtime files; verify nested form and
+  attribute schemas, collision/graph rejection without live mutations, explicit
+  replacement/restoration, stacks, source preservation and newer owner objects.
+- Actual ConfigManager installation affects base STR, normal form activation
+  and compressed sync payloads; removing the module removes its forms. Tests
+  restore the original registries and cached synchronization state afterwards.
+- Client receives regular resolved content; arbitrary Lua rendering callbacks
+  and new Minecraft registry entity/block declarations are not implemented here.

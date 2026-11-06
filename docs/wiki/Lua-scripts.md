@@ -28,9 +28,9 @@ The ID `namespace:path` resolves to `scripts/namespace/path.lua`; paths must rem
 
 Every invocation creates a fresh environment: use declared meters for lasting state. The base language and deterministic math are available. IO, OS access, Java objects, debug, package loading, dynamic loading, coroutines and random functions are unavailable. Scripts are trusted local server files; execution limits are safeguards against accidental runaway code, not process isolation for hostile code.
 
-Limits: 64 KiB per source, 32 script declarations, 1..32 event subscriptions per declaration, and 64 combined returned commands per event. Execution is bounded by instructions, wall time, call depth and concatenated string size. Infinite loops, including loops wrapped in `pcall`, are interrupted. Runtime errors disable that character's event rules until reload.
+Limits: 64 KiB per source, 32 script declarations, up to 32 event subscriptions per declaration, and 64 combined returned commands per event. Execution is bounded by instructions, wall time, call depth and concatenated string size. Infinite loops, including loops wrapped in `pcall`, are interrupted. Runtime errors disable that character's event rules until reload.
 
-The current Lua contract returns meter commands. Arbitrary Java field writes, content registration, camera/HUD/model control and unrestricted gameplay mutation are not available through this interface.
+Lua returns typed meter/gameplay commands and can declare content at loading. Arbitrary Java field writes and direct camera/model control are unavailable. Synchronized meters can drive configured HUD widgets and dynamic aura parameters.
 
 
 ## Typed gameplay actions
@@ -70,3 +70,73 @@ external effects and are not rolled back as a group. If an execution fails,
 further event rules for that character stop until reload; logs say whether
 the meter commit already occurred. Design rules to avoid repeating permanent
 rewards every tick (for example, use content conditions).
+
+
+## Declare forms and attributes
+
+A module can return `content`, with or without `onEvent`. For a content-only
+module, subscribe with just `{"id":"example:content"}` in `runtime.json`.
+The definitions load on the server and use the same schemas as the JSONs;
+clients receive the resolved forms and attributes through normal config sync,
+without downloading or executing Lua source.
+
+```lua
+return {
+  content = {
+    {
+      type = 'form_group', id = 'example/forms', race = 'saiyan',
+      value = {
+        identity = {groupName = 'example/forms', formType = 'falseform'},
+        forms = {
+          focus = {
+            name = 'focus',
+            appearance = {hair = {color = '#FF1234'}},
+            stats = {multipliers = {strength = 2}},
+            requirements = {use = {content = 'example:gift'}}
+          }
+        }
+      }
+    },
+    {
+      type = 'attribute', id = 'example:gift',
+      value = {
+        when = {content = 'example:gift'},
+        base = {STR = 1.5},
+        forms = {grant = {'example/forms.focus'}}
+      }
+    }
+  }
+}
+```
+
+This example grants the configured form when the content is completed;
+`falseform` is the existing form category for content-granted forms rather than
+skill purchases. Use `stack_group` without `race` for a shared stack group.
+Use `attribute` without `race` for an attribute; its `when` selects eligibility.
+Group IDs use lowercase letters, numbers, underscore, slash or hyphen;
+attribute IDs use `namespace:path`. A group's `identity.groupName` must match
+its ID, and each form key must match its `name`. Translate the normal form name
+keys through the [translation configuration](Translations).
+
+`mode` defaults to `add`, which rejects existing IDs. `replace` requires an
+existing definition and replaces that entire group or attribute: include all
+fields/forms you want to retain. Definitions cannot duplicate each other in
+one reload. Existing composition, visual, size, condition and attribute
+validators still apply, including composition cycle/missing-reference checks.
+
+Definitions are overlays in memory, not generated JSON files. Removing a
+script and reloading restores the previous owner definitions; newer owner
+objects loaded from disk are preserved. `/dmzreload scripts` prepares and
+validates all definitions before changing the live registries. Failure keeps
+the previous working runtime and content. Startup errors leave owner files
+untouched and disable the invalid script contribution; inspect server logs.
+Changing an owner JSON under a script replacement does not make that script
+replacement disappear: remove or edit the script, then reload scripts.
+
+Limits: 64 definitions per module, 128 across scripts, and a 4096-node,
+16-level startup data conversion budget per module. Returned gameplay commands
+retain their smaller existing limits. Ordinary Lua tables represent objects;
+nonempty consecutive integer tables represent arrays. Use JSON files when an
+explicit empty array is needed. Register content only during module loading;
+event callbacks cannot dynamically mutate registries. No new Minecraft entity
+or block registry type is created by these declarations.

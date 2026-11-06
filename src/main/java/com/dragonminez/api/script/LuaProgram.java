@@ -15,6 +15,8 @@ public final class LuaProgram {
     }
     private final Prototype prototype;
     private final String name;
+    private final List<com.google.gson.JsonObject> content = new ArrayList<>();
+    public List<com.google.gson.JsonObject> content() { return content.stream().map(com.google.gson.JsonObject::deepCopy).toList(); }
     public LuaProgram(String name, String source) {
         this.name = Objects.requireNonNull(name);
         byte[] bytes = source.getBytes(StandardCharsets.UTF_8);
@@ -33,8 +35,19 @@ public final class LuaProgram {
         var budget = new Budget(); globals.load(budget); globals.set("debug", LuaValue.NIL); globals.set("package", LuaValue.NIL);
         try {
             var module = new LuaClosure(prototype, globals).call().checktable();
+            if (event == null) {
+                content.clear();
+                if (!module.get("content").isnil()) {
+                    var entries = tree(module.get("content"), 0, new int[]{0}, 4096, 16);
+                    if (!entries.isJsonArray() || entries.getAsJsonArray().size() > 64) throw new IllegalArgumentException("Lua content needs 1..64 definitions");
+                    entries.getAsJsonArray().forEach(entry -> content.add(entry.getAsJsonObject().deepCopy()));
+                }
+                if (module.get("onEvent").isnil() && content.isEmpty()) throw new IllegalArgumentException("Lua module needs onEvent or content");
+                if (!module.get("onEvent").isnil()) module.get("onEvent").checkfunction();
+                return new Batch(List.of(),List.of());
+            }
+            if (module.get("onEvent").isnil()) return new Batch(List.of(),List.of());
             var callback = module.get("onEvent").checkfunction();
-            if (event == null) return new Batch(List.of(),List.of());
             var context = new LuaTable(); context.set("event", event); var numbers = new LuaTable();
             values.forEach((key, value) -> { if (!Double.isFinite(value)) throw new IllegalArgumentException("Script inputs must be finite"); numbers.set(key, LuaValue.valueOf(value)); });
             context.set("values", numbers);
@@ -60,7 +73,10 @@ public final class LuaProgram {
         catch (LuaError ex) { throw new IllegalArgumentException("Script failed: " + name + ": " + ex.getMessage(), ex); }
     }
     private static com.google.gson.JsonElement json(LuaValue value,int depth,int[] nodes){
-        if(depth>8||++nodes[0]>256)throw new IllegalArgumentException("Script reward exceeds structural limits");
+        return tree(value, depth, nodes, 256, 8);
+    }
+    private static com.google.gson.JsonElement tree(LuaValue value,int depth,int[] nodes,int limit,int maximum){
+        if(depth>maximum||++nodes[0]>limit)throw new IllegalArgumentException("Script reward exceeds structural limits");
         if(value.type()==LuaValue.TSTRING){String text=value.checkjstring();if(text.length()>4096)throw new IllegalArgumentException("Script reward string too long");return new com.google.gson.JsonPrimitive(text);}
         if(value.type()==LuaValue.TNUMBER){double number=value.checkdouble();if(!Double.isFinite(number))throw new IllegalArgumentException("Script reward number must be finite");return new com.google.gson.JsonPrimitive(number);}
         if(value.type()==LuaValue.TBOOLEAN)return new com.google.gson.JsonPrimitive(value.checkboolean());
@@ -70,10 +86,10 @@ public final class LuaProgram {
                 if(table.length()>64)throw new IllegalArgumentException("Script reward array too long");
                 LuaValue key=LuaValue.NIL;int count=0;
                 while(true){var next=table.next(key);key=next.arg1();if(key.isnil())break;if(!key.isint()||key.toint()<1||key.toint()>table.length()||++count>64)throw new IllegalArgumentException("Script reward arrays cannot mix object keys or gaps");}
-                var array=new com.google.gson.JsonArray();for(int i=1;i<=table.length();i++)array.add(json(table.get(i),depth+1,nodes));return array;
+                var array=new com.google.gson.JsonArray();for(int i=1;i<=table.length();i++)array.add(tree(table.get(i),depth+1,nodes,limit,maximum));return array;
             }
             var object=new com.google.gson.JsonObject();LuaValue key=LuaValue.NIL;
-            while(true){var next=table.next(key);key=next.arg1();if(key.isnil())break;if(key.type()!=LuaValue.TSTRING)throw new IllegalArgumentException("Script reward needs string object keys");object.add(key.checkjstring(),json(next.arg(2),depth+1,nodes));}
+            while(true){var next=table.next(key);key=next.arg1();if(key.isnil())break;if(key.type()!=LuaValue.TSTRING)throw new IllegalArgumentException("Script reward needs string object keys");object.add(key.checkjstring(),tree(next.arg(2),depth+1,nodes,limit,maximum));}
             return object;
         }
         throw new IllegalArgumentException("Script reward must contain JSON values");
