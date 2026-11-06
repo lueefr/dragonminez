@@ -26,6 +26,7 @@ public final class EventRules {
         sources.forEach((event, values) -> result.put(event, Set.copyOf(values)));
         return Map.copyOf(result);
     }
+    public MeterState.Definition definition(String id) { return Objects.requireNonNull(definitions.get(id), "Unknown meter: " + id); }
     public Set<String> meters() { return definitions.keySet(); }
     public boolean empty() { return definitions.isEmpty() && rules.isEmpty(); }
     public MeterState create() { return new MeterState(definitions); }

@@ -159,3 +159,41 @@ For a counter, use `response: "counter"` and optionally `counterFactor` (default
 Responses share the existing conditions, probability curve, resources, cooldown and per-projectile interval. A matching rule replaces native speed dodge. `hitChance` is the chance of bypassing the response; a successful block may still leave residual damage.
 
 Events `dmz:blocked` and `dmz:countered` expose `event.originalDamage`, `event.damage` (remaining incoming damage) and `event.blockedDamage`. `countered` is emitted when the native retaliation accepts damage; otherwise the defense emits `blocked`. These are measurements at the defense stage, not final post-armor damage. Use `dmz:damage_received`/`dmz:damage_dealt` for final committed damage.
+
+
+## Meter bars on the HUD
+
+The optional `hud` list in `progression/runtime.json` displays synchronized
+meter values. It never changes or predicts their gameplay values. For example:
+
+```json
+{
+  "meters": {"example:spirit": {"scope": "combat", "min": 0, "max": 100}},
+  "hud": [
+    {
+      "meter": "example:spirit",
+      "label": "hud.example.spirit",
+      "anchor": "top_right",
+      "x": 8, "y": 40, "width": 120, "height": 8,
+      "color": "#66CCFF", "background": "#202020",
+      "showValue": true,
+      "when": {"content": "example:enabled"}
+    }
+  ]
+}
+```
+
+Add `hud.example.spirit` to the server's config language files; labels use the
+normal translation fallback. Omit the label or set it to an empty key for a
+bar with only its number. `showValue: false` hides the number.
+
+Up to 16 entries are supported. Width is 8..512, height 2..64 and offsets
+-4096..4096 GUI pixels. Anchors are `top_left`, `top_right`, `bottom_left`,
+`bottom_right` and `center`. Positive offsets measure inward from the selected
+corner; center offsets move right/down. Bars clamp to the available screen.
+Place each entry explicitly to avoid overlap with other HUDs.
+
+Fill uses the meter's declared min/max and clamps to 0..100%. A zero-width
+meter range has empty fill. Colors use `#RRGGBB`. Shared `when` predicates
+control visibility and may reference declared meters. Hidden GUI and spectator
+mode hide these bars. Missing `hud` leaves the HUD unchanged.
