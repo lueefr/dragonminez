@@ -116,8 +116,8 @@ public final class FlightServer {
         State next = restricted ? new State(session.state.position(), Vector.ZERO, session.state.rotation(), Vector.ZERO)
                 : FlightMotion.step(session.state, controls, FlightBody.tuning(player));
         var resolved = FlightBody.move(player, session.state, next);
-        player.horizontalCollision = Math.abs(resolved.velocity().x()-next.velocity().x())>1e-8 || Math.abs(resolved.velocity().z()-next.velocity().z())>1e-8;
-        player.verticalCollision = Math.abs(resolved.velocity().y()-next.velocity().y())>1e-8;
+        player.horizontalCollision = resolved.velocity().equals(Vector.ZERO) && !next.velocity().equals(Vector.ZERO);
+        player.verticalCollision = player.horizontalCollision && next.velocity().y() != 0;
         session.state = resolved;
         session.boost = !restricted && controls.boost();
         player.setSprinting(session.boost);

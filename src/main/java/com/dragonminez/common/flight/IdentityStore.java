@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 /** Entity equality compares IDs; transient side-local state must compare object identity instead. */
-public final class IdentityStore<K, V> {
+final class IdentityStore<K, V> {
     private static final class Key<K> extends WeakReference<K> {
         private final int hash;
         Key(K value, ReferenceQueue<K> queue) {

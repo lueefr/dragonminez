@@ -85,27 +85,6 @@ public final class FlightBody {
 
     /** Substeps sweep translation and rotation, preventing a fast body crossing thin walls. */
     public static State move(Player player, State before, State after) {
-        int[] budget={512};var result=sweep(player,before,after,budget);
-        var data=com.dragonminez.common.stats.StatsProvider.get(com.dragonminez.common.stats.StatsCapability.INSTANCE,player).orElse(null);
-        var config=com.dragonminez.common.config.ConfigManager.getRuntime().flight();if(data!=null)config=config.resolve(data);
-        if(!config.sliding())return result;
-        var target=shape(player,before).center().add(after.position().add(before.position().scale(-1)));
-        var remaining=target.add(shape(player,result).center().scale(-1));
-        if(remaining.length()<1e-8)return result;
-        double[] travel={remaining.x(),remaining.y(),remaining.z()},velocity={0,0,0};
-        double[] requested={after.velocity().x(),after.velocity().y(),after.velocity().z()};
-        int[] axes=Math.abs(travel[0])>=Math.abs(travel[2])?new int[]{1,0,2}:new int[]{1,2,0};
-        for(int axis:axes){
-            if(Math.abs(travel[axis])<1e-8)continue;
-            var offset=new Vector(axis==0?travel[axis]:0,axis==1?travel[axis]:0,axis==2?travel[axis]:0);
-            var goal=new State(result.position().add(offset),Vector.ZERO,result.rotation(),Vector.ZERO);
-            var clipped=sweep(player,result,goal,budget);
-            if(clipped.position().add(goal.position().scale(-1)).length()<1e-8)velocity[axis]=requested[axis];
-            result=clipped;
-        }
-        return new State(result.position(),new Vector(velocity[0],velocity[1],velocity[2]),result.rotation(),Vector.ZERO);
-    }
-    private static State sweep(Player player,State before,State after,int[] budget){
         double distance = after.position().add(before.position().scale(-1)).length();
         double dot = Math.abs(before.rotation().x() * after.rotation().x() + before.rotation().y() * after.rotation().y()
                 + before.rotation().z() * after.rotation().z() + before.rotation().w() * after.rotation().w());
@@ -113,13 +92,12 @@ public final class FlightBody {
         double radius = shape(player, before).extent().length();
         double stride = Math.max(.025, Math.min(.15, dimensions(player).width() / 4));
         int steps = (int) Math.ceil((distance + turn * radius) / stride);
-        if (steps > budget[0]) return new State(before.position(), Vector.ZERO, before.rotation(), Vector.ZERO);
+        if (steps > 512) return new State(before.position(), Vector.ZERO, before.rotation(), Vector.ZERO);
         State result = before;
         var center = shape(player, before).center();
         var travel = after.position().add(before.position().scale(-1));
         var extent = shape(player, before).extent();
         for (int i = 1; i <= Math.max(1, steps); i++) {
-            if(--budget[0]<0)return new State(result.position(),Vector.ZERO,result.rotation(),Vector.ZERO);
             double ratio = i / (double) Math.max(1, steps);
             var rotation = before.rotation().blend(after.rotation(), ratio);
             var body = new FlightShape(Vector.ZERO, rotation, extent);
