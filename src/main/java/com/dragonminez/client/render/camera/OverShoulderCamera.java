@@ -349,6 +349,15 @@ public final class OverShoulderCamera {
 		cameraPitch = Mth.clamp(cameraPitch + (pitch - cameraPitch) * amount * pitchFollow, -90.0F, 90.0F);
 	}
 
+	public static float bodyScale(Entity entity) {
+		if (!(entity instanceof Player player)) return 1.0f;
+		return com.dragonminez.common.stats.StatsProvider.get(
+				com.dragonminez.common.stats.StatsCapability.INSTANCE, player).map(data -> {
+			float[] size = com.dragonminez.client.systems.FormVisualTransition.modelScale(data);
+			return Math.max(size[0], Math.max(size[1], size[2]));
+		}).orElse(1.0f);
+	}
+
 	public static double vehicleCameraExtra(Entity entity) {
 		return entity != null && entity.getVehicle() instanceof VehicleEntity vehicle ? vehicle.getProperties().cameraDistance() : 0.0D;
 	}
@@ -367,9 +376,10 @@ public final class OverShoulderCamera {
 		}
 		GeneralUserConfig config = ConfigManager.getUserConfig();
 		double ease = config.getOverShoulderSmoothing();
-		double targetBack = config.getOverShoulderBack() + vehicleCameraExtra(entity);
-		double targetUp = config.getOverShoulderUp();
-		double targetRight = config.getOverShoulderSide() * (config.getOverShoulderLeft() ? -1.0 : 1.0);
+		float size = bodyScale(entity);
+		double targetBack = config.getOverShoulderBack() * size + vehicleCameraExtra(entity);
+		double targetUp = config.getOverShoulderUp() * size;
+		double targetRight = config.getOverShoulderSide() * size * (config.getOverShoulderLeft() ? -1.0 : 1.0);
 		curBack += (targetBack - curBack) * ease;
 		curUp += (targetUp - curUp) * ease;
 		curRight += (targetRight - curRight) * ease;

@@ -125,7 +125,7 @@ public abstract class CameraMixin implements RollCamera {
 
 	@ModifyArg(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getMaxZoom(F)F"))
 	private float dragonminez$vehicleZoom(float distance) {
-		return (float)(distance + OverShoulderCamera.vehicleCameraExtra(this.entity));
+		return (float)(distance * OverShoulderCamera.bodyScale(this.entity) + OverShoulderCamera.vehicleCameraExtra(this.entity));
 	}
 
 	@Redirect(
