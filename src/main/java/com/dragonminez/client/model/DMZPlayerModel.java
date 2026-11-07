@@ -344,7 +344,7 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         String kiAnim = animatable instanceof IPlayerAnimatable playing ? playing.dragonminez$getCurrentKiAnimation() : "";
         boolean ownsHead = clipOwnsHead(playingAnim) || clipOwnsHead(kiAnim);
         boolean flying = forwardHead(animatable);
-        boolean skipHead = (transfAnimPlaying && actuallyTransforming) || ownsHead || flying;
+        boolean skipHead = (transfAnimPlaying && actuallyTransforming) || ownsHead;
 
         float partialTick = animationState.getPartialTick();
         float bodyYaw = Mth.lerp(partialTick, animatable.yBodyRotO, animatable.yBodyRot);
@@ -361,8 +361,8 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         if (head != null && !skipHead) {
             EntityModelData entityModelData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
 
-            float lookPitchRad = entityModelData.headPitch() * Mth.DEG_TO_RAD;
-            float lookYawRad = entityModelData.netHeadYaw() * Mth.DEG_TO_RAD;
+            float lookPitchRad = flying ? 0.0F : entityModelData.headPitch() * Mth.DEG_TO_RAD;
+            float lookYawRad = flying ? 0.0F : entityModelData.netHeadYaw() * Mth.DEG_TO_RAD;
 
             float waistRotX = (waist != null) ? waist.getRotX() : 0.0F;
             float waistRotY = (waist != null) ? waist.getRotY() : 0.0F;
@@ -413,8 +413,8 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
     }
 
     private static boolean forwardHead(AbstractClientPlayer player) {
-        if (Minecraft.getInstance().screen != null) return false;
-        // The flight clip supplies the forward-facing head pose in the body's frame.
+        if (Minecraft.getInstance().screen instanceof com.dragonminez.client.gui.character.util.BaseMenuScreen) return false;
+        // Keep world flight independent of camera look, including while paused.
         return StatsProvider.get(StatsCapability.INSTANCE, player)
                 .map(data -> data.getSkills().isSkillActive("fly")).orElse(false)
                 || player.getAbilities().flying || player.isFallFlying()
