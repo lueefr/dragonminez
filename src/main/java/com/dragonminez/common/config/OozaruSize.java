@@ -9,7 +9,6 @@ public final class OozaruSize {
 
     public static void apply(FormConfig.FormData form) {
         FormSize size = new FormSize();
-        size.setReference("dragonminez:saga_ozaru");
         // FormSize expresses a nominal 1.9-block body; this custom model is 2 blocks high.
         size.setHeight(TARGET_HEIGHT * 1.9f / MODEL_HEIGHT);
         form.setSize(size);

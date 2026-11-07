@@ -408,3 +408,8 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   `/tmp/dmz-visual-hotfix26-final.log`. Packaged JSON/model-parent validation passed.
   The first run caught an overly strict collision assertion; it now allows the
   existing 0.1-block rounding. Third-party TxniLib is excluded at the user's request.
+- Client startup with GeckoLib 4.9.3/Iris/Sodium exposed early registry lookup in
+  the Oozaru default. Removed its redundant entity reference: explicit calibrated
+  height supplies the size without querying registries during mod construction.
+  The client probe was stopped for this correction; complete visual reproduction
+  of the supplied screenshots has not been verified.
