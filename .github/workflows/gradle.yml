@@ -80,7 +80,9 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle # Runs the build (Fool-proof stuff)
-        run: ./gradlew build
+        run: |
+          ./gradlew build
+          python3 scripts/check-packaged-resources.py build/libs/*.jar
 
       - name: Publish exact source release
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'

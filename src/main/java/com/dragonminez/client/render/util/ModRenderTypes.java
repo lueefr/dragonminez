@@ -49,7 +49,7 @@ public class ModRenderTypes extends RenderType {
                         .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
                         .setCullState(RenderStateShard.NO_CULL)
                         .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .setLayeringState(STENCIL_READ_NOTEQUAL)
+                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                         .createCompositeState(false));
     }
 

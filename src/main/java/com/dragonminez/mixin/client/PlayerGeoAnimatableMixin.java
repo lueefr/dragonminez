@@ -369,13 +369,13 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 
 		if (isTransforming && actionMode.equals(ActionMode.FORM)) {
 			if (nextFormConfig != null && nextFormConfig.hasTransformationAnimation()) {
-				return state.setAndContinue(AnimationCache.getPlay(nextFormConfig.getTransformationAnimation()));
+				return state.setAndContinue(AnimationCache.getPlayAndHold(nextFormConfig.getTransformationAnimation()));
 			}
 			if (nextForm.contains("ozaru")) return state.setAndContinue(OOZARU_TRANSFORMATION);
 			return state.setAndContinue(TRANSFORMATION);
 		} else if (isTransforming && actionMode.equals(ActionMode.STACK)) {
 			if (nextStackFormConfig != null && nextStackFormConfig.hasTransformationAnimation()) {
-				return state.setAndContinue(AnimationCache.getPlay(nextStackFormConfig.getTransformationAnimation()));
+				return state.setAndContinue(AnimationCache.getPlayAndHold(nextStackFormConfig.getTransformationAnimation()));
 			}
 			return state.setAndContinue(TRANSFORMATION);
 		} else if (isTransforming && actionMode.equals(ActionMode.RACIAL)) {
@@ -488,7 +488,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 		if (player.isSwimming() || player.isVisuallyCrawling() || player.isPassenger()) return PlayState.STOP;
 
 		StatsData data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
-		if (data != null && (data.getStatus().isBlocking() || data.getStatus().isChargingKi() || dragonminez$isStunned(data)
+		if (data != null && (data.getStatus().isBlocking() || data.getStatus().isChargingKi() || data.getStatus().isActionCharging() || dragonminez$isStunned(data)
 				|| data.getStatus().isKiShareLocked())) return PlayState.STOP;
 
 		if (dragonminez$currentPoseAnim == null || dragonminez$currentPoseAnim.isEmpty()) return PlayState.STOP;

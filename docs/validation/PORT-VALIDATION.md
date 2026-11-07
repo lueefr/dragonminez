@@ -387,3 +387,24 @@ of locale formatting, including stack forms, bundled forms and base-hair fallbac
   `/tmp/dmz-flight-restored.log`; player-text audit passed (6875 keys).
 - Network revision 19 rejects mismatched builds. Removed flight packet slots
   stay reserved so later packet registrations retain their IDs.
+
+### Player rendering and resource loading — 2026-11-07
+
+- Fixed recursive bone restoration to preserve GeckoLib change flags, preventing
+  torso/arm offsets from persisting across animation changes. Action charging
+  blocks combat pose overrides; custom transformation clips hold their final pose.
+- Flight head queries ignore camera movement in-world; menu previews retain mouse
+  tracking. Preview rotations synchronize previous/current fields and restore them.
+- Aura shells use the player's flight attitude and their own geometric pivot.
+  Removed player-stencil exclusion from the aura RenderType; LEQUAL depth still
+  occludes effects behind opaque world geometry.
+- Default Oozaru size matches the Classic saga Kid Goku ape model (129 pixels at
+  scale 1.8). Existing untouched defaults upgrade in memory; custom sizes remain.
+  Regression coverage checks rendered height, rounded collision size and overrides.
+- Corrected packaged pack metadata processing, nested JSON diagnostics and missing
+  resource model parents. Armor items without dedicated icons use vanilla iron
+  inventory icons; worn armor textures remain unchanged.
+- Java 21 build and all 74 integration tests passed in
+  `/tmp/dmz-visual-hotfix26-final.log`. Packaged JSON/model-parent validation passed.
+  The first run caught an overly strict collision assertion; it now allows the
+  existing 0.1-block rounding. Third-party TxniLib is excluded at the user's request.

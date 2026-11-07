@@ -245,7 +245,7 @@ tasks.named<ProcessResources>("processResources").configure {
 
     inputs.properties(replaceProperties)
 
-    filesMatching(listOf("META-INF/neoforge.mods.toml", "pack.mcmeta")) {
+    filesMatching("META-INF/neoforge.mods.toml") {
         expand(replaceProperties + mapOf("project" to project))
     }
 }

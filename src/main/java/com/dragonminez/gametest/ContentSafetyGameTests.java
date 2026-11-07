@@ -49,6 +49,15 @@ public final class ContentSafetyGameTests {
             String encoded=gson.toJson(value);
             var restored=gson.fromJson(encoded,value.getClass());
             helper.assertTrue(gson.toJsonTree(value).equals(gson.toJsonTree(restored)),"Native adapter changed "+value.getClass().getSimpleName());
+            String source="schema-fixture";
+            com.dragonminez.common.diagnostics.JsonLoadReport.clear(source);
+            var tree=com.google.gson.JsonParser.parseString(encoded).getAsJsonObject();
+            com.dragonminez.common.diagnostics.JsonSchema.check(source,"fixture.json","",tree,value.getClass());
+            helper.assertTrue(com.dragonminez.common.diagnostics.JsonLoadReport.entries().stream().noneMatch(entry->entry.source().equals(source)),"Valid nested config reported unknown fields: "+value.getClass().getSimpleName());
+            tree.addProperty("unexpectedFixture",true);
+            com.dragonminez.common.diagnostics.JsonSchema.check(source,"fixture.json","",tree,value.getClass());
+            helper.assertTrue(com.dragonminez.common.diagnostics.JsonLoadReport.entries().stream().anyMatch(entry->entry.source().equals(source)&&entry.message().contains("unexpectedFixture")),"Unknown config field went unreported");
+            com.dragonminez.common.diagnostics.JsonLoadReport.clear(source);
         }
         helper.succeed();
     }

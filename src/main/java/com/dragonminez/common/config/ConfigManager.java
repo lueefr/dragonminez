@@ -925,6 +925,7 @@ public class ConfigManager {
 			userDiskForms.forEach(raceForms::putIfAbsent);
 		}
 
+		if ("saiyan".equalsIgnoreCase(raceName)) raceForms.values().forEach(OozaruSize::upgrade);
 		RACE_FORMS.put(raceName.toLowerCase(), raceForms);
 		RACE_CHARACTER.put(raceName.toLowerCase(), characterConfig);
 		RACE_STATS.put(raceName.toLowerCase(), statsConfig);

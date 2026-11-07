@@ -637,7 +637,7 @@ public class DefaultFormsFactory {
 		oozaru.setTransformationAnimation("transf.ozaru");
 		oozaru.setModelScaling(new Float[]{3.8f, 3.8f, 3.8f});
         oozaru.setSize(new FormSize());
-        oozaru.getSize().setReference("dragonminez:saga_saiyan_oozaru");
+        OozaruSize.apply(oozaru);
 		oozaru.setStrMultiplier(1.25);
 		oozaru.setSkpMultiplier(1.25);
 		oozaru.setDefMultiplier(1.15);
@@ -664,7 +664,7 @@ public class DefaultFormsFactory {
 		goldenOozaru.setBodyColor2("#FFD700");
 		goldenOozaru.setModelScaling(new Float[]{3.8f, 3.8f, 3.8f});
         goldenOozaru.setSize(new FormSize());
-        goldenOozaru.getSize().setReference("dragonminez:saga_saiyan_oozaru");
+        OozaruSize.apply(goldenOozaru);
 		goldenOozaru.setStrMultiplier(2.15);
 		goldenOozaru.setSkpMultiplier(2.15);
 		goldenOozaru.setDefMultiplier(2.3);

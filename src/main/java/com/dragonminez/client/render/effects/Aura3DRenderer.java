@@ -97,7 +97,7 @@ public final class Aura3DRenderer {
 	}
 
 	public static float coreFactor(String type) {
-		return 0.45f;
+		return pivotFactor(type);
 	}
 
 	public static void drawSmooth(PoseStack poseStack, Matrix4f projection, AuraStyle style, float alpha, float growth,

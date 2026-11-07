@@ -346,22 +346,21 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
         if(data!=null && com.dragonminez.api.forms.FormVisuals.parts().get("tail").contains(bone.getName()) && !com.dragonminez.api.forms.FormVisuals.flag(data,"tail",true))return;
         var part=data==null?null:com.dragonminez.api.forms.FormVisuals.part(data,bone.getName());
         if(part!=null && part.isJsonPrimitive() && !part.getAsBoolean())return;
-        float x=bone.getScaleX(),y=bone.getScaleY(),z=bone.getScaleZ();
-        float rx=bone.getRotX(),ry=bone.getRotY(),rz=bone.getRotZ();
-        float px=bone.getPosX(),py=bone.getPosY(),pz=bone.getPosZ();
-        if(part!=null && part.isJsonArray()) {var scale=part.getAsJsonArray();bone.setScaleX(x*scale.get(0).getAsFloat());bone.setScaleY(y*scale.get(1).getAsFloat());bone.setScaleZ(z*scale.get(2).getAsFloat());}
+        var saved = com.dragonminez.client.render.util.BoneRenderState.capture(bone);
+        if(part!=null && part.isJsonArray()) {
+            var scale=part.getAsJsonArray();
+            bone.setScaleX(bone.getScaleX()*scale.get(0).getAsFloat());
+            bone.setScaleY(bone.getScaleY()*scale.get(1).getAsFloat());
+            bone.setScaleZ(bone.getScaleZ()*scale.get(2).getAsFloat());
+        }
         if(part!=null && part.isJsonObject()) {
             var pose=com.dragonminez.api.forms.FormVisuals.pose(part.getAsJsonObject(),data.getRuntime().numbers(data));
-            bone.setScaleX(x*pose[0]);bone.setScaleY(y*pose[1]);bone.setScaleZ(z*pose[2]);
-            bone.setRotX(rx+pose[3]*net.minecraft.util.Mth.DEG_TO_RAD);bone.setRotY(ry+pose[4]*net.minecraft.util.Mth.DEG_TO_RAD);bone.setRotZ(rz+pose[5]*net.minecraft.util.Mth.DEG_TO_RAD);
-            bone.setPosX(px+pose[6]);bone.setPosY(py+pose[7]);bone.setPosZ(pz+pose[8]);
+            bone.setScaleX(bone.getScaleX()*pose[0]);bone.setScaleY(bone.getScaleY()*pose[1]);bone.setScaleZ(bone.getScaleZ()*pose[2]);
+            bone.setRotX(bone.getRotX()+pose[3]*net.minecraft.util.Mth.DEG_TO_RAD);bone.setRotY(bone.getRotY()+pose[4]*net.minecraft.util.Mth.DEG_TO_RAD);bone.setRotZ(bone.getRotZ()+pose[5]*net.minecraft.util.Mth.DEG_TO_RAD);
+            bone.setPosX(bone.getPosX()+pose[6]);bone.setPosY(bone.getPosY()+pose[7]);bone.setPosZ(bone.getPosZ()+pose[8]);
         }
         try { renderFormBone(poseStack,animatable,bone,renderType,bufferSource,buffer,isReRender,partialTick,packedLight,packedOverlay,renderColor); }
-        finally {
-            bone.setScaleX(x);bone.setScaleY(y);bone.setScaleZ(z);
-            bone.setRotX(rx);bone.setRotY(ry);bone.setRotZ(rz);
-            bone.setPosX(px);bone.setPosY(py);bone.setPosZ(pz);
-        }
+        finally { saved.restore(); }
     }
 
     @Override

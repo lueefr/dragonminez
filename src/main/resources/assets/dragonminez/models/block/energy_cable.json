@@ -1,3 +1,5 @@
 {
-  "parent": "dragonminez:block/energy_cable"
+  "textures": {
+    "particle": "minecraft:block/iron_block"
+  }
 }

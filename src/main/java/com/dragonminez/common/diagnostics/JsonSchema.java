@@ -24,6 +24,8 @@ public final class JsonSchema {
 
 	public static void check(String source, String file, String path, JsonObject json, Class<?> type) {
 		if (json == null || type == null || !type.getName().startsWith("com.dragonminez")) return;
+		var kind = com.dragonminez.common.config.schema.ContentAdapters.kind(type);
+		if (kind != null) json = com.dragonminez.common.config.schema.ContentSchema.decode(kind, json);
 		Map<String, Field> fields = fieldsOf(type);
 		Set<String> removed = removedKeysOf(type);
 		for (Map.Entry<String, JsonElement> entry : json.entrySet()) {

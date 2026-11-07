@@ -1,5 +1,5 @@
 {
-	"format_version": "1.21.0",
+	"format_version": "1.12.0",
 	"minecraft:geometry": [
 		{
 			"description": {
@@ -320,8 +320,8 @@
 								"east": {"uv": [12, 122], "uv_size": [0, 6]},
 								"south": {"uv": [6, 122], "uv_size": [-6, 6]},
 								"west": {"uv": [6, 122], "uv_size": [0, 6]},
-								"up": {"uv": [6, 122], "uv_size": [0, -6], "uv_rotation": 90},
-								"down": {"uv": [6, 116], "uv_size": [0, 6], "uv_rotation": 270}
+								"up": {"uv": [6, 122], "uv_size": [0, -6]},
+								"down": {"uv": [6, 116], "uv_size": [0, 6]}
 							}
 						},
 						{
@@ -334,8 +334,8 @@
 								"east": {"uv": [12, 122], "uv_size": [0, 6]},
 								"south": {"uv": [6, 122], "uv_size": [-6, 6]},
 								"west": {"uv": [6, 122], "uv_size": [0, 6]},
-								"up": {"uv": [6, 122], "uv_size": [0, -6], "uv_rotation": 90},
-								"down": {"uv": [6, 116], "uv_size": [0, 6], "uv_rotation": 270}
+								"up": {"uv": [6, 122], "uv_size": [0, -6]},
+								"down": {"uv": [6, 116], "uv_size": [0, 6]}
 							}
 						},
 						{"origin": [27.25, 11.6, -118.95], "size": [6, 4, 3], "inflate": -0.1, "pivot": [30.25, 13.6, -117.95], "rotation": [0, 0, 22.5], "uv": [62, 121], "mirror": true}
@@ -370,8 +370,8 @@
 								"east": {"uv": [6, 122], "uv_size": [0, 6]},
 								"south": {"uv": [0, 122], "uv_size": [6, 6]},
 								"west": {"uv": [12, 122], "uv_size": [0, 6]},
-								"up": {"uv": [6, 116], "uv_size": [0, 6], "uv_rotation": 90},
-								"down": {"uv": [6, 122], "uv_size": [0, -6], "uv_rotation": 270}
+								"up": {"uv": [6, 116], "uv_size": [0, 6]},
+								"down": {"uv": [6, 122], "uv_size": [0, -6]}
 							}
 						},
 						{
@@ -384,8 +384,8 @@
 								"east": {"uv": [6, 122], "uv_size": [0, 6]},
 								"south": {"uv": [0, 122], "uv_size": [6, 6]},
 								"west": {"uv": [12, 122], "uv_size": [0, 6]},
-								"up": {"uv": [6, 116], "uv_size": [0, 6], "uv_rotation": 90},
-								"down": {"uv": [6, 122], "uv_size": [0, -6], "uv_rotation": 270}
+								"up": {"uv": [6, 116], "uv_size": [0, 6]},
+								"down": {"uv": [6, 122], "uv_size": [0, -6]}
 							}
 						},
 						{"origin": [-33.25, 11.6, -118.95], "size": [6, 4, 3], "inflate": -0.1, "pivot": [-30.25, 13.6, -117.95], "rotation": [0, 0, -22.5], "uv": [62, 121]}
@@ -627,8 +627,8 @@
 								"east": {"uv": [6, 122], "uv_size": [0, 6]},
 								"south": {"uv": [0, 122], "uv_size": [6, 6]},
 								"west": {"uv": [12, 122], "uv_size": [0, 6]},
-								"up": {"uv": [6, 116], "uv_size": [0, 6], "uv_rotation": 90},
-								"down": {"uv": [6, 122], "uv_size": [0, -6], "uv_rotation": 270}
+								"up": {"uv": [6, 116], "uv_size": [0, 6]},
+								"down": {"uv": [6, 122], "uv_size": [0, -6]}
 							}
 						},
 						{
@@ -641,8 +641,8 @@
 								"east": {"uv": [6, 122], "uv_size": [0, 6]},
 								"south": {"uv": [0, 122], "uv_size": [6, 6]},
 								"west": {"uv": [12, 122], "uv_size": [0, 6]},
-								"up": {"uv": [6, 116], "uv_size": [0, 6], "uv_rotation": 90},
-								"down": {"uv": [6, 122], "uv_size": [0, -6], "uv_rotation": 270}
+								"up": {"uv": [6, 116], "uv_size": [0, 6]},
+								"down": {"uv": [6, 122], "uv_size": [0, -6]}
 							}
 						},
 						{"origin": [-33.25, 11.6, 45.05], "size": [6, 4, 3], "inflate": -0.1, "pivot": [-30.25, 13.6, 46.05], "rotation": [0, 0, -22.5], "uv": [62, 121]}
@@ -677,8 +677,8 @@
 								"east": {"uv": [12, 122], "uv_size": [0, 6]},
 								"south": {"uv": [6, 122], "uv_size": [-6, 6]},
 								"west": {"uv": [6, 122], "uv_size": [0, 6]},
-								"up": {"uv": [6, 122], "uv_size": [0, -6], "uv_rotation": 90},
-								"down": {"uv": [6, 116], "uv_size": [0, 6], "uv_rotation": 270}
+								"up": {"uv": [6, 122], "uv_size": [0, -6]},
+								"down": {"uv": [6, 116], "uv_size": [0, 6]}
 							}
 						},
 						{
@@ -691,8 +691,8 @@
 								"east": {"uv": [12, 122], "uv_size": [0, 6]},
 								"south": {"uv": [6, 122], "uv_size": [-6, 6]},
 								"west": {"uv": [6, 122], "uv_size": [0, 6]},
-								"up": {"uv": [6, 122], "uv_size": [0, -6], "uv_rotation": 90},
-								"down": {"uv": [6, 116], "uv_size": [0, 6], "uv_rotation": 270}
+								"up": {"uv": [6, 122], "uv_size": [0, -6]},
+								"down": {"uv": [6, 116], "uv_size": [0, 6]}
 							}
 						},
 						{"origin": [27.25, 11.6, 45.05], "size": [6, 4, 3], "inflate": -0.1, "pivot": [30.25, 13.6, 46.05], "rotation": [0, 0, 22.5], "uv": [62, 121], "mirror": true}

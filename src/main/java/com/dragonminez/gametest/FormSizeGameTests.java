@@ -47,6 +47,19 @@ public final class FormSizeGameTests {
         helper.assertTrue(tiny[0]>=.1f && tiny[1]>=.1f && tiny[2]>0 && tiny[2]<tiny[1], "Small body collapsed or eyes escaped it");
         var wide = (float[])method.invoke(null, new Float[]{1f,1f,3f}, net.minecraft.world.entity.Pose.STANDING, .8f);
         helper.assertTrue(Math.abs(wide[0]-1.8f)<.001, "Depth scale escaped physical bounds");
+        var ape = new FormConfig.FormData();
+        ape.setCustomModel("oozaru"); ape.setModelScaling(new Float[]{3.8f,3.8f,3.8f});
+        var apes = new FormConfig(); apes.setGroupName("oozaru");
+        apes.setForms(new java.util.LinkedHashMap<>(java.util.Map.of("oozaru",ape)));
+        OozaruSize.upgrade(apes);
+        var apeScale = character.getModelScalingFor(ape,null);
+        helper.assertTrue(Math.abs(apeScale[1]*OozaruSize.MODEL_HEIGHT-OozaruSize.TARGET_HEIGHT)<.001,
+                "Existing Oozaru form does not match classic saga NPC rendered height");
+        var apeBody = (float[])method.invoke(null,apeScale,net.minecraft.world.entity.Pose.STANDING,.8f);
+        helper.assertTrue(Math.abs(apeBody[1]-ape.getSize().getHeight())<.051,
+                "Oozaru collision size did not follow the resolved form dimensions");
+        ape.getSize().setHeight(6f); OozaruSize.upgrade(apes);
+        helper.assertTrue(ape.getSize().getHeight()==6f,"Custom Oozaru size was overwritten");
         helper.succeed();
     }
 }

@@ -2,6 +2,7 @@ package com.dragonminez.client.render.effects;
 
 import com.dragonminez.Reference;
 import com.dragonminez.client.events.FlySkillEvent;
+import com.dragonminez.client.flight.FlightOrientationHandler;
 import com.dragonminez.client.render.HelmetFormLook;
 import com.dragonminez.client.render.shader.DMZShaders;
 import com.dragonminez.client.render.util.AuraMeshFactory;
@@ -102,7 +103,7 @@ public class AuraRenderer {
 	private static final float AURA_BASE_SCALE = 1.05f;
 	private static final float SPARKING_LAYER_WIDTH = 0.26f;
 	private static final float AURA_RELEASE_LERP_PER_TICK = 0.02f;
-	private static final float AURA_3D_FLIGHT_LEAD = 1.10f;
+	private static final float AURA_3D_FLIGHT_LEAD = 0.0f;
 	private static final float AURA_TRAIL_ALPHA = 0.55f;
 	public static final float AURA_2D_FLIGHT_OFFSET = 0.31f;
 	private static final float AURA_3D_BACKFACE = 0.02f;
@@ -114,7 +115,7 @@ public class AuraRenderer {
 	private static final float SMOOTH_SHRINK_RATE = 3.0f;
 	private static final float SMOOTH_STYLE_BLEND_RATE = 6.0f;
 	private static final float SMOOTH_FIRST_PERSON_ALPHA = 0.45f;
-	private static final float SMOOTH_FLIGHT_LEAD = 0.25f;
+	private static final float SMOOTH_FLIGHT_LEAD = 0.0f;
 	private static final float GOD_CENTER = 1.28f;
 	private static final float GOD_FIRST_PERSON_ALPHA = 0.35f;
 	private static final float GOD_WORLD_DROP = 0.15f;
@@ -1456,6 +1457,18 @@ public class AuraRenderer {
 		poseStack.translate(0.0f, -center * scaleY - lead * bodyScale, 0.0f);
 	}
 
+	private static void applyLean(Player player, PoseStack poseStack, float partialTick) {
+		if (isFastFlying(player) && player == Minecraft.getInstance().player && FlightOrientationHandler.isActive()) {
+			float yaw = Mth.rotLerp(partialTick, player.yBodyRotO, player.yBodyRot);
+			// Remove the yaw applied by the shell, then use the same attitude as the player.
+			poseStack.mulPose(Axis.YP.rotationDegrees(-(180.0f - yaw)));
+			poseStack.mulPose(FlightOrientationHandler.getModelRotation());
+			poseStack.mulPose(Axis.XP.rotationDegrees(90.0f));
+		} else {
+			poseStack.mulPose(Axis.XP.rotationDegrees(auraLeanDegrees(player, partialTick)));
+		}
+	}
+
 	private static float auraLeanDegrees(Player player, float partialTick) {
 		if (isFastFlying(player)) return 90.0f - player.getViewXRot(partialTick);
 
@@ -1513,7 +1526,7 @@ public class AuraRenderer {
 		LayerMotion motion = data.motions.get(layerKey(layer));
 		if (motion == null || !motion.ready) return;
 
-		float bodyRot = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot);
+		float bodyRot = Mth.rotLerp(partialTick, player.yBodyRotO, player.yBodyRot);
 		float boost = layer.boost() / Aura3DRenderer.SMOOTH_SCALE_REFERENCE;
 		float scaleX = data.auraScaleX * boost;
 		float scaleY = data.auraScaleY * boost;
@@ -1526,7 +1539,7 @@ public class AuraRenderer {
 		poseStack.mulPose(Axis.YP.rotationDegrees(180.0f - bodyRot));
 		if (laidDown) {
 			poseStack.translate(0.0f, player.getBbHeight() * 0.5f, 0.0f);
-			poseStack.mulPose(Axis.XP.rotationDegrees(auraLeanDegrees(player, partialTick)));
+			applyLean(player, poseStack, partialTick);
 			poseStack.translate(0.0f, -Aura3DRenderer.SMOOTH_CENTER * scaleY, 0.0f);
 			if (fastFlying) poseStack.translate(0.0f, -SMOOTH_FLIGHT_LEAD, 0.0f);
 		}
@@ -1544,7 +1557,7 @@ public class AuraRenderer {
 		LayerMotion motion = data.motions.get(layerKey(layer));
 		if (motion == null || !motion.ready) return;
 
-		float bodyRot = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot);
+		float bodyRot = Mth.rotLerp(partialTick, player.yBodyRotO, player.yBodyRot);
 		float boost = layer.boost() / Aura3DRenderer.SMOOTH_SCALE_REFERENCE;
 		float scaleX = data.auraScaleX * boost;
 		float scaleY = data.auraScaleY * boost;
@@ -1557,7 +1570,7 @@ public class AuraRenderer {
 		poseStack.mulPose(Axis.YP.rotationDegrees(180.0f - bodyRot));
 		if (laidDown) {
 			poseStack.translate(0.0f, player.getBbHeight() * 0.5f, 0.0f);
-			poseStack.mulPose(Axis.XP.rotationDegrees(auraLeanDegrees(player, partialTick)));
+			applyLean(player, poseStack, partialTick);
 			poseStack.translate(0.0f, -GOD_CENTER * scaleY, 0.0f);
 			if (fastFlying) poseStack.translate(0.0f, -SMOOTH_FLIGHT_LEAD, 0.0f);
 		} else {
@@ -1577,7 +1590,7 @@ public class AuraRenderer {
 		LayerMotion motion = data.motions.get(layerKey(layer));
 		if (motion == null || !motion.ready) return;
 
-		float bodyRot = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot);
+		float bodyRot = Mth.rotLerp(partialTick, player.yBodyRotO, player.yBodyRot);
 		float boost = layer.boost();
 		float time = auraPhase(player, partialTick) / 10.0f;
 
@@ -1601,7 +1614,7 @@ public class AuraRenderer {
 
 		if (laidDown) {
 			poseStack.translate(0.0f, player.getBbHeight() * 0.5f, 0.0f);
-			poseStack.mulPose(Axis.XP.rotationDegrees(auraLeanDegrees(player, partialTick)));
+			applyLean(player, poseStack, partialTick);
 			poseStack.translate(0.0f, -Aura3DRenderer.coreFactor(layer.type) * scaleY, 0.0f);
 			if (fastFlying) poseStack.translate(0.0f, -AURA_3D_FLIGHT_LEAD, 0.0f);
 		}
