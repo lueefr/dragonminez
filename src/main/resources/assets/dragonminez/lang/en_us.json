@@ -6959,5 +6959,6 @@
   "wish.dragonminez.shenron.senzu.name": "Senzu Beans",
   "wish.dragonminez.shenron.senzu.desc": "Receive some Senzu Beans.",
   "wish.dragonminez.shenron.strongest.name": "The Strongest Armor",
-  "wish.dragonminez.shenron.strongest.desc": "Receive 'The Strongest' armor set."
+  "wish.dragonminez.shenron.strongest.desc": "Receive 'The Strongest' armor set.",
+  "gui.dragonminez.wishes.raw_text": "%s"
 }
