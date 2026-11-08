@@ -2,8 +2,6 @@ package com.dragonminez.client.render;
 
 import com.dragonminez.client.events.FlySkillEvent;
 import com.dragonminez.client.flight.FlightOrientationHandler;
-import com.dragonminez.client.flight.FlightPose;
-import com.dragonminez.client.gui.character.util.BaseMenuScreen;
 import com.dragonminez.client.animation.IPlayerAnimatable;
 import com.dragonminez.client.render.hair.HairRenderCapture;
 import com.dragonminez.client.render.hair.HairRenderContext;
@@ -211,17 +209,7 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 			);
 		}
 
-		boolean preview = entity == Minecraft.getInstance().player
-				&& (Minecraft.getInstance().screen instanceof BaseMenuScreen
-				|| Minecraft.getInstance().screen instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen
-				|| HairRenderContext.mode() == HairRenderContext.Mode.EDITOR_PREVIEW);
-		boolean fast = FlySkillEvent.getInstance().isFlyingFast(entity);
-		boolean flying = stats.getSkills().isSkillActive("fly") || entity.getAbilities().flying
-				|| entity.isFallFlying() || (entity instanceof IPlayerAnimatable anim && anim.dragonminez$isFlying());
-		var flightPose = FlightPose.mode(preview, fast,
-				com.dragonminez.common.init.entities.ki.GumBindEntity.isClientBound(entity),
-				entity.isPassenger(), stats.getStatus().isActionCharging(), flying);
-		if (flightPose == FlightPose.Mode.FAST) {
+		if (FlySkillEvent.getInstance().isFlyingFast(entity) && !com.dragonminez.common.init.entities.ki.GumBindEntity.isClientBound(entity)) {
 			float pivotY = entity.getBbHeight() / 2f;
 			poseStack.translate(0, pivotY, 0);
 			if (entity == Minecraft.getInstance().player && FlightOrientationHandler.isActive()) {
@@ -235,10 +223,6 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 				poseStack.mulPose(Axis.YP.rotationDegrees(-(180 - entityYaw)));
 			}
 			poseStack.translate(0, -pivotY, 0);
-		} else if (flightPose == FlightPose.Mode.SLOW) {
-			// Keep the body aligned to the camera without locking the head bone.
-			float viewYaw = Mth.rotLerp(partialTick, entity.yRotO, entity.getYRot());
-			poseStack.mulPose(Axis.YP.rotationDegrees(FlightPose.delta(entityYaw, viewYaw)));
 		}
 
 		float swellScale = BioSwellRenderState.bodyScale(entity);
