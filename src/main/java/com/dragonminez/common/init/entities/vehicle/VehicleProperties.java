@@ -210,7 +210,7 @@ public record VehicleProperties(Mobility mobility, double speed, double sprintMu
 				if (pivot == null && i < fallbackSeatPixels.size()) pivot = fallbackSeatPixels.get(i);
 				if (pivot == null) continue;
 				Vec3 hip = pending.modelToLocal(pivot.x, pivot.y, pivot.z);
-				resolvedSeats.add(new Vec3(hip.x, hip.y - SEATED_HIP_HEIGHT - PLAYER_RIDING_OFFSET, hip.z));
+				resolvedSeats.add(new Vec3(hip.x, hip.y - SEATED_HIP_HEIGHT + PLAYER_RIDING_OFFSET, hip.z));
 			}
 			if (resolvedSeats.isEmpty()) resolvedSeats.add(new Vec3(0.0D, 0.5D, 0.0D));
 			List<Exhaust> exhausts = new ArrayList<>();
