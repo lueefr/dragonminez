@@ -24,7 +24,7 @@ public abstract class FormNameColorMixin {
 
     @ModifyVariable(method="visit(Lnet/minecraft/network/chat/FormattedText$StyledContentConsumer;Lnet/minecraft/network/chat/Style;)Ljava/util/Optional;",at=@At("HEAD"),argsOnly=true)
     private Style dragonminez$hairColor(Style style) {
-        if(!com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread()||!key.startsWith("race.dragonminez.")||!key.contains(".form."))return style;
+        if(!com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread()||!key.startsWith("race.dragonminez.")||!key.contains(".form.")||com.dragonminez.client.text.FormNameText.inScreen()&&!com.dragonminez.client.text.FormNameText.modScreen())return style;
         var player=Minecraft.getInstance().player;
         var data=player==null?null:StatsProvider.get(StatsCapability.INSTANCE,player).orElse(null);
         Integer color=FormAccess.colorForKey(data,key);
@@ -32,7 +32,7 @@ public abstract class FormNameColorMixin {
     }
     @ModifyVariable(method="visit(Lnet/minecraft/network/chat/FormattedText$StyledContentConsumer;Lnet/minecraft/network/chat/Style;)Ljava/util/Optional;",at=@At("HEAD"),argsOnly=true)
     private <T> net.minecraft.network.chat.FormattedText.StyledContentConsumer<T> dragonminez$inlineNames(net.minecraft.network.chat.FormattedText.StyledContentConsumer<T> visitor) {
-        if(!com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread()||!key.contains(".dragonminez.")&&!key.startsWith("dmz."))return visitor;
+        if(!com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread()||com.dragonminez.client.text.FormNameText.inScreen()||!key.contains(".dragonminez.")&&!key.startsWith("dmz."))return visitor;
         return (style,text)->com.dragonminez.client.text.FormNamePalette.visit(visitor,style,text);
     }
 
