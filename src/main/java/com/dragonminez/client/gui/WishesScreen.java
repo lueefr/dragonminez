@@ -111,11 +111,11 @@ public class WishesScreen extends ScaledScreen {
 
 	private static Component wishLabel(Wish wish, boolean description) {
 		String text = description ? wish.getDescription() : wish.getName();
-		if (wish.getId() != null) {
+		if (wish.isTranslated() && wish.getId() != null) {
 			String key = WishText.key(wish.getId(), description ? "desc" : "name");
 			if (net.minecraft.client.resources.language.I18n.exists(key)) return Component.translatable(key);
 		}
-		if (!text.isEmpty() && net.minecraft.client.resources.language.I18n.exists(text)) {
+		if (wish.isTranslated() && !text.isEmpty() && net.minecraft.client.resources.language.I18n.exists(text)) {
 			return Component.translatable(text);
 		}
 		return text.isEmpty() ? Component.empty()
