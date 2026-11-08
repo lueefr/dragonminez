@@ -64,8 +64,8 @@ public class FlySkillEvent {
 	private static final float TURN_SPEED_FAST = 0.6F;
 	private static final double TURN_REVERSAL_DOT = -0.2D;
 	private static final float BASE_ATTRIBUTE_FLY_SPEED = 0.35F;
-	private static final double FAST_FLYING_ENTER = 0.50D;
-	private static final double FAST_FLYING_EXIT = 0.45D;
+	private static final double FAST_ENTER = 0.50D;
+	private static final double FAST_EXIT = 0.45D;
 	private static final double REMOTE_TELEPORT_STEP = 32.0D;
 	private static final double REMOTE_SPEED_SMOOTHING = 0.2D;
 	private static final Map<AbstractClientPlayer, RemoteFlight> REMOTE_FLIGHT = new WeakHashMap<>();
@@ -637,7 +637,7 @@ public class FlySkillEvent {
 		FlightOrientationHandler.reset();
 	}
 
-	private static double maxFlightSpeed(AbstractClientPlayer player, StatsData data) {
+	private static double speedLimit(AbstractClientPlayer player, StatsData data) {
 		int level = data.getSkills().getSkillLevel("fly");
 		double attr = player.getAttributes().hasAttribute(EntityAttributes.FLY_SPEED)
 				? player.getAttributeValue(EntityAttributes.FLY_SPEED) : 0.0D;
@@ -653,9 +653,9 @@ public class FlySkillEvent {
 			fastFlight = false;
 			return false;
 		}
-		double max = maxFlightSpeed(player, data);
+		double max = speedLimit(player, data);
 		double speed = Math.max(0.0D, flightVector.dot(player.getLookAngle().normalize()));
-		fastFlight = max > 0.0D && speed >= max * (fastFlight ? FAST_FLYING_EXIT : FAST_FLYING_ENTER);
+		fastFlight = max > 0.0D && speed >= max * (fastFlight ? FAST_EXIT : FAST_ENTER);
 		return fastFlight;
 	}
 
@@ -684,8 +684,8 @@ public class FlySkillEvent {
 					? state.speed : Math.max(0.0D, motion.dot(player.getLookAngle().normalize()));
 			state.speed = Mth.lerp(REMOTE_SPEED_SMOOTHING, state.speed, speed);
 			var data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
-			double max = data == null ? 0.0D : maxFlightSpeed(player, data);
-			state.fast = max > 0.0D && state.speed >= max * (state.fast ? FAST_FLYING_EXIT : FAST_FLYING_ENTER);
+			double max = data == null ? 0.0D : speedLimit(player, data);
+			state.fast = max > 0.0D && state.speed >= max * (state.fast ? FAST_EXIT : FAST_ENTER);
 		}
 		return state.fast;
 	}
