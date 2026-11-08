@@ -10,6 +10,7 @@ import java.util.*;
 /** Screen rendering is scoped separately from HUD, chat, actionbar and world labels. */
 public final class FormNameText {
     private static final Deque<Boolean> screens=new ArrayDeque<>();
+    private static int nameDepth;
     private static boolean drawing;
     private FormNameText(){}
     public static com.dragonminez.common.stats.StatsData viewer() {
@@ -26,14 +27,12 @@ public final class FormNameText {
         var target=com.dragonminez.api.forms.FormVariants.resolve(data,reference.substring(0,dot),reference.substring(dot+1));
         return com.dragonminez.common.util.FusionForms.formTranslationKey(race,target.group(),target.form());
     }
-    public static void enterScreen(Object screen){
-        boolean colored = screen instanceof com.dragonminez.client.gui.character.SkillsMenuScreen
-                || screen instanceof com.dragonminez.client.gui.UtilityMenuScreen;
-        screens.push(colored);
-    }
+    public static void enterScreen(Object screen){screens.push(false);}
     public static void leaveScreen(){if(!screens.isEmpty())screens.pop();}
+    public static void beginNames(){nameDepth++;}
+    public static void endNames(){if(nameDepth>0)nameDepth--;}
     public static boolean inScreen(){return !screens.isEmpty();}
-    public static boolean modScreen(){return screens.contains(true);}
+    public static boolean modScreen(){return inScreen()&&nameDepth>0;}
     public static boolean drawing(){return drawing;}
     public static Style mark(Style style,int rgb){return ((FormNameStyle)style).dragonminez$copyColor(rgb);}
     public static Style unmark(Style style){return ((FormNameStyle)style).dragonminez$formColor()==null?style:((FormNameStyle)style).dragonminez$copyColor(null);}
@@ -52,10 +51,7 @@ public final class FormNameText {
         if(drawing||text instanceof Unstyled||inScreen()&&!modScreen())return null;
         boolean[] named={false};
         text.accept((i,style,cp)->{named[0]=color(style)!=null;return !named[0];});
-        if(modScreen()){
-            var annotated=FormNamePalette.annotate(text);
-            if(annotated!=null)text=annotated;else if(!named[0])return null;
-        } else if(!named[0])return null;
+        if(!named[0])return null;
         List<Glyph> glyphs=new ArrayList<>();text.accept((i,style,cp)->{glyphs.add(new Glyph(i,style,cp));return true;});
         drawing=true;
         try {
