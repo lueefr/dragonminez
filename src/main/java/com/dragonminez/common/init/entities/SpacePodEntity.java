@@ -2,6 +2,8 @@ package com.dragonminez.common.init.entities;
 
 import com.dragonminez.common.init.MainItems;
 import com.dragonminez.common.init.MainSounds;
+import com.dragonminez.common.network.C2S.StopPodC2S;
+import com.dragonminez.common.network.NetworkHandler;
 import com.dragonminez.common.init.entities.vehicle.VehicleEntity;
 import com.dragonminez.common.init.entities.vehicle.VehicleProperties;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -38,6 +40,8 @@ public class SpacePodEntity extends VehicleEntity {
             .build();
 
     private static final EntityDataAccessor<Boolean> IS_OPEN = SynchedEntityData.defineId(SpacePodEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> AUTO_DESCENT = SynchedEntityData.defineId(SpacePodEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final double DESCENT_SPEED = 0.35D;
     private static final RawAnimation ANIM_ABIERTO = RawAnimation.begin().then("open", Animation.LoopType.HOLD_ON_LAST_FRAME);
     private static final RawAnimation ANIM_CERRADO = RawAnimation.begin().then("close", Animation.LoopType.HOLD_ON_LAST_FRAME);
 
@@ -54,6 +58,7 @@ public class SpacePodEntity extends VehicleEntity {
     protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(IS_OPEN, false);
+        builder.define(AUTO_DESCENT, false);
     }
 
     @Override
@@ -70,6 +75,30 @@ public class SpacePodEntity extends VehicleEntity {
             }
         }
         return InteractionResult.SUCCESS;
+    }
+
+    public boolean isDescending() {
+        return this.entityData.get(AUTO_DESCENT);
+    }
+
+    public void startDescent() {
+        if (!this.level().isClientSide) this.entityData.set(AUTO_DESCENT, true);
+    }
+
+    public void stopDescent() {
+        if (!isDescending()) return;
+        this.entityData.set(AUTO_DESCENT, false);
+        if (this.level().isClientSide) NetworkHandler.sendToServer(new StopPodC2S());
+    }
+
+    @Override
+    protected double adjustVertical(Player driver, double vertical, boolean ascend, boolean descend, boolean boost) {
+        if (!isDescending()) return vertical;
+        if (ascend || descend || boost || Math.abs(driver.zza) > 0.01F || Math.abs(driver.xxa) > 0.01F) {
+            stopDescent();
+            return vertical;
+        }
+        return -DESCENT_SPEED;
     }
 
     public boolean isOpen() {

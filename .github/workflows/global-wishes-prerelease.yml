@@ -4,15 +4,6 @@ on:
   push:
     branches:
       - fix/global-dragon-wishes
-    paths:
-      - 'src/main/java/com/dragonminez/common/wish/**'
-      - 'src/main/java/com/dragonminez/client/gui/WishesScreen.java'
-      - 'src/main/java/com/dragonminez/gametest/WishConfigGameTests.java'
-      - 'src/test/java/com/dragonminez/common/wish/**'
-      - 'src/main/resources/assets/dragonminez/lang/**'
-      - 'lang/pt_br.json'
-      - 'docs/wiki/Dragon-wishes.md'
-      - '.github/workflows/global-wishes-prerelease.yml'
   workflow_dispatch: {}
 
 permissions:
@@ -69,5 +60,5 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" \
             --title "DragonMineZ Global Wishes ${short_sha}" \
-            --notes "Prerelease from fix/global-dragon-wishes at ${GITHUB_SHA}. Includes only global server-side dragon wishes and their migration/test changes. Gradle build and test passed; Minecraft GameTests and live gameplay were not exercised by this workflow." \
+            --notes "Prerelease from fix/global-dragon-wishes at ${GITHUB_SHA}. Includes global server-side dragon wishes plus the current main branch, including Space Pod travel and vehicle fixes. Gradle build and test passed; Minecraft GameTests and live gameplay were not exercised by this workflow." \
             --prerelease
