@@ -228,7 +228,7 @@ public class WishesScreen extends ScaledScreen {
 			int color = isSelected ? SELECTED_FILL : (isHovered ? HOVER_FILL : 0);
 			graphics.fill(listLeft, itemY, listLeft + listWidth, itemY + ITEM_HEIGHT, color);
 
-			TextUtil.drawStringWithBorder(graphics, this.font, tr(wish.getName()), listLeft + 5, itemY + 6, selectable ? 0xFFFFFF : DISABLED_TEXT);
+			TextUtil.drawStringWithBorder(graphics, this.font, wish.nameText(), listLeft + 5, itemY + 6, selectable ? 0xFFFFFF : DISABLED_TEXT);
 
 			if (isSelected) {
 				graphics.renderOutline(listLeft, itemY, listWidth, ITEM_HEIGHT, SELECTED_OUTLINE);
@@ -298,7 +298,7 @@ public class WishesScreen extends ScaledScreen {
 		int index = rowAt(uiMouseX, uiMouseY, availableWishes.size());
 		if (index < 0) return;
 		Wish wish = availableWishes.get(index);
-		List<Component> description = List.of(tr(wish.getDescription()));
+		List<Component> description = List.of(wish.descriptionText());
 		List<Component> extraLines = new ArrayList<>();
 		if (needsTargets(wish) && reviveTargets.isEmpty()) {
 			extraLines.add(tr("gui.dragonminez.wishes.revive_nobody").withStyle(net.minecraft.ChatFormatting.RED));
@@ -309,7 +309,7 @@ public class WishesScreen extends ScaledScreen {
 		}
 		List<Component> extras = extraLines.isEmpty() ? null : extraLines;
 		TextUtil.renderAdvancedTooltip(graphics, this.font, uiMouseX, uiMouseY, getUiWidth(), getUiHeight(),
-				tr(wish.getName()), description, extras, 0xFFD700);
+				wish.nameText(), description, extras, 0xFFD700);
 	}
 
 	private int rowAt(double uiX, double uiY, int rowCount) {
