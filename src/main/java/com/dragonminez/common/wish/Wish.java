@@ -33,21 +33,6 @@ public abstract class Wish {
         return description == null ? "" : description;
     }
 
-    public Component nameText() {
-        if (id != null) {
-            return Component.translatableWithFallback(WishText.key(id, "name"), WishText.fallback(id, name));
-        }
-        return Component.translatableWithFallback(getName(), getName());
-    }
-
-    public Component descriptionText() {
-        if (id != null) {
-            return Component.translatableWithFallback(WishText.key(id, "desc"), getDescription());
-        }
-        return getDescription().isEmpty() ? Component.empty()
-                : Component.translatableWithFallback(getDescription(), getDescription());
-    }
-
     public String key(String dragon) {
         String identity=id==null?name:id;
         return "dragonminez:wish/"+java.util.UUID.nameUUIDFromBytes((dragon+"\0"+identity).getBytes(java.nio.charset.StandardCharsets.UTF_8));
