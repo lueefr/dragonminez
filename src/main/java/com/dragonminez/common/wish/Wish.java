@@ -54,7 +54,7 @@ public abstract class Wish {
     }
     public boolean available(StatsData data,String dragon) {
         boolean completed = data.getContentProgress().hasCompleted(key(dragon));
-        if (id != null && name != null && !name.isBlank()) {
+        if (id != null && name != null && name.startsWith("wish.") && name.endsWith(".name")) {
             String oldKey = "dragonminez:wish/" + java.util.UUID.nameUUIDFromBytes(
                     (dragon + "\0" + name).getBytes(java.nio.charset.StandardCharsets.UTF_8));
             completed |= data.getContentProgress().hasCompleted(oldKey);
