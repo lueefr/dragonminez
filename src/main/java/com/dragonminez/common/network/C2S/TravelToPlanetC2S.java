@@ -1,6 +1,7 @@
 package com.dragonminez.common.network.C2S;
 
 import com.dragonminez.common.init.MainEntities;
+import com.dragonminez.server.world.dimension.NamekDimension;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import net.minecraft.core.BlockPos;
@@ -102,12 +103,17 @@ public class TravelToPlanetC2S {
 
 	private static Vec3 landing(ServerLevel level, SpacePodDestinationDefinition destination, Vec3 source) {
 		Vec3 position = destination.resolvePosition(source);
-		if (destination.y() != null) return position;
+		boolean namek = level.dimension().equals(NamekDimension.NAMEK_KEY);
+		if (destination.y() != null && !namek) return position;
 
 		int x = net.minecraft.util.Mth.floor(position.x);
 		int z = net.minecraft.util.Mth.floor(position.z);
+		level.getChunkAt(new BlockPos(x, level.getMinBuildHeight(), z));
 		int height = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
-		int y = net.minecraft.util.Mth.clamp(height, level.getMinBuildHeight() + 1, level.getMaxBuildHeight() - 2);
-		return new Vec3(position.x, y + 0.25D, position.z);
+		int minY = namek ? Math.max(90, level.getMinBuildHeight() + 1) : level.getMinBuildHeight() + 1;
+		int y = net.minecraft.util.Mth.clamp(Math.max(height, minY), minY, level.getMaxBuildHeight() - 2);
+		double arrivalY = y + 0.25D;
+		if (destination.y() != null) arrivalY = Math.max(arrivalY, position.y);
+		return new Vec3(position.x, arrivalY, position.z);
 	}
 }
