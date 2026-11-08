@@ -74,23 +74,24 @@ For example, inside `shenron.json`:
 Language entries use the ID automatically (replace a slash `/` in the ID
 path with a dot `.`):
 
+For `assets/example/lang/en_us.json`:
+
 ```json
-// assets/example/lang/en_us.json
 {
   "wish.example.shenron_senzu.name": "Senzu Beans",
   "wish.example.shenron_senzu.desc": "Receive 16 Senzu Beans."
 }
 ```
 
+For `assets/example/lang/pt_br.json`:
+
 ```json
-// assets/example/lang/pt_br.json
 {
   "wish.example.shenron_senzu.name": "Sementes dos Deuses",
   "wish.example.shenron_senzu.desc": "Receba 16 Sementes dos Deuses."
 }
 ```
 
-(The `//` lines above are filename labels, not part of the JSON files.)
 Add the entries to resource packs or the mod's actual
 `assets/<namespace>/lang/<language>.json` files. Translation files are
 client resources; the server does not need them to grant the rewards.
