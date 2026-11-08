@@ -478,7 +478,6 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	@Unique
 	private <T extends GeoAnimatable> PlayState posePredicate(AnimationState<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
-		if (dragonminez$inPreview(player)) return PlayState.STOP;
 
 		if (dragonminez$attackAnimTicks > 0) {
 			dragonminez$poseInstantResume = true;
