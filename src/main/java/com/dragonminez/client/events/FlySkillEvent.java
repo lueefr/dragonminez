@@ -64,8 +64,8 @@ public class FlySkillEvent {
 	private static final float TURN_SPEED_FAST = 0.6F;
 	private static final double TURN_REVERSAL_DOT = -0.2D;
 	private static final float BASE_ATTRIBUTE_FLY_SPEED = 0.35F;
-	private static final double FAST_ENTER = 0.50D;
-	private static final double FAST_EXIT = 0.45D;
+	private static final float FAST_FLYING_THRESHOLD = 0.55F * SEARCH_SPEED_SCALE;
+	private static final float FAST_FLYING_EXIT_THRESHOLD = 0.4F * SEARCH_SPEED_SCALE;
 	private static final double REMOTE_TELEPORT_STEP = 32.0D;
 	private static final double REMOTE_SPEED_SMOOTHING = 0.2D;
 	private static final Map<AbstractClientPlayer, RemoteFlight> REMOTE_FLIGHT = new WeakHashMap<>();
@@ -637,25 +637,11 @@ public class FlySkillEvent {
 		FlightOrientationHandler.reset();
 	}
 
-	private static double speedLimit(AbstractClientPlayer player, StatsData data) {
-		int level = data.getSkills().getSkillLevel("fly");
-		double attr = player.getAttributes().hasAttribute(EntityAttributes.FLY_SPEED)
-				? player.getAttributeValue(EntityAttributes.FLY_SPEED) : 0.0D;
-		double scale = attr <= 0.0D ? 1.0D : Mth.clamp(attr / BASE_ATTRIBUTE_FLY_SPEED, 0.25D, 4.0D);
-		double base = player.isSprinting() ? SPRINT_MAX_SPEED : NORMAL_MAX_SPEED;
-		return base * (1.0D + 0.20D * level) * scale * data.getFlightStateSpeedMultiplier()
-				* data.getResources().getFlightSpeedLimit() / 100.0D;
-	}
-
-	private boolean isFlyingFast(LocalPlayer player) {
-		var data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
-		if (data == null || data.getStatus().getFlightMode() == Status.FLIGHT_COMBAT) {
-			fastFlight = false;
-			return false;
-		}
-		double max = speedLimit(player, data);
-		double speed = Math.max(0.0D, flightVector.dot(player.getLookAngle().normalize()));
-		fastFlight = max > 0.0D && speed >= max * (fastFlight ? FAST_EXIT : FAST_ENTER);
+	private boolean isFlyingFast() {
+		double speed = flightVector.length();
+		if (fastFlight) {
+			if (speed < FAST_FLYING_EXIT_THRESHOLD) fastFlight = false;
+		} else if (speed > FAST_FLYING_THRESHOLD) fastFlight = true;
 		return fastFlight;
 	}
 
@@ -664,7 +650,7 @@ public class FlySkillEvent {
 		if (isStrikeRushing(player)) return true;
 
 		LocalPlayer localPlayer = Minecraft.getInstance().player;
-		if (localPlayer != null && player == localPlayer) return isFlyingFast(localPlayer);
+		if (localPlayer != null && player == localPlayer) return isFlyingFast();
 
 		boolean flyActive = StatsProvider.get(StatsCapability.INSTANCE, player)
 				.map(data -> {
@@ -679,13 +665,14 @@ public class FlySkillEvent {
 		RemoteFlight state = REMOTE_FLIGHT.computeIfAbsent(player, key -> new RemoteFlight());
 		if (state.tick != player.tickCount) {
 			state.tick = player.tickCount;
-			Vec3 motion = new Vec3(player.getX() - player.xo, player.getY() - player.yo, player.getZ() - player.zo);
-			double speed = motion.length() > REMOTE_TELEPORT_STEP
-					? state.speed : Math.max(0.0D, motion.dot(player.getLookAngle().normalize()));
-			state.speed = Mth.lerp(REMOTE_SPEED_SMOOTHING, state.speed, speed);
-			var data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
-			double max = data == null ? 0.0D : speedLimit(player, data);
-			state.fast = max > 0.0D && state.speed >= max * (state.fast ? FAST_EXIT : FAST_ENTER);
+			double dx = player.getX() - player.xo;
+			double dy = player.getY() - player.yo;
+			double dz = player.getZ() - player.zo;
+			double step = Math.sqrt(dx * dx + dy * dy + dz * dz);
+			if (step > REMOTE_TELEPORT_STEP) step = state.speed;
+			state.speed = Mth.lerp(REMOTE_SPEED_SMOOTHING, state.speed, step);
+			if (state.fast) state.fast = state.speed >= FAST_FLYING_EXIT_THRESHOLD;
+			else state.fast = state.speed > FAST_FLYING_THRESHOLD;
 		}
 		return state.fast;
 	}
