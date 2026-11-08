@@ -307,6 +307,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 		boolean transforming = StatsProvider.get(StatsCapability.INSTANCE, player)
 				.map(data -> data.getStatus().isActionCharging()).orElse(false);
 		if (!transforming && dragonminez$currentKiAnim != null && dragonminez$kiAnimHold) {
+			dragonminez$chargeAnim = null;
 			if (!dragonminez$currentKiAnim.equals(dragonminez$lastKiAnim)) {
 				state.getController().setAnimation(AnimationCache.getPlayAndHold(dragonminez$currentKiAnim));
 				state.getController().forceAnimationReset();
@@ -323,7 +324,10 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 		dragonminez$currentPoseAnim = CombatAnimationResolver.resolvePlayerPose(player);
 
 		StatsData data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
-		if (data == null) return state.setAndContinue(IDLE);
+		if (data == null) {
+			dragonminez$chargeAnim = null;
+			return state.setAndContinue(IDLE);
+		}
 
 		if (data.getStatus().getPotaraPoseTimer() > 0) {
 			AbstractClientPlayer potaraPartner = dragonminez$findPotaraPartner(player, data.getStatus().getPotaraPartnerUUID());
@@ -359,16 +363,22 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 		boolean isMoving = movedRecently && !((isChargingKi || isTransforming) && dragonminez$horizSpeed < FROZEN_SPEED_EPSILON);
 		ActionMode actionMode = data.getStatus().getSelectedAction();
 
-		if (isKnockedDown) return state.setAndContinue(KNOCKBACK_HORIZONTAL);
-		if (dragonminez$isStunned(data)) return state.setAndContinue(STUNNED);
+		if (isKnockedDown || dragonminez$isStunned(data)) {
+			dragonminez$chargeAnim = null;
+			return state.setAndContinue(isKnockedDown ? KNOCKBACK_HORIZONTAL : STUNNED);
+		}
 
 		if (isDraining) {
+			dragonminez$chargeAnim = null;
 			boolean semiPerfect = "bioandroid".equalsIgnoreCase(data.getCharacter().getRaceName())
 					&& BioAndroidForms.SEMI_PERFECT.equalsIgnoreCase(data.getCharacter().getActiveForm());
 			return state.setAndContinue(semiPerfect ? DRAIN_SEMIPERFECT : DRAIN);
 		}
 
-		if (player.isPassenger()) return state.setAndContinue(SIT);
+		if (player.isPassenger()) {
+			dragonminez$chargeAnim = null;
+			return state.setAndContinue(SIT);
+		}
 
 		if (isChargingKi && !isBlocking && !isTransforming) {
 			boolean surgeCharging = data.getStatus().isKiBurstArmed() || data.getStatus().isSurgeActive();
