@@ -413,6 +413,7 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
     }
 
     private static boolean forwardHead(AbstractClientPlayer player) {
+        if (player.isPassenger()) return false;
         if (Minecraft.getInstance().screen instanceof com.dragonminez.client.gui.character.util.BaseMenuScreen) return false;
         // Keep world flight independent of camera look, including while paused.
         return StatsProvider.get(StatsCapability.INSTANCE, player)
