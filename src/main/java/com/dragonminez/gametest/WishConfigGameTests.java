@@ -44,7 +44,7 @@ public final class WishConfigGameTests {
         } finally {player.discard();}
     }
     @GameTest(template="port_empty")
-    public static void migrateGlobalWishes(GameTestHelper helper)throws Exception {
+    public static void migrationTest(GameTestHelper helper)throws Exception {
         Path root=Files.createTempDirectory("dmz-global-wishes-");
         Path legacy=root.resolve("world/dragonminez/wishes");
         Path global=root.resolve("config/dragonminez/wishes");
