@@ -84,5 +84,6 @@
   "wish.dragonminez.shenron.senzu.name": "Sementes dos Deuses",
   "wish.dragonminez.shenron.senzu.desc": "Receba algumas Sementes dos Deuses.",
   "wish.dragonminez.shenron.strongest.name": "Armadura 'O Mais Forte'",
-  "wish.dragonminez.shenron.strongest.desc": "Receba o conjunto de armadura 'O Mais Forte'."
+  "wish.dragonminez.shenron.strongest.desc": "Receba o conjunto de armadura 'O Mais Forte'.",
+  "gui.dragonminez.wishes.raw_text": "%s"
 }
