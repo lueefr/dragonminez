@@ -1,6 +1,7 @@
 package com.dragonminez.mixin.client;
 
 import com.dragonminez.client.animation.AnimationCache;
+import com.dragonminez.client.animation.ChargeState;
 import com.dragonminez.client.animation.IPlayerAnimatable;
 import com.dragonminez.client.animation.CombatAnimationResolver;
 import com.dragonminez.client.events.FlySkillEvent;
@@ -96,8 +97,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	@Unique private int dragonminez$lastKiTickRun = -1;
 	@Unique private String dragonminez$lastKiCtlAnim = null;
 	@Unique private static final int KI_FIRE_ONESHOT_TICKS = 14;
-	@Unique private int dragonminez$chargeGrace = 0;
-	@Unique private int dragonminez$chargeTick = -1;
+	@Unique private final ChargeState dragonminez$chargeState = new ChargeState();
 	@Unique private RawAnimation dragonminez$chargeAnim = null;
 
 	@Unique
@@ -345,17 +345,10 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 
 		boolean isDraining = data.getCooldowns().hasCooldown(Cooldowns.DRAIN_ACTIVE);
 		boolean flySkillActive = data.getSkills().isSkillActive("fly");
-		boolean isChargingKi = data.getStatus().isChargingKi();
-		if (player.tickCount != dragonminez$chargeTick) {
-			dragonminez$chargeTick = player.tickCount;
-			if (isChargingKi) dragonminez$chargeGrace = 6;
-			else if (dragonminez$chargeGrace > 0) dragonminez$chargeGrace--;
-		}
 		boolean local = player == Minecraft.getInstance().player;
-		if (!isChargingKi && dragonminez$chargeGrace > 0
-				&& (!local || com.dragonminez.client.util.KeyBinds.KI_CHARGE.isDown())) {
-			isChargingKi = true;
-		}
+		boolean isChargingKi = dragonminez$chargeState.update(player.tickCount,
+				data.getStatus().isChargingKi(), local,
+				local && com.dragonminez.client.util.KeyBinds.KI_CHARGE.isDown());
 		boolean isBlocking = data.getStatus().isBlocking();
 		boolean isKnockedDown = data.getStatus().isKnockedDown();
 		boolean isOozaru = data.getCharacter().isOozaruCached();
