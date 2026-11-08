@@ -344,7 +344,8 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         String kiAnim = animatable instanceof IPlayerAnimatable playing ? playing.dragonminez$getCurrentKiAnimation() : "";
         boolean ownsHead = clipOwnsHead(playingAnim) || clipOwnsHead(kiAnim);
         boolean flying = forwardHead(animatable);
-        boolean skipHead = (transfAnimPlaying && actuallyTransforming) || ownsHead;
+        boolean fastFlight = com.dragonminez.client.events.FlySkillEvent.getInstance().isFlyingFast(animatable);
+        boolean skipHead = (transfAnimPlaying && actuallyTransforming) || ownsHead || fastFlight;
 
         float partialTick = animationState.getPartialTick();
         float bodyYaw = Mth.lerp(partialTick, animatable.yBodyRotO, animatable.yBodyRot);
@@ -482,12 +483,13 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
     public void applyMolangQueries(AnimationState<T> animationState, double animTime) {
         super.applyMolangQueries(animationState, animTime);
         T animatable = animationState.getAnimatable();
-        boolean headAnimPlaying = animatable instanceof IPlayerAnimatable pa && (pa.dragonminez$getCurrentPlayingAnimation().startsWith("transf.")
-                || pa.dragonminez$getCurrentPlayingAnimation().startsWith("ki."));
-        boolean actuallyBusy = StatsProvider.get(StatsCapability.INSTANCE, animatable)
-                .map(data -> data.getStatus().isActionCharging() || data.getStatus().isChargingKi()).orElse(false)
-                || (animatable instanceof IPlayerAnimatable pa2 && pa2.dragonminez$isShootingKi());
-        boolean skipHead = (headAnimPlaying && actuallyBusy) || forwardHead(animatable);
+        String playingAnim = animatable instanceof IPlayerAnimatable pa ? pa.dragonminez$getCurrentPlayingAnimation() : "";
+        String kiAnim = animatable instanceof IPlayerAnimatable pa ? pa.dragonminez$getCurrentKiAnimation() : "";
+        boolean transforming = StatsProvider.get(StatsCapability.INSTANCE, animatable)
+                .map(data -> data.getStatus().isActionCharging()).orElse(false);
+        boolean skipHead = (transforming && playingAnim.startsWith("transf."))
+                || clipOwnsHead(playingAnim) || clipOwnsHead(kiAnim)
+                || com.dragonminez.client.events.FlySkillEvent.getInstance().isFlyingFast(animatable);
 
         // In GUI screens the O-fields (yBodyRotO, xRotO) are stale world values — the screen
         // only sets the current-tick fields. Using pt=1.0 makes lerp return the current value
