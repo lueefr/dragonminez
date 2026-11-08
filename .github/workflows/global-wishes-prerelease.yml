@@ -6,7 +6,12 @@ on:
       - fix/global-dragon-wishes
     paths:
       - 'src/main/java/com/dragonminez/common/wish/**'
+      - 'src/main/java/com/dragonminez/client/gui/WishesScreen.java'
+      - 'src/main/java/com/dragonminez/gametest/WishConfigGameTests.java'
       - 'src/test/java/com/dragonminez/common/wish/**'
+      - 'src/main/resources/assets/dragonminez/lang/**'
+      - 'lang/pt_br.json'
+      - 'docs/wiki/Dragon-wishes.md'
       - '.github/workflows/global-wishes-prerelease.yml'
   workflow_dispatch: {}
 
@@ -33,6 +38,10 @@ jobs:
           java-version: '21'
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
+      - name: Audit translations and UI text
+        run: |
+          python3 scripts/audit-player-text.py
+          python3 -m unittest discover -s scripts/tests -v
       - name: Build and test
         run: |
           chmod +x ./gradlew
