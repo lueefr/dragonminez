@@ -223,6 +223,12 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 				poseStack.mulPose(Axis.YP.rotationDegrees(-(180 - entityYaw)));
 			}
 			poseStack.translate(0, -pivotY, 0);
+		} else if (!entity.isPassenger() && !stats.getStatus().isActionCharging()
+				&& (stats.getSkills().isSkillActive("fly") || entity.getAbilities().flying
+				|| entity.isFallFlying() || (entity instanceof IPlayerAnimatable anim && anim.dragonminez$isFlying()))) {
+			// Keep the body facing the view in slow flight; the head still follows look input.
+			float viewYaw = Mth.rotLerp(partialTick, entity.yHeadRotO, entity.yHeadRot);
+			poseStack.mulPose(Axis.YP.rotationDegrees(entityYaw - viewYaw));
 		}
 
 		float swellScale = BioSwellRenderState.bodyScale(entity);
