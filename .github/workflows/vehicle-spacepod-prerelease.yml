@@ -9,6 +9,7 @@ on:
       - 'src/main/java/com/dragonminez/common/spacepod/**'
       - 'src/main/java/com/dragonminez/common/network/C2S/TravelToPlanetC2S.java'
       - 'src/main/java/com/dragonminez/client/render/DMZPlayerRenderer.java'
+      - 'src/main/java/com/dragonminez/client/render/firstperson/dto/FirstPersonManager.java'
       - 'src/main/java/com/dragonminez/client/model/DMZPlayerModel.java'
       - 'src/main/java/com/dragonminez/gametest/SpacePodGameTests.java'
       - '.github/workflows/vehicle-spacepod-prerelease.yml'
