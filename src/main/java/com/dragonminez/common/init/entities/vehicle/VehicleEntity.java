@@ -278,7 +278,7 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 		double vertical;
 		boolean landedOnFluid = false;
 		if (flying) {
-			vertical = flightVertical(ascend, descend);
+			vertical = adjustVertical(driver, flightVertical(ascend, descend), ascend, descend, boost);
 			if (hybrid && this.liftoffTicks == 0 && vertical < 0.0D) {
 				double support = fluidSupport(vertical);
 				if (!Double.isNaN(support)) {
@@ -337,6 +337,10 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 		}
 		double length = motion.horizontalDistance();
 		return length > MAX_HORIZONTAL_SPEED ? motion.scale(MAX_HORIZONTAL_SPEED / length) : motion;
+	}
+
+	protected double adjustVertical(Player driver, double vertical, boolean ascend, boolean descend, boolean boost) {
+		return vertical;
 	}
 
 	private double flightVertical(boolean ascend, boolean descend) {

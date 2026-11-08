@@ -4,6 +4,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import com.dragonminez.Reference;
 import com.dragonminez.client.util.KeyBinds;
 import com.dragonminez.common.init.entities.vehicle.VehicleEntity;
+import com.dragonminez.common.init.entities.SpacePodEntity;
 import com.dragonminez.common.init.entities.vehicle.VehicleProperties;
 import com.dragonminez.common.init.sounds.VehicleEngineSound;
 import com.dragonminez.common.network.C2S.VehicleSeatC2S;
@@ -12,6 +13,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
+import org.lwjgl.glfw.GLFW;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -48,6 +51,24 @@ public class VehicleControlHandler {
 				inGame && mc.options.keyJump.isDown(),
 				inGame && !seatChord && KeyBinds.isSecondFunctionDown(),
 				inGame && KeyBinds.DASH_KEY.isDown());
+	}
+
+	@SubscribeEvent
+	public static void onKey(InputEvent.Key event) {
+		if (event.getAction() == GLFW.GLFW_PRESS) stopDescent();
+	}
+
+	@SubscribeEvent
+	public static void onMouse(InputEvent.MouseButton.Pre event) {
+		if (event.getAction() == GLFW.GLFW_PRESS) stopDescent();
+	}
+
+	private static void stopDescent() {
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.screen != null || mc.player == null) return;
+		if (mc.player.getVehicle() instanceof SpacePodEntity pod && pod.getControllingPassenger() == mc.player) {
+			pod.stopDescent();
+		}
 	}
 
 	private static boolean tickSeatKeys(VehicleEntity vehicle, boolean inGame) {

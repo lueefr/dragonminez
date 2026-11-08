@@ -64,6 +64,17 @@ public final class SpacePodGameTests {
 	}
 
 	@GameTest(template = "port_empty")
+	public static void autoDescent(GameTestHelper helper) {
+		SpacePodEntity pod = new SpacePodEntity(MainEntities.SPACE_POD.get(), helper.getLevel());
+		helper.assertTrue(!pod.isDescending(), "Space Pod should not descend before dimension travel");
+		pod.startDescent();
+		helper.assertTrue(pod.isDescending(), "Space Pod should descend after dimension travel");
+		pod.stopDescent();
+		helper.assertTrue(!pod.isDescending(), "Space Pod should stop descending after an input");
+		helper.succeed();
+	}
+
+	@GameTest(template = "port_empty")
 	public static void podSeat(GameTestHelper helper) {
 		SpacePodEntity pod = new SpacePodEntity(MainEntities.SPACE_POD.get(), helper.getLevel());
 		var seat = pod.getProperties().seats().getFirst();
