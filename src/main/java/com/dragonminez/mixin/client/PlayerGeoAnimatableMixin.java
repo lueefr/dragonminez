@@ -225,7 +225,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 		double horizontal = Math.sqrt(moveX * moveX + moveZ * moveZ);
 		if (horizontal < 0.01) return FLY_IDLE;
 
-		float yawRad = player.yBodyRot * Mth.DEG_TO_RAD;
+		float yawRad = player.getYRot() * Mth.DEG_TO_RAD;
 		double sin = Mth.sin(yawRad);
 		double cos = Mth.cos(yawRad);
 		double forwardComp = -moveX * sin + moveZ * cos;
@@ -303,6 +303,13 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
 
 		state.getController().setAnimationSpeed(1.0D);
+
+		if (player == Minecraft.getInstance().player
+				&& (Minecraft.getInstance().screen instanceof com.dragonminez.client.gui.character.util.BaseMenuScreen
+				|| Minecraft.getInstance().screen instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen)) {
+			// Inventory previews follow the mouse without inheriting active flight poses.
+			return state.setAndContinue(IDLE);
+		}
 
 		boolean transforming = StatsProvider.get(StatsCapability.INSTANCE, player)
 				.map(data -> data.getStatus().isActionCharging()).orElse(false);
