@@ -46,12 +46,13 @@ public final class WishConfigGameTests {
     @GameTest(template="port_empty")
     public static void translatedWish(GameTestHelper helper) {
         String source="""
-                {"type":"attributes","id":"example:power_boost",
+                {"type":"attributes","id":"example:power_boost","translate":false,
                   "name":"Power Boost","description":"Receive attribute points.","amount":100}
                 """;
         Wish wish=GsonUtils.GSON.fromJson(source,Wish.class);
         wish.validate();
         helper.assertTrue("example:power_boost".equals(wish.getId()),"Wish ID was not loaded from JSON");
+        helper.assertTrue(!wish.isTranslated(),"A wish must support unlocalized text from its JSON");
         helper.assertTrue("Power Boost".equals(wish.getName()),"Wish name fallback was lost");
         helper.assertTrue("Receive attribute points.".equals(wish.getDescription()),"Wish description fallback was lost");
         helper.assertTrue("wish.example.power_boost.name".equals(WishText.key(wish.getId(),"name")),
@@ -63,6 +64,7 @@ public final class WishConfigGameTests {
                 {"type":"attributes","id":"example:bonus","amount":10}
                 """,Wish.class);
         unnamed.validate();
+        helper.assertTrue(unnamed.isTranslated(),"ID translations should be enabled by default");
         helper.assertTrue("bonus".equals(unnamed.getName()) && unnamed.getDescription().isEmpty(),
                 "A wish with an ID must allow omitted JSON labels");
         helper.succeed();
