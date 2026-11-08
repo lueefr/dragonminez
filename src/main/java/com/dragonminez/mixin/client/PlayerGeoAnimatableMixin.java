@@ -97,6 +97,8 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	@Unique private String dragonminez$lastKiCtlAnim = null;
 	@Unique private static final int KI_FIRE_ONESHOT_TICKS = 14;
 	@Unique private int dragonminez$chargeGrace = 0;
+	@Unique private int dragonminez$chargeTick = -1;
+	@Unique private RawAnimation dragonminez$chargeAnim = null;
 
 	@Unique
 	private boolean dragonminez$isActuallyMoving(AbstractClientPlayer player) {
@@ -344,12 +346,16 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 		boolean isDraining = data.getCooldowns().hasCooldown(Cooldowns.DRAIN_ACTIVE);
 		boolean flySkillActive = data.getSkills().isSkillActive("fly");
 		boolean isChargingKi = data.getStatus().isChargingKi();
-		if (isChargingKi) dragonminez$chargeGrace = 4;
-		else if (player == net.minecraft.client.Minecraft.getInstance().player
-				&& com.dragonminez.client.util.KeyBinds.KI_CHARGE.isDown() && dragonminez$chargeGrace > 0) {
-			dragonminez$chargeGrace--;
+		if (player.tickCount != dragonminez$chargeTick) {
+			dragonminez$chargeTick = player.tickCount;
+			if (isChargingKi) dragonminez$chargeGrace = 6;
+			else if (dragonminez$chargeGrace > 0) dragonminez$chargeGrace--;
+		}
+		boolean local = player == Minecraft.getInstance().player;
+		if (!isChargingKi && dragonminez$chargeGrace > 0
+				&& (!local || com.dragonminez.client.util.KeyBinds.KI_CHARGE.isDown())) {
 			isChargingKi = true;
-		} else dragonminez$chargeGrace = 0;
+		}
 		boolean isBlocking = data.getStatus().isBlocking();
 		boolean isKnockedDown = data.getStatus().isKnockedDown();
 		boolean isOozaru = data.getCharacter().isOozaruCached();
@@ -373,8 +379,15 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 
 		if (isChargingKi && !isBlocking && !isTransforming) {
 			boolean surgeCharging = data.getStatus().isKiBurstArmed() || data.getStatus().isSurgeActive();
-			return state.setAndContinue(surgeCharging ? KI_OVERCHARGE : kiChargeFor(data.getCharacter().getRaceName()));
+			RawAnimation charge = surgeCharging ? KI_OVERCHARGE : kiChargeFor(data.getCharacter().getRaceName());
+			if (dragonminez$chargeAnim != charge) {
+				state.getController().setAnimation(charge);
+				state.getController().forceAnimationReset();
+				dragonminez$chargeAnim = charge;
+			}
+			return PlayState.CONTINUE;
 		}
+		dragonminez$chargeAnim = null;
 
 		if (isTransforming && actionMode.equals(ActionMode.FORM)) {
 			if (nextFormConfig != null && nextFormConfig.hasTransformationAnimation()) {
