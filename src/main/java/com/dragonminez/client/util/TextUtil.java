@@ -117,10 +117,6 @@ public class TextUtil {
     }
 
     public static void drawStringWithBorder(GuiGraphics graphics, Font font, FormattedCharSequence text, int x, int y, int textColor, int borderColor) {
-        if (com.dragonminez.client.text.FormNameText.modScreen() && !(text instanceof com.dragonminez.client.text.FormNameText.Unstyled)) {
-            var marked = com.dragonminez.client.text.FormNamePalette.annotate(text);
-            if (marked != null) text = marked;
-        }
         record Glyph(int index, net.minecraft.network.chat.Style style, int codepoint) {}
         java.util.List<Glyph> glyphs = new java.util.ArrayList<>();
         boolean[] named = {false};
