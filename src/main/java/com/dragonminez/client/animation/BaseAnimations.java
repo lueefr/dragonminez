@@ -73,6 +73,13 @@ public class BaseAnimations {
 	public static final RawAnimation KNOCKBACK_VERTICAL = RawAnimation.begin().thenPlay("base.faint_vertical");
 	public static final RawAnimation STUNNED = RawAnimation.begin().thenLoop("base.stunned");
 
+	public static RawAnimation transformationFor(String name) {
+		if ("transf.generic".equals(name) || "transf.ssj".equals(name) || "transf.freezer2".equals(name)) {
+			return AnimationCache.getLoop(name);
+		}
+		return AnimationCache.getPlayAndHold(name);
+	}
+
 	public static RawAnimation kiChargeFor(String race) {
 		RawAnimation saiyan = KI_CHARGE_BY_RACE.get("saiyan");
 		if (race == null) return saiyan;
