@@ -40,6 +40,75 @@ Each dragon has its own wish file: `shenron.json`, `porunga.json`, or
 }
 ```
 
+### IDs, text written in JSON, and translations
+
+Each new wish should define its own **stable, namespaced `id`**. The `name` and
+`description` fields can contain readable text, rather than translation keys.
+When available, the client's language entries for the ID override those
+strings; otherwise the text from the wish JSON is shown.
+
+For example, inside `shenron.json`:
+
+```json
+{
+  "summoning": { "wishCount": 1 },
+  "wishes": [
+    {
+      "type": "item_list_wish",
+      "id": "example:shenron_senzu",
+      "name": "Senzu Beans",
+      "description": "Receive 16 Senzu Beans.",
+      "repeatable": true,
+      "items": [
+        {
+          "itemType": "generic_item",
+          "itemId": "dragonminez:senzu_bean",
+          "count": 16
+        }
+      ]
+    }
+  ]
+}
+```
+
+Language entries use the ID automatically (replace a slash `/` in the ID
+path with a dot `.`):
+
+```json
+// assets/example/lang/en_us.json
+{
+  "wish.example.shenron_senzu.name": "Senzu Beans",
+  "wish.example.shenron_senzu.desc": "Receive 16 Senzu Beans."
+}
+```
+
+```json
+// assets/example/lang/pt_br.json
+{
+  "wish.example.shenron_senzu.name": "Sementes dos Deuses",
+  "wish.example.shenron_senzu.desc": "Receba 16 Sementes dos Deuses."
+}
+```
+
+(The `//` lines above are filename labels, not part of the JSON files.)
+Add the entries to resource packs or the mod's actual
+`assets/<namespace>/lang/<language>.json` files. Translation files are
+client resources; the server does not need them to grant the rewards.
+
+For `id: "example:shenron/extra"`, the keys become
+`wish.example.shenron.extra.name` and `wish.example.shenron.extra.desc`.
+If `name` is omitted, the final ID segment is used as the fallback title;
+if `description` is omitted, its fallback is empty. The wish's type,
+requirements, repeatability, item lists, amount, and rewards are still
+configured inside the same JSON object.
+
+Existing wishes without IDs remain supported: their old `name` and
+`description` values work as translation keys as before. Newly generated
+built-in wish files have namespaced IDs, and their original English and
+Portuguese translations are retained under new ID-based keys. Changing a
+wish ID changes its identity for nonrepeatable-wish progress; the built-in
+legacy translation keys are still checked for previously completed wishes.
+
 `wishCount` is an integer from 1 to 64. Legacy arrays migrate with an exact backup.
 Use stable wish IDs: nonrepeatable wishes are remembered across summons and reconnects.
 Rewards run in list order. Existing command, item, skill and other wish types still work.
