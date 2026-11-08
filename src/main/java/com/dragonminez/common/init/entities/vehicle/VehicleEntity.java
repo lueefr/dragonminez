@@ -623,17 +623,17 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 
 	@Override
 	protected Vec3 getPassengerAttachmentPoint(Entity passenger, net.minecraft.world.entity.EntityDimensions dimensions, float scale) {
-        return properties.seats().get(0);
-    }
+		int index = getSeatIndex(passenger);
+		if (index < 0) return super.getPassengerAttachmentPoint(passenger, dimensions, scale);
+		Vec3 seat = properties.seats().get(index);
+		return this.level().isClientSide ? applyVisualTransform(seat, 1.0F) : seat;
+	}
 
 	@Override
 	protected void positionRider(Entity passenger, MoveFunction callback) {
 		if (!this.hasPassenger(passenger)) return;
-		int index = Mth.clamp(getSeatIndex(passenger), 0, properties.seatCount() - 1);
-		Vec3 seat = properties.seats().get(index);
-		if (this.level().isClientSide) seat = applyVisualTransform(seat, 1.0F);
-		Vec3 offset = new Vec3(seat.x, 0.0D, seat.z).yRot(-this.getYRot() * Mth.DEG_TO_RAD);
-		callback.accept(passenger, this.getX() + offset.x, this.getY() + seat.y - passenger.getVehicleAttachmentPoint(this).y, this.getZ() + offset.z);
+		Vec3 position = this.getPassengerRidingPosition(passenger);
+		callback.accept(passenger, position.x, position.y, position.z);
 		if (passenger instanceof LivingEntity living) living.yBodyRot = this.getYRot();
 	}
 

@@ -1,6 +1,10 @@
 package com.dragonminez.common.network.C2S;
 
 import com.dragonminez.common.init.MainEntities;
+import com.dragonminez.Env;
+import com.dragonminez.LogUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.levelgen.Heightmap;
 import com.dragonminez.common.init.entities.SpacePodEntity;
 import com.dragonminez.common.network.PacketRateLimiter;
 import com.dragonminez.common.spacepod.SpacePodDestinationDefinition;
@@ -10,7 +14,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import com.dragonminez.compat.network.NetworkEvent;
@@ -36,7 +39,8 @@ public class TravelToPlanetC2S {
 		context.get().enqueueWork(() -> {
 			ServerPlayer player = context.get().getSender();
 			if (player == null || !player.isAlive()) return;
-			if (!(player.getVehicle() instanceof SpacePodEntity)) return;
+			if (!(player.getVehicle() instanceof SpacePodEntity pod)) return;
+			if (pod.getControllingPassenger() != player) return;
 			if (!PacketRateLimiter.allow(player.getUUID(), "space_pod_travel", player.level().getGameTime(), 20L)) return;
 
 			ServerLevel currentLevel = player.serverLevel();
@@ -56,22 +60,54 @@ public class TravelToPlanetC2S {
 				return;
 			}
 
-			Entity vehicle = player.getVehicle();
-			player.stopRiding();
-			if (vehicle instanceof SpacePodEntity ownPod) {
-				ownPod.discard();
-			}
-
-			Vec3 targetPos = destination.resolvePosition(player.position());
-			player.teleportTo(targetLevel, targetPos.x, targetPos.y, targetPos.z, player.getYRot(), player.getXRot());
+			Vec3 sourcePos = player.position();
+			Vec3 targetPos = landing(targetLevel, destination, sourcePos);
+			if (!Double.isFinite(targetPos.x) || !Double.isFinite(targetPos.y) || !Double.isFinite(targetPos.z)) return;
+			if (targetPos.y < targetLevel.getMinBuildHeight() + 1 || targetPos.y >= targetLevel.getMaxBuildHeight() - 1) return;
+			BlockPos landingPos = BlockPos.containing(targetPos);
+			if (!targetLevel.getWorldBorder().isWithinBounds(landingPos)) return;
+			targetLevel.getChunkAt(landingPos);
 
 			SpacePodEntity newPod = new SpacePodEntity(MainEntities.SPACE_POD.get(), targetLevel);
-			newPod.setPos(targetPos.x, targetPos.y, targetPos.z);
+			newPod.moveTo(targetPos.x, targetPos.y, targetPos.z, pod.getYRot(), pod.getXRot());
+			newPod.setOpenNave(pod.isOpen());
+			if (!targetLevel.addFreshEntity(newPod)) return;
 
-			if (targetLevel.addFreshEntity(newPod)) {
-				player.startRiding(newPod);
+			float yaw = player.getYRot();
+			float pitch = player.getXRot();
+			player.stopRiding();
+			try {
+				player.teleportTo(targetLevel, targetPos.x, targetPos.y, targetPos.z, yaw, pitch);
+				if (player.serverLevel() != targetLevel || !player.startRiding(newPod)) {
+					throw new IllegalStateException("Could not mount the destination Space Pod");
+				}
+				pod.discard();
+			} catch (Exception e) {
+				newPod.discard();
+				try {
+					if (player.serverLevel() != currentLevel) {
+						player.teleportTo(currentLevel, sourcePos.x, sourcePos.y, sourcePos.z, yaw, pitch);
+					}
+					if (player.serverLevel() == currentLevel) {
+						player.startRiding(pod);
+					}
+				} catch (Exception restore) {
+					LogUtil.error(Env.COMMON, "Failed to restore player after Space Pod travel", restore);
+				}
+				LogUtil.error(Env.COMMON, "Failed to travel with Space Pod to " + destinationId, e);
 			}
 		});
 		context.get().setPacketHandled(true);
+	}
+
+	private static Vec3 landing(ServerLevel level, SpacePodDestinationDefinition destination, Vec3 source) {
+		Vec3 position = destination.resolvePosition(source);
+		if (destination.y() != null) return position;
+
+		int x = net.minecraft.util.Mth.floor(position.x);
+		int z = net.minecraft.util.Mth.floor(position.z);
+		int height = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+		int y = net.minecraft.util.Mth.clamp(height, level.getMinBuildHeight() + 1, level.getMaxBuildHeight() - 2);
+		return new Vec3(position.x, y + 0.25D, position.z);
 	}
 }
