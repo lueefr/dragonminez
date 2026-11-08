@@ -44,6 +44,27 @@ public final class WishConfigGameTests {
         } finally {player.discard();}
     }
     @GameTest(template="port_empty")
+    public static void migrateGlobalWishes(GameTestHelper helper)throws Exception {
+        Path root=Files.createTempDirectory("dmz-global-wishes-");
+        Path legacy=root.resolve("world/dragonminez/wishes");
+        Path global=root.resolve("config/dragonminez/wishes");
+        Files.createDirectories(legacy);
+        String original="[{\"type\":\"example\"}]";
+        Path oldFile=legacy.resolve("shenron.json");
+        Files.writeString(oldFile,original);
+        var migrate=WishManager.class.getDeclaredMethod("migrateWishes",Path.class,Path.class);
+        migrate.setAccessible(true);
+        migrate.invoke(null,legacy,global);
+        helper.assertTrue(Files.readString(global.resolve("shenron.json")).equals(original),"Legacy wishes were not copied to global config");
+        String custom="{\"summoning\":{\"wishCount\":2},\"wishes\":[]}";
+        Files.writeString(global.resolve("shenron.json"),custom);
+        migrate.invoke(null,legacy,global);
+        helper.assertTrue(Files.readString(global.resolve("shenron.json")).equals(custom),"Migration overwrote custom server wishes");
+        helper.assertTrue(Files.readString(oldFile).equals(original),"Migration altered the original world wishes");
+        helper.succeed();
+    }
+
+    @GameTest(template="port_empty")
     public static void syncedCount(GameTestHelper helper) {
         var dragon=com.dragonminez.common.init.MainEntities.SHENRON.get().create(helper.getLevel());
         int original=com.dragonminez.common.dragonball.DragonBallDefinitions.defaultCount("shenron");
