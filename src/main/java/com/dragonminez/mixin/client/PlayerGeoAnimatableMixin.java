@@ -299,15 +299,21 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	}
 
 	@Unique
+	private static boolean dragonminez$inPreview(AbstractClientPlayer player) {
+		return player == Minecraft.getInstance().player
+				&& (Minecraft.getInstance().screen instanceof com.dragonminez.client.gui.character.util.BaseMenuScreen
+				|| Minecraft.getInstance().screen instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen);
+	}
+
+	@Unique
 	private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
 
 		state.getController().setAnimationSpeed(1.0D);
 
-		if (player == Minecraft.getInstance().player
-				&& (Minecraft.getInstance().screen instanceof com.dragonminez.client.gui.character.util.BaseMenuScreen
-				|| Minecraft.getInstance().screen instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen)) {
+		if (dragonminez$inPreview(player)) {
 			// Inventory previews follow the mouse without inheriting active flight poses.
+			dragonminez$currentPoseAnim = null;
 			return state.setAndContinue(IDLE);
 		}
 
@@ -470,6 +476,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	@Unique
 	private <T extends GeoAnimatable> PlayState kiPredicate(AnimationState<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
+		if (dragonminez$inPreview(player)) return PlayState.STOP;
 		boolean transforming = StatsProvider.get(StatsCapability.INSTANCE, player)
 				.map(data -> data.getStatus().isActionCharging()).orElse(false);
 
@@ -510,6 +517,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	@Unique
 	private <T extends GeoAnimatable> PlayState posePredicate(AnimationState<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
+		if (dragonminez$inPreview(player)) return PlayState.STOP;
 
 		if (dragonminez$attackAnimTicks > 0) {
 			dragonminez$poseInstantResume = true;
