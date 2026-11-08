@@ -18,8 +18,8 @@ import java.util.List;
 /**
  * The stock wish lists for Shenron, Porunga and Porunga (Daima).
  *
- * <p>Read by both {@code WishManager}, which seeds a new world's
- * {@code <world>/dragonminez/wishes/*.json}, and {@code DMZDragonWishProvider}, which
+ * <p>Read by both {@code WishManager}, which seeds the server-wide
+ * {@code config/dragonminez/wishes/*.json}, and {@code DMZDragonWishProvider}, which
  * generates the shipped datapack, so the two cannot drift apart.
  */
 public final class DefaultWishes {
