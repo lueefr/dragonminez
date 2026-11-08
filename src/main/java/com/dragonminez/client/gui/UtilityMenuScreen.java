@@ -293,10 +293,16 @@ public class UtilityMenuScreen extends ScaledScreen {
 			if (isDragged) graphics.fill(px + 1, drawY, px + pw - 1, drawY + PANEL_ROW_H - 1, 0x33FFFFFF);
 			if (node.active(statsData)) drawRowBorder(graphics, px + 1, drawY, px + pw - 1, drawY + PANEL_ROW_H - 1, 0xFF3BE05A);
 
-			int color = node.labelColor(statsData);
-			var label = node.label(statsData).copy().withStyle(style);
-			var text = net.minecraft.locale.Language.getInstance().getVisualOrder(this.font.substrByWidth(label, textWidth));
-			graphics.drawString(this.font, text, px + 6, drawY + 3, color, true);
+			boolean form = node instanceof com.dragonminez.client.gui.radial.nodes.FormSelectNode;
+			if (form) com.dragonminez.client.text.FormNameText.beginNames();
+			try {
+				int color = node.labelColor(statsData);
+				var label = node.label(statsData).copy().withStyle(style);
+				var text = net.minecraft.locale.Language.getInstance().getVisualOrder(this.font.substrByWidth(label, textWidth));
+				graphics.drawString(this.font, text, px + 6, drawY + 3, color, true);
+			} finally {
+				if (form) com.dragonminez.client.text.FormNameText.endNames();
+			}
 		}
 
 		if (panelScrollable) {
@@ -554,15 +560,21 @@ public class UtilityMenuScreen extends ScaledScreen {
 		Component label = node.label(statsData);
 		if (label == null || label.getString().isEmpty()) return;
 
-		int color = node.labelColor(statsData);
-		Style style = Style.EMPTY.withFont(DMZ_FONT);
-		var lines = this.font.split(label.copy().withStyle(style), maxWidth);
-		int lineHeight = this.font.lineHeight + 2;
-		int startY = Math.round(y + (iconBase + 4f * hoverAmt) / 2f + 2f);
-		int centerX = Math.round(x);
-		for (int i = 0; i < lines.size(); i++) {
-			var line = lines.get(i);
-			graphics.drawString(this.font, line, centerX - this.font.width(line) / 2, startY + i * lineHeight, color, true);
+		boolean form = node instanceof com.dragonminez.client.gui.radial.nodes.FormSelectNode;
+		if (form) com.dragonminez.client.text.FormNameText.beginNames();
+		try {
+			int color = node.labelColor(statsData);
+			Style style = Style.EMPTY.withFont(DMZ_FONT);
+			var lines = this.font.split(label.copy().withStyle(style), maxWidth);
+			int lineHeight = this.font.lineHeight + 2;
+			int startY = Math.round(y + (iconBase + 4f * hoverAmt) / 2f + 2f);
+			int centerX = Math.round(x);
+			for (int i = 0; i < lines.size(); i++) {
+				var line = lines.get(i);
+				graphics.drawString(this.font, line, centerX - this.font.width(line) / 2, startY + i * lineHeight, color, true);
+			}
+		} finally {
+			if (form) com.dragonminez.client.text.FormNameText.endNames();
 		}
 	}
 
