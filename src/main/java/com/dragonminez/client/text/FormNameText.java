@@ -27,8 +27,9 @@ public final class FormNameText {
         return com.dragonminez.common.util.FusionForms.formTranslationKey(race,target.group(),target.form());
     }
     public static void enterScreen(Object screen){
-        boolean mod=false;for(Class<?> type=screen.getClass();type!=null;type=type.getSuperclass())mod|=type.getName().startsWith("com.dragonminez.");
-        screens.push(mod);
+        boolean colored = screen instanceof com.dragonminez.client.gui.character.SkillsMenuScreen
+                || screen instanceof com.dragonminez.client.gui.UtilityMenuScreen;
+        screens.push(colored);
     }
     public static void leaveScreen(){if(!screens.isEmpty())screens.pop();}
     public static boolean inScreen(){return !screens.isEmpty();}
@@ -48,7 +49,7 @@ public final class FormNameText {
             if(!sink.accept(glyph.index(),style,glyph.codepoint()))return false;}return true;};
     }
     public static Integer draw(Font font,FormattedCharSequence text,float x,float y,int color,boolean shadow,Matrix4f matrix,MultiBufferSource buffers,Font.DisplayMode mode,int background,int light) {
-        if(drawing||text instanceof Unstyled)return null;
+        if(drawing||text instanceof Unstyled||inScreen()&&!modScreen())return null;
         boolean[] named={false};
         text.accept((i,style,cp)->{named[0]=color(style)!=null;return !named[0];});
         if(modScreen()){
