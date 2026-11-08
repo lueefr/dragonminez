@@ -1,15 +1,14 @@
 package com.dragonminez.common.network.C2S;
 
 import com.dragonminez.common.init.MainEntities;
-import com.dragonminez.server.world.dimension.NamekDimension;
 import com.dragonminez.Env;
 import com.dragonminez.LogUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.levelgen.Heightmap;
 import com.dragonminez.common.init.entities.SpacePodEntity;
 import com.dragonminez.common.network.PacketRateLimiter;
 import com.dragonminez.common.spacepod.SpacePodDestinationDefinition;
 import com.dragonminez.common.spacepod.SpacePodDestinationRegistry;
+import com.dragonminez.common.spacepod.SpacePodArrival;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -62,16 +61,13 @@ public class TravelToPlanetC2S {
 			}
 
 			Vec3 sourcePos = player.position();
-			Vec3 targetPos = landing(targetLevel, destination, sourcePos);
-			if (!Double.isFinite(targetPos.x) || !Double.isFinite(targetPos.y) || !Double.isFinite(targetPos.z)) return;
-			if (targetPos.y < targetLevel.getMinBuildHeight() + 1 || targetPos.y >= targetLevel.getMaxBuildHeight() - 1) return;
-			BlockPos landingPos = BlockPos.containing(targetPos);
-			if (!targetLevel.getWorldBorder().isWithinBounds(landingPos)) return;
-			targetLevel.getChunkAt(landingPos);
-
 			SpacePodEntity newPod = new SpacePodEntity(MainEntities.SPACE_POD.get(), targetLevel);
+			Vec3 targetPos = landing(targetLevel, destination, sourcePos, newPod);
+			if (targetPos == null) return;
+
 			newPod.moveTo(targetPos.x, targetPos.y, targetPos.z, pod.getYRot(), pod.getXRot());
 			newPod.setOpenNave(pod.isOpen());
+			newPod.startDescent();
 			if (!targetLevel.addFreshEntity(newPod)) return;
 
 			float yaw = player.getYRot();
@@ -101,19 +97,26 @@ public class TravelToPlanetC2S {
 		context.get().setPacketHandled(true);
 	}
 
-	private static Vec3 landing(ServerLevel level, SpacePodDestinationDefinition destination, Vec3 source) {
+	private static Vec3 landing(ServerLevel level, SpacePodDestinationDefinition destination, Vec3 source, SpacePodEntity pod) {
 		Vec3 position = destination.resolvePosition(source);
-		boolean namek = level.dimension().equals(NamekDimension.NAMEK_KEY);
-		if (destination.y() != null && !namek) return position;
+		if (!Double.isFinite(position.x) || !Double.isFinite(position.z)) return null;
+
+		int[] heights = SpacePodArrival.heights(level.getMinBuildHeight(), level.getMaxBuildHeight(), pod.getBbHeight());
+		if (heights.length == 0) return null;
 
 		int x = net.minecraft.util.Mth.floor(position.x);
 		int z = net.minecraft.util.Mth.floor(position.z);
-		level.getChunkAt(new BlockPos(x, level.getMinBuildHeight(), z));
-		int height = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
-		int minY = namek ? Math.max(90, level.getMinBuildHeight() + 1) : level.getMinBuildHeight() + 1;
-		int y = net.minecraft.util.Mth.clamp(Math.max(height, minY), minY, level.getMaxBuildHeight() - 2);
-		double arrivalY = y + 0.25D;
-		if (destination.y() != null) arrivalY = Math.max(arrivalY, position.y);
-		return new Vec3(position.x, arrivalY, position.z);
+		BlockPos start = new BlockPos(x, heights[0], z);
+		if (!level.getWorldBorder().isWithinBounds(start)) return null;
+		level.getChunkAt(start);
+
+		for (int y : heights) {
+			Vec3 target = new Vec3(position.x, y + 0.25D, position.z);
+			pod.moveTo(target.x, target.y, target.z, 0.0F, 0.0F);
+			if (level.noCollision(pod) && level.getFluidState(BlockPos.containing(target)).isEmpty()) {
+				return target;
+			}
+		}
+		return null;
 	}
 }

@@ -939,6 +939,12 @@ public class NetworkHandler {
         id();
         net.messageBuilder(ProjectileMotionS2C.class,id(),NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(ProjectileMotionS2C::new).encoder(ProjectileMotionS2C::encode).consumerMainThread(ProjectileMotionS2C::handle).add();
+
+		net.messageBuilder(StopPodC2S.class, id(), NetworkDirection.PLAY_TO_SERVER)
+				.decoder(StopPodC2S::new)
+				.encoder(StopPodC2S::encode)
+				.consumerMainThread(StopPodC2S::handle)
+				.add();
 	}
 
 	public static <MSG> void sendToServer(MSG message) {
