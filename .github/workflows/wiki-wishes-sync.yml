@@ -1,0 +1,40 @@
+name: Sync Dragon wishes wiki
+
+on:
+  push:
+    branches:
+      - fix/dragonminez-stability
+    paths:
+      - 'docs/wiki/Dragon-wishes.md'
+      - '.github/workflows/wiki-wishes-sync.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dragon-wishes-wiki
+  cancel-in-progress: true
+
+jobs:
+  sync-wishes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Publish Dragon wishes page
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --quiet "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" wiki
+          cp docs/wiki/Dragon-wishes.md wiki/Dragon-wishes.md
+          git -C wiki config user.name 'github-actions[bot]'
+          git -C wiki config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C wiki add Dragon-wishes.md
+          if git -C wiki diff --cached --quiet; then
+            echo 'Wiki page already up to date'
+            exit 0
+          fi
+          git -C wiki commit -m 'docs: update server-wide Dragon wishes configuration'
+          git -C wiki push origin HEAD
