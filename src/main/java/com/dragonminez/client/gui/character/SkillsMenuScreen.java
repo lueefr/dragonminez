@@ -1104,7 +1104,12 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 				else if (lockLines.isEmpty() && canPurchaseLevel && !isFirstStackLevel && statsData.getResources().getTrainingPointsExact() >= cost) lines.add(Component.translatable("gui.dragonminez.skills.doubleclick_buy").withStyle(ChatFormatting.YELLOW, ChatFormatting.ITALIC));
 			}
 
-			TextUtil.renderAdvancedTooltip(graphics, this.font, mouseX, mouseY, getUiWidth(), getUiHeight(), null, lines, null, 0xFFFFFF);
+			com.dragonminez.client.text.FormNameText.beginNames();
+			try {
+				TextUtil.renderAdvancedTooltip(graphics, this.font, mouseX, mouseY, getUiWidth(), getUiHeight(), null, lines, null, 0xFFFFFF);
+			} finally {
+				com.dragonminez.client.text.FormNameText.endNames();
+			}
 		}
 	}
 
