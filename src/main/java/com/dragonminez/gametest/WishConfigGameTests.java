@@ -69,6 +69,24 @@ public final class WishConfigGameTests {
     }
 
     @GameTest(template="port_empty")
+    public static void builtinWishIds(GameTestHelper helper) {
+        Map<String,List<Wish>> dragons=Map.of(
+                "shenron",DefaultWishes.shenron(),
+                "porunga",DefaultWishes.porunga(),
+                "porunga_daima",DefaultWishes.porungaDaima());
+        for (var entry : dragons.entrySet()) {
+            Set<String> ids=new HashSet<>();
+            for (Wish wish : entry.getValue()) {
+                wish.validate();
+                helper.assertTrue(wish.getId()!=null && wish.getId().startsWith("dragonminez:"+entry.getKey()+"/"),
+                        "Default wish is missing an ID for "+entry.getKey());
+                helper.assertTrue(ids.add(wish.getId()),"Duplicate default wish ID: "+wish.getId());
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template="port_empty")
     public static void syncedCount(GameTestHelper helper) {
         var dragon=com.dragonminez.common.init.MainEntities.SHENRON.get().create(helper.getLevel());
         int original=com.dragonminez.common.dragonball.DragonBallDefinitions.defaultCount("shenron");
