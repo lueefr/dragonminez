@@ -349,7 +349,9 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
 
         float partialTick = animationState.getPartialTick();
         float bodyYaw = Mth.lerp(partialTick, animatable.yBodyRotO, animatable.yBodyRot);
-        float headYawDeg = Mth.wrapDegrees(Mth.lerp(partialTick, animatable.yHeadRotO, animatable.yHeadRot) - bodyYaw);
+        float headYaw = Mth.rotLerp(partialTick, animatable.yHeadRotO, animatable.yHeadRot);
+        boolean slowFlight = flying && !fastFlight && !animatable.isPassenger() && !actuallyTransforming;
+        float headYawDeg = Mth.wrapDegrees(headYaw - (slowFlight ? headYaw : bodyYaw));
         float lookYaw = -headYawDeg * Mth.DEG_TO_RAD;
         float lookPitch = -Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot()) * Mth.DEG_TO_RAD;
 
@@ -499,8 +501,11 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         float bodyYaw = Mth.lerp(pt, animatable.yBodyRotO, animatable.yBodyRot);
         float headYaw = Mth.lerp(pt, animatable.yHeadRotO, animatable.yHeadRot);
 
+        boolean slowFlight = forwardHead(animatable)
+                && !com.dragonminez.client.events.FlySkillEvent.getInstance().isFlyingFast(animatable)
+                && !animatable.isPassenger() && !transforming;
         float clampedPitch = skipHead ? 0F : -Mth.clamp(pitch, -85F, 85F);
-        float relativeYaw  = -Mth.wrapDegrees(headYaw - bodyYaw);
+        float relativeYaw  = -Mth.wrapDegrees(headYaw - (slowFlight ? headYaw : bodyYaw));
         float clampedYaw   = skipHead ? 0F : Mth.clamp(relativeYaw, -90F, 90F);
 
         // GeckoLib 4.9: per-frame Molang values go through actor variables (structure preserved).
