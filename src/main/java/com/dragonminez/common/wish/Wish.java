@@ -17,6 +17,7 @@ public abstract class Wish {
     private final String type;
     private Boolean repeatable;
     private String id;
+    private Boolean translate;
     private com.google.gson.JsonObject requirements;
 
     protected Wish(String name, String description, String type) {
@@ -31,6 +32,10 @@ public abstract class Wish {
 
     public String getDescription() {
         return description == null ? "" : description;
+    }
+
+    public boolean isTranslated() {
+        return translate == null || translate;
     }
 
     public String key(String dragon) {
