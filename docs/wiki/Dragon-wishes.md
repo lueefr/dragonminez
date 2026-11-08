@@ -1,6 +1,6 @@
 # Dragon wishes and race changes
 
-Edit `<world>/dragonminez/wishes/<dragon>.json` on the server. Back up your world first. Restart the server after editing wishes. Existing world files are not overwritten by the bundled defaults.
+Edit `config/dragonminez/wishes/<dragon>.json` in the server installation (outside the world directory). Restart the server after editing wishes. On first load, legacy JSON files are copied from `<world>/dragonminez/wishes/` only when the corresponding server-wide file does not yet exist. Legacy world files remain untouched and server-wide files take precedence; the bundled defaults never overwrite existing files.
 
 Each dragon has its own wish file: `shenron.json`, `porunga.json`, or
 `porunga_daima.json` (Demon Realm Dragon Balls). For example:
