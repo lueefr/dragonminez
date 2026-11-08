@@ -41,6 +41,12 @@ public final class FormNameText {
         @Override public boolean accept(net.minecraft.util.FormattedCharSink sink){return delegate.accept(sink);}
     }
     public static FormattedCharSequence unstyled(FormattedCharSequence text){return new Unstyled(text);}
+    public static FormattedCharSequence plain(FormattedCharSequence text){
+        return new Unstyled(sink->text.accept((index,style,point)->{
+            if(color(style)!=null)style=unmark(style).withColor((net.minecraft.network.chat.TextColor)null);
+            return sink.accept(index,style,point);
+        }));
+    }
     public static int outline(int rgb){return 0.2126*(rgb>>16&255)+0.7152*(rgb>>8&255)+0.0722*(rgb&255)<128?0xFFFFFF:0x101010;}
     private record Glyph(int index,Style style,int codepoint){}
     private static FormattedCharSequence sequence(List<Glyph> glyphs,Integer forcedColor) {
@@ -48,10 +54,11 @@ public final class FormNameText {
             if(!sink.accept(glyph.index(),style,glyph.codepoint()))return false;}return true;};
     }
     public static Integer draw(Font font,FormattedCharSequence text,float x,float y,int color,boolean shadow,Matrix4f matrix,MultiBufferSource buffers,Font.DisplayMode mode,int background,int light) {
-        if(drawing||text instanceof Unstyled||inScreen()&&!modScreen())return null;
+        if(drawing||text instanceof Unstyled)return null;
         boolean[] named={false};
         text.accept((i,style,cp)->{named[0]=color(style)!=null;return !named[0];});
         if(!named[0])return null;
+        if(inScreen()&&!modScreen())return font.drawInBatch(plain(text),x,y,color,shadow,matrix,buffers,mode,background,light);
         List<Glyph> glyphs=new ArrayList<>();text.accept((i,style,cp)->{glyphs.add(new Glyph(i,style,cp));return true;});
         drawing=true;
         try {
