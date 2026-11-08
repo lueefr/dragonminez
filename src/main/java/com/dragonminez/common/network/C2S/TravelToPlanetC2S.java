@@ -62,7 +62,11 @@ public class TravelToPlanetC2S {
 
 			Vec3 sourcePos = player.position();
 			Vec3 targetPos = landing(targetLevel, destination, sourcePos);
-			if (!targetLevel.getWorldBorder().isWithinBounds(BlockPos.containing(targetPos))) return;
+			if (!Double.isFinite(targetPos.x) || !Double.isFinite(targetPos.y) || !Double.isFinite(targetPos.z)) return;
+			if (targetPos.y < targetLevel.getMinBuildHeight() + 1 || targetPos.y >= targetLevel.getMaxBuildHeight() - 1) return;
+			BlockPos landingPos = BlockPos.containing(targetPos);
+			if (!targetLevel.getWorldBorder().isWithinBounds(landingPos)) return;
+			targetLevel.getChunkAt(landingPos);
 
 			SpacePodEntity newPod = new SpacePodEntity(MainEntities.SPACE_POD.get(), targetLevel);
 			newPod.moveTo(targetPos.x, targetPos.y, targetPos.z, pod.getYRot(), pod.getXRot());
