@@ -6,6 +6,7 @@ on:
       - fix/dragonminez-stability
     paths:
       - 'src/main/**'
+      - 'src/test/**'
       - 'src/generated/resources/**'
       - 'build.gradle.kts'
       - 'gradle.properties'
