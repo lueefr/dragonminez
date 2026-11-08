@@ -623,7 +623,8 @@ public abstract class VehicleEntity extends Mob implements GeoEntity {
 
 	@Override
 	protected Vec3 getPassengerAttachmentPoint(Entity passenger, net.minecraft.world.entity.EntityDimensions dimensions, float scale) {
-        return properties.seats().get(0);
+        int index = Mth.clamp(getSeatIndex(passenger), 0, properties.seatCount() - 1);
+        return properties.seats().get(index);
     }
 
 	@Override
