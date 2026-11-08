@@ -343,30 +343,25 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         String playingAnim = animatable instanceof IPlayerAnimatable playing ? playing.dragonminez$getCurrentPlayingAnimation() : "";
         String kiAnim = animatable instanceof IPlayerAnimatable playing ? playing.dragonminez$getCurrentKiAnimation() : "";
         boolean ownsHead = clipOwnsHead(playingAnim) || clipOwnsHead(kiAnim);
-        boolean flying = forwardHead(animatable);
-        boolean fastFlight = !isPreview(animatable) && com.dragonminez.client.events.FlySkillEvent.getInstance().isFlyingFast(animatable);
-        boolean skipHead = (transfAnimPlaying && actuallyTransforming) || ownsHead || fastFlight;
+        boolean skipHead = (transfAnimPlaying && actuallyTransforming) || ownsHead;
 
         float partialTick = animationState.getPartialTick();
         float bodyYaw = Mth.lerp(partialTick, animatable.yBodyRotO, animatable.yBodyRot);
-        float headYaw = Mth.rotLerp(partialTick, animatable.yHeadRotO, animatable.yHeadRot);
-        float viewYaw = Mth.rotLerp(partialTick, animatable.yRotO, animatable.getYRot());
-        boolean slowFlight = flying && !fastFlight && !animatable.isPassenger() && !actuallyTransforming;
-        float headYawDeg = Mth.wrapDegrees(headYaw - (slowFlight ? viewYaw : bodyYaw));
+        float headYawDeg = Mth.wrapDegrees(Mth.lerp(partialTick, animatable.yHeadRotO, animatable.yHeadRot) - bodyYaw);
         float lookYaw = -headYawDeg * Mth.DEG_TO_RAD;
         float lookPitch = -Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot()) * Mth.DEG_TO_RAD;
 
-        GeoBone head = this.getAnimationProcessor().getBone("head");
-        GeoBone waist = this.getAnimationProcessor().getBone("waist");
-        GeoBone root = this.getAnimationProcessor().getBone("root");
-        GeoBone rightArm = this.getAnimationProcessor().getBone("right_arm");
-        GeoBone leftArm = this.getAnimationProcessor().getBone("left_arm");
+        CoreGeoBone head = this.getAnimationProcessor().getBone("head");
+        CoreGeoBone waist = this.getAnimationProcessor().getBone("waist");
+        CoreGeoBone root = this.getAnimationProcessor().getBone("root");
+        CoreGeoBone rightArm = this.getAnimationProcessor().getBone("right_arm");
+        CoreGeoBone leftArm = this.getAnimationProcessor().getBone("left_arm");
 
         if (head != null && !skipHead) {
             EntityModelData entityModelData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
 
-            float lookPitchRad = flying ? lookPitch : entityModelData.headPitch() * Mth.DEG_TO_RAD;
-            float lookYawRad = flying ? lookYaw : entityModelData.netHeadYaw() * Mth.DEG_TO_RAD;
+            float lookPitchRad = entityModelData.headPitch() * Mth.DEG_TO_RAD;
+            float lookYawRad = entityModelData.netHeadYaw() * Mth.DEG_TO_RAD;
 
             float waistRotX = (waist != null) ? waist.getRotX() : 0.0F;
             float waistRotY = (waist != null) ? waist.getRotY() : 0.0F;
@@ -414,23 +409,6 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         KiSharePose.apply(animatable, rightArm, leftArm, partialTick);
         applyBoobScale(animatable);
         clearExplosionHeadOffset(animatable);
-    }
-
-    private static boolean isPreview(AbstractClientPlayer player) {
-        return player == Minecraft.getInstance().player
-                && (Minecraft.getInstance().screen instanceof com.dragonminez.client.gui.character.util.BaseMenuScreen
-                || Minecraft.getInstance().screen instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen
-                || com.dragonminez.client.render.hair.HairRenderContext.mode() == com.dragonminez.client.render.hair.HairRenderContext.Mode.EDITOR_PREVIEW);
-    }
-
-    private static boolean forwardHead(AbstractClientPlayer player) {
-        if (isPreview(player)) return false;
-        // Keep world flight independent of camera look, including while paused.
-        return StatsProvider.get(StatsCapability.INSTANCE, player)
-                .map(data -> data.getSkills().isSkillActive("fly")).orElse(false)
-                || player.getAbilities().flying || player.isFallFlying()
-                || (player instanceof IPlayerAnimatable anim && anim.dragonminez$isFlying())
-                || com.dragonminez.client.events.FlySkillEvent.isStrikeRushing(player);
     }
 
     private void clearExplosionHeadOffset(T animatable) {
@@ -493,13 +471,13 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
     public void applyMolangQueries(AnimationState<T> animationState, double animTime) {
         super.applyMolangQueries(animationState, animTime);
         T animatable = animationState.getAnimatable();
-        String playingAnim = animatable instanceof IPlayerAnimatable pa ? pa.dragonminez$getCurrentPlayingAnimation() : "";
-        String kiAnim = animatable instanceof IPlayerAnimatable pa ? pa.dragonminez$getCurrentKiAnimation() : "";
-        boolean transforming = StatsProvider.get(StatsCapability.INSTANCE, animatable)
-                .map(data -> data.getStatus().isActionCharging()).orElse(false);
-        boolean skipHead = (transforming && playingAnim.startsWith("transf."))
-                || clipOwnsHead(playingAnim) || clipOwnsHead(kiAnim)
-                || (!isPreview(animatable) && com.dragonminez.client.events.FlySkillEvent.getInstance().isFlyingFast(animatable));
+        boolean headAnimPlaying = animatable instanceof IPlayerAnimatable pa
+                && (pa.dragonminez$getCurrentPlayingAnimation().startsWith("transf.")
+                || pa.dragonminez$getCurrentPlayingAnimation().startsWith("ki."));
+        boolean actuallyBusy = StatsProvider.get(StatsCapability.INSTANCE, animatable)
+                .map(data -> data.getStatus().isActionCharging() || data.getStatus().isChargingKi()).orElse(false)
+                || (animatable instanceof IPlayerAnimatable pa2 && pa2.dragonminez$isShootingKi());
+        boolean skipHead = headAnimPlaying && actuallyBusy;
 
         // In GUI screens the O-fields (yBodyRotO, xRotO) are stale world values — the screen
         // only sets the current-tick fields. Using pt=1.0 makes lerp return the current value
@@ -507,14 +485,9 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         float pt = Minecraft.getInstance().screen != null ? 1.0f : Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
         float pitch   = Mth.lerp(pt, animatable.xRotO,     animatable.getXRot());
         float bodyYaw = Mth.lerp(pt, animatable.yBodyRotO, animatable.yBodyRot);
-        float headYaw = Mth.rotLerp(pt, animatable.yHeadRotO, animatable.yHeadRot);
-        float viewYaw = Mth.rotLerp(pt, animatable.yRotO, animatable.getYRot());
-
-        boolean slowFlight = forwardHead(animatable)
-                && !com.dragonminez.client.events.FlySkillEvent.getInstance().isFlyingFast(animatable)
-                && !animatable.isPassenger() && !transforming;
+        float headYaw = Mth.lerp(pt, animatable.yHeadRotO, animatable.yHeadRot);
         float clampedPitch = skipHead ? 0F : -Mth.clamp(pitch, -85F, 85F);
-        float relativeYaw  = -Mth.wrapDegrees(headYaw - (slowFlight ? viewYaw : bodyYaw));
+        float relativeYaw  = -Mth.wrapDegrees(headYaw - bodyYaw);
         float clampedYaw   = skipHead ? 0F : Mth.clamp(relativeYaw, -90F, 90F);
 
         // GeckoLib 4.9: per-frame Molang values go through actor variables (structure preserved).
