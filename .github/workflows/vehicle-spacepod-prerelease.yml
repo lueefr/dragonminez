@@ -50,8 +50,9 @@ jobs:
           version="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1)"
           jar="build/libs/dragonminez-1.21.1-${version}.jar"
           test -s "$jar"
-          jar tf "$jar" | grep -q '^com/dragonminez/common/spacepod/SpacePodDestinationRegistry.class$'
-          jar tf "$jar" | grep -q '^com/dragonminez/common/init/entities/vehicle/VehicleEntity.class$'
+          jar tf "$jar" > jar-contents.txt
+          grep -qx 'com/dragonminez/common/spacepod/SpacePodDestinationRegistry.class' jar-contents.txt
+          grep -qx 'com/dragonminez/common/init/entities/vehicle/VehicleEntity.class' jar-contents.txt
           head_sha="$(git ls-remote origin refs/heads/fix/vehicle-seats-spacepod-travel | cut -f1)"
           if [[ "$head_sha" != "$GITHUB_SHA" ]]; then
             echo "Skipping superseded commit"
