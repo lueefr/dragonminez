@@ -361,8 +361,8 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         if (head != null && !skipHead) {
             EntityModelData entityModelData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
 
-            float lookPitchRad = flying ? 0.0F : entityModelData.headPitch() * Mth.DEG_TO_RAD;
-            float lookYawRad = flying ? 0.0F : entityModelData.netHeadYaw() * Mth.DEG_TO_RAD;
+            float lookPitchRad = flying ? lookPitch : entityModelData.headPitch() * Mth.DEG_TO_RAD;
+            float lookYawRad = flying ? lookYaw : entityModelData.netHeadYaw() * Mth.DEG_TO_RAD;
 
             float waistRotX = (waist != null) ? waist.getRotX() : 0.0F;
             float waistRotY = (waist != null) ? waist.getRotY() : 0.0F;
