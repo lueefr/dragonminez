@@ -1,0 +1,64 @@
+name: DragonMineZ Global Wishes Prerelease
+
+on:
+  push:
+    branches:
+      - fix/global-dragon-wishes
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: global-wishes-prerelease
+  cancel-in-progress: true
+
+jobs:
+  build-release:
+    name: Build and publish wishes prerelease
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+      - name: Set up Java 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: Audit translations and UI text
+        run: |
+          python3 scripts/audit-player-text.py
+          python3 -m unittest discover -s scripts/tests -v
+      - name: Build and test
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build --build-cache
+          python3 scripts/check-packaged-resources.py build/libs/*.jar
+      - name: Publish exact compiled jar
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1)"
+          jar="build/libs/dragonminez-1.21.1-${version}.jar"
+          test -s "$jar"
+          jar tf "$jar" | grep -q '^com/dragonminez/common/wish/WishFiles.class$'
+          branch_sha="$(git ls-remote origin refs/heads/fix/global-dragon-wishes | cut -f1)"
+          if [[ "$branch_sha" != "$GITHUB_SHA" ]]; then
+            echo "Branch advanced; not releasing an outdated build."
+            exit 0
+          fi
+          short_sha="${GITHUB_SHA:0:12}"
+          tag="dev-global-wishes-${short_sha}"
+          asset="dragonminez-1.21.1-${version}-global-wishes-${short_sha}.jar"
+          gh release create "$tag" "$jar#$asset" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "DragonMineZ Global Wishes ${short_sha}" \
+            --notes "Prerelease from fix/global-dragon-wishes at ${GITHUB_SHA}. Includes global server-side dragon wishes plus the current main branch, including Space Pod travel and vehicle fixes. Gradle build and test passed; Minecraft GameTests and live gameplay were not exercised by this workflow." \
+            --prerelease

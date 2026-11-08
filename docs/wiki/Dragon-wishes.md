@@ -1,6 +1,21 @@
 # Dragon wishes and race changes
 
-Edit `<world>/dragonminez/wishes/<dragon>.json` on the server. Back up your world first. Restart the server after editing wishes. Existing world files are not overwritten by the bundled defaults.
+Wish definitions are **server-side** and shared by every world opened by the same server installation. Edit them in the instance's `config` directory:
+
+```text
+config/dragonminez/wishes/
+├── shenron.json
+├── porunga.json
+└── porunga_daima.json
+```
+
+Back up your existing configuration before editing and restart the server to load changes. The server validates the requirements and grants the rewards; clients receive the wish information needed to display the selection menu. Wishes remain available across worlds without copying JSON files.
+
+### Migrating existing world wishes
+
+When loading, the mod copies `<world>/dragonminez/wishes/*.json` into the shared configuration folder **only if that filename does not already exist there**. Both built-in and custom JSON filenames are supported. Existing server-wide files take priority; the old world files remain untouched, so customized wishes can be merged manually if both locations contain a file with the same name.
+
+Defaults are created only if `shenron.json`, `porunga.json` or `porunga_daima.json` is missing. Repeat starts do not overwrite existing files or repeat completed migrations. Old array-format files are converted in the global folder with an exact backup under `oldBackup/`; the original world copy is preserved.
 
 Each dragon has its own wish file: `shenron.json`, `porunga.json`, or
 `porunga_daima.json` (Demon Realm Dragon Balls). For example:
@@ -24,6 +39,81 @@ Each dragon has its own wish file: `shenron.json`, `porunga.json`, or
   ]
 }
 ```
+
+### IDs, text written in JSON, and translations
+
+Each new wish should define its own **stable, namespaced `id`**. The `name` and
+`description` fields can contain readable text, rather than translation keys.
+When available, the client's language entries for the ID override those
+strings; otherwise the text from the wish JSON is shown.
+
+For example, inside `shenron.json`:
+
+```json
+{
+  "summoning": { "wishCount": 1 },
+  "wishes": [
+    {
+      "type": "item_list_wish",
+      "id": "example:shenron_senzu",
+      "name": "Senzu Beans",
+      "description": "Receive 16 Senzu Beans.",
+      "repeatable": true,
+      "items": [
+        {
+          "itemType": "generic_item",
+          "itemId": "dragonminez:senzu_bean",
+          "count": 16
+        }
+      ]
+    }
+  ]
+}
+```
+
+Language entries use the ID automatically (replace a slash `/` in the ID
+path with a dot `.`):
+
+For `assets/example/lang/en_us.json`:
+
+```json
+{
+  "wish.example.shenron_senzu.name": "Senzu Beans",
+  "wish.example.shenron_senzu.desc": "Receive 16 Senzu Beans."
+}
+```
+
+For `assets/example/lang/pt_br.json`:
+
+```json
+{
+  "wish.example.shenron_senzu.name": "Sementes dos Deuses",
+  "wish.example.shenron_senzu.desc": "Receba 16 Sementes dos Deuses."
+}
+```
+
+Add the entries to resource packs or the mod's actual
+`assets/<namespace>/lang/<language>.json` files. Translation files are
+client resources; the server does not need them to grant the rewards.
+
+For `id: "example:shenron/extra"`, the keys become
+`wish.example.shenron.extra.name` and `wish.example.shenron.extra.desc`.
+
+ID translations are enabled by default. Set `"translate": false` on a wish to
+display its `name` and `description` literally from the JSON even when a
+language file defines matching keys. This also allows server-specific changes
+to built-in wishes without editing the client's language files.
+If `name` is omitted, the final ID segment is used as the fallback title;
+if `description` is omitted, its fallback is empty. The wish's type,
+requirements, repeatability, item lists, amount, and rewards are still
+configured inside the same JSON object.
+
+Existing wishes without IDs remain supported: their old `name` and
+`description` values work as translation keys as before. Newly generated
+built-in wish files have namespaced IDs, and their original English and
+Portuguese translations are retained under new ID-based keys. Changing a
+wish ID changes its identity for nonrepeatable-wish progress; the built-in
+legacy translation keys are still checked for previously completed wishes.
 
 `wishCount` is an integer from 1 to 64. Legacy arrays migrate with an exact backup.
 Use stable wish IDs: nonrepeatable wishes are remembered across summons and reconnects.

@@ -44,6 +44,51 @@ public final class WishConfigGameTests {
         } finally {player.discard();}
     }
     @GameTest(template="port_empty")
+    public static void translatedWish(GameTestHelper helper) {
+        String source="""
+                {"type":"attributes","id":"example:power_boost","translate":false,
+                  "name":"Power Boost","description":"Receive attribute points.","amount":100}
+                """;
+        Wish wish=GsonUtils.GSON.fromJson(source,Wish.class);
+        wish.validate();
+        helper.assertTrue("example:power_boost".equals(wish.getId()),"Wish ID was not loaded from JSON");
+        helper.assertTrue(!wish.isTranslated(),"A wish must support unlocalized text from its JSON");
+        helper.assertTrue("Power Boost".equals(wish.getName()),"Wish name fallback was lost");
+        helper.assertTrue("Receive attribute points.".equals(wish.getDescription()),"Wish description fallback was lost");
+        helper.assertTrue("wish.example.power_boost.name".equals(WishText.key(wish.getId(),"name")),
+                "Wish title translation key did not use the ID");
+        var copy=GsonUtils.NETWORK.fromJson(GsonUtils.NETWORK.toJson(wish,Wish.class),Wish.class);
+        helper.assertTrue("example:power_boost".equals(copy.getId()),"Network synchronization lost the wish ID");
+
+        Wish unnamed=GsonUtils.GSON.fromJson("""
+                {"type":"attributes","id":"example:bonus","amount":10}
+                """,Wish.class);
+        unnamed.validate();
+        helper.assertTrue(unnamed.isTranslated(),"ID translations should be enabled by default");
+        helper.assertTrue("bonus".equals(unnamed.getName()) && unnamed.getDescription().isEmpty(),
+                "A wish with an ID must allow omitted JSON labels");
+        helper.succeed();
+    }
+
+    @GameTest(template="port_empty")
+    public static void builtinWishIds(GameTestHelper helper) {
+        Map<String,List<Wish>> dragons=Map.of(
+                "shenron",DefaultWishes.shenron(),
+                "porunga",DefaultWishes.porunga(),
+                "porunga_daima",DefaultWishes.porungaDaima());
+        for (var entry : dragons.entrySet()) {
+            Set<String> ids=new HashSet<>();
+            for (Wish wish : entry.getValue()) {
+                wish.validate();
+                helper.assertTrue(wish.getId()!=null && wish.getId().startsWith("dragonminez:"+entry.getKey()+"/"),
+                        "Default wish is missing an ID for "+entry.getKey());
+                helper.assertTrue(ids.add(wish.getId()),"Duplicate default wish ID: "+wish.getId());
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template="port_empty")
     public static void syncedCount(GameTestHelper helper) {
         var dragon=com.dragonminez.common.init.MainEntities.SHENRON.get().create(helper.getLevel());
         int original=com.dragonminez.common.dragonball.DragonBallDefinitions.defaultCount("shenron");
