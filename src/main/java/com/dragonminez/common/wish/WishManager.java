@@ -41,8 +41,12 @@ public class WishManager {
 			Files.createDirectories(wishDir);
 			Path oldDir = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)
 					.resolve("dragonminez").resolve("wishes");
-			for (Path migrated : WishFiles.migrate(oldDir, wishDir)) {
-				LogUtil.info(Env.COMMON, "Migrated dragon wishes to {}", migrated);
+			try {
+				for (Path migrated : WishFiles.migrate(oldDir, wishDir)) {
+					LogUtil.info(Env.COMMON, "Migrated dragon wishes to {}", migrated);
+				}
+			} catch (IOException e) {
+				LogUtil.error(Env.COMMON, "Failed to migrate world wishes; loading server-wide wishes", e);
 			}
 
 			try (var stream = Files.list(wishDir)) {
