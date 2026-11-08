@@ -1,0 +1,68 @@
+name: DragonMineZ Stability Prerelease
+
+on:
+  push:
+    branches:
+      - fix/dragonminez-stability
+    paths:
+      - 'src/main/**'
+      - 'src/generated/resources/**'
+      - 'build.gradle.kts'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'scripts/**'
+      - '.github/workflows/stability-prerelease.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stability-prerelease
+  cancel-in-progress: true
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: gradle/actions/wrapper-validation@v6
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Check source text
+        run: |
+          python3 scripts/audit-player-text.py
+          python3 -m unittest discover -s scripts/tests -v
+      - name: Compile and test
+        run: |
+          chmod +x gradlew
+          ./gradlew build --build-cache
+          python3 scripts/check-packaged-resources.py build/libs/*.jar
+      - name: Publish tested development jar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(grep '^mod_version=' gradle.properties | cut -d= -f2-)"
+          artifact="build/libs/dragonminez-1.21.1-${version}.jar"
+          test -s "$artifact"
+          head_sha="$(git ls-remote origin refs/heads/fix/dragonminez-stability | cut -f1)"
+          if [[ "$head_sha" != "$GITHUB_SHA" ]]; then
+            echo "Skipping superseded branch build."
+            exit 0
+          fi
+          short_sha="${GITHUB_SHA:0:12}"
+          tag="dev-stability-${short_sha}"
+          name="dragonminez-1.21.1-${version}-stability-${short_sha}.jar"
+          gh release create "$tag" "$artifact#$name" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "DragonMineZ stability build ${short_sha}" \
+            --notes "Development build from fix/dragonminez-stability at ${GITHUB_SHA}. Compiled with Java 21 and Gradle, not a stable release." \
+            --prerelease
