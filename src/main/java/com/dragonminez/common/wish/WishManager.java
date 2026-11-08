@@ -11,8 +11,8 @@ import com.dragonminez.common.wish.wishes.*;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
 import net.minecraft.server.MinecraftServer;
+import net.neoforged.fml.loading.FMLPaths;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 public class WishManager {
@@ -32,22 +33,17 @@ public class WishManager {
 			return;
 		}
 
-		ServerLevel overworld = server.getLevel(Level.OVERWORLD);
-		if (overworld == null) {
-			LogUtil.warn(Env.COMMON, "Cannot load wishes: overworld is null");
-			return;
-		}
-
 		JsonLoadReport.clear("wishes");
-		Path worldFolder = overworld.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
-		Path dragonminezFolder = worldFolder.resolve("dragonminez");
-		Path wishDir = dragonminezFolder.resolve("wishes");
+		Path wishDir = configDir();
 
 		Map<String, List<Wish>> merged = new LinkedHashMap<>(DragonWishRegistry.getServerWishes());
         Map<String,Integer> counts=new LinkedHashMap<>();
 		try {
-			if (!Files.exists(wishDir)) {
-				Files.createDirectories(wishDir);
+			Files.createDirectories(wishDir);
+			ServerLevel overworld = server.getLevel(net.minecraft.world.level.Level.OVERWORLD);
+			if (overworld != null) {
+				Path world = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
+				migrateWishes(world.resolve("dragonminez").resolve("wishes"), wishDir);
 			}
 
 			try (var stream = Files.list(wishDir)) {
@@ -75,6 +71,27 @@ public class WishManager {
 		DragonWishRegistry.setServerWishes(merged);
         com.dragonminez.common.dragonball.DragonBallDefinitions.wishCounts(counts);
 		LogUtil.info(Env.COMMON, "Loaded {} dragon wish list(s) after merging datapacks and config files", merged.size());
+	}
+
+	public static Path configDir() {
+		return FMLPaths.CONFIGDIR.get().resolve("dragonminez").resolve("wishes");
+	}
+
+	private static void migrateWishes(Path previous, Path current) throws IOException {
+		if (!Files.isDirectory(previous)) return;
+		Files.createDirectories(current);
+		try (var stream = Files.list(previous)) {
+			for (Path source : stream.filter(Files::isRegularFile)
+					.filter(path -> path.getFileName().toString().endsWith(".json")).toList()) {
+				Path target = current.resolve(source.getFileName());
+				try {
+					Files.copy(source, target);
+					LogUtil.info(Env.COMMON, "Migrated world wishes from {} to {}", source, target);
+				} catch (java.nio.file.FileAlreadyExistsException ignored) {
+					// Existing global configuration is authoritative; the world copy is preserved.
+				}
+			}
+		}
 	}
 
 	private static void loadWishConfig(Path path, Map<String, List<Wish>> merged,Map<String,Integer> counts) {
@@ -149,11 +166,13 @@ public class WishManager {
 
 	private static void writeDefaultWishes(Path wishDir, String dragonId, List<Wish> defaultWishes) {
 		Path wishFile = wishDir.resolve(dragonId + ".json");
-		try (Writer writer = Files.newBufferedWriter(wishFile, StandardCharsets.UTF_8)) {
+		try (Writer writer = Files.newBufferedWriter(wishFile, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
 			Type listType = new TypeToken<ArrayList<Wish>>() {
 			}.getType();
 			JsonArray wishes=GsonUtils.GSON.toJsonTree(defaultWishes,listType).getAsJsonArray();
             GsonUtils.GSON.toJson(envelope(wishes,defaultCount(dragonId)),writer);
+		} catch (java.nio.file.FileAlreadyExistsException ignored) {
+			// Never replace an existing custom or migrated wish file.
 		} catch (IOException e) {
 			LogUtil.error(Env.COMMON, "Could not create default wishes for " + dragonId, e);
 		}
