@@ -1,6 +1,23 @@
 # Dragon wishes and race changes
 
-Edit `config/dragonminez/wishes/<dragon>.json` in the server installation (outside the world directory). Restart the server after editing wishes. On first load, legacy JSON files are copied from `<world>/dragonminez/wishes/` only when the corresponding server-wide file does not yet exist. Legacy world files remain untouched and server-wide files take precedence; the bundled defaults never overwrite existing files.
+## Server-wide configuration (all worlds)
+
+Dragon wishes are loaded from the **server installation's** `config/dragonminez/wishes/` directory, not from each save's world folder. Configure them once per server instance and they apply to every world that instance loads. In singleplayer, use the Minecraft instance's `config` folder.
+
+```text
+config/dragonminez/wishes/
+├── shenron.json
+├── porunga.json
+└── porunga_daima.json
+```
+
+The server is authoritative for wish conditions and rewards. Clients only receive the data needed to display and select wishes. **Edit these files on the server**, back them up before major changes, and restart the server to reload them.
+
+### Migrating existing worlds
+
+When wishes are loaded, the mod checks the old path `<world>/dragonminez/wishes/` and copies any `.json` files whose names do **not** already exist under the global config directory. It never deletes or modifies the old world files, and it never overwrites an existing global file. If a global file already exists, it wins: compare the old copy manually before merging custom wishes into it.
+
+The first server startup creates the global directory, migrates eligible files, and creates bundled defaults only where a file is still missing. Repeated startups do not overwrite the copies or recreate existing defaults. To use different wishes across separate servers, configure each server installation independently.
 
 Each dragon has its own wish file: `shenron.json`, `porunga.json`, or
 `porunga_daima.json` (Demon Realm Dragon Balls). For example:
