@@ -54,7 +54,8 @@ jobs:
           version="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1)"
           jar="build/libs/dragonminez-1.21.1-${version}.jar"
           test -s "$jar"
-          jar tf "$jar" | grep -Fqx 'com/dragonminez/common/network/C2S/TravelToPlanetC2S.class'
+          jar tf "$jar" > jar-contents.txt
+          grep -Fqx 'com/dragonminez/common/network/C2S/TravelToPlanetC2S.class' jar-contents.txt
 
           head_sha="$(git ls-remote origin refs/heads/fix/dimension-fix | cut -f1)"
           if [[ "$head_sha" != "$GITHUB_SHA" ]]; then
