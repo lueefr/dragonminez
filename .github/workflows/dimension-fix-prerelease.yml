@@ -1,0 +1,73 @@
+name: DragonMineZ Namek Dimension Fix Prerelease
+
+on:
+  push:
+    branches:
+      - fix/dimension-fix
+
+permissions:
+  contents: write
+
+concurrency:
+  group: namek-dimension-fix-prerelease
+  cancel-in-progress: true
+
+jobs:
+  build-release:
+    name: Build and publish verified prerelease
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: temurin
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Audit source and tests
+        run: |
+          python3 scripts/audit-player-text.py
+          python3 -m unittest discover -s scripts/tests -v
+
+      - name: Compile and test
+        run: |
+          chmod +x gradlew
+          ./gradlew build --build-cache
+          python3 scripts/check-packaged-resources.py build/libs/*.jar
+
+      - name: Publish prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          version="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1)"
+          jar="build/libs/dragonminez-1.21.1-${version}.jar"
+          test -s "$jar"
+          jar tf "$jar" | grep -Fqx 'com/dragonminez/common/network/C2S/TravelToPlanetC2S.class'
+
+          head_sha="$(git ls-remote origin refs/heads/fix/dimension-fix | cut -f1)"
+          if [[ "$head_sha" != "$GITHUB_SHA" ]]; then
+            echo "Skipping superseded commit"
+            exit 0
+          fi
+
+          short_sha="${GITHUB_SHA:0:12}"
+          tag="dev-namek-dimension-${short_sha}"
+          artifact="dragonminez-1.21.1-${version}-namek-dimension-${short_sha}.jar"
+          gh release create "$tag" "$jar#$artifact" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "DragonMineZ Namek Dimension Fix ${short_sha}" \
+            --notes "Prerelease built from fix/dimension-fix (${GITHUB_SHA}). Space Pod arrivals on Namek now use at least Y=90 and take the terrain surface into account. Gradle build and tests passed; in-game verification is still recommended. No merge to main was performed." \
+            --prerelease
