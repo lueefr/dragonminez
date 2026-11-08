@@ -98,6 +98,11 @@ client resources; the server does not need them to grant the rewards.
 
 For `id: "example:shenron/extra"`, the keys become
 `wish.example.shenron.extra.name` and `wish.example.shenron.extra.desc`.
+
+ID translations are enabled by default. Set `"translate": false` on a wish to
+display its `name` and `description` literally from the JSON even when a
+language file defines matching keys. This also allows server-specific changes
+to built-in wishes without editing the client's language files.
 If `name` is omitted, the final ID segment is used as the fallback title;
 if `description` is omitted, its fallback is empty. The wish's type,
 requirements, repeatability, item lists, amount, and rewards are still
