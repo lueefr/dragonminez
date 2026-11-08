@@ -27,6 +27,20 @@ public final class DefaultWishes {
 	private DefaultWishes() {
 	}
 
+	private static List<Wish> identify(List<Wish> wishes, String dragon) {
+		String source = "porunga_daima".equals(dragon) ? "porunga" : dragon;
+		String prefix = "wish." + source + ".";
+		for (Wish wish : wishes) {
+			String name = wish.getName();
+			if (!name.startsWith(prefix) || !name.endsWith(".name")) {
+				throw new IllegalArgumentException("Unknown default wish translation: " + name);
+			}
+			String path = name.substring(prefix.length(), name.length() - ".name".length());
+			wish.setId("dragonminez:" + dragon + "/" + path);
+		}
+		return wishes;
+	}
+
 	public static List<Wish> shenron() {
 		List<Wish> wishes = new ArrayList<>();
 
@@ -56,7 +70,7 @@ public final class DefaultWishes {
 		wishes.add(new ItemListWish("wish.shenron.strongest.name", "wish.shenron.strongest.desc",
 				MainItems.STRONGEST_ARMOR));
 
-		return wishes;
+		return identify(wishes, "shenron");
 	}
 
 	public static List<Wish> porunga() {
@@ -97,10 +111,10 @@ public final class DefaultWishes {
 		wishes.add(new ItemListWish("wish.porunga.pothala_green.name", "wish.porunga.pothala_green.desc",
 				pothalaGreen));
 
-		return wishes;
+		return identify(wishes, "porunga");
 	}
 
 	public static List<Wish> porungaDaima() {
-		return porunga();
+		return identify(porunga(), "porunga_daima");
 	}
 }
