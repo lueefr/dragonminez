@@ -1,7 +1,6 @@
 package com.dragonminez.mixin.client;
 
 import com.dragonminez.client.animation.AnimationCache;
-import com.dragonminez.client.animation.ChargeState;
 import com.dragonminez.client.animation.IPlayerAnimatable;
 import com.dragonminez.client.animation.CombatAnimationResolver;
 import com.dragonminez.client.events.FlySkillEvent;
@@ -97,8 +96,6 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	@Unique private int dragonminez$lastKiTickRun = -1;
 	@Unique private String dragonminez$lastKiCtlAnim = null;
 	@Unique private static final int KI_FIRE_ONESHOT_TICKS = 14;
-	@Unique private final ChargeState dragonminez$chargeState = new ChargeState();
-	@Unique private RawAnimation dragonminez$chargeAnim = null;
 
 	@Unique
 	private boolean dragonminez$isActuallyMoving(AbstractClientPlayer player) {
@@ -225,7 +222,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 		double horizontal = Math.sqrt(moveX * moveX + moveZ * moveZ);
 		if (horizontal < 0.01) return FLY_IDLE;
 
-		float yawRad = player.getYRot() * Mth.DEG_TO_RAD;
+		float yawRad = player.yBodyRot * Mth.DEG_TO_RAD;
 		double sin = Mth.sin(yawRad);
 		double cos = Mth.cos(yawRad);
 		double forwardComp = -moveX * sin + moveZ * cos;
@@ -299,28 +296,12 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	}
 
 	@Unique
-	private static boolean dragonminez$inPreview(AbstractClientPlayer player) {
-		return player == Minecraft.getInstance().player
-				&& (Minecraft.getInstance().screen instanceof com.dragonminez.client.gui.character.util.BaseMenuScreen
-				|| Minecraft.getInstance().screen instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen);
-	}
-
-	@Unique
 	private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
 
 		state.getController().setAnimationSpeed(1.0D);
 
-		if (dragonminez$inPreview(player)) {
-			// Inventory previews follow the mouse without inheriting active flight poses.
-			dragonminez$currentPoseAnim = null;
-			return state.setAndContinue(IDLE);
-		}
-
-		boolean transforming = StatsProvider.get(StatsCapability.INSTANCE, player)
-				.map(data -> data.getStatus().isActionCharging()).orElse(false);
-		if (!transforming && dragonminez$currentKiAnim != null && dragonminez$kiAnimHold) {
-			dragonminez$chargeAnim = null;
+		if (dragonminez$currentKiAnim != null && dragonminez$kiAnimHold) {
 			if (!dragonminez$currentKiAnim.equals(dragonminez$lastKiAnim)) {
 				state.getController().setAnimation(AnimationCache.getPlayAndHold(dragonminez$currentKiAnim));
 				state.getController().forceAnimationReset();
@@ -337,10 +318,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 		dragonminez$currentPoseAnim = CombatAnimationResolver.resolvePlayerPose(player);
 
 		StatsData data = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
-		if (data == null) {
-			dragonminez$chargeAnim = null;
-			return state.setAndContinue(IDLE);
-		}
+		if (data == null) return state.setAndContinue(IDLE);
 
 		if (data.getStatus().getPotaraPoseTimer() > 0) {
 			AbstractClientPlayer potaraPartner = dragonminez$findPotaraPartner(player, data.getStatus().getPotaraPartnerUUID());
@@ -362,10 +340,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 
 		boolean isDraining = data.getCooldowns().hasCooldown(Cooldowns.DRAIN_ACTIVE);
 		boolean flySkillActive = data.getSkills().isSkillActive("fly");
-		boolean local = player == Minecraft.getInstance().player;
-		boolean isChargingKi = dragonminez$chargeState.update(player.tickCount,
-				data.getStatus().isChargingKi(), local,
-				local && com.dragonminez.client.util.KeyBinds.KI_CHARGE.isDown());
+		boolean isChargingKi = data.getStatus().isChargingKi();
 		boolean isBlocking = data.getStatus().isBlocking();
 		boolean isKnockedDown = data.getStatus().isKnockedDown();
 		boolean isOozaru = data.getCharacter().isOozaruCached();
@@ -376,44 +351,31 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 		boolean isMoving = movedRecently && !((isChargingKi || isTransforming) && dragonminez$horizSpeed < FROZEN_SPEED_EPSILON);
 		ActionMode actionMode = data.getStatus().getSelectedAction();
 
-		if (isKnockedDown || dragonminez$isStunned(data)) {
-			dragonminez$chargeAnim = null;
-			return state.setAndContinue(isKnockedDown ? KNOCKBACK_HORIZONTAL : STUNNED);
-		}
+		if (isKnockedDown) return state.setAndContinue(KNOCKBACK_HORIZONTAL);
+		if (dragonminez$isStunned(data)) return state.setAndContinue(STUNNED);
 
 		if (isDraining) {
-			dragonminez$chargeAnim = null;
 			boolean semiPerfect = "bioandroid".equalsIgnoreCase(data.getCharacter().getRaceName())
 					&& BioAndroidForms.SEMI_PERFECT.equalsIgnoreCase(data.getCharacter().getActiveForm());
 			return state.setAndContinue(semiPerfect ? DRAIN_SEMIPERFECT : DRAIN);
 		}
 
-		if (player.isPassenger()) {
-			dragonminez$chargeAnim = null;
-			return state.setAndContinue(SIT);
-		}
+		if (player.isPassenger()) return state.setAndContinue(SIT);
 
-		if (isChargingKi && !isBlocking && !isTransforming) {
+		if (isChargingKi && !isMoving && !isBlocking) {
 			boolean surgeCharging = data.getStatus().isKiBurstArmed() || data.getStatus().isSurgeActive();
-			RawAnimation charge = surgeCharging ? KI_OVERCHARGE : kiChargeFor(data.getCharacter().getRaceName());
-			if (dragonminez$chargeAnim != charge) {
-				state.getController().setAnimation(charge);
-				state.getController().forceAnimationReset();
-				dragonminez$chargeAnim = charge;
-			}
-			return PlayState.CONTINUE;
+			return state.setAndContinue(surgeCharging ? KI_OVERCHARGE : kiChargeFor(data.getCharacter().getRaceName()));
 		}
-		dragonminez$chargeAnim = null;
 
 		if (isTransforming && actionMode.equals(ActionMode.FORM)) {
 			if (nextFormConfig != null && nextFormConfig.hasTransformationAnimation()) {
-				return state.setAndContinue(transformationFor(nextFormConfig.getTransformationAnimation()));
+				return state.setAndContinue(AnimationCache.getPlay(nextFormConfig.getTransformationAnimation()));
 			}
 			if (nextForm.contains("ozaru")) return state.setAndContinue(OOZARU_TRANSFORMATION);
 			return state.setAndContinue(TRANSFORMATION);
 		} else if (isTransforming && actionMode.equals(ActionMode.STACK)) {
 			if (nextStackFormConfig != null && nextStackFormConfig.hasTransformationAnimation()) {
-				return state.setAndContinue(transformationFor(nextStackFormConfig.getTransformationAnimation()));
+				return state.setAndContinue(AnimationCache.getPlay(nextStackFormConfig.getTransformationAnimation()));
 			}
 			return state.setAndContinue(TRANSFORMATION);
 		} else if (isTransforming && actionMode.equals(ActionMode.RACIAL)) {
@@ -476,7 +438,6 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	@Unique
 	private <T extends GeoAnimatable> PlayState kiPredicate(AnimationState<T> state) {
 		AbstractClientPlayer player = (AbstractClientPlayer) (Object) this;
-		if (dragonminez$inPreview(player)) return PlayState.STOP;
 		boolean transforming = StatsProvider.get(StatsCapability.INSTANCE, player)
 				.map(data -> data.getStatus().isActionCharging()).orElse(false);
 
