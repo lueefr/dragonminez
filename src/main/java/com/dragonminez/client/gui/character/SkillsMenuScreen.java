@@ -1714,17 +1714,13 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 
 		int adjustedScale = getAdjustedModelScale(scale);
 
-		float headY = y - player.getBbHeight() * adjustedScale * 0.85f;
-		float xRotation = (float) Math.atan((double) (headY - mouseY) / 40.0F);
+		float xRotation = (float) Math.atan((double) ((float) y - mouseY) / 40.0F);
 		float yRotation = (float) Math.atan((double) ((float) x - mouseX) / 40.0F);
 
 		Quaternionf pose = (new Quaternionf()).rotateZ((float) Math.PI);
 		Quaternionf cameraOrientation = (new Quaternionf()).rotateX(xRotation * 20.0F * ((float) Math.PI / 180F));
 		pose.mul(cameraOrientation);
 
-		float bodyOld = player.yBodyRotO;
-		float yawOld = player.yRotO;
-		float pitchOld = player.xRotO;
 		float yBodyRotO = player.yBodyRot;
 		float yRotO = player.getYRot();
 		float xRotO = player.getXRot();
@@ -1737,10 +1733,6 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 		player.yHeadRot = player.getYRot();
 		player.yHeadRotO = player.getYRot();
 
-		player.yBodyRotO = player.yBodyRot;
-		player.yRotO = player.getYRot();
-		player.xRotO = player.getXRot();
-
 		graphics.pose().pushPose();
 		graphics.pose().translate(0.0D, 0.0D, 150.0D);
 		DMZSkinLayer.PREVIEW_MODE = character != null;
@@ -1750,9 +1742,6 @@ public class SkillsMenuScreen extends BaseMenuScreen {
 			DMZSkinLayer.PREVIEW_MODE = false;
 			graphics.pose().popPose();
 
-			player.yBodyRotO = bodyOld;
-			player.yRotO = yawOld;
-			player.xRotO = pitchOld;
 			player.yBodyRot = yBodyRotO;
 			player.setYRot(yRotO);
 			player.setXRot(xRotO);
