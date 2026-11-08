@@ -1,0 +1,68 @@
+name: DragonMineZ Vehicle and Space Pod Prerelease
+
+on:
+  push:
+    branches:
+      - fix/vehicle-seats-spacepod-travel
+    paths:
+      - 'src/main/java/com/dragonminez/common/init/entities/vehicle/**'
+      - 'src/main/java/com/dragonminez/common/spacepod/**'
+      - 'src/main/java/com/dragonminez/common/network/C2S/TravelToPlanetC2S.java'
+      - 'src/main/java/com/dragonminez/client/render/DMZPlayerRenderer.java'
+      - 'src/main/java/com/dragonminez/client/model/DMZPlayerModel.java'
+      - 'src/main/java/com/dragonminez/gametest/SpacePodGameTests.java'
+      - '.github/workflows/vehicle-spacepod-prerelease.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vehicle-spacepod-prerelease
+  cancel-in-progress: true
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: gradle/actions/wrapper-validation@v6
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Audit source and tests
+        run: |
+          python3 scripts/audit-player-text.py
+          python3 -m unittest discover -s scripts/tests -v
+      - name: Compile and test
+        run: |
+          chmod +x gradlew
+          ./gradlew build --build-cache
+          python3 scripts/check-packaged-resources.py build/libs/*.jar
+      - name: Publish verified development jar
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1)"
+          jar="build/libs/dragonminez-1.21.1-${version}.jar"
+          test -s "$jar"
+          jar tf "$jar" | grep -q '^com/dragonminez/common/spacepod/SpacePodDestinationRegistry.class$'
+          jar tf "$jar" | grep -q '^com/dragonminez/common/init/entities/vehicle/VehicleEntity.class$'
+          head_sha="$(git ls-remote origin refs/heads/fix/vehicle-seats-spacepod-travel | cut -f1)"
+          if [[ "$head_sha" != "$GITHUB_SHA" ]]; then
+            echo "Skipping superseded commit"
+            exit 0
+          fi
+          short_sha="${GITHUB_SHA:0:12}"
+          tag="dev-vehicle-spacepod-${short_sha}"
+          name="dragonminez-1.21.1-${version}-vehicle-spacepod-${short_sha}.jar"
+          gh release create "$tag" "$jar#$name" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "DragonMineZ Vehicle and Space Pod ${short_sha}" \
+            --notes "Development jar from fix/vehicle-seats-spacepod-travel (${GITHUB_SHA}). Gradle build and tests passed. In-game visual and dimensional GameTests still require Minecraft validation." \
+            --prerelease
