@@ -16,11 +16,5 @@ public abstract class FormNameFontMixin {
         Integer result=FormNameText.draw((Font)(Object)this,text,x,y,color,shadow,matrix,buffers,mode,background,light);
         if(result!=null)cir.setReturnValue(result);
     }
-    @Inject(method="drawInBatch(Ljava/lang/String;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;IIZ)I",at=@At("HEAD"),cancellable=true)
-    private void dragonminez$literalNames(String text,float x,float y,int color,boolean shadow,Matrix4f matrix,MultiBufferSource buffers,Font.DisplayMode mode,int background,int light,boolean bidi,CallbackInfoReturnable<Integer> cir) {
-        if(FormNameText.drawing()||!FormNameText.modScreen()||text==null)return;
-        var annotated=com.dragonminez.client.text.FormNamePalette.annotate(net.minecraft.locale.Language.getInstance().getVisualOrder(net.minecraft.network.chat.FormattedText.of(text)));
-        if(annotated!=null)cir.setReturnValue(((Font)(Object)this).drawInBatch(annotated,x,y,color,shadow,matrix,buffers,mode,background,light));
-    }
 
 }
