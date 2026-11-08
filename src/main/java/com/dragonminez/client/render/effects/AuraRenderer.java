@@ -58,7 +58,7 @@ public class AuraRenderer {
         int budget=128;
         for(var entry:AURA_CACHE.entrySet()){
             var data=entry.getValue();
-            if(data.lastLayers==null||data.alphaProgress<=.001||data.seal.factor()<=.001||mc.level.getGameTime()-LAST_RENDER_TIME.getOrDefault(entry.getKey(),Long.MIN_VALUE/2)>2)continue;
+            if(data.lastLayers==null||data.alphaProgress<=.001||data.seal.factor()<=.001||mc.level.getGameTime()-LAST_RENDER_TIME.getOrDefault(entry.getKey(),Long.MIN_VALUE/2)>40)continue;
             var entity=mc.level.getEntity(entry.getKey());
             if(!(entity instanceof Player player)||!player.getUUID().equals(data.typeOwner)||player.distanceToSqr(mc.player)>128*128)continue;
             int count=0;
@@ -938,10 +938,6 @@ public class AuraRenderer {
 		CachedAuraData data = AURA_CACHE.computeIfAbsent(playerId, k -> new CachedAuraData());
 		long gameTime = player.level().getGameTime();
 
-		if (gameTime - LAST_RENDER_TIME.getOrDefault(playerId, 0L) > 2) {
-			data.alphaProgress = 0.0f;
-			data.growth = 0.0f;
-		}
 		LAST_RENDER_TIME.put(playerId, gameTime);
 
 		if (data.alphaProgress < 1.0f) {
@@ -992,10 +988,6 @@ public class AuraRenderer {
 		CachedAuraData data = AURA_CACHE.computeIfAbsent(playerId, k -> new CachedAuraData());
 		long gameTime = player.level().getGameTime();
 
-		if (gameTime - LAST_RENDER_TIME.getOrDefault(playerId, 0L) > 2) {
-			data.alphaProgress = 0.0f;
-			data.growth = 0.0f;
-		}
 		LAST_RENDER_TIME.put(playerId, gameTime);
 
 		if (data.alphaProgress < 1.0f) {
@@ -1669,9 +1661,6 @@ public class AuraRenderer {
 		int playerId = player.getId();
 		long gameTime = player.level().getGameTime();
 
-		if (gameTime - PULSE_LAST_RENDER_TIME.getOrDefault(playerId, 0L) > 2) {
-			PULSE_PROGRESS.put(playerId, 0.0f);
-		}
 		PULSE_LAST_RENDER_TIME.put(playerId, gameTime);
 
 		float currentProgress = PULSE_PROGRESS.getOrDefault(playerId, 0.0f);
