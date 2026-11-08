@@ -74,10 +74,7 @@ public class BaseAnimations {
 	public static final RawAnimation STUNNED = RawAnimation.begin().thenLoop("base.stunned");
 
 	public static RawAnimation transformationFor(String name) {
-		if ("transf.generic".equals(name) || "transf.ssj".equals(name) || "transf.freezer2".equals(name)) {
-			return AnimationCache.getLoop(name);
-		}
-		return AnimationCache.getPlayAndHold(name);
+		return AnimationCache.getLoop(name);
 	}
 
 	public static RawAnimation kiChargeFor(String race) {
