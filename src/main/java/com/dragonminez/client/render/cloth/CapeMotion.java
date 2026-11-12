@@ -52,6 +52,14 @@ public final class CapeMotion {
             for (int i=0;i<3;i++) { state.angle[i]=Math.max(state.angle[i],.025f-sum); sum+=state.angle[i]; }
             state.pending -= step;
         }
-        return new float[]{state.angle[segment], state.side*(segment+1)/3};
+        return rotation(state.angle, state.side, segment);
     }
+    /** Gecko's cape bones use negative X for motion away from the wearer's back. */
+    public static float[] rotation(float[] angles, float side, int segment) {
+        // Keep the shoulder seam attached. Rolling that seam swings its wide corners
+        // through the torso even when the centre of the cape points backwards.
+        float roll = segment == 0 ? 0 : Mth.clamp(side * segment / 3, -.12f, .12f);
+        return new float[]{-angles[segment], roll};
+    }
+
 }
