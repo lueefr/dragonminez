@@ -68,6 +68,25 @@ public final class TransformationMaskBufferSource implements MultiBufferSource {
 		this.packedB = packChannel(primaryB, secondaryB);
 	}
 
+	/** Submit one geometry stream to the visible pass and every nested contour mask.
+	 * Capture flags are scoped to obtaining the consumer, never leaked to later FX layers. */
+	public VertexConsumer captureBuffer(RenderType renderType) {
+		boolean enabled = this.maskCaptureEnabled;
+		boolean blocked = this.maskCaptureBlocked;
+		MultiBufferSource original = this.delegate;
+		this.maskCaptureEnabled = true;
+		this.maskCaptureBlocked = false;
+		if (original instanceof TransformationMaskBufferSource inner)
+			this.delegate = inner::captureBuffer;
+		try {
+			return getBuffer(renderType);
+		} finally {
+			this.delegate = original;
+			this.maskCaptureEnabled = enabled;
+			this.maskCaptureBlocked = blocked;
+		}
+	}
+
 	@Override
 	public VertexConsumer getBuffer(RenderType renderType) {
 		boolean capture = !this.maskCaptureBlocked && (this.maskCaptureEnabled || this.forceCaptureAll);

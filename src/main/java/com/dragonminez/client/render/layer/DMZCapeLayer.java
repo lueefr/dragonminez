@@ -35,6 +35,17 @@ public class DMZCapeLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
     }
 
     @Override
+    public void renderForBone(PoseStack stack, T player, GeoBone bone, RenderType type,
+            MultiBufferSource source, VertexConsumer buffer, float partial, int light, int overlay) {
+        capeRenderer.clothSource(source, partial);
+        try {
+            super.renderForBone(stack, player, bone, type, source, buffer, partial, light, overlay);
+        } finally {
+            capeRenderer.clothSource(null, 0);
+        }
+    }
+
+    @Override
     protected @Nullable ItemStack getArmorItemForBone(GeoBone bone, T animatable) {
         if (!"armorBody".equals(bone.getName())) return null;
 

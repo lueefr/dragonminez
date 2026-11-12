@@ -19,18 +19,35 @@ public class ArmorCapeRenderer extends GeoArmorRenderer<DbzArmorCapeItem> {
     }
 
     private float clothPartial, clothTextureU;
+    private MultiBufferSource clothSource;
+
+    public void clothSource(@Nullable MultiBufferSource source, float partial) {
+        clothSource = source;
+        clothPartial = partial;
+    }
+
+    @Override
+    public void prepForRender(net.minecraft.world.entity.Entity entity, net.minecraft.world.item.ItemStack item,
+            net.minecraft.world.entity.EquipmentSlot slot, net.minecraft.client.model.HumanoidModel<?> model) {
+        // GeckoLib's four-argument overload replaces the layer source with the
+        // global buffer, losing the player's nested outline/mask consumers.
+        if (clothSource != null)
+            super.prepForRender(entity, item, slot, model, clothSource, clothPartial, 0, 0, 0, 0);
+        else
+            super.prepForRender(entity, item, slot, model);
+    }
+
 
     @Override
     public void renderRecursively(com.mojang.blaze3d.vertex.PoseStack stack, DbzArmorCapeItem item,
             software.bernie.geckolib.cache.object.GeoBone bone, RenderType type, MultiBufferSource source,
             com.mojang.blaze3d.vertex.VertexConsumer buffer, boolean rerender, float partial, int light, int overlay, int color) {
         if (bone.getName().startsWith("cape")) return;
-        clothPartial = partial;
-        clothTextureU = com.dragonminez.client.render.cloth.CapeCloth.textureU(getTextureLocation(item));
-        if (source instanceof com.dragonminez.client.render.shader.TransformationMaskBufferSource mask) {
-            mask.setMaskCaptureEnabled(true);
-            mask.setMaskCaptureBlocked(false);
-            buffer = source.getBuffer(type);
+        if ("armorBody".equals(bone.getName())) {
+            clothPartial = partial;
+            clothTextureU = com.dragonminez.client.render.cloth.CapeCloth.textureU(getTextureLocation(item));
+            if (source instanceof com.dragonminez.client.render.shader.TransformationMaskBufferSource mask)
+                buffer = mask.captureBuffer(type);
         }
         super.renderRecursively(stack, item, bone, type, source, buffer, rerender, partial, light, overlay, color);
     }
@@ -55,6 +72,6 @@ public class ArmorCapeRenderer extends GeoArmorRenderer<DbzArmorCapeItem> {
 
     @Override
     public RenderType getRenderType(DbzArmorCapeItem animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.armorCutoutNoCull(texture);
+        return RenderType.entityCutout(texture);
     }
 }
