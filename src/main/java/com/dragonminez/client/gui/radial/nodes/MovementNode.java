@@ -35,6 +35,8 @@ public class MovementNode extends CategoryNode {
 				(s, was) -> NetworkHandler.sendToServer(new UpdateSkillC2S(UpdateSkillC2S.SkillAction.TOGGLE, "sprint", 0))
 		));
 
+		out.add(new MovementLimitNode(false));
+		out.add(new MovementLimitNode(true));
 		return out;
 	}
 }

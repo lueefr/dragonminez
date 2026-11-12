@@ -139,7 +139,7 @@ public class DMZRenderHand extends LivingEntityRenderer<AbstractClientPlayer, Pl
         float armWidth = bodyShape.get(com.dragonminez.common.stats.character.BodyShape.Part.ARM_WIDTH);
         float frameWidth = bodyShape.frame() == 1 || (bodyShape.frame() < 0 && "slim".equals(pPlayer.getSkin().model().id())) ? .75f : 1f;
         pRendererArm.xScale = pRendererArmwear.xScale = armWidth * frameWidth;
-        pRendererArm.zScale = pRendererArmwear.zScale = armWidth;
+        pRendererArm.zScale = pRendererArmwear.zScale = bodyShape.get(com.dragonminez.common.stats.character.BodyShape.Part.ARM_DEPTH);
 
 
 		String raceName = stats.getCharacter().getRaceName().toLowerCase();

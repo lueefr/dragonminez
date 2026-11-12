@@ -69,7 +69,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
      */
     @Override
     protected float castClearanceRadius() {
-        return this.isFiring() ? this.getSize() * 1.65F : this.getCastSize() * 1.65F;
+        return this.isFiring() ? this.getSize() * 3.2F : this.getCastSize() * 1.5F;
     }
 
     private float calcWaveForwardOffset(LivingEntity owner) {
@@ -380,7 +380,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
     public void setupMouthBlastPlayer(LivingEntity owner, float damage, float speed, int color, int colorBorder, float size) {
         this.setKiRenderType(0);
         this.setSize(size);
-        this.setCastSize(size / 2);
+        this.setCastSize(.2F * ownerScaleOf(owner));
         this.setKiDamage(damage);
         this.setKiSpeed(speed);
         this.setColors(color, colorBorder, 0xFFFFFF);
@@ -509,6 +509,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         }
 
         this.setPos(newPos.x, newPos.y, newPos.z);
+        if (!isCasting) castPlane(newPos.subtract(look.scale(castClearanceRadius())), look);
 
         if(!isCasting&&!this.level().isClientSide)look=com.dragonminez.common.combat.aim.KiAim.direction(owner,newPos);
         float horizontalDistance = (float) Math.sqrt(look.x * look.x + look.z * look.z);
@@ -577,6 +578,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
 
     @Override
     public void tick() {
+        if (!level().isClientSide && !com.dragonminez.common.combat.logic.player.KiChargeTracker.validate(this)) { discard(); return; }
         growCharge();
         this.baseTick();
         this.setDeltaMovement(0, 0, 0);

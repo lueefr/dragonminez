@@ -456,11 +456,26 @@ public abstract class AbstractKiProjectile extends Projectile {
         Vec3 up = new Vec3(0, 1, 0);
         Vec3 right = forward.cross(up);
         boolean overhead = offsetY >= 1.3F && Math.abs(offsetZ) < .05F;
-        float radius = castClearanceRadius();
+        float radius = heldClearance();
         return right.scale(offsetX * ownerWidthScale(owner))
                 .add(up.scale(offsetY * ownerScaleOf(owner) + (overhead ? radius : 0)))
                 .add(forward.scale(offsetZ * ownerWidthScale(owner) + (overhead ? 0 : radius)));
     }
+
+    private float heldRadius = -1;
+    protected float heldClearance() {
+        if(heldRadius<0)heldRadius=castClearanceRadius();
+        return Math.max(0,castClearanceRadius()-heldRadius);
+    }
+
+    protected Vec3 planeOrigin;
+    protected Vec3 planeNormal;
+    public void castPlane(Vec3 origin, Vec3 normal) {
+        if (normal.lengthSqr() < 1e-8) return;
+        planeOrigin = origin; planeNormal = normal.normalize();
+    }
+    public Vec3 planeOrigin() { return planeOrigin; }
+    public Vec3 planeNormal() { return planeNormal; }
 
     /**
      * Places a cast offset on a caster of any size.
@@ -510,6 +525,7 @@ public abstract class AbstractKiProjectile extends Projectile {
 
     protected boolean canKiDestroyBlock(BlockPos pos) {
         if (!this.blockDestructionEnabled) return false;
+        if (planeOrigin != null && Vec3.atCenterOf(pos).subtract(planeOrigin).dot(planeNormal) < .87) return false;
         Entity caster = getOwner();
         if (caster != null && caster.getBoundingBox().inflate(0.75, 1.0, 0.75).contains(Vec3.atCenterOf(pos))) return false;
         BlockState state = this.level().getBlockState(pos);
@@ -551,7 +567,7 @@ public abstract class AbstractKiProjectile extends Projectile {
 
     protected void carveKiSphere(BlockPos center, float innerRadius, float radius, int flags) {
         if (!this.blockDestructionEnabled || radius <= 0.0F || !(this.level() instanceof ServerLevel serverLevel)) return;
-        KiTerrainDestruction.carve(serverLevel, center, innerRadius, radius, flags, this.getKiGriefingSource());
+        KiTerrainDestruction.carve(serverLevel, center, innerRadius, radius, flags, this.getKiGriefingSource(), planeOrigin, planeNormal);
     }
 
     private transient BlockPos lastEatCenter;
@@ -559,7 +575,7 @@ public abstract class AbstractKiProjectile extends Projectile {
 
     protected boolean eatKiSphere(BlockPos center, float radius) {
         if (!this.blockDestructionEnabled || radius <= 0.0F || !(this.level() instanceof ServerLevel serverLevel)) return false;
-        boolean ate = KiTerrainDestruction.eat(serverLevel, center, radius, this.lastEatCenter, this.lastEatRadius, this.getKiGriefingSource());
+        boolean ate = KiTerrainDestruction.eat(serverLevel, center, radius, this.lastEatCenter, this.lastEatRadius, this.getKiGriefingSource(), planeOrigin, planeNormal);
         this.lastEatCenter = center.immutable();
         this.lastEatRadius = radius;
         return ate;
@@ -693,7 +709,8 @@ public abstract class AbstractKiProjectile extends Projectile {
                 chargeSize = getSize() - donated;
                 if (this instanceof KiWaveEntity wave) chargeCast = wave.getCastSize();
             }
-            float growth = Math.max(1, Math.min(KiAttackData.maxCharge(), stats.getTechniques().getTechniqueChargePercent()) / 100.0f);
+            boolean scales = ConfigManager.getTechniqueConfig().scalesOvercharge() && level().getGameRules().getBoolean(MainGameRules.OVERCHARGE_GROWTH);
+            float growth = scales ? Math.max(1, Math.min(KiAttackData.maxCharge(), stats.getTechniques().getTechniqueChargePercent()) / 100.0f) : 1;
             float size = chargeSize * growth + donated;
             if (getSize() != size) setSize(size);
             if (this instanceof KiWaveEntity wave) wave.setCastSize(chargeCast * growth);
@@ -702,6 +719,7 @@ public abstract class AbstractKiProjectile extends Projectile {
 
     @Override
     public void tick() {
+        if (!level().isClientSide && !com.dragonminez.common.combat.logic.player.KiChargeTracker.validate(this)) { discard(); return; }
         growCharge();
         if (!this.level().isClientSide) {
             Entity owner = this.getOwner();
@@ -844,6 +862,11 @@ public abstract class AbstractKiProjectile extends Projectile {
         pCompound.putBoolean("IsHeal", isHeal());
         pCompound.putBoolean("IsFiring", isFiring());
         pCompound.putInt("FireTick", getFireTick());
+        pCompound.putFloat("HeldRadius",heldRadius);
+        if(planeOrigin!=null && planeNormal!=null) {
+            pCompound.putDouble("PlaneX",planeOrigin.x);pCompound.putDouble("PlaneY",planeOrigin.y);pCompound.putDouble("PlaneZ",planeOrigin.z);
+            pCompound.putDouble("PlaneNX",planeNormal.x);pCompound.putDouble("PlaneNY",planeNormal.y);pCompound.putDouble("PlaneNZ",planeNormal.z);
+        }
     }
 
     @Override
@@ -861,6 +884,9 @@ public abstract class AbstractKiProjectile extends Projectile {
         if (pCompound.contains("IsHeal")) setHeal(pCompound.getBoolean("IsHeal"));
         if (pCompound.contains("IsFiring")) setFiring(pCompound.getBoolean("IsFiring"));
         if (pCompound.contains("FireTick")) setFireTick(pCompound.getInt("FireTick"));
+        if(pCompound.contains("HeldRadius"))heldRadius=pCompound.getFloat("HeldRadius");
+        if(pCompound.contains("PlaneX"))castPlane(new Vec3(pCompound.getDouble("PlaneX"),pCompound.getDouble("PlaneY"),pCompound.getDouble("PlaneZ")),
+                new Vec3(pCompound.getDouble("PlaneNX"),pCompound.getDouble("PlaneNY"),pCompound.getDouble("PlaneNZ")));
     }
 
     @Override

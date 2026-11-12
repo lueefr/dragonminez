@@ -112,21 +112,22 @@ public final class CapeBodyColliders {
     public void neutral(BodyShape shape,float pitch,float yaw) {
         bodyInverse.identity();
         float torso=shape.get(BodyShape.Part.TORSO_HEIGHT),width=shape.get(BodyShape.Part.TORSO_WIDTH);
+        float depth=shape.get(BodyShape.Part.TORSO_DEPTH);
         float head=shape.get(BodyShape.Part.HEAD),legs=shape.get(BodyShape.Part.LEGS),arms=shape.get(BodyShape.Part.ARMS);
         // The render attachment inherits torso scaling, so collider coordinates divide it out.
         relative.identity().translation(0,-24.25f,-2.3f);
         low(0,-4,12,-2,4,24,2);box(0,relative,volumes[0].low,volumes[0].high);
-        relative.identity().translation(0,-.25f,-2.3f).scale(1/width,1/torso,1)
-                .rotateY(yaw).rotateX(-pitch).scale(head);
+        relative.identity().translation(0,-.25f,-2.3f).scale(1/width,1/torso,1/depth)
+                .rotateY(yaw).rotateX(-pitch).scale(head*shape.get(BodyShape.Part.HEAD_WIDTH),head*shape.get(BodyShape.Part.HEAD_HEIGHT),head*shape.get(BodyShape.Part.HEAD_DEPTH));
         low(1,-4,0,-4,4,8,4);box(1,relative,volumes[1].low,volumes[1].high);
         for(int side=0;side<2;side++) {
             float x=side==0?-2:2;
             relative.identity().translation(x/width,-12.25f,-2.3f)
-                    .scale(shape.get(BodyShape.Part.LEG_WIDTH)/width,legs/torso,shape.get(BodyShape.Part.LEG_WIDTH));
+                    .scale(shape.get(BodyShape.Part.LEG_WIDTH)/width,legs/torso,shape.get(BodyShape.Part.LEG_DEPTH)/depth);
             low(2+side,-2,-12,-2,2,0,2);limb(2+side,relative,volumes[2+side].low,volumes[2+side].high);
             float armWidth=shape.get(BodyShape.Part.ARM_WIDTH);
             relative.identity().translation((side==0?-5:5),-2.25f,-2.3f)
-                    .scale(armWidth/width,arms/torso,armWidth);
+                    .scale(armWidth/width,arms/torso,shape.get(BodyShape.Part.ARM_DEPTH)/depth);
             low(4+side,-(shape.frame()==1?1.5f:2),-10,-2,shape.frame()==1?1.5f:2,2,2);
             limb(4+side,relative,volumes[4+side].low,volumes[4+side].high);
         }
@@ -253,12 +254,12 @@ public final class CapeBodyColliders {
         float x=bone.getPosX(),y=bone.getPosY(),z=bone.getPosZ();
         float torso=shape.get(BodyShape.Part.TORSO_HEIGHT),width=shape.get(BodyShape.Part.TORSO_WIDTH);
         switch(bone.getName()) {
-            case "body" -> {sx*=width;sy*=torso;y+=12*(torso-1);}
-            case "head" -> {float size=shape.get(BodyShape.Part.HEAD);sx*=size;sy*=size;sz*=size;y+=12*(torso-1);}
+            case "body" -> {sx*=width;sy*=torso;sz*=shape.get(BodyShape.Part.TORSO_DEPTH);y+=12*(torso-1);}
+            case "head" -> {float size=shape.get(BodyShape.Part.HEAD);sx*=size*shape.get(BodyShape.Part.HEAD_WIDTH);sy*=size*shape.get(BodyShape.Part.HEAD_HEIGHT);sz*=size*shape.get(BodyShape.Part.HEAD_DEPTH);y+=12*(torso-1);}
             case "waist" -> y+=12*(shape.get(BodyShape.Part.LEGS)-1);
-            case "right_leg","left_leg" -> {sy*=shape.get(BodyShape.Part.LEGS);sx*=shape.get(BodyShape.Part.LEG_WIDTH);sz*=shape.get(BodyShape.Part.LEG_WIDTH);y+=12*(shape.get(BodyShape.Part.LEGS)-1);}
+            case "right_leg","left_leg" -> {sy*=shape.get(BodyShape.Part.LEGS);sx*=shape.get(BodyShape.Part.LEG_WIDTH);sz*=shape.get(BodyShape.Part.LEG_DEPTH);y+=12*(shape.get(BodyShape.Part.LEGS)-1);}
             case "right_arm","left_arm" -> {
-                sy*=shape.get(BodyShape.Part.ARMS);sx*=shape.get(BodyShape.Part.ARM_WIDTH);sz*=shape.get(BodyShape.Part.ARM_WIDTH);
+                sy*=shape.get(BodyShape.Part.ARMS);sx*=shape.get(BodyShape.Part.ARM_WIDTH);sz*=shape.get(BodyShape.Part.ARM_DEPTH);
                 x+=(bone.getName().equals("right_arm")?-5:5)*(width-1);y+=12*(torso-1);
                 if(shape.frame()>=0) {
                     float low=Float.POSITIVE_INFINITY,high=Float.NEGATIVE_INFINITY;

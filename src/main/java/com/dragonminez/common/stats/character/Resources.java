@@ -23,6 +23,8 @@ public class Resources {
     private int release;
     private int releaseLimit;
     private int flightSpeedLimit;
+    private int sprintLimit = 100;
+    private int jumpLimit = 100;
     private int actionCharge;
     private int alignment;
     private double trainingPoints;
@@ -40,6 +42,8 @@ public class Resources {
         this.release = 5;
         this.releaseLimit = 0;
         this.flightSpeedLimit = 100;
+        this.sprintLimit = 100;
+        this.jumpLimit = 100;
         this.actionCharge = 0;
         this.alignment = 100;
         this.trainingPoints = 0;
@@ -56,6 +60,8 @@ public class Resources {
         this.release = 5;
         this.releaseLimit = 0;
         this.flightSpeedLimit = 100;
+        this.sprintLimit = 100;
+        this.jumpLimit = 100;
         this.actionCharge = 0;
         this.alignment = 100;
         this.racialSkillCount = 0;
@@ -250,6 +256,10 @@ public class Resources {
         this.flightSpeedLimit = flightSpeedLimit <= 0 ? 100 : Math.min(100, flightSpeedLimit);
     }
 
+    public static int movementLimit(int value) { return Math.max(5, Math.min(100, value / 5 * 5)); }
+    public void setSprintLimit(int value) { sprintLimit = movementLimit(value); }
+    public void setJumpLimit(int value) { jumpLimit = movementLimit(value); }
+
     public void removeAlignment(int amount) { setAlignment(alignment - amount); }
     public void removeTrainingPoints(float amount) { setTrainingPointsExact(trainingPoints - amount); }
 
@@ -263,6 +273,8 @@ public class Resources {
         tag.putInt("Release", release);
         tag.putInt("ReleaseLimit", releaseLimit);
         tag.putInt("FlightSpeed", flightSpeedLimit);
+        tag.putInt("SprintLimit", sprintLimit);
+        tag.putInt("JumpLimit", jumpLimit);
         tag.putInt("FormRelease", actionCharge);
         tag.putInt("Alignment", alignment);
         tag.putDouble("TrainingPointsD", trainingPoints);
@@ -288,6 +300,8 @@ public class Resources {
         this.release = tag.getInt("Release");
         this.releaseLimit = tag.getInt("ReleaseLimit");
         setFlightSpeedLimit(tag.contains("FlightSpeed") ? tag.getInt("FlightSpeed") : 100);
+        setSprintLimit(tag.contains("SprintLimit") ? tag.getInt("SprintLimit") : 100);
+        setJumpLimit(tag.contains("JumpLimit") ? tag.getInt("JumpLimit") : 100);
         this.actionCharge = tag.getInt("FormRelease");
         this.alignment = tag.getInt("Alignment");
 
@@ -309,6 +323,8 @@ public class Resources {
         this.release = other.release;
         this.releaseLimit = other.releaseLimit;
         this.flightSpeedLimit = other.flightSpeedLimit;
+        this.sprintLimit = other.sprintLimit;
+        this.jumpLimit = other.jumpLimit;
         this.actionCharge = other.actionCharge;
         this.alignment = other.alignment;
         this.trainingPoints = other.trainingPoints;

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainGameRules {
+    public static final GameRules.Key<GameRules.BooleanValue> OVERCHARGE_GROWTH = GameRules.register("dmzOverchargeGrowth", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
     public static final GameRules.Key<GameRules.BooleanValue> CLOTHING_TOP =
             GameRules.register("dmzClothingHidesTop", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true, (server, value) -> {
                 for (ServerPlayer player : server.getPlayerList().getPlayers())

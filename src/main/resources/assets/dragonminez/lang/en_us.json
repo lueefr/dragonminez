@@ -1,4 +1,6 @@
 {
+  "gui.dragonminez.radial.jump_limit": "Jump height limit",
+  "gui.dragonminez.radial.sprint_limit": "Sprint speed limit",
   "message.dragonminez.seed.otherworld": "Otherworld requires real terrain; seed approximation is disabled.",
   "entity.dragonminez.energy_projection": "Energy Projection",
   "command.dragonminez.script.bindings": "Lua editor declarations written to %s.",
@@ -6986,5 +6988,19 @@
   "gui.dragonminez.body_editor.frame_value": "Body frame: %s",
   "gui.dragonminez.body_editor.leg_width": "Leg width",
   "gui.dragonminez.body_editor.arm_width": "Arm width",
-  "gui.dragonminez.body_editor.reset": "Reset proportions"
+  "gui.dragonminez.body_editor.reset": "Reset proportions",
+  "command.dragonminez.character.reset": "Reset %s character(s).",
+  "command.dragonminez.race.invalid": "Unknown or unavailable race: %s",
+  "command.dragonminez.race.set": "Set race to %s for %s character(s).",
+  "gui.dragonminez.body_editor.general": "General",
+  "gui.dragonminez.body_editor.head_group": "Head",
+  "gui.dragonminez.body_editor.torso_group": "Torso",
+  "gui.dragonminez.body_editor.arms_group": "Arms",
+  "gui.dragonminez.body_editor.legs_group": "Legs",
+  "gui.dragonminez.body_editor.head_width": "Head width X",
+  "gui.dragonminez.body_editor.head_depth": "Head depth Z",
+  "gui.dragonminez.body_editor.head_height": "Head height Y",
+  "gui.dragonminez.body_editor.torso_depth": "Torso depth Z",
+  "gui.dragonminez.body_editor.arm_depth": "Arm depth Z",
+  "gui.dragonminez.body_editor.leg_depth": "Leg depth Z"
 }

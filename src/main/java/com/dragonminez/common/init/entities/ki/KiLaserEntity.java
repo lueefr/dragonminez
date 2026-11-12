@@ -392,6 +392,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
 
     @Override
     public void tick() {
+        if (!level().isClientSide && !com.dragonminez.common.combat.logic.player.KiChargeTracker.validate(this)) { discard(); return; }
         growCharge();
         this.baseTick();
 

@@ -451,11 +451,14 @@ public class CharacterCustomizationScreen extends ScaledScreen {
             .onValueChange(v -> { character.getBodyShape().set(part,v/100f); syncCharacter(); }).build());
     }
     private void initShapeButton(int y) {
-        addRenderableWidget(new TexturedTextButton.Builder()
-            .position(LEFT_PANEL_X+12, Math.min(y, getUiHeight()/2+LEFT_PANEL_HEIGHT/2-28)).size(116,20)
-            .texture(BUTTONS_TEXTURE).textureCoords(0,28,0,48).textureSize(74,20)
-            .message(tr("gui.dragonminez.body_editor.title"))
-            .onPress(button -> minecraft.setScreen(new BodyEditorScreen(this,character,this::syncCharacter))).build());
+        int width=116,x=LEFT_PANEL_X+(LEFT_PANEL_WIDTH-width)/2;
+        int by=Math.min(y,getUiHeight()/2+LEFT_PANEL_HEIGHT/2-28);
+        addRenderableWidget(new net.minecraft.client.gui.components.Button(x,by,width,20,tr("gui.dragonminez.body_editor.title"),
+                button -> minecraft.setScreen(new BodyEditorScreen(this,character,this::syncCharacter)),supplier -> supplier.get()) {
+            @Override public void renderWidget(GuiGraphics graphics,int mx,int my,float partial) {
+                com.dragonminez.client.gui.hair.HairEditorUi.button(graphics,font,getMessage(),getX(),getY(),getWidth(),getHeight(),isHoveredOrFocused(),false,active);
+            }
+        });
     }
 
     void rotateBodyEditorPreview(double dx, double dy) {
@@ -1957,6 +1960,51 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		return uiMouseX >= startX && uiMouseX <= startX + width && uiMouseY >= startY && uiMouseY <= startY + height;
 	}
 
+    private final java.util.Map<ResourceLocation,com.google.gson.JsonArray> previewModels=new java.util.HashMap<>();
+    /** Fit actual rest geometry so miniature framing is independent of player height. */
+    @SuppressWarnings({"rawtypes","unchecked"})
+    private float[] previewBounds(LivingEntity player,boolean portrait) {
+        float lowX=Float.POSITIVE_INFINITY,highX=Float.NEGATIVE_INFINITY,lowY=Float.POSITIVE_INFINITY,highY=Float.NEGATIVE_INFINITY;
+        try {
+            var race=ConfigManager.getRaceCharacter(character.getRaceName());
+            var model=new com.dragonminez.client.model.DMZPlayerModel(character.getRaceName(),race==null?"":race.getCustomModel());
+            ResourceLocation path=model.getModelResource((net.minecraft.client.player.AbstractClientPlayer)player);
+            var bones=previewModels.get(path);
+            if(bones==null) {
+                try(var reader=Minecraft.getInstance().getResourceManager().openAsReader(path)) {
+                    bones=com.google.gson.JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("minecraft:geometry").get(0).getAsJsonObject().getAsJsonArray("bones");
+                    previewModels.put(path,bones);
+                }
+            }
+            var shape=character.getBodyShape();
+            var resolved=character.getResolvedModelScaling();
+            for(var element:bones) {
+                var bone=element.getAsJsonObject();String name=bone.get("name").getAsString();
+                if(portrait?!name.equals("head"):!java.util.Set.of("head","body","right_arm","left_arm","right_leg","left_leg").contains(name))continue;
+                if(!bone.has("cubes"))continue;
+                var pivot=bone.getAsJsonArray("pivot");
+                float px=pivot==null?0:pivot.get(0).getAsFloat(),py=pivot==null?0:pivot.get(1).getAsFloat();
+                float sx=1,sy=1,dx=0,dy=0;
+                float legs=shape.get(com.dragonminez.common.stats.character.BodyShape.Part.LEGS),torso=shape.get(com.dragonminez.common.stats.character.BodyShape.Part.TORSO_HEIGHT),width=shape.get(com.dragonminez.common.stats.character.BodyShape.Part.TORSO_WIDTH);
+                switch(name) {
+                    case "head" -> {sx=shape.get(com.dragonminez.common.stats.character.BodyShape.Part.HEAD)*shape.get(com.dragonminez.common.stats.character.BodyShape.Part.HEAD_WIDTH);sy=shape.get(com.dragonminez.common.stats.character.BodyShape.Part.HEAD)*shape.get(com.dragonminez.common.stats.character.BodyShape.Part.HEAD_HEIGHT);dy=12*(torso-1)+12*(legs-1);}
+                    case "body" -> {sx=width;sy=torso;dy=12*(torso-1)+12*(legs-1);}
+                    case "right_arm","left_arm" -> {sx=shape.get(com.dragonminez.common.stats.character.BodyShape.Part.ARM_WIDTH);sy=shape.get(com.dragonminez.common.stats.character.BodyShape.Part.ARMS);dx=(name.equals("left_arm")?5:-5)*(width-1);dy=12*(torso-1)+12*(legs-1);}
+                    case "right_leg","left_leg" -> {sx=shape.get(com.dragonminez.common.stats.character.BodyShape.Part.LEG_WIDTH);sy=legs;dy=12*(legs-1);}
+                }
+                for(var item:bone.getAsJsonArray("cubes")) {
+                    var cube=item.getAsJsonObject();var origin=cube.getAsJsonArray("origin");var size=cube.getAsJsonArray("size");
+                    float x=(px+(origin.get(0).getAsFloat()-px)*sx+dx)/16*resolved[0];
+                    float y=(py+(origin.get(1).getAsFloat()-py)*sy+dy)/16*resolved[1];
+                    lowX=Math.min(lowX,x);highX=Math.max(highX,x+size.get(0).getAsFloat()*sx/16*resolved[0]);
+                    lowY=Math.min(lowY,y);highY=Math.max(highY,y+size.get(1).getAsFloat()*sy/16*resolved[1]);
+                }
+            }
+        } catch(java.io.IOException|RuntimeException ignored) { }
+        if(!Float.isFinite(lowY)||highY<=lowY||highX<=lowX)return portrait?new float[]{.6f,.6f,1.65f}:new float[]{1,2,1};
+        return new float[]{Math.max(.05f,highX-lowX),Math.max(.05f,highY-lowY),(highY+lowY)*.5f};
+    }
+
 	private void renderPreviewModelVariant(GuiGraphics graphics, int cardX, int cardY, int x, int y, int scale, boolean headZoom, PreviewRenderMode mode, int value) {
 		LivingEntity player = Minecraft.getInstance().player;
 		if (player == null) return;
@@ -2057,7 +2105,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		player.yBodyRot = previewYaw;
 		player.yBodyRotO = previewYaw;
 		player.setYRot(previewYaw);
-		float previewPitch = headZoom ? 18.0f : 8.0f;
+		float previewPitch = 0;
 		player.setXRot(previewPitch);
 		player.xRotO = previewPitch;
 		player.yHeadRot = previewYaw;
@@ -2070,27 +2118,9 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		player.walkDist = 0.0F;
 		player.walkDistO = 0.0F;
 
-		int previewScale = switch (mode) {
-			case HAIR_ONLY -> Math.max(26, scale - 6);
-			case EYES_ONLY, NOSE_ONLY, MOUTH_ONLY -> scale + 16;
-			default -> scale;
-		};
-		if (mode == PreviewRenderMode.EYES_ONLY || mode == PreviewRenderMode.NOSE_ONLY || mode == PreviewRenderMode.MOUTH_ONLY)
-			previewScale = getNormalizedPreviewScale(player, previewScale);
-		else previewScale = getAdjustedModelScale(player, previewScale);
-
-		int previewY = 0;
-		switch (mode) {
-			case HAIR_ONLY -> {
-				if (ConfigManager.getRaceCharacter(character.getRace()) != null) {
-					if (Arrays.stream(ConfigManager.getRaceCharacter(character.getRace()).getHeadBones()).toList().contains("hair")) {
-						previewY = y + 36;
-					} else previewY = y + 28;
-				} else previewY = y + 36;
-			}
-			case EYES_ONLY, NOSE_ONLY, MOUTH_ONLY -> previewY = y + 58;
-			default -> previewY = y + 8;
-		}
+        float[] frame=previewBounds(player,headZoom);
+        int previewScale=Math.max(1,(int)Math.floor(Math.min((PREVIEW_CARD_WIDTH-8)/frame[0],(PREVIEW_CARD_HEIGHT-10)/frame[1])));
+        int previewY=Math.round(cardY+PREVIEW_CARD_HEIGHT*.5f+frame[2]*previewScale);
 
 		try {
 		graphics.enableScissor(

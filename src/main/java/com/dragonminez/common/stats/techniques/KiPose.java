@@ -27,6 +27,7 @@ public final class KiPose {
         if (projectile instanceof KiBlastEntity ball) ball.poseOffset(owner, pose);
         Vec3 offset = offset(pose, projectile.tickCount);
         if (offset == null) return;
+        if (pose.equals("ki.mouth_blast") && projectile instanceof KiWaveEntity) offset = new Vec3(0,-.25,.3);
         if (projectile instanceof KiWaveEntity wave) wave.setCastOffsets((float)offset.x, (float)offset.y, (float)offset.z);
         else if (projectile instanceof KiLaserEntity laser) laser.setCastOffsets((float)offset.x, (float)offset.y, (float)offset.z);
         else if (projectile instanceof KiDiskEntity disk) disk.setCastOffsets((float)offset.x, (float)offset.y, (float)offset.z);

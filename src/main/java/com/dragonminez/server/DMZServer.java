@@ -42,6 +42,7 @@ public class DMZServer {
 		RestoreCommand.register(dispatcher);
 		HairCommand.register(dispatcher);
 		ClassCommand.register(dispatcher);
+        CharacterCommand.register(dispatcher);
 		MinigameCommand.register(dispatcher);
 		TriggerCommand.register(dispatcher);
 

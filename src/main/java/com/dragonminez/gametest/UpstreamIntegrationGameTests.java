@@ -59,4 +59,26 @@ public final class UpstreamIntegrationGameTests {
         helper.succeed();
     }
 
+    @GameTest(template="port_vertical_empty")
+    public static void movementLimitsPersistClampAndRoundTrip(GameTestHelper helper) {
+        var resources = new com.dragonminez.common.stats.character.Resources();
+        resources.load(new net.minecraft.nbt.CompoundTag());
+        helper.assertTrue(resources.getSprintLimit() == 100 && resources.getJumpLimit() == 100, "Legacy movement defaults changed");
+        resources.setSprintLimit(43); resources.setJumpLimit(Integer.MIN_VALUE);
+        var copy = new com.dragonminez.common.stats.character.Resources(); copy.load(resources.save());
+        helper.assertTrue(copy.getSprintLimit() == 40 && copy.getJumpLimit() == 5, "Limits were not clamped/persisted");
+        copy.setJumpLimit(Integer.MAX_VALUE);
+        helper.assertTrue(copy.getJumpLimit() == 100, "Jump limit exceeded maximum");
+        var buffer = new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.buffer());
+        try {
+            new com.dragonminez.common.network.C2S.SetMovementLimitC2S(true, 45).encode(buffer);
+            var packet = new com.dragonminez.common.network.C2S.SetMovementLimitC2S(buffer);
+            helper.assertTrue(packet.jump() && packet.value() == 45, "Movement packet lost selection");
+        } finally { buffer.release(); }
+        double scale = com.dragonminez.common.flight.MovementLimits.jumpScale(25);
+        helper.assertTrue(Math.abs(scale * scale - 0.25) < 1e-8, "Jump height percentage uses linear velocity");
+        helper.assertTrue(com.dragonminez.common.flight.MovementLimits.jumpHeight(10, 1) > com.dragonminez.common.flight.MovementLimits.jumpHeight(1, 1), "Jump apex ignores skill level");
+        helper.succeed();
+    }
+
 }

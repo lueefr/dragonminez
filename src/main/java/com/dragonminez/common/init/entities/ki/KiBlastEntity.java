@@ -1020,7 +1020,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
     protected float castClearanceRadius() {
         if ((this.getKiRenderType() == RENDER_TRI_BEAM || this.getKiRenderType() == RENDER_SOUL_PUNISHER) && !this.isFiring()) return 0.0F;
         if (this.getKiRenderType() == 5) return this.getSize() * 0.5F;
-        return this.isAnchoredVolley() ? 0.0F : super.castClearanceRadius();
+        return this.isAnchoredVolley() ? 0.0F : this.getSize() * .5F;
     }
 
     public void toggleSokidanControl() {
@@ -1648,7 +1648,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
     }
 
     public void poseOffset(LivingEntity owner, String pose) {
-        float size = this.getSize();
+        float size = heldRadius<0?this.getSize():heldRadius*2*ownerScaleOf(owner);
         if ("ki.soul_punisher".equals(pose)) {
             this.setCastOffsets(-0.5F, 1.2F - halfBoxHeight(size) / ownerScaleOf(owner), 0.1F);
         } else if ("ki.neo_kikohu".equals(pose)) {
@@ -1657,6 +1657,9 @@ public class KiBlastEntity extends AbstractKiProjectile {
             this.setCastOffsets(0.0F, calcOverheadOffsetY(owner, size), 0.0F);
         }
     }
+
+    private float heldRadius = -1;
+    private float heldBox;
 
     private void updatePositionRelativeToOwner(LivingEntity owner) {
         if (this.isDetached()) return;
@@ -1677,6 +1680,25 @@ public class KiBlastEntity extends AbstractKiProjectile {
         double centerZ = owner.getZ();
 
         Vec3 newPos = new Vec3(centerX, centerY, centerZ).add(offset);
+        if (!isFiring() && !isAnchoredVolley() && getKiRenderType() != RENDER_TRI_BEAM) {
+            float radius = castClearanceRadius();
+            if (heldRadius < 0) { heldRadius = radius/ownerScaleOf(owner); heldBox = getBbHeight()*.5F/ownerScaleOf(owner); }
+            // Rebuild the authored small-charge centre, then preserve its near edge.
+            Vec3 bodyForward = Vec3.directionFromRotation(0,owner.yBodyRot);
+            Vec3 up = new Vec3(0,1,0);
+            Vec3 bodyRight = bodyForward.cross(up);
+            float ox=entityData.get(OFFSET_X), oy=entityData.get(OFFSET_Y), oz=entityData.get(OFFSET_Z);
+            boolean overhead = oy >= 1.3F && Math.abs(oz) < .05F;
+            Vec3 axis = overhead ? up : bodyForward;
+            Vec3 original = new Vec3(centerX,centerY+heldBox*ownerScaleOf(owner),centerZ)
+                    .add(bodyRight.scale(ox*ownerWidthScale(owner)))
+                    .add(up.scale(oy*ownerScaleOf(owner)))
+                    .add(bodyForward.scale(oz*ownerWidthScale(owner)));
+            Vec3 anchor = original.subtract(axis.scale(heldRadius*ownerScaleOf(owner)));
+            Vec3 centre = anchor.add(axis.scale(radius));
+            newPos = centre.subtract(0,getBbHeight()*.5,0);
+            castPlane(anchor,axis);
+        }
         this.setPos(newPos.x, newPos.y, newPos.z);
 
         this.setYRot(this.isFiring()?owner.getYRot():owner.yBodyRot);

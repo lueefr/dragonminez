@@ -65,16 +65,20 @@ public final class KiTerrainDestruction {
 		}
 	}
 
-	public static void carve(ServerLevel level, BlockPos center, float innerRadius, float radius, int flags, Entity source) {
+	public static void carve(ServerLevel level, BlockPos center, float innerRadius, float radius, int flags, Entity source) { carve(level,center,innerRadius,radius,flags,source,null,null); }
+	public static void carve(ServerLevel level, BlockPos center, float innerRadius, float radius, int flags, Entity source, Vec3 origin, Vec3 normal) {
 		if (radius <= 0.0F) return;
 		Job job = Job.create(level, new SphereRegion(center, innerRadius, radius, null, 0.0F), flags, Mode.CARVE, source);
-		if (job != null) submit(level, job);
+		if (job != null) { job.clipOrigin=origin; job.clipNormal=normal; submit(level, job); }
 	}
 
-	public static boolean eat(ServerLevel level, BlockPos center, float radius, BlockPos skipCenter, float skipRadius, Entity source) {
+	public static boolean eat(ServerLevel level, BlockPos center, float radius, BlockPos skipCenter, float skipRadius, Entity source) { return eat(level,center,radius,skipCenter,skipRadius,source,null,null); }
+	public static boolean eat(ServerLevel level, BlockPos center, float radius, BlockPos skipCenter, float skipRadius, Entity source, Vec3 origin, Vec3 normal) {
 		if (radius <= 0.0F) return false;
 		Job job = Job.create(level, new SphereRegion(center, 0.0F, radius, skipCenter, skipRadius), Block.UPDATE_CLIENTS, Mode.EAT, source);
-		if (job == null || !job.probe(level)) return false;
+		if (job == null) return false;
+		job.clipOrigin=origin; job.clipNormal=normal;
+		if (!job.probe(level)) return false;
 		submit(level, job);
 		return true;
 	}
@@ -383,6 +387,7 @@ public final class KiTerrainDestruction {
 	private static final class Job {
 		private final Region region;
 		private net.minecraft.world.phys.AABB casterBounds;
+		private Vec3 clipOrigin, clipNormal;
 		private final BoundingBox bounds;
 		private final int flags;
 		private final Mode mode;
@@ -482,6 +487,7 @@ public final class KiTerrainDestruction {
 						BlockState state = section.getBlockState(x & 15, y & 15, z & 15);
 						if (state.isAir()) continue;
 						cursor.set(x, y, z);
+						if (clipOrigin != null && Vec3.atCenterOf(cursor).subtract(clipOrigin).dot(clipNormal) < .87) continue;
 						if (casterBounds != null && casterBounds.contains(x+.5,y+.5,z+.5)) continue;
 						BlockState replacement = this.replacementFor(level, cursor, state);
 						if (replacement == null) continue;

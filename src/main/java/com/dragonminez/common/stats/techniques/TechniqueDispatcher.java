@@ -1,6 +1,7 @@
 package com.dragonminez.common.stats.techniques;
 
 import com.dragonminez.common.combat.logic.player.TargetHelper;
+import com.dragonminez.common.combat.logic.player.KiChargeTracker;
 import com.dragonminez.common.init.MainSounds;
 import com.dragonminez.common.init.entities.ki.*;
 import com.dragonminez.common.passives.ClassPassives;
@@ -16,7 +17,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +24,8 @@ public class TechniqueDispatcher {
 
 	public static boolean executeKiAttack(LivingEntity owner, Level level, KiAttackData data, StatsData statsData, float chargeMultiplier) {
 		if (level.isClientSide) return false;
+        if (("mouth_blast".equals(data.getId()) || "rage_scream".equals(data.getId()))
+                && !statsData.getCharacter().isOozaruCached()) return false;
 
 		boolean isInitialSpawn = chargeMultiplier < 0.05f;
 		float clampedCharge = Mth.clamp(Float.isFinite(chargeMultiplier) ? chargeMultiplier : 0.1f, 0.1f, KiAttackData.maxCharge() / 100.0f);
@@ -42,7 +44,8 @@ public class TechniqueDispatcher {
 		if (homingTarget != null && owner instanceof Player) statsData.getTechniques().setHomingTargetId(homingTargetId);
 
         if (!isInitialSpawn) {
-            List<AbstractKiProjectile> activeKis = getChargingKiEntities(owner, level);
+            List<AbstractKiProjectile> activeKis = getChargingKiEntities(owner, level).stream()
+                    .filter(ki -> data.getId().equals(ki.getTechniqueId())).toList();
 
             if (!activeKis.isEmpty()) {
                 for (AbstractKiProjectile activeKi : activeKis) {
@@ -86,6 +89,8 @@ public class TechniqueDispatcher {
                 }
                 return true;
             }
+            // Releasing a lost charge must never create a second attack.
+            return data.isInstantCast();
         }
 
         if (KiTechniqueHandler.KillDriver.is(data.getId())) {
@@ -451,23 +456,8 @@ public class TechniqueDispatcher {
         return true;
     }
 
-    private static AbstractKiProjectile getChargingKiEntity(LivingEntity owner, Level level) {
-        List<AbstractKiProjectile> nearby = level.getEntitiesOfClass(AbstractKiProjectile.class, owner.getBoundingBox().inflate(30.0D));
-        for (AbstractKiProjectile ki : nearby)
-            if (ki.getOwner() != null && ki.getOwner().getUUID().equals(owner.getUUID()))
-                if (!ki.isFiring()) return ki;
-        return null;
-    }
-
     private static List<AbstractKiProjectile> getChargingKiEntities(LivingEntity owner, Level level) {
-        List<AbstractKiProjectile> chargingKis = new ArrayList<>();
-        List<AbstractKiProjectile> nearby = level.getEntitiesOfClass(AbstractKiProjectile.class, owner.getBoundingBox().inflate(30.0D));
-        for (AbstractKiProjectile ki : nearby) {
-            if (ki.getOwner() != null && ki.getOwner().getUUID().equals(owner.getUUID()) && !ki.isFiring()) {
-                chargingKis.add(ki);
-            }
-        }
-        return chargingKis;
+        return KiChargeTracker.charging(owner);
     }
 
     private static int resolvePlayerMaxLifeTicks(KiAttackData data, float chargeMultiplier) {

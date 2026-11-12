@@ -109,7 +109,10 @@ public final class KiEmberRenderer {
 			shader.safeGetUniform("splatLife").set(phase);
 
 			poseStack.pushPose();
-			poseStack.translate(dx * radius + back.x * drag, dy * radius + back.y * drag, dz * radius + back.z * drag);
+			Vec3 centre = new Vec3(dx * radius + back.x * drag, dy * radius + back.y * drag, dz * radius + back.z * drag);
+			double backward = centre.dot(back);
+			if (backward > 0) centre = centre.subtract(back.scale(backward));
+			poseStack.translate(centre.x, centre.y, centre.z);
 			faceCamera(poseStack);
 			poseStack.scale(size, size, size);
 			shader.safeGetUniform("ModelViewMat").set(poseStack.last().pose());

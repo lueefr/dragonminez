@@ -19,31 +19,47 @@ public final class BodyEditorScreen extends ScaledScreen {
         super(text("title")); this.parent=parent; this.character=character; this.sync=sync;
     }
     private static Component text(String key) { return HairEditorUi.tr("gui.dragonminez.body_editor."+key); }
+    private int group;
+    private static final String[] GROUPS={"general","head_group","torso_group","arms_group","legs_group"};
     @Override protected void init() {
-        panelWidth=Math.min(220,getUiWidth()/2-12);
-        int sliderWidth=(panelWidth-26)/2;
-        int index=0;
-        for (BodyShape.Part part:BodyShape.Part.values()) {
-            final BodyShape.Part current=part;
-            int x=20+(index%2)*(sliderWidth+6), y=44+(index/2)*32;
-            addRenderableWidget(new ShapeSlider(x,y,sliderWidth,text(part.name().toLowerCase()),character.getBodyShape().get(part)-.5) {
-                @Override protected void applyValue() { character.getBodyShape().set(current,(float)value+.5f); sync.run(); }
-            });
-            index++;
+        panelWidth=Math.min(240,getUiWidth()/2-12);
+        int left=20,width=panelWidth-20,tabWidth=(width-8)/3;
+        for(int index=0;index<GROUPS.length;index++) {
+            final int selected=index;
+            addRenderableWidget(button(left+(index%3)*(tabWidth+4),42+(index/3)*23,tabWidth,text(GROUPS[index]),b -> {
+                group=selected;rebuildWidgets();
+            }));
         }
-        addRenderableWidget(new ShapeSlider(20,172,panelWidth-20,text("bust"),character.getBoobScale()/1.25) {
-            @Override protected void updateMessage() { setMessage(HairEditorUi.tr("gui.dragonminez.body_editor.value",text("bust"),Math.round(value*125))); }
-            @Override protected void applyValue() { character.setBoobScale((float)value*1.25f); sync.run(); }
-        });
-        addRenderableWidget(button(20,205,panelWidth-20,frameName(),b -> {
-            character.getBodyShape().frame(character.getBodyShape().frame()==1?-1:character.getBodyShape().frame()+1);
-            b.setMessage(frameName()); sync.run();
+        BodyShape.Part[] parts=switch(group) {
+            case 1 -> new BodyShape.Part[]{BodyShape.Part.HEAD,BodyShape.Part.HEAD_WIDTH,BodyShape.Part.HEAD_DEPTH,BodyShape.Part.HEAD_HEIGHT};
+            case 2 -> new BodyShape.Part[]{BodyShape.Part.TORSO_WIDTH,BodyShape.Part.TORSO_DEPTH,BodyShape.Part.TORSO_HEIGHT};
+            case 3 -> new BodyShape.Part[]{BodyShape.Part.ARM_WIDTH,BodyShape.Part.ARM_DEPTH,BodyShape.Part.ARMS};
+            case 4 -> new BodyShape.Part[]{BodyShape.Part.LEG_WIDTH,BodyShape.Part.LEG_DEPTH,BodyShape.Part.LEGS};
+            default -> new BodyShape.Part[]{BodyShape.Part.HEIGHT};
+        };
+        int gap=Math.min(32,Math.max(24,(getUiHeight()-145)/4));
+        for(int index=0;index<parts.length;index++) {
+            final BodyShape.Part current=parts[index];
+            addRenderableWidget(new ShapeSlider(left,96+index*gap,width,text(current.name().toLowerCase(java.util.Locale.ROOT)),character.getBodyShape().get(current)-.5) {
+                @Override protected void applyValue() {character.getBodyShape().set(current,(float)value+.5f);sync.run();}
+            });
+        }
+        if(group==0) {
+            addRenderableWidget(new ShapeSlider(left,96+gap,width,text("bust"),character.getBoobScale()/1.25) {
+                @Override protected void updateMessage() {setMessage(HairEditorUi.tr("gui.dragonminez.body_editor.value",text("bust"),Math.round(value*125)));}
+                @Override protected void applyValue() {character.setBoobScale((float)value*1.25f);sync.run();}
+            });
+            addRenderableWidget(button(left,100+gap*2,width,frameName(),b -> {
+                character.getBodyShape().frame(character.getBodyShape().frame()==1?-1:character.getBodyShape().frame()+1);
+                b.setMessage(frameName());sync.run();
+            }));
+        }
+        int footer=getUiHeight()-36;
+        addRenderableWidget(button(left,footer,(width-6)/2,text("reset"),b -> {
+            for(var part:BodyShape.Part.values())character.getBodyShape().set(part,1);
+            character.getBodyShape().frame(-1);character.setBoobScale(1);sync.run();rebuildWidgets();
         }));
-        addRenderableWidget(button(20,230,(panelWidth-26)/2,text("reset"),b -> {
-            for(var part:BodyShape.Part.values()) character.getBodyShape().set(part,1);
-            character.getBodyShape().frame(-1); character.setBoobScale(1); sync.run(); rebuildWidgets();
-        }));
-        addRenderableWidget(button(26+(panelWidth-26)/2,230,(panelWidth-26)/2,HairEditorUi.tr("gui.done"),b -> onClose()));
+        addRenderableWidget(button(left+(width+6)/2,footer,(width-6)/2,HairEditorUi.tr("gui.done"),b -> onClose()));
     }
     private abstract class ShapeSlider extends AbstractSliderButton {
         private final Component label;
