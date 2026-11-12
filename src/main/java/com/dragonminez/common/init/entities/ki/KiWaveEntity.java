@@ -69,7 +69,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
      */
     @Override
     protected float castClearanceRadius() {
-        return this.isFiring() ? this.getSize() : this.getCastSize() * 1.5F;
+        return this.isFiring() ? this.getSize() * 1.65F : this.getCastSize() * 1.65F;
     }
 
     private float calcWaveForwardOffset(LivingEntity owner) {
@@ -492,7 +492,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         double centerZ = owner.getZ();
         Vec3 hitboxCenter = new Vec3(centerX, centerY, centerZ);
 
-        if (isCasting || this.isContinuousFollow()) {
+        if (isCasting || this.isContinuousFollow() || this.isFiring()) {
             Vec3 right = look.cross(new Vec3(0, 1, 0)).normalize();
             Vec3 up = right.cross(look).normalize();
 
@@ -577,6 +577,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
 
     @Override
     public void tick() {
+        growCharge();
         this.baseTick();
         this.setDeltaMovement(0, 0, 0);
 

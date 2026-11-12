@@ -1019,7 +1019,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
     @Override
     protected float castClearanceRadius() {
         if ((this.getKiRenderType() == RENDER_TRI_BEAM || this.getKiRenderType() == RENDER_SOUL_PUNISHER) && !this.isFiring()) return 0.0F;
-        if (this.getKiRenderType() == 5) return Math.max(0.0F, this.getSize() - this.getGenkiDonatedSize()) * 0.5F;
+        if (this.getKiRenderType() == 5) return this.getSize() * 0.5F;
         return this.isAnchoredVolley() ? 0.0F : super.castClearanceRadius();
     }
 

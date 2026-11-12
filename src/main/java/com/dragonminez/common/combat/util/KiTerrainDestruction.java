@@ -382,6 +382,7 @@ public final class KiTerrainDestruction {
 
 	private static final class Job {
 		private final Region region;
+		private net.minecraft.world.phys.AABB casterBounds;
 		private final BoundingBox bounds;
 		private final int flags;
 		private final Mode mode;
@@ -429,7 +430,9 @@ public final class KiTerrainDestruction {
 			long[] sections = new long[found.size()];
 			for (int i = 0; i < sections.length; i++) sections[i] = found.get(i)[0];
 
-			return new Job(region, bounds, flags, mode, gate, sections);
+			Job job = new Job(region, bounds, flags, mode, gate, sections);
+			if (source instanceof net.minecraft.world.entity.LivingEntity) job.casterBounds = source.getBoundingBox().inflate(.75, 1, .75);
+			return job;
 		}
 
 		private boolean isDone() {
@@ -479,6 +482,7 @@ public final class KiTerrainDestruction {
 						BlockState state = section.getBlockState(x & 15, y & 15, z & 15);
 						if (state.isAir()) continue;
 						cursor.set(x, y, z);
+						if (casterBounds != null && casterBounds.contains(x+.5,y+.5,z+.5)) continue;
 						BlockState replacement = this.replacementFor(level, cursor, state);
 						if (replacement == null) continue;
 

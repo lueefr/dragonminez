@@ -168,8 +168,8 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         int bodyType = partnerModel && character.getBodyType() == 0 && !SkinGathererProvider.isHumanoidKey(ownSkinKey) ? 1 : character.getBodyType();
         String fallbackCustomModel = this.customModel != null ? this.customModel.toLowerCase() : "";
         String formKey = currentForm != null ? currentForm.toLowerCase() : "";
-        boolean isSlimSkin = playerModelName.contains("slim");
-        boolean slimBody = bodyType == 0 ? isSlimSkin : raceConfig != null && raceConfig.isSlimBodyType(bodyType);
+        boolean isSlimSkin = character.getBodyShape().frame() < 0 ? playerModelName.contains("slim") : character.getBodyShape().frame() == 1;
+        boolean slimBody = character.getBodyShape().frame() >= 0 ? isSlimSkin : bodyType == 0 ? isSlimSkin : raceConfig != null && raceConfig.isSlimBodyType(bodyType);
         String stateKey = String.join("|",
                 race,
                 gender,
@@ -442,7 +442,7 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
             Character c = data.getCharacter();
             String gender = c.getGender() != null ? c.getGender().toLowerCase() : "";
             boolean isFemale = gender.equals(Character.GENDER_FEMALE) || c.getBodyType() == 1;
-            return isFemale ? Mth.clamp(c.getBoobScale(), 0.75f, 1.25f) : 1.0f;
+            return isFemale ? Mth.clamp(c.getBoobScale(), 0.0f, 1.25f) : 1.0f;
         }).orElse(1.0f);
 
         float[] axis = computeBoobAxisScale(factor);
@@ -452,11 +452,12 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
     }
 
     public static float[] computeBoobAxisScale(float factor) {
-        float delta = factor - 1.0f;
+        if (factor <= 0) return new float[]{0, 0, 0};
+        float delta = Math.max(.75f, factor) - 1.0f;
         return new float[]{
                 1.0f + delta * 0.15f,
                 1.0f + delta * 0.3f,
-                1.0f + delta * 1.4f
+                factor < .75f ? factor / .75f * .65f : 1.0f + delta * 1.4f
         };
     }
 

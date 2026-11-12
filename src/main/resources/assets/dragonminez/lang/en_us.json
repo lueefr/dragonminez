@@ -6969,5 +6969,19 @@
   "gui.dragonminez.hair_editor.save_preset": "Save preset",
   "gui.dragonminez.hair_editor.preset_saved": "Preset saved",
   "gui.dragonminez.hair_editor.delete_preset": "Delete",
-  "gui.dragonminez.hair_editor.preset_error": "Cannot use this preset. Check its name and the game log."
+  "gui.dragonminez.hair_editor.preset_error": "Cannot use this preset. Check its name and the game log.",
+  "gui.dragonminez.body_editor.title": "Body editor",
+  "gui.dragonminez.body_editor.height": "Height",
+  "gui.dragonminez.body_editor.head": "Head size",
+  "gui.dragonminez.body_editor.legs": "Leg length",
+  "gui.dragonminez.body_editor.arms": "Arm length",
+  "gui.dragonminez.body_editor.torso_height": "Torso height",
+  "gui.dragonminez.body_editor.torso_width": "Torso width",
+  "gui.dragonminez.body_editor.bust": "Bust size",
+  "gui.dragonminez.body_editor.frame": "Body frame",
+  "gui.dragonminez.body_editor.skin": "Follow skin",
+  "gui.dragonminez.body_editor.steve": "Steve (normal)",
+  "gui.dragonminez.body_editor.alex": "Alex (slim)",
+  "gui.dragonminez.body_editor.value": "%s: %s%%",
+  "gui.dragonminez.body_editor.frame_value": "Body frame: %s"
 }

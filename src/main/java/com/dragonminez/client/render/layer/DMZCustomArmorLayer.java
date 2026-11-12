@@ -154,7 +154,7 @@ public class DMZCustomArmorLayer<T extends AbstractClientPlayer & GeoAnimatable>
         Character c = stats.getCharacter();
         String gender = c.getGender() != null ? c.getGender().toLowerCase() : "";
         boolean isFemale = gender.equals("female") || c.getBodyType() == 1;
-        return isFemale ? Math.max(0.75f, Math.min(1.25f, c.getBoobScale())) : 1.0f;
+        return isFemale ? Math.max(0.0f, Math.min(1.25f, c.getBoobScale())) : 1.0f;
     }
 
     private ItemStack resolveChestArmorStack(T animatable) {

@@ -392,6 +392,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
 
     @Override
     public void tick() {
+        growCharge();
         this.baseTick();
 
         if (this.pendingFireTick >= 0 && !this.level().isClientSide && this.tickCount >= this.pendingFireTick) {

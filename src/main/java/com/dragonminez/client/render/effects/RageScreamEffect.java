@@ -118,7 +118,8 @@ public final class RageScreamEffect {
 		Matrix4f proj = event.getProjectionMatrix();
 		float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(true);
 
-		PoseStack poseStack = iris ? viewStack(mc) : event.getPoseStack();
+		PoseStack poseStack = new PoseStack();
+		poseStack.mulPose(event.getModelViewMatrix());
 		VertexBuffer mesh = AuraMeshFactory.getBillboardQuad();
 		RenderType renderType = auraType(TEXTURE);
 
@@ -167,9 +168,12 @@ public final class RageScreamEffect {
 										ShaderInstance shader, float spread, float rayScale, float alpha, float rotationDegrees) {
 		poseStack.pushPose();
 		poseStack.translate(lerpX - camPos.x, lerpY - camPos.y + bbHeight * 0.5, lerpZ - camPos.z);
+		// Distribute ray centres in world space before facing their sprites toward the viewer.
+		// Camera rotation must never rotate the orbit around the caster.
+		double angle = Math.toRadians(rotationDegrees);
+		poseStack.translate(Math.cos(angle) * spread, Math.sin(angle) * spread, 0.0);
 		poseStack.mulPose(camera.rotation());
 		poseStack.mulPose(Axis.ZP.rotationDegrees(rotationDegrees));
-		poseStack.translate(0.0, spread, 0.0);
 		poseStack.scale(rayScale, rayScale, rayScale);
 
 		shader.safeGetUniform("speed").set(0.0f);
@@ -192,14 +196,6 @@ public final class RageScreamEffect {
 	private static float pseudoRandomUnit(int entityId, int copyIndex, int salt) {
 		int seed = entityId * 73856093 ^ copyIndex * 19349663 ^ salt * 83492791;
 		return (Math.abs(seed) % 10000) / 10000.0f;
-	}
-
-	private static PoseStack viewStack(Minecraft mc) {
-		PoseStack stack = new PoseStack();
-		Camera cam = mc.gameRenderer.getMainCamera();
-		stack.mulPose(Axis.XP.rotationDegrees(cam.getXRot()));
-		stack.mulPose(Axis.YP.rotationDegrees(cam.getYRot() + 180.0F));
-		return stack;
 	}
 
 	private static RenderType auraType(ResourceLocation texture) {

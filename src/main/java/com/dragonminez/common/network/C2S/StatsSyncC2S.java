@@ -38,6 +38,7 @@ public class StatsSyncC2S {
 	private final int mouthType;
 	private final int tattooType;
 	private final float boobScale;
+	private com.dragonminez.common.stats.character.BodyShape shape = new com.dragonminez.common.stats.character.BodyShape();
 	private final String activeHeadBone;
 	private final String hairColor;
 	private final String bodyColor;
@@ -60,6 +61,7 @@ public class StatsSyncC2S {
 		this.mouthType = character.getMouthType();
 		this.tattooType = character.getTattooType();
 		this.boobScale = character.getBoobScale();
+		this.shape = character.getBodyShape().copy();
 		this.activeHeadBone = character.getActiveHeadBone();
 		this.hairColor = character.getHairColor();
 		this.bodyColor = character.getBodyColor();
@@ -96,6 +98,7 @@ public class StatsSyncC2S {
 		buf.writeUtf(msg.eye2Color, COLOR_CAP);
 		buf.writeUtf(msg.auraColor, COLOR_CAP);
 		buf.writeBoolean(msg.renderHairBase);
+		msg.shape.write(buf);
 	}
 
 	public static StatsSyncC2S decode(FriendlyByteBuf buf) {
@@ -123,11 +126,13 @@ public class StatsSyncC2S {
 		String auraColor = buf.readUtf(COLOR_CAP);
 		boolean renderHairBase = buf.readBoolean();
 
-		return new StatsSyncC2S(
+		StatsSyncC2S decoded = new StatsSyncC2S(
 				raceName, gender, characterClass, hairId, customHair, bodyType, eyesType,
 				noseType, mouthType, tattooType, boobScale, activeHeadBone, hairColor, bodyColor, bodyColor2, bodyColor3,
 				eye1Color, eye2Color, auraColor, renderHairBase
 		);
+		decoded.shape = com.dragonminez.common.stats.character.BodyShape.read(buf);
+		return decoded;
 	}
 
 	private StatsSyncC2S(String raceName, String gender, String characterClass, int hairId, CustomHair customHair, int bodyType, int eyesType,
@@ -194,6 +199,8 @@ public class StatsSyncC2S {
 				character.setRenderHairBase(msg.renderHairBase);
 
 				if (fullAppearance) {
+					character.setBodyShape(msg.shape);
+					player.refreshDimensions();
 					AppearanceValidator.applyBody(character, msg.bodyType, msg.eyesType, msg.noseType, msg.mouthType, msg.tattooType,
 							msg.boobScale, msg.activeHeadBone, msg.hairColor, msg.bodyColor, msg.bodyColor2, msg.bodyColor3,
 							msg.eye1Color, msg.eye2Color, msg.auraColor);

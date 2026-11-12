@@ -972,7 +972,8 @@ public class StatsEvents {
                 if (revert != null) dimensions = FormTransition.lerp(dimensions, formDimensions(revert.look().modelScaling(character), pose, character.eyeRatio(revert.look().formData(), revert.look().stackData())), revert.factor());
             }
 
-            event.setNewSize(EntityDimensions.fixed(dimensions[0], dimensions[1]).withEyeHeight(dimensions[2]));
+            var shape = character.getBodyShape();
+            event.setNewSize(EntityDimensions.fixed(dimensions[0]*shape.widthRatio(), dimensions[1]*shape.heightRatio()).withEyeHeight(dimensions[2]*shape.heightRatio()));
         });
     }
 

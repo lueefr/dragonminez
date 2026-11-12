@@ -347,6 +347,7 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
         var part=data==null?null:com.dragonminez.api.forms.FormVisuals.part(data,bone.getName());
         if(part!=null && part.isJsonPrimitive() && !part.getAsBoolean())return;
         var saved = com.dragonminez.client.render.util.BoneRenderState.capture(bone);
+        if (data != null) com.dragonminez.client.model.BodyMesh.apply(bone, data.getCharacter().getBodyShape());
         if(part!=null && part.isJsonArray()) {
             var scale=part.getAsJsonArray();
             bone.setScaleX(bone.getScaleX()*scale.get(0).getAsFloat());

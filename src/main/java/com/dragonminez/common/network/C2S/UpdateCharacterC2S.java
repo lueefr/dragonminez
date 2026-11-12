@@ -30,6 +30,7 @@ public class UpdateCharacterC2S {
 	private final int mouthType;
 	private final int tattooType;
 	private final float boobScale;
+	private com.dragonminez.common.stats.character.BodyShape shape = new com.dragonminez.common.stats.character.BodyShape();
 	private final String activeHeadBone;
 	private final String hairColor;
 	private final String bodyColor;
@@ -49,6 +50,7 @@ public class UpdateCharacterC2S {
 		this.mouthType = character.getMouthType();
 		this.tattooType = character.getTattooType();
 		this.boobScale = character.getBoobScale();
+		this.shape = character.getBodyShape().copy();
 		this.activeHeadBone = character.getActiveHeadBone();
 		this.hairColor = character.getHairColor();
 		this.bodyColor = character.getBodyColor();
@@ -105,6 +107,7 @@ public class UpdateCharacterC2S {
 		buf.writeUtf(msg.eye1Color, COLOR_CAP);
 		buf.writeUtf(msg.eye2Color, COLOR_CAP);
 		buf.writeUtf(msg.auraColor, COLOR_CAP);
+		msg.shape.write(buf);
 	}
 
 	public static UpdateCharacterC2S decode(FriendlyByteBuf buf) {
@@ -115,7 +118,7 @@ public class UpdateCharacterC2S {
 			customHair = CustomHair.readFromBuffer(buf);
 		}
 
-		return new UpdateCharacterC2S(
+		UpdateCharacterC2S decoded = new UpdateCharacterC2S(
 				className,
 				hairId,
 				customHair,
@@ -134,6 +137,8 @@ public class UpdateCharacterC2S {
 				buf.readUtf(COLOR_CAP),
 				buf.readUtf(COLOR_CAP)
 		);
+		decoded.shape = com.dragonminez.common.stats.character.BodyShape.read(buf);
+		return decoded;
 	}
 
 	public static void handle(UpdateCharacterC2S msg, Supplier<NetworkEvent.Context> ctx) {
@@ -156,6 +161,7 @@ public class UpdateCharacterC2S {
 				AppearanceValidator.applyBody(c, msg.bodyType, msg.eyesType, msg.noseType, msg.mouthType, msg.tattooType,
 						msg.boobScale, msg.activeHeadBone, msg.hairColor, msg.bodyColor, msg.bodyColor2, msg.bodyColor3,
 						msg.eye1Color, msg.eye2Color, msg.auraColor);
+				c.setBodyShape(msg.shape);
 				player.refreshDimensions();
 				player.setHealth(player.getMaxHealth());
 				NetworkHandler.sendToTrackingEntityAndSelf(new AppearanceSyncS2C(player), player);

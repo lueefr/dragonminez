@@ -132,7 +132,7 @@ public class HellzoneGrenadeEntity extends AbstractKiProjectile {
         this.setFireTick(this.tickCount);
         this.setMaxLife(END_TICK);
 
-        float progress = Mth.clamp(charge / MAX_CHARGE, 0.0F, 1.0F);
+        float progress = Mth.clamp(charge / (com.dragonminez.common.stats.techniques.KiAttackData.maxCharge() / 100.0F), 0.0F, 1.0F);
         this.orbCount = Math.round(Mth.lerp(progress, (float) MIN_ORBS, (float) MAX_ORBS));
         this.buildSlots(owner);
 

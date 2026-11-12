@@ -357,8 +357,8 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 			addRenderableWidget(new ColorSlider.Builder()
 					.position(LEFT_PANEL_X + 20, top + 160)
 					.size(100, 8)
-					.range(15, 25)
-					.value(Math.round(Math.max(0.75f, Math.min(1.25f, character.getBoobScale())) * 20f))
+					.range(0, 25)
+					.value(Math.round(Math.max(0.0f, Math.min(1.25f, character.getBoobScale())) * 20f))
 					.message(tr("text.dragonminez.charactercustomizationscreen.fef1744675"))
 					.onValueChange(v -> {
 						float newScale = v / 20f;
@@ -369,6 +369,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 					.build());
 		}
 
+		initShapeButton(top + 190);
 		if (shouldRenderFormPreviewInPreset()) {
 			initPreviewTransformationArrows(top + 174);
 		}
@@ -442,7 +443,24 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		if (SkinGathererProvider.rendersPlayerSkin(character)) addRenderableWidget(createPixelEditButton(LEFT_PANEL_X + 33, getUiHeight() - 40, PixelEditorScreen.Mode.EYES));
 	}
 
+    private void initShapeSlider(int y, com.dragonminez.common.stats.character.BodyShape.Part part) {
+        addRenderableWidget(new net.minecraft.client.gui.components.AbstractSliderButton(LEFT_PANEL_X+12,y,116,20,Component.empty(),character.getBodyShape().get(part)-.5) {
+            { updateMessage(); }
+            @Override protected void updateMessage() { setMessage(Component.translatable("gui.dragonminez.body_editor.value",Component.translatable("gui.dragonminez.body_editor."+part.name().toLowerCase()),Math.round((value+.5)*100))); }
+            @Override protected void applyValue() { character.getBodyShape().set(part,(float)value+.5f); syncCharacter(); }
+        });
+    }
+    private void initShapeButton(int y) {
+        addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
+            Component.translatable("gui.dragonminez.body_editor.title"), button ->
+                minecraft.setScreen(new BodyEditorScreen(this, character, this::syncCharacter)))
+            .bounds(LEFT_PANEL_X+12,y,116,20).build());
+    }
+
 	private void initBodyTab(int top) {
+		initShapeSlider(top+145, com.dragonminez.common.stats.character.BodyShape.Part.HEIGHT);
+		initShapeSlider(top+168, com.dragonminez.common.stats.character.BodyShape.Part.HEAD);
+		initShapeButton(top + 190);
 		if (character.getTattooType() == Character.TATTOO_CUSTOM && SkinPixels.customTattooEnabled()) addRenderableWidget(createPixelEditButton(LEFT_PANEL_X + 33, getUiHeight() - 40, PixelEditorScreen.Mode.TATTOO));
 	}
 

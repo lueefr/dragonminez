@@ -174,6 +174,10 @@ public class KiAttackData extends TechniqueData {
 	}
 
 	public static final int OVERCHARGE_MAX_PERCENT = 175;
+
+	public static int maxCharge() {
+		return ConfigManager.getTechniqueConfig().getMaxOverchargePercent();
+	}
 	public static final int OVERCHARGE_TIER_PERCENT = 25;
 
 	public int getBaseChargeTicks() {

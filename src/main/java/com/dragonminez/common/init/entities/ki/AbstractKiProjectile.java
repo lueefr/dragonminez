@@ -440,24 +440,26 @@ public abstract class AbstractKiProjectile extends Projectile {
 
     public static float ownerScaleOf(LivingEntity owner) {
         if (owner == null) return 1.0F;
-        return Mth.clamp(owner.getBbHeight() / VANILLA_PLAYER_HEIGHT, 1.0F, MAX_OWNER_SCALE);
+        return Mth.clamp(owner.getBbHeight() / VANILLA_PLAYER_HEIGHT, 0.25F, MAX_OWNER_SCALE);
     }
 
 
     /** Width ratio against a normal player, for the axes that have to clear the body sideways. */
     public static float ownerWidthScale(LivingEntity owner) {
         if (owner == null) return 1.0F;
-        return Mth.clamp(owner.getBbWidth() / VANILLA_PLAYER_WIDTH, 1.0F, MAX_OWNER_SCALE);
+        return Mth.clamp(owner.getBbWidth() / VANILLA_PLAYER_WIDTH, 0.25F, MAX_OWNER_SCALE);
     }
 
-    /** Held offsets are relative to the upright body, not the camera's pitch or the fired radius. */
+    /** Held attachments keep their rear edge at the body as the power grows. */
     protected Vec3 heldCastOffset(LivingEntity owner, float offsetX, float offsetY, float offsetZ) {
         Vec3 forward = Vec3.directionFromRotation(0, owner.yBodyRot);
         Vec3 up = new Vec3(0, 1, 0);
         Vec3 right = forward.cross(up);
+        boolean overhead = offsetY >= 1.3F && Math.abs(offsetZ) < .05F;
+        float radius = castClearanceRadius();
         return right.scale(offsetX * ownerWidthScale(owner))
-                .add(up.scale(offsetY * ownerScaleOf(owner)))
-                .add(forward.scale(offsetZ * ownerWidthScale(owner)));
+                .add(up.scale(offsetY * ownerScaleOf(owner) + (overhead ? radius : 0)))
+                .add(forward.scale(offsetZ * ownerWidthScale(owner) + (overhead ? 0 : radius)));
     }
 
     /**
@@ -508,6 +510,8 @@ public abstract class AbstractKiProjectile extends Projectile {
 
     protected boolean canKiDestroyBlock(BlockPos pos) {
         if (!this.blockDestructionEnabled) return false;
+        Entity caster = getOwner();
+        if (caster != null && caster.getBoundingBox().inflate(0.75, 1.0, 0.75).contains(Vec3.atCenterOf(pos))) return false;
         BlockState state = this.level().getBlockState(pos);
         if (state.getBlock() instanceof DragonBallBlock) return false;
         if (state.getExplosionResistance(this.level(), pos, null) >= KI_INDESTRUCTIBLE_RESISTANCE) return false;
@@ -675,8 +679,30 @@ public abstract class AbstractKiProjectile extends Projectile {
         builder.define(CAST_POSE, "");
     }
 
+    private float chargeSize = -1;
+    private float chargeCast = -1;
+
+    public final void growCharge() {
+        if (level().isClientSide || isFiring() || !(getOwner() instanceof Player player)) return;
+        if ("kamehameha".equals(getTechniqueId()) || "super_kamehameha".equals(getTechniqueId())) return;
+        StatsProvider.get(StatsCapability.INSTANCE, player).ifPresent(stats -> {
+            if (getTechniqueId().isEmpty() || !stats.getTechniques().isTechniqueCharging() || !getTechniqueId().equals(stats.getTechniques().getChargingTechniqueId())) return;
+            float donated = this instanceof KiBlastEntity blast ? blast.getGenkiDonatedSize() : 0;
+            if (chargeSize < 0) {
+                if (getSize() <= 0) return;
+                chargeSize = getSize() - donated;
+                if (this instanceof KiWaveEntity wave) chargeCast = wave.getCastSize();
+            }
+            float growth = Math.max(1, Math.min(KiAttackData.maxCharge(), stats.getTechniques().getTechniqueChargePercent()) / 100.0f);
+            float size = chargeSize * growth + donated;
+            if (getSize() != size) setSize(size);
+            if (this instanceof KiWaveEntity wave) wave.setCastSize(chargeCast * growth);
+        });
+    }
+
     @Override
     public void tick() {
+        growCharge();
         if (!this.level().isClientSide) {
             Entity owner = this.getOwner();
             if (owner != null && owner.level() != this.level()) {

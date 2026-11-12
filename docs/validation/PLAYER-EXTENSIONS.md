@@ -59,3 +59,23 @@ establish those results.
 - Final Java 21 packaging build passed in `/tmp/dmz-polish-release-build.log`.
   Optional seedgen injections remain source-verified, not live-tested; no claim
   is made that arbitrary/future seed approximation implementations are blocked.
+
+## Body, cloth and overcharge follow-up (2026-11-12)
+
+- Added bounded body proportions, persistent appearance and fixed-size fields in
+  the existing permission-checked creation/customization packets. Network revision
+  advanced to 21. Proportion transforms use renderer snapshots to avoid frame
+  accumulation; clothing/weight cape state is per wearer, integrated in game time.
+- Server overcharge defaults to 175 and permits configured ceilings up to 100000.
+  The existing cost slope is retained, and charged size is based on the original
+  size rather than multiplying the previous frame. Genki donations remain additive.
+- Client harness passed in `/tmp/dmz-body-client.log`, including
+  `BODY_CAPE_CLIENT_PASS` (seven sliders, Alex frame, zero bust, actual character
+  preview with clothing cape reaching the physics renderer), the full shader
+  regression harness, Wakes and 5 FPS aura continuity. The probe is external to
+  the production JAR. This establishes functional rendering, not a subjective
+  visual comparison of every cape/pose combination.
+- Player text audit passed (6985 keys), with all five auditor regression tests.
+- Java 21 build and 87 required GameTests passed in `/tmp/dmz-verified.log`.
+  Final Java 21 build and all 88 required GameTests, including donation
+  preservation, passed in `/tmp/dmz-final-all.log`.

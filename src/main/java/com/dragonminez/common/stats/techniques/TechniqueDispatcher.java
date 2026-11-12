@@ -26,7 +26,7 @@ public class TechniqueDispatcher {
 		if (level.isClientSide) return false;
 
 		boolean isInitialSpawn = chargeMultiplier < 0.05f;
-		float clampedCharge = Mth.clamp(chargeMultiplier, 0.1f, 2.0f);
+		float clampedCharge = Mth.clamp(Float.isFinite(chargeMultiplier) ? chargeMultiplier : 0.1f, 0.1f, KiAttackData.maxCharge() / 100.0f);
 		float damageCharge = (isInitialSpawn && data.isInstantCast()) ? 1.0f : clampedCharge;
 
 		float realDamage = (float) (statsData.getKiDamage() * data.getDamageMultiplier() * data.getConfiguredDamageMultiplier() * damageCharge * data.getOutputMultiplier()
@@ -46,6 +46,7 @@ public class TechniqueDispatcher {
 
             if (!activeKis.isEmpty()) {
                 for (AbstractKiProjectile activeKi : activeKis) {
+                    activeKi.growCharge();
                     if (activeKi instanceof KiWaveEntity wave) {
                         wave.setKiDamage(realDamage);
                         wave.fireHability(maxLife);

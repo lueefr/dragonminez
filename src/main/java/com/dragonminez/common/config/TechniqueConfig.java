@@ -25,6 +25,13 @@ public class TechniqueConfig {
 	@SerializedName("EvasionAttacks")
 	private final Map<String, EvasionAttackConfig> evasionAttacks = new HashMap<>();
 
+	@SerializedName("MaxOverchargePercent")
+	private Integer maxOverchargePercent = 175;
+
+	public int getMaxOverchargePercent() {
+		return maxOverchargePercent == null ? 175 : Math.max(100, Math.min(100000, maxOverchargePercent));
+	}
+
 	public TechniqueConfig() {
 		createDefaults();
 	}

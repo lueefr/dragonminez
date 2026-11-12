@@ -447,7 +447,13 @@ public class KiWaveRenderer extends EntityRenderer<KiWaveEntity> {
         float rayScale = Math.max(ballRadius * CHARGE_RAYS_REACH, CHARGE_RAYS_MIN_REACH);
 
         poseStack.pushPose();
-        poseStack.mulPose(mc.gameRenderer.getMainCamera().rotation());
+        // Parent pose can already contain the attack orientation. Preserve its centre
+        // while making only the ray quad face the screen.
+        Matrix4f matrix = poseStack.last().pose();
+        float basis = matrix.getScale(new org.joml.Vector3f()).x;
+        matrix.m00(basis).m01(0).m02(0);
+        matrix.m10(0).m11(basis).m12(0);
+        matrix.m20(0).m21(0).m22(basis);
         poseStack.scale(rayScale, rayScale, rayScale);
 
         shader.safeGetUniform("ProjMat").set(proj);

@@ -223,7 +223,7 @@ public class Techniques {
 	}
 
 	public void setTechniqueChargePercent(float percent) {
-		this.techniqueChargePercent = Math.max(0.0f, Math.min(200.0f, percent));
+		this.techniqueChargePercent = Math.max(0.0f, Math.min(KiAttackData.maxCharge(), Float.isFinite(percent) ? percent : 0.0f));
 	}
 
 	public boolean isChargeHolding() {
@@ -333,7 +333,7 @@ public class Techniques {
 	public void load(CompoundTag tag) {
 		this.selectedSlot = tag.getInt("SelectedSlot");
 		this.chargingTechniqueId = tag.getString("ChargingTechniqueId");
-		this.techniqueChargePercent = Math.max(0.0f, Math.min(200.0f, tag.getFloat(CHARGE_PERCENT_KEY)));
+		this.techniqueChargePercent = Math.max(0.0f, Math.min(KiAttackData.maxCharge(), tag.getFloat(CHARGE_PERCENT_KEY)));
 		this.techniqueCharging = tag.getBoolean(CHARGING_KEY);
 		this.chargeHolding = tag.getBoolean("ChargeHolding");
 

@@ -151,6 +151,9 @@ public class Character {
 	private int tattooType;
 	private final SkinPixels skinPixels = new SkinPixels();
 	private float boobScale = 1.0f;
+	private BodyShape bodyShape = new BodyShape();
+	public BodyShape getBodyShape() { return bodyShape; }
+	public void setBodyShape(BodyShape value) { bodyShape = value == null ? new BodyShape() : value.copy(); }
 	private String bodyColor;
 	private String bodyColor2;
 	private String bodyColor3;
@@ -481,6 +484,8 @@ public class Character {
 
 	public Float[] getModelScalingFor(FormConfig.FormData form, FormConfig.FormData stack) {
 		Float[] scaling = resolveFormModelScaling(form, stack);
+		scaling = scaling.clone();
+		scaling[1] *= bodyShape.get(BodyShape.Part.HEIGHT);
 		if (demonEyeGrowth <= 1.0f) return scaling;
 		return new Float[]{scaling[0] * demonEyeGrowth, scaling[1] * demonEyeGrowth, scaling[2] * demonEyeGrowth};
 	}
@@ -557,6 +562,7 @@ public class Character {
 		tag.putInt("TattooType", tattooType);
 		tag.put(SkinPixels.NBT_KEY, skinPixels.save());
 		tag.putFloat("BoobScale", boobScale);
+		tag.put("BodyShape", bodyShape.save());
 		saveAppearance(tag);
 		tag.putString("SelectedMaster",  safeString(selectedMaster));
 		tag.putString("SelectedFormGroup", safeString(selectedFormGroup));
@@ -644,6 +650,7 @@ public class Character {
 		this.mouthType = tag.getInt("MouthType");
 		this.tattooType = tag.getInt("TattooType");
 		if (tag.contains(SkinPixels.NBT_KEY, 10)) skinPixels.load(tag.getCompound(SkinPixels.NBT_KEY));
+		this.bodyShape = BodyShape.load(tag.getCompound("BodyShape"));
 		this.boobScale = tag.contains("BoobScale") ? tag.getFloat("BoobScale") : 1.0f;
 		setBodyColor(tag.getString("BodyColor"));
 		setBodyColor2(tag.getString("BodyColor2"));
@@ -1013,6 +1020,7 @@ public class Character {
 		this.tattooType = other.tattooType;
 		this.skinPixels.copyFrom(other.skinPixels);
 		this.boobScale = other.boobScale;
+		this.bodyShape = other.bodyShape.copy();
 		setBodyColor(other.bodyColor);
 		setBodyColor2(other.bodyColor2);
 		setBodyColor3(other.bodyColor3);

@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public final class AppearanceValidator {
 	private static final Pattern HEX = Pattern.compile("^#?[0-9A-Fa-f]{6}$");
 	public static final int MAX_STYLE_INDEX = 64;
-	public static final float MIN_BOOB_SCALE = 0.75f;
+	public static final float MIN_BOOB_SCALE = 0.0f;
 	public static final float MAX_BOOB_SCALE = 1.25f;
 
 	private AppearanceValidator() {

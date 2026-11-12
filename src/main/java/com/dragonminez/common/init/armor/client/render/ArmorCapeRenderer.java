@@ -19,6 +19,22 @@ public class ArmorCapeRenderer extends GeoArmorRenderer<DbzArmorCapeItem> {
     }
 
     @Override
+    public void renderRecursively(com.mojang.blaze3d.vertex.PoseStack stack, DbzArmorCapeItem item,
+            software.bernie.geckolib.cache.object.GeoBone bone, RenderType type, MultiBufferSource source,
+            com.mojang.blaze3d.vertex.VertexConsumer buffer, boolean rerender, float partial, int light, int overlay, int color) {
+        String name = bone.getName();
+        int segment = "cape".equals(name) ? 0 : "cape2".equals(name) ? 1 : "cape3".equals(name) ? 2 : -1;
+        float x = bone.getRotX(), z = bone.getRotZ();
+        if (segment >= 0) {
+            float[] motion = com.dragonminez.client.render.cloth.CapeMotion.sample(getCurrentEntity(), partial, false, segment);
+            bone.setRotX(motion[0]);
+            bone.setRotZ(motion[1]);
+        }
+        try { super.renderRecursively(stack, item, bone, type, source, buffer, rerender, partial, light, overlay, color); }
+        finally { bone.setRotX(x); bone.setRotZ(z); }
+    }
+
+    @Override
     public void renderCubesOfBone(PoseStack poseStack, GeoBone bone, VertexConsumer buffer, int packedLight,
                                   int packedOverlay, int colour) {
         String name = bone.getName();

@@ -53,7 +53,7 @@ public class TechniqueChargeOverlay {
 			float normalFillRatio = Mth.clamp(currentChargePercent / 100.0f, 0.0f, 1.0f);
 			int normalPixels = Math.round(148 * normalFillRatio);
 
-			float overMax = Math.max(1.0f, KiAttackData.OVERCHARGE_MAX_PERCENT - 100.0f);
+			float overMax = Math.max(1.0f, KiAttackData.maxCharge() - 100.0f);
 			float overchargeRatio = Mth.clamp((currentChargePercent - 100.0f) / overMax, 0.0f, 1.0f);
 			int overchargePixels = Math.round(148 * overchargeRatio);
 

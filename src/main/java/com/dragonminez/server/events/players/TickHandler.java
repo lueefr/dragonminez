@@ -976,7 +976,7 @@ public class TickHandler {
 			return;
 		}
 
-		final float OVER = KiAttackData.OVERCHARGE_MAX_PERCENT;
+		final float OVER = KiAttackData.maxCharge();
 		boolean instant = kiAttack.isInstantCast();
 		int baseTicks = Math.max(1, kiAttack.getBaseChargeTicks());
 		float percent = techniques.getTechniqueChargePercent();
@@ -1036,7 +1036,7 @@ public class TickHandler {
 	private static final float MIN_RELEASE_PERCENT = 10.0f;
 
 	private static void resolveKiAttackOnRelease(ServerPlayer player, StatsData data, Techniques techniques) {
-		float effectiveCharge = Math.min(techniques.getTechniqueChargePercent(), KiAttackData.OVERCHARGE_MAX_PERCENT);
+		float effectiveCharge = Math.min(techniques.getTechniqueChargePercent(), KiAttackData.maxCharge());
 
 		var activeKi = findChargingEntity(player);
 

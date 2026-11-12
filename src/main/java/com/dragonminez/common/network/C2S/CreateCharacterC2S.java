@@ -35,6 +35,7 @@ public class CreateCharacterC2S {
 	private final int mouthType;
 	private final int tattooType;
 	private final float boobScale;
+	private com.dragonminez.common.stats.character.BodyShape shape = new com.dragonminez.common.stats.character.BodyShape();
 	private final String activeHeadBone;
 	private final String hairColor;
 	private final String bodyColor;
@@ -56,6 +57,7 @@ public class CreateCharacterC2S {
 		this.mouthType = character.getMouthType();
 		this.tattooType = character.getTattooType();
 		this.boobScale = character.getBoobScale();
+		this.shape = character.getBodyShape().copy();
 		this.activeHeadBone = character.getActiveHeadBone();
 		this.hairColor = character.getHairColor();
 		this.bodyColor = character.getBodyColor();
@@ -120,6 +122,7 @@ public class CreateCharacterC2S {
 		buf.writeUtf(msg.eye1Color, COLOR_CAP);
 		buf.writeUtf(msg.eye2Color, COLOR_CAP);
 		buf.writeUtf(msg.auraColor, COLOR_CAP);
+		msg.shape.write(buf);
 	}
 
 	public static CreateCharacterC2S decode(FriendlyByteBuf buf) {
@@ -146,11 +149,13 @@ public class CreateCharacterC2S {
 		String eye2Color = buf.readUtf(COLOR_CAP);
 		String auraColor = buf.readUtf(COLOR_CAP);
 
-		return new CreateCharacterC2S(
+		CreateCharacterC2S decoded = new CreateCharacterC2S(
 				raceName, className, gender, hairId, customHair, bodyType, eyesType,
 				noseType, mouthType, tattooType, boobScale, activeHeadBone, hairColor, bodyColor, bodyColor2, bodyColor3,
 				eye1Color, eye2Color, auraColor
 		);
+		decoded.shape = com.dragonminez.common.stats.character.BodyShape.read(buf);
+		return decoded;
 	}
 
 	public static void handle(CreateCharacterC2S msg, Supplier<NetworkEvent.Context> ctx) {
@@ -194,6 +199,7 @@ public class CreateCharacterC2S {
 					com.dragonminez.common.progression.RebirthService.finish(data);
                     if(rebirth&&com.dragonminez.common.config.ConfigManager.getRebirth().retention.alignment)data.getResources().setAlignment(alignment);
                     Character character = data.getCharacter();
+					character.setBodyShape(msg.shape);
 					if (!character.canHaveGender() || !Character.GENDER_FEMALE.equals(character.getGender())) character.setGender(Character.GENDER_MALE);
 					data.getCharacter().setSelectedFormGroup(TransformationsHelper.getGroupWithFirstAvailableForm(data));
 					data.getCharacter().setSelectedForm(TransformationsHelper.getFirstAvailableForm(data));
