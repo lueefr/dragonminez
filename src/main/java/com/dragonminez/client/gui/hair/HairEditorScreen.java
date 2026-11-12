@@ -128,6 +128,12 @@ public class HairEditorScreen extends ScaledScreen {
 		layout();
 
 		int buttonY = viewportY1 - 24;
+        addRenderableWidget(new TexturedTextButton.Builder()
+                .position(viewportX1 - 152, buttonY - 22).size(152, 20)
+                .texture(STAT_BUTTONS).textureCoords(0, 28, 0, 48).textureSize(74, 20)
+                .message(HairEditorUi.tr("gui.dragonminez.hair_editor.library"))
+                .onPress(button -> { inspector.commitTextEdit(); minecraft.setScreen(new HairLibraryScreen(this, state)); })
+                .build());
 		addRenderableWidget(new TexturedTextButton.Builder()
 				.position(viewportX1 - 152, buttonY)
 				.size(74, 20)

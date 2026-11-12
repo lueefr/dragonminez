@@ -85,6 +85,7 @@ public class ClientStatsEvents {
 	private static boolean actionChargeRequiresRelease = false;
 	private static String lastTransformationState = null;
 	private static boolean wasKiChargeKeyDown = false;
+    private static boolean chargeSent;
 	private static long lastDashTime = 0;
 	private static boolean wasDashKeyDown = false;
 	private static boolean wasDescendActionDown = false;
@@ -215,6 +216,10 @@ public class ClientStatsEvents {
 
 		localActionChargeReleased = false;
 		if (mc.screen != null) {
+            if (chargeSent) {
+                chargeSent = false;
+                NetworkHandler.sendToServer(new UpdateStatC2S(UpdateStatC2S.StatAction.CHARGE_KI, false));
+            }
 			StatsProvider.get(StatsCapability.INSTANCE, localPlayer).ifPresent(data -> {
 				if (data.getStatus().isBlocking()) {
 					data.getStatus().setBlocking(false);
@@ -422,7 +427,8 @@ public class ClientStatsEvents {
 			boolean chargeSignal = isKiChargeKeyPressed || isLowerReleaseDown;
 			boolean descendSignal = isDescendKeyPressed || isLowerReleaseDown;
 
-			if (chargeSignal != data.getStatus().isChargingKi()) {
+			if (chargeSignal != chargeSent) {
+                chargeSent = chargeSignal;
 				NetworkHandler.sendToServer(new UpdateStatC2S(UpdateStatC2S.StatAction.CHARGE_KI, chargeSignal));
 			}
 
@@ -739,6 +745,7 @@ public class ClientStatsEvents {
 		wasRightClickDown = false;
 		lastTransformTapTime = 0;
 		lastKiChargeTapTime = 0;
+        chargeSent = false;
 		resetChargeTracking();
 		KiSenseState.reset();
 		KiSenseScan.clear();

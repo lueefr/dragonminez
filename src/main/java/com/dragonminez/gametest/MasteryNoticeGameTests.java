@@ -31,9 +31,12 @@ public final class MasteryNoticeGameTests {
             helper.assertTrue(!FormAccess.isMasteryNotice(Component.translatable("message.dragonminez.form.no_ki",50)),"Unrelated popup behavior changed");
             var colored=FormAccess.coloredNames(message,data);
             var args=((TranslatableContents)colored.getContents()).getArgs();
-            helper.assertTrue(((Component)args[0]).getStyle().getColor().getValue()==0x55CCFF,"Target form lost its hair color");
+            helper.assertTrue(((Component)args[0]).getStyle().getColor()==null,"Server leaked form color into ordinary components");
             var required=((TranslatableContents)((Component)args[1]).getContents()).getArgs();
-            helper.assertTrue(((Component)required[0]).getStyle().getColor().getValue()==0,"Black hair treated as missing color");
+            helper.assertTrue(((Component)required[0]).getStyle().getColor()==null,"Server colored nested requirement outside client scope");
+            helper.assertTrue(FormAccess.colorForKey(data,((TranslatableContents)((Component)args[0]).getContents()).getKey())==0x55CCFF,"Target form lost color identity");
+            helper.assertTrue(FormAccess.colorForKey(data,((TranslatableContents)((Component)required[0]).getContents()).getKey())==0,"Black form lost color identity");
+            helper.assertTrue(FormAccess.name(data,"notice_fixture.blue").getStyle().getColor()==null,"Form helper added global styling");
             helper.assertTrue(black.getStyle().getColor()==null,"Formatting mutated the original component");
             int builtIns=0;
             for(var group:groups.entrySet())if(!group.getKey().equals("notice_fixture"))for(var form:group.getValue().getForms().entrySet()) {

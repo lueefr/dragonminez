@@ -1647,8 +1647,20 @@ public class KiBlastEntity extends AbstractKiProjectile {
         return this.entityData.get(DETACHED);
     }
 
+    public void poseOffset(LivingEntity owner, String pose) {
+        float size = this.getSize();
+        if ("ki.soul_punisher".equals(pose)) {
+            this.setCastOffsets(-0.5F, 1.2F - halfBoxHeight(size) / ownerScaleOf(owner), 0.1F);
+        } else if ("ki.neo_kikohu".equals(pose)) {
+            this.setCastOffsets(0.0F, -halfBoxHeight(size) / ownerScaleOf(owner), KiTechniqueHandler.TriBeam.CHARGE_FORWARD_OFFSET);
+        } else if ("ki.large_ball".equals(pose) || "ki.supernova_cooler".equals(pose) || "ki.death_ball".equals(pose) || "ki.deathball".equals(pose)) {
+            this.setCastOffsets(0.0F, calcOverheadOffsetY(owner, size), 0.0F);
+        }
+    }
+
     private void updatePositionRelativeToOwner(LivingEntity owner) {
         if (this.isDetached()) return;
+        com.dragonminez.common.stats.techniques.KiPose.apply(this, owner);
         Vec3 look = owner.getLookAngle();
         Vec3 worldUp = new Vec3(0, 1, 0);
         Vec3 right = look.cross(worldUp).normalize();

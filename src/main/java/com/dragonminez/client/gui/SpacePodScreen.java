@@ -46,6 +46,7 @@ public class SpacePodScreen extends ScaledScreen {
 	private static final int ICON_Y_STEP = 14;
 
 	private final List<PlanetDestination> destinations = new ArrayList<>();
+    private List<SpacePodDestinationDefinition> snapshot = List.of();
 	private int selectedIndex = -1;
 
 	private int guiLeft, guiTop;
@@ -81,6 +82,7 @@ public class SpacePodScreen extends ScaledScreen {
 
 	private void loadDestinations() {
 		destinations.clear();
+        snapshot = SpacePodDestinationRegistry.getClientDestinations();
 		if (this.minecraft == null || this.minecraft.player == null) {
 			return;
 		}
@@ -119,6 +121,9 @@ public class SpacePodScreen extends ScaledScreen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		if (snapshot != SpacePodDestinationRegistry.getClientDestinations()) {
+            loadDestinations(); selectedIndex=-1; travelButton.visible=false;
+        }
 		this.renderBackground(graphics, mouseX, mouseY, partialTick);
 
 		int uiMouseX = (int) toUiX(mouseX);

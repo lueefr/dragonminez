@@ -58,7 +58,7 @@ public final class FormNamePalette {
         refresh();if(names==null)return null;
         List<Glyph> glyphs=new ArrayList<>();var plain=new StringBuilder();
         text.accept((i,style,cp)->{glyphs.add(new Glyph(i,style,cp,plain.length()));plain.appendCodePoint(cp);return true;});
-        var matcher=names.matcher(plain);if(!matcher.find())return null;
+        var matcher=names.matcher(plain);if(!matcher.matches())return null;
         List<Match> matches=new ArrayList<>();do{matches.add(new Match(matcher.start(),matcher.end(),colors.get(matcher.group())));}while(matcher.find());
         return sink->{int match=0;for(var glyph:glyphs){
             while(match<matches.size()&&glyph.offset()>=matches.get(match).end())match++;

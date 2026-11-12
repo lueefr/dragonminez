@@ -84,8 +84,8 @@ public class AuraRenderer {
         }
     }
 	private static final float HALF_SQRT_3 = (float) (Math.sqrt(3.0D) / 2.0D);
-	private static final float FADE_SPEED = 0.005f;
-	private static final float PULSE_SPEED = 0.01f;
+	private static final float FADE_SPEED = 0.3f;
+	private static final float PULSE_SPEED = 0.03f;
 	private static final Vec3 AURA_2D_UP = new Vec3(0.0, 1.0, 0.0);
 	private static final float AURA_2D_GROUND_LIFT = 0.05f;
 	private static final float AURA_2D_BASE_MULTIPLIER = 2.2f;
@@ -132,8 +132,6 @@ public class AuraRenderer {
 	private static final Map<Integer, Boolean> WAS_FUSED_CACHE = new ConcurrentHashMap<>();
 	private static final Map<Integer, Boolean> WAS_GOD_RITUAL_CACHE = new ConcurrentHashMap<>();
 	private static final Set<Integer> GOD_RITUAL_FLASH = ConcurrentHashMap.newKeySet();
-	private static final Map<Integer, Float> PULSE_PROGRESS = new ConcurrentHashMap<>();
-	private static final Map<Integer, Long> PULSE_LAST_RENDER_TIME = new ConcurrentHashMap<>();
 	private static final Map<Integer, Float> RELEASE_SCALE_PROGRESS = new ConcurrentHashMap<>();
 	private static final Map<Integer, Long> RELEASE_SCALE_TICK = new ConcurrentHashMap<>();
 	private static final Map<Integer, CachedAuraData> AURA_CACHE = new ConcurrentHashMap<>();
@@ -545,6 +543,21 @@ public class AuraRenderer {
 			}
 		}
 
+        // Aura shells can extend into view when the player's own bounds are culled (especially in flight).
+        // Keep their lifecycle driven by synced aura state, not by whether the player model rendered.
+        for (var player : mc.level.players()) {
+            if (currentFramePlayers.contains(player.getId()) || (isFirstPerson && player == mc.player)) continue;
+            if (!player.isAlive() || player.isSpectator() || player.distanceToSqr(mc.player) > 256.0 * 256.0) continue;
+            var stats = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
+            if (stats == null || !com.dragonminez.api.forms.FormVisuals.flag(stats,"aura",
+                    stats.getStatus().isAuraActive() || stats.getStatus().isPermanentAura() || stats.getStatus().isForcedAura())) continue;
+            var entry = new PlayerEffectQueue.AuraRenderEntry(player, null, new Matrix4f(),
+                    mc.getTimer().getGameTimeDeltaPartialTick(false), 15728880);
+            PreparedAura aura = prepareShaderAura(entry);
+            currentFramePlayers.add(player.getId());
+            if (aura != null) prepared.add(aura);
+        }
+
 		Vec3 camera = mc.gameRenderer.getMainCamera().getPosition();
 		List<List<PreparedAura>> groups = groupTouchingAuras(prepared);
 		groups.sort(Comparator.comparingDouble((List<PreparedAura> group) -> group.get(0).position().distanceToSqr(camera)).reversed());
@@ -648,8 +661,6 @@ public class AuraRenderer {
 		RenderSystem.stencilMask(0x00);
 
 		LAST_RENDER_TIME.keySet().removeIf(id -> !currentFramePlayers.contains(id) && !AURA_CACHE.containsKey(id));
-		PULSE_LAST_RENDER_TIME.keySet().removeIf(id -> !currentFramePlayers.contains(id) && !AURA_CACHE.containsKey(id));
-		PULSE_PROGRESS.keySet().removeIf(id -> !currentFramePlayers.contains(id) && !AURA_CACHE.containsKey(id));
 		RELEASE_SCALE_PROGRESS.keySet().removeIf(id -> !currentFramePlayers.contains(id) && !AURA_CACHE.containsKey(id));
 		RELEASE_SCALE_TICK.keySet().removeIf(id -> !currentFramePlayers.contains(id) && !AURA_CACHE.containsKey(id));
 		AURA_PHASE.keySet().removeIf(id -> !currentFramePlayers.contains(id) && !AURA_CACHE.containsKey(id));
@@ -938,16 +949,7 @@ public class AuraRenderer {
 		CachedAuraData data = AURA_CACHE.computeIfAbsent(playerId, k -> new CachedAuraData());
 		long gameTime = player.level().getGameTime();
 
-		if (gameTime - LAST_RENDER_TIME.getOrDefault(playerId, 0L) > 2) {
-			data.alphaProgress = 0.0f;
-			data.growth = 0.0f;
-		}
 		LAST_RENDER_TIME.put(playerId, gameTime);
-
-		if (data.alphaProgress < 1.0f) {
-			data.alphaProgress += FADE_SPEED;
-			if (data.alphaProgress > 1.0f) data.alphaProgress = 1.0f;
-		}
 
 		float[] modelScale = getModelScale(stats);
 		float[] body = getBodyScale(stats);
@@ -992,16 +994,7 @@ public class AuraRenderer {
 		CachedAuraData data = AURA_CACHE.computeIfAbsent(playerId, k -> new CachedAuraData());
 		long gameTime = player.level().getGameTime();
 
-		if (gameTime - LAST_RENDER_TIME.getOrDefault(playerId, 0L) > 2) {
-			data.alphaProgress = 0.0f;
-			data.growth = 0.0f;
-		}
 		LAST_RENDER_TIME.put(playerId, gameTime);
-
-		if (data.alphaProgress < 1.0f) {
-			data.alphaProgress += FADE_SPEED;
-			if (data.alphaProgress > 1.0f) data.alphaProgress = 1.0f;
-		}
 
 		float[] modelScale = getModelScale(stats);
 		float[] body = getBodyScale(stats);
@@ -1180,10 +1173,6 @@ public class AuraRenderer {
 	private static boolean renderShaderGhostAura(Player player, CachedAuraData data, PoseStack poseStack, Minecraft mc, float partialTick, Matrix4f projectionMatrix) {
         var sealStats=StatsProvider.get(StatsCapability.INSTANCE,player).orElse(null);
         boolean sealed=com.dragonminez.api.forms.FormVisuals.sealed(sealStats);
-		if (!sealed && data.alphaProgress > 0.0f) {
-			data.alphaProgress -= FADE_SPEED;
-			if (data.alphaProgress < 0.0f) data.alphaProgress = 0.0f;
-		}
 
 		var stats = StatsProvider.get(StatsCapability.INSTANCE, player).orElse(null);
 		if (stats == null) return false;
@@ -1496,6 +1485,7 @@ public class AuraRenderer {
         data.seal.update(com.dragonminez.api.forms.FormVisuals.sealed(sealStats),Minecraft.getInstance().isPaused()?0:dt,sealSeconds);
 		if (Minecraft.getInstance().isPaused()) dt = 0.0f;
 
+		data.alphaProgress = Mth.clamp(data.alphaProgress + (active ? 1.0f : -1.0f) * dt * FADE_SPEED, 0.0f, 1.0f);
 		data.growth = active
 				? Math.min(1.0f, data.growth + dt * SMOOTH_GROWTH_RATE)
 				: Math.max(0.0f, data.growth - dt * SMOOTH_SHRINK_RATE);
@@ -1666,21 +1656,8 @@ public class AuraRenderer {
 	}
 
 	private static void renderShaderPulseAura(Player player, CachedAuraData data, List<AuraLayer> layers, PoseStack poseStack, Minecraft mc, Matrix4f projectionMatrix, float partialTick, float alphaMultiplier) {
-		int playerId = player.getId();
-		long gameTime = player.level().getGameTime();
-
-		if (gameTime - PULSE_LAST_RENDER_TIME.getOrDefault(playerId, 0L) > 2) {
-			PULSE_PROGRESS.put(playerId, 0.0f);
-		}
-		PULSE_LAST_RENDER_TIME.put(playerId, gameTime);
-
-		float currentProgress = PULSE_PROGRESS.getOrDefault(playerId, 0.0f);
-
-		if (!mc.isPaused()) {
-			currentProgress += PULSE_SPEED;
-			if (currentProgress >= 1.0f) currentProgress -= 1.0f;
-			PULSE_PROGRESS.put(playerId, currentProgress);
-		}
+        // Tick time keeps the pulse continuous across slow frames and camera/frustum changes.
+        float currentProgress = (float) ((player.level().getGameTime() + partialTick) * PULSE_SPEED % 1.0);
 
         int topId = layers.get(layers.size() - 1).layerId;
         for (AuraLayer layer : layers) {

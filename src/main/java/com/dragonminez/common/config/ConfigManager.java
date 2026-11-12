@@ -241,6 +241,7 @@ public class ConfigManager {
         RACE_FORMS.clear(); RACE_FORMS.putAll(prepared.races());
         STACK_FORMS.clear(); STACK_FORMS.putAll(prepared.stacks());
         attributes = prepared.attributes(); overlay = prepared.overlay();
+        com.dragonminez.common.spacepod.SpacePodDestinationRegistry.install(overlay.destinations());
         invalidateSyncPayloads();
     }
     static void validateForms(Map<String,FormConfig> groups, Map<String,FormConfig> stacks) {

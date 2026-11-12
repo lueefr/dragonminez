@@ -11,6 +11,8 @@ public final class ScriptContent {
     private record Entry(String race, String id, FormConfig original, FormConfig installed) {}
     private final List<Entry> entries = new ArrayList<>();
     private AttributeConfig baseline, installed;
+    private final List<JsonObject> destinations = new ArrayList<>();
+    public List<JsonObject> destinations() { return List.copyOf(destinations); }
     public record Prepared(Map<String,Map<String,FormConfig>> races, Map<String,FormConfig> stacks, AttributeConfig attributes, ScriptContent overlay) {}
     public Prepared prepare(Map<String,Map<String,FormConfig>> current, Map<String,FormConfig> stacks, AttributeConfig attributes, List<JsonObject> definitions) {
         var races = new LinkedHashMap<String,Map<String,FormConfig>>();
@@ -35,7 +37,10 @@ public final class ScriptContent {
             String race = definition.has("race") ? definition.get("race").getAsString() : null;
             if (!ids.add(type + "/" + race + "/" + id)) throw new IllegalArgumentException("Duplicate Lua content definition: " + id);
             var value = definition.getAsJsonObject("value").deepCopy();
-            if (type.equals("attribute")) {
+            if (type.equals("spacepod_destination")) {
+                if (race != null) throw new IllegalArgumentException("Destinations cannot declare race");
+                next.destinations.add(definition.deepCopy());
+            } else if (type.equals("attribute")) {
                 com.dragonminez.api.content.ContentProgress.requireId(id);
                 if (race != null) throw new IllegalArgumentException("Attributes do not declare race; use conditions");
                 collision(id, mode, values.has(id)); values.add(id, value);
@@ -55,6 +60,7 @@ public final class ScriptContent {
                 next.entries.add(new Entry(race, id, groups.get(id), group)); groups.put(id, group);
             } else throw new IllegalArgumentException("Unsupported Lua content type: " + type);
         }
+        com.dragonminez.common.spacepod.SpacePodDestinationRegistry.prepare(next.destinations);
         AttributeConfig resolved = AttributeConfig.parse(GSON.toJson(source));
         races.forEach((race, groups) -> ConfigManager.validateForms(groups, shared));
         if (races.isEmpty()) ConfigManager.validateForms(Map.of(), shared);

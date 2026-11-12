@@ -29,15 +29,14 @@ public final class FormAccess {
         if (data.getPlayer() instanceof ServerPlayer player) {
             Component reason = Component.translatable(forced ? "rules.dragonminez.use_warning" : "rules.dragonminez.use_denied",
                     name(data,group+"."+form), join(missing));
-            notice(player,reason,color(data,group+"."+form));
+            notice(player,reason,null);
         }
         return forced;
     }
     public static Component name(StatsData data, String ref) {
         int dot=ref.lastIndexOf('.');var target=FormVariants.resolve(data,ref.substring(0,dot),ref.substring(dot+1));
         Component name = FormHair.name(data.getCharacter().getRaceName(),target.key());
-        Integer color = color(data,ref);
-        return color == null ? name : name.copy().withStyle(style -> style.withColor(color));
+        return name;
     }
     public static Integer color(StatsData data,String ref) {
         try {
@@ -82,7 +81,7 @@ public final class FormAccess {
             for(int i=0;i<args.length;i++)if(args[i] instanceof Component child)args[i]=coloredNames(child,data);
             result=net.minecraft.network.chat.MutableComponent.create(new net.minecraft.network.chat.contents.TranslatableContents(text.getKey(),text.getFallback(),args));
             result.setStyle(message.getStyle());
-            Integer color=colorForKey(data,text.getKey());if(color!=null)result.withStyle(style->style.withColor(color));
+            // Keep translation identity for the client's scoped renderer; preserve authored styles.
         }else result=message.plainCopy().setStyle(message.getStyle());
         for(Component sibling:message.getSiblings())result.append(coloredNames(sibling,data));
         return result;
@@ -94,8 +93,7 @@ public final class FormAccess {
     }
     public static void notice(ServerPlayer player,Component reason,Integer color) {
         if (!com.dragonminez.common.network.PacketRateLimiter.allow(player.getUUID(),"rule_notice",player.serverLevel().getGameTime(),10)) return;
-        var data=com.dragonminez.common.stats.StatsProvider.get(com.dragonminez.common.stats.StatsCapability.INSTANCE,player).orElse(null);
-        if(data!=null)reason=coloredNames(reason,data);
+
         NetworkHandler.sendToPlayer(new RuleNoticeS2C(reason,color),player);
     }
     private FormAccess() {}

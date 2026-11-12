@@ -38,6 +38,8 @@ public class SpacePodDestinationRegistry extends SimpleJsonResourceReloadListene
 
 	private static List<SpacePodDestinationDefinition> serverDestinations = List.of();
 	private static List<SpacePodDestinationDefinition> clientDestinations = List.of();
+    private static List<SpacePodDestinationDefinition> base = bundled();
+    private static List<JsonObject> scripts = List.of();
 
 	private SpacePodDestinationRegistry() {
 		super(GSON, DIRECTORY);
@@ -46,7 +48,8 @@ public class SpacePodDestinationRegistry extends SimpleJsonResourceReloadListene
 	@Override
 	protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
 		List<Map.Entry<ResourceLocation, JsonElement>> entries = new ArrayList<>(map.entrySet());
-		entries.sort(Comparator.comparing(entry -> entry.getKey().toString()));
+		entries.sort(Comparator.<Map.Entry<ResourceLocation,JsonElement>>comparingInt(entry -> entry.getKey().toString().equals("dragonminez:destinations") ? 0 : 1)
+                .thenComparing(entry -> entry.getKey().toString()));
 
 		List<SpacePodDestinationDefinition> loaded = new ArrayList<>();
 		for (Map.Entry<ResourceLocation, JsonElement> entry : entries) {
@@ -61,13 +64,49 @@ public class SpacePodDestinationRegistry extends SimpleJsonResourceReloadListene
 				if (!element.isJsonObject()) {
 					throw new IllegalArgumentException("Destination entry in '" + entry.getKey() + "' must be an object");
 				}
-				loaded.add(SpacePodDestinationDefinition.fromJson(element.getAsJsonObject()));
+				var destination = SpacePodDestinationDefinition.fromJson(element.getAsJsonObject());
+                loaded.removeIf(old -> old.id().equals(destination.id()) || destination.slot() != null && destination.slot().equals(old.slot()));
+                loaded.add(destination);
 			}
 		}
 
-		serverDestinations = List.copyOf(loaded);
+		var previous = base;
+        base = List.copyOf(loaded);
+        try { serverDestinations = prepare(scripts); }
+        catch (RuntimeException failure) { base=previous; throw failure; }
 		LogUtil.info(Env.COMMON, "Loaded {} space pod destination(s) from datapacks", serverDestinations.size());
 	}
+
+    private static List<SpacePodDestinationDefinition> bundled() {
+        try (var input = SpacePodDestinationRegistry.class.getResourceAsStream("/data/dragonminez/spacepod/destinations.json")) {
+            if (input == null) throw new IllegalStateException("Missing bundled space pod destinations");
+            return List.copyOf(fromJson(new String(input.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)));
+        } catch (java.io.IOException failure) { throw new IllegalStateException("Cannot read space pod destinations",failure); }
+    }
+
+    public static List<SpacePodDestinationDefinition> prepare(List<JsonObject> definitions) {
+        var result = new ArrayList<>(base);
+        for (var entry : definitions) {
+            String id = entry.get("id").getAsString();
+            var value = entry.getAsJsonObject("value").deepCopy(); value.addProperty("id",id);
+            var next = SpacePodDestinationDefinition.fromJson(value);
+            String mode = entry.has("mode") ? entry.get("mode").getAsString() : "add";
+            if (!java.util.Set.of("add","replace").contains(mode)) throw new IllegalArgumentException("Destination mode must be add or replace");
+            boolean exists = result.stream().anyMatch(old -> old.id().equals(id) || next.slot()!=null && next.slot().equals(old.slot()));
+            if (exists != mode.equals("replace")) throw new IllegalArgumentException("Destination mode conflicts with id or slot: " + id);
+            result.removeIf(old -> old.id().equals(id) || next.slot()!=null && next.slot().equals(old.slot()));
+            result.add(next);
+        }
+        result.sort(Comparator.comparingInt(value -> value.slot()==null ? 256 : value.slot()));
+        return List.copyOf(result);
+    }
+
+    public static void install(List<JsonObject> definitions) {
+        var prepared = prepare(definitions);
+        scripts = definitions.stream().map(JsonObject::deepCopy).toList(); serverDestinations = prepared;
+        var server = net.neoforged.neoforge.server.ServerLifecycleHooks.getCurrentServer();
+        if (server != null) for (var player : server.getPlayerList().getPlayers()) syncToPlayer(player);
+    }
 
 	public static List<SpacePodDestinationDefinition> getServerDestinations() {
 		return serverDestinations;
@@ -100,6 +139,7 @@ public class SpacePodDestinationRegistry extends SimpleJsonResourceReloadListene
 		for (SpacePodDestinationDefinition destination : destinations) {
 			JsonObject object = new JsonObject();
 			object.addProperty("id", destination.id());
+            if (destination.slot() != null) object.addProperty("slot", destination.slot());
 			object.addProperty("name", destination.name());
 			object.addProperty("translate", destination.translate());
 			object.addProperty("dimension", destination.dimension());

@@ -129,7 +129,7 @@ public class TextUtil {
             named[0] |= com.dragonminez.client.text.FormNameText.color(style) != null;
             return true;
         });
-        if (named[0] && !(text instanceof com.dragonminez.client.text.FormNameText.Unstyled)) {
+        if (com.dragonminez.client.text.FormNameText.allowed() && named[0] && !(text instanceof com.dragonminez.client.text.FormNameText.Unstyled)) {
             int cursor = x;
             for (int start = 0; start < glyphs.size();) {
                 boolean form = com.dragonminez.client.text.FormNameText.color(glyphs.get(start).style()) != null;

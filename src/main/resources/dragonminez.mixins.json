@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "dragonminez.refmap.json",
   "mixins": [
+    "common.SeedTerrainMixin",
     "common.ConfigTranslationCacheMixin",
     "common.ChunkSerializerMixin",
     "common.EnchantmentMixin",
@@ -24,12 +25,15 @@
     "common.StructureTemplatePoolAccessor"
   ],
   "client": [
+    "client.SeedQueueMixin",
+    "client.SeedFillMixin",
     "client.ConfigLanguageMixin",
     "client.FormNameColorMixin",
     "client.FormNameCacheMixin",
     "client.FormNameStyleMixin",
     "client.FormNameFontMixin",
     "client.FormNameScreenMixin",
+    "client.FormPopupMixin",
     "client.AbstractSoundInstanceAccessor",
     "client.BundleTooltipComponentAccessor",
     "client.BrandingControlMixin",

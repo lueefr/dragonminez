@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 public record SpacePodDestinationDefinition(
 		String id,
+        @Nullable Integer slot,
 		String name,
 		boolean translate,
 		String dimension,
@@ -20,9 +21,17 @@ public record SpacePodDestinationDefinition(
 ) {
 	public static SpacePodDestinationDefinition fromJson(JsonObject object) {
 		String id = getRequiredString(object, "id");
+        if (id.isBlank() || id.length() > 128) throw new IllegalArgumentException("Invalid destination id");
+        Integer slot = object.has("slot") ? object.get("slot").getAsInt() : switch (id) {
+            case "overworld" -> 0; case "namek" -> 1; case "otherworld" -> 2;
+            case "sacredkaiplanet" -> 3; case "cereal" -> 4; case "beerus" -> 5;
+            case "time_chamber" -> 6; case "demon_realm" -> 7; default -> null;
+        };
+        if (slot != null && (slot < 0 || slot > 255)) throw new IllegalArgumentException("Destination slot must be 0..255");
 		String name = getRequiredString(object, "name");
 		boolean translate = !object.has("translate") || object.get("translate").getAsBoolean();
 		String dimension = getRequiredString(object, "dimension");
+        net.minecraft.resources.ResourceLocation.parse(dimension);
 
 		Integer iconIndex = object.has("icon_index") && !object.get("icon_index").isJsonNull()
 				? object.get("icon_index").getAsInt()
@@ -35,6 +44,9 @@ public record SpacePodDestinationDefinition(
 			throw new IllegalArgumentException("Destination '" + id + "' must define icon_index or icon_texture");
 		}
 
+		if (iconTexture != null) net.minecraft.resources.ResourceLocation.parse(iconTexture);
+        if (iconIndex != null && (iconIndex < 0 || iconIndex > 255)) throw new IllegalArgumentException("Invalid destination icon index");
+
 		Double x = getOptionalDouble(object, "x");
 		Double y = getOptionalDouble(object, "y");
 		Double z = getOptionalDouble(object, "z");
@@ -45,7 +57,7 @@ public record SpacePodDestinationDefinition(
 		JsonElement unlockElement = object.get("unlock_rules");
 		SpacePodUnlockExpression unlockRules = SpacePodUnlockExpression.fromJson(unlockElement);
 
-		return new SpacePodDestinationDefinition(id, name, translate, dimension, iconIndex, iconTexture, x, y, z, showWhenLocked, unlockRules);
+		return new SpacePodDestinationDefinition(id, slot, name, translate, dimension, iconIndex, iconTexture, x, y, z, showWhenLocked, unlockRules);
 	}
 
 	public Vec3 resolvePosition(Vec3 playerPosition) {
@@ -74,7 +86,9 @@ public record SpacePodDestinationDefinition(
 		if (!object.has(key) || object.get(key).isJsonNull()) {
 			return null;
 		}
-		return object.get(key).getAsDouble();
+		double value = object.get(key).getAsDouble();
+        if (!Double.isFinite(value) || Math.abs(value) > 30000000) throw new IllegalArgumentException("Invalid destination coordinate: " + key);
+        return value;
 	}
 
 	private static String getRequiredString(JsonObject object, String key) {

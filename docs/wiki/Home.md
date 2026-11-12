@@ -455,3 +455,9 @@ backups under `oldBackup` and log the backup paths. Invalid files are left untou
 resolve conflicting destination files before retrying. Do not edit an old backup as
 though it were an active configuration. Core settings, races/forms and world-scoped
 quests/wishes keep their established folders.
+
+
+## Additional customization guides
+
+- [Saved hair presets](Hair-presets)
+- [Space Pod destinations, icons and slots](Space-pod-destinations)

@@ -8,7 +8,7 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.neoforged.api.distmarker.Dist;
 import java.util.function.Supplier;
 
-/** Server-authoritative denial, retaining translatable components and per-form text colors. */
+/** Server-authoritative denial, retaining translation identity and explicitly authored text styles. */
 public record RuleNoticeS2C(Component message, Integer color) {
     public RuleNoticeS2C(FriendlyByteBuf buf) {
         this(buf.readJsonWithCodec(ComponentSerialization.CODEC),buf.readBoolean()?buf.readInt():null);

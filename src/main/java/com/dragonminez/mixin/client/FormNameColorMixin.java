@@ -30,10 +30,5 @@ public abstract class FormNameColorMixin {
         Integer color=FormAccess.colorForKey(data,key);
         return color==null?style:com.dragonminez.client.text.FormNameText.mark(style,color);
     }
-    @ModifyVariable(method="visit(Lnet/minecraft/network/chat/FormattedText$StyledContentConsumer;Lnet/minecraft/network/chat/Style;)Ljava/util/Optional;",at=@At("HEAD"),argsOnly=true)
-    private <T> net.minecraft.network.chat.FormattedText.StyledContentConsumer<T> dragonminez$inlineNames(net.minecraft.network.chat.FormattedText.StyledContentConsumer<T> visitor) {
-        if(!com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread()||!key.contains(".dragonminez.")&&!key.startsWith("dmz."))return visitor;
-        return (style,text)->com.dragonminez.client.text.FormNamePalette.visit(visitor,style,text);
-    }
 
 }

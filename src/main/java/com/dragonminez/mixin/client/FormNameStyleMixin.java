@@ -23,7 +23,7 @@ public abstract class FormNameStyleMixin implements FormNameStyle {
     public Integer dragonminez$formColor(){return dragonminez$formColor;}
     public void dragonminez$setColor(Integer color){dragonminez$formColor=color;}
     public Style dragonminez$copyColor(Integer rgb) {
-        Style copy=dragonminez$newStyle(rgb==null?color:TextColor.fromRgb(rgb),bold,italic,underlined,strikethrough,obfuscated,clickEvent,hoverEvent,insertion,font);
+        Style copy=dragonminez$newStyle(color,bold,italic,underlined,strikethrough,obfuscated,clickEvent,hoverEvent,insertion,font);
         ((FormNameStyle)copy).dragonminez$setColor(rgb);
         return copy;
     }

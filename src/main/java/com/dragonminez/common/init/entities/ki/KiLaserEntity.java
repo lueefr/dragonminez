@@ -490,6 +490,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
 
 
     private void updatePositionRelativeToOwner(LivingEntity owner) {
+        com.dragonminez.common.stats.techniques.KiPose.apply(this, owner);
         if (this.entityData.get(STRIKE)) {
             if (this.strikeOrigin != null) this.setPos(this.strikeOrigin.x, this.strikeOrigin.y, this.strikeOrigin.z);
             return;

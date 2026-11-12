@@ -1,4 +1,5 @@
 {
+  "message.dragonminez.seed.otherworld": "Otherworld requires real terrain; seed approximation is disabled.",
   "entity.dragonminez.energy_projection": "Energy Projection",
   "command.dragonminez.script.bindings": "Lua editor declarations written to %s.",
   "command.dragonminez.script.valid": "Validated %s Lua modules and their content. Live configuration was not changed.",
@@ -6960,5 +6961,13 @@
   "wish.dragonminez.shenron.senzu.desc": "Receive some Senzu Beans.",
   "wish.dragonminez.shenron.strongest.name": "The Strongest Armor",
   "wish.dragonminez.shenron.strongest.desc": "Receive 'The Strongest' armor set.",
-  "gui.dragonminez.wishes.raw_text": "%s"
+  "gui.dragonminez.wishes.raw_text": "%s",
+  "gui.dragonminez.skills.creator.pose": "Energy ability pose",
+  "gui.dragonminez.skills.creator.default_pose": "Default pose",
+  "gui.dragonminez.hair_editor.library": "Saved hair presets",
+  "gui.dragonminez.hair_editor.preset_name": "Preset name",
+  "gui.dragonminez.hair_editor.save_preset": "Save preset",
+  "gui.dragonminez.hair_editor.preset_saved": "Preset saved",
+  "gui.dragonminez.hair_editor.delete_preset": "Delete",
+  "gui.dragonminez.hair_editor.preset_error": "Cannot use this preset. Check its name and the game log."
 }

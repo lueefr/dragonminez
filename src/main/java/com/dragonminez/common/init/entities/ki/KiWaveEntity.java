@@ -478,6 +478,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
     }
 
     private void updatePositionRelativeToOwner(LivingEntity owner, boolean isCasting) {
+        com.dragonminez.common.stats.techniques.KiPose.apply(this, owner);
         if (this.isHeatDome()) {
             this.updateHeatDomePosition(owner, isCasting);
             return;

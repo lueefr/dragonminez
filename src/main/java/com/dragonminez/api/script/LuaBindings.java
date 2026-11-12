@@ -35,7 +35,7 @@ public final class LuaBindings {
             ---@field reward table<string, any>
 
             ---@class DMZContent
-            ---@field type 'form_group'|'stack_group'|'attribute'
+            ---@field type 'form_group'|'stack_group'|'attribute'|'spacepod_destination'
             ---@field id string
             ---@field race? string
             ---@field mode? 'add'|'replace'

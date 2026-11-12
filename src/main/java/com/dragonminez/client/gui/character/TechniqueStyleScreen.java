@@ -70,6 +70,7 @@ public class TechniqueStyleScreen extends ScaledScreen {
 	private boolean orbiting;
 	private boolean updatingPicker;
 
+	private net.minecraft.client.gui.components.Button poseButton;
 	private CustomTextureButton typeLeft;
 	private CustomTextureButton typeRight;
 	private ColorSlider hueSlider;
@@ -106,7 +107,14 @@ public class TechniqueStyleScreen extends ScaledScreen {
 
 		this.panelY = Math.max(30, (getUiHeight() - (PANEL_H + 6 + BUTTON_H)) / 2);
 
-		this.typeLeft = createArrowButton(true, btn -> changeType(-1));
+		this.poseButton = addRenderableWidget(net.minecraft.client.gui.components.Button.builder(draft.poseLabel(), button -> {
+            draft.cyclePose();
+            button.setMessage(draft.poseLabel());
+            TechniquePreview.show(draft.buildTechnique());
+        }).bounds(0, 0, 140, 20).build());
+        this.poseButton.setTooltip(net.minecraft.client.gui.components.Tooltip.create(Component.translatable("gui.dragonminez.skills.creator.pose")));
+
+        this.typeLeft = createArrowButton(true, btn -> changeType(-1));
 		this.typeRight = createArrowButton(false, btn -> changeType(1));
 		addRenderableWidget(this.typeLeft);
 		addRenderableWidget(this.typeRight);
@@ -180,7 +188,9 @@ public class TechniqueStyleScreen extends ScaledScreen {
 	}
 
 	private void layoutWidgets() {
-		int sliderX = (PANEL_W - SLIDER_W) / 2;
+		this.poseButton.setX((int)this.panelX);
+        this.poseButton.setY(this.panelY - 24);
+        int sliderX = (PANEL_W - SLIDER_W) / 2;
 		int buttonsX = (PANEL_W - (BUTTON_W * 2 + BUTTON_GAP)) / 2;
 		int buttonsY = this.panelY + PANEL_H + 6;
 
@@ -205,6 +215,7 @@ public class TechniqueStyleScreen extends ScaledScreen {
 
 	private void changeType(int direction) {
 		draft.cycleType(direction);
+        this.poseButton.setMessage(draft.poseLabel());
 		TechniquePreview.show(draft.buildTechnique());
 	}
 

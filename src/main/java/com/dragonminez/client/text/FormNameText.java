@@ -11,6 +11,10 @@ import java.util.*;
 public final class FormNameText {
     private static final Deque<Boolean> screens=new ArrayDeque<>();
     private static boolean drawing;
+    private static boolean popup;
+    public static void enterPopup() { popup=true; }
+    public static void leavePopup() { popup=false; }
+    public static boolean allowed() { return popup || modScreen(); }
     private FormNameText(){}
     public static com.dragonminez.common.stats.StatsData viewer() {
         var player=net.minecraft.client.Minecraft.getInstance().player;
@@ -27,7 +31,7 @@ public final class FormNameText {
         return com.dragonminez.common.util.FusionForms.formTranslationKey(race,target.group(),target.form());
     }
     public static void enterScreen(Object screen){
-        boolean mod=false;for(Class<?> type=screen.getClass();type!=null;type=type.getSuperclass())mod|=type.getName().startsWith("com.dragonminez.");
+        boolean mod=screen instanceof com.dragonminez.client.gui.character.SkillsMenuScreen || screen instanceof com.dragonminez.client.gui.UtilityMenuScreen;
         screens.push(mod);
     }
     public static void leaveScreen(){if(!screens.isEmpty())screens.pop();}
@@ -48,7 +52,7 @@ public final class FormNameText {
             if(!sink.accept(glyph.index(),style,glyph.codepoint()))return false;}return true;};
     }
     public static Integer draw(Font font,FormattedCharSequence text,float x,float y,int color,boolean shadow,Matrix4f matrix,MultiBufferSource buffers,Font.DisplayMode mode,int background,int light) {
-        if(drawing||text instanceof Unstyled)return null;
+        if(drawing||!allowed()||text instanceof Unstyled)return null;
         boolean[] named={false};
         text.accept((i,style,cp)->{named[0]=color(style)!=null;return !named[0];});
         if(modScreen()){
@@ -58,7 +62,7 @@ public final class FormNameText {
         List<Glyph> glyphs=new ArrayList<>();text.accept((i,style,cp)->{glyphs.add(new Glyph(i,style,cp));return true;});
         drawing=true;
         try {
-            if(!inScreen())return font.drawInBatch(sequence(glyphs,null),x,y,color,shadow,matrix,buffers,mode,background,light);
+
             float cursor=x;int result=(int)x;
             for(int start=0;start<glyphs.size();) {
                 Integer rgb=color(glyphs.get(start).style());int end=start+1;

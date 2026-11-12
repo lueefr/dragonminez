@@ -384,6 +384,16 @@ final class HairEditorState implements HairRenderContext.Preview {
 		selectedSegment = -1;
 	}
 
+    void loadPreset(EnumMap<HairStyleSlot, CustomHair> imported, boolean base) {
+        recordStep();
+        imported.forEach((key, hair) -> styles.get(key).copyFrom(hair));
+        hairBase = base;
+        presetId = 0;
+        forceDirty = true;
+        simulation.invalidateSimulation();
+        clampSegmentSelection();
+    }
+
 	void replaceStyles(EnumMap<HairStyleSlot, CustomHair> imported) {
 		recordStep();
 		for (HairStyleSlot styleSlot : HairStyleSlot.values()) {

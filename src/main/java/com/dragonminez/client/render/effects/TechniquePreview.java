@@ -320,12 +320,14 @@ public final class TechniquePreview {
 			case MEDIUM_BALL -> {
 				KiBlastEntity ball = new KiBlastEntity(level, player);
 				ball.setupKiBlastPlayer(player, 0.0F, speed, core, border, outline, size);
+                ball.poseOffset(player, spec.getAnimationPrefix());
 				ball.setCastTime(charge);
 				yield ball;
 			}
 			case GIANT_BALL -> {
 				KiBlastEntity ball = new KiBlastEntity(level, player);
 				ball.setupKiLargeBlastPlayer(player, 0.0F, speed, core, border, outline, size);
+                ball.poseOffset(player, spec.getAnimationPrefix());
 				ball.setCastTime(charge);
 				yield ball;
 			}
@@ -381,7 +383,8 @@ public final class TechniquePreview {
 		};
 
 		if (entity == null) return;
-		entity.setKiType(spec.getKiType().ordinal());
+		entity.castPose(spec.getAnimationPrefix());
+        entity.setKiType(spec.getKiType().ordinal());
 		main = add(entity, Integer.MAX_VALUE, false, false, false, PIECES);
 	}
 

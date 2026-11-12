@@ -67,6 +67,8 @@ public abstract class AbstractKiProjectile extends Projectile {
     private static final EntityDataAccessor<Boolean> IS_FIRING = SynchedEntityData.defineId(AbstractKiProjectile.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> FIRE_TICK = SynchedEntityData.defineId(AbstractKiProjectile.class, EntityDataSerializers.INT);
 
+    private static final EntityDataAccessor<String> CAST_POSE = SynchedEntityData.defineId(AbstractKiProjectile.class, EntityDataSerializers.STRING);
+
     private transient float[] cachedColorMainRgb;
     private transient float[] cachedColorBorderRgb;
     private transient float[] cachedColorOutlineRgb;
@@ -670,6 +672,7 @@ public abstract class AbstractKiProjectile extends Projectile {
         builder.define(KI_TYPE, KiType.SMALL_BALL.ordinal());
         builder.define(IS_FIRING, false);
         builder.define(FIRE_TICK, -1);
+        builder.define(CAST_POSE, "");
     }
 
     @Override
@@ -777,6 +780,9 @@ public abstract class AbstractKiProjectile extends Projectile {
     public void setKiRenderType(int type) { this.entityData.set(KI_BALL_RENDER_TYPE, type); }
     public int getKiRenderType() { return this.entityData.get(KI_BALL_RENDER_TYPE); }
     public String getTechniqueId() { return this.entityData.get(TECHNIQUE_ID); }
+    public String castPose() { return this.entityData.get(CAST_POSE); }
+    public void castPose(String pose) { this.entityData.set(CAST_POSE, pose == null ? "" : pose); }
+
     public void setTechniqueId(String id) {
         this.setTechniqueIdInternal(id, true);
     }

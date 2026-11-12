@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 public class CreateTechniqueC2S {
 	private static final int MAX_NAME_LENGTH = 64;
 
+	private final String animation;
 	private final String name;
 	private final String type;
 	private final String utility;
@@ -39,7 +40,8 @@ public class CreateTechniqueC2S {
 
 	public CreateTechniqueC2S(String name, String type, String utility, float damage, float speed, float size,
 							  int armorPen, int cast, int cooldown, int colorInterior, int colorExterior, int colorOutline,
-							  String secondaryEffectType, String affectedStat, float secondaryIntensity, int secondaryDuration) {
+							  String secondaryEffectType, String affectedStat, float secondaryIntensity, int secondaryDuration, String animation) {
+		this.animation = animation;
 		this.name = name;
 		this.type = type;
 		this.utility = utility;
@@ -75,6 +77,7 @@ public class CreateTechniqueC2S {
 		this.affectedStat = buf.readUtf();
 		this.secondaryIntensity = buf.readFloat();
 		this.secondaryDuration = buf.readInt();
+        this.animation = buf.readUtf(128);
 	}
 
 	public void toBytes(FriendlyByteBuf buf) {
@@ -94,7 +97,13 @@ public class CreateTechniqueC2S {
 		buf.writeUtf(this.affectedStat != null ? this.affectedStat : "");
 		buf.writeFloat(this.secondaryIntensity);
 		buf.writeInt(this.secondaryDuration);
+        buf.writeUtf(this.animation != null ? this.animation : "", 128);
 	}
+
+    public static boolean allowedPose(KiAttackData.KiType type, String animation) {
+        return animation != null && !animation.isEmpty() && PredefinedTechniques.REGISTRY.values().stream()
+                .anyMatch(ki -> ki.getKiType() == type && animation.equals(ki.getAnimation()));
+    }
 
 	public boolean handle(Supplier<NetworkEvent.Context> supplier) {
 		NetworkEvent.Context context = supplier.get();
@@ -152,7 +161,7 @@ public class CreateTechniqueC2S {
 				technique.setColorInterior(colorInterior & 0xFFFFFF);
 				technique.setColorExterior(colorExterior & 0xFFFFFF);
 				technique.setColorOutline(colorOutline & 0xFFFFFF);
-				technique.setAnimation("");
+				technique.setAnimation(allowedPose(parsedType, animation) ? animation : "");
 
 				KiAttackData.SecondaryEffectType parsedSecondary;
 				try { parsedSecondary = KiAttackData.SecondaryEffectType.valueOf(secondaryEffectType); }

@@ -337,14 +337,12 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
     @Override
     public void setCustomAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
         super.setCustomAnimations(animatable, instanceId, animationState);
-        boolean transfAnimPlaying = animatable instanceof IPlayerAnimatable pa && pa.dragonminez$getCurrentPlayingAnimation().startsWith("transf.");
         boolean actuallyTransforming = StatsProvider.get(StatsCapability.INSTANCE, animatable)
                 .map(data -> data.getStatus().isActionCharging()).orElse(false);
         String playingAnim = animatable instanceof IPlayerAnimatable playing ? playing.dragonminez$getCurrentPlayingAnimation() : "";
         String kiAnim = animatable instanceof IPlayerAnimatable playing ? playing.dragonminez$getCurrentKiAnimation() : "";
         boolean ownsHead = clipOwnsHead(playingAnim) || clipOwnsHead(kiAnim);
-        boolean flying = forwardHead(animatable);
-        boolean skipHead = (transfAnimPlaying && actuallyTransforming) || ownsHead;
+        boolean skipHead = actuallyTransforming || ownsHead;
 
         float partialTick = animationState.getPartialTick();
         float bodyYaw = Mth.lerp(partialTick, animatable.yBodyRotO, animatable.yBodyRot);
@@ -361,8 +359,8 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         if (head != null && !skipHead) {
             EntityModelData entityModelData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
 
-            float lookPitchRad = flying ? 0.0F : entityModelData.headPitch() * Mth.DEG_TO_RAD;
-            float lookYawRad = flying ? 0.0F : entityModelData.netHeadYaw() * Mth.DEG_TO_RAD;
+            float lookPitchRad = entityModelData.headPitch() * Mth.DEG_TO_RAD;
+            float lookYawRad = entityModelData.netHeadYaw() * Mth.DEG_TO_RAD;
 
             float waistRotX = (waist != null) ? waist.getRotX() : 0.0F;
             float waistRotY = (waist != null) ? waist.getRotY() : 0.0F;
@@ -410,17 +408,6 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
         KiSharePose.apply(animatable, rightArm, leftArm, partialTick);
         applyBoobScale(animatable);
         clearExplosionHeadOffset(animatable);
-    }
-
-    private static boolean forwardHead(AbstractClientPlayer player) {
-        if (player.isPassenger()) return false;
-        if (Minecraft.getInstance().screen instanceof com.dragonminez.client.gui.character.util.BaseMenuScreen) return false;
-        // Keep world flight independent of camera look, including while paused.
-        return StatsProvider.get(StatsCapability.INSTANCE, player)
-                .map(data -> data.getSkills().isSkillActive("fly")).orElse(false)
-                || player.getAbilities().flying || player.isFallFlying()
-                || (player instanceof IPlayerAnimatable anim && anim.dragonminez$isFlying())
-                || com.dragonminez.client.events.FlySkillEvent.isStrikeRushing(player);
     }
 
     private void clearExplosionHeadOffset(T animatable) {
@@ -483,12 +470,11 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
     public void applyMolangQueries(AnimationState<T> animationState, double animTime) {
         super.applyMolangQueries(animationState, animTime);
         T animatable = animationState.getAnimatable();
-        boolean headAnimPlaying = animatable instanceof IPlayerAnimatable pa && (pa.dragonminez$getCurrentPlayingAnimation().startsWith("transf.")
-                || pa.dragonminez$getCurrentPlayingAnimation().startsWith("ki."));
-        boolean actuallyBusy = StatsProvider.get(StatsCapability.INSTANCE, animatable)
-                .map(data -> data.getStatus().isActionCharging() || data.getStatus().isChargingKi()).orElse(false)
-                || (animatable instanceof IPlayerAnimatable pa2 && pa2.dragonminez$isShootingKi());
-        boolean skipHead = (headAnimPlaying && actuallyBusy) || forwardHead(animatable);
+        String playing = animatable instanceof IPlayerAnimatable pa ? pa.dragonminez$getCurrentPlayingAnimation() : "";
+        String ki = animatable instanceof IPlayerAnimatable pa ? pa.dragonminez$getCurrentKiAnimation() : "";
+        boolean skipHead = clipOwnsHead(playing) || clipOwnsHead(ki)
+                || StatsProvider.get(StatsCapability.INSTANCE, animatable)
+                .map(data -> data.getStatus().isActionCharging()).orElse(false);
 
         // In GUI screens the O-fields (yBodyRotO, xRotO) are stale world values — the screen
         // only sets the current-tick fields. Using pt=1.0 makes lerp return the current value

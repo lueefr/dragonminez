@@ -27,6 +27,7 @@ public class TechniqueDraft {
 	@Setter
 	private String name;
 	private KiAttackData.KiType type = KiAttackData.KiType.SMALL_BALL;
+	private String animation = "";
 	private KiAttackData.Utility utility = KiAttackData.Utility.DAMAGE;
 	private float damage = KiAttackData.getDefaultDamageForType(KiAttackData.KiType.SMALL_BALL);
 	private float size = KiAttackData.getDefaultSizeForType(KiAttackData.KiType.SMALL_BALL);
@@ -64,6 +65,7 @@ public class TechniqueDraft {
 
 	public void setType(KiAttackData.KiType newType) {
 		type = newType;
+        animation = "";
 		utility = KiAttackData.Utility.DAMAGE;
 		damage = KiAttackData.getDefaultDamageForType(type);
 		size = KiAttackData.getDefaultSizeForType(type);
@@ -76,6 +78,24 @@ public class TechniqueDraft {
 		KiAttackData.KiType[] values = KiAttackData.KiType.values();
 		setType(values[Math.floorMod(type.ordinal() + direction, values.length)]);
 	}
+
+    public java.util.List<KiAttackData> poses() {
+        return com.dragonminez.common.stats.techniques.PredefinedTechniques.REGISTRY.values().stream()
+                .filter(ki -> ki.getKiType() == type && ki.getAnimation() != null && !ki.getAnimation().isEmpty())
+                .sorted(java.util.Comparator.comparing(KiAttackData::getId)).toList();
+    }
+
+    public void cyclePose() {
+        var choices = poses();
+        int index = -1;
+        for (int i = 0; i < choices.size(); i++) if (choices.get(i).getAnimation().equals(animation)) index = i;
+        animation = index + 1 < choices.size() ? choices.get(index + 1).getAnimation() : "";
+    }
+
+    public Component poseLabel() {
+        for (var choice : poses()) if (choice.getAnimation().equals(animation)) return Component.translatable(choice.getName());
+        return Component.translatable("gui.dragonminez.skills.creator.default_pose");
+    }
 
 	public boolean allowsUtility() {
 		return KiAttackData.allowsHealUtility(type);
@@ -192,6 +212,7 @@ public class TechniqueDraft {
 	public KiAttackData buildTechnique() {
 		KiAttackData ki = new KiAttackData();
 		ki.setKiType(type);
+        ki.setAnimation(animation);
 		ki.setUtility(getEffectiveUtility());
 		ki.setDamageMultiplier(damage);
 		ki.setSize(size);
@@ -262,7 +283,7 @@ public class TechniqueDraft {
 				secondaryType.name(),
 				secondaryType == KiAttackData.SecondaryEffectType.NONE ? "" : affectedStat.name(),
 				secondaryIntensity,
-				secondaryDuration
+				secondaryDuration, animation
 		);
 	}
 

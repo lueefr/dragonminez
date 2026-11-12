@@ -50,7 +50,7 @@ public class MastersEntity extends PathfinderMob implements GeoEntity {
 
 	@Override
 	protected void registerGoals() {
-		this.goalSelector.addGoal(1, new LookAtPlayerGoal(this, Player.class, 8.0F));
+		this.goalSelector.addGoal(1, new com.dragonminez.common.init.entities.ai.PlayerLookGoal(this));
 		this.goalSelector.addGoal(2, new RandomLookAroundGoal(this));
 	}
 

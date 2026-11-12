@@ -1,4 +1,5 @@
 {
+  "message.dragonminez.seed.otherworld": "O Outro Mundo requer terreno real; a aproximação por seed está desativada.",
   "wish.dragonminez.porunga.attributes.name": "Aumento de Poder",
   "wish.dragonminez.porunga.attributes.desc": "Receba x75 Atributos: metade como Pontos de Atributo (AP) e metade como os Pontos de Treino que esses Atributos custariam a você agora.",
   "wish.dragonminez.porunga_daima.attributes.name": "Aumento de Poder",
@@ -85,5 +86,7 @@
   "wish.dragonminez.shenron.senzu.desc": "Receba algumas Sementes dos Deuses.",
   "wish.dragonminez.shenron.strongest.name": "Armadura 'O Mais Forte'",
   "wish.dragonminez.shenron.strongest.desc": "Receba o conjunto de armadura 'O Mais Forte'.",
-  "gui.dragonminez.wishes.raw_text": "%s"
+  "gui.dragonminez.wishes.raw_text": "%s",
+  "gui.dragonminez.skills.creator.pose": "Pose da habilidade de energia",
+  "gui.dragonminez.skills.creator.default_pose": "Pose padrão"
 }
