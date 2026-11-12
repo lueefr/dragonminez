@@ -367,8 +367,12 @@ public class DMZPlayerModel<T extends AbstractClientPlayer & GeoAnimatable> exte
             float rootRotX = (root != null) ? root.getRotX() : 0.0F;
             float rootRotY = (root != null) ? root.getRotY() : 0.0F;
 
-            head.setRotX(Mth.clamp(lookPitchRad - waistRotX - rootRotX, -Mth.HALF_PI, Mth.HALF_PI));
-            head.setRotY(lookYawRad - waistRotY - rootRotY);
+            boolean searchFlight = animatable instanceof AbstractClientPlayer player && !player.isPassenger()
+                    && com.dragonminez.client.events.FlySkillEvent.getInstance().isFlyingFast(player);
+            // Flight renderer already rotates the entire model into the travel frame.
+            // Keep the head aligned with that local frame instead of compensating world pitch.
+            head.setRotX(searchFlight ? -waistRotX - rootRotX : Mth.clamp(lookPitchRad - waistRotX - rootRotX, -Mth.HALF_PI, Mth.HALF_PI));
+            head.setRotY(searchFlight ? -waistRotY - rootRotY : lookYawRad - waistRotY - rootRotY);
         }
 
         if (animatable instanceof IPlayerAnimatable playerAnim && playerAnim.dragonminez$isShootingKi()) {

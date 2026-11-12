@@ -6983,5 +6983,8 @@
   "gui.dragonminez.body_editor.steve": "Steve (normal)",
   "gui.dragonminez.body_editor.alex": "Alex (slim)",
   "gui.dragonminez.body_editor.value": "%s: %s%%",
-  "gui.dragonminez.body_editor.frame_value": "Body frame: %s"
+  "gui.dragonminez.body_editor.frame_value": "Body frame: %s",
+  "gui.dragonminez.body_editor.leg_width": "Leg width",
+  "gui.dragonminez.body_editor.arm_width": "Arm width",
+  "gui.dragonminez.body_editor.reset": "Reset proportions"
 }

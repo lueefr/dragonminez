@@ -444,17 +444,31 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 	}
 
     private void initShapeSlider(int y, com.dragonminez.common.stats.character.BodyShape.Part part) {
-        addRenderableWidget(new net.minecraft.client.gui.components.AbstractSliderButton(LEFT_PANEL_X+12,y,116,20,Component.empty(),character.getBodyShape().get(part)-.5) {
-            { updateMessage(); }
-            @Override protected void updateMessage() { setMessage(Component.translatable("gui.dragonminez.body_editor.value",Component.translatable("gui.dragonminez.body_editor."+part.name().toLowerCase()),Math.round((value+.5)*100))); }
-            @Override protected void applyValue() { character.getBodyShape().set(part,(float)value+.5f); syncCharacter(); }
-        });
+        addRenderableWidget(new ColorSlider.Builder()
+            .position(LEFT_PANEL_X+20,y+8).size(100,8).range(50,150)
+            .value(Math.round(character.getBodyShape().get(part)*100))
+            .message(tr("gui.dragonminez.body_editor."+part.name().toLowerCase()))
+            .onValueChange(v -> { character.getBodyShape().set(part,v/100f); syncCharacter(); }).build());
     }
     private void initShapeButton(int y) {
-        addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
-            Component.translatable("gui.dragonminez.body_editor.title"), button ->
-                minecraft.setScreen(new BodyEditorScreen(this, character, this::syncCharacter)))
-            .bounds(LEFT_PANEL_X+12,y,116,20).build());
+        addRenderableWidget(new TexturedTextButton.Builder()
+            .position(LEFT_PANEL_X+12, Math.min(y, getUiHeight()/2+LEFT_PANEL_HEIGHT/2-28)).size(116,20)
+            .texture(BUTTONS_TEXTURE).textureCoords(0,28,0,48).textureSize(74,20)
+            .message(tr("gui.dragonminez.body_editor.title"))
+            .onPress(button -> minecraft.setScreen(new BodyEditorScreen(this,character,this::syncCharacter))).build());
+    }
+
+    void rotateBodyEditorPreview(double dx, double dy) {
+        playerRotation += (float)dx;
+        playerPitch = Mth.clamp(playerPitch + (float)dy, -60, 60);
+    }
+
+    void renderBodyEditorPreview(GuiGraphics graphics, float partial) {
+        renderPanorama(graphics, partial);
+        frameEase = 1;
+        beginUiScale(graphics);
+        renderPlayerModel(graphics, partial);
+        endUiScale(graphics);
     }
 
 	private void initBodyTab(int top) {
@@ -2094,6 +2108,7 @@ public class CharacterCustomizationScreen extends ScaledScreen {
 		} finally {
 			DMZSkinLayer.PREVIEW_MODE = false;
 			graphics.pose().popPose();
+			graphics.flush();
 			graphics.disableScissor();
 		}
 		} finally {

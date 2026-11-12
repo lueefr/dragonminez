@@ -19,6 +19,13 @@ public final class BodyShapeGameTests {
         Character character = new Character();
         character.getBodyShape().set(BodyShape.Part.HEIGHT,1.25f);
         character.getBodyShape().set(BodyShape.Part.LEGS,.75f);
+        character.getBodyShape().set(BodyShape.Part.LEG_WIDTH,1.3f);
+        character.getBodyShape().set(BodyShape.Part.ARM_WIDTH,.7f);
+        var enlarged = character.getModelScalingFor(null,null);
+        character.getBodyShape().set(BodyShape.Part.HEIGHT,1);
+        var baseline = character.getModelScalingFor(null,null);
+        for(int axis=0;axis<3;axis++) helper.assertTrue(Math.abs(enlarged[axis]/baseline[axis]-1.25f)<.0001,"Height distorted body aspect ratio");
+        character.getBodyShape().set(BodyShape.Part.HEIGHT,1.25f);
         character.getBodyShape().frame(1);
         character.setBoobScale(0);
         var saved=character.save();
@@ -34,7 +41,7 @@ public final class BodyShapeGameTests {
                 Object decoded=type.getMethod("decode",FriendlyByteBuf.class).invoke(null,buffer);
                 var field=type.getDeclaredField("shape"); field.setAccessible(true);
                 var shape=(BodyShape)field.get(decoded);
-                helper.assertTrue(shape.get(BodyShape.Part.HEIGHT)==1.25f && shape.frame()==1,"Appearance packet lost shape: "+type.getSimpleName());
+                helper.assertTrue(shape.get(BodyShape.Part.HEIGHT)==1.25f && shape.frame()==1 && shape.get(BodyShape.Part.LEG_WIDTH)==1.3f && shape.get(BodyShape.Part.ARM_WIDTH)==.7f,"Appearance packet lost shape: "+type.getSimpleName());
                 helper.assertTrue(buffer.readableBytes()==0,"Appearance packet framing mismatch: "+type.getSimpleName());
             } finally {buffer.release();}
         }

@@ -135,6 +135,12 @@ public class DMZRenderHand extends LivingEntityRenderer<AbstractClientPlayer, Pl
 		this.model.swimAmount = 0.0F;
 		this.model.setupAnim(pPlayer, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
 		pRendererArm.xRot = 0.0F;
+        var bodyShape = stats.getCharacter().getBodyShape();
+        float armWidth = bodyShape.get(com.dragonminez.common.stats.character.BodyShape.Part.ARM_WIDTH);
+        float frameWidth = bodyShape.frame() == 1 || (bodyShape.frame() < 0 && "slim".equals(pPlayer.getSkin().model().id())) ? .75f : 1f;
+        pRendererArm.xScale = pRendererArmwear.xScale = armWidth * frameWidth;
+        pRendererArm.zScale = pRendererArmwear.zScale = armWidth;
+
 
 		String raceName = stats.getCharacter().getRaceName().toLowerCase();
 		RaceCharacterConfig raceConfig = ConfigManager.getRaceCharacter(raceName);

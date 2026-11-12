@@ -14,20 +14,28 @@ public class WeightCapeRenderer extends GeoArmorRenderer<WeightItem> {
         super(new WeightCapeModel());
     }
 
+    private float clothPartial, clothTextureU;
+
     @Override
     public void renderRecursively(com.mojang.blaze3d.vertex.PoseStack stack, WeightItem item,
             software.bernie.geckolib.cache.object.GeoBone bone, RenderType type, MultiBufferSource source,
             com.mojang.blaze3d.vertex.VertexConsumer buffer, boolean rerender, float partial, int light, int overlay, int color) {
-        String name = bone.getName();
-        int segment = "cape".equals(name) ? 0 : "cape2".equals(name) ? 1 : "cape3".equals(name) ? 2 : -1;
-        float x = bone.getRotX(), z = bone.getRotZ();
-        if (segment >= 0) {
-            float[] motion = com.dragonminez.client.render.cloth.CapeMotion.sample(getCurrentEntity(), partial, true, segment);
-            bone.setRotX(motion[0]);
-            bone.setRotZ(motion[1]);
+        if (bone.getName().startsWith("cape")) return;
+        clothPartial = partial;
+        clothTextureU = com.dragonminez.client.render.cloth.CapeCloth.textureU(getTextureLocation(item));
+        if (source instanceof com.dragonminez.client.render.shader.TransformationMaskBufferSource mask) {
+            mask.setMaskCaptureEnabled(true);
+            mask.setMaskCaptureBlocked(false);
+            buffer = source.getBuffer(type);
         }
-        try { super.renderRecursively(stack, item, bone, type, source, buffer, rerender, partial, light, overlay, color); }
-        finally { bone.setRotX(x); bone.setRotZ(z); }
+        super.renderRecursively(stack, item, bone, type, source, buffer, rerender, partial, light, overlay, color);
+    }
+
+    @Override
+    public void renderCubesOfBone(com.mojang.blaze3d.vertex.PoseStack stack, software.bernie.geckolib.cache.object.GeoBone bone,
+            com.mojang.blaze3d.vertex.VertexConsumer buffer, int light, int overlay, int color) {
+        if ("armorBody".equals(bone.getName()) && getCurrentEntity() instanceof net.minecraft.world.entity.LivingEntity wearer)
+            com.dragonminez.client.render.cloth.CapeCloth.render(wearer, true, clothPartial, stack, buffer, light, overlay, color, clothTextureU);
     }
 
     @Override

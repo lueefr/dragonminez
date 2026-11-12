@@ -217,3 +217,5 @@ Add durable memories below this line, newest first.
 - Summary: Sequential quests may still present multiple kill objectives at once because quest-spawned enemies are spawned for all kill objectives when the quest starts, and natural mixed-kill quests expect simultaneous counting.
 - Guidance: Treat contiguous kill objectives as one tracking block; preserve sequencing between blocks with intervening non-kill objectives instead of gating each kill objective behind earlier kill progress.
 - Related: `QuestEvents.isKillObjectiveUnlocked`
+
+- Toda interface nova deve usar o tema e os componentes visuais existentes do mod; nunca controles vanilla destoantes.

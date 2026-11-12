@@ -88,5 +88,21 @@
   "wish.dragonminez.shenron.strongest.desc": "Receba o conjunto de armadura 'O Mais Forte'.",
   "gui.dragonminez.wishes.raw_text": "%s",
   "gui.dragonminez.skills.creator.pose": "Pose da habilidade de energia",
-  "gui.dragonminez.skills.creator.default_pose": "Pose padrão"
+  "gui.dragonminez.skills.creator.default_pose": "Pose padrão",
+  "gui.dragonminez.body_editor.title": "Editor de corpo",
+  "gui.dragonminez.body_editor.height": "Altura proporcional",
+  "gui.dragonminez.body_editor.head": "Tamanho da cabeça",
+  "gui.dragonminez.body_editor.legs": "Comprimento das pernas",
+  "gui.dragonminez.body_editor.arms": "Comprimento dos braços",
+  "gui.dragonminez.body_editor.torso_height": "Altura do torso",
+  "gui.dragonminez.body_editor.torso_width": "Largura do torso",
+  "gui.dragonminez.body_editor.leg_width": "Largura das pernas",
+  "gui.dragonminez.body_editor.arm_width": "Largura dos braços",
+  "gui.dragonminez.body_editor.bust": "Tamanho do busto",
+  "gui.dragonminez.body_editor.skin": "Seguir a skin",
+  "gui.dragonminez.body_editor.steve": "Steve (normal)",
+  "gui.dragonminez.body_editor.alex": "Alex (fino)",
+  "gui.dragonminez.body_editor.value": "%s: %s%%",
+  "gui.dragonminez.body_editor.frame_value": "Corpo: %s",
+  "gui.dragonminez.body_editor.reset": "Restaurar proporções"
 }

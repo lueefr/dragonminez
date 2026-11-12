@@ -485,7 +485,7 @@ public class Character {
 	public Float[] getModelScalingFor(FormConfig.FormData form, FormConfig.FormData stack) {
 		Float[] scaling = resolveFormModelScaling(form, stack);
 		scaling = scaling.clone();
-		scaling[1] *= bodyShape.get(BodyShape.Part.HEIGHT);
+		for (int axis = 0; axis < 3; axis++) scaling[axis] *= bodyShape.get(BodyShape.Part.HEIGHT);
 		if (demonEyeGrowth <= 1.0f) return scaling;
 		return new Float[]{scaling[0] * demonEyeGrowth, scaling[1] * demonEyeGrowth, scaling[2] * demonEyeGrowth};
 	}

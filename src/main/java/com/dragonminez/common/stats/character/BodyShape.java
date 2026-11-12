@@ -6,8 +6,8 @@ import net.minecraft.util.Mth;
 
 /** Bounded appearance proportions shared by creation, saves and server validation. */
 public final class BodyShape {
-    public enum Part { HEIGHT, HEAD, LEGS, ARMS, TORSO_HEIGHT, TORSO_WIDTH }
-    private final float[] values = {1,1,1,1,1,1};
+    public enum Part { HEIGHT, HEAD, LEGS, ARMS, TORSO_HEIGHT, TORSO_WIDTH, LEG_WIDTH, ARM_WIDTH }
+    private final float[] values = {1,1,1,1,1,1,1,1};
     // -1 follows the skin; 0 Steve; 1 Alex.
     private int frame = -1;
     public float get(Part part) { return values[part.ordinal()]; }

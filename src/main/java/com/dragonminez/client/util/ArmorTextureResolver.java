@@ -17,6 +17,7 @@ public final class ArmorTextureResolver {
 
     public static void clearCache() {
         EXISTS_CACHE.clear();
+        com.dragonminez.client.render.cloth.CapeCloth.clearTextures();
     }
 
     public static boolean textureExists(ResourceLocation texture) {
