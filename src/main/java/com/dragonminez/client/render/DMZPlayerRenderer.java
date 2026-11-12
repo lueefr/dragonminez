@@ -342,6 +342,9 @@ public class DMZPlayerRenderer<T extends AbstractClientPlayer & GeoAnimatable> e
 
     @Override
     public void renderRecursively(PoseStack poseStack,T animatable,GeoBone bone,RenderType renderType,MultiBufferSource bufferSource,VertexConsumer buffer,boolean isReRender,float partialTick,int packedLight,int packedOverlay,int renderColor) {
+        if(bone.getParent()==null && !isReRender)
+            com.dragonminez.client.render.cloth.CapeBodyColliders.capture(animatable,
+                name -> this.getGeoModel().getAnimationProcessor().getBone(name));
         var data=StatsProvider.get(StatsCapability.INSTANCE,animatable).orElse(null);
         if(data!=null && com.dragonminez.api.forms.FormVisuals.parts().get("tail").contains(bone.getName()) && !com.dragonminez.api.forms.FormVisuals.flag(data,"tail",true))return;
         var part=data==null?null:com.dragonminez.api.forms.FormVisuals.part(data,bone.getName());
