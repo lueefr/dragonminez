@@ -7,12 +7,12 @@ import com.dragonminez.common.network.C2S.*;
 import com.dragonminez.common.quest.QuestRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
+import com.dragonminez.client.gui.hair.HairEditorUi;
+import com.dragonminez.client.gui.character.util.ScaledScreen;
 import net.minecraft.network.chat.Component;
 import java.util.*;
 
-public final class CustomNpcScreen extends Screen {
+public final class CustomNpcScreen extends ScaledScreen {
     private record Offer(Component label, Runnable action) {}
     private final CustomNpcEntity npc;
     private final List<Offer> offers=new ArrayList<>();
@@ -24,6 +24,7 @@ public final class CustomNpcScreen extends Screen {
         if (mc.level!=null && mc.level.getEntity(entityId) instanceof CustomNpcEntity npc && npc.definition()!=null) mc.setScreen(new CustomNpcScreen(npc));
     }
     @Override protected void init() {
+        super.init();
         offers.clear();
         var definition=npc.definition();
         if (definition==null) return;
@@ -43,31 +44,52 @@ public final class CustomNpcScreen extends Screen {
             offers.add(new Offer(Component.translatable("gui.dragonminez.custom_npc.trade",item.getDescription(),trade.count(),trade.price()),
                     () -> NetworkHandler.sendToServer(new CustomNpcShopC2S(npc.getId(),index))));
         }
-        pageSize=Math.max(1,(height-170)/24);
-        int pages=Math.max(1,(offers.size()+pageSize-1)/pageSize);page=Math.min(page,pages-1);
-        for (int i=page*pageSize;i<Math.min(offers.size(),(page+1)*pageSize);i++) {
-            Offer offer=offers.get(i);
-            addRenderableWidget(Button.builder(offer.label(),button -> offer.action().run()).bounds(width/2-150,110+(i%pageSize)*24,300,20).build());
+        pageSize = Math.max(1, (getUiHeight() - 158) / 24);
+        int pages = Math.max(1, (offers.size() + pageSize - 1) / pageSize);
+        page = Math.min(page, pages - 1);
+        int x = getUiWidth() / 2 - 145;
+        for (int i = page * pageSize; i < Math.min(offers.size(), (page + 1) * pageSize); i++) {
+            Offer offer = offers.get(i);
+            var button = HairEditorUi.button(x, 110 + (i % pageSize) * 24, 290, 20,
+                    HairEditorUi.txt(HairEditorUi.trimToWidth(font, offer.label().getString(), 274)), pressed -> offer.action().run());
+            button.setTooltip(net.minecraft.client.gui.components.Tooltip.create(offer.label()));
+            addRenderableWidget(button);
         }
-        addRenderableWidget(Button.builder(net.minecraft.network.chat.Component.translatable("text.dragonminez.customnpcscreen.dabd3aff76"),button -> { page=Math.max(0,page-1);rebuildWidgets(); }).bounds(width/2-150,height-35,40,20).build());
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"),button -> onClose()).bounds(width/2-100,height-35,200,20).build());
-        addRenderableWidget(Button.builder(net.minecraft.network.chat.Component.translatable("text.dragonminez.customnpcscreen.62b67e1f68"),button -> { page=Math.min(pages-1,page+1);rebuildWidgets(); }).bounds(width/2+110,height-35,40,20).build());
+        int bottom = getUiHeight() - 36;
+        var previous = HairEditorUi.button(x, bottom, 35, 20, HairEditorUi.txt("<"), button -> { page--; rebuildWidgets(); });
+        previous.active = page > 0;
+        addRenderableWidget(previous);
+        addRenderableWidget(HairEditorUi.button(x + 40, bottom, 210, 20, HairEditorUi.tr("gui.done"), button -> onClose()));
+        var next = HairEditorUi.button(x + 255, bottom, 35, 20, HairEditorUi.txt(">"), button -> { page++; rebuildWidgets(); });
+        next.active = page + 1 < pages;
+        addRenderableWidget(next);
     }
+
     @Override public void tick() {
         if (minecraft.player==null || !npc.isAlive() || minecraft.player.distanceToSqr(npc)>100) onClose();
     }
-    @Override public void render(GuiGraphics graphics,int mouseX,int mouseY,float partialTick) {
-        super.render(graphics,mouseX,mouseY,partialTick);
-        graphics.drawCenteredString(font,title,width/2,20,0xffffff);
-        var definition=npc.definition();
-        if (definition==null) return;
-        int y=40;
-        for (String dialogue:definition.dialogues()) {
-            for (var line:font.split(Component.translatable(dialogue),Math.min(500,width-40))) {
-                if (y>90) break;
-                graphics.drawString(font,line,width/2-Math.min(500,width-40)/2,y,0xdddddd);y+=10;
+    @Override public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        graphics.fill(0, 0, width, height, 0xB0101810);
+        beginUiScale(graphics);
+        int x = getUiWidth() / 2 - 153;
+        HairEditorUi.panel(graphics, x, 8, 306, getUiHeight() - 16);
+        HairEditorUi.header(graphics, font, HairEditorUi.txt(HairEditorUi.trimToWidth(font, title.getString(), 270)), x, 8, 306);
+        var definition = npc.definition();
+        if (definition != null) {
+            graphics.enableScissor(x + 12, 42, x + 294, 102);
+            int y = 42;
+            for (String dialogue : definition.dialogues()) {
+                for (var line : font.split(HairEditorUi.tr(dialogue), 278)) {
+                    if (y >= 102) break;
+                    graphics.drawString(font, line, x + 14, y, HairEditorUi.MUTED, false);
+                    y += 10;
+                }
+                if (y >= 102) break;
             }
+            graphics.disableScissor();
         }
+        super.render(graphics, (int)toUiX(mouseX), (int)toUiY(mouseY), partialTick);
+        endUiScale(graphics);
     }
     @Override public boolean isPauseScreen() { return false; }
 }

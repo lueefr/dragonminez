@@ -63,6 +63,17 @@ public final class HairEditorUi {
 		TextUtil.drawStringWithBorder(graphics, font, label, x + (width - font.width(label)) / 2, y + (height - 8) / 2 + 1, color);
 	}
 
+	public static net.minecraft.client.gui.components.Button button(int x, int y, int width, int height, Component label, net.minecraft.client.gui.components.Button.OnPress action) {
+		return new net.minecraft.client.gui.components.Button(x, y, width, height, label, action, supplier -> supplier.get()) {
+			@Override protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+				HairEditorUi.button(graphics, net.minecraft.client.Minecraft.getInstance().font, getMessage(), getX(), getY(), getWidth(), getHeight(), isHoveredOrFocused(), false, active);
+			}
+			@Override public void playDownSound(net.minecraft.client.sounds.SoundManager sounds) {
+				sounds.play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(com.dragonminez.common.init.MainSounds.PIP_MENU.get(), 1));
+			}
+		};
+	}
+
 	public static void field(GuiGraphics graphics, int x, int y, int width, int height, boolean editing) {
 		HairEditorTextures.draw(graphics, editing ? HairEditorTextures.FIELD_EDITING : HairEditorTextures.FIELD, x, y, width, height);
 	}

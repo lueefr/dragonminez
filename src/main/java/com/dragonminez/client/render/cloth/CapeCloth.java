@@ -33,6 +33,16 @@ public final class CapeCloth {
         });
     }
     private CapeCloth() {}
+    public static boolean enabled() {return com.dragonminez.common.config.ConfigManager.getUserConfig().getCapePhysics();}
+    /** Appearance editors show the character itself, without equipment occluding the edited parts. */
+    public static boolean visible() {
+        var screen=net.minecraft.client.Minecraft.getInstance().screen;
+        return !(screen instanceof com.dragonminez.client.gui.character.CharacterCustomizationScreen)
+                && !(screen instanceof com.dragonminez.client.gui.character.BodyEditorScreen)
+                && !(screen instanceof com.dragonminez.client.gui.hair.HairEditorScreen)
+                && com.dragonminez.client.render.hair.HairRenderContext.mode()!=com.dragonminez.client.render.hair.HairRenderContext.Mode.MENU_PREVIEW
+                && com.dragonminez.client.render.hair.HairRenderContext.mode()!=com.dragonminez.client.render.hair.HairRenderContext.Mode.EDITOR_PREVIEW;
+    }
 
 
     private record Link(int first,int second,float distance) {}
@@ -48,6 +58,8 @@ public final class CapeCloth {
         private CapeBodyColliders colliders=new CapeBodyColliders();
         public void body(CapeBodyColliders colliders) { this.colliders=colliders; }
         private float phase,oldPhase,wavePower=.1f,oldWavePower=.1f,speed;
+        private boolean flying;
+        public void flight(boolean flying) {this.flying=flying;}
         public void dynamics(float speed,float energy) {
             this.speed=Mth.clamp(speed,0,1);
             oldWavePower=wavePower;
@@ -96,9 +108,12 @@ public final class CapeCloth {
                 float x=point.x,y=point.y,z=point.z;
                 float trail=(index/COLUMNS)/(float)(ROWS-1);
                 float flutter=Mth.sin(phase-trail*8+(index%COLUMNS)*.7f)*wavePower*.035f*trail;
-                point.add(Mth.clamp((x-old.x)*.94f,-.65f,.65f)+side+flutter*.4f,
-                    Mth.clamp((y-old.y)*.94f,-.65f,.65f)-.11f+lift+flutter*.5f,
-                    Mth.clamp((z-old.z)*.94f,-.65f,.65f)+backward+flutter);
+                // The flight plane is local to the animated back, never world-up or camera pitch.
+                float drag=flying?.78f:.94f;
+                float backForce=flying?Mth.clamp((.3f+trail*.35f-z)*.09f,-.13f,.13f):0;
+                point.add(Mth.clamp((x-old.x)*drag,-.65f,.65f)+side+flutter*.4f,
+                    Mth.clamp((y-old.y)*drag,-.65f,.65f)-.11f+lift+flutter*.5f,
+                    Mth.clamp((z-old.z)*drag,-.65f,.65f)+backward+flutter+backForce);
                 old.set(x,y,z);
             }
             for(int pass=0;pass<6;pass++) {
@@ -191,7 +206,8 @@ public final class CapeCloth {
     @net.neoforged.bus.api.SubscribeEvent
     public static void clientTick(net.neoforged.neoforge.client.event.ClientTickEvent.Post event) {
         var mc=net.minecraft.client.Minecraft.getInstance();clientTick++;
-        if(mc.level==null) {SHEETS.clear();return;}
+        if(mc.level==null || !enabled()) {SHEETS.clear();CapeBodyColliders.clear();return;}
+        if(!visible())return;
         var iterator=SHEETS.entrySet().iterator();
         while(iterator.hasNext()) {
             var entry=iterator.next();LivingEntity wearer=entry.getKey();
@@ -209,11 +225,16 @@ public final class CapeCloth {
         Vec3 velocity=preview||sheet.position==null?Vec3.ZERO:location.subtract(sheet.position);
         // Teleports change the attachment frame; they never reset the cloth pose.
         if(velocity.lengthSqr()>4096)velocity=Vec3.ZERO;
+        var stats=StatsProvider.get(StatsCapability.INSTANCE,entity).orElse(null);
+        boolean flying=!entity.isPassenger() && stats!=null && stats.getSkills().isSkillActive("fly");
+        sheet.flight(flying);
         if(preview) {sheet.airflow.zero();sheet.gravity.set(0,-.11f,0);}
         else {
             sheet.colliders.worldVector(entity,(float)-velocity.x,(float)-velocity.y,(float)-velocity.z,sheet.airflow);
             sheet.colliders.worldVector(entity,0,-.11f,0,sheet.gravity);
         }
+        // Keep wind running in the local cape frame at every flight pitch, including a vertical dive.
+        if(flying)sheet.gravity.set(0,-.11f,0);
         float speed=(float)Math.tanh(velocity.length()*.4);
         float forward=(float)Math.tanh(sheet.airflow.z*.55);
         float turn=preview?0:Mth.clamp(Mth.wrapDegrees(yaw-sheet.yaw)*.0015f,-.08f,.08f);
@@ -221,7 +242,6 @@ public final class CapeCloth {
         float vertical=(float)Math.tanh(sheet.airflow.y*.5)*.065f;
         float acceleration=(float)Math.tanh(sheet.airflow.z-sheet.previousFlowZ)*.045f;
         sheet.position=location;sheet.yaw=yaw;sheet.previousFlowZ=sheet.airflow.z;
-        var stats=StatsProvider.get(StatsCapability.INSTANCE,entity).orElse(null);
         boolean transform=stats!=null&&stats.getStatus().isActionCharging();
         boolean charge=stats!=null&&stats.getStatus().isChargingKi();
         boolean aura=stats!=null&&(stats.getStatus().isAuraActive()||stats.getStatus().isPermanentAura()||stats.getStatus().isForcedAura());
@@ -237,13 +257,17 @@ public final class CapeCloth {
         float blast=transform?.28f:charge?.23f:aura?.045f:0;
         float lift=transform?.15f:charge?.135f:aura?.065f:0;
         // Lift offsets gravity even for a heavier cape; weight slows the sideways response.
-        sheet.tick((.01f+sheet.windVector.z+forward*.17f+acceleration+blast+(firing?.09f:0))*weight+sheet.gravity.z,
+        if(flying) {
+            sheet.dynamics(Math.max(.65f,speed),0);
+            float localWind=Mth.sin(clientTick*.2f)*.012f;
+            sheet.tick(.012f+gust*.25f,(lateral*.18f+turn*.25f+localWind)*weight,0,0);
+        } else sheet.tick((.01f+sheet.windVector.z+forward*.17f+acceleration+blast+(firing?.09f:0))*weight+sheet.gravity.z,
             (lateral+turn+gust+sheet.windVector.x)*weight+sheet.gravity.x,
             lift+vertical+.11f+sheet.gravity.y,headClearance);
         sheet.initialized=true;
     }
     public static void render(LivingEntity entity,boolean heavy,float partial,PoseStack stack,VertexConsumer buffer,int light,int overlay,int color,float textureU) {
-        if(entity==null)return;
+        if(entity==null || !enabled() || !visible())return;
         boolean preview=net.minecraft.client.Minecraft.getInstance().screen!=null;
         int index=(preview?2:0)+(heavy?1:0);
         Sheet[] sheets=SHEETS.computeIfAbsent(entity,unused->new Sheet[4]);

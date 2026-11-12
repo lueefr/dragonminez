@@ -1647,15 +1647,31 @@ public class KiBlastEntity extends AbstractKiProjectile {
         return this.entityData.get(DETACHED);
     }
 
-    public void poseOffset(LivingEntity owner, String pose) {
-        float size = heldRadius<0?this.getSize():heldRadius*2*ownerScaleOf(owner);
-        if ("ki.soul_punisher".equals(pose)) {
-            this.setCastOffsets(-0.5F, 1.2F - halfBoxHeight(size) / ownerScaleOf(owner), 0.1F);
-        } else if ("ki.neo_kikohu".equals(pose)) {
-            this.setCastOffsets(0.0F, -halfBoxHeight(size) / ownerScaleOf(owner), KiTechniqueHandler.TriBeam.CHARGE_FORWARD_OFFSET);
-        } else if ("ki.large_ball".equals(pose) || "ki.supernova_cooler".equals(pose) || "ki.death_ball".equals(pose) || "ki.deathball".equals(pose)) {
-            this.setCastOffsets(0.0F, calcOverheadOffsetY(owner, size), 0.0F);
-        }
+    /** Apply the selected native pose without changing the created attack's type or effects. */
+    public boolean poseOffset(LivingEntity owner, String pose) {
+        float size = heldRadius < 0 ? this.getSize() : heldRadius * 2 * ownerScaleOf(owner);
+        Vec3 offset = poseOffset(owner, pose, size);
+        if (offset == null) return false;
+        this.setCastOffsets((float) offset.x, (float) offset.y, (float) offset.z);
+        return true;
+    }
+
+    public Vec3 poseOffset(LivingEntity owner, String pose, float size) {
+        return switch (pose) {
+            case "ki.bigbang", "ki.burning_attack" -> new Vec3(0,
+                    calcCenterOffsetY(owner, size), calcForwardOffset(owner, size));
+            case "ki.soul_punisher" -> new Vec3(-0.5F,
+                    1.2F + (size * SOUL_PUNISHER_CORE_SCALE - halfBoxHeight(size)) / ownerScaleOf(owner), 0.1F);
+            case "ki.neo_kikohu" -> new Vec3(0,
+                    -halfBoxHeight(size) / ownerScaleOf(owner), KiTechniqueHandler.TriBeam.CHARGE_FORWARD_OFFSET);
+            // These are the authored player offsets of Genki/Death Ball and Cooler Supernova.
+            // The ordinary Supernova shares Genki's animation, so the animation's first native
+            // attachment is used; its distinct gameplay remains a native technique choice.
+            case "ki.large_ball", "ki.death_ball", "ki.deathball" -> new Vec3(0, 5.5F, 0);
+            case "ki.supernova_cooler" -> new Vec3(0, 2.5F, 0);
+            case "ki.blaster_meteor" -> new Vec3(0, -0.4F * size / ownerScaleOf(owner), 0);
+            default -> null;
+        };
     }
 
     private float heldRadius = -1;

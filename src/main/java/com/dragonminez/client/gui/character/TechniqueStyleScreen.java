@@ -107,11 +107,11 @@ public class TechniqueStyleScreen extends ScaledScreen {
 
 		this.panelY = Math.max(30, (getUiHeight() - (PANEL_H + 6 + BUTTON_H)) / 2);
 
-		this.poseButton = addRenderableWidget(net.minecraft.client.gui.components.Button.builder(draft.poseLabel(), button -> {
+		this.poseButton = addRenderableWidget(com.dragonminez.client.gui.hair.HairEditorUi.button(0, 0, PANEL_W, BUTTON_H, draft.poseLabel(), button -> {
             draft.cyclePose();
             button.setMessage(draft.poseLabel());
             TechniquePreview.show(draft.buildTechnique());
-        }).bounds(0, 0, 140, 20).build());
+        }));
         this.poseButton.setTooltip(net.minecraft.client.gui.components.Tooltip.create(Component.translatable("gui.dragonminez.skills.creator.pose")));
 
         this.typeLeft = createArrowButton(true, btn -> changeType(-1));

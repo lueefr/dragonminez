@@ -18,7 +18,8 @@ public final class CapeBodyColliders {
     private static final WeakHashMap<LivingEntity,CapeBodyColliders[]> CACHE=new WeakHashMap<>();
     private static final String[] PARTS={"body","head","right_leg","left_leg","right_arm","left_arm"};
     private static final float SKIN=.24f;
-    private final Volume[] volumes=new Volume[6];
+    private static final int TAIL_START=6, TAIL_COUNT=16;
+    private final Volume[] volumes=new Volume[TAIL_START+TAIL_COUNT];
     private final Matrix4f bodyInverse=new Matrix4f(), boneMatrix=new Matrix4f(), relative=new Matrix4f();
     private final Vector3f local=new Vector3f(), normal=new Vector3f(), probe=new Vector3f();
     private final org.joml.Quaternionf orientation=new org.joml.Quaternionf();
@@ -37,9 +38,11 @@ public final class CapeBodyColliders {
         neutral(new BodyShape(),0,0);
     }
 
+    public static void clear() {CACHE.clear();}
+
     /** Call once at root renderRecursively BEFORE BodyMesh.apply changes any live bone. */
     public static void capture(LivingEntity entity,Function<String,GeoBone> bones) {
-        if(entity==null)return;
+        if(entity==null || !CapeCloth.enabled() || !CapeCloth.visible())return;
         GeoBone body=bones.apply("body");
         if(body==null)return;
         boolean preview=net.minecraft.client.Minecraft.getInstance().screen!=null;
@@ -64,6 +67,17 @@ public final class CapeBodyColliders {
                     .mul(collider.bodyInverse).mul(collider.boneMatrix);
             if(index<2)collider.box(index,collider.relative,volume.low,volume.high);
             else collider.limb(index,collider.relative,volume.low,volume.high);
+        }
+        boolean loose=stats!=null && com.dragonminez.client.util.SaiyanTailRules.hasTail(stats.getCharacter())
+                && com.dragonminez.client.util.SaiyanTailRules.looseTailShown(entity,stats.getStatus().isTailVisible())
+                && com.dragonminez.api.forms.FormVisuals.flag(stats,"tail",true);
+        for(int index=0;index<TAIL_COUNT;index++) {
+            Volume volume=collider.volumes[TAIL_START+index];
+            GeoBone bone=loose?bones.apply("tail"+(index+1)):null;
+            if(bone==null || hidden(bone) || !bounds(bone,volume.low,volume.high)) {volume.enabled=false;continue;}
+            transform(bone,shape,collider.boneMatrix);
+            collider.relative.identity().translation(0,-24.25f,-2.3f).mul(collider.bodyInverse).mul(collider.boneMatrix);
+            collider.box(TAIL_START+index,collider.relative,volume.low,volume.high);
         }
         collider.captured=entity.level().getGameTime();
         collider.ready=true;
@@ -111,6 +125,7 @@ public final class CapeBodyColliders {
     /** Neutral geometry is public for deterministic headless collision tests. Angles are radians. */
     public void neutral(BodyShape shape,float pitch,float yaw) {
         bodyInverse.identity();
+        for(int i=TAIL_START;i<volumes.length;i++)volumes[i].enabled=false;
         float torso=shape.get(BodyShape.Part.TORSO_HEIGHT),width=shape.get(BodyShape.Part.TORSO_WIDTH);
         float depth=shape.get(BodyShape.Part.TORSO_DEPTH);
         float head=shape.get(BodyShape.Part.HEAD),legs=shape.get(BodyShape.Part.LEGS),arms=shape.get(BodyShape.Part.ARMS);
@@ -239,6 +254,15 @@ public final class CapeBodyColliders {
         return true;
     }
 
+    private static boolean hidden(GeoBone bone) {
+        for(GeoBone current=bone;current!=null;current=current.getParent())if(current.isHidden())return true;
+        return false;
+    }
+    /** Tail segments share the exact animated bone transform; exposed for deterministic collision tests. */
+    public void tail(int index,Matrix4f matrix,Vector3f low,Vector3f high) {
+        if(index<0 || index>=TAIL_COUNT)throw new IllegalArgumentException("Tail segment out of range");
+        box(TAIL_START+index,matrix,low,high);
+    }
     private static boolean bounds(GeoBone bone,Vector3f low,Vector3f high) {
         low.set(Float.POSITIVE_INFINITY);high.set(Float.NEGATIVE_INFINITY);
         for(var cube:bone.getCubes())for(var quad:cube.quads())if(quad!=null)for(var vertex:quad.vertices()) {

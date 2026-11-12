@@ -97,4 +97,45 @@ public final class CapeMotionGameTests {
         helper.succeed();
     }
 
+
+    @GameTest(template="port_empty")
+    public static void flightStaysCloseWithWind(GameTestHelper helper) {
+        for(boolean heavy:new boolean[]{false,true}) {
+            var sheet=new com.dragonminez.client.render.cloth.CapeCloth.Sheet(heavy);
+            sheet.flight(true);sheet.dynamics(.8f,0);
+            float lowest=Float.POSITIVE_INFINITY,highest=Float.NEGATIVE_INFINITY;
+            for(int tick=0;tick<400;tick++) {
+                sheet.tick(.012f,(float)Math.sin(tick*.2)*.014f,0,0);
+                var tip=sheet.points[sheet.points.length-3];
+                if(tick>200) {lowest=Math.min(lowest,tip.x);highest=Math.max(highest,tip.x);}
+                for(int index=5;index<sheet.points.length;index++)
+                    helper.assertTrue(sheet.points[index].z<3,"Flight cape left the local back plane");
+            }
+            helper.assertTrue(highest-lowest>.1f,"Flight wind stopped fluttering");
+        }
+        helper.succeed();
+    }
+    @GameTest(template="port_empty")
+    public static void movingTailAndHeadDeflectCloth(GameTestHelper helper) {
+        var body=new com.dragonminez.client.render.cloth.CapeBodyColliders();
+        var shape=new com.dragonminez.common.stats.character.BodyShape();
+        var sheet=new com.dragonminez.client.render.cloth.CapeCloth.Sheet(false);sheet.body(body);sheet.flight(true);
+        var low=new org.joml.Vector3f(-1,-1,-2);var high=new org.joml.Vector3f(1,1,2);
+        for(int tick=0;tick<160;tick++) {
+            body.neutral(shape,(float)Math.sin(tick*.08)*1.1f,(float)Math.sin(tick*.1)*.7f);
+            var pose=new org.joml.Matrix4f().translation((float)Math.sin(tick*.05)*3,-13,1).rotateY((float)Math.sin(tick*.1));
+            body.tail(0,pose,low,high);
+            sheet.tick(.012f,.004f,0,0);
+            var surface=sheet.surface(.5f,true);
+            for(int index=9;index<surface.length;index++) {
+                var projected=new org.joml.Vector3f(surface[index]);body.projectSurface(projected);
+                helper.assertTrue(projected.distance(surface[index])<.02f,"Animated head/tail penetrated the rendered cape");
+            }
+        }
+        var inside=new org.joml.Vector3f(0,-13,1);
+        body.neutral(shape,0,0);body.tail(0,new org.joml.Matrix4f().translation(0,-13,1),low,high);
+        var old=new org.joml.Vector3f(inside);body.project(inside,old);
+        helper.assertTrue(inside.distance(new org.joml.Vector3f(0,-13,1))>.1f,"Loose tail did not deflect cloth");
+        helper.succeed();
+    }
 }

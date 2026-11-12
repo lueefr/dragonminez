@@ -1,6 +1,7 @@
 package com.dragonminez.common.init.armor.client.render;
 
 import com.dragonminez.Reference;
+import com.dragonminez.common.config.ConfigManager;
 import com.dragonminez.common.init.armor.client.model.WeightCapeModel;
 import com.dragonminez.common.init.item.WeightItem;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -38,10 +39,12 @@ public class WeightCapeRenderer extends GeoArmorRenderer<WeightItem> {
     public void renderRecursively(com.mojang.blaze3d.vertex.PoseStack stack, WeightItem item,
             software.bernie.geckolib.cache.object.GeoBone bone, RenderType type, MultiBufferSource source,
             com.mojang.blaze3d.vertex.VertexConsumer buffer, boolean rerender, float partial, int light, int overlay, int color) {
-        if (bone.getName().startsWith("cape")) return;
+        if (!com.dragonminez.client.render.cloth.CapeCloth.visible()) return;
+        if (ConfigManager.getUserConfig().getCapePhysics() && bone.getName().startsWith("cape")) return;
         if ("armorBody".equals(bone.getName())) {
             clothPartial = partial;
-            clothTextureU = com.dragonminez.client.render.cloth.CapeCloth.textureU(getTextureLocation(item));
+            if (ConfigManager.getUserConfig().getCapePhysics())
+                clothTextureU = com.dragonminez.client.render.cloth.CapeCloth.textureU(getTextureLocation(item));
             if (source instanceof com.dragonminez.client.render.shader.TransformationMaskBufferSource mask)
                 buffer = mask.captureBuffer(type);
         }
@@ -51,6 +54,11 @@ public class WeightCapeRenderer extends GeoArmorRenderer<WeightItem> {
     @Override
     public void renderCubesOfBone(com.mojang.blaze3d.vertex.PoseStack stack, software.bernie.geckolib.cache.object.GeoBone bone,
             com.mojang.blaze3d.vertex.VertexConsumer buffer, int light, int overlay, int color) {
+        if (!ConfigManager.getUserConfig().getCapePhysics()) {
+            // Keep the original GeckoLib cape bones and their authored animation.
+            super.renderCubesOfBone(stack, bone, buffer, light, overlay, color);
+            return;
+        }
         if ("armorBody".equals(bone.getName()) && getCurrentEntity() instanceof net.minecraft.world.entity.LivingEntity wearer)
             com.dragonminez.client.render.cloth.CapeCloth.render(wearer, true, clothPartial, stack, buffer, light, overlay, color, clothTextureU);
     }
@@ -62,6 +70,7 @@ public class WeightCapeRenderer extends GeoArmorRenderer<WeightItem> {
 
     @Override
     public RenderType getRenderType(WeightItem animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityCutout(texture);
+        return ConfigManager.getUserConfig().getCapePhysics()
+                ? RenderType.entityCutout(texture) : RenderType.armorCutoutNoCull(texture);
     }
 }

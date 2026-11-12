@@ -7002,5 +7002,7 @@
   "gui.dragonminez.body_editor.head_height": "Head height Y",
   "gui.dragonminez.body_editor.torso_depth": "Torso depth Z",
   "gui.dragonminez.body_editor.arm_depth": "Arm depth Z",
-  "gui.dragonminez.body_editor.leg_depth": "Leg depth Z"
+  "gui.dragonminez.body_editor.leg_depth": "Leg depth Z",
+  "gui.dragonminez.config.capePhysics": "Cape Physics",
+  "config.dragonminez.field.capePhysics": "Cape Physics"
 }

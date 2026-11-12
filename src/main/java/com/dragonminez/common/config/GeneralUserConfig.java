@@ -56,6 +56,11 @@ public class GeneralUserConfig {
 	public static final String HAIR_PHYSICS_OFF = "OFF";
 
 	private String hairPhysicsQuality = HAIR_PHYSICS_HIGH;
+	private Boolean capePhysics = true;
+
+	public Boolean getCapePhysics() {
+		return capePhysics == null || capePhysics;
+	}
 
 	public String getHairPhysicsQuality() {
 		if (hairPhysicsQuality == null) return HAIR_PHYSICS_HIGH;

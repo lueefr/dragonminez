@@ -1,4 +1,6 @@
 {
+  "gui.dragonminez.radial.jump_limit": "Limite da altura do pulo",
+  "gui.dragonminez.radial.sprint_limit": "Limite da velocidade de corrida",
   "message.dragonminez.seed.otherworld": "O Outro Mundo requer terreno real; a aproximação por seed está desativada.",
   "wish.dragonminez.porunga.attributes.name": "Aumento de Poder",
   "wish.dragonminez.porunga.attributes.desc": "Receba x75 Atributos: metade como Pontos de Atributo (AP) e metade como os Pontos de Treino que esses Atributos custariam a você agora.",
@@ -118,5 +120,7 @@
   "gui.dragonminez.body_editor.head_height": "Cabeça: altura Y",
   "gui.dragonminez.body_editor.torso_depth": "Tronco: profundidade Z",
   "gui.dragonminez.body_editor.arm_depth": "Braços: profundidade Z",
-  "gui.dragonminez.body_editor.leg_depth": "Pernas: profundidade Z"
+  "gui.dragonminez.body_editor.leg_depth": "Pernas: profundidade Z",
+  "gui.dragonminez.config.capePhysics": "Física da capa",
+  "config.dragonminez.field.capePhysics": "Física da capa"
 }

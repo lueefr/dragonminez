@@ -80,9 +80,12 @@ public class TechniqueDraft {
 	}
 
     public java.util.List<KiAttackData> poses() {
-        return com.dragonminez.common.stats.techniques.PredefinedTechniques.REGISTRY.values().stream()
+        var unique=new java.util.LinkedHashMap<String,KiAttackData>();
+        com.dragonminez.common.stats.techniques.PredefinedTechniques.REGISTRY.values().stream()
                 .filter(ki -> ki.getKiType() == type && ki.getAnimation() != null && !ki.getAnimation().isEmpty())
-                .sorted(java.util.Comparator.comparing(KiAttackData::getId)).toList();
+                .sorted(java.util.Comparator.comparing(KiAttackData::getId))
+                .forEach(ki -> unique.putIfAbsent(ki.getAnimation(),ki));
+        return java.util.List.copyOf(unique.values());
     }
 
     public void cyclePose() {

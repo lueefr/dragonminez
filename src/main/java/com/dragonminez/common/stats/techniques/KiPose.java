@@ -23,8 +23,10 @@ public final class KiPose {
                 if (!pose.equals(projectile.castPose())) projectile.castPose(pose);
             }
         }
-        if (pose.isEmpty()) return;
-        if (projectile instanceof KiBlastEntity ball) ball.poseOffset(owner, pose);
+        // Native attacks already select their authored attachments in their setup/tick paths.
+        // A shared animation (Spirit Bomb/Supernova, for example) must not replace that choice.
+        if (pose.isEmpty() || PredefinedTechniques.isPredefinedTechniqueId(projectile.getTechniqueId())) return;
+        if (projectile instanceof KiBlastEntity ball && ball.poseOffset(owner, pose)) return;
         Vec3 offset = offset(pose, projectile.tickCount);
         if (offset == null) return;
         if (pose.equals("ki.mouth_blast") && projectile instanceof KiWaveEntity) offset = new Vec3(0,-.25,.3);
