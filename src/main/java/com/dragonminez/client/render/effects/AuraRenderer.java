@@ -58,9 +58,10 @@ public class AuraRenderer {
         int budget=128;
         for(var entry:AURA_CACHE.entrySet()){
             var data=entry.getValue();
-            if(data.lastLayers==null||data.alphaProgress<=.001||data.seal.factor()<=.001||mc.level.getGameTime()-LAST_RENDER_TIME.getOrDefault(entry.getKey(),Long.MIN_VALUE/2)>2)continue;
+            if(data.lastLayers==null||data.alphaProgress<=.001||data.seal.factor()<=.001)continue;
             var entity=mc.level.getEntity(entry.getKey());
-            if(!(entity instanceof Player player)||!player.getUUID().equals(data.typeOwner)||player.distanceToSqr(mc.player)>128*128)continue;
+            if(!(entity instanceof Player player)||!player.isAlive()||!player.getUUID().equals(data.typeOwner)||player.distanceToSqr(mc.player)>128*128)continue;
+            if(!com.dragonminez.common.util.VisualTiming.aura(StatsProvider.get(StatsCapability.INSTANCE,player).orElse(null)))continue;
             int count=0;
             for(var layer:data.lastLayers){
                 var emitter=layer.emitter;

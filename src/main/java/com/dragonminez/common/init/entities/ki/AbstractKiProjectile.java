@@ -69,6 +69,10 @@ public abstract class AbstractKiProjectile extends Projectile {
 
     private static final EntityDataAccessor<String> CAST_POSE = SynchedEntityData.defineId(AbstractKiProjectile.class, EntityDataSerializers.STRING);
 
+    private static final EntityDataAccessor<Float> HELD_RADIUS = SynchedEntityData.defineId(AbstractKiProjectile.class, EntityDataSerializers.FLOAT);
+
+    private static final EntityDataAccessor<Boolean> RELEASED = SynchedEntityData.defineId(AbstractKiProjectile.class, EntityDataSerializers.BOOLEAN);
+
     private transient float[] cachedColorMainRgb;
     private transient float[] cachedColorBorderRgb;
     private transient float[] cachedColorOutlineRgb;
@@ -95,6 +99,29 @@ public abstract class AbstractKiProjectile extends Projectile {
 
     private UUID cachedOwnerUUID;
 
+    public boolean isReleased() { return entityData.get(RELEASED); }
+
+    /** Releases control, preserving attribution, damage, geometry and the existing expiry tick. */
+    public boolean releaseControl() {
+        if (!isFiring() || isReleased() || isClashLocked()) return false;
+        entityData.set(RELEASED, true);
+        setHomingTarget(-1);
+        setKiLifetimeDrainPerTick(0);
+        if (this instanceof KiWaveEntity wave) {
+            wave.setContinuousFollow(false);
+            setDeltaMovement(Vec3.directionFromRotation(getXRot(), getYRot()).scale(getKiSpeed()));
+        }
+        if (this instanceof KiBlastEntity blast) {
+            blast.setDetached(true);
+            blast.setControllable(false);
+            blast.setParked(false);
+            if (getDeltaMovement().lengthSqr() < 1.0E-8 && getKiRenderType() != KiBlastEntity.RENDER_BLASTER_METEOR && getKiRenderType() != KiBlastEntity.RENDER_ASSAULT_RAIN
+                    && getKiRenderType() != 9 && getKiRenderType() != 10)
+                setDeltaMovement(Vec3.directionFromRotation(getXRot(), getYRot()).scale(getKiSpeed()));
+        }
+        return true;
+    }
+
     public void setHomingTarget(int targetId) {
         this.homingTargetId = targetId;
         this.firingStartTick = -1;
@@ -108,7 +135,7 @@ public abstract class AbstractKiProjectile extends Projectile {
     }
 
     private void applyHomingSteering() {
-        if (this.level().isClientSide || !this.isFiring() || !this.canHome()) return;
+        if (this.level().isClientSide || isReleased() || !this.isFiring() || !this.canHome()) return;
         if (this.firingStartTick < 0) this.firingStartTick = this.tickCount;
         if (this.homingTargetId < 0 || !(this.level() instanceof ServerLevel serverLevel)) return;
 
@@ -462,10 +489,13 @@ public abstract class AbstractKiProjectile extends Projectile {
                 .add(forward.scale(offsetZ * ownerWidthScale(owner) + (overhead ? 0 : radius)));
     }
 
-    private float heldRadius = -1;
     protected float heldClearance() {
-        if(heldRadius<0)heldRadius=castClearanceRadius();
-        return Math.max(0,castClearanceRadius()-heldRadius);
+        float radius = entityData.get(HELD_RADIUS);
+        if (radius < 0) {
+            radius = castClearanceRadius();
+            if (!level().isClientSide) entityData.set(HELD_RADIUS, radius);
+        }
+        return Math.max(0, castClearanceRadius() - radius);
     }
 
     protected Vec3 planeOrigin;
@@ -693,6 +723,8 @@ public abstract class AbstractKiProjectile extends Projectile {
         builder.define(IS_FIRING, false);
         builder.define(FIRE_TICK, -1);
         builder.define(CAST_POSE, "");
+        builder.define(HELD_RADIUS, -1F);
+        builder.define(RELEASED, false);
     }
 
     private float chargeSize = -1;
@@ -861,8 +893,13 @@ public abstract class AbstractKiProjectile extends Projectile {
         pCompound.putInt("ArmorPenetration", getArmorPenetration());
         pCompound.putBoolean("IsHeal", isHeal());
         pCompound.putBoolean("IsFiring", isFiring());
+        pCompound.putBoolean("Released", isReleased());
+        pCompound.putInt("MaxLife", getMaxLife());
+        pCompound.putInt("KiAge", tickCount);
         pCompound.putInt("FireTick", getFireTick());
-        pCompound.putFloat("HeldRadius",heldRadius);
+        pCompound.putFloat("HeldRadius",entityData.get(HELD_RADIUS));
+        pCompound.putFloat("ChargeSize", chargeSize);
+        pCompound.putFloat("ChargeCast", chargeCast);
         if(planeOrigin!=null && planeNormal!=null) {
             pCompound.putDouble("PlaneX",planeOrigin.x);pCompound.putDouble("PlaneY",planeOrigin.y);pCompound.putDouble("PlaneZ",planeOrigin.z);
             pCompound.putDouble("PlaneNX",planeNormal.x);pCompound.putDouble("PlaneNY",planeNormal.y);pCompound.putDouble("PlaneNZ",planeNormal.z);
@@ -883,8 +920,13 @@ public abstract class AbstractKiProjectile extends Projectile {
         if (pCompound.contains("ArmorPenetration")) setArmorPenetration(pCompound.getInt("ArmorPenetration"));
         if (pCompound.contains("IsHeal")) setHeal(pCompound.getBoolean("IsHeal"));
         if (pCompound.contains("IsFiring")) setFiring(pCompound.getBoolean("IsFiring"));
+        entityData.set(RELEASED, pCompound.getBoolean("Released"));
+        if (pCompound.contains("MaxLife")) setMaxLife(pCompound.getInt("MaxLife"));
+        if (pCompound.contains("KiAge")) tickCount = pCompound.getInt("KiAge");
         if (pCompound.contains("FireTick")) setFireTick(pCompound.getInt("FireTick"));
-        if(pCompound.contains("HeldRadius"))heldRadius=pCompound.getFloat("HeldRadius");
+        if(pCompound.contains("HeldRadius")) entityData.set(HELD_RADIUS, pCompound.getFloat("HeldRadius"));
+        if(pCompound.contains("ChargeSize")) chargeSize=pCompound.getFloat("ChargeSize");
+        if(pCompound.contains("ChargeCast")) chargeCast=pCompound.getFloat("ChargeCast");
         if(pCompound.contains("PlaneX"))castPlane(new Vec3(pCompound.getDouble("PlaneX"),pCompound.getDouble("PlaneY"),pCompound.getDouble("PlaneZ")),
                 new Vec3(pCompound.getDouble("PlaneNX"),pCompound.getDouble("PlaneNY"),pCompound.getDouble("PlaneNZ")));
     }

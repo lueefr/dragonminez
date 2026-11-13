@@ -81,4 +81,38 @@ public final class UpstreamIntegrationGameTests {
         helper.succeed();
     }
 
+    @GameTest(template="port_vertical_empty")
+    public static void sprintLimitScalesNativeAttribute(GameTestHelper helper) {
+        var player = FakePlayerFactory.get(helper.getLevel(), new GameProfile(UUID.randomUUID(), "SprintLimit"));
+        try {
+            var data = StatsProvider.get(StatsCapability.INSTANCE, player).orElseThrow(IllegalStateException::new);
+            data.getStatus().setHasCreatedCharacter(true);
+            data.getSkills().setSkillLevel("sprint", 10);
+            data.getSkills().setSkillActive("sprint", true);
+            var speed = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
+            var boost = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "test_sprint");
+            speed.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(boost, .6,
+                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+            player.setSprinting(true);
+            var tick = new net.neoforged.neoforge.event.tick.PlayerTickEvent.Pre(player);
+            data.getResources().setSprintLimit(100);
+            com.dragonminez.common.flight.MovementLimits.tick(tick);
+            double full = speed.getValue();
+            data.getResources().setSprintLimit(25);
+            com.dragonminez.common.flight.MovementLimits.tick(tick);
+            helper.assertTrue(Math.abs(speed.getValue() / full - .25) < 1e-6,
+                    "Sprint cap does not scale the native skill boost proportionally");
+            player.setSprinting(false);
+            com.dragonminez.common.flight.MovementLimits.tick(tick);
+            helper.assertTrue(Math.abs(speed.getValue() - full / 1.3) < 1e-6,
+                    "Sprint limit remained active after stopping sprint");
+            player.setSprinting(true);
+            data.getSkills().setSkillLevel("fly", 1);
+            data.getSkills().setSkillActive("fly", true);
+            com.dragonminez.common.flight.MovementLimits.tick(tick);
+            helper.assertTrue(Math.abs(speed.getValue() - full) < 1e-6, "Sprint cap leaked into flight");
+            helper.succeed();
+        } finally { player.discard(); }
+    }
+
 }

@@ -25,7 +25,7 @@ public final class KiChargeAnchorGameTests {
         try {
             ball.setupKiGenkiPlayer(owner, 1, .6f, 8);
             ball.tick();
-            double height = ball.getY() + ball.getBbHeight()*.5 - AbstractKiProjectile.ownerCastCenterY(owner);
+            double height = ball.getY() + ball.getSize()*.5 - AbstractKiProjectile.ownerCastCenterY(owner);
             double base = height - ball.getSize() * .5;
             for (float yaw : new float[]{0, 90, 180, -90}) {
                 for (float pitch : new float[]{-90, -45, 0, 45, 90}) {
@@ -34,7 +34,7 @@ public final class KiChargeAnchorGameTests {
                     ball.tick();
                     helper.assertTrue(Math.abs(ball.getX() - owner.getX()) < 1e-5
                             && Math.abs(ball.getZ() - owner.getZ()) < 1e-5, "Overhead charge followed aim horizontally");
-                    helper.assertTrue(Math.abs(ball.getY() + ball.getBbHeight()*.5 - AbstractKiProjectile.ownerCastCenterY(owner) - height) < 1e-5,
+                    helper.assertTrue(Math.abs(ball.getY() + ball.getSize()*.5 - AbstractKiProjectile.ownerCastCenterY(owner) - height) < 1e-5,
                             "Overhead charge changed height with pitch");
                 }
             }
@@ -45,7 +45,7 @@ public final class KiChargeAnchorGameTests {
             ball.tick();
             helper.assertTrue(Math.abs(ball.getX() - owner.getX()) < 1e-5 && Math.abs(ball.getZ() - owner.getZ()) < 1e-5,
                     "Charge failed to follow caster movement or drifted while growing");
-            helper.assertTrue(Math.abs(ball.getY() + ball.getBbHeight()*.5 - AbstractKiProjectile.ownerCastCenterY(owner)
+            helper.assertTrue(Math.abs(ball.getY() + ball.getSize()*.5 - AbstractKiProjectile.ownerCastCenterY(owner)
                     - (base * AbstractKiProjectile.ownerScaleOf(owner) + ball.getSize() * .5)) < 1e-5, "Caster scaling was lost");
             helper.succeed();
         } finally {

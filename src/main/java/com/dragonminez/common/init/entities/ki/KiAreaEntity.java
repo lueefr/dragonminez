@@ -99,6 +99,7 @@ public class KiAreaEntity extends AbstractKiProjectile {
     }
 
     private void updatePositionToOwner() {
+        if (isReleased()) return;
         Entity owner = this.getOwner();
         if (owner != null) {
             this.setPos(owner.getX(), owner.getY(), owner.getZ());

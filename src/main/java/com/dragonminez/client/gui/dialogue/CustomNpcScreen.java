@@ -76,7 +76,7 @@ public final class CustomNpcScreen extends ScaledScreen {
         HairEditorUi.header(graphics, font, HairEditorUi.txt(HairEditorUi.trimToWidth(font, title.getString(), 270)), x, 8, 306);
         var definition = npc.definition();
         if (definition != null) {
-            graphics.enableScissor(x + 12, 42, x + 294, 102);
+            graphics.enableScissor(toScreenCoord(x + 12), toScreenCoord(42), toScreenCoord(x + 294), toScreenCoord(102));
             int y = 42;
             for (String dialogue : definition.dialogues()) {
                 for (var line : font.split(HairEditorUi.tr(dialogue), 278)) {

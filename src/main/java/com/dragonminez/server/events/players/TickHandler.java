@@ -1125,7 +1125,7 @@ public class TickHandler {
 		List<AbstractKiProjectile> list = player.level().getEntitiesOfClass(
 				AbstractKiProjectile.class, player.getBoundingBox().inflate(48.0D));
 		for (AbstractKiProjectile ki : list) {
-			if (ki.getOwner() != null && ki.getOwner().getUUID().equals(player.getUUID())) return true;
+			if (!ki.isReleased() && ki.getOwner() != null && ki.getOwner().getUUID().equals(player.getUUID())) return true;
 		}
 		return false;
 	}

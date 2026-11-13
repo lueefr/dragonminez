@@ -686,8 +686,11 @@ public class EvasionAttackHandler {
 			}
 
 			if ("rage_scream".equals(active.techniqueId)) {
+                boolean oozaru = StatsProvider.get(StatsCapability.INSTANCE, caster)
+                        .map(stats -> stats.getCharacter().isOozaruCached()).orElse(false);
+                if (!oozaru) active.ticksRemaining = 0;
 				active.ticksSincePulse++;
-				if (active.ticksSincePulse >= RAGE_SCREAM_PULSE_INTERVAL_TICKS) {
+				if (oozaru && active.ticksSincePulse >= RAGE_SCREAM_PULSE_INTERVAL_TICKS) {
 					active.ticksSincePulse = 0;
 					StatsProvider.get(StatsCapability.INSTANCE, caster).ifPresent(stats -> {
 						TechniqueData unlocked = stats.getTechniques().getUnlockedTechniques().get("rage_scream");

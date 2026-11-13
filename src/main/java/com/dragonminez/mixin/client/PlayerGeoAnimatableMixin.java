@@ -60,7 +60,6 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 	@Unique private int dragonminez$landingTicks = 0;
 	@Unique private boolean dragonminez$wasEating = false;
 	@Unique private static final double WALK_SPEED_BASELINE = 0.2158;
-	@Unique private static final double FROZEN_SPEED_EPSILON = 0.01;
 	@Unique private static final double RUN_SPEED_BASELINE = 0.2806;
 	@Unique private static final int LANDING_ANIM_TICKS = 13;
 	@Unique private static final float FALL_TRIGGER_DISTANCE = 4.5F;
@@ -102,6 +101,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 		int currentTick = player.tickCount;
 
 		if (currentTick == dragonminez$lastTickCount) return dragonminez$isMovingState;
+		int elapsedTicks = Math.max(1, currentTick - dragonminez$lastTickCount);
 		dragonminez$lastTickCount = currentTick;
 
 		if (Double.isNaN(dragonminez$lastPosX)) {
@@ -117,17 +117,17 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 
 		dragonminez$lastPosX = player.getX();
 		dragonminez$lastPosZ = player.getZ();
-		dragonminez$horizSpeed = Math.sqrt(distanceSq);
+		dragonminez$horizSpeed = com.dragonminez.common.util.VisualTiming.speed(Math.sqrt(distanceSq), elapsedTicks);
 
 		dragonminez$updateLanding(player);
 
-		boolean isCurrentlyMoving = distanceSq > 0.0001;
+		boolean isCurrentlyMoving = com.dragonminez.common.util.VisualTiming.moving(dragonminez$horizSpeed, dragonminez$isMovingState);
 
 		if (isCurrentlyMoving) {
 			dragonminez$isMovingState = true;
 			dragonminez$stoppedTicks = 0;
 		} else {
-			dragonminez$stoppedTicks++;
+			dragonminez$stoppedTicks = Math.min(STOPPED_THRESHOLD_TICKS, dragonminez$stoppedTicks + elapsedTicks);
 			if (dragonminez$stoppedTicks >= STOPPED_THRESHOLD_TICKS) {
 				dragonminez$isMovingState = false;
 			}
@@ -348,7 +348,7 @@ public abstract class PlayerGeoAnimatableMixin implements GeoAnimatable, IPlayer
 		var nextStackFormConfig = TransformationsHelper.getNextAvailableStackForm(data);
 		String nextForm = nextFormConfig != null ? nextFormConfig.getName().toLowerCase() : "";
 		boolean isTransforming = data.getStatus().isActionCharging();
-		boolean isMoving = movedRecently && !((isChargingKi || isTransforming) && dragonminez$horizSpeed < FROZEN_SPEED_EPSILON);
+		boolean isMoving = movedRecently;
 		ActionMode actionMode = data.getStatus().getSelectedAction();
 
 		if (isKnockedDown) return state.setAndContinue(KNOCKBACK_HORIZONTAL);

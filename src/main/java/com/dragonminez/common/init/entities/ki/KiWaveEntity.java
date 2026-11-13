@@ -468,6 +468,10 @@ public class KiWaveEntity extends AbstractKiProjectile {
         double y = isCasting
                 ? ownerCastCenterY(owner)
                 : owner.getY() + owner.getBbHeight() + KiTechniqueHandler.HeatDome.BEAM_HEAD_OFFSET * ownerScaleOf(owner);
+        if (!isCasting) {
+            castPlane(new Vec3(owner.getX(), y, owner.getZ()), new Vec3(0, 1, 0));
+            y += castClearanceRadius();
+        }
         this.setPos(owner.getX(), y, owner.getZ());
 
         float yaw = owner.getYRot();
@@ -581,7 +585,8 @@ public class KiWaveEntity extends AbstractKiProjectile {
         if (!level().isClientSide && !com.dragonminez.common.combat.logic.player.KiChargeTracker.validate(this)) { discard(); return; }
         growCharge();
         this.baseTick();
-        this.setDeltaMovement(0, 0, 0);
+        if (isReleased()) setPos(position().add(getDeltaMovement()));
+        else this.setDeltaMovement(0, 0, 0);
 
         int renderType = this.getKiRenderType();
         if ((renderType == 1 || renderType == 0) && this.getSteerRate() <= 0.0F) {
@@ -917,6 +922,9 @@ public class KiWaveEntity extends AbstractKiProjectile {
         pCompound.putFloat("OffsetY", this.entityData.get(OFFSET_Y));
         pCompound.putFloat("OffsetZ", this.entityData.get(OFFSET_Z));
         pCompound.putBoolean("ContinuousFollow", isContinuousFollow());
+        pCompound.putFloat("BeamLength", getBeamLength());
+        pCompound.putFloat("FixedYaw", getFixedYaw());
+        pCompound.putFloat("FixedPitch", getFixedPitch());
     }
 
     @Override
@@ -928,5 +936,8 @@ public class KiWaveEntity extends AbstractKiProjectile {
         if (pCompound.contains("OffsetY")) this.entityData.set(OFFSET_Y, pCompound.getFloat("OffsetY"));
         if (pCompound.contains("OffsetZ")) this.entityData.set(OFFSET_Z, pCompound.getFloat("OffsetZ"));
         if (pCompound.contains("ContinuousFollow")) setContinuousFollow(pCompound.getBoolean("ContinuousFollow"));
+        if (pCompound.contains("BeamLength")) setBeamLength(pCompound.getFloat("BeamLength"));
+        if (pCompound.contains("FixedYaw")) entityData.set(FIXED_YAW, pCompound.getFloat("FixedYaw"));
+        if (pCompound.contains("FixedPitch")) entityData.set(FIXED_PITCH, pCompound.getFloat("FixedPitch"));
     }
 }

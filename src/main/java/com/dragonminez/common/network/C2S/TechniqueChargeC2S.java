@@ -22,7 +22,7 @@ public class TechniqueChargeC2S {
 	private static final double LOCK_RANGE_MARGIN = 8.0;
 	private static final long START_MIN_INTERVAL_TICKS = 2L;
 
-	public enum Action { START, SET_HOLDING }
+	public enum Action { START, SET_HOLDING, DETACH }
 
 	private final Action action;
 	private final int slot;
@@ -39,6 +39,10 @@ public class TechniqueChargeC2S {
 	public static TechniqueChargeC2S start(int slot, int targetId) {
 		return new TechniqueChargeC2S(Action.START, slot, false, targetId);
 	}
+
+    public static TechniqueChargeC2S detach(int slot) {
+        return new TechniqueChargeC2S(Action.DETACH, slot, false, -1);
+    }
 
 	public static TechniqueChargeC2S setHolding(boolean holding) {
 		return new TechniqueChargeC2S(Action.SET_HOLDING, -1, holding, -1);
@@ -71,8 +75,13 @@ public class TechniqueChargeC2S {
 				}
 
 				switch (msg.action) {
+                    case DETACH -> {
+                        if (player.isAlive() && !player.isSpectator()
+                                && (!data.getStatus().isFused() || data.getStatus().isFusionLeader())
+                                && PacketRateLimiter.allow(player.getUUID(), "technique_detach", player.level().getGameTime(), 2L))
+                            TechniqueDispatcher.releaseSlot(player, data, msg.slot);
+                    }
 					case START -> {
-                        if (!data.getRuntime().permits("ki")) break;
 						MinigameSessionManager.onPlayerAction(player, "technique");
 						if (!PacketRateLimiter.allow(player.getUUID(), "technique_charge_start", player.level().getGameTime(), START_MIN_INTERVAL_TICKS)) break;
 						if (player.isSpectator()
@@ -84,6 +93,8 @@ public class TechniqueChargeC2S {
 							data.getTechniques().clearTechniqueCharge();
 							break;
 						}
+                        if (TechniqueDispatcher.releaseSlot(player, data, msg.slot)) break;
+                        if (!data.getRuntime().permits("ki")) break;
 						String techId = data.getTechniques().getEquippedSlots()[msg.slot];
 						TechniqueData selected = (techId == null || techId.isEmpty())
 								? null : data.getTechniques().getUnlockedTechniques().get(techId);

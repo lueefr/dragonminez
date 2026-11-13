@@ -36,4 +36,21 @@ public final class NpcLookGameTests {
         helper.assertTrue(!goal.canUse(), "NPC looked through a solid wall");
         player.discard(); mob.discard(); helper.succeed();
     }
+    @GameTest(template="port_empty")
+    public static void demonResidentsUseContinuousAttention(GameTestHelper helper) throws Exception {
+        var field = net.minecraft.world.entity.Mob.class.getDeclaredField("goalSelector");
+        field.setAccessible(true);
+        for (var type : java.util.List.of(com.dragonminez.common.init.MainEntities.DEMON_VILLAGER.get(),
+                com.dragonminez.common.init.MainEntities.TIME_PATROLLER.get())) {
+            var mob = type.create(helper.getLevel());
+            try {
+                var goals = (net.minecraft.world.entity.ai.goal.GoalSelector) field.get(mob);
+                helper.assertTrue(mob != null && goals.getAvailableGoals().stream()
+                        .anyMatch(goal -> goal.getGoal() instanceof PlayerLookGoal),
+                        "Demon resident lacks continuous, occlusion-aware attention: " + type);
+            } finally { if (mob != null) mob.discard(); }
+        }
+        helper.succeed();
+    }
+
 }
