@@ -54,4 +54,35 @@ public final class AnimationRulesTests {
         } finally { first.release(); second.release(); }
         helper.succeed();
     }
+    @GameTest(template = "port_empty")
+    public static void spherePoses(GameTestHelper helper) {
+        var owner = net.neoforged.neoforge.common.util.FakePlayerFactory.get(helper.getLevel(),
+                new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(), "SpherePoses"));
+        var sphere = new com.dragonminez.common.init.entities.ki.KiBlastEntity(
+                com.dragonminez.common.init.MainEntities.KI_BLAST.get(), helper.getLevel());
+        sphere.setSize(1);
+        sphere.setTechniqueId("created_pose_test");
+        for (String pose : java.util.List.of("ki.bigbang", "ki.burning_attack", "ki.soul_punisher",
+                "ki.neo_kikohu", "ki.large_ball", "ki.supernova_cooler", "ki.blaster_meteor")) {
+            sphere.castPose(pose);
+            var expected = sphere.poseOffset(owner, pose, sphere.getSize());
+            com.dragonminez.common.stats.techniques.KiPose.apply(sphere, owner);
+            var saved = sphere.saveWithoutId(new net.minecraft.nbt.CompoundTag());
+            helper.assertTrue(Math.abs(saved.getFloat("OffsetX") - expected.x) < 0.00001
+                            && Math.abs(saved.getFloat("OffsetY") - expected.y) < 0.00001
+                            && Math.abs(saved.getFloat("OffsetZ") - expected.z) < 0.00001,
+                    "Selected sphere pose must survive generic offset application: " + pose);
+        }
+        helper.assertTrue(sphere.poseOffset(owner, "ki.large_ball", 1).y == 5.5
+                        && sphere.poseOffset(owner, "ki.supernova_cooler", 1).y == 2.5,
+                "Giant spheres must retain the distinct authored animation heights");
+        sphere.setTechniqueId("supernova");
+        sphere.castPose("ki.large_ball");
+        sphere.setCastOffsets(0, 2.5F, 0);
+        com.dragonminez.common.stats.techniques.KiPose.apply(sphere, owner);
+        helper.assertTrue(sphere.saveWithoutId(new net.minecraft.nbt.CompoundTag()).getFloat("OffsetY") == 2.5F,
+                "Shared animations must not overwrite native techniques' distinct cast attachments");
+        helper.succeed();
+    }
+
 }

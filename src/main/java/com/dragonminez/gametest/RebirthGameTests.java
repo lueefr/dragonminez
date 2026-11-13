@@ -64,4 +64,30 @@ public final class RebirthGameTests {
         } finally {field.set(null,original);player.discard();}
     }
 
+    @GameTest(template="port_empty")
+    public static void rebirthInventoryIsConsumedOnlyAfterAcceptance(GameTestHelper helper) {
+        var player = FakePlayerFactory.get(helper.getLevel(), new GameProfile(UUID.randomUUID(), "RebirthInventory"));
+        var data = StatsProvider.get(StatsCapability.INSTANCE, player).orElseThrow(IllegalStateException::new);
+        try {
+            player.getInventory().setItem(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND));
+            player.getInventory().armor.set(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND_BOOTS));
+            player.getInventory().offhand.set(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.SHIELD));
+            player.inventoryMenu.setCarried(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.EMERALD));
+            helper.assertTrue(!com.dragonminez.common.progression.RebirthService.begin(player, data), "Invalid reincarnation accepted");
+            helper.assertTrue(!player.getInventory().getItem(0).isEmpty() && !player.inventoryMenu.getCarried().isEmpty(), "Rejected reincarnation consumed inventory");
+            var curios = top.theillusivec4.curios.api.CuriosApi.getCuriosInventory(player).orElseThrow();
+            for (var slots : curios.getCurios().values()) {
+                if (slots.getStacks().getSlots() > 0) { slots.getStacks().setStackInSlot(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STONE)); }
+                if (slots.getCosmeticStacks().getSlots() > 0) slots.getCosmeticStacks().setStackInSlot(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STONE));
+            }
+            com.dragonminez.common.progression.RebirthService.clearInventory(player);
+            helper.assertTrue(player.getInventory().isEmpty() && player.inventoryMenu.getCarried().isEmpty(), "Rebirth retained inventory, armor, offhand or cursor");
+            for (var slots : curios.getCurios().values()) {
+                for (int slot = 0; slot < slots.getStacks().getSlots(); slot++) helper.assertTrue(slots.getStacks().getStackInSlot(slot).isEmpty(), "Equipped Curio retained");
+                for (int slot = 0; slot < slots.getCosmeticStacks().getSlots(); slot++) helper.assertTrue(slots.getCosmeticStacks().getStackInSlot(slot).isEmpty(), "Cosmetic Curio retained");
+            }
+            helper.succeed();
+        } finally { player.discard(); }
+    }
+
 }

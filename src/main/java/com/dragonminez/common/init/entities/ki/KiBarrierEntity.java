@@ -247,7 +247,9 @@ public class KiBarrierEntity extends AbstractKiProjectile {
 
         LivingEntity anchor = getAnchor();
         boolean hostMode = this.getShieldHost() >= 0;
-        if (anchor != null && anchor.isAlive()) {
+        if (isReleased()) {
+            // Keep the shield at its released origin until its existing lifetime expires.
+        } else if (anchor != null && anchor.isAlive()) {
             centerOn(anchor);
             this.setDeltaMovement(0, 0, 0);
         } else if (hostMode && this.level().isClientSide) {

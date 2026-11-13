@@ -59,4 +59,60 @@ public final class UpstreamIntegrationGameTests {
         helper.succeed();
     }
 
+    @GameTest(template="port_vertical_empty")
+    public static void movementLimitsPersistClampAndRoundTrip(GameTestHelper helper) {
+        var resources = new com.dragonminez.common.stats.character.Resources();
+        resources.load(new net.minecraft.nbt.CompoundTag());
+        helper.assertTrue(resources.getSprintLimit() == 100 && resources.getJumpLimit() == 100, "Legacy movement defaults changed");
+        resources.setSprintLimit(43); resources.setJumpLimit(Integer.MIN_VALUE);
+        var copy = new com.dragonminez.common.stats.character.Resources(); copy.load(resources.save());
+        helper.assertTrue(copy.getSprintLimit() == 40 && copy.getJumpLimit() == 5, "Limits were not clamped/persisted");
+        copy.setJumpLimit(Integer.MAX_VALUE);
+        helper.assertTrue(copy.getJumpLimit() == 100, "Jump limit exceeded maximum");
+        var buffer = new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.buffer());
+        try {
+            new com.dragonminez.common.network.C2S.SetMovementLimitC2S(true, 45).encode(buffer);
+            var packet = new com.dragonminez.common.network.C2S.SetMovementLimitC2S(buffer);
+            helper.assertTrue(packet.jump() && packet.value() == 45, "Movement packet lost selection");
+        } finally { buffer.release(); }
+        double scale = com.dragonminez.common.flight.MovementLimits.jumpScale(25);
+        helper.assertTrue(Math.abs(scale * scale - 0.25) < 1e-8, "Jump height percentage uses linear velocity");
+        helper.assertTrue(com.dragonminez.common.flight.MovementLimits.jumpHeight(10, 1) > com.dragonminez.common.flight.MovementLimits.jumpHeight(1, 1), "Jump apex ignores skill level");
+        helper.succeed();
+    }
+
+    @GameTest(template="port_vertical_empty")
+    public static void sprintLimitScalesNativeAttribute(GameTestHelper helper) {
+        var player = FakePlayerFactory.get(helper.getLevel(), new GameProfile(UUID.randomUUID(), "SprintLimit"));
+        try {
+            var data = StatsProvider.get(StatsCapability.INSTANCE, player).orElseThrow(IllegalStateException::new);
+            data.getStatus().setHasCreatedCharacter(true);
+            data.getSkills().setSkillLevel("sprint", 10);
+            data.getSkills().setSkillActive("sprint", true);
+            var speed = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
+            var boost = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("dragonminez", "test_sprint");
+            speed.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(boost, .6,
+                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+            player.setSprinting(true);
+            var tick = new net.neoforged.neoforge.event.tick.PlayerTickEvent.Pre(player);
+            data.getResources().setSprintLimit(100);
+            com.dragonminez.common.flight.MovementLimits.tick(tick);
+            double full = speed.getValue();
+            data.getResources().setSprintLimit(25);
+            com.dragonminez.common.flight.MovementLimits.tick(tick);
+            helper.assertTrue(Math.abs(speed.getValue() / full - .25) < 1e-6,
+                    "Sprint cap does not scale the native skill boost proportionally");
+            player.setSprinting(false);
+            com.dragonminez.common.flight.MovementLimits.tick(tick);
+            helper.assertTrue(Math.abs(speed.getValue() - full / 1.3) < 1e-6,
+                    "Sprint limit remained active after stopping sprint");
+            player.setSprinting(true);
+            data.getSkills().setSkillLevel("fly", 1);
+            data.getSkills().setSkillActive("fly", true);
+            com.dragonminez.common.flight.MovementLimits.tick(tick);
+            helper.assertTrue(Math.abs(speed.getValue() - full) < 1e-6, "Sprint cap leaked into flight");
+            helper.succeed();
+        } finally { player.discard(); }
+    }
+
 }

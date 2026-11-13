@@ -69,7 +69,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
      */
     @Override
     protected float castClearanceRadius() {
-        return this.isFiring() ? this.getSize() * 1.65F : this.getCastSize() * 1.65F;
+        return this.isFiring() ? this.getSize() * 3.2F : this.getCastSize() * 1.5F;
     }
 
     private float calcWaveForwardOffset(LivingEntity owner) {
@@ -380,7 +380,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
     public void setupMouthBlastPlayer(LivingEntity owner, float damage, float speed, int color, int colorBorder, float size) {
         this.setKiRenderType(0);
         this.setSize(size);
-        this.setCastSize(size / 2);
+        this.setCastSize(.2F * ownerScaleOf(owner));
         this.setKiDamage(damage);
         this.setKiSpeed(speed);
         this.setColors(color, colorBorder, 0xFFFFFF);
@@ -468,6 +468,10 @@ public class KiWaveEntity extends AbstractKiProjectile {
         double y = isCasting
                 ? ownerCastCenterY(owner)
                 : owner.getY() + owner.getBbHeight() + KiTechniqueHandler.HeatDome.BEAM_HEAD_OFFSET * ownerScaleOf(owner);
+        if (!isCasting) {
+            castPlane(new Vec3(owner.getX(), y, owner.getZ()), new Vec3(0, 1, 0));
+            y += castClearanceRadius();
+        }
         this.setPos(owner.getX(), y, owner.getZ());
 
         float yaw = owner.getYRot();
@@ -509,6 +513,7 @@ public class KiWaveEntity extends AbstractKiProjectile {
         }
 
         this.setPos(newPos.x, newPos.y, newPos.z);
+        if (!isCasting) castPlane(newPos.subtract(look.scale(castClearanceRadius())), look);
 
         if(!isCasting&&!this.level().isClientSide)look=com.dragonminez.common.combat.aim.KiAim.direction(owner,newPos);
         float horizontalDistance = (float) Math.sqrt(look.x * look.x + look.z * look.z);
@@ -577,9 +582,11 @@ public class KiWaveEntity extends AbstractKiProjectile {
 
     @Override
     public void tick() {
+        if (!level().isClientSide && !com.dragonminez.common.combat.logic.player.KiChargeTracker.validate(this)) { discard(); return; }
         growCharge();
         this.baseTick();
-        this.setDeltaMovement(0, 0, 0);
+        if (isReleased()) setPos(position().add(getDeltaMovement()));
+        else this.setDeltaMovement(0, 0, 0);
 
         int renderType = this.getKiRenderType();
         if ((renderType == 1 || renderType == 0) && this.getSteerRate() <= 0.0F) {
@@ -915,6 +922,9 @@ public class KiWaveEntity extends AbstractKiProjectile {
         pCompound.putFloat("OffsetY", this.entityData.get(OFFSET_Y));
         pCompound.putFloat("OffsetZ", this.entityData.get(OFFSET_Z));
         pCompound.putBoolean("ContinuousFollow", isContinuousFollow());
+        pCompound.putFloat("BeamLength", getBeamLength());
+        pCompound.putFloat("FixedYaw", getFixedYaw());
+        pCompound.putFloat("FixedPitch", getFixedPitch());
     }
 
     @Override
@@ -926,5 +936,8 @@ public class KiWaveEntity extends AbstractKiProjectile {
         if (pCompound.contains("OffsetY")) this.entityData.set(OFFSET_Y, pCompound.getFloat("OffsetY"));
         if (pCompound.contains("OffsetZ")) this.entityData.set(OFFSET_Z, pCompound.getFloat("OffsetZ"));
         if (pCompound.contains("ContinuousFollow")) setContinuousFollow(pCompound.getBoolean("ContinuousFollow"));
+        if (pCompound.contains("BeamLength")) setBeamLength(pCompound.getFloat("BeamLength"));
+        if (pCompound.contains("FixedYaw")) entityData.set(FIXED_YAW, pCompound.getFloat("FixedYaw"));
+        if (pCompound.contains("FixedPitch")) entityData.set(FIXED_PITCH, pCompound.getFloat("FixedPitch"));
     }
 }

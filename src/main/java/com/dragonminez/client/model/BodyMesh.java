@@ -11,12 +11,12 @@ public final class BodyMesh {
         float legs=shape.get(BodyShape.Part.LEGS), torso=shape.get(BodyShape.Part.TORSO_HEIGHT);
         float width=shape.get(BodyShape.Part.TORSO_WIDTH);
         switch(bone.getName()) {
-            case "head" -> { x=y=z=shape.get(BodyShape.Part.HEAD); dy=12*(torso-1); }
-            case "body" -> { x=width; y=torso; dy=12*(torso-1); }
+            case "head" -> { x=shape.get(BodyShape.Part.HEAD)*shape.get(BodyShape.Part.HEAD_WIDTH); y=shape.get(BodyShape.Part.HEAD)*shape.get(BodyShape.Part.HEAD_HEIGHT); z=shape.get(BodyShape.Part.HEAD)*shape.get(BodyShape.Part.HEAD_DEPTH); dy=12*(torso-1); }
+            case "body" -> { x=width; y=torso; z=shape.get(BodyShape.Part.TORSO_DEPTH); dy=12*(torso-1); }
             case "waist" -> dy=12*(legs-1);
-            case "right_leg", "left_leg" -> { y=legs; x=z=shape.get(BodyShape.Part.LEG_WIDTH); dy=12*(legs-1); }
-            case "right_arm" -> { y=shape.get(BodyShape.Part.ARMS); x=z=shape.get(BodyShape.Part.ARM_WIDTH); dx=-5*(width-1); dy=12*(torso-1); }
-            case "left_arm" -> { y=shape.get(BodyShape.Part.ARMS); x=z=shape.get(BodyShape.Part.ARM_WIDTH); dx=5*(width-1); dy=12*(torso-1); }
+            case "right_leg", "left_leg" -> { y=legs; x=shape.get(BodyShape.Part.LEG_WIDTH); z=shape.get(BodyShape.Part.LEG_DEPTH); dy=12*(legs-1); }
+            case "right_arm" -> { y=shape.get(BodyShape.Part.ARMS); x=shape.get(BodyShape.Part.ARM_WIDTH); z=shape.get(BodyShape.Part.ARM_DEPTH); dx=-5*(width-1); dy=12*(torso-1); }
+            case "left_arm" -> { y=shape.get(BodyShape.Part.ARMS); x=shape.get(BodyShape.Part.ARM_WIDTH); z=shape.get(BodyShape.Part.ARM_DEPTH); dx=5*(width-1); dy=12*(torso-1); }
             default -> { return; }
         }
         if ((bone.getName().equals("right_arm") || bone.getName().equals("left_arm")) && shape.frame() >= 0) {

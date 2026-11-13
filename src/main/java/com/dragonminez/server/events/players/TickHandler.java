@@ -1,5 +1,7 @@
 package com.dragonminez.server.events.players;
 
+import com.dragonminez.common.combat.logic.player.KiChargeTracker;
+
 import com.dragonminez.Env;
 import com.dragonminez.Reference;
 import com.dragonminez.common.combat.SilentDamage;
@@ -922,9 +924,8 @@ public class TickHandler {
 
 		if (chargingTechniqueId == null || chargingTechniqueId.isEmpty()) {
 			boolean hadCharge = techniques.getTechniqueChargePercent() > 0.0f || techniques.isTechniqueCharging();
-			if (hadCharge || CHARGING_CACHE.containsKey(player.getUUID())) {
-				var leftover = findChargingEntity(player);
-				if (leftover != null) leftover.discard();
+			if (hadCharge || !KiChargeTracker.charging(player).isEmpty() || CHARGING_CACHE.containsKey(player.getUUID())) {
+                for (var leftover : KiChargeTracker.charging(player)) leftover.discard();
 				CHARGING_CACHE.remove(player.getUUID());
 				CHARGE_COST_ACCUM.remove(player.getUUID());
 				clearHumanKiAccumulators(player);
@@ -935,6 +936,7 @@ public class TickHandler {
 
 		TechniqueData techniqueData = techniques.getUnlockedTechniques().get(chargingTechniqueId);
 		if (!(techniqueData instanceof KiAttackData kiAttack)) {
+            for (var leftover : KiChargeTracker.charging(player)) leftover.discard();
 			techniques.clearTechniqueCharge();
 			return;
 		}
@@ -953,8 +955,7 @@ public class TickHandler {
 			Entity targetEntity = player.serverLevel().getEntity(techniques.getHomingTargetId());
 			boolean targetGone = !(targetEntity instanceof LivingEntity living) || !living.isAlive() || player.distanceTo(living) > 30.0;
 			if (targetGone) {
-				var leftover = findChargingEntity(player);
-				if (leftover != null) leftover.discard();
+                for (var leftover : KiChargeTracker.charging(player)) leftover.discard();
 				CHARGING_CACHE.remove(player.getUUID());
 				CHARGE_COST_ACCUM.remove(player.getUUID());
 				techniques.clearTechniqueCharge();
@@ -975,6 +976,14 @@ public class TickHandler {
 			NetworkHandler.sendToTrackingEntityAndSelf(new TechniqueChargeSyncS2C(player.getId(), 0.0f, false), player);
 			return;
 		}
+
+        // A removed charge cannot resume, release again, or recreate itself later.
+        if (activeKi == null && techniques.getTechniqueChargePercent() > 0.0f && !kiAttack.isInstantCast()) {
+            CHARGE_COST_ACCUM.remove(player.getUUID());
+            techniques.clearTechniqueCharge();
+            NetworkHandler.sendToTrackingEntityAndSelf(new TechniqueChargeSyncS2C(player.getId(), 0.0f, false), player);
+            return;
+        }
 
 		final float OVER = KiAttackData.maxCharge();
 		boolean instant = kiAttack.isInstantCast();
@@ -1099,30 +1108,12 @@ public class TickHandler {
 	}
 
 	static AbstractKiProjectile findChargingEntity(ServerPlayer player) {
-		UUID playerId = player.getUUID();
-		AbstractKiProjectile cached = CHARGING_CACHE.get(playerId);
-
-		if (cached != null && !cached.isRemoved() && !isEntityFiring(cached)) {
-			return cached;
-		}
-
-		List<AbstractKiProjectile> nearbyEntities = player.level().getEntitiesOfClass(
-				AbstractKiProjectile.class,
-				player.getBoundingBox().inflate(30.0D)
-		);
-
-		for (AbstractKiProjectile ki : nearbyEntities) {
-			if (ki.getOwner() != null && ki.getOwner().getUUID().equals(playerId)) {
-				if (!isEntityFiring(ki)) {
-					CHARGING_CACHE.put(playerId, ki);
-					return ki;
-				}
-			}
-		}
-
-		CHARGING_CACHE.remove(playerId);
-		return null;
-	}
+        var charging = KiChargeTracker.charging(player);
+        AbstractKiProjectile found = charging.isEmpty() ? null : charging.getFirst();
+        if (found == null) CHARGING_CACHE.remove(player.getUUID());
+        else CHARGING_CACHE.put(player.getUUID(), found);
+        return found;
+    }
 
 	private static Item pothalaLeftCounterpart(Item rightItem) {
 		if (rightItem == MainItems.POTHALA_RIGHT.get()) return MainItems.POTHALA_LEFT.get();
@@ -1134,7 +1125,7 @@ public class TickHandler {
 		List<AbstractKiProjectile> list = player.level().getEntitiesOfClass(
 				AbstractKiProjectile.class, player.getBoundingBox().inflate(48.0D));
 		for (AbstractKiProjectile ki : list) {
-			if (ki.getOwner() != null && ki.getOwner().getUUID().equals(player.getUUID())) return true;
+			if (!ki.isReleased() && ki.getOwner() != null && ki.getOwner().getUUID().equals(player.getUUID())) return true;
 		}
 		return false;
 	}

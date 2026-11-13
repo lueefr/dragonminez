@@ -683,6 +683,7 @@ public class DMZRacePartsLayer<T extends AbstractClientPlayer & GeoAnimatable> e
 				}
 			}
 			case PICCOLO_CAPE -> {
+                if (!com.dragonminez.client.render.cloth.CapeCloth.visible()) return;
 				switch (anchor) {
 					case "body" -> {
 						GeoBone capeBone = weightModel.getBone("cape").orElse(null);

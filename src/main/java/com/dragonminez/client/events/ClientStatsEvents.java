@@ -494,6 +494,21 @@ public class ClientStatsEvents {
 			downNow[i] = down;
 		}
 
+        // A second press releases an already fired technique even while its cast locks input.
+        for (int i = 0; i < TECHNIQUE_VISIBLE_SLOTS; i++) {
+            if (!downNow[i] || wasSlotKeyDown[i] || isStunned) continue;
+            String id = techniques.getEquippedSlots()[i];
+            if (id == null || id.isEmpty()) continue;
+            boolean firing = player.level().getEntitiesOfClass(com.dragonminez.common.init.entities.ki.AbstractKiProjectile.class,
+                    player.getBoundingBox().inflate(256)).stream().anyMatch(ki -> ki.getOwner() == player
+                    && ki.isFiring() && !ki.isReleased() && id.equals(ki.getTechniqueId()));
+            if (!firing) continue;
+            NetworkHandler.sendToServer(TechniqueChargeC2S.detach(i));
+            wasSlotKeyDown[i] = true;
+            if (!sessionActive || id.equals(techniques.getChargingTechniqueId())) resetChargeSession();
+            return;
+        }
+
 		if (activeChargeSlot < 0) {
 			resetChargeSession();
 			boolean firingRestricted = TechniqueDispatcher.isMovementRestrictedKiAttack(player, data) || player.getVehicle() instanceof VehicleEntity;
@@ -501,12 +516,20 @@ public class ClientStatsEvents {
 			for (int i = 0; i < TECHNIQUE_VISIBLE_SLOTS; i++) {
 				boolean pressed = downNow[i] && !wasSlotKeyDown[i];
 				wasSlotKeyDown[i] = downNow[i];
-				if (!pressed || isStunned || firingRestricted) continue;
+				if (!pressed || isStunned) continue;
 
 				String id = techniques.getEquippedSlots()[i];
 				TechniqueData t = (id == null || id.isEmpty()) ? null : techniques.getUnlockedTechniques().get(id);
 				if (t == null) continue;
-				if (!canActivateTechnique(data, player, t)) continue;
+                if (firingRestricted) {
+                    if (t instanceof KiAttackData) NetworkHandler.sendToServer(TechniqueChargeC2S.detach(i));
+                    continue;
+                }
+                if (!canActivateTechnique(data, player, t)
+                        || (t instanceof KiAttackData && data.getCooldowns().hasCooldown("TechniqueCooldown_" + id))) {
+                    if (t instanceof KiAttackData) NetworkHandler.sendToServer(TechniqueChargeC2S.detach(i));
+                    continue;
+                }
 
 				if (t instanceof StrikeAttackData) {
 					techniques.selectSlot(i);

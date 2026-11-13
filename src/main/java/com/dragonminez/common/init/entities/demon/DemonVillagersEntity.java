@@ -26,7 +26,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.InteractGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.LookAtTradingPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
@@ -175,7 +174,7 @@ public final class DemonVillagersEntity {
 			this.goalSelector.addGoal(1, new LookAtTradingPlayerGoal(this));
 			this.goalSelector.addGoal(2, new MoveTowardsRestrictionGoal(this, 0.45D));
 			this.goalSelector.addGoal(4, new WaterAvoidingRandomStrollGoal(this, 0.4D));
-			this.goalSelector.addGoal(5, new InteractGoal(this, Player.class, 3.0F, 1.0F));
+			this.goalSelector.addGoal(3, new com.dragonminez.common.init.entities.ai.PlayerLookGoal(this));
 			this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Mob.class, 8.0F));
 			this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
 		}

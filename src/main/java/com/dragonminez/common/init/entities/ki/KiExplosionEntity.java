@@ -171,6 +171,7 @@ public class KiExplosionEntity extends AbstractKiProjectile {
     }
 
     private void updatePositionToOwner(Entity owner) {
+        if (isReleased()) return;
         double x = owner.getX();
         double y = owner.getY() + (owner.getBbHeight() * 0.5F);
         double z = owner.getZ();

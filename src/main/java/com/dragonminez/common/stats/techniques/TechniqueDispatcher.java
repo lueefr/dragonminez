@@ -1,6 +1,7 @@
 package com.dragonminez.common.stats.techniques;
 
 import com.dragonminez.common.combat.logic.player.TargetHelper;
+import com.dragonminez.common.combat.logic.player.KiChargeTracker;
 import com.dragonminez.common.init.MainSounds;
 import com.dragonminez.common.init.entities.ki.*;
 import com.dragonminez.common.passives.ClassPassives;
@@ -16,7 +17,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +24,8 @@ public class TechniqueDispatcher {
 
 	public static boolean executeKiAttack(LivingEntity owner, Level level, KiAttackData data, StatsData statsData, float chargeMultiplier) {
 		if (level.isClientSide) return false;
+        if (("mouth_blast".equals(data.getId()) || "rage_scream".equals(data.getId()))
+                && !statsData.getCharacter().isOozaruCached()) return false;
 
 		boolean isInitialSpawn = chargeMultiplier < 0.05f;
 		float clampedCharge = Mth.clamp(Float.isFinite(chargeMultiplier) ? chargeMultiplier : 0.1f, 0.1f, KiAttackData.maxCharge() / 100.0f);
@@ -42,7 +44,8 @@ public class TechniqueDispatcher {
 		if (homingTarget != null && owner instanceof Player) statsData.getTechniques().setHomingTargetId(homingTargetId);
 
         if (!isInitialSpawn) {
-            List<AbstractKiProjectile> activeKis = getChargingKiEntities(owner, level);
+            List<AbstractKiProjectile> activeKis = getChargingKiEntities(owner, level).stream()
+                    .filter(ki -> data.getId().equals(ki.getTechniqueId())).toList();
 
             if (!activeKis.isEmpty()) {
                 for (AbstractKiProjectile activeKi : activeKis) {
@@ -86,6 +89,8 @@ public class TechniqueDispatcher {
                 }
                 return true;
             }
+            // Releasing a lost charge must never create a second attack.
+            return data.isInstantCast();
         }
 
         if (KiTechniqueHandler.KillDriver.is(data.getId())) {
@@ -451,23 +456,8 @@ public class TechniqueDispatcher {
         return true;
     }
 
-    private static AbstractKiProjectile getChargingKiEntity(LivingEntity owner, Level level) {
-        List<AbstractKiProjectile> nearby = level.getEntitiesOfClass(AbstractKiProjectile.class, owner.getBoundingBox().inflate(30.0D));
-        for (AbstractKiProjectile ki : nearby)
-            if (ki.getOwner() != null && ki.getOwner().getUUID().equals(owner.getUUID()))
-                if (!ki.isFiring()) return ki;
-        return null;
-    }
-
     private static List<AbstractKiProjectile> getChargingKiEntities(LivingEntity owner, Level level) {
-        List<AbstractKiProjectile> chargingKis = new ArrayList<>();
-        List<AbstractKiProjectile> nearby = level.getEntitiesOfClass(AbstractKiProjectile.class, owner.getBoundingBox().inflate(30.0D));
-        for (AbstractKiProjectile ki : nearby) {
-            if (ki.getOwner() != null && ki.getOwner().getUUID().equals(owner.getUUID()) && !ki.isFiring()) {
-                chargingKis.add(ki);
-            }
-        }
-        return chargingKis;
+        return KiChargeTracker.charging(owner);
     }
 
     private static int resolvePlayerMaxLifeTicks(KiAttackData data, float chargeMultiplier) {
@@ -481,16 +471,43 @@ public class TechniqueDispatcher {
 		return Math.max(20, (int) (base * chargeMultiplier));
 	}
 
+    public static boolean releaseSlot(Player player, StatsData data, int slot) {
+        if (player.level().isClientSide || !player.isAlive() || player.isSpectator()
+                || slot < 0 || slot >= Techniques.SLOT_COUNT) return false;
+        String id = data.getTechniques().getEquippedSlots()[slot];
+        if (id == null || id.isEmpty() || !(data.getTechniques().getUnlockedTechniques().get(id) instanceof KiAttackData)) return false;
+        boolean released = false;
+        for (AbstractKiProjectile ki : KiChargeTracker.owned(player)) {
+            if (id.equals(ki.getTechniqueId())) released |= ki.releaseControl();
+        }
+        if (!released) return false;
+        if (id.equals(data.getTechniques().getChargingTechniqueId())) data.getTechniques().clearTechniqueCharge();
+        if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            if (!data.getTechniques().isTechniqueCharging() && !data.getTechniques().isTechniqueChargeActive()
+                    && !isFiringKiAttack(player))
+                com.dragonminez.common.network.NetworkHandler.sendToTrackingEntityAndSelf(
+                    new com.dragonminez.common.network.S2C.TriggerAnimationS2C(player.getUUID(),
+                    com.dragonminez.common.network.S2C.TriggerAnimationS2C.AnimationType.KI_ANIMATION_STOP, 0, -1, ""), player);
+            com.dragonminez.common.network.StatsDeltaSync.markDirty(serverPlayer,
+                    com.dragonminez.common.network.StatsDeltaSync.TECHNIQUES);
+        }
+        return true;
+    }
+
 	public static boolean isFiringKiAttack(Player player) {
-		List<AbstractKiProjectile> projectiles = player.level().getEntitiesOfClass(AbstractKiProjectile.class, player.getBoundingBox().inflate(32.0D));
-		for (AbstractKiProjectile ki : projectiles) if (ki.getOwner() != null && ki.getOwner().getUUID().equals(player.getUUID())) if (ki.isFiring()) return true;
+		List<AbstractKiProjectile> projectiles = player.level().isClientSide
+                ? player.level().getEntitiesOfClass(AbstractKiProjectile.class, player.getBoundingBox().inflate(256.0D))
+                : KiChargeTracker.owned(player);
+		for (AbstractKiProjectile ki : projectiles) if (!ki.isReleased() && ki.getOwner() != null && ki.getOwner().getUUID().equals(player.getUUID())) if (ki.isFiring()) return true;
 		return false;
 	}
 
 	public static boolean isFiringSteerableKiAttack(Player player) {
-		List<AbstractKiProjectile> projectiles = player.level().getEntitiesOfClass(AbstractKiProjectile.class, player.getBoundingBox().inflate(32.0D));
+		List<AbstractKiProjectile> projectiles = player.level().isClientSide
+                ? player.level().getEntitiesOfClass(AbstractKiProjectile.class, player.getBoundingBox().inflate(256.0D))
+                : KiChargeTracker.owned(player);
 		for (AbstractKiProjectile ki : projectiles) {
-			if (ki.getOwner() == null || !ki.getOwner().getUUID().equals(player.getUUID())) continue;
+			if (ki.isReleased() || ki.getOwner() == null || !ki.getOwner().getUUID().equals(player.getUUID())) continue;
 			if (ki instanceof KiWaveEntity wave && wave.isFiring() && wave.getSteerRate() > 0.0F) return true;
 		}
 		return false;
@@ -522,9 +539,11 @@ public class TechniqueDispatcher {
 	}
 
     private static boolean hasOwnedProjectileWithRestriction(Player player, boolean movementRestriction) {
-        List<AbstractKiProjectile> projectiles = player.level().getEntitiesOfClass(AbstractKiProjectile.class, player.getBoundingBox().inflate(32.0D));
+        List<AbstractKiProjectile> projectiles = player.level().isClientSide
+                ? player.level().getEntitiesOfClass(AbstractKiProjectile.class, player.getBoundingBox().inflate(256.0D))
+                : KiChargeTracker.owned(player);
         for (AbstractKiProjectile ki : projectiles) {
-            if (ki.getOwner() == null || !ki.getOwner().getUUID().equals(player.getUUID())) continue;
+            if (ki.isReleased() || ki.getOwner() == null || !ki.getOwner().getUUID().equals(player.getUUID())) continue;
             if (ki instanceof KiBarrierEntity barrier && barrier.isDecorative()) continue;
             if (isProjectileRestrictedType(ki.getKiType(), movementRestriction)) return true;
             // Lock the caster's position while actively firing a *technique* attack that is still anchored

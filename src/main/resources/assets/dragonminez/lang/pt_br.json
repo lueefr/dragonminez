@@ -1,4 +1,6 @@
 {
+  "gui.dragonminez.radial.jump_limit": "Limite da altura do pulo",
+  "gui.dragonminez.radial.sprint_limit": "Limite da velocidade de corrida",
   "message.dragonminez.seed.otherworld": "O Outro Mundo requer terreno real; a aproximação por seed está desativada.",
   "wish.dragonminez.porunga.attributes.name": "Aumento de Poder",
   "wish.dragonminez.porunga.attributes.desc": "Receba x75 Atributos: metade como Pontos de Atributo (AP) e metade como os Pontos de Treino que esses Atributos custariam a você agora.",
@@ -104,5 +106,21 @@
   "gui.dragonminez.body_editor.alex": "Alex (fino)",
   "gui.dragonminez.body_editor.value": "%s: %s%%",
   "gui.dragonminez.body_editor.frame_value": "Corpo: %s",
-  "gui.dragonminez.body_editor.reset": "Restaurar proporções"
+  "gui.dragonminez.body_editor.reset": "Restaurar proporções",
+  "command.dragonminez.character.reset": "%s personagem(ns) resetado(s).",
+  "command.dragonminez.race.invalid": "Raça desconhecida ou indisponível: %s",
+  "command.dragonminez.race.set": "Raça alterada para %s em %s personagem(ns).",
+  "gui.dragonminez.body_editor.general": "Geral",
+  "gui.dragonminez.body_editor.head_group": "Cabeça",
+  "gui.dragonminez.body_editor.torso_group": "Tronco",
+  "gui.dragonminez.body_editor.arms_group": "Braços",
+  "gui.dragonminez.body_editor.legs_group": "Pernas",
+  "gui.dragonminez.body_editor.head_width": "Cabeça: largura X",
+  "gui.dragonminez.body_editor.head_depth": "Cabeça: profundidade Z",
+  "gui.dragonminez.body_editor.head_height": "Cabeça: altura Y",
+  "gui.dragonminez.body_editor.torso_depth": "Tronco: profundidade Z",
+  "gui.dragonminez.body_editor.arm_depth": "Braços: profundidade Z",
+  "gui.dragonminez.body_editor.leg_depth": "Pernas: profundidade Z",
+  "gui.dragonminez.config.capePhysics": "Física da capa",
+  "config.dragonminez.field.capePhysics": "Física da capa"
 }

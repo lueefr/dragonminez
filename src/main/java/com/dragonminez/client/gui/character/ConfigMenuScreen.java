@@ -165,6 +165,7 @@ public class ConfigMenuScreen extends BaseMenuScreen {
 				v -> userConfig.setAura3DStyle(auraStyleAt(v.intValue())));
 		toggle(Category.VISUALS, "config.aura3DEntities", userConfig.getAura3DEntities(), userConfig::setAura3DEntities);
 		toggle(Category.VISUALS, "config.transformationOutlines", userConfig.getTransformationOutlines(), userConfig::setTransformationOutlines);
+		toggle(Category.VISUALS, "config.capePhysics", userConfig.getCapePhysics(), userConfig::setCapePhysics);
 		toggle(Category.VISUALS, "config.impactFramesEnabled", userConfig.isImpactFramesEnabled(), userConfig::setImpactFramesEnabled);
 		toggle(Category.VISUALS, "config.firstPersonAnimated", userConfig.getFirstPersonAnimated(), userConfig::setFirstPersonAnimated);
 		toggle(Category.VISUALS, "config.taiyokenInvertPalette", userConfig.getTaiyokenInvertPalette(), userConfig::setTaiyokenInvertPalette);

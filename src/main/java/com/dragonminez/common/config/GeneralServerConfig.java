@@ -343,6 +343,11 @@ public class GeneralServerConfig {
 	public static class GameplayConfig {
 		private Boolean forceCharacterCreation = true;
 		private Boolean commandOutputOnConsole = true;
+        private Integer maxPowerRelease = 115;
+
+        public int getMaxPowerRelease() {
+            return Math.max(5,Math.min(1000000,maxPowerRelease==null?115:maxPowerRelease));
+        }
 		private Integer reviveCooldownSeconds = 180;
 		private Boolean babaTemporaryRevive = true;
 		private Integer babaTempReturnSeconds = 3600;

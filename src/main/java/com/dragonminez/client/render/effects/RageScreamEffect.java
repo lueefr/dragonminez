@@ -89,12 +89,23 @@ public final class RageScreamEffect {
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Pre event) {
 
-		if (Minecraft.getInstance().isPaused()) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) { ACTIVE.clear(); return; }
+		if (mc.isPaused()) return;
 		if (ACTIVE.isEmpty()) return;
 
 		Iterator<Map.Entry<Integer, Entry>> it = ACTIVE.entrySet().iterator();
 		while (it.hasNext()) {
-			Entry entry = it.next().getValue();
+            var active = it.next();
+            Entity caster = mc.level.getEntity(active.getKey());
+            if (!(caster instanceof LivingEntity living) || !living.isAlive()
+                    || (caster instanceof net.minecraft.world.entity.player.Player player
+                    && !com.dragonminez.common.stats.StatsProvider.get(com.dragonminez.common.stats.StatsCapability.INSTANCE, player)
+                    .map(stats -> stats.getCharacter().isOozaruCached()).orElse(false))) {
+                it.remove();
+                continue;
+            }
+			Entry entry = active.getValue();
 			entry.ticksRemaining--;
 			if (entry.ticksRemaining <= 0) it.remove();
 		}

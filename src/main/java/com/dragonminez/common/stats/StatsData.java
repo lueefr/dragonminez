@@ -173,7 +173,8 @@ public class StatsData {
 		double racialMultiplier = com.dragonminez.common.racial.RacialRegistry.forPlayer(this)
 				.map(ability -> ability.maxReleaseMultiplier(this))
 				.orElse(1.0);
-		return (int) Math.floor(base * racialMultiplier);
+		int ceiling=ConfigManager.getServerConfig().getGameplay().getMaxPowerRelease();
+        return Math.min(ceiling,(int)Math.floor(base * racialMultiplier * ceiling / 115.0));
 	}
 
 	private void migrateRacialDataFromLegacy() {

@@ -392,6 +392,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
 
     @Override
     public void tick() {
+        if (!level().isClientSide && !com.dragonminez.common.combat.logic.player.KiChargeTracker.validate(this)) { discard(); return; }
         growCharge();
         this.baseTick();
 
@@ -491,6 +492,7 @@ public class KiLaserEntity extends AbstractKiProjectile{
 
 
     private void updatePositionRelativeToOwner(LivingEntity owner) {
+        if (isReleased()) return;
         com.dragonminez.common.stats.techniques.KiPose.apply(this, owner);
         if (this.entityData.get(STRIKE)) {
             if (this.strikeOrigin != null) this.setPos(this.strikeOrigin.x, this.strikeOrigin.y, this.strikeOrigin.z);

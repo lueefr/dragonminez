@@ -37,6 +37,7 @@ public class DMZCapeLayer<T extends AbstractClientPlayer & GeoAnimatable> extend
     @Override
     public void renderForBone(PoseStack stack, T player, GeoBone bone, RenderType type,
             MultiBufferSource source, VertexConsumer buffer, float partial, int light, int overlay) {
+        if (!com.dragonminez.client.render.cloth.CapeCloth.visible()) return;
         capeRenderer.clothSource(source, partial);
         try {
             super.renderForBone(stack, player, bone, type, source, buffer, partial, light, overlay);

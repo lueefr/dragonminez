@@ -117,6 +117,10 @@ public class KiBlastEntity extends AbstractKiProjectile {
     private static final float DESTRUCTION_MAX_STRETCH = 1.9F;
     private static final double DESTRUCTION_SPREAD_ACCEL = 0.012D;
 
+    private static final EntityDataAccessor<Float> HELD_SPHERE = SynchedEntityData.defineId(KiBlastEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> HELD_SIZE = SynchedEntityData.defineId(KiBlastEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> HELD_BOX = SynchedEntityData.defineId(KiBlastEntity.class, EntityDataSerializers.FLOAT);
+
     private boolean destructionBall;
     private boolean volleyFullPalette;
     private int destructionAge;
@@ -1020,7 +1024,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
     protected float castClearanceRadius() {
         if ((this.getKiRenderType() == RENDER_TRI_BEAM || this.getKiRenderType() == RENDER_SOUL_PUNISHER) && !this.isFiring()) return 0.0F;
         if (this.getKiRenderType() == 5) return this.getSize() * 0.5F;
-        return this.isAnchoredVolley() ? 0.0F : super.castClearanceRadius();
+        return this.isAnchoredVolley() ? 0.0F : this.getSize() * .5F;
     }
 
     public void toggleSokidanControl() {
@@ -1114,6 +1118,19 @@ public class KiBlastEntity extends AbstractKiProjectile {
             if(livingOwner instanceof Player)endPos=com.dragonminez.common.combat.aim.KiAim.target(livingOwner);
             Vec3 newTrajectory = endPos.subtract(kiPos).normalize();
 
+            if (this.getKiRenderType() != RENDER_TRI_BEAM && newTrajectory.lengthSqr() > 1.0e-8) {
+                AABB body = effectiveBounds(livingOwner);
+                double support = (Math.abs(newTrajectory.x) * body.getXsize()
+                        + Math.abs(newTrajectory.y) * body.getYsize()
+                        + Math.abs(newTrajectory.z) * body.getZsize()) * .5;
+                Vec3 emission = body.getCenter().add(newTrajectory.scale(support + .1 * ownerScaleOf(livingOwner)));
+                double advance = castClearanceRadius() - kiPos.subtract(emission).dot(newTrajectory);
+                if (advance > 0) {
+                    this.setPos(this.position().add(newTrajectory.scale(advance)));
+                }
+                this.castPlane(emission, newTrajectory);
+            }
+
             this.shoot(newTrajectory.x, newTrajectory.y, newTrajectory.z, this.getKiSpeed(), 0.0F);
             this.hasImpulse = true;
 
@@ -1166,7 +1183,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
 
         boolean isFiring = this.isFiring();
 
-        if ((!isFiring && this.getCastTime() > 0) || this.getKiRenderType() == 9 || this.getKiRenderType() == 10 || this.isAnchoredVolley()) {
+        if (!isReleased() && ((!isFiring && this.getCastTime() > 0) || this.getKiRenderType() == 9 || this.getKiRenderType() == 10 || this.isAnchoredVolley())) {
             var owner = this.getOwner();
             if (owner instanceof LivingEntity livingOwner && livingOwner.isAlive()) {
                 updatePositionRelativeToOwner(livingOwner);
@@ -1218,6 +1235,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         if (type == 9 || type == 10) {
             if (ownerEntity instanceof LivingEntity owner && owner.isAlive()) {
 
+                if (!isReleased()) {
                 if (type == 10) {
                     if (isCasting) {
                         owner.setDeltaMovement(0, 0.05D, 0);
@@ -1230,6 +1248,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
 
                 owner.fallDistance = 0.0F;
                 owner.hasImpulse = true;
+                }
 
                 if (!this.level().isClientSide) {
                     if (!isCasting) {
@@ -1244,8 +1263,12 @@ public class KiBlastEntity extends AbstractKiProjectile {
                                     bullet.setTechniqueId(this.getTechniqueId());
                                     if (this.volleyFullPalette) bullet.setColors(this.getColor(), this.getColorBorder(), this.getColorOutline());
 
-                                    bullet.shootFromRotation(owner, owner.getXRot(), owner.getYRot(), 0.0F, this.getKiSpeed(), 6.0F);
-                                    this.level().addFreshEntity(bullet);
+                                    if (isReleased()) {
+                                        bullet.setPos(position());
+                                        Vec3 direction = Vec3.directionFromRotation(getXRot(), getYRot());
+                                        bullet.shoot(direction.x, direction.y, direction.z, getKiSpeed(), 6.0F);
+                                    } else bullet.shootFromRotation(owner, owner.getXRot(), owner.getYRot(), 0.0F, this.getKiSpeed(), 6.0F);
+                                    if (isReleased()) bullet.releaseControl();
                                 }
 
                                 this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
@@ -1258,16 +1281,16 @@ public class KiBlastEntity extends AbstractKiProjectile {
                                     bullet.setupKiSmall(owner, this.getKiDamage(), this.getKiSpeed(), this.getColor());
                                     bullet.setTechniqueId(this.getTechniqueId());
 
-                                    double spawnX = owner.getX();
-                                    double spawnY = ownerCastCenterY(owner);
-                                    double spawnZ = owner.getZ();
+                                    double spawnX = isReleased() ? getX() : owner.getX();
+                                    double spawnY = isReleased() ? getY() : ownerCastCenterY(owner);
+                                    double spawnZ = isReleased() ? getZ() : owner.getZ();
                                     bullet.setPos(spawnX, spawnY, spawnZ);
 
                                     float randomPitch = (this.random.nextFloat() * 180.0F) - 90.0F;
                                     float randomYaw = this.random.nextFloat() * 360.0F;
 
                                     bullet.shootFromRotation(owner, randomPitch, randomYaw, 0.0F, this.getKiSpeed() / 3, 0.0F);
-                                    this.level().addFreshEntity(bullet);
+                                    if (isReleased()) bullet.releaseControl();
                                 }
 
                                 this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
@@ -1451,6 +1474,9 @@ public class KiBlastEntity extends AbstractKiProjectile {
     protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(CAST_TIME, 0);
+        builder.define(HELD_SPHERE, -1F);
+        builder.define(HELD_BOX, 0F);
+        builder.define(HELD_SIZE, -1F);
         builder.define(DETACHED, false);
         builder.define(STRETCH, 1.0F);
         builder.define(PURIFY_RADIUS, 0.0F);
@@ -1485,9 +1511,11 @@ public class KiBlastEntity extends AbstractKiProjectile {
 
 
     private void tickAssaultRain(LivingEntity owner, boolean isCasting) {
-        owner.setDeltaMovement(0, 0, 0);
-        owner.fallDistance = 0.0F;
-        owner.hasImpulse = true;
+        if (!isReleased()) {
+            owner.setDeltaMovement(0, 0, 0);
+            owner.fallDistance = 0.0F;
+            owner.hasImpulse = true;
+        }
 
         if (this.level().isClientSide) return;
 
@@ -1536,14 +1564,16 @@ public class KiBlastEntity extends AbstractKiProjectile {
             rise = Math.min(BLASTER_METEOR_RISE_SPEED, BLASTER_METEOR_MAX_RISE - this.blasterMeteorRisen);
             this.blasterMeteorRisen += rise;
         }
-        owner.setDeltaMovement(0, rise, 0);
-        owner.fallDistance = 0.0F;
-        owner.hasImpulse = true;
+        if (!isReleased()) {
+            owner.setDeltaMovement(0, rise, 0);
+            owner.fallDistance = 0.0F;
+            owner.hasImpulse = true;
+        }
 
         if (this.level().isClientSide) return;
 
         if (!isCasting && this.tickCount % 2 == 0) {
-            Vec3 center = new Vec3(owner.getX(), effectiveBounds(owner).getCenter().y, owner.getZ());
+            Vec3 center = isReleased() ? position().add(0, getSize() * .5, 0) : new Vec3(owner.getX(), effectiveBounds(owner).getCenter().y, owner.getZ());
             double radius = this.getSize() * 0.5D;
             float shotSpeed = Math.max(1.0F, this.getKiSpeed() * 0.8F);
             Vec3 aimDir = this.resolveBlasterMeteorAim(owner, center);
@@ -1571,6 +1601,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
     }
 
     private Vec3 resolveBlasterMeteorAim(LivingEntity owner, Vec3 center) {
+        if (isReleased()) return Vec3.directionFromRotation(getXRot(), getYRot());
         LivingEntity aimed = null;
         if (this.volleyTargetId >= 0 && this.level().getEntity(this.volleyTargetId) instanceof LivingEntity locked && locked.isAlive()) {
             aimed = locked;
@@ -1602,6 +1633,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
         shot.setPos(pos.x, pos.y, pos.z);
         shot.setDeltaMovement(velocity);
         shot.hasImpulse = true;
+        if (isReleased()) shot.releaseControl();
         this.level().addFreshEntity(shot);
     }
 
@@ -1614,6 +1646,7 @@ public class KiBlastEntity extends AbstractKiProjectile {
     }
 
     private Vec3 resolveAssaultRainCenter(LivingEntity owner) {
+        if (isReleased()) return position().add(Vec3.directionFromRotation(getXRot(), getYRot()).scale(ASSAULT_RAIN_AIM_RANGE));
         if (this.volleyTargetId >= 0 && this.level().getEntity(this.volleyTargetId) instanceof LivingEntity locked && locked.isAlive()) {
             return locked.position();
         }
@@ -1647,19 +1680,38 @@ public class KiBlastEntity extends AbstractKiProjectile {
         return this.entityData.get(DETACHED);
     }
 
-    public void poseOffset(LivingEntity owner, String pose) {
-        float size = this.getSize();
-        if ("ki.soul_punisher".equals(pose)) {
-            this.setCastOffsets(-0.5F, 1.2F - halfBoxHeight(size) / ownerScaleOf(owner), 0.1F);
-        } else if ("ki.neo_kikohu".equals(pose)) {
-            this.setCastOffsets(0.0F, -halfBoxHeight(size) / ownerScaleOf(owner), KiTechniqueHandler.TriBeam.CHARGE_FORWARD_OFFSET);
-        } else if ("ki.large_ball".equals(pose) || "ki.supernova_cooler".equals(pose) || "ki.death_ball".equals(pose) || "ki.deathball".equals(pose)) {
-            this.setCastOffsets(0.0F, calcOverheadOffsetY(owner, size), 0.0F);
-        }
+    /** Apply the selected native pose without changing the created attack's type or effects. */
+    public boolean poseOffset(LivingEntity owner, String pose) {
+        float size = entityData.get(HELD_SIZE);
+        if (size < 0) size = this.getSize();
+        else size *= ownerScaleOf(owner);
+        Vec3 offset = poseOffset(owner, pose, size);
+        if (offset == null) return false;
+        this.setCastOffsets((float) offset.x, (float) offset.y, (float) offset.z);
+        return true;
     }
 
+    public Vec3 poseOffset(LivingEntity owner, String pose, float size) {
+        return switch (pose) {
+            case "ki.bigbang", "ki.burning_attack" -> new Vec3(0,
+                    calcCenterOffsetY(owner, size), calcForwardOffset(owner, size));
+            case "ki.soul_punisher" -> new Vec3(-0.5F,
+                    1.2F + (size * SOUL_PUNISHER_CORE_SCALE - halfBoxHeight(size)) / ownerScaleOf(owner), 0.1F);
+            case "ki.neo_kikohu" -> new Vec3(0,
+                    -halfBoxHeight(size) / ownerScaleOf(owner), KiTechniqueHandler.TriBeam.CHARGE_FORWARD_OFFSET);
+            // These are the authored player offsets of Genki/Death Ball and Cooler Supernova.
+            // The ordinary Supernova shares Genki's animation, so the animation's first native
+            // attachment is used; its distinct gameplay remains a native technique choice.
+            case "ki.large_ball", "ki.death_ball", "ki.deathball" -> new Vec3(0, 5.5F, 0);
+            case "ki.supernova_cooler" -> new Vec3(0, 2.5F, 0);
+            case "ki.blaster_meteor" -> new Vec3(0, -0.4F * size / ownerScaleOf(owner), 0);
+            default -> null;
+        };
+    }
+
+
     private void updatePositionRelativeToOwner(LivingEntity owner) {
-        if (this.isDetached()) return;
+        if (this.isDetached() || isReleased()) return;
         com.dragonminez.common.stats.techniques.KiPose.apply(this, owner);
         Vec3 look = owner.getLookAngle();
         Vec3 worldUp = new Vec3(0, 1, 0);
@@ -1677,6 +1729,39 @@ public class KiBlastEntity extends AbstractKiProjectile {
         double centerZ = owner.getZ();
 
         Vec3 newPos = new Vec3(centerX, centerY, centerZ).add(offset);
+        if (!isFiring() && !isAnchoredVolley() && getKiRenderType() != RENDER_TRI_BEAM) {
+            float radius = castClearanceRadius();
+            float heldRadius = entityData.get(HELD_SPHERE);
+            float heldBox = entityData.get(HELD_BOX);
+            if (heldRadius < 0) {
+                heldRadius = radius / ownerScaleOf(owner);
+                heldBox = getSize() * .5F / ownerScaleOf(owner);
+                if (!level().isClientSide) {
+                    entityData.set(HELD_SPHERE, heldRadius);
+                    entityData.set(HELD_BOX, heldBox);
+                    entityData.set(HELD_SIZE, getSize() / ownerScaleOf(owner));
+                }
+            }
+            // Rebuild the authored small-charge centre, then preserve its near edge.
+            Vec3 bodyForward = Vec3.directionFromRotation(0,owner.yBodyRot);
+            Vec3 up = new Vec3(0,1,0);
+            Vec3 bodyRight = bodyForward.cross(up);
+            float ox=entityData.get(OFFSET_X), oy=entityData.get(OFFSET_Y), oz=entityData.get(OFFSET_Z);
+            boolean overhead = oy >= 1.3F && Math.abs(oz) < .05F;
+            Vec3 axis = overhead ? up : bodyForward;
+            Vec3 original = new Vec3(centerX,centerY+heldBox*ownerScaleOf(owner),centerZ)
+                    .add(bodyRight.scale(ox*ownerWidthScale(owner)))
+                    .add(up.scale(oy*ownerScaleOf(owner)))
+                    .add(bodyForward.scale(oz*ownerWidthScale(owner)));
+            Vec3 anchor = original.subtract(axis.scale(heldRadius*ownerScaleOf(owner)));
+            if (overhead) {
+                double minimum = effectiveBounds(owner).maxY + .1 * ownerScaleOf(owner);
+                if (anchor.y < minimum) anchor = new Vec3(anchor.x, minimum, anchor.z);
+            }
+            Vec3 centre = anchor.add(axis.scale(radius));
+            newPos = centre.subtract(0,getSize()*.5,0);
+            castPlane(anchor,axis);
+        }
         this.setPos(newPos.x, newPos.y, newPos.z);
 
         this.setYRot(this.isFiring()?owner.getYRot():owner.yBodyRot);
@@ -1910,6 +1995,9 @@ public class KiBlastEntity extends AbstractKiProjectile {
     protected void addAdditionalSaveData(CompoundTag pCompound) {
         super.addAdditionalSaveData(pCompound);
         pCompound.putInt("CastTime", getCastTime());
+        pCompound.putFloat("HeldSphere", entityData.get(HELD_SPHERE));
+        pCompound.putFloat("HeldBox", entityData.get(HELD_BOX));
+        pCompound.putFloat("HeldSize", entityData.get(HELD_SIZE));
         pCompound.putFloat("OffsetX", this.entityData.get(OFFSET_X));
         pCompound.putFloat("OffsetY", this.entityData.get(OFFSET_Y));
         pCompound.putFloat("OffsetZ", this.entityData.get(OFFSET_Z));
@@ -1923,6 +2011,9 @@ public class KiBlastEntity extends AbstractKiProjectile {
     protected void readAdditionalSaveData(CompoundTag pCompound) {
         super.readAdditionalSaveData(pCompound);
         if (pCompound.contains("CastTime")) setCastTime(pCompound.getInt("CastTime"));
+        if (pCompound.contains("HeldSphere")) entityData.set(HELD_SPHERE, pCompound.getFloat("HeldSphere"));
+        if (pCompound.contains("HeldBox")) entityData.set(HELD_BOX, pCompound.getFloat("HeldBox"));
+        if (pCompound.contains("HeldSize")) entityData.set(HELD_SIZE, pCompound.getFloat("HeldSize"));
         if (pCompound.contains("OffsetX")) this.entityData.set(OFFSET_X, pCompound.getFloat("OffsetX"));
         if (pCompound.contains("OffsetY")) this.entityData.set(OFFSET_Y, pCompound.getFloat("OffsetY"));
         if (pCompound.contains("OffsetZ")) this.entityData.set(OFFSET_Z, pCompound.getFloat("OffsetZ"));

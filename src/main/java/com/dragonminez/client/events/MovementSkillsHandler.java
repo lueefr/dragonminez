@@ -29,6 +29,7 @@ public class MovementSkillsHandler {
 	private static int airTicks = 0;
 	private static boolean wasJumping = false;
 	private static boolean hasAppliedBaseBoost = false;
+    private static double jumpCeiling = Double.POSITIVE_INFINITY;
 
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Post event) {
@@ -39,6 +40,7 @@ public class MovementSkillsHandler {
 
 		final int[] jumpLevel = {0};
 		final int[] sprintLevel = {0};
+        final double[] jumpScale = {1.0};
 		final boolean[] isStunned = {false};
 		final boolean[] isFlying = {false};
 
@@ -46,6 +48,7 @@ public class MovementSkillsHandler {
 			if (!data.getStatus().isHasCreatedCharacter()) return;
 
 			isStunned[0] = data.getStatus().isStunned();
+            jumpScale[0] = com.dragonminez.common.flight.MovementLimits.jumpScale(data.getResources().getJumpLimit());
 			var flySkill = data.getSkills().getSkill("fly");
 			isFlying[0] = flySkill != null && flySkill.isActive();
 
@@ -98,13 +101,17 @@ public class MovementSkillsHandler {
 
 		if (jumpLevel[0] > 0) {
 			if (isJumping && !wasJumping && !hasAppliedBaseBoost) {
-				float targetBlocks = 1.0f + (jumpLevel[0] * 0.1f);
+				double gravity = GravityLogic.getJumpFactor(ClientGravityState.getNetGravity());
+                // Cap the apex itself, not only the launch velocity (held jump adds thrust).
+                jumpCeiling = player.yo + com.dragonminez.common.flight.MovementLimits.jumpHeight(jumpLevel[0], gravity)
+                        * jumpScale[0] * jumpScale[0];
+                float targetBlocks = 1.0f + (jumpLevel[0] * 0.1f);
 				float blocksToAdd = targetBlocks - 1.25f;
 				float baseBoost = blocksToAdd * 0.18f;
 
 				baseBoost *= (float) GravityLogic.getJumpFactor(ClientGravityState.getNetGravity());
 
-				player.setDeltaMovement(player.getDeltaMovement().add(0, baseBoost, 0));
+				player.setDeltaMovement(player.getDeltaMovement().add(0, baseBoost * jumpScale[0], 0));
 				hasAppliedBaseBoost = true;
 			}
 
@@ -114,7 +121,7 @@ public class MovementSkillsHandler {
 				int maxAirTicks = jumpLevel[0];
 				if (airTicks <= maxAirTicks) {
 					float incrementalBoost = 0.11f;
-					player.setDeltaMovement(player.getDeltaMovement().add(0, incrementalBoost, 0));
+					player.setDeltaMovement(player.getDeltaMovement().add(0, incrementalBoost * jumpScale[0], 0));
 				}
 			}
 
@@ -123,6 +130,11 @@ public class MovementSkillsHandler {
 				hasAppliedBaseBoost = false;
 			}
 
+            if (isJumping && jumpScale[0] < 1.0 && !isFlying[0]) {
+                var motion = player.getDeltaMovement();
+                double remaining = Math.max(0, jumpCeiling - player.getY());
+                if (motion.y > remaining) player.setDeltaMovement(motion.x, remaining, motion.z);
+            }
 			wasJumping = isJumping;
 		} else {
 			airTicks = 0;

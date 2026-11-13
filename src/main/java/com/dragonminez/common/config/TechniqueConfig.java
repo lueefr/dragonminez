@@ -25,6 +25,10 @@ public class TechniqueConfig {
 	@SerializedName("EvasionAttacks")
 	private final Map<String, EvasionAttackConfig> evasionAttacks = new HashMap<>();
 
+	@SerializedName("ScaleOvercharge")
+	private Boolean scaleOvercharge = true;
+	public boolean scalesOvercharge() { return !Boolean.FALSE.equals(scaleOvercharge); }
+
 	@SerializedName("MaxOverchargePercent")
 	private Integer maxOverchargePercent = 175;
 

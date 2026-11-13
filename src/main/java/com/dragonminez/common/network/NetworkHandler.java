@@ -14,7 +14,7 @@ public class NetworkHandler {
 
 	public static SimpleChannel INSTANCE;
 	private static int packetId = 0;
-	private static final int NETWORK_REVISION = 21;
+	private static final int NETWORK_REVISION = 24;
 
 	private static int id() {
 		return packetId++;
@@ -118,6 +118,10 @@ public class NetworkHandler {
 				.encoder(SetReleaseLimitC2S::encode)
 				.consumerMainThread(SetReleaseLimitC2S::handle)
 				.add();
+
+        net.messageBuilder(SetMovementLimitC2S.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(SetMovementLimitC2S::new).encoder(SetMovementLimitC2S::encode)
+                .consumerMainThread(SetMovementLimitC2S::handle).add();
 
 		net.messageBuilder(SetFlightSpeedLimitC2S.class, id(), NetworkDirection.PLAY_TO_SERVER)
 				.decoder(SetFlightSpeedLimitC2S::new)
@@ -945,6 +949,8 @@ public class NetworkHandler {
 				.encoder(StopPodC2S::encode)
 				.consumerMainThread(StopPodC2S::handle)
 				.add();
+        net.messageBuilder(OpenCreationS2C.class,id(),NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(OpenCreationS2C::new).encoder(OpenCreationS2C::encode).consumerMainThread(OpenCreationS2C::handle).add();
 	}
 
 	public static <MSG> void sendToServer(MSG message) {

@@ -39,12 +39,35 @@ public final class RebirthService {
         data.getResources().setTrainingPointsExact(saved.getCompound("Resources").getDouble("TrainingPointsD")*keep.tpPercent/100.0);
         data.getResources().setPendingAttributePoints((int)((long)saved.getCompound("Resources").getInt("PendingAttributePoints")*keep.pendingPercent/100));
         if(keep.alignment)data.getResources().setAlignment(saved.getCompound("Resources").getInt("Alignment"));
-        if(!keep.inventory)player.getInventory().clearContent();
+        clearInventory(player);
         data.getStatus().setAlive(true);
         data.getStatus().setHasCreatedCharacter(false);
         com.dragonminez.server.util.BabaReviveService.teleportToLivingWorld(player);
         return true;
     }
+    /** Reincarnation consumes personal equipment; close menus before clearing returned crafting items. */
+    public static void clearInventory(ServerPlayer player) {
+        player.containerMenu.setCarried(net.minecraft.world.item.ItemStack.EMPTY);
+        // Free space first so menu-returned crafting stacks cannot overflow into drops.
+        player.getInventory().clearContent();
+        player.closeContainer();
+        player.inventoryMenu.setCarried(net.minecraft.world.item.ItemStack.EMPTY);
+        player.getInventory().clearContent();
+        top.theillusivec4.curios.api.CuriosApi.getCuriosInventory(player).ifPresent(inventory -> {
+            for (var slots : inventory.getCurios().values()) {
+                var equipped = slots.getStacks();
+                for (int slot = 0; slot < equipped.getSlots(); slot++)
+                    equipped.setStackInSlot(slot, net.minecraft.world.item.ItemStack.EMPTY);
+                var cosmetics = slots.getCosmeticStacks();
+                for (int slot = 0; slot < cosmetics.getSlots(); slot++)
+                    cosmetics.setStackInSlot(slot, net.minecraft.world.item.ItemStack.EMPTY);
+            }
+        });
+        AccessoriesPurge.clear(player);
+        player.getInventory().setChanged();
+        player.inventoryMenu.broadcastChanges();
+    }
+
     public static void finish(StatsData data) {
         if(!data.getRebirth().pending())return;
         var config=ConfigManager.getRebirth();var cap=config.bonus.cap;

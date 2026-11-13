@@ -17,7 +17,7 @@ public class FlightSpeedNode extends AbstractRadialNode {
         return 100;
     }
 
-    private int currentFlightSpeed(StatsData stats) {
+    protected int currentFlightSpeed(StatsData stats) {
         return stats.getResources().getFlightSpeedLimit();
     }
 
