@@ -34,7 +34,7 @@ final class HairLibraryScreen extends ScaledScreen {
         page = Math.min(page, Math.max(0, (entries.size() - 1) / 6));
         int x = getUiWidth() / 2 - 145;
         if (deleting != null) {
-            addRenderableWidget(HairEditorUi.button(x + 15, 113, 125, 20, HairEditorUi.tr("gui.yes"), button -> {
+            addRenderableWidget(HairEditorUi.button(x + 15, 113, 125, 20, text("delete_preset"), button -> {
                 try { library.delete(deleting.id()); status = Component.empty(); } catch (Exception ex) { failure(ex); }
                 deleting = null; init();
             }));

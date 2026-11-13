@@ -26,8 +26,10 @@ Scope: Minecraft 1.21.1, Java 21, branch `fix/cape-body-accessories`. This relea
 - `minor-final-ki-client3.log`: **FINAL_KI_WAKES_CLIENT_PASS**. Client metadata matched held baselines; 125%→150% growth preserved the rear edge; fired sphere remained clear of its caster. Real C2S release synchronized RELEASED, kept the beam alive and maintained direction after the caster moved/turned (direction dot product 0.99999997). Installed Wakes 1.4.1 accepted both Ki and player ripples, rejected effects beyond four blocks and through solid cover.
 - Production JAR excludes all external client/server fixture classes. English and Brazilian Portuguese language JSON parsed successfully.
 
-Production JAR SHA256: `2d02e4fe6552f93b800e56ad0f6a91702b803de6bbb401e38e7932ebb8d3f997`.
+Production JAR SHA256: `3b9fc1a22238835d3411aa2a71ce6ef0c0dada3c26317ba335c55776d72a0c7c`.
 
 ## Practical limits
 
 The cape test measures bounded simulation/render work and frame-rate independence; it does not guarantee 60 FPS for an arbitrary modpack, GPU or shader. Optional SeedGen hooks target the known public implementations, tolerate missing mods and do not claim compatibility with unknown future internals. Tests do not establish every possible third-party mod combination or every custom animation. No Lua engine or Fabric parity claim is made by this correction release.
+
+Final text-only follow-up: hair preset deletion uses the existing mod translation instead of an unaudited vanilla key. `minor-localization-build.log` passed; player-text audit, five auditor tests, thirteen release-tool tests and packaged JSON/model-parent checks passed. Gameplay tests above precede only this label change.
